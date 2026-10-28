@@ -5,6 +5,7 @@ Added:
 
 * Results files can now be deleted from the Results list and the Results page (requires delete access). Results that are used by a Championship or Race Weekend can't be deleted.
 * The Results list can now be filtered by session type, track and driver (name or GUID).
+* Added read-only JSON APIs for results (/api/results, /api/results/{fileName}) and the current server status (/api/server-status). See the API section of the README.
 
 Fixed:
 

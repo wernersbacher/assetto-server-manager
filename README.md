@@ -116,6 +116,26 @@ it is known. `Status` is one of `unscheduled`, `scheduled`, `in_progress` or `co
 a `RaceWeekendName`, and each of their sessions has its own schedule and track. Times are in RFC 3339 format.
 Entrants, sign up responses and passwords are not included.
 
+Results can be read in the same way, with the same access rules as the results pages:
+
+- `GET /api/results`: a page of results, newest first. It takes the same query parameters as the results list:
+  `page` (starting at 0, 25 results per page, a page past the end is a 404), `type` (`practice`, `qualify`, `race` or
+  `booking`), `track` and `driver` (name or GUID). The response has the `Page` and the total number of `Pages`, and
+  the `Results`: file name, `Date`, `SessionType`, track (`Track`, `TrackLayout` and a readable `TrackName`) and
+  the `Drivers`.
+- `GET /api/results/{fileName}`: a single result, with or without the `.json` extension. It has the same fields as the
+  list, plus the `Classification` (position, driver name and GUID, car, team, best lap, total time, laps, penalties and
+  disqualification) and all `Laps` (lap time, sectors, cuts, tyre).
+
+All times and durations are in milliseconds, as Assetto Corsa stores them. Driver names are shortened if the server
+hides driver last names. Collisions are not included, use `/results/download/{fileName}` for the full results file.
+
+The state of the server can be read from `GET /api/server-status`. It follows the same access rules as the live timing
+page, so it is not available in performance mode. It reports whether an event is `Running` and, if so, the server and
+event name, whether it is a championship or race weekend (with its name), the track, the session that is currently
+running (type, name, length in minutes or laps, `Started`), `MaxClients` and the connected drivers with their cars.
+Passwords, driver GUIDs and IP addresses are not included.
+
 ## Credits & Thanks
 
 Assetto Corsa Server Manager would not have been possible without the following people:

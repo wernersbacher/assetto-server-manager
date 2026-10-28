@@ -1512,18 +1512,24 @@ type resultsListTemplateVars struct {
 	Filter      ResultsFilter
 }
 
-func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
+// resultsListQuery reads the page and filters of a results list request, which is shared by the results list page
+// and the results API.
+func resultsListQuery(r *http.Request) (int, ResultsFilter) {
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 
 	if err != nil {
 		page = 0
 	}
 
-	filter := ResultsFilter{
+	return page, ResultsFilter{
 		Type:   strings.TrimSpace(r.URL.Query().Get("type")),
 		Track:  strings.TrimSpace(r.URL.Query().Get("track")),
 		Driver: strings.TrimSpace(r.URL.Query().Get("driver")),
 	}
+}
+
+func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
+	page, filter := resultsListQuery(r)
 
 	results, pages, err := listResults(page, filter)
 

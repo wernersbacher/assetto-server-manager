@@ -126,6 +126,8 @@ func Router(
 		r.Get("/results/{fileName}", resultsHandler.view)
 		r.HandleFunc("/results/{fileName}/collisions", resultsHandler.renderCollisions)
 		r.HandleFunc("/results/download/{fileName}", resultsHandler.file)
+		r.Get("/api/results", resultsHandler.listAPI)
+		r.Get("/api/results/{fileName}", resultsHandler.viewAPI)
 
 		r.Get("/custom", customRaceHandler.list)
 
@@ -160,6 +162,7 @@ func Router(
 
 			r.Get("/live-timing", raceControlHandler.liveTiming)
 			r.Get("/api/race-control", raceControlHandler.websocket)
+			r.Get("/api/server-status", raceControlHandler.serverStatusAPI)
 		})
 
 		// calendar
