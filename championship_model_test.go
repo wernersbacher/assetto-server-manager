@@ -123,6 +123,20 @@ func TestChampionship_AddEntrantInFirstFreeSlot(t *testing.T) {
 		}
 	})
 
+	t.Run("existing guid without a team keeps the old team", func(t *testing.T) {
+		championship := NewChampionship("Test")
+		existing := modelTestSlot("car_a", "Old Name", "1", "Old Team")
+		championship.AddClass(modelTestClass("A", existing))
+
+		if _, _, _, err := championship.AddEntrantInFirstFreeSlot(ChampionshipSignUpResponse{Name: "New Name", GUID: "1"}); err != nil {
+			t.Fatal(err)
+		}
+
+		if existing.Name != "New Name" || existing.Team != "Old Team" {
+			t.Errorf("expected name to be updated and team to be kept, got %+v", existing)
+		}
+	})
+
 	t.Run("full entry list", func(t *testing.T) {
 		championship := NewChampionship("Test")
 		championship.AddClass(modelTestClass("A", modelTestSlot("car_a", "X", "10", "")))

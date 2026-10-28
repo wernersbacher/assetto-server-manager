@@ -837,7 +837,11 @@ func (c *Championship) AddEntrantInFirstFreeSlot(potentialEntrant PotentialChamp
 			if entrant.GUID == potentialEntrant.GetGUID() {
 				// update the entrant details
 				entrant.Name = potentialEntrant.GetName()
-				entrant.Team = potentialEntrant.GetTeam()
+
+				// #386: don't replace a team with no team.
+				if potentialEntrant.GetTeam() != "" {
+					entrant.Team = potentialEntrant.GetTeam()
+				}
 
 				return true, entrant, class, nil
 			}
