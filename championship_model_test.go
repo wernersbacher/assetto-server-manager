@@ -837,12 +837,16 @@ func TestChampionshipSignUpForm_EmailList(t *testing.T) {
 			{Email: "c@example.com", Status: ChampionshipEntrantPending},
 			{Email: "d@example.com", Status: ChampionshipEntrantAccepted},
 			{Email: "", Status: ChampionshipEntrantPending},
+			{Email: "", Status: ChampionshipEntrantAccepted},
+			{Email: "", Status: ChampionshipEntrantRejected},
 		},
 	}
 
+	// responses without an email address are skipped in every group
 	tests := map[string]string{
 		"accepted": "a@example.com,d@example.com",
 		"rejected": "b@example.com",
+		"pending":  "c@example.com",
 		"all":      "a@example.com,b@example.com,c@example.com,d@example.com",
 	}
 

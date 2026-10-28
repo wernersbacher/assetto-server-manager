@@ -1819,7 +1819,11 @@ func (c ChampionshipSignUpForm) EmailList(group string) string {
 	var filteredEmails []string
 
 	for _, entrant := range c.Responses {
-		if entrant.Status == filteredStatus || filteredStatus == ChampionshipEntrantAll && entrant.Email != "" {
+		if entrant.Email == "" {
+			continue
+		}
+
+		if filteredStatus == ChampionshipEntrantAll || entrant.Status == filteredStatus {
 			filteredEmails = append(filteredEmails, entrant.Email)
 		}
 	}
