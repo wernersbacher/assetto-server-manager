@@ -1221,7 +1221,7 @@ func (c *ChampionshipClass) standings(championship *Championship, events []*Cham
 
 				givePoints(event, driver.DriverGUID, points.ForPos(pos)*pointsMultiplier, PointsEventFinish)
 
-				if fastestLap.DriverGUID == driver.DriverGUID {
+				if fastestLap != nil && fastestLap.DriverGUID == driver.DriverGUID {
 					givePoints(event, driver.DriverGUID, float64(points.BestLap)*pointsMultiplier, PointsFastestLap)
 				}
 

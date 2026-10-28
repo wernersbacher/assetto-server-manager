@@ -18,6 +18,7 @@ Fixed:
 * Fixes an issue where starting a recurring scheduled Championship event could overwrite changes made to the Championship since the event was scheduled (e.g. results, entrants or settings). Scheduled events of deleted Championships, or events whose schedule was removed, are no longer started.
 * Fixes several path traversal issues: file and folder names in content, setup, skin and results routes and uploads are now validated, so they can't read, write or delete files outside of their folders.
 * Deleting Championships, events, Race Weekends and their sessions, custom races, cars, tracks, weather presets, setups, accounts and auto-fill entrants now uses POST requests instead of plain links, so content can no longer be deleted by browser link prefetching or links on other websites.
+* Fixes a crash when calculating Championship standings or showing a Championship event whose results contain no laps.
 
 ---
 
