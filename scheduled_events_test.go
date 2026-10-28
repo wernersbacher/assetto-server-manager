@@ -237,7 +237,7 @@ func TestChampionshipManager_StartScheduledEventRecurrenceKeepsNewerChanges(t *t
 	defer cleanup()
 
 	cm.championshipEventStartTimers = make(map[string]*when.Timer)
-	cm.championshipEventReminderTimers = make(map[string]*when.Timer)
+	cm.championshipEventReminderTimers = make(reminderTimers)
 
 	due := time.Now().Add(-time.Minute)
 	stale := newRecurringTestChampionship(t, store, due)
@@ -322,7 +322,7 @@ func TestChampionshipManager_StartScheduledEventOutdated(t *testing.T) {
 	defer cleanup()
 
 	cm.championshipEventStartTimers = make(map[string]*when.Timer)
-	cm.championshipEventReminderTimers = make(map[string]*when.Timer)
+	cm.championshipEventReminderTimers = make(reminderTimers)
 
 	due := time.Now().Add(-time.Minute)
 

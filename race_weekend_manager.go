@@ -33,7 +33,7 @@ type RaceWeekendManager struct {
 	mutex             sync.Mutex
 
 	scheduledSessionTimers         map[string]*when.Timer
-	scheduledSessionReminderTimers map[string]*when.Timer
+	scheduledSessionReminderTimers reminderTimers
 }
 
 func NewRaceWeekendManager(
@@ -55,7 +55,7 @@ func NewRaceWeekendManager(
 		carManager:          carManager,
 
 		scheduledSessionTimers:         make(map[string]*when.Timer),
-		scheduledSessionReminderTimers: make(map[string]*when.Timer),
+		scheduledSessionReminderTimers: make(reminderTimers),
 	}
 }
 
@@ -1206,6 +1206,8 @@ func (rwm *RaceWeekendManager) clearScheduledSessionTimer(session *RaceWeekendSe
 	if timer := rwm.scheduledSessionTimers[session.ID.String()]; timer != nil {
 		timer.Stop()
 	}
+
+	rwm.scheduledSessionReminderTimers.stop(session.ID.String())
 }
 
 func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *RaceWeekend, session *RaceWeekendSession) error {
@@ -1246,7 +1248,7 @@ func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *RaceWeeke
 				// add reminder
 				thisTimer := timer
 
-				rwm.scheduledSessionReminderTimers[session.ID.String()], err = when.When(reminderTime, func() {
+				reminder, err := when.When(reminderTime, func() {
 					err := rwm.notificationManager.SendRaceWeekendReminderMessage(raceWeekend, session, thisTimer)
 
 					if err != nil {
@@ -1257,6 +1259,8 @@ func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *RaceWeeke
 				if err != nil {
 					logrus.WithError(err).Error("Could not set up race weekend reminder timer")
 				}
+
+				rwm.scheduledSessionReminderTimers.add(session.ID.String(), reminder)
 			}
 		}
 	}

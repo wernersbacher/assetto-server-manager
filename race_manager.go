@@ -46,7 +46,7 @@ type RaceManager struct {
 
 	// scheduled races
 	customRaceStartTimers    map[string]*when.Timer
-	customRaceReminderTimers map[string]*when.Timer
+	customRaceReminderTimers reminderTimers
 }
 
 func NewRaceManager(
@@ -65,7 +65,7 @@ func NewRaceManager(
 		notificationManager:      notificationManager,
 		raceControl:              raceControl,
 		customRaceStartTimers:    make(map[string]*when.Timer),
-		customRaceReminderTimers: make(map[string]*when.Timer),
+		customRaceReminderTimers: make(reminderTimers),
 	}
 }
 
@@ -1294,9 +1294,7 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 		timer.Stop()
 	}
 
-	if timer := rm.customRaceReminderTimers[race.UUID.String()]; timer != nil {
-		timer.Stop()
-	}
+	rm.customRaceReminderTimers.stop(race.UUID.String())
 
 	if action == "add" {
 		if race.Scheduled.IsZero() {
@@ -1345,13 +1343,15 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 			for _, timer := range rm.notificationManager.GetNotificationReminders() {
 				thisTimer := timer
 
-				rm.customRaceReminderTimers[race.UUID.String()], err = when.When(race.Scheduled.Add(time.Duration(0-timer)*time.Minute), func() {
+				reminder, err := when.When(race.Scheduled.Add(time.Duration(0-timer)*time.Minute), func() {
 					_ = rm.notificationManager.SendRaceReminderMessage(race, thisTimer)
 				})
 
 				if err != nil {
 					logrus.WithError(err).Error("Could not set up race reminder timer")
 				}
+
+				rm.customRaceReminderTimers.add(race.UUID.String(), reminder)
 			}
 		}
 
@@ -1683,10 +1683,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 			newScheduledEvent = true
 		}
 
-		if timer, ok := rm.customRaceReminderTimers[race.UUID.String()]; ok {
-			timer.Stop()
-			delete(rm.customRaceReminderTimers, race.UUID.String())
-		}
+		rm.customRaceReminderTimers.stop(race.UUID.String())
 
 		if race.Scheduled.After(time.Now()) {
 			if newScheduledEvent {
@@ -1712,13 +1709,15 @@ func (rm *RaceManager) InitScheduledRaces() error {
 						// add reminder
 						thisTimer := timer
 
-						rm.customRaceReminderTimers[race.UUID.String()], err = when.When(race.Scheduled.Add(time.Duration(0-timer)*time.Minute), func() {
+						reminder, err := when.When(race.Scheduled.Add(time.Duration(0-timer)*time.Minute), func() {
 							_ = rm.notificationManager.SendRaceReminderMessage(race, thisTimer)
 						})
 
 						if err != nil {
 							logrus.WithError(err).Error("Could not set up scheduled race reminder timer")
 						}
+
+						rm.customRaceReminderTimers.add(race.UUID.String(), reminder)
 					}
 				}
 			}
@@ -1764,13 +1763,8 @@ func (rm *RaceManager) RescheduleNotifications(oldServerOpts *GlobalServerConfig
 		return nil
 	}
 
-	// stop all existing timers
-	for _, timer := range rm.customRaceReminderTimers {
-		timer.Stop()
-	}
-
-	// rebuild the timers
-	rm.customRaceReminderTimers = make(map[string]*when.Timer)
+	// stop all existing timers, then rebuild them
+	rm.customRaceReminderTimers.stopAll()
 
 	if rm.notificationManager.HasNotificationReminders() {
 		races, err := rm.store.ListCustomRaces()
@@ -1787,13 +1781,15 @@ func (rm *RaceManager) RescheduleNotifications(oldServerOpts *GlobalServerConfig
 					// add reminder
 					thisTimer := timer
 
-					rm.customRaceReminderTimers[race.UUID.String()], err = when.When(race.Scheduled.Add(time.Duration(0-timer)*time.Minute), func() {
+					reminder, err := when.When(race.Scheduled.Add(time.Duration(0-timer)*time.Minute), func() {
 						_ = rm.notificationManager.SendRaceReminderMessage(race, thisTimer)
 					})
 
 					if err != nil {
 						logrus.WithError(err).Error("Could not set up scheduled race reminder timer")
 					}
+
+					rm.customRaceReminderTimers.add(race.UUID.String(), reminder)
 				}
 			}
 		}
