@@ -825,6 +825,30 @@ func TestSessionResultsAnonymize(t *testing.T) {
 	}
 }
 
+func TestSessionResultsAnonymizeEventGuidsLists(t *testing.T) {
+	results := newHelperResults()
+	results.Events = []*SessionEvent{
+		{
+			CarID: 1, OtherCarID: 3, Type: "COLLISION_WITH_CAR",
+			Driver:      &SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}},
+			OtherDriver: &SessionDriver{GUID: helperGUIDCarl1, GuidsList: []string{helperGUIDCarl1, helperGUIDCarl2}},
+		},
+	}
+
+	// the other driver's list is longer than the driver's list, this used to panic
+	results.Anonymize()
+
+	event := results.Events[0]
+
+	if want := []string{AnonymiseDriverGUID(helperGUIDAlice)}; !reflect.DeepEqual(event.Driver.GuidsList, want) {
+		t.Errorf("Driver.GuidsList = %v, want %v", event.Driver.GuidsList, want)
+	}
+
+	if want := []string{AnonymiseDriverGUID(helperGUIDCarl1), AnonymiseDriverGUID(helperGUIDCarl2)}; !reflect.DeepEqual(event.OtherDriver.GuidsList, want) {
+		t.Errorf("OtherDriver.GuidsList = %v, want %v", event.OtherDriver.GuidsList, want)
+	}
+}
+
 func TestSessionResultsMaskDriverNames(t *testing.T) {
 	oldShortened := UseShortenedDriverNames
 	defer func() { UseShortenedDriverNames = oldShortened }()

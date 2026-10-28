@@ -179,7 +179,7 @@ func (s *SessionResults) Anonymize() {
 		}
 
 		for i, guid := range event.OtherDriver.GuidsList {
-			event.Driver.GuidsList[i] = AnonymiseDriverGUID(guid)
+			event.OtherDriver.GuidsList[i] = AnonymiseDriverGUID(guid)
 		}
 	}
 
