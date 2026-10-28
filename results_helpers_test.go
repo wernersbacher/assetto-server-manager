@@ -45,7 +45,8 @@ func helperLap(carID int, guid, name, model string, lapTime, cuts int, sectors [
 //   car 2: Bob (ferrari), 3 laps, the fastest of them cut, 5s time penalty
 //   car 3: driver swap Carl1/Carl2 (porsche), 3 laps: Carl1, Carl2, Carl1
 //   car 4: Dan (ferrari), no laps at all
-// Car IDs start at 1 on purpose, FindCarIDForGUIDAndModel returns 0 for unknown drivers.
+// Car IDs start at 1 on purpose, so that a lookup of an unknown driver can't accidentally match car 0
+// (see newHelperResultsWithCarZero for that case).
 func newHelperResults() *SessionResults {
 	return &SessionResults{
 		Type: SessionTypeRace,
@@ -1012,5 +1013,92 @@ func TestSessionResultsFallBackSortQualifying(t *testing.T) {
 
 	if got := results.Result[1].BestLap; got != 99000 {
 		t.Errorf("Alice BestLap = %d, want 99000 (cut lap ignored)", got)
+	}
+}
+
+// newHelperResultsWithCarZero adds a car with the (valid) ID 0 that has laps, cuts, a crash and a lap penalty,
+// so lookups of unknown drivers can be told apart from car 0.
+func newHelperResultsWithCarZero() *SessionResults {
+	results := newHelperResults()
+
+	results.Cars = append(results.Cars, &SessionCar{CarID: 0, Model: helperModelFerrari, Driver: SessionDriver{GUID: "1000", GuidsList: []string{"1000"}, Name: "Zed Zero"}})
+	results.Laps = append(results.Laps,
+		helperLap(0, "1000", "Zed Zero", helperModelFerrari, 110000, 1, []int{36000, 38000, 36000}, "M", helperClassFerrari),
+		helperLap(0, "1000", "Zed Zero", helperModelFerrari, 108000, 0, []int{35000, 38000, 35000}, "M", helperClassFerrari),
+		helperLap(0, "1000", "Zed Zero", helperModelFerrari, 107000, 0, []int{35000, 37000, 35000}, "M", helperClassFerrari),
+	)
+	results.Result = append(results.Result, &SessionResult{CarID: 0, CarModel: helperModelFerrari, DriverGUID: "1000", DriverName: "Zed Zero", HasPenalty: true, PenaltyTime: 10 * time.Second, LapPenalty: 1})
+	results.Events = append(results.Events, &SessionEvent{CarID: 0, Type: "COLLISION_WITH_ENV", Driver: &SessionDriver{GUID: "1000"}, OtherDriver: &SessionDriver{}})
+
+	return results
+}
+
+func TestSessionResultsFindCarIDForGUIDAndModel(t *testing.T) {
+	results := newHelperResultsWithCarZero()
+
+	for _, tc := range []struct {
+		name, guid, model string
+		wantID            int
+		wantOK            bool
+	}{
+		{"car zero", "1000", helperModelFerrari, 0, true},
+		{"single driver", helperGUIDBob, helperModelFerrari, 2, true},
+		{"swap by normalised guid", helperGUIDSwap, helperModelPorsche, 3, true},
+		{"swap by second driver", helperGUIDCarl2, helperModelPorsche, 3, true},
+		{"unknown guid", "9999", helperModelFerrari, -1, false},
+		{"wrong model", helperGUIDBob, helperModelPorsche, -1, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			id, ok := results.FindCarIDForGUIDAndModel(tc.guid, tc.model)
+
+			if ok != tc.wantOK || (ok && id != tc.wantID) {
+				t.Errorf("FindCarIDForGUIDAndModel = (%d, %t), want (%d, %t)", id, ok, tc.wantID, tc.wantOK)
+			}
+		})
+	}
+}
+
+func TestSessionResultsUnknownDriverDoesNotMatchCarZero(t *testing.T) {
+	results := newHelperResultsWithCarZero()
+
+	// sanity check: car 0 itself has data
+	if got := results.GetNumLaps("1000", helperModelFerrari); got != 2 {
+		t.Fatalf("GetNumLaps(car 0) = %d, want 2 (3 laps - 1 lap penalty)", got)
+	}
+
+	for _, model := range []string{helperModelFerrari, helperModelPorsche} {
+		guid := "9999"
+
+		if got := results.GetCrashes(guid, model); got != 0 {
+			t.Errorf("%s: GetCrashes = %d, want 0", model, got)
+		}
+
+		if got := results.GetCrashesOfType(guid, model, "COLLISION_WITH_ENV"); got != 0 {
+			t.Errorf("%s: GetCrashesOfType = %d, want 0", model, got)
+		}
+
+		if got := results.GetNumLaps(guid, model); got != 0 {
+			t.Errorf("%s: GetNumLaps = %d, want 0", model, got)
+		}
+
+		if got := results.GetCuts(guid, model); got != 0 {
+			t.Errorf("%s: GetCuts = %d, want 0", model, got)
+		}
+
+		if got := results.GetTime(100000, guid, model, true); got != 0 {
+			t.Errorf("%s: GetTime = %s, want 0", model, got)
+		}
+
+		if got := results.GetAverageLapTime(guid, model); got != 0 {
+			t.Errorf("%s: GetAverageLapTime = %s, want 0", model, got)
+		}
+
+		if got := results.GetLastLapTime(guid, model); got != 1 {
+			t.Errorf("%s: GetLastLapTime = %s, want the 'no laps' sentinel 1ns", model, got)
+		}
+
+		if car, err := results.FindCarByGUIDAndModel(guid, model); err != ErrSessionCarNotFound {
+			t.Errorf("%s: FindCarByGUIDAndModel = %+v, %v, want ErrSessionCarNotFound", model, car, err)
+		}
 	}
 }

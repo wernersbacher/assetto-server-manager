@@ -142,7 +142,11 @@ resultCarIDCheck:
 }
 
 func (s *SessionResults) FindCarByGUIDAndModel(guid, model string) (*SessionCar, error) {
-	carID := s.FindCarIDForGUIDAndModel(guid, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(guid, model)
+
+	if !ok {
+		return nil, ErrSessionCarNotFound
+	}
 
 	for _, car := range s.Cars {
 		if car.CarID == carID {
@@ -291,7 +295,11 @@ func (s *SessionResults) GetURL() string {
 }
 
 func (s *SessionResults) GetCrashes(guid, model string) int {
-	carID := s.FindCarIDForGUIDAndModel(guid, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(guid, model)
+
+	if !ok {
+		return 0
+	}
 
 	var num int
 
@@ -305,7 +313,11 @@ func (s *SessionResults) GetCrashes(guid, model string) int {
 }
 
 func (s *SessionResults) GetCrashesOfType(guid, model, collisionType string) int {
-	carID := s.FindCarIDForGUIDAndModel(guid, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(guid, model)
+
+	if !ok {
+		return 0
+	}
 
 	var num int
 
@@ -354,37 +366,39 @@ func (s *SessionResults) GetDriverDescriptionForLap(lap *SessionLap, autoFillEnt
 	return lap.DriverName
 }
 
-func (s *SessionResults) FindCarIDForGUIDAndModel(guid, model string) int {
-	var carID int
-
+// FindCarIDForGUIDAndModel returns the ID of the car that the driver (or, for driver swaps, any of the drivers
+// or the joined GUID of all drivers) drove with the given model. ok is false if there is no such car, carID is
+// then -1. Note that 0 is a valid car ID.
+func (s *SessionResults) FindCarIDForGUIDAndModel(guid, model string) (carID int, ok bool) {
 	for _, car := range s.Cars {
 		if car.Model != model {
 			continue
 		}
 
 		if car.Driver.GUID == guid {
-			carID = car.CarID
-			break
+			return car.CarID, true
 		}
 
 		if NormaliseEntrantGUIDs(car.Driver.GuidsList) == guid {
-			carID = car.CarID
-			break
+			return car.CarID, true
 		}
 
 		for _, carGUID := range car.Driver.GuidsList {
 			if guid == carGUID {
-				carID = car.CarID
-				break
+				return car.CarID, true
 			}
 		}
 	}
 
-	return carID
+	return -1, false
 }
 
 func (s *SessionResults) GetAverageLapTime(guid, model string) time.Duration {
-	carID := s.FindCarIDForGUIDAndModel(guid, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(guid, model)
+
+	if !ok {
+		return 0
+	}
 
 	var totalTime, driverLapCount, lapsForAverage, totalTimeForAverage int
 
@@ -752,7 +766,11 @@ func (s *SessionResults) GetTime(timeINT int, driverGUID, model string, penalty 
 		return time.Duration(0)
 	}
 
-	carID := s.FindCarIDForGUIDAndModel(driverGUID, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(driverGUID, model)
+
+	if !ok {
+		return time.Duration(0)
+	}
 
 	d, _ := time.ParseDuration(fmt.Sprintf("%dms", timeINT))
 
@@ -782,7 +800,11 @@ func (s *SessionResults) GetTeamName(driverGUID string) string {
 }
 
 func (s *SessionResults) GetNumLaps(driverGUID, model string) int {
-	carID := s.FindCarIDForGUIDAndModel(driverGUID, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(driverGUID, model)
+
+	if !ok {
+		return 0
+	}
 
 	var i int
 
@@ -803,7 +825,11 @@ func (s *SessionResults) GetNumLaps(driverGUID, model string) int {
 }
 
 func (s *SessionResults) GetLastLapTime(driverGUID, model string) time.Duration {
-	carID := s.FindCarIDForGUIDAndModel(driverGUID, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(driverGUID, model)
+
+	if !ok {
+		return 1
+	}
 
 	for i := len(s.Laps) - 1; i >= 0; i-- {
 		if s.Laps[i].CarID == carID {
@@ -871,7 +897,11 @@ func (s *SessionResults) GetDriverPosition(driverGUID, model string) int {
 }
 
 func (s *SessionResults) GetCuts(driverGUID, model string) int {
-	carID := s.FindCarIDForGUIDAndModel(driverGUID, model)
+	carID, ok := s.FindCarIDForGUIDAndModel(driverGUID, model)
+
+	if !ok {
+		return 0
+	}
 
 	var i int
 
