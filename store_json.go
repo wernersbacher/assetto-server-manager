@@ -231,9 +231,10 @@ func (rs *JSONStore) UpsertEntrant(entrant Entrant) error {
 
 	isNew := true
 
-	for _, newEntrant := range entrants {
-		if newEntrant.GUID == entrant.GUID {
-			newEntrant = &entrant
+	// entrants are identified by Entrant.ID() (GUID, falling back to Name), the same as in BoltStore and DeleteEntrant
+	for index, existingEntrant := range entrants {
+		if existingEntrant.ID() == entrant.ID() {
+			entrants[index] = &entrant
 			isNew = false
 
 			break

@@ -171,17 +171,14 @@ func TestStoreContract_Entrants(t *testing.T) {
 			t.Fatalf("expected no entrants in empty store, got %d", len(entrants))
 		}
 
-		// NOTE: only entrants with distinct, non-empty GUIDs are used here. Known differences:
-		//  - JSONStore.UpsertEntrant identifies existing entrants by GUID, BoltStore by Entrant.ID() (GUID, falling
-		//    back to Name). With JSONStore, a second entrant without GUID is silently dropped because its empty GUID
-		//    "matches" the first GUID-less entrant.
-		//  - JSONStore.UpsertEntrant never updates an existing entrant (it only reassigns the loop variable), so
-		//    upserting an entrant with an existing GUID keeps the old data. BoltStore overwrites it.
-		//  - BoltStore clears Model, Skin and SpectatorMode on upsert, JSONStore stores them as-is.
+		// NOTE: BoltStore clears Model, Skin and SpectatorMode on upsert, JSONStore stores them as-is.
 		alice := Entrant{Name: "Alice", Team: "Team A", GUID: "76561198000000001", Ballast: 10, Restrictor: 5}
 		bob := Entrant{Name: "Bob", Team: "Team B", GUID: "76561198000000002"}
+		// entrants without a GUID are identified by their name (Entrant.ID())
+		carol := Entrant{Name: "Carol", Team: "Team C"}
+		dave := Entrant{Name: "Dave", Team: "Team D"}
 
-		for _, e := range []Entrant{alice, bob} {
+		for _, e := range []Entrant{alice, bob, carol, dave} {
 			if err := store.UpsertEntrant(e); err != nil {
 				t.Fatalf("upsert entrant: %s", err)
 			}
@@ -193,7 +190,7 @@ func TestStoreContract_Entrants(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assertStringSet(t, "entrants", entrantIDs(entrants), alice.GUID, bob.GUID)
+		assertStringSet(t, "entrants", entrantIDs(entrants), alice.GUID, bob.GUID, "Carol", "Dave")
 
 		for _, e := range entrants {
 			if e.GUID == alice.GUID && (e.Name != "Alice" || e.Team != "Team A" || e.Ballast != 10 || e.Restrictor != 5) {
@@ -201,8 +198,18 @@ func TestStoreContract_Entrants(t *testing.T) {
 			}
 		}
 
-		if err := store.DeleteEntrant(alice.ID()); err != nil {
-			t.Fatalf("delete entrant: %s", err)
+		// upserting an existing entrant overwrites it rather than adding a new one
+		aliceUpdated := alice
+		aliceUpdated.Name = "Alice Updated"
+		aliceUpdated.Team = "Team A2"
+
+		carolUpdated := carol
+		carolUpdated.Team = "Team C2"
+
+		for _, e := range []Entrant{aliceUpdated, carolUpdated} {
+			if err := store.UpsertEntrant(e); err != nil {
+				t.Fatalf("upsert existing entrant: %s", err)
+			}
 		}
 
 		entrants, err = store.ListEntrants()
@@ -211,7 +218,38 @@ func TestStoreContract_Entrants(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assertStringSet(t, "entrants after delete", entrantIDs(entrants), bob.GUID)
+		assertStringSet(t, "entrants after update", entrantIDs(entrants), alice.GUID, bob.GUID, "Carol", "Dave")
+
+		for _, e := range entrants {
+			switch e.ID() {
+			case alice.GUID:
+				if e.Name != "Alice Updated" || e.Team != "Team A2" {
+					t.Errorf("expected entrant with GUID to be updated, got: %+v", e)
+				}
+			case "Carol":
+				if e.Team != "Team C2" {
+					t.Errorf("expected entrant without GUID to be updated, got: %+v", e)
+				}
+			case "Dave":
+				if e.Team != "Team D" {
+					t.Errorf("expected other entrant without GUID to be untouched, got: %+v", e)
+				}
+			}
+		}
+
+		for _, id := range []string{alice.ID(), carol.ID()} {
+			if err := store.DeleteEntrant(id); err != nil {
+				t.Fatalf("delete entrant: %s", err)
+			}
+		}
+
+		entrants, err = store.ListEntrants()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertStringSet(t, "entrants after delete", entrantIDs(entrants), bob.GUID, "Dave")
 
 		// deleting an unknown entrant is not an error
 		if err := store.DeleteEntrant("unknown"); err != nil {
@@ -224,7 +262,7 @@ func TestStoreContract_Entrants(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		assertStringSet(t, "entrants after deleting unknown", entrantIDs(entrants), bob.GUID)
+		assertStringSet(t, "entrants after deleting unknown", entrantIDs(entrants), bob.GUID, "Dave")
 	})
 }
 
