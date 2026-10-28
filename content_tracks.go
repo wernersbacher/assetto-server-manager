@@ -289,6 +289,12 @@ func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
 	trackName := chi.URLParam(r, "track_id")
+
+	if !validPlainName(trackName) {
+		http.NotFound(w, r)
+		return
+	}
+
 	templateParams, err := th.trackManager.loadTrackDetailsForTemplate(trackName)
 
 	if os.IsNotExist(err) {
@@ -306,6 +312,11 @@ func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
 func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
+	if !validPlainName(name) {
+		http.NotFound(w, r)
+		return
+	}
+
 	if err := th.trackManager.UpdateTrackMetadata(name, r); err != nil {
 		logrus.WithError(err).Errorf("Could not update track metadata for %s", name)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -319,6 +330,11 @@ func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 func (th *TracksHandler) trackImage(w http.ResponseWriter, r *http.Request) {
 	track := chi.URLParam(r, "track")
 	layout := chi.URLParam(r, "layout")
+
+	if !validPlainName(track) || (layout != "" && !validPlainName(layout)) {
+		http.NotFound(w, r)
+		return
+	}
 
 	w.Header().Add("Content-Type", "image/png")
 	n, err := th.trackManager.GetTrackImage(w, track, layout)
@@ -334,6 +350,11 @@ func (th *TracksHandler) trackImage(w http.ResponseWriter, r *http.Request) {
 func (th *TracksHandler) trackInfo(w http.ResponseWriter, r *http.Request) {
 	track := chi.URLParam(r, "track")
 	layout := chi.URLParam(r, "layout")
+
+	if !validPlainName(track) || (layout != "" && !validPlainName(layout)) {
+		http.NotFound(w, r)
+		return
+	}
 
 	w.Header().Add("Content-Type", "application/json")
 

@@ -13,6 +13,7 @@ Fixed:
 * Replaced placeholder help texts for Fuel Rate, Tyre Wear Rate and Allowed Tyres Out in the race setup.
 * The results list no longer shows an empty page when the number of results is an exact multiple of the page size.
 * Fixes an issue where only the first scheduled Championship event got a start timer after Server Manager was restarted, so other scheduled Championship events did not start.
+* Fixes several path traversal issues: file and folder names in content, setup, skin and results routes and uploads are now validated, so they can't read, write or delete files outside of their folders.
 
 ---
 

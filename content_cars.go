@@ -1027,6 +1027,12 @@ func carSkinURL(car, skin string) string {
 
 func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 	carName := chi.URLParam(r, "car_id")
+
+	if !validPlainName(carName) {
+		http.NotFound(w, r)
+		return
+	}
+
 	templateParams, err := ch.carManager.loadCarDetailsForTemplate(carName)
 
 	if os.IsNotExist(err) {
@@ -1043,6 +1049,11 @@ func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 
 func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
+
+	if !validPlainName(car) {
+		http.NotFound(w, r)
+		return
+	}
 
 	if r.Method == http.MethodPost {
 		tag := r.FormValue("new-tag")
@@ -1070,6 +1081,11 @@ func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
 func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 
+	if !validPlainName(car) {
+		http.NotFound(w, r)
+		return
+	}
+
 	if err := ch.carManager.UpdateCarMetadata(car, r); err != nil {
 		logrus.WithError(err).Errorf("Could not update car metadata for %s", car)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -1081,6 +1097,11 @@ func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ch *CarsHandler) uploadSkin(w http.ResponseWriter, r *http.Request) {
+	if !validPlainName(chi.URLParam(r, "name")) {
+		http.NotFound(w, r)
+		return
+	}
+
 	err := r.ParseMultipartForm(32 << 20)
 
 	if err != nil {
@@ -1106,8 +1127,19 @@ func (ch *CarsHandler) deleteSkin(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 	skin := r.FormValue("skin-delete")
 
-	if skin == "" {
+	if !validPlainName(car) {
+		http.NotFound(w, r)
+		return
+	}
+
+	if !validPlainName(skin) {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	// only existing skin directories of this car may be deleted
+	if info, err := os.Lstat(filepath.Join(ServerInstallPath, "content", "cars", car, "skins", skin)); err != nil || !info.IsDir() {
+		http.NotFound(w, r)
 		return
 	}
 

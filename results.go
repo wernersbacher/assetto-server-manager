@@ -1670,8 +1670,8 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 		return matched, err
 	}
 
-	if !matched {
-		return matched, nil
+	if !matched || !validResultsFileName(header.Filename) {
+		return false, nil
 	}
 
 	path := filepath.Join(ServerInstallPath, "results", header.Filename)
@@ -1696,6 +1696,11 @@ type resultsViewTemplateVars struct {
 
 func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
+
+	if !validResultsFileName(fileName + ".json") {
+		http.NotFound(w, r)
+		return
+	}
 
 	result, err := LoadResult(fileName + ".json")
 
@@ -1737,6 +1742,11 @@ func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
+	if !validResultsFileName(fileName) {
+		http.NotFound(w, r)
+		return
+	}
+
 	result, err := LoadResult(fileName)
 
 	if os.IsNotExist(err) {
@@ -1761,6 +1771,11 @@ func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 
 func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
+
+	if !validResultsFileName(fileName + ".json") {
+		http.NotFound(w, r)
+		return
+	}
 
 	results, err := LoadResult(fileName + ".json")
 
@@ -1940,6 +1955,11 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 	var collisionsToLoad []int
 
 	fileName := chi.URLParam(r, "fileName")
+
+	if !validResultsFileName(fileName + ".json") {
+		http.NotFound(w, r)
+		return
+	}
 
 	result, err := LoadResult(fileName + ".json")
 

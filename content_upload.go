@@ -73,6 +73,22 @@ func (cuh *ContentUploadHandler) upload(contentType ContentType) http.HandlerFun
 	}
 }
 
+// validContentFilePath checks that an uploaded file's relative path only consists of plain, non-empty path
+// elements, so that it can't point outside of the content directory.
+func validContentFilePath(p string) bool {
+	if p == "" {
+		return false
+	}
+
+	for _, part := range strings.Split(strings.ReplaceAll(p, "\\", "/"), "/") {
+		if !validPlainName(part) {
+			return false
+		}
+	}
+
+	return true
+}
+
 // Stores files in the correct location
 func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType ContentType) error {
 	var contentPath string
@@ -120,6 +136,11 @@ func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType Conte
 			for _, part := range parts {
 				file.FilePath = filepath.Join(file.FilePath, part)
 			}
+		}
+
+		// the file path comes from the client, it must stay inside the content directory
+		if !validContentFilePath(file.FilePath) {
+			return fmt.Errorf("servermanager: invalid %s file path: %q", contentType, file.FilePath)
 		}
 
 		path := filepath.Join(contentPath, file.FilePath)

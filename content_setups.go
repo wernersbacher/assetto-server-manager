@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -146,6 +147,10 @@ func getCarNameFromSetup(setupFile interface{}) (string, error) {
 func uploadCarSetup(r *http.Request) (string, error) {
 	track := r.FormValue("Track")
 
+	if !validPlainName(track) {
+		return "", errors.New("servermanager: invalid setup track name")
+	}
+
 	uploadedFile, header, err := r.FormFile("SetupFile")
 
 	if err != nil {
@@ -164,6 +169,11 @@ func uploadCarSetup(r *http.Request) (string, error) {
 
 	if err != nil {
 		return carName, err
+	}
+
+	// the car name comes from the uploaded file itself, so it needs checking too
+	if !validPlainName(carName) || !validPlainName(header.Filename) {
+		return "", errors.New("servermanager: invalid setup car or file name")
 	}
 
 	saveFilepath := filepath.Join(ServerInstallPath, "setups", carName, track)
@@ -205,6 +215,11 @@ func carSetupDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	carName := chi.URLParam(r, "car")
 	trackName := chi.URLParam(r, "track")
 	setupName := chi.URLParam(r, "setup")
+
+	if !validPlainName(carName) || !validPlainName(trackName) || !validPlainName(setupName) {
+		http.NotFound(w, r)
+		return
+	}
 
 	err := os.RemoveAll(filepath.Join(ServerInstallPath, "setups", carName, trackName, setupName))
 
