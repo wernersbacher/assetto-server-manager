@@ -136,6 +136,15 @@ event name, whether it is a championship or race weekend (with its name), the tr
 running (type, name, length in minutes or laps, `Started`), `MaxClients` and the connected drivers with their cars.
 Passwords, driver GUIDs and IP addresses are not included.
 
+The scheduled events shown in the calendar can be read from `GET /api/upcoming-races`, with the same access rules as the
+calendar. It lists the custom races, championship events and race weekend sessions that start from now on, soonest
+first. The optional query parameter `limit` (a positive number) caps the number of entries. Each entry has a `Kind`
+(`custom_race`, `championship_event` or `race_weekend_session`), the `Start` time, the `Name`, the championship
+(`ChampionshipID`, `ChampionshipName`) or race weekend (`RaceWeekendID`, `RaceWeekendName`) it belongs to, the track,
+the `Cars` and the `Sessions` with their length and calculated `Start`. `OnThisServer` is false if the event is
+scheduled on another server of a multiserver setup. Recurring events are not expanded: they are listed once with their
+next `Start` and the `Recurrence` rule. Entrants and passwords are not included.
+
 ## Credits & Thanks
 
 Assetto Corsa Server Manager would not have been possible without the following people:

@@ -168,6 +168,7 @@ func Router(
 		// calendar
 		r.Get("/calendar", scheduledRacesHandler.calendar)
 		r.Get("/calendar.json", scheduledRacesHandler.calendarJSON)
+		r.Get("/api/upcoming-races", scheduledRacesHandler.upcomingAPI)
 
 		// account management
 		r.HandleFunc("/accounts/new-password", accountHandler.newPassword)
