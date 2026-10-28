@@ -1017,6 +1017,42 @@ func TestSessionResultsFallBackSortRace(t *testing.T) {
 	}
 }
 
+func TestSessionResultsFallBackSortTimePenalty(t *testing.T) {
+	results := &SessionResults{
+		Type: SessionTypeRace,
+		Cars: []*SessionCar{
+			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}}},
+			{CarID: 2, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDBob, GuidsList: []string{helperGUIDBob}}},
+		},
+		Laps: []*SessionLap{
+			// Bob finishes 3s ahead on the road, but has a 5s time penalty
+			helperLap(2, helperGUIDBob, "", helperModelFerrari, 100000, 0, nil, "", uuid.Nil),
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 103000, 0, nil, "", uuid.Nil),
+		},
+		Result: []*SessionResult{
+			{CarID: 2, CarModel: helperModelFerrari, DriverGUID: helperGUIDBob, HasPenalty: true, PenaltyTime: 5 * time.Second},
+			{CarID: 1, CarModel: helperModelFerrari, DriverGUID: helperGUIDAlice},
+		},
+	}
+
+	results.FallBackSort()
+
+	if got, want := resultOrder(results), []string{helperGUIDAlice, helperGUIDBob}; !reflect.DeepEqual(got, want) {
+		t.Errorf("order = %v, want %v", got, want)
+	}
+
+	bob := results.Result[1]
+
+	// TotalTime is the plain race time in ms, the penalty is added by GetTime (and must only be added once)
+	if bob.TotalTime != 100000 {
+		t.Errorf("Bob TotalTime = %d, want 100000", bob.TotalTime)
+	}
+
+	if got, want := results.GetTime(bob.TotalTime, bob.DriverGUID, bob.CarModel, true), 105*time.Second; got != want {
+		t.Errorf("Bob GetTime with penalty = %s, want %s", got, want)
+	}
+}
+
 func TestSessionResultsFallBackSortDisqualified(t *testing.T) {
 	results := &SessionResults{
 		Type: SessionTypeRace,

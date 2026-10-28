@@ -654,9 +654,8 @@ laps:
 			}
 		}
 
-		if s.Result[i].HasPenalty {
-			s.Result[i].TotalTime += int(s.Result[i].PenaltyTime.Seconds())
-		}
+		// TotalTime stays the plain race time (in ms), like in the results written by the AC server. Time penalties are
+		// added on top by GetTime(..., penalty=true), which is used for sorting and display.
 
 		if s.Result[i].BestLap == 0 {
 			for _, findBestLap := range s.Laps {
