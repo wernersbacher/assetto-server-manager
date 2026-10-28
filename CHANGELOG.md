@@ -1,3 +1,12 @@
+Unreleased
+----------
+
+Fixed:
+
+* Replaced placeholder help texts for Fuel Rate, Tyre Wear Rate and Allowed Tyres Out in the race setup.
+
+---
+
 v1.7.10
 -------
 

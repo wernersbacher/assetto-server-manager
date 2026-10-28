@@ -304,10 +304,10 @@ type CurrentRaceConfig struct {
 	TrackLayout               string        `ini:"CONFIG_TRACK" show:"quick" input:"dropdown" formopts:"TrackLayoutOpts" help:"Track layout. Some raceSetup don't have this."`
 	SunAngle                  int           `ini:"SUN_ANGLE" help:"Angle of the position of the sun"`
 	LegalTyres                string        `ini:"LEGAL_TYRES" help:"List of tyres short names that are allowed"`
-	FuelRate                  int           `ini:"FUEL_RATE" min:"0" help:"Fuel usage from 0 (no fuel usage) to XXX (100 is the realistic one)"`
+	FuelRate                  int           `ini:"FUEL_RATE" min:"0" help:"Fuel usage multiplier in percent: 0 = no fuel usage, 100 = realistic, higher values increase usage"`
 	DamageMultiplier          int           `ini:"DAMAGE_MULTIPLIER" min:"0" max:"100" help:"Damage from 0 (no damage) to 100 (full damage)"`
-	TyreWearRate              int           `ini:"TYRE_WEAR_RATE" min:"0" help:"Tyre wear from 0 (no tyre wear) to XXX (100 is the realistic one)"`
-	AllowedTyresOut           int           `ini:"ALLOWED_TYRES_OUT" help:"TODO: I have no idea"`
+	TyreWearRate              int           `ini:"TYRE_WEAR_RATE" min:"0" help:"Tyre wear multiplier in percent: 0 = no tyre wear, 100 = realistic, higher values increase wear"`
+	AllowedTyresOut           int           `ini:"ALLOWED_TYRES_OUT" help:"Number of tyres allowed outside of track limits before a penalty is applied. -1 disables."`
 	ABSAllowed                FactoryAssist `ini:"ABS_ALLOWED" min:"0" max:"2" help:"0 -> no car can use ABS, 1 -> only car provided with ABS can use it; 2-> any car can use ABS"`
 	TractionControlAllowed    FactoryAssist `ini:"TC_ALLOWED" min:"0" max:"2" help:"0 -> no car can use TC, 1 -> only car provided with TC can use it; 2-> any car can use TC"`
 	StabilityControlAllowed   int           `ini:"STABILITY_ALLOWED" input:"checkbox" help:"Stability assist 0 -> OFF; 1 -> ON"`
