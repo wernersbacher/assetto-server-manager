@@ -400,45 +400,55 @@ func (s *SessionResults) GetAverageLapTime(guid, model string) time.Duration {
 		return 0
 	}
 
-	var totalTime, driverLapCount, lapsForAverage, totalTimeForAverage int
+	var laps []*SessionLap
 
 	for _, lap := range s.Laps {
 		if lap.CarID == carID {
-			avgSoFar := (float64(totalTime) / float64(lapsForAverage)) * 1.07
-
-			// if lap doesnt cut and if lap is < 107% of average for that driver so far and if lap isn't lap 1
-			if lap.Cuts == 0 && driverLapCount != 0 && (float64(lap.LapTime) < avgSoFar || totalTime == 0) {
-				totalTimeForAverage += lap.LapTime
-				lapsForAverage++
-			}
-
-			driverLapCount++
-			totalTime += lap.LapTime
+			laps = append(laps, lap)
 		}
 	}
 
-	return s.GetTime(int(float64(totalTimeForAverage)/float64(lapsForAverage)), guid, model, false)
+	average := averageLapTimeMS(laps)
+
+	if average == 0 {
+		return 0
+	}
+
+	return s.GetTime(average, guid, model, false)
+}
+
+// averageLapTimeMS returns the average lap time (in ms) of the given laps, leaving out the first lap of each car
+// (out lap / standing start), laps with cuts and laps that are slower than 107% of the average of the laps
+// counted so far. It returns 0 if no laps are left to average.
+func averageLapTimeMS(laps []*SessionLap) int {
+	lapsPerCar := make(map[int]int)
+
+	var lapsForAverage, totalTimeForAverage int
+
+	for _, lap := range laps {
+		lapsPerCar[lap.CarID]++
+
+		if lapsPerCar[lap.CarID] == 1 || lap.Cuts != 0 {
+			continue
+		}
+
+		if lapsForAverage > 0 && float64(lap.LapTime) >= float64(totalTimeForAverage)/float64(lapsForAverage)*1.07 {
+			continue
+		}
+
+		totalTimeForAverage += lap.LapTime
+		lapsForAverage++
+	}
+
+	if lapsForAverage == 0 {
+		return 0
+	}
+
+	return totalTimeForAverage / lapsForAverage
 }
 
 func (s *SessionResults) GetOverallAverageLapTime() time.Duration {
-	var totalTime, driverLapCount, lapsForAverage, totalTimeForAverage int
-
-	for _, lap := range s.Laps {
-		avgSoFar := (float64(totalTime) / float64(lapsForAverage)) * 1.07
-
-		// if lap doesnt cut and if lap is < 107% of average for that driver so far and if lap isn't lap 1
-		if lap.Cuts == 0 && driverLapCount != 0 && (float64(lap.LapTime) < avgSoFar || totalTime == 0) {
-			totalTimeForAverage += lap.LapTime
-			lapsForAverage++
-		}
-
-		driverLapCount++
-		totalTime += lap.LapTime
-	}
-
-	d, _ := time.ParseDuration(fmt.Sprintf("%dms", int(float64(totalTimeForAverage)/float64(lapsForAverage))))
-
-	return d
+	return time.Duration(averageLapTimeMS(s.Laps)) * time.Millisecond
 }
 
 func (s *SessionResults) GetConsistency(guid, model string) float64 {

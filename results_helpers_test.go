@@ -138,10 +138,80 @@ func TestSessionResultsGetAverageLapTime(t *testing.T) {
 func TestSessionResultsGetOverallAverageLapTime(t *testing.T) {
 	results := newHelperResults()
 
-	// the very first lap of the session and the cut lap are excluded:
-	// (102000 + 105000 + 98000 + 99000 + 99000 + 101000 + 104000) / 7 = 101142.86 -> 101142ms
-	if got, want := results.GetOverallAverageLapTime(), 101142*time.Millisecond; got != want {
+	// the first lap of every car and the cut lap are excluded:
+	// (98000 + 99000 + 99000 + 101000 + 104000) / 5 = 100200ms
+	if got, want := results.GetOverallAverageLapTime(), 100200*time.Millisecond; got != want {
 		t.Errorf("GetOverallAverageLapTime = %s, want %s", got, want)
+	}
+
+	t.Run("first lap of each car is ignored", func(t *testing.T) {
+		results := &SessionResults{Laps: []*SessionLap{
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 120000, 0, nil, "", uuid.Nil),
+			helperLap(2, helperGUIDBob, "", helperModelFerrari, 130000, 0, nil, "", uuid.Nil),
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 100000, 0, nil, "", uuid.Nil),
+			helperLap(2, helperGUIDBob, "", helperModelFerrari, 101000, 0, nil, "", uuid.Nil),
+		}}
+
+		if got, want := results.GetOverallAverageLapTime(), 100500*time.Millisecond; got != want {
+			t.Errorf("GetOverallAverageLapTime = %s, want %s", got, want)
+		}
+	})
+
+	t.Run("laps slower than 107% of the average are ignored", func(t *testing.T) {
+		results := &SessionResults{Laps: []*SessionLap{
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 100000, 0, nil, "", uuid.Nil),
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 100000, 0, nil, "", uuid.Nil),
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 200000, 0, nil, "", uuid.Nil),
+		}}
+
+		if got, want := results.GetOverallAverageLapTime(), 100*time.Second; got != want {
+			t.Errorf("GetOverallAverageLapTime = %s, want %s", got, want)
+		}
+	})
+
+	t.Run("no laps to average", func(t *testing.T) {
+		for _, results := range []*SessionResults{
+			{},
+			{Laps: []*SessionLap{helperLap(1, helperGUIDAlice, "", helperModelFerrari, 100000, 0, nil, "", uuid.Nil)}},
+		} {
+			if got := results.GetOverallAverageLapTime(); got != 0 {
+				t.Errorf("GetOverallAverageLapTime = %s, want 0", got)
+			}
+		}
+	})
+}
+
+func TestSessionResultsGetAverageLapTimeFiltering(t *testing.T) {
+	newResults := func(lapTimes ...int) *SessionResults {
+		results := &SessionResults{
+			Cars: []*SessionCar{
+				{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}}},
+			},
+		}
+
+		for _, lapTime := range lapTimes {
+			results.Laps = append(results.Laps, helperLap(1, helperGUIDAlice, "", helperModelFerrari, lapTime, 0, nil, "", uuid.Nil))
+		}
+
+		return results
+	}
+
+	for _, tc := range []struct {
+		name     string
+		lapTimes []int
+		want     time.Duration
+	}{
+		// first lap ignored, 200s is slower than 107% of the 100s average
+		{"slow lap ignored", []int{100000, 100000, 200000}, 100 * time.Second},
+		{"slow lap after several laps ignored", []int{150000, 100000, 102000, 120000, 101000}, 101 * time.Second},
+		{"lap within 107% counts", []int{150000, 100000, 106000}, 103 * time.Second},
+		{"single lap", []int{100000}, 0},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := newResults(tc.lapTimes...).GetAverageLapTime(helperGUIDAlice, helperModelFerrari); got != tc.want {
+				t.Errorf("GetAverageLapTime = %s, want %s", got, tc.want)
+			}
+		})
 	}
 }
 
