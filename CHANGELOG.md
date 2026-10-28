@@ -21,6 +21,19 @@ Fixed:
 * Fixes an issue where, with several notification reminders configured, only the last reminder was cancelled when a scheduled race, Championship event or Race Weekend session was rescheduled or unscheduled, so outdated reminders were still sent.
 * Fixes a possible crash when the server was stopped right after it was started. If the acServer executable can't be started, starting an event now shows an error instead of appearing to succeed.
 * Fixes a crash when calculating Championship standings or showing a Championship event whose results contain no laps.
+* Championship sign-ups now fill free entry list slots in grid order instead of a random free slot. Drivers who sign up again without entering a team keep their existing team, and sign-ups without a GUID are no longer matched to a free slot.
+* Championship standings tie-breaks now compare all finishing positions (teams with several cars no longer lose lower places), include Race Weekend results, and only count positions within the team's own class in multi-class Championships.
+* The Championship player summary now shows the team from the driver's last result instead of sometimes showing no team.
+* Championship sign-up email lists no longer contain empty entries for responses without an email address.
+* Race Weekend grids with several car classes no longer put classes without lap times in a random order; they now always start behind classes with a lap time.
+* With the JSON store, saving an existing auto-fill entrant now updates it, and auto-fill entrants without a GUID are no longer lost. The JSON and Bolt stores now behave the same when data is missing (e.g. the audit log no longer shows an error when it is empty).
+* Drivers that aren't in a session's car list are no longer shown with the laps, crashes, cuts and times of the first car.
+* Fixes results pages crashing for sessions without laps or with laps that have different numbers of sectors.
+* Anonymised results no longer show the GUIDs of the other driver in collisions (and no longer crash in some cases).
+* Time penalties are no longer applied with the wrong unit when fallback results sorting is enabled.
+* The average lap time now applies its 107% filter correctly, so slow laps (e.g. pit stops) no longer push up the average.
+* Fixes potential lap, consistency and race position of driver swap cars, which showed 0 or values above 100%.
+* A cut lap is no longer treated as the fastest lap (including Championship fastest lap points) when all laps of a class were cut.
 
 ---
 
