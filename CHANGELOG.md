@@ -19,6 +19,7 @@ Fixed:
 * Fixes several path traversal issues: file and folder names in content, setup, skin and results routes and uploads are now validated, so they can't read, write or delete files outside of their folders.
 * Deleting Championships, events, Race Weekends and their sessions, custom races, cars, tracks, weather presets, setups, accounts and auto-fill entrants now uses POST requests instead of plain links, so content can no longer be deleted by browser link prefetching or links on other websites.
 * Fixes an issue where, with several notification reminders configured, only the last reminder was cancelled when a scheduled race, Championship event or Race Weekend session was rescheduled or unscheduled, so outdated reminders were still sent.
+* Fixes a possible crash when the server was stopped right after it was started. If the acServer executable can't be started, starting an event now shows an error instead of appearing to succeed.
 * Fixes a crash when calculating Championship standings or showing a Championship event whose results contain no laps.
 
 ---

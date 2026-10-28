@@ -297,10 +297,25 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 		return err
 	}
 
+	// start the process before marking the event as running, so that Stop never sees a running event without a process
+	if err := sp.cmd.Start(); err != nil {
+		sp.cfn()
+
+		if err := sp.stopUDPListener(); err != nil {
+			logrus.WithError(err).Error("UDP listener close errored")
+		}
+
+		if err := sp.closeLogFiles(); err != nil {
+			logrus.WithError(err).Error("Could not close log files")
+		}
+
+		return err
+	}
+
 	sp.raceEvent = raceEvent
 
 	go func() {
-		sp.run <- sp.cmd.Run()
+		sp.run <- sp.cmd.Wait()
 	}()
 
 	if serverOptions.EnableContentManagerWrapper == 1 && serverOptions.ContentManagerWrapperPort > 0 {
@@ -587,6 +602,10 @@ func (sp *AssettoServerProcess) onStop() error {
 		}
 	}
 
+	return sp.closeLogFiles()
+}
+
+func (sp *AssettoServerProcess) closeLogFiles() error {
 	if sp.logFile != nil {
 		if err := sp.logFile.Close(); err != nil {
 			return err
