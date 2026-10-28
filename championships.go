@@ -161,26 +161,56 @@ func (c *ChampionshipClass) HadBetterFinishingPositions(guidA, guidB string, inE
 	return false
 }
 
-func (c *ChampionshipClass) CountPositionsForDriver(i int, guid string, inEvents []*ChampionshipEvent) int {
-	count := 0
-
-	for _, event := range inEvents {
+// forEachCompletedRace calls fn with the results of every completed race (and second race) session in the given
+// events. The sessions of race weekends are treated as individual events, like when calculating the standings.
+func forEachCompletedRace(inEvents []*ChampionshipEvent, fn func(results *SessionResults)) {
+	for _, event := range ExtractRaceWeekendSessionsIntoIndividualEvents(inEvents) {
 		for sessionType, session := range event.Sessions {
 			if session.Completed() && (sessionType == SessionTypeRace || sessionType == SessionTypeSecondRace) {
-				pos := 0
-
-				for _, result := range session.Results.Result {
-					if result.ClassID == c.ID {
-						pos++
-
-						if guid == result.DriverGUID && pos == i {
-							count++
-						}
-					}
-				}
+				fn(session.Results)
 			}
 		}
 	}
+}
+
+// numFinishingPositions is the highest number of finishers of this class in any completed race of the given events,
+// i.e. the number of positions that need to be compared in a tie-break.
+func (c *ChampionshipClass) numFinishingPositions(inEvents []*ChampionshipEvent) int {
+	numPositions := 0
+
+	forEachCompletedRace(inEvents, func(results *SessionResults) {
+		num := 0
+
+		for _, result := range results.Result {
+			if result.ClassID == c.ID {
+				num++
+			}
+		}
+
+		if num > numPositions {
+			numPositions = num
+		}
+	})
+
+	return numPositions
+}
+
+func (c *ChampionshipClass) CountPositionsForDriver(i int, guid string, inEvents []*ChampionshipEvent) int {
+	count := 0
+
+	forEachCompletedRace(inEvents, func(results *SessionResults) {
+		pos := 0
+
+		for _, result := range results.Result {
+			if result.ClassID == c.ID {
+				pos++
+
+				if guid == result.DriverGUID && pos == i {
+					count++
+				}
+			}
+		}
+	})
 
 	return count
 }
@@ -203,32 +233,27 @@ func (c *ChampionshipClass) TeamHadBetterFinishingPositions(teamA, teamB string,
 func (c *ChampionshipClass) CountPositionsForTeam(i int, team string, inEvents []*ChampionshipEvent) int {
 	count := 0
 
-	for _, event := range inEvents {
-		for sessionType, session := range event.Sessions {
-			if session.Completed() && (sessionType == SessionTypeRace || sessionType == SessionTypeSecondRace) {
-				pos := 0
+	forEachCompletedRace(inEvents, func(results *SessionResults) {
+		pos := 0
 
-				for _, result := range session.Results.Result {
-					if result.ClassID != c.ID {
-						continue
+		for _, result := range results.Result {
+			if result.ClassID != c.ID {
+				continue
+			}
+
+			for _, car := range results.Cars {
+				if car.Driver.GUID == result.DriverGUID && car.Driver.ClassID == result.ClassID {
+					pos++
+
+					if team == car.Driver.Team && pos == i {
+						count++
 					}
 
-					for _, car := range session.Results.Cars {
-						if car.Driver.GUID == result.DriverGUID && car.Driver.ClassID == result.ClassID {
-
-							pos++
-
-							if team == car.Driver.Team && pos == i {
-								count++
-							}
-
-							break
-						}
-					}
+					break
 				}
 			}
 		}
-	}
+	})
 
 	return count
 }
@@ -1380,13 +1405,13 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 		out = append(out, standing)
 	}
 
-	numPositions := len(out)
+	numPositions := c.numFinishingPositions(events)
 
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].Points == out[j].Points {
-			// sort by number of wins
-			if len(inEvents) > 1 {
-				return c.HadBetterFinishingPositions(out[i].Car.Driver.GUID, out[j].Car.Driver.GUID, inEvents, numPositions)
+			// sort by number of wins (each race weekend session counts as an event)
+			if len(events) > 1 {
+				return c.HadBetterFinishingPositions(out[i].Car.Driver.GUID, out[j].Car.Driver.GUID, events, numPositions)
 			}
 
 			return out[i].Car.GetName() < out[j].Car.GetName()
@@ -1559,13 +1584,14 @@ func (c *ChampionshipClass) TeamStandings(championship *Championship, inEvents [
 		out = append(out, standing)
 	}
 
-	numPositions := len(out)
+	// teams can have several cars per race, so all finishing positions need to be compared, not just len(teams).
+	numPositions := c.numFinishingPositions(events)
 
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].Points == out[j].Points {
-			// sort by number of wins
-			if len(inEvents) > 1 {
-				return c.TeamHadBetterFinishingPositions(out[i].Team, out[j].Team, inEvents, numPositions)
+			// sort by number of wins (each race weekend session counts as an event)
+			if len(events) > 1 {
+				return c.TeamHadBetterFinishingPositions(out[i].Team, out[j].Team, events, numPositions)
 			}
 
 			return out[i].Team < out[j].Team

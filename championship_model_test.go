@@ -672,6 +672,99 @@ func TestChampionshipClass_TeamStandings_TieBreak(t *testing.T) {
 	}
 }
 
+func TestChampionshipClass_TeamStandings_TieBreakMoreCarsThanTeams(t *testing.T) {
+	championship := NewChampionship("Tie")
+	class := NewChampionshipClass("Class")
+	class.Points.Places = []int{10, 5, 0}
+	championship.AddClass(class)
+
+	z1 := dropTestDriver{"Z1", "Z"}
+	z2 := dropTestDriver{"Z2", "Z"}
+	a1 := dropTestDriver{"A1", "A"}
+
+	// Z: 1st + 3rd, then 2nd. A: 2nd, then 1st. Both have 15 points, Z has an extra 3rd place.
+	championship.Events = []*ChampionshipEvent{
+		dropTestEvent(class, z1, a1, z2),
+		dropTestEvent(class, a1, z1),
+	}
+
+	standings := class.TeamStandings(championship, championship.Events)
+
+	if len(standings) != 2 || standings[0].Points != 15 || standings[1].Points != 15 {
+		t.Fatalf("expected two teams with 15 points, got %+v", standings)
+	}
+
+	if standings[0].Team != "Z" || standings[1].Team != "A" {
+		t.Errorf("expected Z ahead of A on third places, got %s, %s", standings[0].Team, standings[1].Team)
+	}
+}
+
+func modelTestRaceWeekendRace(class *ChampionshipClass, finishOrder ...dropTestDriver) *RaceWeekendSession {
+	session := NewRaceWeekendSession()
+	session.RaceConfig.Sessions = Sessions{SessionTypeRace: &SessionConfig{}}
+	session.StartedTime = time.Now().Add(-time.Hour)
+	session.CompletedTime = time.Now()
+	session.Results = dropTestResults(class, finishOrder...)
+	session.Points[class.ID] = &class.Points
+
+	return session
+}
+
+func TestChampionshipClass_Standings_TieBreakRaceWeekend(t *testing.T) {
+	newChampionship := func() (*Championship, *ChampionshipClass) {
+		championship := NewChampionship("Tie")
+		class := NewChampionshipClass("Class")
+		class.Points.Places = []int{5, 3, 2, 0}
+		championship.AddClass(class)
+
+		z := dropTestDriver{"Z", "Z"}
+		a := dropTestDriver{"A", "A"}
+		f := dropTestDriver{"F", "F"}
+		g := dropTestDriver{"G", "G"}
+
+		// a single race weekend with two races. Z: 1st + 4th, A: 2nd + 3rd, both have 5 points but Z has a win.
+		championship.Events = []*ChampionshipEvent{
+			modelTestRaceWeekendEvent(
+				modelTestRaceWeekendRace(class, z, a, f, g),
+				modelTestRaceWeekendRace(class, f, g, a, z),
+			),
+		}
+
+		return championship, class
+	}
+
+	championship, class := newChampionship()
+
+	if got := class.CountPositionsForDriver(1, "Z", championship.Events); got != 1 {
+		t.Errorf("expected race weekend win to be counted for Z, got %d", got)
+	}
+
+	if got := class.CountPositionsForTeam(4, "Z", championship.Events); got != 1 {
+		t.Errorf("expected race weekend 4th place to be counted for team Z, got %d", got)
+	}
+
+	// standings are built from a map, repeat to rule out lucky orders
+	for run := 0; run < 20; run++ {
+		championship, class := newChampionship()
+
+		standings := class.Standings(championship, championship.Events)
+
+		if len(standings) != 4 || standingFor(t, standings, "Z").Points != 5 || standingFor(t, standings, "A").Points != 5 {
+			t.Fatalf("unexpected standings: %+v", standings)
+		}
+
+		if standings[1].Car.Driver.GUID != "Z" || standings[2].Car.Driver.GUID != "A" {
+			t.Fatalf("run %d: expected Z ahead of A on wins, got %s, %s", run, standings[1].Car.Driver.GUID, standings[2].Car.Driver.GUID)
+		}
+
+		teamStandings := class.TeamStandings(championship, championship.Events)
+
+		if len(teamStandings) != 4 || teamStandings[1].Team != "Z" || teamStandings[2].Team != "A" {
+			t.Fatalf("run %d: expected team Z ahead of team A on wins, got %+v", run, teamStandings)
+		}
+	}
+}
+
 func TestChampionshipClass_StandingsForEntrantAtEvent(t *testing.T) {
 	championship := NewChampionship("Test")
 	class := NewChampionshipClass("Class")
