@@ -209,6 +209,10 @@ func (c *ChampionshipClass) CountPositionsForTeam(i int, team string, inEvents [
 				pos := 0
 
 				for _, result := range session.Results.Result {
+					if result.ClassID != c.ID {
+						continue
+					}
+
 					for _, car := range session.Results.Cars {
 						if car.Driver.GUID == result.DriverGUID && car.Driver.ClassID == result.ClassID {
 

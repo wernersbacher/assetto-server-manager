@@ -576,6 +576,38 @@ func TestChampionshipClass_CountPositionsForTeam(t *testing.T) {
 	}
 }
 
+func TestChampionshipClass_CountPositionsForTeam_MultiClass(t *testing.T) {
+	classA := NewChampionshipClass("A")
+	classB := NewChampionshipClass("B")
+
+	// overall order: B1 (class B, team Y), A1 (class A, team X), A2 (class A, team Y)
+	results := dropTestResults(classB, dropTestDriver{"B1", "Y"})
+	classAResults := dropTestResults(classA, dropTestDriver{"A1", "X"}, dropTestDriver{"A2", "Y"})
+	results.Result = append(results.Result, classAResults.Result...)
+	results.Cars = append(results.Cars, classAResults.Cars...)
+
+	event := NewChampionshipEvent()
+	event.CompletedTime = time.Now()
+	event.Sessions[SessionTypeRace] = modelTestRaceSession(results)
+	events := []*ChampionshipEvent{event}
+
+	tests := []struct {
+		class *ChampionshipClass
+		pos   int
+		team  string
+		want  int
+	}{
+		{classA, 1, "X", 1}, {classA, 2, "Y", 1}, {classA, 1, "Y", 0}, {classA, 2, "X", 0}, {classA, 3, "Y", 0},
+		{classB, 1, "Y", 1}, {classB, 2, "X", 0}, {classB, 3, "Y", 0},
+	}
+
+	for _, tc := range tests {
+		if got := tc.class.CountPositionsForTeam(tc.pos, tc.team, events); got != tc.want {
+			t.Errorf("class %s CountPositionsForTeam(%d, %s): expected %d, got %d", tc.class.Name, tc.pos, tc.team, tc.want, got)
+		}
+	}
+}
+
 func TestChampionshipClass_TeamHadBetterFinishingPositions(t *testing.T) {
 	class := NewChampionshipClass("Class")
 	teamX1 := dropTestDriver{"A", "X"}
