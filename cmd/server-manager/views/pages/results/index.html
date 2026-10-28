@@ -33,6 +33,9 @@
             <th>Session Type</th>
             <th>Track Name</th>
             <th style="width: 50%">Entrants</th>
+            {{ if DeleteAccess }}
+                <th></th>
+            {{ end }}
         </tr>
         {{ range $i, $result := .Results }}
             <tr class="row-link" data-href="/results/{{ $result.SessionFile }}">
@@ -53,6 +56,16 @@
                 <td>
                     <small>{{ $result.GetDrivers }}</small>
                 </td>
+
+                {{ if DeleteAccess }}
+                    <td class="text-center">
+                        <form method="post" action="/results/{{ $result.SessionFile }}.json/delete" class="d-inline"
+                              onclick="event.stopPropagation();"
+                              onsubmit="return confirm('Are you sure you want to permanently delete this results file?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                {{ end }}
             </tr>
         {{ end }}
     </table>

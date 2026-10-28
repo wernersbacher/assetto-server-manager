@@ -1,6 +1,10 @@
 Unreleased
 ----------
 
+Added:
+
+* Results files can now be deleted from the Results list and the Results page (requires delete access). Results that are used by a Championship or Race Weekend can't be deleted.
+
 Fixed:
 
 * Replaced placeholder help texts for Fuel Rate, Tyre Wear Rate and Allowed Tyres Out in the race setup.

@@ -17,6 +17,13 @@
         Back to Results
     </a>
 
+    {{ if DeleteAccess }}
+        <form method="post" action="/results/{{ $sessionResults.SessionFile }}.json/delete" class="float-right"
+              onsubmit="return confirm('Are you sure you want to permanently delete this results file?');">
+            <button type="submit" class="btn btn-danger">Delete Results</button>
+        </form>
+    {{ end }}
+
     <div class="clearfix"></div>
 
     <div class="card mt-3 border-secondary">

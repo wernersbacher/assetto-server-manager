@@ -308,6 +308,7 @@ func Router(
 		r.Get("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.deleteEvent)
 		r.Get("/championship/{championshipID}/delete", championshipsHandler.delete)
 		r.Get("/custom/delete/{uuid}", customRaceHandler.delete)
+		r.Post("/results/{fileName}/delete", resultsHandler.delete)
 
 		r.Get("/track/{name}/delete", tracksHandler.delete)
 		r.Get("/car/{name}/delete", carsHandler.delete)
