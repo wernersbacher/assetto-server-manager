@@ -133,6 +133,8 @@ func Router(
 		r.Get("/championships", championshipsHandler.list)
 		r.Get("/championship/{championshipID}", championshipsHandler.view)
 		r.Get("/championship/{championshipID}/export", championshipsHandler.export)
+		r.Get("/api/championships", championshipsHandler.listAPI)
+		r.Get("/api/championship/{championshipID}", championshipsHandler.viewAPI)
 		r.HandleFunc("/championship/{championshipID}/export-results", championshipsHandler.exportResults)
 		r.Get("/championship/{championshipID}/ics", championshipsHandler.icalFeed)
 		r.Get("/championship/{championshipID}/sign-up", championshipsHandler.signUpForm)

@@ -98,34 +98,23 @@ Follow the steps below to update Server Manager:
 7. Start the new Server Manager executable.
 
 ## Build From Source Process
-_This is written with Linux in mind. Note that for other platforms this general flow should work, but specific commands may differ._
 
-1. Install Go 1.13; follow https://golang.org/doc/install#install
-2. Install Node js 12; this varies a lot based on os/distribution, Google is your friend.
-3. Enter the following commands in your terminal:
+See [DEVELOPMENT.md](DEVELOPMENT.md) for building Server Manager from source and running it locally, natively or with
+Docker, without needing a real Assetto Corsa server.
 
-    ```
-     # clone the repository (and dependencies) to your $GOPATH
-     go get -u github.com/JustaPenguin/assetto-server-manager/...
-     # move to the repository root
-     cd $GOPATH/src/github.com/JustaPenguin/assetto-server-manager
-    ```
+## API
 
-4. Set up the config.yml file in assetto-server-manager/cmd/server-manager (best to copy config.example.yml 
-to config.yml then edit). There are important settings in here that *need* to be configured before sever manager
-will run, such as the path to steamcmd, default account information and more. **Make sure you read it carefully!**
-5. Time to run the manager, enter the following in your terminal:
+Championships can be read as JSON, e.g. to show the schedule on another website. The API follows the same access rules
+as the championship pages, so for anonymous access the server has to allow public read access.
 
-    ``` 
-     export GO111MODULE=on
-     # run makefile commands to build and run server manager
-     make clean
-     make assets
-     make asset-embed
-     make run
-    ```
-6. Server Manager should now be running! You can find the UI in your browser at your 
-configured hostname (default 0.0.0.0:8772).
+- `GET /api/championships`: all championships
+- `GET /api/championship/{id}`: a single championship
+
+Each championship contains its classes and cars, and its events with track, schedule (`Scheduled`, an optional
+`Recurrence` rule) and sessions. A session has a length in minutes (`Time`) or `Laps`, and a calculated `Start` if
+it is known. `Status` is one of `unscheduled`, `scheduled`, `in_progress` or `completed`. Race Weekend events have
+a `RaceWeekendName`, and each of their sessions has its own schedule and track. Times are in RFC 3339 format.
+Entrants, sign up responses and passwords are not included.
 
 ## Credits & Thanks
 
