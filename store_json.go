@@ -183,7 +183,9 @@ func (rs *JSONStore) FindCustomRaceByID(uuid string) (*CustomRace, error) {
 
 	err := rs.decodeFile(rs.shared, filepath.Join(customRacesDir, uuid+".json"), &customRace)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		return nil, ErrCustomRaceNotFound
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -228,6 +230,8 @@ func (rs *JSONStore) UpsertEntrant(entrant Entrant) error {
 	if err != nil {
 		return err
 	}
+
+	entrant = autoFillEntrant(entrant)
 
 	isNew := true
 
@@ -342,7 +346,9 @@ func (rs *JSONStore) LoadChampionship(id string) (*Championship, error) {
 
 	err := rs.decodeFile(rs.shared, filepath.Join(championshipsDir, id+".json"), &championship)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		return nil, ErrChampionshipNotFound
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -472,7 +478,10 @@ func (rs *JSONStore) GetAuditEntries() ([]*AuditEntry, error) {
 
 	err := rs.decodeFile(rs.base, auditFile, &entries)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		// no audit entries recorded yet
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -482,7 +491,7 @@ func (rs *JSONStore) GetAuditEntries() ([]*AuditEntry, error) {
 func (rs *JSONStore) AddAuditEntry(entry *AuditEntry) error {
 	entries, err := rs.GetAuditEntries()
 
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil {
 		return err
 	}
 
@@ -622,7 +631,10 @@ func (rs *JSONStore) LoadLiveTimingsData() (*LiveTimingsPersistedData, error) {
 
 	err := rs.decodeFile(rs.base, liveTimingsDataFile, &lt)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		// no live timings stored yet
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -642,7 +654,10 @@ func (rs *JSONStore) UpsertLastRaceEvent(r RaceEvent) error {
 func (rs *JSONStore) LoadLastRaceEvent() (RaceEvent, error) {
 	data, err := rs.readFile(rs.base, lastRaceEventFile)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		// no last race event stored (or it has been cleared)
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 

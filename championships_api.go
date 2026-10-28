@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -347,7 +346,7 @@ func (ch *ChampionshipsHandler) listAPI(w http.ResponseWriter, r *http.Request) 
 func (ch *ChampionshipsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
-	if err == ErrChampionshipNotFound || os.IsNotExist(err) {
+	if err == ErrChampionshipNotFound {
 		http.NotFound(w, r)
 		return
 	} else if err != nil {

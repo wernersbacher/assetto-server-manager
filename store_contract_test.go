@@ -13,8 +13,8 @@ import (
 )
 
 // The tests in this file form a contract test suite for the Store interface. Every test runs identically against
-// both implementations (BoltStore and JSONStore). Only behaviour that both stores share is asserted; known
-// differences between the implementations are documented in comments next to the relevant test.
+// both implementations (BoltStore and JSONStore), including the errors returned for missing data, so both stores
+// must behave identically.
 
 type storeContractImpl struct {
 	name string
@@ -77,6 +77,10 @@ func TestStoreContract_CustomRaces(t *testing.T) {
 			t.Fatalf("expected no custom races in empty store, got %d", len(races))
 		}
 
+		if _, err := store.FindCustomRaceByID(uuid.New().String()); err != ErrCustomRaceNotFound {
+			t.Errorf("expected ErrCustomRaceNotFound on fresh store, got: %v", err)
+		}
+
 		raceA := &CustomRace{Name: "Race A", UUID: uuid.New(), Starred: true}
 		raceB := &CustomRace{Name: "Race B", UUID: uuid.New()}
 		raceB.RaceConfig.Track = "ks_vallelunga"
@@ -105,10 +109,8 @@ func TestStoreContract_CustomRaces(t *testing.T) {
 			t.Errorf("expected a fresh custom race not to be deleted")
 		}
 
-		// Missing races error in both stores. The error differs though: BoltStore returns ErrCustomRaceNotFound,
-		// JSONStore returns the raw *os.PathError (os.IsNotExist), so only err != nil is part of the contract.
-		if _, err := store.FindCustomRaceByID(uuid.New().String()); err == nil {
-			t.Errorf("expected an error finding a missing custom race")
+		if _, err := store.FindCustomRaceByID(uuid.New().String()); err != ErrCustomRaceNotFound {
+			t.Errorf("expected ErrCustomRaceNotFound for a missing custom race, got: %v", err)
 		}
 
 		races, err = store.ListCustomRaces()
@@ -171,8 +173,17 @@ func TestStoreContract_Entrants(t *testing.T) {
 			t.Fatalf("expected no entrants in empty store, got %d", len(entrants))
 		}
 
-		// NOTE: BoltStore clears Model, Skin and SpectatorMode on upsert, JSONStore stores them as-is.
-		alice := Entrant{Name: "Alice", Team: "Team A", GUID: "76561198000000001", Ballast: 10, Restrictor: 5}
+		// race specific values (Model, Skin, SpectatorMode) are not stored in the AutoFill entrant list
+		alice := Entrant{
+			Name:          "Alice",
+			Team:          "Team A",
+			GUID:          "76561198000000001",
+			Ballast:       10,
+			Restrictor:    5,
+			Model:         "ks_mazda_mx5_cup",
+			Skin:          "red",
+			SpectatorMode: 1,
+		}
 		bob := Entrant{Name: "Bob", Team: "Team B", GUID: "76561198000000002"}
 		// entrants without a GUID are identified by their name (Entrant.ID())
 		carol := Entrant{Name: "Carol", Team: "Team C"}
@@ -193,8 +204,16 @@ func TestStoreContract_Entrants(t *testing.T) {
 		assertStringSet(t, "entrants", entrantIDs(entrants), alice.GUID, bob.GUID, "Carol", "Dave")
 
 		for _, e := range entrants {
-			if e.GUID == alice.GUID && (e.Name != "Alice" || e.Team != "Team A" || e.Ballast != 10 || e.Restrictor != 5) {
+			if e.GUID != alice.GUID {
+				continue
+			}
+
+			if e.Name != "Alice" || e.Team != "Team A" || e.Ballast != 10 || e.Restrictor != 5 {
 				t.Errorf("entrant did not round-trip: %+v", e)
+			}
+
+			if e.Model != "" || e.Skin != "" || e.SpectatorMode != 0 {
+				t.Errorf("expected race specific values to be cleared, got model=%q skin=%q spectatorMode=%d", e.Model, e.Skin, e.SpectatorMode)
 			}
 		}
 
@@ -278,9 +297,9 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Fatalf("expected no accounts in empty store, got %d", len(accounts))
 		}
 
-		// NOTE: on a completely fresh BoltStore (no accounts bucket yet) FindAccountByName returns
-		// bbolt.ErrBucketNotFound instead of ErrAccountNotFound, so the missing-account check below is only made
-		// after the first account has been stored.
+		if _, err := store.FindAccountByName("nobody"); err != ErrAccountNotFound {
+			t.Errorf("expected ErrAccountNotFound on fresh store, got: %v", err)
+		}
 
 		admin := NewAccount()
 		admin.Name = "admin"
@@ -443,6 +462,10 @@ func TestStoreContract_Championships(t *testing.T) {
 			t.Fatalf("expected no championships in empty store, got %d", len(championships))
 		}
 
+		if _, err := store.LoadChampionship(uuid.New().String()); err != ErrChampionshipNotFound {
+			t.Errorf("expected ErrChampionshipNotFound on fresh store, got: %v", err)
+		}
+
 		champA := NewChampionship("Champ A")
 		champA.OpenEntrants = true
 		champA.Events = append(champA.Events, NewChampionshipEvent())
@@ -469,9 +492,8 @@ func TestStoreContract_Championships(t *testing.T) {
 			t.Errorf("championship did not round-trip: %+v", loaded)
 		}
 
-		// Missing championships error in both stores (BoltStore: ErrChampionshipNotFound, JSONStore: *os.PathError).
-		if _, err := store.LoadChampionship(uuid.New().String()); err == nil {
-			t.Errorf("expected an error loading a missing championship")
+		if _, err := store.LoadChampionship(uuid.New().String()); err != ErrChampionshipNotFound {
+			t.Errorf("expected ErrChampionshipNotFound for a missing championship, got: %v", err)
 		}
 
 		championships, err = store.ListChampionships()
@@ -505,8 +527,8 @@ func TestStoreContract_Championships(t *testing.T) {
 			t.Errorf("expected soft-deleted championship to have Deleted set")
 		}
 
-		if err := store.DeleteChampionship(uuid.New().String()); err == nil {
-			t.Errorf("expected an error deleting a missing championship")
+		if err := store.DeleteChampionship(uuid.New().String()); err != ErrChampionshipNotFound {
+			t.Errorf("expected ErrChampionshipNotFound deleting a missing championship, got: %v", err)
 		}
 	})
 }
@@ -557,9 +579,9 @@ func TestStoreContract_RaceWeekends(t *testing.T) {
 			t.Fatalf("expected no race weekends in empty store, got %d", len(raceWeekends))
 		}
 
-		// NOTE: on a completely fresh BoltStore (no raceWeekends bucket yet) LoadRaceWeekend returns
-		// bbolt.ErrBucketNotFound instead of ErrRaceWeekendNotFound, so the missing check is done after the first
-		// upsert.
+		if _, err := store.LoadRaceWeekend(uuid.New().String()); err != ErrRaceWeekendNotFound {
+			t.Errorf("expected ErrRaceWeekendNotFound on fresh store, got: %v", err)
+		}
 
 		rwA := NewRaceWeekend()
 		rwA.Name = "Weekend A"
@@ -631,9 +653,12 @@ func TestStoreContract_RaceWeekends(t *testing.T) {
 
 func TestStoreContract_AuditEntries(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
-		// NOTE: GetAuditEntries on an empty store returns an error in both stores, but a different one:
-		// BoltStore returns ErrValueNotSet, JSONStore returns the raw *os.PathError. Only "no entries" is asserted.
-		entries, _ := store.GetAuditEntries()
+		// no audit entries is not an error
+		entries, err := store.GetAuditEntries()
+
+		if err != nil {
+			t.Fatalf("get audit entries on empty store: %s", err)
+		}
 
 		if len(entries) != 0 {
 			t.Fatalf("expected no audit entries in empty store, got %d", len(entries))
@@ -655,7 +680,7 @@ func TestStoreContract_AuditEntries(t *testing.T) {
 			}
 		}
 
-		entries, err := store.GetAuditEntries()
+		entries, err = store.GetAuditEntries()
 
 		if err != nil {
 			t.Fatalf("get audit entries: %s", err)
@@ -681,9 +706,10 @@ func TestStoreContract_AuditEntries(t *testing.T) {
 
 func TestStoreContract_LastRaceEvent(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
-		// NOTE: LoadLastRaceEvent with nothing stored differs: BoltStore returns (nil, nil) once the liveTimings
-		// bucket exists (bbolt.ErrBucketNotFound before that), JSONStore returns (nil, *os.PathError).
-		// Only the nil event is asserted.
+		// nothing stored is not an error
+		if loaded, err := store.LoadLastRaceEvent(); err != nil || loaded != nil {
+			t.Errorf("expected (nil, nil) on fresh store, got (%T, %v)", loaded, err)
+		}
 
 		race := &CustomRace{Name: "Last Race", UUID: uuid.New()}
 		race.RaceConfig.Track = "spa"
@@ -730,10 +756,10 @@ func TestStoreContract_LastRaceEvent(t *testing.T) {
 			t.Fatalf("clear last race event: %s", err)
 		}
 
-		loaded, _ = store.LoadLastRaceEvent()
+		loaded, err = store.LoadLastRaceEvent()
 
-		if loaded != nil {
-			t.Errorf("expected no last race event after clear, got %T", loaded)
+		if err != nil || loaded != nil {
+			t.Errorf("expected (nil, nil) after clear, got (%T, %v)", loaded, err)
 		}
 
 		// clearing twice is not an error
@@ -745,6 +771,11 @@ func TestStoreContract_LastRaceEvent(t *testing.T) {
 
 func TestStoreContract_LiveTimingsData(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
+		// nothing stored is not an error
+		if lt, err := store.LoadLiveTimingsData(); err != nil || lt != nil {
+			t.Errorf("expected (nil, nil) on fresh store, got (%+v, %v)", lt, err)
+		}
+
 		in := &LiveTimingsPersistedData{
 			Track:       "ks_nurburgring",
 			TrackLayout: "gp",
@@ -834,15 +865,7 @@ func TestStoreContract_ServerOptions(t *testing.T) {
 
 func TestStoreContract_PluginOptions(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
-		// NOTE: on a completely fresh BoltStore the plugin option loaders return bbolt.ErrBucketNotFound (alongside
-		// the defaults), because they share the serverOptions bucket which only LoadServerOptions/Upsert* create.
-		// JSONStore returns the defaults without error. Loading server options first gives both stores the same
-		// starting point, which is also what happens at application startup.
-		if _, err := store.LoadServerOptions(); err != nil {
-			t.Fatal(err)
-		}
-
-		// defaults
+		// defaults, loaded on a completely fresh store
 		sto, err := store.LoadStrackerOptions()
 
 		if err != nil {

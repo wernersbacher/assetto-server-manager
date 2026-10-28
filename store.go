@@ -66,6 +66,17 @@ type Store interface {
 	LoadRealPenaltyOptions() (*RealPenaltyConfig, error)
 }
 
+// autoFillEntrant prepares an entrant for storage in the AutoFill entrant list. The list is used to fill in
+// driver details (name, team, GUID) when building entry lists, so race specific values (car, skin, spectator mode)
+// are cleared out and not stored.
+func autoFillEntrant(entrant Entrant) Entrant {
+	entrant.Model = ""
+	entrant.Skin = ""
+	entrant.SpectatorMode = 0
+
+	return entrant
+}
+
 func loadChampionshipRaceWeekends(championship *Championship, store Store) error {
 	var err error
 

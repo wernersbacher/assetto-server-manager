@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -950,7 +949,7 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *Championship, e
 	championship, err := cm.store.LoadChampionship(championshipID)
 
 	if err != nil {
-		if err == ErrChampionshipNotFound || os.IsNotExist(err) {
+		if err == ErrChampionshipNotFound {
 			logrus.Warnf("Scheduled championship event %s not started: championship %s no longer exists", eventID, championshipID)
 			return nil
 		}

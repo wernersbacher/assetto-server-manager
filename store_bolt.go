@@ -82,7 +82,9 @@ func (rs *BoltStore) FindCustomRaceByID(uuid string) (*CustomRace, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.customRaceBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			return ErrCustomRaceNotFound
+		} else if err != nil {
 			return err
 		}
 
@@ -161,10 +163,7 @@ func (rs *BoltStore) UpsertEntrant(entrant Entrant) error {
 			return err
 		}
 
-		// clear out some race specific values
-		entrant.Model = ""
-		entrant.Skin = ""
-		entrant.SpectatorMode = 0
+		entrant = autoFillEntrant(entrant)
 
 		encoded, err := rs.encode(entrant)
 
@@ -415,7 +414,9 @@ func (rs *BoltStore) LoadChampionship(id string) (*Championship, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.championshipsBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			return ErrChampionshipNotFound
+		} else if err != nil {
 			return err
 		}
 
@@ -528,7 +529,9 @@ func (rs *BoltStore) FindAccountByName(name string) (*Account, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.accountsBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			return ErrAccountNotFound
+		} else if err != nil {
 			return err
 		}
 
@@ -659,7 +662,8 @@ func (rs *BoltStore) GetAuditEntries() ([]*AuditEntry, error) {
 		bkt, err := rs.auditBucket(tx)
 
 		if err == bbolt.ErrBucketNotFound {
-			return ErrValueNotSet
+			// no audit entries recorded yet
+			return nil
 		} else if err != nil {
 			return err
 		}
@@ -667,7 +671,7 @@ func (rs *BoltStore) GetAuditEntries() ([]*AuditEntry, error) {
 		val := bkt.Get([]byte("audit"))
 
 		if val == nil {
-			return ErrValueNotSet
+			return nil
 		}
 
 		err = rs.decode(val, &audits)
@@ -681,7 +685,7 @@ func (rs *BoltStore) GetAuditEntries() ([]*AuditEntry, error) {
 func (rs *BoltStore) AddAuditEntry(entry *AuditEntry) error {
 	entries, err := rs.GetAuditEntries()
 
-	if err != nil && err != ErrValueNotSet {
+	if err != nil {
 		return err
 	}
 
@@ -783,7 +787,9 @@ func (rs *BoltStore) LoadRaceWeekend(id string) (*RaceWeekend, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.raceWeekendsBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			return ErrRaceWeekendNotFound
+		} else if err != nil {
 			return err
 		}
 
@@ -840,7 +846,10 @@ func (rs *BoltStore) LoadStrackerOptions() (*StrackerConfiguration, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			// nothing stored yet
+			return nil
+		} else if err != nil {
 			return err
 		}
 
@@ -881,7 +890,10 @@ func (rs *BoltStore) LoadKissMyRankOptions() (*KissMyRankConfig, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			// nothing stored yet
+			return nil
+		} else if err != nil {
 			return err
 		}
 
@@ -922,7 +934,10 @@ func (rs *BoltStore) LoadRealPenaltyOptions() (*RealPenaltyConfig, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			// nothing stored yet
+			return nil
+		} else if err != nil {
 			return err
 		}
 
@@ -976,7 +991,10 @@ func (rs *BoltStore) LoadLiveTimingsData() (*LiveTimingsPersistedData, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			// nothing stored yet
+			return nil
+		} else if err != nil {
 			return err
 		}
 
@@ -1016,7 +1034,10 @@ func (rs *BoltStore) LoadLastRaceEvent() (RaceEvent, error) {
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
-		if err != nil {
+		if err == bbolt.ErrBucketNotFound {
+			// nothing stored yet
+			return nil
+		} else if err != nil {
 			return err
 		}
 
