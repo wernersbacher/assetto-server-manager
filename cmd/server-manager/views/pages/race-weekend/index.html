@@ -72,8 +72,10 @@
 
                             {{ if WriteAccess }}
                                 <a class="btn btn-sm btn-warning" href="/race-weekend/{{ .ID }}/edit">Edit</a>
-                                <a onClick="return confirm('I understand that this will delete the entire Race Weekend permanently.') "
-                                   class="btn btn-sm btn-danger {{ if not DeleteAccess }}disabled{{ end }}" href="/race-weekend/{{ .ID }}/delete">Delete</a>
+                                <form method="post" action="/race-weekend/{{ .ID }}/delete" class="d-inline"
+                                      onsubmit="return confirm('I understand that this will delete the entire Race Weekend permanently.');">
+                                    <button type="submit" class="btn btn-sm btn-danger" {{ if not DeleteAccess }}disabled{{ end }}>Delete</button>
+                                </form>
                             {{ end }}
                         </td>
                     </tr>
@@ -116,8 +118,10 @@
 
                             {{ if WriteAccess }}
                                 <a class="btn btn-sm btn-warning" href="/race-weekend/{{ .ID }}/edit">Edit</a>
-                                <a onClick="return confirm('I understand that this will delete the entire Race Weekend permanently.') "
-                                   class="btn btn-sm btn-danger {{ if not DeleteAccess }}disabled{{ end }}" href="/race-weekend/{{ .ID }}/delete">Delete</a>
+                                <form method="post" action="/race-weekend/{{ .ID }}/delete" class="d-inline"
+                                      onsubmit="return confirm('I understand that this will delete the entire Race Weekend permanently.');">
+                                    <button type="submit" class="btn btn-sm btn-danger" {{ if not DeleteAccess }}disabled{{ end }}>Delete</button>
+                                </form>
                             {{ end }}
                         </td>
                     </tr>

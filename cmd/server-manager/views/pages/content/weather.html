@@ -63,7 +63,9 @@
 
                 {{ if DeleteAccess }}
                     <td class="text-center">
-                        <a href="{{ print "/weather/delete/" $i }}"><i class="fas fa-trash fa text-danger"></i></a>
+                        <form method="post" action="{{ print "/weather/delete/" $i }}" class="d-inline">
+                            <button type="submit" class="btn btn-link p-0"><i class="fas fa-trash fa text-danger"></i></button>
+                        </form>
                     </td>
                 {{ end }}
             </tr>

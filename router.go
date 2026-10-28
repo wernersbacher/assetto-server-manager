@@ -283,7 +283,7 @@ func Router(
 		// race weekend
 		r.Get("/race-weekends/new", raceWeekendHandler.createOrEdit)
 		r.Post("/race-weekends/new/submit", raceWeekendHandler.submit)
-		r.Get("/race-weekend/{raceWeekendID}/delete", raceWeekendHandler.delete)
+		r.Post("/race-weekend/{raceWeekendID}/delete", raceWeekendHandler.delete)
 		r.Get("/race-weekend/{raceWeekendID}/edit", raceWeekendHandler.createOrEdit)
 		r.Get("/race-weekend/{raceWeekendID}/session", raceWeekendHandler.sessionConfiguration)
 		r.Post("/race-weekend/{raceWeekendID}/session/submit", raceWeekendHandler.submitSessionConfiguration)
@@ -309,22 +309,22 @@ func Router(
 			r.Use(auditLogHandler.Middleware)
 		}
 
-		r.Get("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.deleteEvent)
-		r.Get("/championship/{championshipID}/delete", championshipsHandler.delete)
-		r.Get("/custom/delete/{uuid}", customRaceHandler.delete)
+		r.Post("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.deleteEvent)
+		r.Post("/championship/{championshipID}/delete", championshipsHandler.delete)
+		r.Post("/custom/delete/{uuid}", customRaceHandler.delete)
 		r.Post("/results/{fileName}/delete", resultsHandler.delete)
 
-		r.Get("/track/{name}/delete", tracksHandler.delete)
-		r.Get("/car/{name}/delete", carsHandler.delete)
+		r.Post("/track/{name}/delete", tracksHandler.delete)
+		r.Post("/car/{name}/delete", carsHandler.delete)
 		r.Post("/car/{name}/skin/delete", carsHandler.deleteSkin)
-		r.Get("/weather/delete/{key}", weatherHandler.delete)
-		r.Get("/setups/delete/{car}/{track}/{setup}", carSetupDeleteHandler)
+		r.Post("/weather/delete/{key}", weatherHandler.delete)
+		r.Post("/setups/delete/{car}/{track}/{setup}", carSetupDeleteHandler)
 
 		r.Get("/autofill-entrants", serverAdministrationHandler.autoFillEntrantList)
-		r.Get("/autofill-entrants/delete/{entrantID}", serverAdministrationHandler.autoFillEntrantDelete)
+		r.Post("/autofill-entrants/delete/{entrantID}", serverAdministrationHandler.autoFillEntrantDelete)
 
 		// race weekend
-		r.Get("/race-weekend/{raceWeekendID}/session/{sessionID}/delete", raceWeekendHandler.deleteSession)
+		r.Post("/race-weekend/{raceWeekendID}/session/{sessionID}/delete", raceWeekendHandler.deleteSession)
 	})
 
 	// admins
@@ -341,7 +341,7 @@ func Router(
 		r.HandleFunc("/audit-logs", auditLogHandler.viewLogs)
 		r.HandleFunc("/accounts/new", accountHandler.createOrEditAccount)
 		r.HandleFunc("/accounts/edit/{id}", accountHandler.createOrEditAccount)
-		r.HandleFunc("/accounts/delete/{id}", accountHandler.deleteAccount)
+		r.Post("/accounts/delete/{id}", accountHandler.deleteAccount)
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.resetPassword)
 		r.HandleFunc("/accounts/toggle-open", accountHandler.toggleServerOpenStatus)
 		r.HandleFunc("/accounts", accountHandler.manageAccounts)

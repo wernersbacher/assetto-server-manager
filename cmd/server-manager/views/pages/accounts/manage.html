@@ -24,10 +24,10 @@
                             Edit
                         </a>
                         {{ if ne $.BaseTemplateVars.User.ID.String $account.ID.String }}
-                            <a onClick="return confirm('I understand that this will delete this account permanently.') "
-                               class="btn btn-danger" href="/accounts/delete/{{ $account.ID.String }}">
-                                Delete
-                            </a>
+                            <form method="post" action="/accounts/delete/{{ $account.ID.String }}" class="d-inline"
+                                  onsubmit="return confirm('I understand that this will delete this account permanently.');">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
                         {{ end }}
                     {{ end }}
                 </td>

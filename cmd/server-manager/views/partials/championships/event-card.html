@@ -363,10 +363,10 @@
                                         </a>
 
                                         {{ if DeleteAccess }}
-                                            <a onClick="return confirm('I understand that this will delete this entire event permanently.') "
-                                               class="dropdown-item text-danger" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete">
-                                                Delete
-                                            </a>
+                                            <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
+                                                  onsubmit="return confirm('I understand that this will delete this entire event permanently.');">
+                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                            </form>
                                         {{ end }}
                                     </div>
                                 </div>
@@ -410,10 +410,10 @@
                                         </a>
 
                                         {{ if DeleteAccess }}
-                                            <a onClick="return confirm('I understand that this will delete this entire event permanently.') "
-                                               class="dropdown-item text-danger" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete">
-                                                Delete
-                                            </a>
+                                            <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
+                                                  onsubmit="return confirm('I understand that this will delete this entire event permanently.');">
+                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                            </form>
                                         {{ end }}
                                     </div>
                                 </div>

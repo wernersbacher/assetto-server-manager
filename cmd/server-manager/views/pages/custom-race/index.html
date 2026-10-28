@@ -122,12 +122,10 @@
                         <a class="btn btn-primary" href="/custom/new?from={{ $.Race.UUID.String }}">Use as Template</a>
 
                         {{ if DeleteAccess }}
-                            <a onClick="return confirm('I understand that this will delete this race setup permanently');"
-                               class="btn btn-danger"
-                               href="/custom/delete/{{ $.Race.UUID.String }}"
-                            >
-                                Delete
-                            </a>
+                            <form method="post" action="/custom/delete/{{ $.Race.UUID.String }}" class="d-inline"
+                                  onsubmit="return confirm('I understand that this will delete this race setup permanently');">
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
                         {{ end }}
                     {{ end }}
 

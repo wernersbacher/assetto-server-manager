@@ -108,7 +108,9 @@
                             </div>
 
                             {{ if DeleteAccess }}
-                                <a class="delete-car" href="/car/{{ $car.Name }}/delete"><i class="fa fa-trash"></i></a>
+                                <form method="post" action="/car/{{ $car.Name }}/delete" class="delete-car">
+                                    <button type="submit" class="btn btn-link text-danger p-0"><i class="fa fa-trash"></i></button>
+                                </form>
                             {{ end }}
 
                             {{ range $index, $tag := $car.Details.Tags }}

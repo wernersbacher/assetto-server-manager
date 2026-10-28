@@ -158,11 +158,10 @@
                 <div class="card-body">
                     <p class="float-left">Permanently delete this track and all associated layouts.</p>
 
-                    <a onclick="return confirm('Are you sure you want to permanently delete this track and all associated layouts?');"
-                       class="btn btn-danger float-right"
-                       href="/track/{{ $.Track.Name }}/delete">
-                        Delete Track
-                    </a>
+                    <form method="post" action="/track/{{ $.Track.Name }}/delete" class="float-right"
+                          onsubmit="return confirm('Are you sure you want to permanently delete this track and all associated layouts?');">
+                        <button type="submit" class="btn btn-danger">Delete Track</button>
+                    </form>
 
                     <div class="clearfix"></div>
                 </div>

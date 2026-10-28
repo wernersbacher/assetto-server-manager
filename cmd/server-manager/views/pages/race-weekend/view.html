@@ -314,10 +314,10 @@
                                     {{ end }}
 
                                     {{ if DeleteAccess }}
-                                        <a onClick="return confirm('I understand that this will delete this entire session permanently.') "
-                                           class="dropdown-item text-danger" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/delete">
-                                            Delete
-                                        </a>
+                                        <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/delete"
+                                              onsubmit="return confirm('I understand that this will delete this entire session permanently.');">
+                                            <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                        </form>
                                     {{ end }}
                                 </div>
                             </div>
