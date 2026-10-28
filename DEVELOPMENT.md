@@ -15,6 +15,7 @@ Requirements: Go (e.g. `scoop install go`) and Node.js >= 22.12 with npm (24 LTS
 ./dev/run.ps1             # build frontend (first time only), generate embedded assets, build and start
 ./dev/run.ps1 -Frontend   # also rebuild the frontend
 ./dev/run.ps1 -Reset      # throw away local data (database, fake install, config.yml) and start fresh
+./dev/run.ps1 -Seed      # also fill the database with test data (see below), then start
 ./dev/run.ps1 -NoRun      # only build
 ```
 
@@ -24,6 +25,16 @@ need a restart of the script.
 
 On first run, `dev/config.yml` is copied to `cmd/server-manager/config.yml` and `dev/assetto-seed` to
 `cmd/server-manager/assetto` (both gitignored). Edit those copies to try things locally.
+
+### Test data
+
+`-Seed` runs `cmd/utils/dev-seed` (also usable on its own: `go run ./cmd/utils/dev-seed -dir cmd/server-manager`),
+which fills the local dev instance with 10 drivers, ~18 result files (practice/qualify/race on `dev_ring` gp/short and
+`dev_track`), the championships "Dev Cup" (2 classes, drop worst result, championship race settings, 4 completed events
+and 1 scheduled) and "Dev Sprint Series" (1 completed, 2 scheduled, one weekly), 3 custom races (starred, scheduled,
+weekly) and a race weekend. It prints the championship standings as a sanity check. The server must not be running (the
+database is locked otherwise). Running it again does nothing; `-reset` (tool flag) removes the seeded data and seeds again,
+`./dev/run.ps1 -Reset -Seed` starts from a fresh database. The admin account is not touched.
 
 ### Frontend
 

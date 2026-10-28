@@ -19,11 +19,17 @@
 
 .PARAMETER NoRun
     Only build, don't start the server.
+
+.PARAMETER Seed
+    Fill the local database and fake install with test data (drivers, results, championships, custom races, a race
+    weekend) via cmd/utils/dev-seed, after the build and before starting the server. Does nothing if the data is already
+    seeded; use together with -Reset to start from a fresh database. The server must not be running.
 #>
 param(
     [switch]$Frontend,
     [switch]$Reset,
-    [switch]$NoRun
+    [switch]$NoRun,
+    [switch]$Seed
 )
 
 $ErrorActionPreference = 'Stop'
@@ -97,6 +103,15 @@ if (-not (Test-Path $configFile)) {
 if (-not (Test-Path $assettoDir)) {
     Write-Host '==> Creating fake Assetto Corsa install from dev/assetto-seed' -ForegroundColor Cyan
     Copy-Item -Recurse (Join-Path $PSScriptRoot 'assetto-seed') $assettoDir
+}
+
+if ($Seed) {
+    Push-Location $repoRoot
+    try {
+        Invoke-Checked 'Seeding dev data' { go run ./cmd/utils/dev-seed -dir $appDir }
+    } finally {
+        Pop-Location
+    }
 }
 
 if ($NoRun) { return }

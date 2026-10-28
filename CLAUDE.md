@@ -47,6 +47,7 @@ http://localhost:8772:
 ./dev/run.ps1 -Frontend   # also rebuild TypeScript/SCSS
 ./dev/run.ps1 -Reset      # wipe local DB/config/fake install
 ./dev/run.ps1 -NoRun      # build only
+./dev/run.ps1 -Seed       # fill the DB with test data first (cmd/utils/dev-seed; server must be stopped; idempotent)
 docker compose up --build # alternative: production Dockerfile with dev config
 ```
 
