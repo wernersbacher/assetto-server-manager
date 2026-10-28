@@ -8,10 +8,12 @@ import (
 	"io/ioutil"
 	"math"
 	"math/rand"
+	"mime"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -860,13 +862,13 @@ func (cm *CarManager) uploadSkinFile(carDirectory string, header *multipart.File
 
 	defer r.Close()
 
-	fileDirectory := filepath.Join(carDirectory, filepath.Dir(header.Filename))
+	filePath := filepath.Join(carDirectory, skinUploadFilePath(header))
 
-	if err := os.MkdirAll(fileDirectory, 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
 		return err
 	}
 
-	w, err := os.Create(filepath.Join(fileDirectory, filepath.Base(header.Filename)))
+	w, err := os.Create(filePath)
 
 	if err != nil {
 		return err
@@ -877,6 +879,23 @@ func (cm *CarManager) uploadSkinFile(carDirectory string, header *multipart.File
 	_, err = io.Copy(w, r)
 
 	return err
+}
+
+// skinUploadFilePath returns the path of an uploaded skin file relative to the car's skins directory, e.g.
+// "my_skin/livery.png". Browsers send the skin folder as part of the file name, but since Go 1.17
+// multipart.FileHeader.Filename only contains the base name, so the full name is read from the
+// Content-Disposition header. The path is cleaned so that it can't point outside of the skins directory.
+func skinUploadFilePath(header *multipart.FileHeader) string {
+	filename := header.Filename
+
+	if _, params, err := mime.ParseMediaType(header.Header.Get("Content-Disposition")); err == nil && params["filename"] != "" {
+		filename = params["filename"]
+	}
+
+	// cleaning the path as an absolute path removes any leading "../"
+	cleaned := path.Clean("/" + strings.ReplaceAll(filename, "\\", "/"))
+
+	return filepath.FromSlash(strings.TrimPrefix(cleaned, "/"))
 }
 
 func (cm *CarManager) DeleteSkin(car, skin string) error {
