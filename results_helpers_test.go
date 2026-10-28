@@ -675,6 +675,57 @@ func TestSessionResultsFastestLapInClass(t *testing.T) {
 	}
 }
 
+func TestSessionResultsFastestLapOnlyCutLaps(t *testing.T) {
+	results := &SessionResults{Laps: []*SessionLap{
+		helperLap(1, helperGUIDAlice, "", helperModelFerrari, 90000, 1, nil, "", helperClassFerrari),
+		helperLap(2, helperGUIDBob, "", helperModelFerrari, 95000, 2, nil, "", helperClassFerrari),
+		helperLap(3, helperGUIDCarl1, "", helperModelPorsche, 99000, 0, nil, "", helperClassPorsche),
+	}}
+
+	if got := results.FastestLapInClass(helperClassFerrari); got != nil {
+		t.Errorf("FastestLapInClass with only cut laps = %+v, want nil", got)
+	}
+
+	if got := results.FastestLapInClass(helperClassPorsche); got != results.Laps[2] {
+		t.Errorf("FastestLapInClass = %+v, want the clean porsche lap", got)
+	}
+
+	if got := results.FastestLap(); got != results.Laps[2] {
+		t.Errorf("FastestLap = %+v, want the only clean lap", got)
+	}
+
+	results.Laps = results.Laps[:2]
+
+	if got := results.FastestLap(); got != nil {
+		t.Errorf("FastestLap with only cut laps = %+v, want nil", got)
+	}
+}
+
+func TestSessionResultsFastestSectorMissingSectors(t *testing.T) {
+	results := &SessionResults{Laps: []*SessionLap{
+		helperLap(1, helperGUIDAlice, "", helperModelFerrari, 100000, 0, []int{30000, 40000, 30000}, "", uuid.Nil),
+		helperLap(1, helperGUIDAlice, "", helperModelFerrari, 70000, 0, []int{30000, 40000}, "", uuid.Nil),
+		helperLap(1, helperGUIDAlice, "", helperModelFerrari, 1000, 0, nil, "", uuid.Nil),
+	}}
+
+	// laps without that sector are skipped instead of panicking
+	if !results.IsFastestSector(2, 30000, 0) {
+		t.Error("IsFastestSector(2) = false, want true")
+	}
+
+	if results.IsFastestSector(1, 41000, 0) {
+		t.Error("IsFastestSector(1, slower) = true, want false")
+	}
+
+	if !results.IsDriversFastestSector(helperGUIDAlice, helperModelFerrari, 2, 30000, 0) {
+		t.Error("IsDriversFastestSector(2) = false, want true")
+	}
+
+	if results.IsDriversFastestSector(helperGUIDAlice, helperModelFerrari, 1, 41000, 0) {
+		t.Error("IsDriversFastestSector(1, slower) = true, want false")
+	}
+}
+
 func TestSessionResultsDriverSwaps(t *testing.T) {
 	results := newHelperResults()
 

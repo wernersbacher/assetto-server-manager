@@ -570,6 +570,10 @@ func (s *SessionResults) IsFastestSector(sector, time, cuts int) bool {
 	fastest := true
 
 	for _, lap := range s.Laps {
+		if sector >= len(lap.Sectors) {
+			continue
+		}
+
 		if lap.Sectors[sector] < time && lap.Cuts == 0 {
 			fastest = false
 			break
@@ -587,6 +591,10 @@ func (s *SessionResults) IsDriversFastestSector(guid, model string, sector, time
 	fastest := true
 
 	for _, lap := range s.Laps {
+		if sector >= len(lap.Sectors) {
+			continue
+		}
+
 		if lap.Sectors[sector] < time && lap.DriverGUID == guid && lap.CarModel == model && lap.Cuts == 0 {
 			fastest = false
 			break
@@ -948,28 +956,27 @@ func (s *SessionResults) GetCuts(driverGUID, model string) int {
 	return i
 }
 
+// FastestLap returns the fastest clean lap of the session, or nil if there is none.
 func (s *SessionResults) FastestLap() *SessionLap {
-	if len(s.Laps) == 0 {
-		return nil
+	return fastestCleanLap(s.Laps, func(*SessionLap) bool { return true })
+}
+
+// fastestCleanLap returns the fastest lap without cuts that matches filter (the first one on equal times),
+// or nil if there is none.
+func fastestCleanLap(laps []*SessionLap, filter func(lap *SessionLap) bool) *SessionLap {
+	var fastest *SessionLap
+
+	for _, lap := range laps {
+		if lap.Cuts != 0 || !filter(lap) {
+			continue
+		}
+
+		if fastest == nil || lap.LapTime < fastest.LapTime {
+			fastest = lap
+		}
 	}
 
-	laps := make([]*SessionLap, len(s.Laps))
-
-	copy(laps, s.Laps)
-
-	sort.Slice(laps, func(i, j int) bool {
-		if laps[i].Cuts != 0 {
-			return false
-		}
-
-		if laps[j].Cuts != 0 {
-			return true
-		}
-
-		return laps[i].LapTime < laps[j].LapTime
-	})
-
-	return laps[0]
+	return fastest
 }
 
 func (s *SessionResults) ResultHasMultipleDrivers(result *SessionResult) bool {
@@ -1037,36 +1044,9 @@ func (s *SessionResults) LapAssociatedWithGUIDAndModel(lap *SessionLap, driverGU
 	return false
 }
 
+// FastestLapInClass returns the fastest clean lap of the given class, or nil if there is none.
 func (s *SessionResults) FastestLapInClass(classID uuid.UUID) *SessionLap {
-	if len(s.Laps) == 0 || s.Laps == nil {
-		return nil
-	}
-
-	var laps []*SessionLap
-
-	for _, lap := range s.Laps {
-		if lap.ClassID == classID {
-			laps = append(laps, lap)
-		}
-	}
-
-	if len(laps) == 0 {
-		return nil
-	}
-
-	sort.Slice(laps, func(i, j int) bool {
-		if laps[i].Cuts != 0 {
-			return false
-		}
-
-		if laps[j].Cuts != 0 {
-			return true
-		}
-
-		return laps[i].LapTime < laps[j].LapTime
-	})
-
-	return laps[0]
+	return fastestCleanLap(s.Laps, func(lap *SessionLap) bool { return lap.ClassID == classID })
 }
 
 type SessionResult struct {
