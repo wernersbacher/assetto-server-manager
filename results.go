@@ -451,14 +451,33 @@ func (s *SessionResults) GetOverallAverageLapTime() time.Duration {
 	return time.Duration(averageLapTimeMS(s.Laps)) * time.Millisecond
 }
 
+// carLaps returns all laps of the car the driver drove with the given model. Like GetNumLaps, it works per car: for
+// a driver swap car, the laps of all drivers are returned, whether guid is one of the drivers or the joined GUID.
+func (s *SessionResults) carLaps(guid, model string) []*SessionLap {
+	carID, ok := s.FindCarIDForGUIDAndModel(guid, model)
+
+	if !ok {
+		return nil
+	}
+
+	var laps []*SessionLap
+
+	for _, lap := range s.Laps {
+		if lap.CarID == carID {
+			laps = append(laps, lap)
+		}
+	}
+
+	return laps
+}
+
+// GetConsistency compares the best clean lap with the average lap time (both of the whole car) in percent.
 func (s *SessionResults) GetConsistency(guid, model string) float64 {
 	var bestLap int
 
-	for _, lap := range s.Laps {
-		if lap.DriverGUID == guid && lap.CarModel == model {
-			if s.IsDriversFastestLap(guid, model, lap.LapTime, lap.Cuts) {
-				bestLap = lap.LapTime
-			}
+	for _, lap := range s.carLaps(guid, model) {
+		if lap.Cuts == 0 && (bestLap == 0 || lap.LapTime < bestLap) {
+			bestLap = lap.LapTime
 		}
 	}
 
@@ -869,11 +888,12 @@ func (s *SessionResults) HasHandicaps() bool {
 	return false
 }
 
+// GetPotentialLap sums up the best sectors of all clean laps of the driver's car.
 func (s *SessionResults) GetPotentialLap(driverGUID, model string) time.Duration {
 	var sectors []int
 
-	for _, lap := range s.Laps {
-		if lap.DriverGUID != driverGUID || lap.CarModel != model || lap.Cuts > 0 {
+	for _, lap := range s.carLaps(driverGUID, model) {
+		if lap.Cuts > 0 {
 			continue
 		}
 
@@ -895,16 +915,9 @@ func (s *SessionResults) GetPotentialLap(driverGUID, model string) time.Duration
 	return totalSectorTime
 }
 
+// GetLastLapPos returns the position of the driver's car when it completed its last lap.
 func (s *SessionResults) GetLastLapPos(driverGUID, model string) int {
-	var driverLaps int
-
-	for i := range s.Laps {
-		if s.Laps[i].DriverGUID == driverGUID && s.Laps[i].CarModel == model {
-			driverLaps++
-		}
-	}
-
-	return s.GetPosForLap(driverGUID, model, int64(driverLaps))
+	return s.GetPosForLap(driverGUID, model, int64(len(s.carLaps(driverGUID, model))))
 }
 
 func (s *SessionResults) GetDriverPosition(driverGUID, model string) int {

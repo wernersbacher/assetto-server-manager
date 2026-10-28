@@ -226,6 +226,9 @@ func TestSessionResultsGetConsistency(t *testing.T) {
 		{"consistent driver", helperGUIDAlice, helperModelFerrari, 99.49},
 		// best clean lap 101.0s (95.0s is cut), average 101.0s
 		{"cut lap ignored", helperGUIDBob, helperModelFerrari, 100},
+		// best lap and average are both taken from the whole car: best 99.0s, average 101.5s
+		{"swap by normalised guid", helperGUIDSwap, helperModelPorsche, 97.47},
+		{"swap by single guid", helperGUIDCarl1, helperModelPorsche, 97.47},
 		{"no laps", helperGUIDDan, helperModelFerrari, 0},
 		{"unknown driver", "9999", helperModelFerrari, 0},
 	} {
@@ -274,7 +277,10 @@ func TestSessionResultsGetLastLapPos(t *testing.T) {
 	}{
 		{"alice", helperGUIDAlice, helperModelFerrari, 1},
 		{"bob", helperGUIDBob, helperModelFerrari, 2},
+		{"swap by normalised guid", helperGUIDSwap, helperModelPorsche, 3},
+		{"swap by second driver guid", helperGUIDCarl2, helperModelPorsche, 3},
 		{"no laps", helperGUIDDan, helperModelFerrari, 0},
+		{"unknown driver", "9999", helperModelFerrari, 0},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			if got := results.GetLastLapPos(tc.guid, tc.model); got != tc.want {
@@ -590,8 +596,10 @@ func TestSessionResultsGetPotentialLap(t *testing.T) {
 		{"best sectors of different laps", helperGUIDAlice, helperModelFerrari, 97500 * time.Millisecond},
 		// cut lap (28.0, 38.0, 29.0) ignored: 30.5 + 39.5 + 31.0
 		{"cut lap ignored", helperGUIDBob, helperModelFerrari, 101 * time.Second},
-		// only Carl1's laps: 34.0 + 35.0 + 34.0
-		{"single driver of a swap car", helperGUIDCarl1, helperModelPorsche, 103 * time.Second},
+		// all laps of the car count, like for the other per-car helpers: 33.0 + 35.0 + 30.0
+		{"swap by normalised guid", helperGUIDSwap, helperModelPorsche, 98 * time.Second},
+		{"swap by single guid", helperGUIDCarl1, helperModelPorsche, 98 * time.Second},
+		{"unknown driver", "9999", helperModelFerrari, 0},
 		{"no laps", helperGUIDDan, helperModelFerrari, 0},
 		{"wrong model", helperGUIDAlice, helperModelPorsche, 0},
 	} {
