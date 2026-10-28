@@ -160,6 +160,22 @@ func TestChampionship_AddEntrantInFirstFreeSlot(t *testing.T) {
 		}
 	})
 
+	t.Run("entrant without guid is rejected", func(t *testing.T) {
+		championship := NewChampionship("Test")
+		free := modelTestSlot("car_a", "", "", "")
+		championship.AddClass(modelTestClass("A", free))
+
+		found, entrant, entrantClass, err := championship.AddEntrantInFirstFreeSlot(ChampionshipSignUpResponse{Name: "Driver", Team: "Team"})
+
+		if err != ErrEntrantHasNoGUID || found || entrant != nil || entrantClass != nil {
+			t.Errorf("expected ErrEntrantHasNoGUID, got found=%v entrant=%v class=%v err=%v", found, entrant, entrantClass, err)
+		}
+
+		if free.Name != "" || free.GUID != "" || free.Team != "" {
+			t.Errorf("free slot was modified: %+v", free)
+		}
+	})
+
 	t.Run("no classes", func(t *testing.T) {
 		championship := NewChampionship("Test")
 

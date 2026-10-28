@@ -819,9 +819,16 @@ type PotentialChampionshipEntrant interface {
 
 var ErrEntryListFull = errors.New("servermanager: entry list is full")
 
+var ErrEntrantHasNoGUID = errors.New("servermanager: entrant has no GUID")
+
 var entryListMutex = sync.Mutex{}
 
 func (c *Championship) AddEntrantInFirstFreeSlot(potentialEntrant PotentialChampionshipEntrant) (foundFreeEntrantSlot bool, entrant *Entrant, entrantClass *ChampionshipClass, err error) {
+	if potentialEntrant.GetGUID() == "" {
+		// an empty GUID would match every free slot as an existing entrant (and couldn't take a slot anyway)
+		return false, nil, nil, ErrEntrantHasNoGUID
+	}
+
 	entryListMutex.Lock()
 	defer entryListMutex.Unlock()
 
