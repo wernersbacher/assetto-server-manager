@@ -235,6 +235,11 @@ func (crh *CustomRaceHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 
 		eventConfig = session.RaceConfig
+
+		if raceWeekend.HasLinkedChampionship() {
+			eventConfig = raceWeekend.Championship.EffectiveRaceWeekendSessionSetup(raceWeekend.ID, eventConfig)
+		}
+
 		eventName = fmt.Sprintf("%s (%s)", session.Name(), raceWeekend.Name)
 		rwe, err := session.GetRaceWeekendEntryList(raceWeekend, nil, "")
 

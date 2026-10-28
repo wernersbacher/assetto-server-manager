@@ -986,6 +986,9 @@ type RaceTemplateVars struct {
 	ChampionshipHasAtLeastOnceRace bool
 	ChampionshipEventIndex         int
 
+	// UseChampionshipRaceSettings is the state of the "Use championship race settings" checkbox of the event form.
+	UseChampionshipRaceSettings bool
+
 	IsRaceWeekend                   bool
 	RaceWeekend                     *RaceWeekend
 	RaceWeekendSession              *RaceWeekendSession

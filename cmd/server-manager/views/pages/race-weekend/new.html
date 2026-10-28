@@ -81,6 +81,29 @@
                         </div>
                     {{ else }}
                         <input type="hidden" name="ChampionshipID" id="ChampionshipID" value="{{ $.Championship.ID }}">
+
+                        {{ if $.Championship.HasRaceSettings }}
+                            {{ $useSettings := not $.IsEditing }}
+
+                            {{ with $.Championship.RaceWeekendEvent $.RaceWeekend.ID }}
+                                {{ $useSettings = .UseChampionshipRaceSettings }}
+                            {{ end }}
+
+                            <div class="form-group row">
+                                <label for="UseChampionshipRaceSettings" class="col-sm-3 col-form-label">Use championship race settings</label>
+
+                                <div class="col-sm-9">
+                                    <input type="checkbox" id="UseChampionshipRaceSettings" name="UseChampionshipRaceSettings" value="1"
+                                           {{ if $useSettings }} checked="checked" {{ end }}><br>
+
+                                    <small>
+                                        When enabled, fuel rate, damage, tyre wear, allowed tyres out, assists, virtual mirror and
+                                        dynamic track of all sessions of this Race Weekend are taken from the Championship.
+                                        The values configured in the sessions are kept but ignored while this is enabled.
+                                    </small>
+                                </div>
+                            </div>
+                        {{ end }}
                     {{ end }}
 
                     <div class="clearfix"></div>

@@ -56,6 +56,78 @@
           data-safe-submit
     >
 
+        {{ if .IsChampionship }}{{ if .Championship.HasRaceSettings }}
+            <div class="card mt-3 border-secondary">
+                <div class="card-header">
+                    <strong>Championship Race Settings</strong>
+                </div>
+
+                <div class="card-body">
+                    <div class="form-group row mb-0">
+                        <label for="UseChampionshipRaceSettings" class="col-sm-3 col-form-label">Use championship race settings</label>
+
+                        <div class="col-sm-9">
+                            <input type="checkbox" id="UseChampionshipRaceSettings" name="UseChampionshipRaceSettings" value="1"
+                                   {{ if .UseChampionshipRaceSettings }} checked="checked" {{ end }}><br>
+
+                            <small>
+                                When enabled, fuel rate, damage, tyre wear, allowed tyres out, assists, virtual mirror and dynamic
+                                track of this event are taken from the Championship (edit the Championship to change them).
+                                The values configured for this event below are kept but ignored while this is enabled.
+                            </small>
+
+                            <div id="ChampionshipRaceSettingsNote" class="text-info mt-2" {{ if not .UseChampionshipRaceSettings }} style="display: none;" {{ end }}>
+                                The settings marked "set by the Championship" below are taken from the Championship.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                (function () {
+                    var checkbox = document.getElementById("UseChampionshipRaceSettings");
+                    var note = document.getElementById("ChampionshipRaceSettingsNote");
+                    var ids = ["ABSAllowed", "TractionControlAllowed", "StabilityControlAllowed", "AutoClutchAllowed",
+                        "TyreBlanketsAllowed", "ForceVirtualMirror", "FuelRate", "DamageMultiplier", "TyreWearRate",
+                        "AllowedTyresOut", "SessionStart", "Randomness", "SessionTransfer", "LapGain"];
+
+                    function update() {
+                        note.style.display = checkbox.checked ? "" : "none";
+
+                        ids.forEach(function (id) {
+                            var input = document.getElementById(id);
+
+                            if (!input) {
+                                return;
+                            }
+
+                            var group = input.closest(".form-group");
+                            var label = group ? group.querySelector("label") : null;
+                            var badge = group ? group.querySelector(".championship-setting-badge") : null;
+
+                            if (group) {
+                                group.style.opacity = checkbox.checked ? "0.5" : "";
+                            }
+
+                            if (checkbox.checked && label && !badge) {
+                                badge = document.createElement("span");
+                                badge.className = "championship-setting-badge badge badge-info ml-1";
+                                badge.textContent = "set by the Championship";
+                                label.appendChild(badge);
+                            } else if (!checkbox.checked && badge) {
+                                badge.parentNode.removeChild(badge);
+                            }
+                        });
+                    }
+
+                    // inputs stay enabled so the event's own values are still submitted and kept.
+                    checkbox.addEventListener("change", update);
+                    update();
+                })();
+            </script>
+        {{ end }}{{ end }}
+
         <div class="card mt-3 border-secondary">
             <div class="card-header">
                 <strong>Track{{ if not (or .IsChampionship .IsRaceWeekend) }} & Cars {{ end }}</strong>

@@ -294,6 +294,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	}
 
 	championship.DropWorstResults = dropWorstResults
+	championship.RaceSettings = ParseChampionshipRaceSettings(r)
 	championship.PersistOpenEntrants = r.FormValue("ChampionshipPersistOpenEntrants") == "on" || r.FormValue("ChampionshipPersistOpenEntrants") == "1"
 	championship.SignUpForm.Enabled = r.FormValue("Championship.SignUpForm.Enabled") == "on" || r.FormValue("Championship.SignUpForm.Enabled") == "1"
 	championship.SignUpForm.AskForEmail = r.FormValue("Championship.SignUpForm.AskForEmail") == "on" || r.FormValue("Championship.SignUpForm.AskForEmail") == "1"
@@ -527,6 +528,7 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*Rac
 		}
 
 		opts.Current = event.RaceSetup
+		opts.UseChampionshipRaceSettings = event.UseChampionshipRaceSettings
 		opts.IsEditing = true
 		opts.EditingID = editEventID
 		opts.CurrentEntrants = event.CombineEntryLists(championship)
@@ -534,6 +536,7 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*Rac
 	} else {
 		// creating a new championship event
 		opts.IsEditing = false
+		opts.UseChampionshipRaceSettings = championship.HasRaceSettings()
 		opts.CurrentEntrants = championship.AllEntrants()
 
 		// override Current race config if there is a previous championship race configured
@@ -617,11 +620,13 @@ func (cm *ChampionshipManager) SaveChampionshipEvent(r *http.Request) (champions
 		// we're editing an existing event
 		event.RaceSetup = *raceConfig
 		event.EntryList = entryList
+		event.UseChampionshipRaceSettings = r.FormValue("UseChampionshipRaceSettings") == "1"
 	} else {
 		// creating a new event
 		event = NewChampionshipEvent()
 		event.RaceSetup = *raceConfig
 		event.EntryList = entryList
+		event.UseChampionshipRaceSettings = r.FormValue("UseChampionshipRaceSettings") == "1"
 
 		championship.Events = append(championship.Events, event)
 	}
@@ -673,7 +678,8 @@ func (cm *ChampionshipManager) StartPracticeEvent(championshipID string, eventID
 }
 
 func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *Championship, event *ChampionshipEvent, isPreChampionshipPracticeEvent bool) (CurrentRaceConfig, EntryList) {
-	raceSetup := event.RaceSetup
+	// the event's stored config is never modified: championship wide settings are only applied to this copy.
+	raceSetup := championship.EffectiveRaceSetup(event)
 
 	raceSetup.Cars = strings.Join(championship.ValidCarIDs(), ";")
 

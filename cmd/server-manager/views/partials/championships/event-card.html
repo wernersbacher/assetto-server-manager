@@ -18,6 +18,10 @@
                 <strong>{{ prettify $eventSetup.Track false }} {{ with $eventSetup.TrackLayout }}({{ prettify . true }}){{ end }}</strong>
             {{ end }}
 
+            {{ if and $championship.RaceSettings $event.UseChampionshipRaceSettings }}
+                <span class="badge badge-info ml-2" data-toggle="tooltip" title="This event uses the race settings (fuel, tyre wear, damage, assists, dynamic track) of the championship.">Championship settings</span>
+            {{ end }}
+
             <div class="float-right">
                 {{ if $event.Completed }}
                     <span class="text-success">Completed on {{ localFormat $event.CompletedTime }}</span>

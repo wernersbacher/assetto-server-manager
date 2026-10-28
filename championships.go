@@ -136,6 +136,10 @@ type Championship struct {
 	// DropWorstResults is the number of worst event results that are dropped from each driver's (and team's)
 	// total when calculating standings. 0 (the default) means no results are dropped.
 	DropWorstResults int
+
+	// RaceSettings are race settings (fuel, tyre wear, damage, assists, dynamic track...) which are shared by all
+	// events of the championship that have UseChampionshipRaceSettings set. nil means the feature is off.
+	RaceSettings *ChampionshipRaceSettings
 }
 
 func (c *Championship) HasSpectatorCar() bool {
@@ -1584,6 +1588,10 @@ type ChampionshipEvent struct {
 	RaceSetup CurrentRaceConfig
 	EntryList EntryList
 
+	// UseChampionshipRaceSettings makes the event use the Championship's RaceSettings (if the championship has
+	// any) instead of the corresponding values in RaceSetup. RaceSetup always keeps the event's own values.
+	UseChampionshipRaceSettings bool
+
 	Sessions map[SessionType]*ChampionshipSession `json:",omitempty"`
 
 	// RaceWeekendID is the ID of the linked RaceWeekend for this ChampionshipEvent
@@ -1625,7 +1633,12 @@ func (cr *ChampionshipEvent) GetScheduledServerID() ServerID {
 	return cr.ScheduledServerID
 }
 
+// GetRaceSetup returns the effective race setup of the event (including championship wide race settings).
 func (cr *ChampionshipEvent) GetRaceSetup() CurrentRaceConfig {
+	if cr.championship != nil {
+		return cr.championship.EffectiveRaceSetup(cr)
+	}
+
 	return cr.RaceSetup
 }
 

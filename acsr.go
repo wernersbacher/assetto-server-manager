@@ -66,6 +66,19 @@ func (a *ACSRClient) SendChampionship(inChampionship Championship) {
 		return
 	}
 
+	// the clone is sent with the effective race settings. the stored championship is not affected.
+	for _, event := range championship.Events {
+		if event.IsRaceWeekend() {
+			if event.RaceWeekend != nil {
+				for _, session := range event.RaceWeekend.Sessions {
+					session.RaceConfig = championship.EffectiveRaceWeekendSessionSetup(event.RaceWeekendID, session.RaceConfig)
+				}
+			}
+		} else {
+			event.RaceSetup = championship.EffectiveRaceSetup(event)
+		}
+	}
+
 	championship.Events = ExtractRaceWeekendSessionsIntoIndividualEvents(championship.Events)
 
 	for _, event := range championship.Events {

@@ -273,6 +273,185 @@
                     </div>
                 </div>
 
+                {{ $rs := $f.RaceSettingsForForm }}
+
+                <div class="form-group row">
+                    <label for="ChampionshipRaceSettings.Enabled" class="col-sm-3 col-form-label">Championship Race Settings</label>
+
+                    <div class="col-sm-9">
+                        <input type="checkbox" id="ChampionshipRaceSettings.Enabled" name="ChampionshipRaceSettings.Enabled" value="1"
+                               onchange="document.getElementById('ChampionshipRaceSettingsWrapper').style.display = this.checked ? '' : 'none';"
+                               {{ if $f.HasRaceSettings }} checked="checked" {{ end }}><br><br>
+
+                        <small>
+                            Configure fuel, damage, tyre wear, assists and dynamic track once for the whole Championship.
+                            Events that have "Use championship race settings" enabled (the default for new events) take
+                            these values instead of their own ones. Changing them here changes all of those events.
+                            Events can opt out individually in their own configuration. Track, cars, sessions, weather
+                            and everything else is still configured per event.
+                            {{ if not $f.HasRaceSettings }}
+                                The values below are prefilled from your latest event.
+                            {{ end }}
+                        </small>
+                    </div>
+                </div>
+
+                <div id="ChampionshipRaceSettingsWrapper" {{ if not $f.HasRaceSettings }} style="display: none;" {{ end }}>
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.ABSAllowed" class="col-sm-3 col-form-label">ABS Allowed</label>
+
+                        <div class="col-sm-9">
+                            <select class="form-control" id="ChampionshipRaceSettings.ABSAllowed" name="ChampionshipRaceSettings.ABSAllowed">
+                                <option value="0" {{ if eq $rs.ABSAllowed 0 }} selected="selected" {{ end }}>Off</option>
+                                <option value="1" {{ if eq $rs.ABSAllowed 1 }} selected="selected" {{ end }}>Factory</option>
+                                <option value="2" {{ if eq $rs.ABSAllowed 2 }} selected="selected" {{ end }}>On</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.TractionControlAllowed" class="col-sm-3 col-form-label">Traction Control Allowed</label>
+
+                        <div class="col-sm-9">
+                            <select class="form-control" id="ChampionshipRaceSettings.TractionControlAllowed" name="ChampionshipRaceSettings.TractionControlAllowed">
+                                <option value="0" {{ if eq $rs.TractionControlAllowed 0 }} selected="selected" {{ end }}>Off</option>
+                                <option value="1" {{ if eq $rs.TractionControlAllowed 1 }} selected="selected" {{ end }}>Factory</option>
+                                <option value="2" {{ if eq $rs.TractionControlAllowed 2 }} selected="selected" {{ end }}>On</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.StabilityControlAllowed" class="col-sm-3 col-form-label">Stability Control Allowed</label>
+
+                        <div class="col-sm-9">
+                            <input type="checkbox" id="ChampionshipRaceSettings.StabilityControlAllowed" name="ChampionshipRaceSettings.StabilityControlAllowed"
+                                   {{ if $rs.StabilityControlAllowed }} checked="checked" {{ end }}>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.AutoClutchAllowed" class="col-sm-3 col-form-label">Auto Clutch Allowed</label>
+
+                        <div class="col-sm-9">
+                            <input type="checkbox" id="ChampionshipRaceSettings.AutoClutchAllowed" name="ChampionshipRaceSettings.AutoClutchAllowed"
+                                   {{ if $rs.AutoClutchAllowed }} checked="checked" {{ end }}>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.TyreBlanketsAllowed" class="col-sm-3 col-form-label">Tyre Blankets Allowed</label>
+
+                        <div class="col-sm-9">
+                            <input type="checkbox" id="ChampionshipRaceSettings.TyreBlanketsAllowed" name="ChampionshipRaceSettings.TyreBlanketsAllowed"
+                                   {{ if $rs.TyreBlanketsAllowed }} checked="checked" {{ end }}><br>
+
+                            <small>At the start of the session or after a pitstop, tyres will have the the optimal temperature.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.ForceVirtualMirror" class="col-sm-3 col-form-label">Force Virtual Mirror</label>
+
+                        <div class="col-sm-9">
+                            <input type="checkbox" id="ChampionshipRaceSettings.ForceVirtualMirror" name="ChampionshipRaceSettings.ForceVirtualMirror"
+                                   {{ if $rs.ForceVirtualMirror }} checked="checked" {{ end }}><br>
+
+                            <small>Force clients to use Virtual Mirrors (does not work in VR)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.FuelRate" class="col-sm-3 col-form-label">Fuel Rate</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.FuelRate" name="ChampionshipRaceSettings.FuelRate"
+                                   class="form-control" value="{{ $rs.FuelRate }}" min="0" step="1">
+
+                            <small>Fuel usage multiplier in percent: 0 = no fuel usage, 100 = realistic, higher values increase usage</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.DamageMultiplier" class="col-sm-3 col-form-label">Damage Multiplier</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.DamageMultiplier" name="ChampionshipRaceSettings.DamageMultiplier"
+                                   class="form-control" value="{{ $rs.DamageMultiplier }}" min="0" max="100" step="1">
+
+                            <small>Damage from 0 (no damage) to 100 (full damage)</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.TyreWearRate" class="col-sm-3 col-form-label">Tyre Wear Rate</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.TyreWearRate" name="ChampionshipRaceSettings.TyreWearRate"
+                                   class="form-control" value="{{ $rs.TyreWearRate }}" min="0" step="1">
+
+                            <small>Tyre wear multiplier in percent: 0 = no tyre wear, 100 = realistic, higher values increase wear</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.AllowedTyresOut" class="col-sm-3 col-form-label">Allowed Tyres Out</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.AllowedTyresOut" name="ChampionshipRaceSettings.AllowedTyresOut"
+                                   class="form-control" value="{{ $rs.AllowedTyresOut }}" step="1">
+
+                            <small>The number of tyres allowed outside of track limits before a penalty is applied. -1 disables.</small>
+                        </div>
+                    </div>
+
+                    <h5>Dynamic Track</h5>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.SessionStart" class="col-sm-3 col-form-label">Session Start</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.SessionStart" name="ChampionshipRaceSettings.SessionStart"
+                                   class="form-control" value="{{ $rs.DynamicTrack.SessionStart }}" step="1">
+
+                            <small>% level of grip at session start</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.Randomness" class="col-sm-3 col-form-label">Randomness</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.Randomness" name="ChampionshipRaceSettings.Randomness"
+                                   class="form-control" value="{{ $rs.DynamicTrack.Randomness }}" step="1">
+
+                            <small>Level of randomness added to the start grip</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.SessionTransfer" class="col-sm-3 col-form-label">Session Transfer</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.SessionTransfer" name="ChampionshipRaceSettings.SessionTransfer"
+                                   class="form-control" value="{{ $rs.DynamicTrack.SessionTransfer }}" step="1">
+
+                            <small>How much of the gained grip is to be added to the next session 100 -&gt; all the gained grip.</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="ChampionshipRaceSettings.LapGain" class="col-sm-3 col-form-label">Lap Gain</label>
+
+                        <div class="col-sm-9">
+                            <input type="number" id="ChampionshipRaceSettings.LapGain" name="ChampionshipRaceSettings.LapGain"
+                                   class="form-control" value="{{ $rs.DynamicTrack.LapGain }}" step="1">
+
+                            <small>How many laps are needed to add 1% grip</small>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group row">
                     <label for="OverridePassword" class="col-sm-3 col-form-label">Override Server Password</label>
 

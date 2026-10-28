@@ -190,15 +190,27 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *Ra
 
 		raceWeekend.ChampionshipID = champ.ID
 
+		useChampionshipRaceSettings := r.FormValue("UseChampionshipRaceSettings") == "1"
+
 		if !edited {
 			// add a championship event for this race weekend
 			event := NewChampionshipEvent()
 			event.RaceWeekendID = raceWeekend.ID
+			event.UseChampionshipRaceSettings = useChampionshipRaceSettings
 
 			champ.Events = append(champ.Events, event)
 
 			if err := rwm.store.UpsertChampionship(champ); err != nil {
 				return nil, edited, err
+			}
+		} else if champ.HasRaceSettings() {
+			// the checkbox is only part of the form if the championship has race settings
+			if event := champ.RaceWeekendEvent(raceWeekend.ID); event != nil && event.UseChampionshipRaceSettings != useChampionshipRaceSettings {
+				event.UseChampionshipRaceSettings = useChampionshipRaceSettings
+
+				if err := rwm.store.UpsertChampionship(champ); err != nil {
+					return nil, edited, err
+				}
 			}
 		}
 	} else {
@@ -564,6 +576,11 @@ func (rwm *RaceWeekendManager) StartSession(raceWeekendID string, raceWeekendSes
 		car := raceWeekend.GetSpectatorCar()
 
 		entryList.AddInPitBox(&car, maxEntryListSize+1)
+	}
+
+	if raceWeekend.HasLinkedChampionship() {
+		// championship wide race settings only live in this (not persisted) copy of the session.
+		session.RaceConfig = raceWeekend.Championship.EffectiveRaceWeekendSessionSetup(raceWeekend.ID, session.RaceConfig)
 	}
 
 	session.RaceConfig.MaxClients = len(entryList)
