@@ -135,6 +135,31 @@ func TestChampionship_AddEntrantInFirstFreeSlot(t *testing.T) {
 		}
 	})
 
+	t.Run("free slots are taken in grid order", func(t *testing.T) {
+		// the class entry list is a map, so run it a few times to rule out lucky map iteration orders
+		for run := 0; run < 50; run++ {
+			championship := NewChampionship("Test")
+			slots := []*Entrant{
+				modelTestSlot("car_a", "", "", ""),
+				modelTestSlot("car_a", "", "", ""),
+				modelTestSlot("car_a", "", "", ""),
+			}
+			championship.AddClass(modelTestClass("A", slots...))
+
+			for i, guid := range []string{"1", "2", "3"} {
+				_, entrant, _, err := championship.AddEntrantInFirstFreeSlot(ChampionshipSignUpResponse{Name: "Driver " + guid, GUID: guid})
+
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				if entrant != slots[i] {
+					t.Fatalf("run %d: expected driver %s in pit box %d, got pit box %d", run, guid, i, entrant.PitBox)
+				}
+			}
+		}
+	})
+
 	t.Run("no classes", func(t *testing.T) {
 		championship := NewChampionship("Test")
 

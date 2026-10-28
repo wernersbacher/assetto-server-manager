@@ -838,7 +838,8 @@ func (c *Championship) AddEntrantInFirstFreeSlot(potentialEntrant PotentialChamp
 	}
 
 	for _, class := range c.Classes {
-		for _, entrant := range class.Entrants {
+		// take the free slots in grid order, class.Entrants is a map.
+		for _, entrant := range class.Entrants.AsSlice() {
 			if entrant.Name == "" && entrant.GUID == "" {
 				// take the slot
 				entrant.Name = potentialEntrant.GetName()
