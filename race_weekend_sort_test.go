@@ -998,4 +998,53 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 
 		assertSortTestOrder(t, entrants, "A1", "A2", "B1", "B2")
 	})
+
+	t.Run("classes without a lap time go after classes with one, deterministically", func(t *testing.T) {
+		withLap, withoutLap1, withoutLap2 := uuid.New(), uuid.New(), uuid.New()
+
+		if withoutLap1.String() > withoutLap2.String() {
+			withoutLap1, withoutLap2 = withoutLap2, withoutLap1
+		}
+
+		// the class order used to come from map iteration when a class had no lap time in a
+		// non-base session, so run it often enough to catch a random order.
+		for run := 0; run < 100; run++ {
+			entrants := buildSortTestEntrants(SessionTypeQualifying,
+				sortTestDriver{guid: "Z1", classID: withoutLap2, bestLap: 0},
+				sortTestDriver{guid: "N1", classID: withoutLap1, bestLap: 0},
+				sortTestDriver{guid: "L1", classID: withLap, bestLap: 90000, laps: 1, totalTime: 90000},
+			)
+
+			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+				t.Fatal(err)
+			}
+
+			if actual := sortTestGUIDs(entrants); !reflect.DeepEqual(actual, []string{"L1", "N1", "Z1"}) {
+				t.Fatalf("run %d: expected order [L1 N1 Z1], got %v", run, actual)
+			}
+		}
+	})
+
+	t.Run("classes with equal fastest laps are ordered by class ID", func(t *testing.T) {
+		classA, classB := uuid.New(), uuid.New()
+
+		if classA.String() > classB.String() {
+			classA, classB = classB, classA
+		}
+
+		for run := 0; run < 100; run++ {
+			entrants := buildSortTestEntrants(SessionTypeQualifying,
+				sortTestDriver{guid: "B1", classID: classB, bestLap: 90000, laps: 1, totalTime: 90000},
+				sortTestDriver{guid: "A1", classID: classA, bestLap: 90000, laps: 1, totalTime: 90000},
+			)
+
+			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+				t.Fatal(err)
+			}
+
+			if actual := sortTestGUIDs(entrants); !reflect.DeepEqual(actual, []string{"A1", "B1"}) {
+				t.Fatalf("run %d: expected order [A1 B1], got %v", run, actual)
+			}
+		}
+	})
 }

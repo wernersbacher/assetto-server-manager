@@ -168,18 +168,23 @@ func PerClassSort(sorter RaceWeekendEntryListSorter) RaceWeekendEntryListSorter 
 			classes = append(classes, class)
 		}
 
-		if len(fastestLapForClass) == len(classes) {
-			// sort each class by the fastest lap in that class
-			sort.Slice(classes, func(i, j int) bool {
-				return fastestLapForClass[classes[i]] < fastestLapForClass[classes[j]]
-			})
-		} else if session.IsBase() {
-			// base sessions will have no lap data. just sort them by class ID,
-			// the same way every time, so that entrant splits can be consistent
-			sort.Slice(classes, func(i, j int) bool {
-				return classes[i].String() < classes[j].String()
-			})
-		}
+		// sort classes by the fastest lap in that class. classes without a lap time (e.g. base sessions,
+		// which have no lap data) go after those with one. ties are broken by class ID, so that the
+		// order (and therefore entrant splits) is the same every time rather than depending on map order.
+		sort.Slice(classes, func(i, j int) bool {
+			fastestI, okI := fastestLapForClass[classes[i]]
+			fastestJ, okJ := fastestLapForClass[classes[j]]
+
+			if okI != okJ {
+				return okI
+			}
+
+			if okI && fastestI != fastestJ {
+				return fastestI < fastestJ
+			}
+
+			return classes[i].String() < classes[j].String()
+		})
 
 		lastStartPos := 0
 
