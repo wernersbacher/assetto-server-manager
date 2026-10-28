@@ -271,22 +271,29 @@ func (c *Championship) FindLastResultForDriver(guid string) (out *SessionResult,
 		return events[i].CompletedTime.Before(events[j].CompletedTime)
 	})
 
+	// the result (and the team the driver was in) of the most recently started session that the driver took part in,
+	// in the last completed event that the driver took part in.
 	for _, event := range events {
-		startedTime := time.Time{}
+		var latestSession *ChampionshipSession
+		var latestResult *SessionResult
 
 		for _, session := range event.Sessions {
-			if session.StartedTime.After(startedTime) && session.Results != nil {
-				startedTime = session.StartedTime
-
-				for _, result := range session.Results.Result {
-					if result.DriverGUID == guid {
-						out = result
-						break
-					}
-				}
-
-				teamName = session.Results.GetTeamName(guid)
+			if session.Results == nil || (latestSession != nil && !session.StartedTime.After(latestSession.StartedTime)) {
+				continue
 			}
+
+			for _, result := range session.Results.Result {
+				if result.DriverGUID == guid {
+					latestSession = session
+					latestResult = result
+					break
+				}
+			}
+		}
+
+		if latestResult != nil {
+			out = latestResult
+			teamName = latestSession.Results.GetTeamName(guid)
 		}
 	}
 

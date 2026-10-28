@@ -517,6 +517,31 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 		t.Errorf("expected C's result from E3 when E4 is not complete, got %+v", result)
 	}
 
+	// the most recently completed event (E2) doesn't contain C, result and team come from C's last event (E4)
+	e4.CompletedTime = base.Add(3 * time.Hour)
+	delete(e4.Sessions, SessionTypeQualifying)
+	e2.CompletedTime = base.Add(5 * time.Hour)
+	e2.Sessions[SessionTypeRace].StartedTime = e2.CompletedTime.Add(-time.Minute)
+
+	result, team = championship.FindLastResultForDriver("C")
+
+	if result != e4.Sessions[SessionTypeRace].Results.Result[2] || team != "Y" {
+		t.Errorf("expected C's result and team from E4, got %+v team %q", result, team)
+	}
+
+	// a later session of the same event without the driver doesn't change result or team
+	e4.Sessions[SessionTypePractice] = &ChampionshipSession{
+		StartedTime:   e4.Sessions[SessionTypeRace].StartedTime.Add(time.Second),
+		CompletedTime: e4.CompletedTime,
+		Results:       dropTestResults(NewChampionshipClass("Other"), dropDriverA),
+	}
+
+	result, team = championship.FindLastResultForDriver("C")
+
+	if result != e4.Sessions[SessionTypeRace].Results.Result[2] || team != "Y" {
+		t.Errorf("expected C's result and team from E4's race, got %+v team %q", result, team)
+	}
+
 	if result, team := championship.FindLastResultForDriver("unknown"); result != nil || team != "" {
 		t.Errorf("expected no result for unknown driver, got %+v %q", result, team)
 	}
