@@ -60,7 +60,7 @@ func TestListResultsPagination(t *testing.T) {
 
 			ServerInstallPath = dir
 
-			results, _, err := listResults(tc.page)
+			results, _, err := listResults(tc.page, ResultsFilter{})
 
 			if err != tc.wantErr {
 				t.Fatalf("expected error %v, got %v", tc.wantErr, err)

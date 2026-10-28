@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-chi/chi"
@@ -1144,12 +1145,147 @@ const pageSize = 25
 
 var ErrResultsPageNotFound = errors.New("servermanager: results page not found")
 
-func listResults(page int) ([]SessionResults, []int, error) {
+// ResultsFilter narrows down the results list. Empty fields do not filter.
+type ResultsFilter struct {
+	Type   string // session type as in the file name, e.g. "race". "booking" matches BOOK files.
+	Track  string // case-insensitive substring of the track name, readable track name or layout
+	Driver string // case-insensitive substring of a driver name, or an exact driver GUID
+}
+
+func (f ResultsFilter) IsActive() bool {
+	return f.Type != "" || f.Track != "" || f.Driver != ""
+}
+
+// needsLoading is true if the filter can only be evaluated by looking into the results files.
+func (f ResultsFilter) needsLoading() bool {
+	return f.Track != "" || f.Driver != ""
+}
+
+// matchesFileName applies the session type filter, which can be decided from the file name alone.
+func (f ResultsFilter) matchesFileName(name string) bool {
+	if f.Type == "" {
+		return true
+	}
+
+	name = strings.TrimSuffix(name, ".json")
+	name = strings.TrimSuffix(name, timeAttackSuffix)
+
+	sessionType := strings.ToUpper(name[strings.LastIndex(name, "_")+1:])
+
+	want := strings.ToUpper(f.Type)
+
+	if want == "BOOKING" {
+		want = string(SessionTypeBooking)
+	}
+
+	// RACEx2 counts as a race
+	return sessionType == want || (want == string(SessionTypeRace) && strings.HasPrefix(sessionType, want))
+}
+
+// resultSummary is the part of a results file that the track and driver filters look at.
+type resultSummary struct {
+	size    int64
+	modTime time.Time
+
+	track   string // lowercased track names and layout, as shown in the list and as stored
+	drivers []string
+	guids   map[string]bool
+}
+
+func (s *resultSummary) matches(f ResultsFilter) bool {
+	if f.Track != "" && !strings.Contains(s.track, strings.ToLower(f.Track)) {
+		return false
+	}
+
+	if f.Driver != "" {
+		if s.guids[f.Driver] {
+			return true
+		}
+
+		driver := strings.ToLower(f.Driver)
+
+		for _, name := range s.drivers {
+			if strings.Contains(name, driver) {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	return true
+}
+
+// resultSummaryCache avoids reparsing every results file for each filtered request. Entries are keyed by file
+// name and are only valid while the size and mod time of the file are unchanged.
+var resultSummaryCache = struct {
+	sync.Mutex
+	entries map[string]*resultSummary
+}{entries: make(map[string]*resultSummary)}
+
+func getResultSummary(info os.FileInfo) (*resultSummary, error) {
+	resultSummaryCache.Lock()
+	summary, ok := resultSummaryCache.entries[info.Name()]
+	resultSummaryCache.Unlock()
+
+	if ok && summary.size == info.Size() && summary.modTime.Equal(info.ModTime()) {
+		return summary, nil
+	}
+
+	result, err := LoadResult(info.Name(), LoadResultWithoutPluginFire)
+
+	if err != nil {
+		return nil, err
+	}
+
+	summary = &resultSummary{
+		size:    info.Size(),
+		modTime: info.ModTime(),
+		track: strings.ToLower(strings.Join([]string{
+			result.TrackName, prettifyName(result.TrackName, false), result.TrackConfig, prettifyName(result.TrackConfig, false),
+		}, " ")),
+		guids: make(map[string]bool),
+	}
+
+	for _, car := range result.Cars {
+		summary.drivers = append(summary.drivers, strings.ToLower(car.Driver.Name))
+		summary.guids[car.Driver.GUID] = true
+
+		for _, guid := range car.Driver.GuidsList {
+			summary.guids[guid] = true
+		}
+	}
+
+	for _, driver := range result.Result {
+		summary.drivers = append(summary.drivers, strings.ToLower(driver.DriverName))
+		summary.guids[driver.DriverGUID] = true
+	}
+
+	resultSummaryCache.Lock()
+	resultSummaryCache.entries[info.Name()] = summary
+	resultSummaryCache.Unlock()
+
+	return summary, nil
+}
+
+func listResults(page int, filter ResultsFilter) ([]SessionResults, []int, error) {
 	resultsPath := filepath.Join(ServerInstallPath, "results")
 	resultFiles, err := ioutil.ReadDir(resultsPath)
 
 	if err != nil {
 		return nil, nil, err
+	}
+
+	if filter.Type != "" {
+		var typeFiltered []os.FileInfo
+
+		for _, resultFile := range resultFiles {
+			if filter.matchesFileName(resultFile.Name()) {
+				typeFiltered = append(typeFiltered, resultFile)
+			}
+		}
+
+		resultFiles = typeFiltered
 	}
 
 	sort.Slice(resultFiles, func(i, j int) bool {
@@ -1158,6 +1294,25 @@ func listResults(page int) ([]SessionResults, []int, error) {
 
 		return d1.After(d2)
 	})
+
+	if filter.needsLoading() {
+		var matching []os.FileInfo
+
+		for _, resultFile := range resultFiles {
+			summary, err := getResultSummary(resultFile)
+
+			if err != nil {
+				logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
+				continue
+			}
+
+			if summary.matches(filter) {
+				matching = append(matching, resultFile)
+			}
+		}
+
+		resultFiles = matching
+	}
 
 	pages := float64(len(resultFiles)) / float64(pageSize)
 	pagesRound := math.Ceil(pages)
@@ -1354,6 +1509,7 @@ type resultsListTemplateVars struct {
 	Results     []SessionResults
 	Pages       []int
 	CurrentPage int
+	Filter      ResultsFilter
 }
 
 func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -1363,7 +1519,13 @@ func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
 		page = 0
 	}
 
-	results, pages, err := listResults(page)
+	filter := ResultsFilter{
+		Type:   strings.TrimSpace(r.URL.Query().Get("type")),
+		Track:  strings.TrimSpace(r.URL.Query().Get("track")),
+		Driver: strings.TrimSpace(r.URL.Query().Get("driver")),
+	}
+
+	results, pages, err := listResults(page, filter)
 
 	if err == ErrResultsPageNotFound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -1378,6 +1540,7 @@ func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
 		Results:     results,
 		Pages:       pages,
 		CurrentPage: page,
+		Filter:      filter,
 	})
 }
 
@@ -1723,7 +1886,15 @@ func deleteResultsFile(store Store, fileName string) error {
 		return ResultsFileReferencedError{Reference: reference}
 	}
 
-	return os.Remove(path)
+	if err := os.Remove(path); err != nil {
+		return err
+	}
+
+	resultSummaryCache.Lock()
+	delete(resultSummaryCache.entries, fileName)
+	resultSummaryCache.Unlock()
+
+	return nil
 }
 
 func (rh *ResultsHandler) delete(w http.ResponseWriter, r *http.Request) {

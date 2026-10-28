@@ -4,6 +4,7 @@ Unreleased
 Added:
 
 * Results files can now be deleted from the Results list and the Results page (requires delete access). Results that are used by a Championship or Race Weekend can't be deleted.
+* The Results list can now be filtered by session type, track and driver (name or GUID).
 
 Fixed:
 

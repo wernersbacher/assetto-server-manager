@@ -27,6 +27,25 @@
 
     </div>
 
+    <form class="form-inline mb-3" method="get" action="/results">
+        <select name="type" class="form-control mr-2 mb-2" aria-label="Session Type">
+            <option value="" {{ if eq .Filter.Type "" }}selected{{ end }}>Any Session Type</option>
+            <option value="practice" {{ if eq .Filter.Type "practice" }}selected{{ end }}>Practice</option>
+            <option value="qualify" {{ if eq .Filter.Type "qualify" }}selected{{ end }}>Qualifying</option>
+            <option value="race" {{ if eq .Filter.Type "race" }}selected{{ end }}>Race</option>
+            <option value="booking" {{ if eq .Filter.Type "booking" }}selected{{ end }}>Booking</option>
+        </select>
+
+        <input type="text" name="track" class="form-control mr-2 mb-2" placeholder="Track" aria-label="Track" value="{{ .Filter.Track }}">
+        <input type="text" name="driver" class="form-control mr-2 mb-2" placeholder="Driver name or GUID" aria-label="Driver" value="{{ .Filter.Driver }}">
+
+        <button type="submit" class="btn btn-primary mr-2 mb-2">Filter</button>
+
+        {{ if .Filter.IsActive }}
+            <a href="/results" class="btn btn-secondary mb-2">Reset</a>
+        {{ end }}
+    </form>
+
     <table class="table table-bordered table-striped">
         <tr>
             <th>Date</th>
@@ -37,6 +56,11 @@
                 <th></th>
             {{ end }}
         </tr>
+        {{ if and (not .Results) .Filter.IsActive }}
+            <tr>
+                <td colspan="5" class="text-center">No results match the filter</td>
+            </tr>
+        {{ end }}
         {{ range $i, $result := .Results }}
             <tr class="row-link" data-href="/results/{{ $result.SessionFile }}">
                 <td>
