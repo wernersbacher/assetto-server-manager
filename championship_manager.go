@@ -1778,6 +1778,7 @@ func (cm *ChampionshipManager) InitScheduledChampionships() error {
 
 	for _, championship := range championships {
 		championship := championship
+		championshipChanged := false
 
 		for _, event := range championship.Events {
 			event := event
@@ -1822,7 +1823,8 @@ func (cm *ChampionshipManager) InitScheduledChampionships() error {
 					}
 				}
 
-				return cm.UpsertChampionship(championship)
+				// keep going: every scheduled event needs its own timer, not just the first one found
+				continue
 			}
 
 			zeroTime := time.Time{}
@@ -1832,8 +1834,13 @@ func (cm *ChampionshipManager) InitScheduledChampionships() error {
 					" Start time: %s. The schedule has been cleared. Start the event manually if you wish to run it.", event.Scheduled.String())
 
 				event.Scheduled = zeroTime
+				championshipChanged = true
+			}
+		}
 
-				return cm.UpsertChampionship(championship)
+		if championshipChanged {
+			if err := cm.UpsertChampionship(championship); err != nil {
+				return err
 			}
 		}
 	}
