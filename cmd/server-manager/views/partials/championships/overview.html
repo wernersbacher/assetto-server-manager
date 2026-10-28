@@ -3,6 +3,12 @@
     {{ $championship := .Championship }}
     {{ $account := .Account }}
 
+    {{ if gt $championship.DropWorstResults 0 }}
+        <p class="text-muted mb-2">
+            <small>The worst {{ $championship.DropWorstResults }} result{{ if gt $championship.DropWorstResults 1 }}s{{ end }} of each driver {{ if gt $championship.DropWorstResults 1 }}are{{ else }}is{{ end }} dropped (struck through). Total points only include the counted results.</small>
+        </p>
+    {{ end }}
+
     <div class="table-responsive entrant-table-max-height">
         <table class="table table-bordered table-striped">
             <tr>
@@ -49,13 +55,17 @@
                         {{ range $z, $event := $championship.Events }}
                             {{ $standingTableInfo := ($class.StandingsForEntrantAtEvent $championship $event $entrant) }}
 
-                            <td style="background-color: {{ $standingTableInfo.BackgroundColour }}; color: black;">
+                            {{ $isDropped := $entrant.IsDropped $event.ID }}
+                            <td style="background-color: {{ $standingTableInfo.BackgroundColour }}; color: black;{{ if $isDropped }} opacity: 0.55;{{ end }}"
+                                {{ if $isDropped }}data-toggle="tooltip" title="Dropped result"{{ end }}>
 
+                                {{ if $isDropped }}<s>{{ end }}
                                 {{ if eq $standingTableInfo.ChampionshipStanding.Points 0.0 }}
                                     {{ $standingTableInfo.NoFinishReason }}
                                 {{ else }}
                                     {{ $standingTableInfo.ChampionshipStanding.Points }}
                                 {{ end }}
+                                {{ if $isDropped }}</s>{{ end }}
                             </td>
                         {{ end  }}
 

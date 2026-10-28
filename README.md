@@ -115,6 +115,8 @@ Each championship contains its classes and cars, and its events with track, sche
 it is known. `Status` is one of `unscheduled`, `scheduled`, `in_progress` or `completed`. Race Weekend events have
 a `RaceWeekendName`, and each of their sessions has its own schedule and track. Times are in RFC 3339 format.
 Entrants, sign up responses and passwords are not included.
+`DropWorstResults` is the number of worst event results that are dropped per driver in the standings (0 means off).
+Standings themselves are not part of the API yet.
 
 Results can be read in the same way, with the same access rules as the results pages:
 

@@ -132,6 +132,10 @@ type Championship struct {
 	SpectatorCarEnabled bool
 
 	DefaultTab ChampionshipTab
+
+	// DropWorstResults is the number of worst event results that are dropped from each driver's (and team's)
+	// total when calculating standings. 0 (the default) means no results are dropped.
+	DropWorstResults int
 }
 
 func (c *Championship) HasSpectatorCar() bool {
@@ -944,6 +948,81 @@ type ChampionshipStanding struct {
 	// Teams is a map of Team Name to how many Events per team were completed.
 	Teams  map[string]int
 	Points float64
+
+	// DroppedEvents contains the IDs (string form) of the Championship Events whose result was dropped for this
+	// driver (see Championship.DropWorstResults). Points already has the dropped results subtracted.
+	DroppedEvents map[string]bool
+	// DroppedPoints is the sum of the points that were dropped.
+	DroppedPoints float64
+}
+
+// IsDropped reports whether the result of the given Championship Event is dropped for this standing.
+func (cs *ChampionshipStanding) IsDropped(eventID uuid.UUID) bool {
+	return cs.DroppedEvents[eventID.String()]
+}
+
+// dropContext knows which Championship Events are completed (and therefore droppable) and maps the individual
+// sessions of race weekends (which are treated as separate events while calculating points) back to the
+// Championship Event they belong to.
+type dropContext struct {
+	completedEventIDs []string
+	owner             map[uuid.UUID]uuid.UUID
+}
+
+func newDropContext(inEvents []*ChampionshipEvent) *dropContext {
+	ctx := &dropContext{owner: make(map[uuid.UUID]uuid.UUID)}
+
+	for _, event := range inEvents {
+		if event.Completed() {
+			ctx.completedEventIDs = append(ctx.completedEventIDs, event.ID.String())
+		}
+
+		if event.IsRaceWeekend() && event.RaceWeekend != nil {
+			for _, session := range event.RaceWeekend.Sessions {
+				ctx.owner[session.ID] = event.ID
+			}
+		}
+	}
+
+	return ctx
+}
+
+func (d *dropContext) eventID(id uuid.UUID) string {
+	if owner, ok := d.owner[id]; ok {
+		return owner.String()
+	}
+
+	return id.String()
+}
+
+// dropWorstResults determines which of the completed events are dropped, given the score per event.
+// Events without a score count as 0 and are droppable. At least one result always counts.
+func (d *dropContext) dropWorstResults(n int, scores map[string]float64) (dropped map[string]bool, droppedPoints float64) {
+	numDrops := n
+
+	if numDrops > len(d.completedEventIDs)-1 {
+		numDrops = len(d.completedEventIDs) - 1
+	}
+
+	if numDrops <= 0 {
+		return nil, 0
+	}
+
+	ids := make([]string, len(d.completedEventIDs))
+	copy(ids, d.completedEventIDs)
+
+	sort.SliceStable(ids, func(i, j int) bool {
+		return scores[ids[i]] < scores[ids[j]]
+	})
+
+	dropped = make(map[string]bool)
+
+	for _, id := range ids[:numDrops] {
+		dropped[id] = true
+		droppedPoints += scores[id]
+	}
+
+	return dropped, droppedPoints
 }
 
 func (cs *ChampionshipStanding) AddEventForTeam(team string) {
@@ -1207,6 +1286,8 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 	}
 
 	standings := make(map[string]*ChampionshipStanding)
+	dropCtx := newDropContext(inEvents)
+	eventPoints := make(map[string]map[string]float64)
 
 	c.standings(championship, events, func(event *ChampionshipEvent, driverGUID string, points float64, reason PointsReason) {
 		var car *SessionCar
@@ -1241,6 +1322,12 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 
 		standings[driverGUID].Points += points
 
+		if eventPoints[driverGUID] == nil {
+			eventPoints[driverGUID] = make(map[string]float64)
+		}
+
+		eventPoints[driverGUID][dropCtx.eventID(event.ID)] += points
+
 		if reason == PointsEventFinish {
 			// only increment team finishes for a 'finish' reason
 			standings[driverGUID].AddEventForTeam(car.Driver.Team)
@@ -1258,6 +1345,12 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 	for _, standing := range standings {
 		if standing.Car.Driver.Name == "" {
 			continue
+		}
+
+		if championship != nil && championship.DropWorstResults > 0 {
+			// drops are applied before penalties, penalties are never dropped.
+			standing.DroppedEvents, standing.DroppedPoints = dropCtx.dropWorstResults(championship.DropWorstResults, eventPoints[standing.Car.Driver.GUID])
+			standing.Points -= standing.DroppedPoints
 		}
 
 		if !skipPointsPenalties {
@@ -1376,11 +1469,22 @@ func ExtractRaceWeekendSessionsIntoIndividualEvents(inEvents []*ChampionshipEven
 type TeamStanding struct {
 	Team   string
 	Points float64
+
+	// DroppedEvents/DroppedPoints: see ChampionshipStanding. Points already has the dropped results subtracted.
+	DroppedEvents map[string]bool
+	DroppedPoints float64
+}
+
+// IsDropped reports whether the result of the given Championship Event is dropped for this team.
+func (ts *TeamStanding) IsDropped(eventID uuid.UUID) bool {
+	return ts.DroppedEvents[eventID.String()]
 }
 
 // TeamStandings returns the current position of Teams in the Championship.
 func (c *ChampionshipClass) TeamStandings(championship *Championship, inEvents []*ChampionshipEvent) []*TeamStanding {
 	teams := make(map[string]float64)
+	teamEventPoints := make(map[string]map[string]float64)
+	dropCtx := newDropContext(inEvents)
 
 	// make a copy of events so we do not persist race weekend sessions
 	events := ExtractRaceWeekendSessionsIntoIndividualEvents(inEvents)
@@ -1411,15 +1515,28 @@ func (c *ChampionshipClass) TeamStandings(championship *Championship, inEvents [
 		} else {
 			teams[team] += points
 		}
+
+		if teamEventPoints[team] == nil {
+			teamEventPoints[team] = make(map[string]float64)
+		}
+
+		teamEventPoints[team][dropCtx.eventID(event.ID)] += points
 	})
 
 	var out []*TeamStanding
 
 	for name, pts := range teams {
-		out = append(out, &TeamStanding{
-			Team:   name,
-			Points: pts - float64(c.PenaltyForTeam(name)),
-		})
+		standing := &TeamStanding{Team: name}
+
+		if championship != nil && championship.DropWorstResults > 0 {
+			// drops are applied before penalties, penalties are never dropped.
+			standing.DroppedEvents, standing.DroppedPoints = dropCtx.dropWorstResults(championship.DropWorstResults, teamEventPoints[name])
+			pts -= standing.DroppedPoints
+		}
+
+		standing.Points = pts - float64(c.PenaltyForTeam(name))
+
+		out = append(out, standing)
 	}
 
 	numPositions := len(out)

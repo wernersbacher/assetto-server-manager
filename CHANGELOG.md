@@ -7,6 +7,7 @@ Added:
 * The Results list can now be filtered by session type, track and driver (name or GUID).
 * Added read-only JSON APIs for results (/api/results, /api/results/{fileName}) and the current server status (/api/server-status). See the API section of the README.
 * Added a read-only JSON API for upcoming scheduled races (/api/upcoming-races).
+* Championships can now drop the worst N event results of each driver and team from the standings ("Drop Worst Results" in the Championship settings). Dropped results are struck through in the standings, missed events count as 0 points and are dropped first, and points penalties are never dropped.
 
 Fixed:
 

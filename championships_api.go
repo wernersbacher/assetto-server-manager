@@ -34,6 +34,9 @@ type APIChampionship struct {
 	Progress   float64
 	SignUpOpen bool
 
+	// DropWorstResults is the number of worst event results dropped per driver in the standings (0 = off).
+	DropWorstResults int
+
 	Classes []*APIChampionshipClass
 	Events  []*APIChampionshipEvent
 }
@@ -89,15 +92,16 @@ type APISession struct {
 
 func NewAPIChampionship(championship *Championship) *APIChampionship {
 	out := &APIChampionship{
-		ID:         championship.ID,
-		Name:       championship.Name,
-		URL:        championship.GetURL(),
-		Info:       championship.Info,
-		Completed:  championship.Progress() == 100,
-		Progress:   championship.Progress(),
-		SignUpOpen: championship.SignUpAvailable(),
-		Classes:    []*APIChampionshipClass{},
-		Events:     []*APIChampionshipEvent{},
+		ID:               championship.ID,
+		Name:             championship.Name,
+		URL:              championship.GetURL(),
+		Info:             championship.Info,
+		Completed:        championship.Progress() == 100,
+		Progress:         championship.Progress(),
+		SignUpOpen:       championship.SignUpAvailable(),
+		DropWorstResults: championship.DropWorstResults,
+		Classes:          []*APIChampionshipClass{},
+		Events:           []*APIChampionshipEvent{},
 	}
 
 	for _, class := range championship.Classes {

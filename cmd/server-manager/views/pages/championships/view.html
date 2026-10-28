@@ -174,6 +174,9 @@
 
             {{ if gt $championship.Progress 0.0 }}
                 <div class="tab-pane fade {{ if or (eq $championship.DefaultTab "Driver Standings") (eq $championship.DefaultTab "") }}show active{{ end }}" id="drivers" role="tabpanel" aria-labelledby="drivers-tab">
+                    {{ if gt $championship.DropWorstResults 0 }}
+                        <p class="text-muted mb-2"><small>Worst {{ $championship.DropWorstResults }} result{{ if gt $championship.DropWorstResults 1 }}s{{ end }} dropped.</small></p>
+                    {{ end }}
                     <div class="table-responsive entrant-table-max-height">
                         <table class="table table-bordered table-striped">
                             <tr>
@@ -230,7 +233,12 @@
                                         {{ if $championship.HasTeamNames }}
                                             <td>{{ $entrant.TeamSummary }}</td>
                                         {{ end }}
-                                        <td>{{ $entrant.Points }}</td>
+                                        <td>
+                                            {{ $entrant.Points }}
+                                            {{ if $entrant.DroppedEvents }}
+                                                <small data-toggle="tooltip" title="Points of dropped results: {{ $entrant.DroppedPoints }}">({{ len $entrant.DroppedEvents }} dropped)</small>
+                                            {{ end }}
+                                        </td>
 
                                         {{ if WriteAccess }}
                                             <td >
@@ -271,6 +279,9 @@
                 </div>
 
                 <div class="tab-pane fade {{ if eq $championship.DefaultTab "Team Standings" }}show active{{ end }}" id="teams" role="tabpanel" aria-labelledby="teams-tab">
+                    {{ if gt $championship.DropWorstResults 0 }}
+                        <p class="text-muted mb-2"><small>Worst {{ $championship.DropWorstResults }} result{{ if gt $championship.DropWorstResults 1 }}s{{ end }} dropped.</small></p>
+                    {{ end }}
                     <div class="table-responsive entrant-table-max-height">
                         <table class="table table-bordered table-striped">
                             <tr>
@@ -305,7 +316,12 @@
                                                 <span class="badge badge-danger ml-2">Points Penalty: {{ $teamPenalty }}</span>
                                             {{ end }}
                                         </td>
-                                        <td>{{ $team.Points }}</td>
+                                        <td>
+                                            {{ $team.Points }}
+                                            {{ if $team.DroppedEvents }}
+                                                <small data-toggle="tooltip" title="Points of dropped results: {{ $team.DroppedPoints }}">({{ len $team.DroppedEvents }} dropped)</small>
+                                            {{ end }}
+                                        </td>
 
 
                                         {{ if WriteAccess }}

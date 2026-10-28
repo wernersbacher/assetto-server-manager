@@ -258,6 +258,22 @@
                 </div>
 
                 <div class="form-group row">
+                    <label for="ChampionshipDropWorstResults" class="col-sm-3 col-form-label">Drop Worst Results</label>
+
+                    <div class="col-sm-9">
+                        <input type="number" min="0" step="1" class="form-control" style="max-width: 120px;"
+                               id="ChampionshipDropWorstResults" name="ChampionshipDropWorstResults"
+                               value="{{ $f.DropWorstResults }}">
+                        <small>
+                            The number of worst event results that are dropped from each driver's (and team's) total.
+                            0 disables dropping results. Only completed events count, and an event a driver missed
+                            counts as 0 points, so it is dropped first. At least one result always counts.
+                            Points penalties are applied after dropping and are never dropped.
+                        </small>
+                    </div>
+                </div>
+
+                <div class="form-group row">
                     <label for="OverridePassword" class="col-sm-3 col-form-label">Override Server Password</label>
 
                     <div class="col-sm-9">

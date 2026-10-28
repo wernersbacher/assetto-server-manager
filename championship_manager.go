@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -286,6 +287,13 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 
 	championship.Name = r.FormValue("ChampionshipName")
 	championship.OpenEntrants = r.FormValue("ChampionshipOpenEntrants") == "on" || r.FormValue("ChampionshipOpenEntrants") == "1"
+	dropWorstResults, err := parseDropWorstResults(r.FormValue("ChampionshipDropWorstResults"))
+
+	if err != nil {
+		return nil, edited, err
+	}
+
+	championship.DropWorstResults = dropWorstResults
 	championship.PersistOpenEntrants = r.FormValue("ChampionshipPersistOpenEntrants") == "on" || r.FormValue("ChampionshipPersistOpenEntrants") == "1"
 	championship.SignUpForm.Enabled = r.FormValue("Championship.SignUpForm.Enabled") == "on" || r.FormValue("Championship.SignUpForm.Enabled") == "1"
 	championship.SignUpForm.AskForEmail = r.FormValue("Championship.SignUpForm.AskForEmail") == "on" || r.FormValue("Championship.SignUpForm.AskForEmail") == "1"
@@ -1975,4 +1983,25 @@ func (cm *ChampionshipManager) DuplicateEvent(event *ChampionshipEvent, champion
 	}
 
 	return newEvent, nil
+}
+
+// parseDropWorstResults parses the "drop worst N results" form value. An empty value means 0 (off).
+func parseDropWorstResults(value string) (int, error) {
+	value = strings.TrimSpace(value)
+
+	if value == "" {
+		return 0, nil
+	}
+
+	n, err := strconv.Atoi(value)
+
+	if err != nil {
+		return 0, fmt.Errorf("servermanager: invalid number of dropped results %q: %w", value, err)
+	}
+
+	if n < 0 {
+		return 0, errors.New("servermanager: the number of dropped results must not be negative")
+	}
+
+	return n, nil
 }
