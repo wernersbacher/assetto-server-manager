@@ -353,6 +353,41 @@ func TestSessionResultsGetNumSectors(t *testing.T) {
 	if got := noSectors.GetNumSectors(); len(got) != 0 {
 		t.Errorf("GetNumSectors without sectors = %v, want empty", got)
 	}
+
+	if got := (&SessionResults{}).GetNumSectors(); len(got) != 0 {
+		t.Errorf("GetNumSectors without laps = %v, want empty", got)
+	}
+
+	// the lap with the most sectors counts, not just the first lap
+	moreSectorsLater := &SessionResults{Laps: []*SessionLap{
+		{LapTime: 1000, Sectors: []int{500, 500}},
+		{LapTime: 1000, Sectors: []int{300, 300, 400}},
+	}}
+
+	if got, want := moreSectorsLater.GetNumSectors(), []int{1, 1, 1}; !reflect.DeepEqual(got, want) {
+		t.Errorf("GetNumSectors with differing sector counts = %v, want %v", got, want)
+	}
+}
+
+func TestSessionResultsGetPotentialLapDifferingSectors(t *testing.T) {
+	if got := (&SessionResults{}).GetPotentialLap(helperGUIDAlice, helperModelFerrari); got != 0 {
+		t.Errorf("GetPotentialLap without laps = %s, want 0", got)
+	}
+
+	results := &SessionResults{
+		Cars: []*SessionCar{
+			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}}},
+		},
+		Laps: []*SessionLap{
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 100000, 0, []int{50000, 50000}, "", uuid.Nil),
+			helperLap(1, helperGUIDAlice, "", helperModelFerrari, 99000, 0, []int{30000, 40000, 29000}, "", uuid.Nil),
+		},
+	}
+
+	// sectors are compared by index: 30.0 + 40.0 + 29.0
+	if got, want := results.GetPotentialLap(helperGUIDAlice, helperModelFerrari), 99*time.Second; got != want {
+		t.Errorf("GetPotentialLap = %s, want %s", got, want)
+	}
 }
 
 func TestSessionResultsGetDrivers(t *testing.T) {

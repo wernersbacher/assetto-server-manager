@@ -739,11 +739,21 @@ func (s *SessionResults) GetDate() string {
 	return s.Date.Format(time.RFC822)
 }
 
+// GetNumSectors returns a slice with one entry per sector (for ranging over in templates). Laps may have a differing
+// number of sectors (e.g. incomplete laps), the lap with the most sectors is used.
 func (s *SessionResults) GetNumSectors() []int {
-	var num []int
+	var numSectors int
 
-	for range s.Laps[0].Sectors {
-		num = append(num, 1)
+	for _, lap := range s.Laps {
+		if len(lap.Sectors) > numSectors {
+			numSectors = len(lap.Sectors)
+		}
+	}
+
+	num := make([]int, numSectors)
+
+	for i := range num {
+		num[i] = 1
 	}
 
 	return num
@@ -851,7 +861,7 @@ func (s *SessionResults) HasHandicaps() bool {
 }
 
 func (s *SessionResults) GetPotentialLap(driverGUID, model string) time.Duration {
-	sectors := make([]int, len(s.GetNumSectors()))
+	var sectors []int
 
 	for _, lap := range s.Laps {
 		if lap.DriverGUID != driverGUID || lap.CarModel != model || lap.Cuts > 0 {
@@ -859,7 +869,9 @@ func (s *SessionResults) GetPotentialLap(driverGUID, model string) time.Duration
 		}
 
 		for i, sector := range lap.Sectors {
-			if sectors[i] == 0 || sector < sectors[i] {
+			if i >= len(sectors) {
+				sectors = append(sectors, sector)
+			} else if sectors[i] == 0 || sector < sectors[i] {
 				sectors[i] = sector
 			}
 		}

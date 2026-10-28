@@ -274,6 +274,7 @@
 
                                             {{ range $x, $null := $sessionResults.GetNumSectors }}
                                                 <td>
+                                                    {{ if lt $x (len $sessionLap.Sectors) }}
                                                     {{ formatDuration ($sessionLap.GetSector $x) true }}
 
                                                     {{ if $sessionResults.IsFastestSector $x (index $sessionLap.Sectors $x) $sessionLap.Cuts }}
@@ -286,6 +287,7 @@
                                                         <div class="float-right mr-1">
                                                             <span data-toggle="tooltip" title="Driver's Fastest Sector" class="badge badge-success">S</span>
                                                         </div>
+                                                    {{ end }}
                                                     {{ end }}
                                                 </td>
                                             {{ end }}
