@@ -298,6 +298,23 @@ func TestRaceWeekendSort_TotalRaceTime(t *testing.T) {
 			},
 			expected: []string{"B", "A"},
 		},
+		{
+			name: "same laps but no total time goes to the back",
+			drivers: []sortTestDriver{
+				{guid: "NOTIME", laps: 10, bestLap: 90000, totalTime: 0},
+				{guid: "A", laps: 10, bestLap: 90000, totalTime: 1000000},
+				{guid: "B", laps: 10, bestLap: 90000, totalTime: 990000},
+			},
+			expected: []string{"B", "A", "NOTIME"},
+		},
+		{
+			name: "no total time is not rescued by a time penalty",
+			drivers: []sortTestDriver{
+				{guid: "NOTIME", laps: 10, bestLap: 90000, totalTime: 0, penaltyTime: 5 * time.Second},
+				{guid: "A", laps: 10, bestLap: 90000, totalTime: 1000000},
+			},
+			expected: []string{"A", "NOTIME"},
+		},
 	})
 }
 
@@ -321,6 +338,15 @@ func TestRaceWeekendSort_FewestCollisions(t *testing.T) {
 				{guid: "C", laps: 10, bestLap: 85000, totalTime: 990000, crashes: 0},
 			},
 			expected: []string{"C", "B", "A"},
+		},
+		{
+			name:        "race tie-break puts no total time last",
+			sessionType: SessionTypeRace,
+			drivers: []sortTestDriver{
+				{guid: "NOTIME", laps: 10, bestLap: 80000, totalTime: 0, crashes: 1},
+				{guid: "A", laps: 10, bestLap: 90000, totalTime: 900000, crashes: 1},
+			},
+			expected: []string{"A", "NOTIME"},
 		},
 		{
 			name:        "qualifying tie-break is best lap",

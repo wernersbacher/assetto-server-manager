@@ -320,6 +320,16 @@ func lessTotalEntrantTime(_ *RaceWeekend, _ *RaceWeekendSession, entrantI, entra
 		entrantITime := entrantI.SessionResults.GetTime(entrantI.EntrantResult.TotalTime, entrantI.Car.Driver.GUID, entrantI.Car.Model, true)
 		entrantJTime := entrantJ.SessionResults.GetTime(entrantJ.EntrantResult.TotalTime, entrantJ.Car.Driver.GUID, entrantJ.Car.Model, true)
 
+		if entrantI.EntrantResult.TotalTime <= 0 || entrantITime <= 0 {
+			// entrantI has no total time. they must be not-less than J
+			return false
+		}
+
+		if entrantJ.EntrantResult.TotalTime <= 0 || entrantJTime <= 0 {
+			// entrantJ has no total time. entrantI must be less than J
+			return true
+		}
+
 		return entrantITime < entrantJTime
 	}
 
