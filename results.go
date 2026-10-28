@@ -1162,7 +1162,8 @@ func listResults(page int) ([]SessionResults, []int, error) {
 	pages := float64(len(resultFiles)) / float64(pageSize)
 	pagesRound := math.Ceil(pages)
 
-	if page > int(pages) || page < 0 {
+	// page 0 is always valid, so that an empty results list can still be rendered
+	if page < 0 || (page > 0 && page >= int(pagesRound)) {
 		return nil, nil, ErrResultsPageNotFound
 	}
 

@@ -4,6 +4,7 @@ Unreleased
 Fixed:
 
 * Replaced placeholder help texts for Fuel Rate, Tyre Wear Rate and Allowed Tyres Out in the race setup.
+* The results list no longer shows an empty page when the number of results is an exact multiple of the page size.
 
 ---
 
