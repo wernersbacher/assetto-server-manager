@@ -9,7 +9,7 @@ in `dev/config.yml`).
 
 ## Native (Windows)
 
-Requirements: Go (e.g. `scoop install go`) and Node.js with npm.
+Requirements: Go (e.g. `scoop install go`) and Node.js >= 22.12 with npm (24 LTS recommended).
 
 ```powershell
 ./dev/run.ps1             # build frontend (first time only), generate embedded assets, build and start

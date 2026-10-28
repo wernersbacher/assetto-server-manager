@@ -987,7 +987,7 @@ class LiveTimings implements WebsocketHandler {
         const $tbody = $table.find("tbody");
         const that = this;
 
-        $($tbody.find("tr:not(:nth-child(1))").get().sort(function (a: HTMLTableElement, b: HTMLTableElement): number {
+        $($tbody.find("tr:not(:nth-child(1))").get().sort(function (a: HTMLElement, b: HTMLElement): number {
             if (that.raceControl.status.SessionInfo.Type == SessionType.Race) {
                 let lapsA = parseInt($(a).find("td:nth-child(4)").text(), 10);
                 let lapsB = parseInt($(b).find("td:nth-child(4)").text(), 10);

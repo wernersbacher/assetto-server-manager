@@ -58,6 +58,7 @@
       // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   
       "skipLibCheck": true,
+      "forceConsistentCasingInFileNames": false, /* tsify lower-cases root file names on Windows */
       "baseUrl": "./"
     },
     "exclude": [

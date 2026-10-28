@@ -102,6 +102,7 @@ export namespace RaceWeekend {
                         let conn = this.jsp.connect({
                             source: parentID,
                             target: $session.attr("id"),
+                            // @ts-ignore
                             anchor: "AutoDefault",
                             // @ts-ignore
                             endpoint: ["Blank", {width: 10, height: 10}],

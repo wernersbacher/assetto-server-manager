@@ -9,7 +9,7 @@
 ARG WITH_CA='if [ -s /run/secrets/ca_cert ]; then cat /etc/ssl/certs/ca-certificates.crt /run/secrets/ca_cert > /tmp/ca.pem; export SSL_CERT_FILE=/tmp/ca.pem CURL_CA_BUNDLE=/tmp/ca.pem NODE_EXTRA_CA_CERTS=/run/secrets/ca_cert; fi'
 
 # ---------------------------------------------------------------------------------------------------------------------
-FROM node:22 AS frontend
+FROM node:24 AS frontend
 ARG WITH_CA
 
 WORKDIR /src/cmd/server-manager/typescript
