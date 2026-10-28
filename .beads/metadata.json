@@ -1,0 +1,7 @@
+{
+  "database": "dolt",
+  "backend": "dolt",
+  "dolt_mode": "embedded",
+  "dolt_database": "assetto_server_manager",
+  "project_id": "2c1d87f7-87f6-4581-92f1-fd6c213e3854"
+}
