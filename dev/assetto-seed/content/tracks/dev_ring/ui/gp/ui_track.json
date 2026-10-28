@@ -1,0 +1,11 @@
+{
+  "name": "Dev Ring GP",
+  "city": "Devtown",
+  "country": "Germany",
+  "description": "Fake multi-layout track (gp layout).",
+  "length": "5200m",
+  "pitboxes": "30",
+  "run": "clockwise",
+  "tags": ["circuit"],
+  "width": "14m"
+}

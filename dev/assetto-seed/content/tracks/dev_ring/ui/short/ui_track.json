@@ -1,0 +1,11 @@
+{
+  "name": "Dev Ring Short",
+  "city": "Devtown",
+  "country": "Germany",
+  "description": "Fake multi-layout track (short layout).",
+  "length": "2400m",
+  "pitboxes": "16",
+  "run": "clockwise",
+  "tags": ["circuit"],
+  "width": "14m"
+}

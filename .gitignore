@@ -5,6 +5,7 @@ cmd/championship-import
 server-manager.log
 server_manager.db
 config.yml
+!dev/config.yml
 assetto/
 
 # Created by https://www.gitignore.io/api/go

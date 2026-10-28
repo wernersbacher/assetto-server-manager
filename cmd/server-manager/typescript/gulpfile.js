@@ -5,7 +5,7 @@ let tsify = require('tsify');
 let sourcemaps = require('gulp-sourcemaps');
 let buffer = require('vinyl-buffer');
 let uglify = require('gulp-uglify-es').default;
-let sass = require("gulp-sass");
+let sass = require("gulp-sass")(require("sass"));
 let autoPrefixer = require("gulp-autoprefixer");
 let fsCache = require( 'gulp-fs-cache' );
 
@@ -63,6 +63,7 @@ function buildSass() {
         .pipe(sourcemaps.init())
         .pipe(sass({
             outputStyle: 'compressed',
+            quietDeps: true,
             includePaths: [
                 "./node_modules"
             ]
@@ -78,6 +79,7 @@ function buildSass() {
         .pipe(sourcemaps.init())
         .pipe(sass({
             outputStyle: 'compressed',
+            quietDeps: true,
             includePaths: [
                 "./node_modules"
             ]

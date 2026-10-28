@@ -1,0 +1,11 @@
+{
+  "name": "Dev Track",
+  "city": "Devtown",
+  "country": "Germany",
+  "description": "Fake single-layout track for local server manager development.",
+  "length": "3500m",
+  "pitboxes": "24",
+  "run": "clockwise",
+  "tags": ["circuit"],
+  "width": "12m"
+}

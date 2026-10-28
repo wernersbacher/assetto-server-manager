@@ -1,0 +1,12 @@
+{
+  "name": "Dev Roadster Cup",
+  "brand": "Devmotors",
+  "class": "race",
+  "country": "Japan",
+  "description": "Second fake car, useful for multiclass testing.",
+  "tags": ["cup", "rwd"],
+  "specs": {"bhp": "160bhp", "torque": "200Nm", "weight": "1000kg", "topspeed": "210km/h", "acceleration": "7.5s 0-100", "pwratio": "6.25kg/hp"},
+  "author": "dev",
+  "version": "1.0",
+  "year": 2016
+}

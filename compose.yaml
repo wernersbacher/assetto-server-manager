@@ -1,0 +1,47 @@
+# Local test setup: runs the Docker image with the dev config and the fake Assetto Corsa install from dev/,
+# so no Steam account or acServer is needed.
+#
+#   docker compose up --build        -> http://localhost:8772 (login: admin / admin)
+#   docker compose down -v           -> stop and delete all data (database, results, ...)
+#
+# Behind a TLS-intercepting proxy, pass its root CA for the build (it is not stored in the image):
+#   $env:EXTRA_CA_CERT = "C:\path\to\corporate-root.crt"; docker compose build
+
+name: assetto-server-manager-dev
+
+services:
+  # copies the fake AC install into the assetto volume once, the server skips the steamcmd install if it is present
+  seed:
+    image: assetto-server-manager:dev
+    build:
+      context: .
+      args:
+        SM_VERSION: docker-dev
+      secrets:
+        - ca_cert
+    entrypoint: ["sh", "-c", "[ -d assetto/system ] || cp -r /seed/. assetto/"]
+    volumes:
+      - assetto:/home/assetto/server-manager/assetto
+      - ./dev/assetto-seed:/seed:ro
+
+  server-manager:
+    image: assetto-server-manager:dev
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    ports:
+      - "8772:8772"
+    volumes:
+      - data:/home/assetto/server-manager
+      - assetto:/home/assetto/server-manager/assetto
+      - ./dev/config.yml:/home/assetto/server-manager/config.yml:ro
+
+volumes:
+  # server manager working directory (database, logs)
+  data:
+  # the (fake) Assetto Corsa install, declared as a volume by the image
+  assetto:
+
+secrets:
+  ca_cert:
+    file: ${EXTRA_CA_CERT:-./dev/no-extra-ca.pem}
