@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -925,30 +926,49 @@ func championshipEventSchedulePlugin(championship *Championship, event *Champion
 	return nil
 }
 
+// StartScheduledEvent is called by a start timer. The championship and event passed in are the copies that were
+// captured when the timer was created, so they may be outdated (results, entrants, edits or sign-ups could have been
+// saved in the meantime). Only their IDs and scheduled time are used: everything else is reloaded from the store.
+// If the championship or event was deleted, or the event's schedule was changed or removed, nothing is started.
 func (cm *ChampionshipManager) StartScheduledEvent(championship *Championship, event *ChampionshipEvent) error {
+	championshipID, eventID, scheduled := championship.ID.String(), event.ID.String(), event.Scheduled
+
+	championship, err := cm.store.LoadChampionship(championshipID)
+
+	if err != nil {
+		if err == ErrChampionshipNotFound || os.IsNotExist(err) {
+			logrus.Warnf("Scheduled championship event %s not started: championship %s no longer exists", eventID, championshipID)
+			return nil
+		}
+
+		return err
+	}
+
+	if !championship.Deleted.IsZero() {
+		logrus.Warnf("Scheduled championship event %s not started: championship %s was deleted", eventID, championshipID)
+		return nil
+	}
+
+	event, _, err = championship.EventByID(eventID)
+
+	if err != nil {
+		logrus.Warnf("Scheduled championship event %s not started: it no longer exists in championship %s", eventID, championshipID)
+		return nil
+	}
+
+	if event.Scheduled.IsZero() || !event.Scheduled.Equal(scheduled) {
+		logrus.Warnf("Scheduled championship event %s not started: its schedule was changed or removed (timer for %s, now %s)", eventID, scheduled, event.Scheduled)
+		return nil
+	}
+
 	if event.HasRecurrenceRule() {
-		// makes a copy of this event and schedules it based on the recurrence rule
+		// makes a copy of the (fresh) event and schedules it based on the recurrence rule
 		err := cm.ScheduleNextEventFromRecurrence(championship, event)
 
 		if err != nil {
 			return err
 		}
 	} else {
-		// our copy of the championship is outdated, get the latest version
-		var err error
-
-		championship, err = cm.store.LoadChampionship(championship.ID.String())
-
-		if err != nil {
-			return err
-		}
-
-		event, _, err = championship.EventByID(event.ID.String())
-
-		if err != nil {
-			return err
-		}
-
 		event.Scheduled = time.Time{}
 
 		err = cm.UpsertChampionship(championship)
@@ -958,7 +978,7 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *Championship, e
 		}
 	}
 
-	return cm.StartEvent(championship.ID.String(), event.ID.String(), false)
+	return cm.StartEvent(championshipID, eventID, false)
 }
 
 func (cm *ChampionshipManager) ScheduleNextEventFromRecurrence(championship *Championship, event *ChampionshipEvent) error {
