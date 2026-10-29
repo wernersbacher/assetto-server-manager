@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"bytes"

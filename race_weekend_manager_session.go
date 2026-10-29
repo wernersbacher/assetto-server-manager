@@ -16,12 +16,13 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
-func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*RaceTemplateVars, error) {
+func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*smrace.RaceTemplateVars, error) {
 	opts, err := rwm.raceManager.BuildRaceOpts(r)
 
 	if err != nil {
@@ -99,7 +100,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*Ra
 	opts.OverridePassword = raceWeekendSession.OverridePassword
 	opts.ReplacementPassword = raceWeekendSession.ReplacementPassword
 
-	err = rwm.raceManager.applyCurrentRaceSetupToOptions(opts, opts.Current)
+	err = rwm.raceManager.ApplyCurrentRaceSetupToOptions(opts, opts.Current)
 
 	if err != nil {
 		return nil, err
@@ -216,10 +217,10 @@ func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeek
 	return raceWeekend, session, edited, rwm.UpsertRaceWeekend(raceWeekend)
 }
 
-func (rwm *RaceWeekendManager) applyConfigAndStart(raceWeekend *smmodel.ActiveRaceWeekend) error {
+func (rwm *RaceWeekendManager) ApplyConfigAndStart(raceWeekend *smmodel.ActiveRaceWeekend) error {
 	rwm.activeRaceWeekend = raceWeekend
 
-	err := rwm.raceManager.applyConfigAndStart(raceWeekend)
+	err := rwm.raceManager.ApplyConfigAndStart(raceWeekend)
 
 	if err != nil {
 		return err
@@ -356,10 +357,10 @@ func (rwm *RaceWeekendManager) StartSession(raceWeekendID string, raceWeekendSes
 		raceWeekendRaceEvent.RaceConfig = session.RaceConfig
 		raceWeekendRaceEvent.EntryList = entryList
 
-		return rwm.raceManager.applyConfigAndStart(raceWeekendRaceEvent)
+		return rwm.raceManager.ApplyConfigAndStart(raceWeekendRaceEvent)
 	}
 
-	return rwm.applyConfigAndStart(raceWeekendRaceEvent)
+	return rwm.ApplyConfigAndStart(raceWeekendRaceEvent)
 }
 
 func (rwm *RaceWeekendManager) UDPCallback(message udp.Message) {

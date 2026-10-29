@@ -16,3 +16,14 @@ func FormValueAsInt(val string) int {
 
 	return int(i)
 }
+
+// FormValueAsFloat parses a form value as a float, anything unparsable counts as 0.
+func FormValueAsFloat(val string) float64 {
+	i, err := strconv.ParseFloat(val, 0)
+
+	if err != nil {
+		return 0
+	}
+
+	return i
+}

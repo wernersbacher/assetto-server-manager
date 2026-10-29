@@ -78,3 +78,6 @@ func resultsLoadPlugin(results *smresults.SessionResults) error {
 
 	return nil
 }
+
+// ConfigPath is the directory in the install path which holds the server configuration (server_cfg.ini and entry_list.ini).
+const ConfigPath = "cfg"

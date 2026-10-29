@@ -5,6 +5,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
@@ -30,7 +31,7 @@ type ServerAdministrationHandler struct {
 
 	config              *smconfig.Configuration
 	store               smstore.Store
-	raceManager         *RaceManager
+	raceManager         *smrace.RaceManager
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
 	process             smserver.ServerProcess
@@ -41,7 +42,7 @@ func NewServerAdministrationHandler(
 	config *smconfig.Configuration,
 	baseHandler *smweb.BaseHandler,
 	store smstore.Store,
-	raceManager *RaceManager,
+	raceManager *smrace.RaceManager,
 	championshipManager *ChampionshipManager,
 	raceWeekendManager *RaceWeekendManager,
 	process smserver.ServerProcess,
@@ -316,7 +317,7 @@ func (sah *ServerAdministrationHandler) autoFillEntrantList(w http.ResponseWrite
 }
 
 func (sah *ServerAdministrationHandler) autoFillEntrantDelete(w http.ResponseWriter, r *http.Request) {
-	err := sah.raceManager.store.DeleteEntrant(chi.URLParam(r, "entrantID"))
+	err := sah.store.DeleteEntrant(chi.URLParam(r, "entrantID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("could not delete entrant")

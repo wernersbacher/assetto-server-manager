@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"path/filepath"
@@ -66,7 +66,7 @@ func (rm *RaceManager) LoopCallback(message udp.Message) {
 
 		filename := filepath.Base(string(a))
 
-		results, err := LoadResult(filename)
+		results, err := rm.env.Results().Load(filename)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not read session results for %s", filename)

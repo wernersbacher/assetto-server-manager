@@ -3,6 +3,7 @@ package servermanager
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
@@ -52,8 +53,8 @@ func InitLogging() {
 func Router(
 	config *smconfig.Configuration,
 	fs http.FileSystem,
-	quickRaceHandler *QuickRaceHandler,
-	customRaceHandler *CustomRaceHandler,
+	quickRaceHandler *smrace.QuickRaceHandler,
+	customRaceHandler *smrace.CustomRaceHandler,
 	eventDetailsHandler *EventDetailsHandler,
 	championshipsHandler *ChampionshipsHandler,
 	accountHandler *smaccounts.AccountHandler,
@@ -137,7 +138,7 @@ func Router(
 		r.Get("/api/results", resultsHandler.listAPI)
 		r.Get("/api/results/{fileName}", resultsHandler.viewAPI)
 
-		r.Get("/custom", customRaceHandler.list)
+		r.Get("/custom", customRaceHandler.List)
 
 		// championships
 		r.Get("/championships", championshipsHandler.list)
@@ -221,16 +222,16 @@ func Router(
 		r.HandleFunc("/results/combine", resultsHandler.combineResults)
 
 		// races
-		r.Get("/quick", quickRaceHandler.create)
-		r.Post("/quick/submit", quickRaceHandler.submit)
-		r.Get("/custom/new", customRaceHandler.createOrEdit)
-		r.Get("/custom/load/{uuid}", customRaceHandler.start)
-		r.Post("/custom/schedule/{uuid}", customRaceHandler.schedule)
-		r.Get("/custom/schedule/{uuid}/remove", customRaceHandler.removeSchedule)
-		r.Get("/custom/edit/{uuid}", customRaceHandler.createOrEdit)
-		r.Get("/custom/star/{uuid}", customRaceHandler.star)
-		r.Get("/custom/loop/{uuid}", customRaceHandler.loop)
-		r.Post("/custom/new/submit", customRaceHandler.submit)
+		r.Get("/quick", quickRaceHandler.Create)
+		r.Post("/quick/submit", quickRaceHandler.Submit)
+		r.Get("/custom/new", customRaceHandler.CreateOrEdit)
+		r.Get("/custom/load/{uuid}", customRaceHandler.Start)
+		r.Post("/custom/schedule/{uuid}", customRaceHandler.Schedule)
+		r.Get("/custom/schedule/{uuid}/remove", customRaceHandler.RemoveSchedule)
+		r.Get("/custom/edit/{uuid}", customRaceHandler.CreateOrEdit)
+		r.Get("/custom/star/{uuid}", customRaceHandler.Star)
+		r.Get("/custom/loop/{uuid}", customRaceHandler.Loop)
+		r.Post("/custom/new/submit", customRaceHandler.Submit)
 
 		// server management
 		r.Get("/process/{action}", serverAdministrationHandler.serverProcess)
@@ -317,7 +318,7 @@ func Router(
 
 		r.Post("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.deleteEvent)
 		r.Post("/championship/{championshipID}/delete", championshipsHandler.delete)
-		r.Post("/custom/delete/{uuid}", customRaceHandler.delete)
+		r.Post("/custom/delete/{uuid}", customRaceHandler.Delete)
 		r.Post("/results/{fileName}/delete", resultsHandler.delete)
 
 		r.Post("/track/{name}/delete", tracksHandler.delete)

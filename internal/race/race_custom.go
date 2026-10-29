@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ type customRaceListTemplateVars struct {
 	Recent, Starred, Loop, Scheduled []*smmodel.CustomRace
 }
 
-func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) List(w http.ResponseWriter, r *http.Request) {
 	recent, starred, looped, scheduled, err := crh.raceManager.ListCustomRaces()
 
 	if err != nil {
@@ -54,7 +54,7 @@ func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (crh *CustomRaceHandler) createOrEdit(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) CreateOrEdit(w http.ResponseWriter, r *http.Request) {
 	customRaceData, err := crh.raceManager.BuildRaceOpts(r)
 
 	if err != nil {
@@ -66,7 +66,7 @@ func (crh *CustomRaceHandler) createOrEdit(w http.ResponseWriter, r *http.Reques
 	crh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", customRaceData)
 }
 
-func (crh *CustomRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	err := crh.raceManager.SetupCustomRace(r)
 
 	if err != nil {
@@ -93,7 +93,7 @@ func (crh *CustomRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (crh *CustomRaceHandler) schedule(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) Schedule(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -133,7 +133,7 @@ func (crh *CustomRaceHandler) schedule(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (crh *CustomRaceHandler) removeSchedule(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) RemoveSchedule(w http.ResponseWriter, r *http.Request) {
 	err := crh.raceManager.ScheduleRace(chi.URLParam(r, "uuid"), time.Time{}, "remove", "")
 
 	if err != nil {
@@ -145,7 +145,7 @@ func (crh *CustomRaceHandler) removeSchedule(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (crh *CustomRaceHandler) start(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) Start(w http.ResponseWriter, r *http.Request) {
 	_, err := crh.raceManager.StartCustomRace(chi.URLParam(r, "uuid"), false)
 
 	if err != nil {
@@ -163,7 +163,7 @@ func (crh *CustomRaceHandler) start(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (crh *CustomRaceHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	err := crh.raceManager.DeleteCustomRace(chi.URLParam(r, "uuid"))
 
 	if err != nil {
@@ -176,7 +176,7 @@ func (crh *CustomRaceHandler) delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (crh *CustomRaceHandler) star(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) Star(w http.ResponseWriter, r *http.Request) {
 	err := crh.raceManager.ToggleStarCustomRace(chi.URLParam(r, "uuid"))
 
 	if err != nil {
@@ -189,7 +189,7 @@ func (crh *CustomRaceHandler) star(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (crh *CustomRaceHandler) loop(w http.ResponseWriter, r *http.Request) {
+func (crh *CustomRaceHandler) Loop(w http.ResponseWriter, r *http.Request) {
 	loopStatus, err := crh.raceManager.ToggleLoopCustomRace(chi.URLParam(r, "uuid"))
 
 	if err != nil {

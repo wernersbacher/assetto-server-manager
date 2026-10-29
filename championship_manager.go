@@ -2,8 +2,14 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"errors"
@@ -22,7 +28,13 @@ import (
 )
 
 type ChampionshipManager struct {
-	*RaceManager
+	*smrace.RaceManager
+
+	config              *smconfig.Configuration
+	store               smstore.Store
+	process             smserver.ServerProcess
+	env                 *serverenv.Env
+	notificationManager notification.Dispatcher
 
 	activeChampionship *smmodel.ActiveChampionship
 	mutex              sync.Mutex
@@ -31,15 +43,29 @@ type ChampionshipManager struct {
 	championshipEventReminderTimers reminder.Timers
 }
 
-func NewChampionshipManager(raceManager *RaceManager) *ChampionshipManager {
+// NewChampionshipManager creates the ChampionshipManager. The dependencies are the ones of the race manager, which it
+// embeds.
+func NewChampionshipManager(
+	raceManager *smrace.RaceManager,
+	config *smconfig.Configuration,
+	store smstore.Store,
+	process smserver.ServerProcess,
+	env *serverenv.Env,
+	notificationManager notification.Dispatcher,
+) *ChampionshipManager {
 	return &ChampionshipManager{
-		RaceManager: raceManager,
+		RaceManager:         raceManager,
+		config:              config,
+		store:               store,
+		process:             process,
+		env:                 env,
+		notificationManager: notificationManager,
 	}
 }
 
-func (cm *ChampionshipManager) applyConfigAndStart(championship *smmodel.ActiveChampionship) error {
+func (cm *ChampionshipManager) ApplyConfigAndStart(championship *smmodel.ActiveChampionship) error {
 	cm.activeChampionship = championship
-	err := cm.RaceManager.applyConfigAndStart(championship)
+	err := cm.RaceManager.ApplyConfigAndStart(championship)
 
 	if err != nil {
 		return err
@@ -95,7 +121,7 @@ func (cm *ChampionshipManager) ListChampionships() ([]*smmodel.Championship, err
 }
 
 type ChampionshipTemplateVars struct {
-	*RaceTemplateVars
+	*smrace.RaceTemplateVars
 
 	DefaultPoints             smmodel.ChampionshipPoints
 	DefaultClass              *smmodel.ChampionshipClass
@@ -249,7 +275,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 
 		class.Points.PolePosition = smweb.FormValueAsInt(r.Form["Points.PolePosition"][i])
 		class.Points.BestLap = smweb.FormValueAsInt(r.Form["Points.BestLap"][i])
-		class.Points.SecondRaceMultiplier = formValueAsFloat(r.Form["Points.SecondRaceMultiplier"][i])
+		class.Points.SecondRaceMultiplier = smweb.FormValueAsFloat(r.Form["Points.SecondRaceMultiplier"][i])
 		class.Points.CollisionWithDriver = smweb.FormValueAsInt(r.Form["Points.CollisionWithDriver"][i])
 		class.Points.CollisionWithEnv = smweb.FormValueAsInt(r.Form["Points.CollisionWithEnv"][i])
 		class.Points.CutTrack = smweb.FormValueAsInt(r.Form["Points.CutTrack"][i])

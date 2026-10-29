@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
@@ -88,12 +88,12 @@ func (rm *RaceManager) CurrentRace() (*serverconfig.ServerConfig, serverconfig.E
 
 var ErrEntryListTooBig = errors.New("servermanager: EntryList exceeds MaxClients setting")
 
-func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
+func (rm *RaceManager) ApplyConfigAndStart(event smmodel.RaceEvent) error {
 	rm.mutex.Lock()
 	defer rm.mutex.Unlock()
 
 	// Reset the stored session types if this isn't a looped race
-	if !event.IsLooping(serverID) {
+	if !event.IsLooping(rm.env.ServerID()) {
 		rm.clearLoopedRaceSessionTypes()
 	}
 
@@ -220,7 +220,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 	}
 
 	// drs zones management
-	err = smcontent.ToggleDRSForTrack(ServerInstallPath, config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout, !config.CurrentRaceConfig.DisableDRSZones)
+	err = smcontent.ToggleDRSForTrack(rm.env.InstallPath(), config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout, !config.CurrentRaceConfig.DisableDRSZones)
 
 	if err != nil {
 		return err
@@ -228,7 +228,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 
 	if config.GlobalServerConfig.ShowRaceNameInServerLobby == 1 {
 		// append the race name to the server name
-		if name := event.EventName(trackSummary); name != "" {
+		if name := event.EventName(rm.env.TrackSummary); name != "" {
 			config.GlobalServerConfig.Name = buildFinalServerName(config.GlobalServerConfig.ServerNameTemplate, event, config)
 		}
 	}
@@ -237,7 +237,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 		config.GlobalServerConfig.Name += fmt.Sprintf(" %c%d", serverconfig.ContentManagerWrapperSeparator, config.GlobalServerConfig.ContentManagerWrapperPort)
 	}
 
-	err = config.Write(filepath.Join(ServerInstallPath, ServerConfigPath))
+	err = config.Write(filepath.Join(rm.env.InstallPath(), serverenv.ConfigPath))
 
 	if err != nil {
 		return err
@@ -255,7 +255,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 		}
 	}
 
-	err = entryList.Write(filepath.Join(ServerInstallPath, "setups"), filepath.Join(ServerInstallPath, ServerConfigPath))
+	err = entryList.Write(filepath.Join(rm.env.InstallPath(), "setups"), filepath.Join(rm.env.InstallPath(), serverenv.ConfigPath))
 
 	if err != nil {
 		return err
@@ -270,7 +270,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 		return err
 	}
 
-	if !event.IsLooping(serverID) {
+	if !event.IsLooping(rm.env.ServerID()) {
 		_ = rm.notificationManager.SendRaceStartMessage(config, event)
 	}
 

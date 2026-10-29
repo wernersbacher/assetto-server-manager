@@ -6,6 +6,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
@@ -26,7 +27,7 @@ type Resolver struct {
 	templateLoader  smweb.TemplateLoader
 	reloadTemplates bool
 
-	raceManager           *RaceManager
+	raceManager           *smrace.RaceManager
 	carManager            *smcontent.CarManager
 	trackManager          *smcontent.TrackManager
 	championshipManager   *ChampionshipManager
@@ -45,9 +46,9 @@ type Resolver struct {
 
 	// handlers
 	baseHandler                 *smweb.BaseHandler
-	quickRaceHandler            *QuickRaceHandler
+	quickRaceHandler            *smrace.QuickRaceHandler
 	eventDetailsHandler         *EventDetailsHandler
-	customRaceHandler           *CustomRaceHandler
+	customRaceHandler           *smrace.CustomRaceHandler
 	championshipsHandler        *ChampionshipsHandler
 	accountHandler              *smaccounts.AccountHandler
 	auditLogHandler             *smaccounts.AuditLogHandler
@@ -170,12 +171,12 @@ func (r *Resolver) resolveContentManagerWrapper() *smserver.ContentManagerWrappe
 	return r.contentManagerWrapper
 }
 
-func (r *Resolver) resolveRaceManager() *RaceManager {
+func (r *Resolver) resolveRaceManager() *smrace.RaceManager {
 	if r.raceManager != nil {
 		return r.raceManager
 	}
 
-	r.raceManager = NewRaceManager(
+	r.raceManager = smrace.NewRaceManager(
 		r.config,
 		r.store,
 		r.resolveServerProcess(),
@@ -199,12 +200,12 @@ func (r *Resolver) resolveBaseHandler() *smweb.BaseHandler {
 	return r.baseHandler
 }
 
-func (r *Resolver) resolveCustomRaceHandler() *CustomRaceHandler {
+func (r *Resolver) resolveCustomRaceHandler() *smrace.CustomRaceHandler {
 	if r.customRaceHandler != nil {
 		return r.customRaceHandler
 	}
 
-	r.customRaceHandler = NewCustomRaceHandler(
+	r.customRaceHandler = smrace.NewCustomRaceHandler(
 		r.config,
 		r.resolveBaseHandler(),
 		r.resolveRaceManager(),
@@ -244,12 +245,12 @@ func (r *Resolver) resolveAccountHandler() *smaccounts.AccountHandler {
 	return r.accountHandler
 }
 
-func (r *Resolver) resolveQuickRaceHandler() *QuickRaceHandler {
+func (r *Resolver) resolveQuickRaceHandler() *smrace.QuickRaceHandler {
 	if r.quickRaceHandler != nil {
 		return r.quickRaceHandler
 	}
 
-	r.quickRaceHandler = NewQuickRaceHandler(r.config, r.resolveBaseHandler(), r.resolveRaceManager())
+	r.quickRaceHandler = smrace.NewQuickRaceHandler(r.config, r.resolveBaseHandler(), r.resolveRaceManager())
 
 	return r.quickRaceHandler
 }
@@ -297,6 +298,11 @@ func (r *Resolver) resolveChampionshipManager() *ChampionshipManager {
 
 	r.championshipManager = NewChampionshipManager(
 		r.resolveRaceManager(),
+		r.config,
+		r.ResolveStore(),
+		r.resolveServerProcess(),
+		r.resolveEnv(),
+		r.resolveNotificationManager(),
 	)
 
 	return r.championshipManager

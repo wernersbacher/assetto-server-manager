@@ -5,12 +5,13 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
-	"net/url"
 	"os"
 	"path/filepath"
 	"testing"
@@ -74,74 +75,28 @@ var championshipEventFixtures = []string{
 	// "barbagello-no-end-sessions.db",
 }
 
-type dummyNotificationManager struct{}
-
-func (d *dummyNotificationManager) HasNotificationReminders() bool {
-	return false
-}
-
-func (d *dummyNotificationManager) GetNotificationReminders() []int {
-	var reminders []int
-
-	return reminders
-}
-
-func (d dummyNotificationManager) SendRaceWeekendReminderMessage(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, timer int) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SendMessage(title string, msg string) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SendMessageWithLink(title string, msg string, linkText string, link *url.URL) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event smmodel.RaceEvent) error {
-	return nil
-}
-
-func (d dummyNotificationManager) GetCarList(cars string) string {
-	return "nil"
-}
-
-func (d dummyNotificationManager) GetTrackInfo(track string, layout string, download bool) string {
-	return "nil"
-}
-
-func (d dummyNotificationManager) SendRaceScheduledMessage(event *smmodel.CustomRace, date time.Time) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SendRaceCancelledMessage(event *smmodel.CustomRace, date time.Time) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SendRaceReminderMessage(event *smmodel.CustomRace, timer int) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SendChampionshipReminderMessage(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, timer int) error {
-	return nil
-}
-
-func (d dummyNotificationManager) SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
-	return nil
-}
-
 func newTestChampionshipManager() *ChampionshipManager {
+	config := &smconfig.Configuration{}
+	store := smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
+	process := servertest.Dummy{}
+	notifications := &notificationtest.Dummy{}
+
 	return NewChampionshipManager(
-		NewRaceManager(
-			&smconfig.Configuration{},
-			smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared")),
-			servertest.Dummy{},
+		smrace.NewRaceManager(
+			config,
+			store,
+			process,
 			smcontent.NewCarManager(ServerInstallPath, false, false),
 			smcontent.NewTrackManager(ServerInstallPath),
-			&dummyNotificationManager{},
+			notifications,
 			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, servertest.Dummy{}, testStore, racecontrol.NewPenaltiesManager(testStore, globalsEnv()), globalsEnv()),
 			globalsEnv(),
 		),
+		config,
+		store,
+		process,
+		globalsEnv(),
+		notifications,
 	)
 }
 

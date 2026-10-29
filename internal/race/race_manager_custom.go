@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func (rm *RaceManager) ListCustomRaces() (recent, starred, looped, scheduled []*
 	})
 
 	for _, race := range recent {
-		if race.IsLooping(serverID) {
+		if race.IsLooping(rm.env.ServerID()) {
 			looped = append(looped, race)
 		}
 
@@ -40,7 +40,7 @@ func (rm *RaceManager) ListCustomRaces() (recent, starred, looped, scheduled []*
 		}
 
 		for _, scheduledEvent := range race.ScheduledEvents {
-			if scheduledEvent.Scheduled.IsZero() || scheduledEvent.ScheduledServerID != serverID {
+			if scheduledEvent.Scheduled.IsZero() || scheduledEvent.ScheduledServerID != rm.env.ServerID() {
 				race.Scheduled = time.Time{}
 				race.ScheduledInitial = time.Time{}
 				race.ScheduledServerID = ""
@@ -57,7 +57,7 @@ func (rm *RaceManager) ListCustomRaces() (recent, starred, looped, scheduled []*
 			break
 		}
 
-		if race.Scheduled.After(time.Now()) && race.ScheduledServerID == serverID {
+		if race.Scheduled.After(time.Now()) && race.ScheduledServerID == rm.env.ServerID() {
 			scheduled = append(scheduled, race)
 		}
 	}
@@ -85,11 +85,11 @@ func (rm *RaceManager) SaveCustomRace(
 		var trackLayout string
 
 		if config.TrackLayout != "" {
-			trackLayout = prettifyName(config.TrackLayout, true)
+			trackLayout = smcontent.PrettifyName(config.TrackLayout, true)
 		}
 
 		name = fmt.Sprintf("%s (%s) in %s (%d entrants)",
-			prettifyName(config.Track, false),
+			smcontent.PrettifyName(config.Track, false),
 			trackLayout,
 			smcontent.CarList(config.Cars),
 			len(entryList),
@@ -141,10 +141,10 @@ func (rm *RaceManager) StartCustomRace(uuid string, forceRestart bool) (*smmodel
 	}
 
 	if race.LoopServer != nil {
-		race.LoopServer[serverID] = forceRestart
+		race.LoopServer[rm.env.ServerID()] = forceRestart
 	}
 
-	return race, rm.applyConfigAndStart(race)
+	return race, rm.ApplyConfigAndStart(race)
 }
 
 func (rm *RaceManager) DeleteCustomRace(uuid string) error {
@@ -188,9 +188,9 @@ func (rm *RaceManager) ToggleLoopCustomRace(uuid string) (bool, error) {
 		race.LoopServer = make(map[smmodel.ServerID]bool)
 	}
 
-	race.LoopServer[serverID] = !race.LoopServer[serverID]
+	race.LoopServer[rm.env.ServerID()] = !race.LoopServer[rm.env.ServerID()]
 
-	return race.LoopServer[serverID], rm.store.UpsertCustomRace(race)
+	return race.LoopServer[rm.env.ServerID()], rm.store.UpsertCustomRace(race)
 }
 
 func (rm *RaceManager) SaveServerOptions(newServerOpts *serverconfig.GlobalServerConfig) error {

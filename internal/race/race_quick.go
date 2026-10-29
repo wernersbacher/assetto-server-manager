@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"net/http"
@@ -23,7 +23,7 @@ func NewQuickRaceHandler(config *smconfig.Configuration, baseHandler *smweb.Base
 	}
 }
 
-func (qrh *QuickRaceHandler) create(w http.ResponseWriter, r *http.Request) {
+func (qrh *QuickRaceHandler) Create(w http.ResponseWriter, r *http.Request) {
 	quickRaceData, err := qrh.raceManager.BuildRaceOpts(r)
 
 	if err != nil {
@@ -35,7 +35,7 @@ func (qrh *QuickRaceHandler) create(w http.ResponseWriter, r *http.Request) {
 	qrh.ViewRenderer.MustLoadTemplate(w, r, "quick-race.html", quickRaceData)
 }
 
-func (qrh *QuickRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
+func (qrh *QuickRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	err := qrh.raceManager.SetupQuickRace(r)
 
 	if err == ErrMustSubmitCar {

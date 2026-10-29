@@ -137,18 +137,18 @@ func InitWithResolver(resolver *Resolver) error {
 			switch a := lastEvent.(type) {
 			case *smmodel.ActiveChampionship:
 				if !a.IsPractice() {
-					err = championshipManager.applyConfigAndStart(a)
+					err = championshipManager.ApplyConfigAndStart(a)
 				} else {
-					err = raceManager.applyConfigAndStart(a)
+					err = raceManager.ApplyConfigAndStart(a)
 				}
 			case *smmodel.ActiveRaceWeekend:
 				if !a.IsPractice() {
-					err = raceWeekendManager.applyConfigAndStart(a)
+					err = raceWeekendManager.ApplyConfigAndStart(a)
 				} else {
-					err = raceManager.applyConfigAndStart(a)
+					err = raceManager.ApplyConfigAndStart(a)
 				}
 			default:
-				err = raceManager.applyConfigAndStart(a)
+				err = raceManager.ApplyConfigAndStart(a)
 			}
 
 			if err != nil {

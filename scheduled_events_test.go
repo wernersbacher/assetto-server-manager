@@ -4,6 +4,8 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
@@ -79,17 +81,25 @@ func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*Cha
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
+	config := &smconfig.Configuration{}
+	notifications := &notificationtest.Dummy{}
+
 	cm := NewChampionshipManager(
-		NewRaceManager(
-			&smconfig.Configuration{},
+		smrace.NewRaceManager(
+			config,
 			store,
 			process,
 			smcontent.NewCarManager(ServerInstallPath, false, false),
 			smcontent.NewTrackManager(ServerInstallPath),
-			&dummyNotificationManager{},
+			notifications,
 			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, process, store, racecontrol.NewPenaltiesManager(store, globalsEnv()), globalsEnv()),
 			globalsEnv(),
 		),
+		config,
+		store,
+		process,
+		globalsEnv(),
+		notifications,
 	)
 
 	return cm, store, func() {

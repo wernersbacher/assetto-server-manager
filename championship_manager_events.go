@@ -10,9 +10,10 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 )
 
-func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*RaceTemplateVars, error) {
+func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*smrace.RaceTemplateVars, error) {
 	opts, err := cm.BuildRaceOpts(r)
 
 	if err != nil {
@@ -84,7 +85,7 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*Rac
 
 	opts.ShowOverridePasswordCard = false
 
-	err = cm.applyCurrentRaceSetupToOptions(opts, opts.Current)
+	err = cm.ApplyCurrentRaceSetupToOptions(opts, opts.Current)
 
 	if err != nil {
 		return nil, err
@@ -259,7 +260,7 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 		logrus.Infof("Starting Championship Event: %s at %s (%s) with %d entrants", raceSetup.Cars, raceSetup.Track, raceSetup.TrackLayout, raceSetup.MaxClients)
 
 		// track that this is the current event
-		return cm.applyConfigAndStart(&smmodel.ActiveChampionship{
+		return cm.ApplyConfigAndStart(&smmodel.ActiveChampionship{
 			ChampionshipID:      championship.ID,
 			EventID:             event.ID,
 			Name:                championship.Name,
@@ -289,7 +290,7 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 
 	raceSetup.ResultScreenTime = 30
 
-	return cm.RaceManager.applyConfigAndStart(&smmodel.ActiveChampionship{
+	return cm.RaceManager.ApplyConfigAndStart(&smmodel.ActiveChampionship{
 		ChampionshipID:      championship.ID,
 		EventID:             event.ID,
 		Name:                championship.Name,

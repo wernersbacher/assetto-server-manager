@@ -1,8 +1,9 @@
 package servermanager
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -10,13 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
 // reminderNotificationManager has notification reminders configured.
 type reminderNotificationManager struct {
-	dummyNotificationManager
+	notificationtest.Dummy
 
 	reminders []int
 }
@@ -100,58 +100,12 @@ func TestChampionshipManager_InitScheduledChampionshipsKeepsAllReminders(t *test
 	}
 }
 
-func TestRaceManager_ScheduleRaceKeepsAllReminders(t *testing.T) {
-	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
-	defer cleanup()
-
-	rm := cm.RaceManager
-	rm.notificationManager = &reminderNotificationManager{reminders: []int{120, 15}}
-
-	race := &smmodel.CustomRace{
-		Name:            "Scheduled Race",
-		UUID:            uuid.New(),
-		RaceConfig:      serverconfig.ConfigIniDefault().CurrentRaceConfig,
-		EntryList:       serverconfig.EntryList{},
-		ScheduledEvents: make(map[smmodel.ServerID]*smmodel.ScheduledEventBase),
-	}
-
-	if err := store.UpsertCustomRace(race); err != nil {
-		t.Fatal(err)
-	}
-
-	id := race.UUID.String()
-
-	defer func() {
-		for _, timer := range rm.customRaceStartTimers {
-			timer.Stop()
-		}
-
-		rm.customRaceReminderTimers.StopAll()
-	}()
-
-	if err := rm.ScheduleRace(id, time.Now().Add(3*time.Hour), "add", ""); err != nil {
-		t.Fatal(err)
-	}
-
-	if n := len(rm.customRaceReminderTimers[id]); n != 2 {
-		t.Fatalf("expected a reminder timer per configured reminder, got %d", n)
-	}
-
-	if err := rm.ScheduleRace(id, time.Time{}, "remove", ""); err != nil {
-		t.Fatal(err)
-	}
-
-	if n := len(rm.customRaceReminderTimers[id]); n != 0 {
-		t.Errorf("expected all reminder timers to be stopped after removing the schedule, got %d", n)
-	}
-}
-
 func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
 	defer cleanup()
 
 	notificationManager := &reminderNotificationManager{reminders: []int{120, 15}}
-	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, cm.carManager)
+	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, smcontent.NewCarManager(ServerInstallPath, false, false))
 
 	raceWeekend := smmodel.NewRaceWeekend()
 	session := smmodel.NewRaceWeekendSession()

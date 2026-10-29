@@ -5,6 +5,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -23,7 +24,7 @@ import (
 
 type RaceWeekendManager struct {
 	config              *smconfig.Configuration
-	raceManager         *RaceManager
+	raceManager         *smrace.RaceManager
 	championshipManager *ChampionshipManager
 	notificationManager notification.Dispatcher
 	carManager          *smcontent.CarManager
@@ -39,7 +40,7 @@ type RaceWeekendManager struct {
 
 func NewRaceWeekendManager(
 	config *smconfig.Configuration,
-	raceManager *RaceManager,
+	raceManager *smrace.RaceManager,
 	championshipManager *ChampionshipManager,
 	store smstore.Store,
 	process smserver.ServerProcess,
@@ -113,7 +114,7 @@ func (rwm *RaceWeekendManager) LoadRaceWeekend(id string) (*smmodel.RaceWeekend,
 	return raceWeekend, nil
 }
 
-func (rwm *RaceWeekendManager) BuildRaceWeekendTemplateOpts(r *http.Request) (*RaceTemplateVars, error) {
+func (rwm *RaceWeekendManager) BuildRaceWeekendTemplateOpts(r *http.Request) (*smrace.RaceTemplateVars, error) {
 	opts, err := rwm.raceManager.BuildRaceOpts(r)
 
 	if err != nil {

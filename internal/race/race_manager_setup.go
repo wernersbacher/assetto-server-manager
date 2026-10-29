@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"errors"
@@ -39,7 +39,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		quickRace.TrackLayout = ""
 	}
 
-	tyres, err := smcontent.ListTyres(ServerInstallPath)
+	tyres, err := smcontent.ListTyres(rm.env.InstallPath())
 
 	if err != nil {
 		return err
@@ -105,7 +105,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 
 	var numPitboxes int
 
-	trackInfo, err := smcontent.GetTrackInfo(ServerInstallPath, quickRace.Track, quickRace.TrackLayout)
+	trackInfo, err := smcontent.GetTrackInfo(rm.env.InstallPath(), quickRace.Track, quickRace.TrackLayout)
 
 	if err == nil {
 		boxes, err := trackInfo.Pitboxes.Int64()
@@ -147,20 +147,10 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 
 	quickRace.MaxClients = numPitboxes
 
-	return rm.applyConfigAndStart(&smmodel.QuickRace{
+	return rm.ApplyConfigAndStart(&smmodel.QuickRace{
 		RaceConfig: quickRace,
 		EntryList:  entryList,
 	})
-}
-
-func formValueAsFloat(val string) float64 {
-	i, err := strconv.ParseFloat(val, 0)
-
-	if err != nil {
-		return 0
-	}
-
-	return i
 }
 
 func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (serverconfig.EntryList, error) {
@@ -359,7 +349,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 	for i := 0; i < len(r.Form["Graphics"]); i++ {
 		weatherName := r.Form["Graphics"][i]
 
-		WFXType, err := smcontent.GetWeatherType(ServerInstallPath, weatherName)
+		WFXType, err := smcontent.GetWeatherType(rm.env.InstallPath(), weatherName)
 
 		// if WFXType can't be found due to an error, default to non-sol weather.
 		if !isSol || err != nil {
@@ -526,13 +516,13 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 		return nil
 	}
 
-	return rm.applyConfigAndStart(race)
+	return rm.ApplyConfigAndStart(race)
 }
 
-// applyCurrentRaceSetupToOptions takes current values in race which require more detailed configuration
+// ApplyCurrentRaceSetupToOptions takes current values in race which require more detailed configuration
 // and applies them to the template opts.
-func (rm *RaceManager) applyCurrentRaceSetupToOptions(opts *RaceTemplateVars, race serverconfig.CurrentRaceConfig) error {
-	tyres, err := smcontent.ListTyres(ServerInstallPath)
+func (rm *RaceManager) ApplyCurrentRaceSetupToOptions(opts *RaceTemplateVars, race serverconfig.CurrentRaceConfig) error {
+	tyres, err := smcontent.ListTyres(rm.env.InstallPath())
 
 	if err != nil {
 		return err
@@ -540,7 +530,7 @@ func (rm *RaceManager) applyCurrentRaceSetupToOptions(opts *RaceTemplateVars, ra
 
 	deselectedTyres := make(map[string]bool)
 
-	for _, car := range varSplit(race.Cars) {
+	for _, car := range strings.Split(race.Cars, ";") {
 		tyresForCar, ok := tyres[car]
 
 		if !ok {
@@ -550,7 +540,7 @@ func (rm *RaceManager) applyCurrentRaceSetupToOptions(opts *RaceTemplateVars, ra
 		for carTyre := range tyresForCar {
 			found := false
 
-			for _, t := range varSplit(race.LegalTyres) {
+			for _, t := range strings.Split(race.LegalTyres, ";") {
 				if carTyre == t {
 					found = true
 					break

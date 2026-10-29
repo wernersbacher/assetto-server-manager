@@ -1,4 +1,4 @@
-package servermanager
+package race
 
 import (
 	"net/http"
@@ -103,7 +103,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		return nil, err
 	}
 
-	weather, err := smcontent.ListWeather(ServerInstallPath)
+	weather, err := smcontent.ListWeather(rm.env.InstallPath())
 
 	if err != nil {
 		return nil, err
@@ -156,7 +156,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		return nil, err
 	}
 
-	fixedSetups, err := smcontent.ListAllSetups(ServerInstallPath)
+	fixedSetups, err := smcontent.ListAllSetups(rm.env.InstallPath())
 
 	if err != nil {
 		return nil, err
@@ -202,7 +202,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		ForceStopWithDrivers:     forceStopWithDrivers,
 	}
 
-	err = rm.applyCurrentRaceSetupToOptions(opts, race.CurrentRaceConfig)
+	err = rm.ApplyCurrentRaceSetupToOptions(opts, race.CurrentRaceConfig)
 
 	if err != nil {
 		return nil, err

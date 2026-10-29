@@ -1,6 +1,7 @@
-package servermanager
+package race
 
 import (
+	"errors"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -19,13 +20,13 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 
 	originalDate := race.Scheduled
 	race.Scheduled = date
-	race.ScheduledServerID = serverID
+	race.ScheduledServerID = rm.env.ServerID()
 
 	if race.ScheduledEvents == nil {
 		race.ScheduledEvents = make(map[smmodel.ServerID]*smmodel.ScheduledEventBase)
 	}
 
-	race.ScheduledEvents[serverID] = &smmodel.ScheduledEventBase{
+	race.ScheduledEvents[rm.env.ServerID()] = &smmodel.ScheduledEventBase{
 		Scheduled:         race.Scheduled,
 		ScheduledInitial:  race.ScheduledInitial,
 		Recurrence:        race.Recurrence,
@@ -183,7 +184,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 		race := race
 
 		for _, scheduledEvent := range race.ScheduledEvents {
-			if scheduledEvent.Scheduled.IsZero() || scheduledEvent.ScheduledServerID != serverID {
+			if scheduledEvent.Scheduled.IsZero() || scheduledEvent.ScheduledServerID != rm.env.ServerID() {
 				continue
 			}
 
@@ -195,7 +196,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 			break
 		}
 
-		if race.ScheduledServerID != serverID {
+		if race.ScheduledServerID != rm.env.ServerID() {
 			continue
 		}
 
@@ -322,3 +323,6 @@ func (rm *RaceManager) RescheduleNotifications(oldServerOpts *serverconfig.Globa
 
 	return nil
 }
+
+// ErrScheduledTimeIsZero is returned when an event is scheduled for the zero time.
+var ErrScheduledTimeIsZero = errors.New("servermanager: can't schedule race for zero time")
