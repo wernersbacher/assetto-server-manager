@@ -11,7 +11,6 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
 	"os"
@@ -89,7 +88,7 @@ func testEnv(installPath string) *serverenv.Env {
 func newTestChampionshipManager() *ChampionshipManager {
 	env := testEnv(testInstallPath)
 	config := &smconfig.Configuration{}
-	store := smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
+	store := testStore
 	process := servertest.Dummy{}
 	notifications := &notificationtest.Dummy{}
 
@@ -433,4 +432,11 @@ func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t 
 	}
 }
 
-var testStore = smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
+var testStore, removeTestStore = envtest.TempJSONStore()
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+
+	removeTestStore()
+	os.Exit(code)
+}

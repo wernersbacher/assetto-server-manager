@@ -5,18 +5,24 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 
 	"math/rand"
 	"os"
-	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
-var testStore = smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
+var testStore, removeTestStore = envtest.TempJSONStore()
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+
+	removeTestStore()
+	os.Exit(code)
+}
 
 var drivers = []udp.SessionCarInfo{
 	{
