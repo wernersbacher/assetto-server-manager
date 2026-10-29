@@ -3,6 +3,7 @@ package content
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -641,4 +642,33 @@ func ClearTrackInfoCache(track, layout string) {
 	defer trackInfoCacheMutex.Unlock()
 
 	delete(trackInfoCache, track+layout)
+}
+
+// TrackSummary returns the name of a track including its layout, as shown to the users. It uses the name from the
+// track's ui_track.json if there is one.
+func TrackSummary(installPath, track, layout string) string {
+	info := CachedTrackInfo(installPath, track, layout)
+
+	if info != nil {
+		return info.Name
+	}
+
+	track = PrettifyName(track, false)
+
+	if layout != "" {
+		track += fmt.Sprintf(" (%s)", PrettifyName(layout, true))
+	}
+
+	return track
+}
+
+// TrackDownloadLink returns the URL from which a track can be downloaded, or an empty string if it is not known.
+func TrackDownloadLink(installPath, track string) string {
+	metaData, err := LoadTrackMetaDataFromName(installPath, track)
+
+	if err != nil {
+		return ""
+	}
+
+	return metaData.DownloadURL
 }

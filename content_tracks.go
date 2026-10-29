@@ -2,7 +2,6 @@ package servermanager
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -267,27 +266,9 @@ func (filesystemTrackData) TrackInfo(name, layout string) (*smcontent.TrackInfo,
 }
 
 func trackSummary(track, layout string) string {
-	info := trackInfo(track, layout)
-
-	if info != nil {
-		return info.Name
-	}
-
-	track = prettifyName(track, false)
-
-	if layout != "" {
-		track += fmt.Sprintf(" (%s)", prettifyName(layout, true))
-	}
-
-	return track
+	return smcontent.TrackSummary(ServerInstallPath, track, layout)
 }
 
 func trackDownloadLink(track string) string {
-	metaData, err := smcontent.LoadTrackMetaDataFromName(ServerInstallPath, track)
-
-	if err != nil {
-		return ""
-	}
-
-	return metaData.DownloadURL
+	return smcontent.TrackDownloadLink(ServerInstallPath, track)
 }

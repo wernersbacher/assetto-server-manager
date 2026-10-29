@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -99,7 +100,7 @@ func newAPIResultSummary(result *smresults.SessionResults) *APIResultSummary {
 		TimeAttack:     result.IsTimeAttack(),
 		Track:          result.TrackName,
 		TrackLayout:    result.TrackConfig,
-		TrackName:      apiTrackName(result.TrackName, result.TrackConfig),
+		TrackName:      api.TrackName(ServerInstallPath, result.TrackName, result.TrackConfig),
 		Drivers:        []string{},
 		ChampionshipID: result.ChampionshipID,
 		RaceWeekendID:  result.RaceWeekendID,
@@ -200,7 +201,7 @@ func (rh *ResultsHandler) listAPI(w http.ResponseWriter, r *http.Request) {
 		out.Results = append(out.Results, newAPIResultSummary(&results[i]))
 	}
 
-	writeAPIJSON(w, out)
+	api.WriteJSON(w, out)
 }
 
 // viewAPI returns a single results file in the API format. The file name can be given with or without extension.
@@ -230,5 +231,5 @@ func (rh *ResultsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
 	result.ClearKickedGUIDs()
 	result.NormaliseCarIDs()
 
-	writeAPIJSON(w, NewAPIResult(result))
+	api.WriteJSON(w, NewAPIResult(result))
 }

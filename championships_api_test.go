@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
@@ -75,7 +76,7 @@ func TestNewAPIChampionship(t *testing.T) {
 
 	championship.Events = []*smmodel.ChampionshipEvent{scheduledEvent, completedEvent, raceWeekendEvent}
 
-	out := NewAPIChampionship(championship, "")
+	out := api.NewChampionship(ServerInstallPath, championship, "")
 
 	if out.Name != "Test Championship" || out.Completed || len(out.Classes) != 1 || len(out.Events) != 3 {
 		t.Fatalf("unexpected championship: %+v", out)
@@ -88,7 +89,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	t.Run("scheduled event", func(t *testing.T) {
 		event := out.Events[0]
 
-		if event.Status != APIEventStatusScheduled || event.Scheduled == nil || !event.Scheduled.Equal(scheduled) {
+		if event.Status != api.EventStatusScheduled || event.Scheduled == nil || !event.Scheduled.Equal(scheduled) {
 			t.Fatalf("unexpected event: %+v", event)
 		}
 
@@ -100,9 +101,9 @@ func TestNewAPIChampionship(t *testing.T) {
 			sessionType serverconfig.SessionType
 			start       *time.Time
 		}{
-			{serverconfig.SessionTypePractice, apiTime(scheduled)},
-			{serverconfig.SessionTypeQualifying, apiTime(scheduled.Add(30 * time.Minute))},
-			{serverconfig.SessionTypeRace, apiTime(scheduled.Add(45 * time.Minute))},
+			{serverconfig.SessionTypePractice, api.Time(scheduled)},
+			{serverconfig.SessionTypeQualifying, api.Time(scheduled.Add(30 * time.Minute))},
+			{serverconfig.SessionTypeRace, api.Time(scheduled.Add(45 * time.Minute))},
 			// the race has a number of laps, so the second race's start is unknown
 			{serverconfig.SessionTypeSecondRace, nil},
 		}
@@ -122,7 +123,7 @@ func TestNewAPIChampionship(t *testing.T) {
 				t.Errorf("session %s: expected start %v, got %v", session.Type, e.start, session.Start)
 			}
 
-			if session.Status != APIEventStatusScheduled {
+			if session.Status != api.EventStatusScheduled {
 				t.Errorf("session %s: expected status scheduled, got %s", session.Type, session.Status)
 			}
 		}
@@ -135,7 +136,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	t.Run("completed event", func(t *testing.T) {
 		event := out.Events[1]
 
-		if event.Status != APIEventStatusCompleted || event.Scheduled != nil || event.CompletedTime == nil {
+		if event.Status != api.EventStatusCompleted || event.Scheduled != nil || event.CompletedTime == nil {
 			t.Fatalf("unexpected event: %+v", event)
 		}
 
@@ -143,7 +144,7 @@ func TestNewAPIChampionship(t *testing.T) {
 			t.Errorf("expected track name Api Test Ring (GP), got %s", event.TrackName)
 		}
 
-		if race := event.Sessions[0]; race.Status != APIEventStatusCompleted || race.Time != 45 || !race.ExtraLap {
+		if race := event.Sessions[0]; race.Status != api.EventStatusCompleted || race.Time != 45 || !race.ExtraLap {
 			t.Errorf("unexpected race session: %+v", race)
 		}
 	})
@@ -151,7 +152,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	t.Run("race weekend event", func(t *testing.T) {
 		event := out.Events[2]
 
-		if event.RaceWeekendName != "Endurance" || event.Status != APIEventStatusInProgress {
+		if event.RaceWeekendName != "Endurance" || event.Status != api.EventStatusInProgress {
 			t.Fatalf("unexpected event: %+v", event)
 		}
 
@@ -163,11 +164,11 @@ func TestNewAPIChampionship(t *testing.T) {
 			t.Fatalf("expected 2 sessions, got %d", len(event.Sessions))
 		}
 
-		if qualifying := event.Sessions[0]; qualifying.Name != "Qualy" || qualifying.Status != APIEventStatusCompleted || qualifying.Start == nil {
+		if qualifying := event.Sessions[0]; qualifying.Name != "Qualy" || qualifying.Status != api.EventStatusCompleted || qualifying.Start == nil {
 			t.Errorf("unexpected qualifying session: %+v", qualifying)
 		}
 
-		if race := event.Sessions[1]; race.Name != "Main Race" || race.Status != APIEventStatusUnscheduled || race.Start != nil || race.Laps != 50 {
+		if race := event.Sessions[1]; race.Name != "Main Race" || race.Status != api.EventStatusUnscheduled || race.Start != nil || race.Laps != 50 {
 			t.Errorf("unexpected race session: %+v", race)
 		}
 	})

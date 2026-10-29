@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
@@ -50,8 +51,8 @@ type APIUpcomingRace struct {
 	TrackLayout string
 	TrackName   string
 
-	Cars     []*APICar
-	Sessions []*APISession
+	Cars     []*api.Car
+	Sessions []*api.Session
 }
 
 // upcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose
@@ -113,9 +114,9 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 		OnThisServer: scheduledServerID == "" || scheduledServerID == serverID,
 		Track:        setup.Track,
 		TrackLayout:  setup.TrackLayout,
-		TrackName:    apiTrackName(setup.Track, setup.TrackLayout),
-		Cars:         []*APICar{},
-		Sessions:     []*APISession{},
+		TrackName:    api.TrackName(ServerInstallPath, setup.Track, setup.TrackLayout),
+		Cars:         []*api.Car{},
+		Sessions:     []*api.Session{},
 	}
 
 	switch e := event.(type) {
@@ -146,7 +147,7 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 
 	for _, car := range strings.Split(setup.Cars, ";") {
 		if car != "" {
-			out.Cars = append(out.Cars, &APICar{ID: car, Name: prettifyName(car, true)})
+			out.Cars = append(out.Cars, &api.Car{ID: car, Name: prettifyName(car, true)})
 		}
 	}
 
@@ -160,11 +161,11 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 	for i, session := range sessions {
 		sessionType := sessionTypes[i]
 
-		apiSession := newAPISession(sessionType, sessionType.String(), *session, setup.RaceExtraLap == 1)
-		apiSession.Status = APIEventStatusScheduled
+		apiSession := api.NewSession(sessionType, sessionType.String(), *session, setup.RaceExtraLap == 1)
+		apiSession.Status = api.EventStatusScheduled
 
 		if startKnown {
-			apiSession.Start = apiTime(sessionStart)
+			apiSession.Start = api.Time(sessionStart)
 		}
 
 		if session.Time > 0 {
@@ -176,8 +177,8 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 		out.Sessions = append(out.Sessions, apiSession)
 
 		if sessionType == serverconfig.SessionTypeRace && setup.HasMultipleRaces() {
-			secondRace := newAPISession(serverconfig.SessionTypeSecondRace, "2nd Race", *session, setup.RaceExtraLap == 1)
-			secondRace.Status = APIEventStatusScheduled
+			secondRace := api.NewSession(serverconfig.SessionTypeSecondRace, "2nd Race", *session, setup.RaceExtraLap == 1)
+			secondRace.Status = api.EventStatusScheduled
 
 			out.Sessions = append(out.Sessions, secondRace)
 		}
@@ -210,5 +211,5 @@ func (rs *ScheduledRacesHandler) upcomingAPI(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	writeAPIJSON(w, upcoming)
+	api.WriteJSON(w, upcoming)
 }

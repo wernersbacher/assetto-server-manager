@@ -6,6 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -103,7 +104,7 @@ func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent
 	}
 
 	if out.Track != "" {
-		out.TrackName = apiTrackName(out.Track, out.TrackLayout)
+		out.TrackName = api.TrackName(ServerInstallPath, out.Track, out.TrackLayout)
 	}
 
 	if !raceControl.SessionStartTime.IsZero() {
@@ -152,7 +153,7 @@ func (rch *RaceControlHandler) serverStatusAPI(w http.ResponseWriter, r *http.Re
 		serverName = opts.Name
 	}
 
-	writeAPIJSON(w, NewAPIServerStatus(rch.serverProcess.IsRunning(), serverName, rch.serverProcess.Event(), rch.raceControl))
+	api.WriteJSON(w, NewAPIServerStatus(rch.serverProcess.IsRunning(), serverName, rch.serverProcess.Event(), rch.raceControl))
 }
 
 // apiSessionType converts the session type of the UDP plugin protocol to the session types used in results and
