@@ -182,11 +182,11 @@ type GlobalServerConfig struct {
 
 	ServerName                FormHeading          `ini:"-" json:"-"`
 	ShowRaceNameInServerLobby formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager append the Custom Race or Championship name to the Server name in the lobby."`
-	ServerNameTemplate        string               `ini:"-" help:"You can enter anything you like in here. If you put <code>{{ .ServerName }}</code> in, the Server Name will replace it. If you put <code>{{ .EventName }}</code>, then the Event Name will replace it. Note this only works if 'Show Race Name In Server Lobby' (above) is enabled. You can <a href='https://github.com/JustaPenguin/assetto-server-manager/wiki/Server-Name-Template-Examples'>view some examples</a> on the Server Manager Wiki!"`
+	ServerNameTemplate        string               `ini:"-" help:"You can enter anything you like in here. If you put <code>{{ .ServerName }}</code> in, the Server Name will replace it. If you put <code>{{ .EventName }}</code>, then the Event Name will replace it. Note this only works if 'Show Race Name In Server Lobby' (above) is enabled."`
 
 	Theme     FormHeading          `ini:"-" json:"-"`
 	DarkTheme formulate.BoolNumber `ini:"-" help:"Enable Server Manager's Dark Theme by default"`
-	CustomCSS string               `ini:"-" elem:"textarea" help:"Customise the style of Server Manager! You can <a href='https://github.com/JustaPenguin/assetto-server-manager/wiki/Custom-CSS-Examples'>view some examples</a> on the Server Manager Wiki!"`
+	CustomCSS string               `ini:"-" elem:"textarea" help:"Customise the style of Server Manager!"`
 	OGImage   string               `ini:"-" help:"Link to an image on the web here to set it as your default Open Graph image (will show in links)"`
 
 	ContentManagerIntegration   FormHeading          `ini:"-" json:"-"`

@@ -52,6 +52,7 @@ Removed:
 
 * Hosted mode (the HOSTED and MAX_CLIENTS_OVERRIDE environment variables, the default "acserver" hosting account and the hosted intro popup), which only applied to the upstream hosting service.
 * The Assetto Corsa Skill Rating (ACSR) integration: the ACSR option, skill and safety gates and rating badges in Championships, the ACSR server options and the "Export 2nd Race to ACSR" setting. The ACSR service no longer exists. Championships and server options saved with these settings can still be loaded; the settings are ignored.
+* Links, support and donation notices that pointed to the upstream project and Emperor Servers (footer wiki link, error page, INSTALL.txt, README, Lua plugin docs, help texts) were removed or now point to this fork on GitHub. The upstream Travis CI configuration and funding file were removed as well.
 * Sentry error reporting and the Google Analytics tracking script, which sent data to the upstream project's servers when monitoring was enabled. The monitoring option now only exposes Prometheus metrics at /metrics.
 
 ---
