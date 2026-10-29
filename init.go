@@ -35,7 +35,7 @@ func InitWithResolver(resolver *Resolver) error {
 
 	serverID = id
 
-	accountManager.InitOpenAccount()
+	accountManager.Init(serverID)
 
 	logrus.Infof("Server manager instance identifies as: %s", serverID)
 

@@ -16,6 +16,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 var ErrMustSubmitCar = errors.New("servermanager: you must set a car")
@@ -152,20 +153,6 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 	})
 }
 
-func formValueAsInt(val string) int {
-	if val == "on" {
-		return 1
-	}
-
-	i, err := strconv.ParseInt(val, 10, 0)
-
-	if err != nil {
-		return 0
-	}
-
-	return int(i)
-}
-
 func formValueAsFloat(val string) float64 {
 	i, err := strconv.ParseFloat(val, 0)
 
@@ -214,23 +201,23 @@ func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (serve
 		e.Model = model
 		e.Skin = skin
 		// Despite having the option for SpectatorMode, the server does not support it, and panics if set to 1
-		// SpectatorMode: formValueAsInt(r.Form["EntryList.Spectator"][i]),
-		e.Ballast = formValueAsInt(r.Form["EntryList.Ballast"][i])
-		e.Restrictor = formValueAsInt(r.Form["EntryList.Restrictor"][i])
+		// SpectatorMode: smweb.FormValueAsInt(r.Form["EntryList.Spectator"][i]),
+		e.Ballast = smweb.FormValueAsInt(r.Form["EntryList.Ballast"][i])
+		e.Restrictor = smweb.FormValueAsInt(r.Form["EntryList.Restrictor"][i])
 		e.FixedSetup = r.Form["EntryList.FixedSetup"][i]
 
 		// The pit box/grid starting position
 		if entrantIDs, ok := r.Form["EntryList.EntrantID"]; ok && i < len(entrantIDs) {
-			e.PitBox = formValueAsInt(entrantIDs[i])
+			e.PitBox = smweb.FormValueAsInt(entrantIDs[i])
 		} else {
 			e.PitBox = i
 		}
 
-		if r.Form["EntryList.TransferTeamPoints"] != nil && i < len(r.Form["EntryList.TransferTeamPoints"]) && formValueAsInt(r.Form["EntryList.TransferTeamPoints"][i]) == 1 {
+		if r.Form["EntryList.TransferTeamPoints"] != nil && i < len(r.Form["EntryList.TransferTeamPoints"]) && smweb.FormValueAsInt(r.Form["EntryList.TransferTeamPoints"][i]) == 1 {
 			e.TransferTeamPoints = true
 		}
 
-		if r.Form["EntryList.OverwriteAllEvents"] != nil && i < len(r.Form["EntryList.OverwriteAllEvents"]) && formValueAsInt(r.Form["EntryList.OverwriteAllEvents"][i]) == 1 {
+		if r.Form["EntryList.OverwriteAllEvents"] != nil && i < len(r.Form["EntryList.OverwriteAllEvents"]) && smweb.FormValueAsInt(r.Form["EntryList.OverwriteAllEvents"][i]) == 1 {
 			e.OverwriteAllEvents = true
 		}
 
@@ -244,9 +231,9 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 	cars := r.Form["Cars"]
 	isSol := r.FormValue("Sol.Enabled") == "1"
 
-	gasPenaltyDisabled := formValueAsInt(r.FormValue("RaceGasPenaltyDisabled"))
-	lockedEntryList := formValueAsInt(r.FormValue("LockedEntryList"))
-	pickupModeEnabled := formValueAsInt(r.FormValue("PickupModeEnabled"))
+	gasPenaltyDisabled := smweb.FormValueAsInt(r.FormValue("RaceGasPenaltyDisabled"))
+	lockedEntryList := smweb.FormValueAsInt(r.FormValue("LockedEntryList"))
+	pickupModeEnabled := smweb.FormValueAsInt(r.FormValue("PickupModeEnabled"))
 
 	if gasPenaltyDisabled == 0 {
 		gasPenaltyDisabled = 1
@@ -254,8 +241,8 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 		gasPenaltyDisabled = 0
 	}
 
-	timeAttack := formValueAsInt(r.FormValue("TimeAttack")) == 1
-	loopMode := formValueAsInt(r.FormValue("LoopMode"))
+	timeAttack := smweb.FormValueAsInt(r.FormValue("TimeAttack")) == 1
+	loopMode := smweb.FormValueAsInt(r.FormValue("LoopMode"))
 
 	if timeAttack {
 		loopMode = 1
@@ -283,58 +270,58 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 		TrackLayout: trackLayout,
 
 		// assists
-		ABSAllowed:              serverconfig.FactoryAssist(formValueAsInt(r.FormValue("ABSAllowed"))),
-		TractionControlAllowed:  serverconfig.FactoryAssist(formValueAsInt(r.FormValue("TractionControlAllowed"))),
-		StabilityControlAllowed: formValueAsInt(r.FormValue("StabilityControlAllowed")),
-		AutoClutchAllowed:       formValueAsInt(r.FormValue("AutoClutchAllowed")),
-		TyreBlanketsAllowed:     formValueAsInt(r.FormValue("TyreBlanketsAllowed")),
+		ABSAllowed:              serverconfig.FactoryAssist(smweb.FormValueAsInt(r.FormValue("ABSAllowed"))),
+		TractionControlAllowed:  serverconfig.FactoryAssist(smweb.FormValueAsInt(r.FormValue("TractionControlAllowed"))),
+		StabilityControlAllowed: smweb.FormValueAsInt(r.FormValue("StabilityControlAllowed")),
+		AutoClutchAllowed:       smweb.FormValueAsInt(r.FormValue("AutoClutchAllowed")),
+		TyreBlanketsAllowed:     smweb.FormValueAsInt(r.FormValue("TyreBlanketsAllowed")),
 
 		// weather
-		IsSol:    formValueAsInt(r.FormValue("Sol.Enabled")),
-		SunAngle: formValueAsInt(r.FormValue("SunAngle")),
+		IsSol:    smweb.FormValueAsInt(r.FormValue("Sol.Enabled")),
+		SunAngle: smweb.FormValueAsInt(r.FormValue("SunAngle")),
 
 		// realism
 		LegalTyres:          legalTyres,
-		FuelRate:            formValueAsInt(r.FormValue("FuelRate")),
-		DamageMultiplier:    formValueAsInt(r.FormValue("DamageMultiplier")),
-		TyreWearRate:        formValueAsInt(r.FormValue("TyreWearRate")),
-		ForceVirtualMirror:  formValueAsInt(r.FormValue("ForceVirtualMirror")),
-		TimeOfDayMultiplier: formValueAsInt(r.FormValue("TimeOfDayMultiplier")),
+		FuelRate:            smweb.FormValueAsInt(r.FormValue("FuelRate")),
+		DamageMultiplier:    smweb.FormValueAsInt(r.FormValue("DamageMultiplier")),
+		TyreWearRate:        smweb.FormValueAsInt(r.FormValue("TyreWearRate")),
+		ForceVirtualMirror:  smweb.FormValueAsInt(r.FormValue("ForceVirtualMirror")),
+		TimeOfDayMultiplier: smweb.FormValueAsInt(r.FormValue("TimeOfDayMultiplier")),
 
 		DynamicTrack: serverconfig.DynamicTrackConfig{
-			SessionStart:    formValueAsInt(r.FormValue("SessionStart")),
-			Randomness:      formValueAsInt(r.FormValue("Randomness")),
-			SessionTransfer: formValueAsInt(r.FormValue("SessionTransfer")),
-			LapGain:         formValueAsInt(r.FormValue("LapGain")),
+			SessionStart:    smweb.FormValueAsInt(r.FormValue("SessionStart")),
+			Randomness:      smweb.FormValueAsInt(r.FormValue("Randomness")),
+			SessionTransfer: smweb.FormValueAsInt(r.FormValue("SessionTransfer")),
+			LapGain:         smweb.FormValueAsInt(r.FormValue("LapGain")),
 		},
 
 		// rules
 		PickupModeEnabled:         pickupModeEnabled,
 		LockedEntryList:           lockedEntryList,
-		RacePitWindowStart:        formValueAsInt(r.FormValue("RacePitWindowStart")),
-		RacePitWindowEnd:          formValueAsInt(r.FormValue("RacePitWindowEnd")),
-		ReversedGridRacePositions: formValueAsInt(r.FormValue("ReversedGridRacePositions")),
-		QualifyMaxWaitPercentage:  formValueAsInt(r.FormValue("QualifyMaxWaitPercentage")),
+		RacePitWindowStart:        smweb.FormValueAsInt(r.FormValue("RacePitWindowStart")),
+		RacePitWindowEnd:          smweb.FormValueAsInt(r.FormValue("RacePitWindowEnd")),
+		ReversedGridRacePositions: smweb.FormValueAsInt(r.FormValue("ReversedGridRacePositions")),
+		QualifyMaxWaitPercentage:  smweb.FormValueAsInt(r.FormValue("QualifyMaxWaitPercentage")),
 		RaceGasPenaltyDisabled:    gasPenaltyDisabled,
-		MaxBallastKilograms:       formValueAsInt(r.FormValue("MaxBallastKilograms")),
-		AllowedTyresOut:           formValueAsInt(r.FormValue("AllowedTyresOut")),
+		MaxBallastKilograms:       smweb.FormValueAsInt(r.FormValue("MaxBallastKilograms")),
+		AllowedTyresOut:           smweb.FormValueAsInt(r.FormValue("AllowedTyresOut")),
 		LoopMode:                  loopMode,
-		RaceOverTime:              formValueAsInt(r.FormValue("RaceOverTime")),
-		StartRule:                 serverconfig.StartRule(formValueAsInt(r.FormValue("StartRule"))),
-		MaxClients:                formValueAsInt(r.FormValue("MaxClients")),
-		RaceExtraLap:              formValueAsInt(r.FormValue("RaceExtraLap")),
-		MaxContactsPerKilometer:   formValueAsInt(r.FormValue("MaxContactsPerKilometer")),
-		ResultScreenTime:          formValueAsInt(r.FormValue("ResultScreenTime")),
-		DisableDRSZones:           formValueAsInt(r.FormValue("DisableDRSZones")) == 1,
+		RaceOverTime:              smweb.FormValueAsInt(r.FormValue("RaceOverTime")),
+		StartRule:                 serverconfig.StartRule(smweb.FormValueAsInt(r.FormValue("StartRule"))),
+		MaxClients:                smweb.FormValueAsInt(r.FormValue("MaxClients")),
+		RaceExtraLap:              smweb.FormValueAsInt(r.FormValue("RaceExtraLap")),
+		MaxContactsPerKilometer:   smweb.FormValueAsInt(r.FormValue("MaxContactsPerKilometer")),
+		ResultScreenTime:          smweb.FormValueAsInt(r.FormValue("ResultScreenTime")),
+		DisableDRSZones:           smweb.FormValueAsInt(r.FormValue("DisableDRSZones")) == 1,
 
 		TimeAttack: timeAttack,
 
-		DriverSwapEnabled:               formValueAsInt(r.FormValue("DriverSwapEnabled")),
-		DriverSwapMinTime:               formValueAsInt(r.FormValue("DriverSwapMinTime")),
-		DriverSwapDisqualifyTime:        formValueAsInt(r.FormValue("DriverSwapDisqualifyTime")),
-		DriverSwapPenaltyTime:           formValueAsInt(r.FormValue("DriverSwapPenaltyTime")),
-		DriverSwapMinimumNumberOfSwaps:  formValueAsInt(r.FormValue("DriverSwapMinimumNumberOfSwaps")),
-		DriverSwapNotEnoughSwapsPenalty: formValueAsInt(r.FormValue("DriverSwapNotEnoughSwapsPenalty")),
+		DriverSwapEnabled:               smweb.FormValueAsInt(r.FormValue("DriverSwapEnabled")),
+		DriverSwapMinTime:               smweb.FormValueAsInt(r.FormValue("DriverSwapMinTime")),
+		DriverSwapDisqualifyTime:        smweb.FormValueAsInt(r.FormValue("DriverSwapDisqualifyTime")),
+		DriverSwapPenaltyTime:           smweb.FormValueAsInt(r.FormValue("DriverSwapPenaltyTime")),
+		DriverSwapMinimumNumberOfSwaps:  smweb.FormValueAsInt(r.FormValue("DriverSwapMinimumNumberOfSwaps")),
+		DriverSwapNotEnoughSwapsPenalty: smweb.FormValueAsInt(r.FormValue("DriverSwapNotEnoughSwapsPenalty")),
 	}
 
 	if isSol {
@@ -361,10 +348,10 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 
 		raceConfig.AddSession(session, &serverconfig.SessionConfig{
 			Name:     r.FormValue(sessName + ".Name"),
-			Time:     formValueAsInt(r.FormValue(sessName + ".Time")),
-			Laps:     formValueAsInt(r.FormValue(sessName + ".Laps")),
-			IsOpen:   serverconfig.SessionOpenness(formValueAsInt(r.FormValue(sessName + ".IsOpen"))),
-			WaitTime: formValueAsInt(r.FormValue(sessName + ".WaitTime")),
+			Time:     smweb.FormValueAsInt(r.FormValue(sessName + ".Time")),
+			Laps:     smweb.FormValueAsInt(r.FormValue(sessName + ".Laps")),
+			IsOpen:   serverconfig.SessionOpenness(smweb.FormValueAsInt(r.FormValue(sessName + ".IsOpen"))),
+			WaitTime: smweb.FormValueAsInt(r.FormValue(sessName + ".WaitTime")),
 		})
 	}
 
@@ -378,14 +365,14 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 		if !isSol || err != nil {
 			raceConfig.AddWeather(&serverconfig.WeatherConfig{
 				Graphics:               weatherName,
-				BaseTemperatureAmbient: formValueAsInt(r.Form["BaseTemperatureAmbient"][i]),
-				BaseTemperatureRoad:    formValueAsInt(r.Form["BaseTemperatureRoad"][i]),
-				VariationAmbient:       formValueAsInt(r.Form["VariationAmbient"][i]),
-				VariationRoad:          formValueAsInt(r.Form["VariationRoad"][i]),
-				WindBaseSpeedMin:       formValueAsInt(r.Form["WindBaseSpeedMin"][i]),
-				WindBaseSpeedMax:       formValueAsInt(r.Form["WindBaseSpeedMax"][i]),
-				WindBaseDirection:      formValueAsInt(r.Form["WindBaseDirection"][i]),
-				WindVariationDirection: formValueAsInt(r.Form["WindVariationDirection"][i]),
+				BaseTemperatureAmbient: smweb.FormValueAsInt(r.Form["BaseTemperatureAmbient"][i]),
+				BaseTemperatureRoad:    smweb.FormValueAsInt(r.Form["BaseTemperatureRoad"][i]),
+				VariationAmbient:       smweb.FormValueAsInt(r.Form["VariationAmbient"][i]),
+				VariationRoad:          smweb.FormValueAsInt(r.Form["VariationRoad"][i]),
+				WindBaseSpeedMin:       smweb.FormValueAsInt(r.Form["WindBaseSpeedMin"][i]),
+				WindBaseSpeedMax:       smweb.FormValueAsInt(r.Form["WindBaseSpeedMax"][i]),
+				WindBaseDirection:      smweb.FormValueAsInt(r.Form["WindBaseDirection"][i]),
+				WindVariationDirection: smweb.FormValueAsInt(r.Form["WindVariationDirection"][i]),
 
 				ChampionshipPracticeWeather: r.Form["ChampionshipPracticeWeather"][i],
 			})
@@ -397,7 +384,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 			}
 
 			timeMulti := r.Form["TimeMulti"][i]
-			timeMultiInt := formValueAsInt(timeMulti)
+			timeMultiInt := smweb.FormValueAsInt(timeMulti)
 
 			// This is probably a bit hacky, and may need removing with a future Sol update
 			startTimeFinal := startTime.Add(-(time.Duration(timeMultiInt) * 5 * time.Hour))
@@ -411,14 +398,14 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 			raceConfig.AddWeather(&serverconfig.WeatherConfig{
 				Graphics: weatherName + "_type=" + strconv.Itoa(WFXType) + "_time=0_mult=" +
 					timeMulti + "_start=" + strconv.Itoa(int(startTimeFinal.Unix())),
-				BaseTemperatureAmbient: formValueAsInt(r.Form["BaseTemperatureAmbient"][i]),
-				BaseTemperatureRoad:    formValueAsInt(r.Form["BaseTemperatureRoad"][i]),
-				VariationAmbient:       formValueAsInt(r.Form["VariationAmbient"][i]),
-				VariationRoad:          formValueAsInt(r.Form["VariationRoad"][i]),
-				WindBaseSpeedMin:       formValueAsInt(r.Form["WindBaseSpeedMin"][i]),
-				WindBaseSpeedMax:       formValueAsInt(r.Form["WindBaseSpeedMax"][i]),
-				WindBaseDirection:      formValueAsInt(r.Form["WindBaseDirection"][i]),
-				WindVariationDirection: formValueAsInt(r.Form["WindVariationDirection"][i]),
+				BaseTemperatureAmbient: smweb.FormValueAsInt(r.Form["BaseTemperatureAmbient"][i]),
+				BaseTemperatureRoad:    smweb.FormValueAsInt(r.Form["BaseTemperatureRoad"][i]),
+				VariationAmbient:       smweb.FormValueAsInt(r.Form["VariationAmbient"][i]),
+				VariationRoad:          smweb.FormValueAsInt(r.Form["VariationRoad"][i]),
+				WindBaseSpeedMin:       smweb.FormValueAsInt(r.Form["WindBaseSpeedMin"][i]),
+				WindBaseSpeedMax:       smweb.FormValueAsInt(r.Form["WindBaseSpeedMax"][i]),
+				WindBaseDirection:      smweb.FormValueAsInt(r.Form["WindBaseDirection"][i]),
+				WindVariationDirection: smweb.FormValueAsInt(r.Form["WindVariationDirection"][i]),
 
 				ChampionshipPracticeWeather: r.Form["ChampionshipPracticeWeather"][i],
 
@@ -468,7 +455,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 	overridePassword := r.FormValue("OverridePassword") == "1"
 	replacementPassword := r.FormValue("ReplacementPassword")
 
-	forceStopTime := formValueAsInt(r.FormValue("ForceStopTime"))
+	forceStopTime := smweb.FormValueAsInt(r.FormValue("ForceStopTime"))
 	forceStopWithDrivers := r.FormValue("ForceStopWithDrivers") == "1"
 
 	if customRaceID := r.FormValue("Editing"); customRaceID != "" {

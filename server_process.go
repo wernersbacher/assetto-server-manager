@@ -6,6 +6,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"bytes"
 	"context"
@@ -358,7 +359,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 		strackerOptions.InstanceConfiguration.ACServerConfigIni = filepath.Join(ServerInstallPath, "cfg", serverconfig.ServerConfigIniFilename)
 		strackerOptions.InstanceConfiguration.ACServerWorkingDir = ServerInstallPath
 		strackerOptions.ACPlugin.SendPort = sp.forwardListenPort
-		strackerOptions.ACPlugin.ReceivePort = formValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
+		strackerOptions.ACPlugin.ReceivePort = smweb.FormValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
 
 		if kissMyRankEnabled || realPenaltyEnabled {
 			// kissmyrank and real penalty use stracker's forwarding to chain the plugins. make sure that it is set up.
@@ -496,8 +497,8 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 			// realPenalty is enabled, use its relay port
 			logrus.Infof("Real Penalty and KissMyRank both enabled. Using plugin forwarding method: [Previous Plugin/Server Manager] <-> [Real Penalty] <-> [KissMyRank]")
 
-			kissMyRankOptions.ACServerPluginLocalPort = formValueAsInt(realPenaltyOptions.RealPenaltyAppConfig.PluginsRelay.UDPPort)
-			kissMyRankOptions.ACServerPluginAddressPort = formValueAsInt(strings.Split(realPenaltyOptions.RealPenaltyAppConfig.PluginsRelay.OtherUDPPlugin, ":")[1])
+			kissMyRankOptions.ACServerPluginLocalPort = smweb.FormValueAsInt(realPenaltyOptions.RealPenaltyAppConfig.PluginsRelay.UDPPort)
+			kissMyRankOptions.ACServerPluginAddressPort = smweb.FormValueAsInt(strings.Split(realPenaltyOptions.RealPenaltyAppConfig.PluginsRelay.OtherUDPPlugin, ":")[1])
 		} else if strackerEnabled {
 			// stracker is enabled, use its forwarding port
 			logrus.Infof("sTracker and KissMyRank both enabled. Using plugin forwarding method: [Server Manager] <-> [sTracker] <-> [KissMyRank]")
@@ -506,7 +507,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 		} else {
 			// stracker and real penalty are disabled, use our forwarding port
 			kissMyRankOptions.ACServerPluginLocalPort = sp.forwardListenPort
-			kissMyRankOptions.ACServerPluginAddressPort = formValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
+			kissMyRankOptions.ACServerPluginAddressPort = smweb.FormValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
 		}
 
 		if err := kissMyRankOptions.Write(ServerInstallPath); err != nil {

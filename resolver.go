@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -23,7 +24,7 @@ type Resolver struct {
 	carManager            *smcontent.CarManager
 	trackManager          *smcontent.TrackManager
 	championshipManager   *ChampionshipManager
-	accountManager        *AccountManager
+	accountManager        *smaccounts.AccountManager
 	discordManager        *DiscordManager
 	notificationManager   *NotificationManager
 	scheduledRacesManager *ScheduledRacesManager
@@ -40,8 +41,8 @@ type Resolver struct {
 	quickRaceHandler            *QuickRaceHandler
 	customRaceHandler           *CustomRaceHandler
 	championshipsHandler        *ChampionshipsHandler
-	accountHandler              *AccountHandler
-	auditLogHandler             *AuditLogHandler
+	accountHandler              *smaccounts.AccountHandler
+	auditLogHandler             *smaccounts.AuditLogHandler
 	carsHandler                 *CarsHandler
 	tracksHandler               *TracksHandler
 	weatherHandler              *WeatherHandler
@@ -194,22 +195,22 @@ func (r *Resolver) resolveCustomRaceHandler() *CustomRaceHandler {
 	return r.customRaceHandler
 }
 
-func (r *Resolver) resolveAccountManager() *AccountManager {
+func (r *Resolver) resolveAccountManager() *smaccounts.AccountManager {
 	if r.accountManager != nil {
 		return r.accountManager
 	}
 
-	r.accountManager = NewAccountManager(r.config, r.store, r.sessionStore)
+	r.accountManager = smaccounts.NewAccountManager(r.config, r.store, r.sessionStore, BuildVersion)
 
 	return r.accountManager
 }
 
-func (r *Resolver) resolveAccountHandler() *AccountHandler {
+func (r *Resolver) resolveAccountHandler() *smaccounts.AccountHandler {
 	if r.accountHandler != nil {
 		return r.accountHandler
 	}
 
-	r.accountHandler = NewAccountHandler(r.config, r.resolveBaseHandler(), r.store, r.resolveAccountManager())
+	r.accountHandler = smaccounts.NewAccountHandler(r.config, r.resolveBaseHandler(), r.store, r.resolveAccountManager())
 
 	return r.accountHandler
 }
@@ -224,12 +225,12 @@ func (r *Resolver) resolveQuickRaceHandler() *QuickRaceHandler {
 	return r.quickRaceHandler
 }
 
-func (r *Resolver) resolveAuditLogHandler() *AuditLogHandler {
+func (r *Resolver) resolveAuditLogHandler() *smaccounts.AuditLogHandler {
 	if r.auditLogHandler != nil {
 		return r.auditLogHandler
 	}
 
-	r.auditLogHandler = NewAuditLogHandler(r.resolveBaseHandler(), r.store)
+	r.auditLogHandler = smaccounts.NewAuditLogHandler(r.resolveBaseHandler(), r.store)
 
 	return r.auditLogHandler
 }

@@ -6,6 +6,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -219,7 +220,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *sm
 			return nil, edited, err
 		}
 
-		numAvailableSpectatorCars := formValueAsInt(r.FormValue("NumAvailableSpectatorCars"))
+		numAvailableSpectatorCars := smweb.FormValueAsInt(r.FormValue("NumAvailableSpectatorCars"))
 		cars := r.Form["Cars"]
 		carSelectionRange := len(cars) - numAvailableSpectatorCars
 
@@ -267,7 +268,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *sm
 		}
 
 		raceWeekend.SpectatorCar = *(spectatorEntrants.AsSlice()[0])
-		raceWeekend.SpectatorCarEnabled = formValueAsInt(r.FormValue("SpectatorCar.Enabled")) == 1
+		raceWeekend.SpectatorCarEnabled = smweb.FormValueAsInt(r.FormValue("SpectatorCar.Enabled")) == 1
 	}
 
 	return raceWeekend, edited, rwm.UpsertRaceWeekend(raceWeekend)

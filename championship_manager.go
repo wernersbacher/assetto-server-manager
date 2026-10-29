@@ -4,6 +4,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"errors"
 	"fmt"
@@ -217,8 +218,8 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 		championship.SpectatorCar = *(entrants.AsSlice()[0])
 
 		previousNumEntrants++
-		previousNumCars += formValueAsInt(r.FormValue("NumAvailableSpectatorCars"))
-		championship.SpectatorCarEnabled = formValueAsInt(r.FormValue("Championship.SpectatorCar.Enabled")) == 1
+		previousNumCars += smweb.FormValueAsInt(r.FormValue("NumAvailableSpectatorCars"))
+		championship.SpectatorCarEnabled = smweb.FormValueAsInt(r.FormValue("Championship.SpectatorCar.Enabled")) == 1
 	}
 
 	for i := 0; i < len(r.Form["ClassName"]); i++ {
@@ -228,9 +229,9 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 			class.ID = uuid.MustParse(classID)
 		}
 
-		numEntrantsForClass := formValueAsInt(r.Form["EntryList.NumEntrants"][i])
-		numPointsForClass := formValueAsInt(r.Form["NumPoints"][i])
-		numCarsForClass := formValueAsInt(r.Form["NumCars"][i])
+		numEntrantsForClass := smweb.FormValueAsInt(r.Form["EntryList.NumEntrants"][i])
+		numPointsForClass := smweb.FormValueAsInt(r.Form["NumPoints"][i])
+		numCarsForClass := smweb.FormValueAsInt(r.Form["NumCars"][i])
 
 		class.AvailableCars = r.Form["Cars"][previousNumCars : previousNumCars+numCarsForClass]
 
@@ -243,15 +244,15 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 		class.Points.Places = make([]int, 0)
 
 		for i := previousNumPoints; i < previousNumPoints+numPointsForClass; i++ {
-			class.Points.Places = append(class.Points.Places, formValueAsInt(r.Form["Points.Place"][i]))
+			class.Points.Places = append(class.Points.Places, smweb.FormValueAsInt(r.Form["Points.Place"][i]))
 		}
 
-		class.Points.PolePosition = formValueAsInt(r.Form["Points.PolePosition"][i])
-		class.Points.BestLap = formValueAsInt(r.Form["Points.BestLap"][i])
+		class.Points.PolePosition = smweb.FormValueAsInt(r.Form["Points.PolePosition"][i])
+		class.Points.BestLap = smweb.FormValueAsInt(r.Form["Points.BestLap"][i])
 		class.Points.SecondRaceMultiplier = formValueAsFloat(r.Form["Points.SecondRaceMultiplier"][i])
-		class.Points.CollisionWithDriver = formValueAsInt(r.Form["Points.CollisionWithDriver"][i])
-		class.Points.CollisionWithEnv = formValueAsInt(r.Form["Points.CollisionWithEnv"][i])
-		class.Points.CutTrack = formValueAsInt(r.Form["Points.CutTrack"][i])
+		class.Points.CollisionWithDriver = smweb.FormValueAsInt(r.Form["Points.CollisionWithDriver"][i])
+		class.Points.CollisionWithEnv = smweb.FormValueAsInt(r.Form["Points.CollisionWithEnv"][i])
+		class.Points.CutTrack = smweb.FormValueAsInt(r.Form["Points.CutTrack"][i])
 
 		if previousClass, ok := previousClasses[class.ID]; ok {
 			// look for previous penalties and apply them back across

@@ -17,6 +17,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -192,20 +193,20 @@ func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeek
 				return nil, nil, edited, err
 			}
 
-			numPointsForClass := formValueAsInt(r.Form["NumPointsForClass"][i])
+			numPointsForClass := smweb.FormValueAsInt(r.Form["NumPointsForClass"][i])
 
 			pts := &smmodel.ChampionshipPoints{}
 
 			pts.Places = make([]int, 0)
 
 			for i := previousNumPoints; i < previousNumPoints+numPointsForClass; i++ {
-				pts.Places = append(pts.Places, formValueAsInt(r.Form["Points.Place"][i]))
+				pts.Places = append(pts.Places, smweb.FormValueAsInt(r.Form["Points.Place"][i]))
 			}
 
-			pts.BestLap = formValueAsInt(r.Form["Points.BestLap"][i])
-			pts.CollisionWithDriver = formValueAsInt(r.Form["Points.CollisionWithDriver"][i])
-			pts.CollisionWithEnv = formValueAsInt(r.Form["Points.CollisionWithEnv"][i])
-			pts.CutTrack = formValueAsInt(r.Form["Points.CutTrack"][i])
+			pts.BestLap = smweb.FormValueAsInt(r.Form["Points.BestLap"][i])
+			pts.CollisionWithDriver = smweb.FormValueAsInt(r.Form["Points.CollisionWithDriver"][i])
+			pts.CollisionWithEnv = smweb.FormValueAsInt(r.Form["Points.CollisionWithEnv"][i])
+			pts.CutTrack = smweb.FormValueAsInt(r.Form["Points.CutTrack"][i])
 
 			previousNumPoints += numPointsForClass
 			session.Points[classID] = pts

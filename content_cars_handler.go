@@ -48,7 +48,7 @@ type carListTemplateVars struct {
 
 func (ch *CarsHandler) list(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("q")
-	page := formValueAsInt(r.URL.Query().Get("page"))
+	page := smweb.FormValueAsInt(r.URL.Query().Get("page"))
 	results, cars, err := ch.carManager.Search(r.Context(), searchTerm, page*smcontent.SearchPageSize, smcontent.SearchPageSize)
 
 	if err != nil {

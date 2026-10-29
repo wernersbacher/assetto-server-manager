@@ -1,4 +1,4 @@
-package servermanager
+package accounts
 
 import (
 	"net/http"
@@ -50,7 +50,7 @@ func (alh *AuditLogHandler) Middleware(next http.Handler) http.Handler {
 		}
 
 		entry := &smmodel.AuditEntry{
-			UserGroup: account.GroupFor(serverID),
+			UserGroup: account.GroupFor(smweb.ScopeFromRequest(r).ServerID),
 			Method:    r.Method,
 			URL:       r.URL.String(),
 			User:      account.Name,
@@ -73,7 +73,7 @@ type auditLogTemplateVars struct {
 	AuditLogs []*smmodel.AuditEntry
 }
 
-func (alh *AuditLogHandler) viewLogs(w http.ResponseWriter, r *http.Request) {
+func (alh *AuditLogHandler) ViewLogs(w http.ResponseWriter, r *http.Request) {
 	// load server audits
 	auditLogs, err := alh.store.GetAuditEntries()
 

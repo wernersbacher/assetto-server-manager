@@ -1,4 +1,4 @@
-package servermanager
+package accounts
 
 import (
 	"crypto/rand"
@@ -35,6 +35,8 @@ type ServerAccountOptions struct {
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
 func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		serverID := ah.accountManager.serverID
+
 		sess := smweb.Session(r)
 
 		accountID, ok := sess.Values[sessionAccountID].(string)
@@ -83,6 +85,11 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next 
 	})
 }
 
+// RequestScopeMiddleware attaches the session store and account state to each request.
+func (ah *AccountHandler) RequestScopeMiddleware(next http.Handler) http.Handler {
+	return ah.accountManager.RequestScopeMiddleware(next)
+}
+
 func (ah *AccountHandler) ReadAccessMiddleware(next http.Handler) http.Handler {
 	return ah.MustLoginMiddleware(smmodel.GroupRead, next)
 }
@@ -99,7 +106,7 @@ func (ah *AccountHandler) AdminAccessMiddleware(next http.Handler) http.Handler 
 	return ah.MustLoginMiddleware(smmodel.GroupAdmin, next)
 }
 
-func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) DismissChangelog(w http.ResponseWriter, r *http.Request) {
 	account := smweb.AccountFromRequest(r)
 
 	if account.Name == smmodel.OpenAccountName {
@@ -134,7 +141,7 @@ func NewAccountHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHa
 	}
 }
 
-func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		err := ah.accountManager.login(r, w)
 
@@ -159,7 +166,7 @@ func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/login.html", nil)
 }
 
-func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
 	err := ah.store.GetMeta(serverAccountOptionsMetaKey, &ah.accountManager.options)
 
 	if err != nil && err != smstore.ErrValueNotSet {
@@ -188,7 +195,7 @@ type newPasswordTemplateVars struct {
 	NewAccount bool
 }
 
-func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) NewPassword(w http.ResponseWriter, r *http.Request) {
 	account := smweb.AccountFromRequest(r)
 
 	if r.Method == http.MethodPost {
@@ -242,11 +249,11 @@ type updateAccountTemplateVars struct {
 	smweb.BaseTemplateVars
 
 	Account           *smmodel.Account
-	ThemeOptions      []ThemeDetails
+	ThemeOptions      []themeDetails
 	SteamGUIDOverride string
 }
 
-func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 	account := smweb.AccountFromRequest(r)
 
 	if r.Method == http.MethodPost {
@@ -281,12 +288,12 @@ func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
 
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/update.html", &updateAccountTemplateVars{
 		Account:           account,
-		ThemeOptions:      ThemeOptions,
+		ThemeOptions:      themeOptions,
 		SteamGUIDOverride: r.URL.Query().Get("steamGUID"),
 	})
 }
 
-func (ah *AccountHandler) deleteAccount(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	requestAccount := smweb.AccountFromRequest(r)
 
 	accountID := chi.URLParam(r, "id")
@@ -307,7 +314,7 @@ func (ah *AccountHandler) deleteAccount(w http.ResponseWriter, r *http.Request) 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ah *AccountHandler) resetPassword(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
 	accountID := chi.URLParam(r, "id")
 
 	account, err := ah.accountManager.resetPassword(accountID)
@@ -332,17 +339,22 @@ type AccountManager struct {
 	// sessionStore keeps the login sessions and flash messages.
 	sessionStore sessions.Store
 
-	// options are the server wide account options, loaded from the store by Init.
+	// options are the server wide account options, loaded from the store by LoadOptions.
 	options *ServerAccountOptions
+
+	// serverID identifies this server instance in the per-server account groups. It is set by Init.
+	serverID     smmodel.ServerID
+	buildVersion string
 
 	// openAccount is the dummy account which is used for visitors if read access is open.
 	openAccount *smmodel.Account
 	store       smstore.Store
 }
 
-func NewAccountManager(config *smconfig.Configuration, store smstore.Store, sessionStore sessions.Store) *AccountManager {
+func NewAccountManager(config *smconfig.Configuration, store smstore.Store, sessionStore sessions.Store, buildVersion string) *AccountManager {
 	return &AccountManager{
 		config:       config,
+		buildVersion: buildVersion,
 		sessionStore: sessionStore,
 		options:      &ServerAccountOptions{},
 		store:        store,
@@ -360,12 +372,15 @@ func (am *AccountManager) LoadOptions() error {
 	return nil
 }
 
-// InitOpenAccount creates the dummy account for visitors if read access is open. It needs the server ID.
-func (am *AccountManager) InitOpenAccount() {
+// Init sets the server ID and creates the dummy account for visitors if read access is open. The server ID
+// is only known after the store was opened, so this has to be called before requests are served.
+func (am *AccountManager) Init(serverID smmodel.ServerID) {
+	am.serverID = serverID
+
 	am.openAccount = &smmodel.Account{
 		Name:            smmodel.OpenAccountName,
-		Groups:          map[smmodel.ServerID]smmodel.Group{serverID: smmodel.GroupRead},
-		LastSeenVersion: BuildVersion,
+		Groups:          map[smmodel.ServerID]smmodel.Group{am.serverID: smmodel.GroupRead},
+		LastSeenVersion: am.buildVersion,
 		Theme:           smmodel.ThemeDefault,
 	}
 }
@@ -375,7 +390,7 @@ func (am *AccountManager) RequestScopeMiddleware(next http.Handler) http.Handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		next.ServeHTTP(w, smweb.WithScope(r, &smweb.Scope{
 			SessionStore: am.sessionStore,
-			ServerID:     serverID,
+			ServerID:     am.serverID,
 			ReadIsOpen:   am.options.IsOpen,
 			OpenAccount:  am.openAccount,
 		}))
@@ -453,7 +468,7 @@ func (am *AccountManager) resetPassword(accountID string) (*smmodel.Account, err
 }
 
 func (am *AccountManager) SetCurrentVersion(account *smmodel.Account) error {
-	account.LastSeenVersion = BuildVersion
+	account.LastSeenVersion = am.buildVersion
 
 	return am.store.UpsertAccount(account)
 }
@@ -487,7 +502,7 @@ func (am *AccountManager) updateDetails(account *smmodel.Account, name, guid, te
 	return am.store.UpsertAccount(account)
 }
 
-func (ah *AccountHandler) logout(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	sess := smweb.Session(r)
 	delete(sess.Values, sessionAccountID)
 
@@ -503,7 +518,10 @@ type createAccountTemplateVars struct {
 	IsEditing bool
 }
 
-func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) CreateOrEditAccount(w http.ResponseWriter, r *http.Request) {
+	serverID := ah.accountManager.serverID
+	buildVersion := ah.accountManager.buildVersion
+
 	var account *smmodel.Account
 	isEditing := false
 
@@ -527,7 +545,7 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		account = smmodel.NewAccount(serverID, BuildVersion)
+		account = smmodel.NewAccount(serverID, buildVersion)
 		account.DefaultPassword = strings.Join(defaultPass, "-")
 	}
 
@@ -537,14 +555,14 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 
 		if !isEditing {
 			// creating new account
-			account = smmodel.NewAccount(serverID, BuildVersion)
+			account = smmodel.NewAccount(serverID, buildVersion)
 			account.DefaultPassword = r.FormValue("DefaultPassword")
 		}
 
 		account.Name = username
 		account.Groups[serverID] = group
 
-		if formValueAsInt(r.FormValue("UpdateGroupForAllServers")) == 1 {
+		if smweb.FormValueAsInt(r.FormValue("UpdateGroupForAllServers")) == 1 {
 			for serverID := range account.Groups {
 				account.Groups[serverID] = group
 			}
@@ -581,7 +599,7 @@ type manageAccountsTemplateVars struct {
 	ServerReadIsOpen bool
 }
 
-func (ah *AccountHandler) manageAccounts(w http.ResponseWriter, r *http.Request) {
+func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request) {
 	accounts, err := ah.store.ListAccounts()
 
 	if err != nil {

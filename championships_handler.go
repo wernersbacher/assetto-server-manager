@@ -623,7 +623,7 @@ func (ch *ChampionshipsHandler) driverPenalty(w http.ResponseWriter, r *http.Req
 		chi.URLParam(r, "classID"),
 		chi.URLParam(r, "driverGUID"),
 		PenaltyAction(r.FormValue("action")),
-		formValueAsInt(r.FormValue("PointsPenalty")),
+		smweb.FormValueAsInt(r.FormValue("PointsPenalty")),
 	)
 
 	if err != nil {
@@ -643,7 +643,7 @@ func (ch *ChampionshipsHandler) teamPenalty(w http.ResponseWriter, r *http.Reque
 		chi.URLParam(r, "classID"),
 		chi.URLParam(r, "team"),
 		PenaltyAction(r.FormValue("action")),
-		formValueAsInt(r.FormValue("PointsPenalty")),
+		smweb.FormValueAsInt(r.FormValue("PointsPenalty")),
 	)
 
 	if err != nil {

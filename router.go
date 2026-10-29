@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"fmt"
@@ -51,8 +52,8 @@ func Router(
 	quickRaceHandler *QuickRaceHandler,
 	customRaceHandler *CustomRaceHandler,
 	championshipsHandler *ChampionshipsHandler,
-	accountHandler *AccountHandler,
-	auditLogHandler *AuditLogHandler,
+	accountHandler *smaccounts.AccountHandler,
+	auditLogHandler *smaccounts.AuditLogHandler,
 	carsHandler *CarsHandler,
 	tracksHandler *TracksHandler,
 	weatherHandler *WeatherHandler,
@@ -75,10 +76,10 @@ func Router(
 	r.Use(middleware.RealIP)
 	r.Use(compressor)
 	r.Use(panicHandler)
-	r.Use(accountHandler.accountManager.RequestScopeMiddleware)
+	r.Use(accountHandler.RequestScopeMiddleware)
 
-	r.HandleFunc("/login", accountHandler.login)
-	r.HandleFunc("/logout", accountHandler.logout)
+	r.HandleFunc("/login", accountHandler.Login)
+	r.HandleFunc("/logout", accountHandler.Logout)
 	r.HandleFunc("/robots.txt", serverAdministrationHandler.robots)
 	r.Handle("/metrics", prometheusMonitoringHandler())
 	r.Get("/healthcheck.json", healthCheck.ServeHTTP)
@@ -173,12 +174,12 @@ func Router(
 		r.Get("/api/upcoming-races", scheduledRacesHandler.upcomingAPI)
 
 		// account management
-		r.HandleFunc("/accounts/new-password", accountHandler.newPassword)
-		r.HandleFunc("/accounts/update", accountHandler.update)
+		r.HandleFunc("/accounts/new-password", accountHandler.NewPassword)
+		r.HandleFunc("/accounts/update", accountHandler.Update)
 		r.Get("/accounts/update/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
 			return "/accounts/update"
 		}))
-		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.dismissChangelog)
+		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
 		FileServer(r, "/content", http.Dir(filepath.Join(ServerInstallPath, "content")), true)
 		FileServer(r, "/setups/download", http.Dir(filepath.Join(ServerInstallPath, "setups")), true)
@@ -339,13 +340,13 @@ func Router(
 		r.HandleFunc("/blacklist", serverAdministrationHandler.blacklist)
 		r.HandleFunc("/motd", serverAdministrationHandler.motd)
 		r.HandleFunc("/current-config", serverAdministrationHandler.currentConfig)
-		r.HandleFunc("/audit-logs", auditLogHandler.viewLogs)
-		r.HandleFunc("/accounts/new", accountHandler.createOrEditAccount)
-		r.HandleFunc("/accounts/edit/{id}", accountHandler.createOrEditAccount)
-		r.Post("/accounts/delete/{id}", accountHandler.deleteAccount)
-		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.resetPassword)
-		r.HandleFunc("/accounts/toggle-open", accountHandler.toggleServerOpenStatus)
-		r.HandleFunc("/accounts", accountHandler.manageAccounts)
+		r.HandleFunc("/audit-logs", auditLogHandler.ViewLogs)
+		r.HandleFunc("/accounts/new", accountHandler.CreateOrEditAccount)
+		r.HandleFunc("/accounts/edit/{id}", accountHandler.CreateOrEditAccount)
+		r.Post("/accounts/delete/{id}", accountHandler.DeleteAccount)
+		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
+		r.HandleFunc("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
+		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.rebuildSearchIndex)
 
 		r.HandleFunc("/restart-session", raceControlHandler.restartSession)

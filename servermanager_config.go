@@ -5,7 +5,6 @@ import (
 
 	"github.com/etcd-io/bbolt"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
@@ -40,24 +39,4 @@ func BuildStore(s *smconfig.StoreConfig) (smstore.Store, error) {
 	}
 
 	return rs, nil
-}
-
-type ThemeDetails struct {
-	Theme smmodel.Theme
-	Name  string
-}
-
-var ThemeOptions = []ThemeDetails{
-	{
-		Theme: smmodel.ThemeDefault,
-		Name:  "Use Default",
-	},
-	{
-		Theme: smmodel.ThemeLight,
-		Name:  "Light",
-	},
-	{
-		Theme: smmodel.ThemeDark,
-		Name:  "Dark",
-	},
 }

@@ -428,7 +428,7 @@ func (rwh *RaceWeekendHandler) entryListPreview(w http.ResponseWriter, r *http.R
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := r.URL.Query().Get("sessionID")
 	sortType := r.URL.Query().Get("sortType")
-	reverseNumber := formValueAsInt(r.URL.Query().Get("reverseGrid"))
+	reverseNumber := smweb.FormValueAsInt(r.URL.Query().Get("reverseGrid"))
 
 	previewResponse, err := rwh.raceWeekendManager.PreviewSessionEntryList(raceWeekendID, sessionID, sortType, reverseNumber)
 
@@ -447,7 +447,7 @@ func (rwh *RaceWeekendHandler) updateEntryList(w http.ResponseWriter, r *http.Re
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("sessionID")
 	sortType := r.URL.Query().Get("sortType")
-	reverseNumber := formValueAsInt(r.URL.Query().Get("reverseGrid"))
+	reverseNumber := smweb.FormValueAsInt(r.URL.Query().Get("reverseGrid"))
 
 	if err := rwh.raceWeekendManager.UpdateSessionSorting(raceWeekendID, parentSessionID, sortType, reverseNumber); err != nil {
 		logrus.WithError(err).Errorf("Couldn't update session entrylist sorting")
@@ -509,7 +509,7 @@ func (rwh *RaceWeekendHandler) scheduleSession(w http.ResponseWriter, r *http.Re
 	dateString := r.FormValue("session-schedule-date")
 	timeString := r.FormValue("session-schedule-time")
 	timezone := r.FormValue("session-schedule-timezone")
-	startWhenParentFinished := formValueAsInt(r.FormValue("session-start-after-parent")) == 1
+	startWhenParentFinished := smweb.FormValueAsInt(r.FormValue("session-start-after-parent")) == 1
 
 	var message string
 	var date time.Time

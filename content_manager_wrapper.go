@@ -5,6 +5,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"bytes"
 	"context"
@@ -585,7 +586,7 @@ func (cmw *ContentManagerWrapper) getWindDetailsFromSessionLogs() (speed int, di
 		return 0, 0
 	}
 
-	return formValueAsInt(match[1]), formValueAsInt(match[2])
+	return smweb.FormValueAsInt(match[1]), smweb.FormValueAsInt(match[2])
 }
 
 func getSolWeatherPrettyName(weatherName string) string {
