@@ -46,7 +46,7 @@ func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		err := DecodeFormData(realPenaltyOptions, r)
+		err := smweb.DecodeFormData(realPenaltyOptions, r)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't submit form")
@@ -64,7 +64,7 @@ func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	form, err := EncodeFormData(realPenaltyOptions, r)
+	form, err := smweb.EncodeFormData(realPenaltyOptions, r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't encode form data")

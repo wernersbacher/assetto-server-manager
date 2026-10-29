@@ -40,7 +40,7 @@ func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		err := DecodeFormData(opts, r)
+		err := smweb.DecodeFormData(opts, r)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't submit form")
@@ -58,7 +58,7 @@ func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	form, err := EncodeFormData(opts, r)
+	form, err := smweb.EncodeFormData(opts, r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't encode form data")

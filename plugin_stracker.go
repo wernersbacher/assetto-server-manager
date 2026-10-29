@@ -183,7 +183,7 @@ func (sth *StrackerHandler) options(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		err := DecodeFormData(strackerOptions, r)
+		err := smweb.DecodeFormData(strackerOptions, r)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't submit form")
@@ -207,7 +207,7 @@ func (sth *StrackerHandler) options(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	form, err := EncodeFormData(strackerOptions, r)
+	form, err := smweb.EncodeFormData(strackerOptions, r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't encode form data")

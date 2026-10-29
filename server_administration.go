@@ -215,7 +215,7 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 	}
 
 	if r.Method == http.MethodPost {
-		err := DecodeFormData(serverOpts, r)
+		err := smweb.DecodeFormData(serverOpts, r)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't submit form")
@@ -236,7 +236,7 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 
 	}
 
-	form, err := EncodeFormData(serverOpts, r)
+	form, err := smweb.EncodeFormData(serverOpts, r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't encode form data")

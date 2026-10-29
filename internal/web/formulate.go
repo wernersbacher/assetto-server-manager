@@ -1,4 +1,4 @@
-package servermanager
+package web
 
 import (
 	"bytes"
@@ -9,9 +9,6 @@ import (
 	"github.com/cj123/formulate"
 	"github.com/cj123/formulate/decorators"
 	"golang.org/x/net/html"
-
-	"github.com/wernersbacher/assetto-server-manager/internal/formfields"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 // EncodeFormData uses formulate to build template.HTML from a struct
@@ -21,16 +18,16 @@ func EncodeFormData(data interface{}, r *http.Request) (template.HTML, error) {
 	enc := formulate.NewEncoder(buf, &decorator{})
 	enc.SetFormat(true)
 	enc.AddShowCondition("read", func() bool {
-		return smweb.ReadAccess(r)()
+		return ReadAccess(r)()
 	})
 	enc.AddShowCondition("write", func() bool {
-		return smweb.WriteAccess(r)()
+		return WriteAccess(r)()
 	})
 	enc.AddShowCondition("delete", func() bool {
-		return smweb.DeleteAccess(r)()
+		return DeleteAccess(r)()
 	})
 	enc.AddShowCondition("admin", func() bool {
-		return smweb.AdminAccess(r)()
+		return AdminAccess(r)()
 	})
 
 	if err := enc.Encode(data); err != nil {
@@ -47,9 +44,6 @@ func DecodeFormData(out interface{}, r *http.Request) error {
 
 	return formulate.NewDecoder(r.Form).Decode(out)
 }
-
-// FormHeading renders a section heading in generated forms.
-type FormHeading = formfields.FormHeading
 
 type decorator struct {
 	decorators.BootstrapDecorator
