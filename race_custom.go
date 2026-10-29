@@ -8,7 +8,6 @@ import (
 	"4d63.com/tz"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -18,21 +17,17 @@ import (
 type CustomRaceHandler struct {
 	*smweb.BaseHandler
 
-	config              *smconfig.Configuration
-	raceManager         *RaceManager
-	championshipManager *ChampionshipManager
-	raceWeekendManager  *RaceWeekendManager
-	store               smstore.Store
+	config      *smconfig.Configuration
+	raceManager *RaceManager
+	store       smstore.Store
 }
 
-func NewCustomRaceHandler(config *smconfig.Configuration, base *smweb.BaseHandler, raceManager *RaceManager, store smstore.Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
+func NewCustomRaceHandler(config *smconfig.Configuration, base *smweb.BaseHandler, raceManager *RaceManager, store smstore.Store) *CustomRaceHandler {
 	return &CustomRaceHandler{
-		config:              config,
-		BaseHandler:         base,
-		raceManager:         raceManager,
-		store:               store,
-		championshipManager: championshipManager,
-		raceWeekendManager:  raceWeekendManager,
+		config:      config,
+		BaseHandler: base,
+		raceManager: raceManager,
+		store:       store,
 	}
 }
 
@@ -56,103 +51,6 @@ func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {
 		Starred:   starred,
 		Loop:      looped,
 		Scheduled: scheduled,
-	})
-}
-
-type eventDetailsTemplateVars struct {
-	smweb.BaseTemplateVars
-
-	EventConfig    serverconfig.CurrentRaceConfig
-	EntryList      serverconfig.EntryList
-	EventName      string
-	IsChampionship bool
-}
-
-func (crh *CustomRaceHandler) view(w http.ResponseWriter, r *http.Request) {
-	var (
-		eventConfig    serverconfig.CurrentRaceConfig
-		eventName      string
-		entryList      serverconfig.EntryList
-		isChampionship bool
-	)
-
-	if customRaceID := r.URL.Query().Get("custom-race"); customRaceID != "" {
-		race, err := crh.store.FindCustomRaceByID(customRaceID)
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		eventConfig = race.RaceConfig
-		eventName = race.Name
-		entryList = race.EntryList
-	} else if championshipID := r.URL.Query().Get("championshipID"); championshipID != "" {
-		championship, err := crh.championshipManager.LoadChampionship(championshipID)
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		eventID := r.URL.Query().Get("eventID")
-
-		event, _, err := championship.EventByID(eventID)
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		eventName = "Championship Event"
-		eventConfig, entryList = crh.championshipManager.FinalEventConfigurationFiles(championship, event, false)
-
-		isChampionship = true
-	} else if raceWeekendID := r.URL.Query().Get("raceWeekendID"); raceWeekendID != "" {
-		raceWeekend, err := crh.raceWeekendManager.LoadRaceWeekend(raceWeekendID)
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		sessionID := r.URL.Query().Get("sessionID")
-
-		session, err := raceWeekend.FindSessionByID(sessionID)
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		eventConfig = session.RaceConfig
-
-		if raceWeekend.HasLinkedChampionship() {
-			eventConfig = raceWeekend.Championship.EffectiveRaceWeekendSessionSetup(raceWeekend.ID, eventConfig)
-		}
-
-		eventName = fmt.Sprintf("%s (%s)", session.Name(), raceWeekend.Name)
-		rwe, err := getRaceWeekendEntryList(session, raceWeekend, nil, "")
-
-		if err != nil {
-			http.NotFound(w, r)
-			return
-		}
-
-		entryList = rwe.AsEntryList()
-		isChampionship = raceWeekend.HasLinkedChampionship()
-	}
-
-	if eventConfig.Track == "" {
-		http.NotFound(w, r)
-		return
-	}
-
-	crh.ViewRenderer.MustLoadPartial(w, r, "custom-race/popups/view.html", &eventDetailsTemplateVars{
-		EventConfig:    eventConfig,
-		EventName:      eventName,
-		EntryList:      entryList,
-		IsChampionship: isChampionship,
 	})
 }
 

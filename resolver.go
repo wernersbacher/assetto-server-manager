@@ -46,6 +46,7 @@ type Resolver struct {
 	// handlers
 	baseHandler                 *smweb.BaseHandler
 	quickRaceHandler            *QuickRaceHandler
+	eventDetailsHandler         *EventDetailsHandler
 	customRaceHandler           *CustomRaceHandler
 	championshipsHandler        *ChampionshipsHandler
 	accountHandler              *smaccounts.AccountHandler
@@ -208,11 +209,19 @@ func (r *Resolver) resolveCustomRaceHandler() *CustomRaceHandler {
 		r.resolveBaseHandler(),
 		r.resolveRaceManager(),
 		r.ResolveStore(),
-		r.resolveChampionshipManager(),
-		r.resolveRaceWeekendManager(),
 	)
 
 	return r.customRaceHandler
+}
+
+func (r *Resolver) resolveEventDetailsHandler() *EventDetailsHandler {
+	if r.eventDetailsHandler != nil {
+		return r.eventDetailsHandler
+	}
+
+	r.eventDetailsHandler = NewEventDetailsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveChampionshipManager(), r.resolveRaceWeekendManager())
+
+	return r.eventDetailsHandler
 }
 
 func (r *Resolver) resolveAccountManager() *smaccounts.AccountManager {
@@ -564,6 +573,7 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		fs,
 		r.resolveQuickRaceHandler(),
 		r.resolveCustomRaceHandler(),
+		r.resolveEventDetailsHandler(),
 		r.resolveChampionshipsHandler(),
 		r.resolveAccountHandler(),
 		r.resolveAuditLogHandler(),

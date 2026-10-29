@@ -54,6 +54,7 @@ func Router(
 	fs http.FileSystem,
 	quickRaceHandler *QuickRaceHandler,
 	customRaceHandler *CustomRaceHandler,
+	eventDetailsHandler *EventDetailsHandler,
 	championshipsHandler *ChampionshipsHandler,
 	accountHandler *smaccounts.AccountHandler,
 	auditLogHandler *smaccounts.AuditLogHandler,
@@ -126,7 +127,7 @@ func Router(
 		r.Get("/weather", weatherHandler.list)
 
 		r.Get("/events.ics", scheduledRacesHandler.AllScheduledRacesICalHandler)
-		r.Get("/event-details", customRaceHandler.view)
+		r.Get("/event-details", eventDetailsHandler.view)
 
 		// results
 		r.Get("/results", resultsHandler.list)
