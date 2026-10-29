@@ -1,4 +1,4 @@
-package servermanager
+package notification
 
 import (
 	"fmt"
@@ -11,14 +11,15 @@ import (
 	"github.com/hako/durafmt"
 	"github.com/sirupsen/logrus"
 
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
-type NotificationDispatcher interface {
+type Dispatcher interface {
 	HasNotificationReminders() bool
 	GetNotificationReminders() []int
 	SendMessage(title string, msg string) error
@@ -32,35 +33,37 @@ type NotificationDispatcher interface {
 	SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error
 }
 
-// NotificationManager is the generic notification handler, which calls the individual notification
+// Manager is the generic notification handler, which calls the individual notification
 // managers. Initially, only a Discord manager is implemented.
-type NotificationManager struct {
+type Manager struct {
 	discordManager *DiscordManager
 	carManager     *smcontent.CarManager
 	store          smstore.Store
+	env            *serverenv.Env
 	testing        bool
 }
 
-func NewNotificationManager(discord *DiscordManager, cars *smcontent.CarManager, store smstore.Store) *NotificationManager {
-	return &NotificationManager{
+func NewManager(discord *DiscordManager, cars *smcontent.CarManager, store smstore.Store, env *serverenv.Env) *Manager {
+	return &Manager{
 		discordManager: discord,
 		carManager:     cars,
 		store:          store,
+		env:            env,
 		testing:        os.Getenv("NOTIFICATION_TEST_MODE") == "true",
 	}
 }
 
 // check to see if any notification handlers need to process option changes
-func (nm *NotificationManager) SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
+func (nm *Manager) SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
 	return nm.discordManager.SaveServerOptions(oldServerOpts, newServerOpts)
 }
 
-func (nm *NotificationManager) Stop() error {
+func (nm *Manager) Stop() error {
 	return nm.discordManager.Stop()
 }
 
 // HasNotificationReminders just tells us if we need to do any reminder scheduling
-func (nm *NotificationManager) HasNotificationReminders() bool {
+func (nm *Manager) HasNotificationReminders() bool {
 	reminders := nm.GetNotificationReminders()
 
 	return len(reminders) > 0
@@ -68,7 +71,7 @@ func (nm *NotificationManager) HasNotificationReminders() bool {
 
 // GetNotificationReminders returns an array of int timers
 // Doesn't return errors, just omits anything it doesn't like and logs errors
-func (nm *NotificationManager) GetNotificationReminders() []int {
+func (nm *Manager) GetNotificationReminders() []int {
 	var reminders []int
 
 	serverOpts, err := nm.store.LoadServerOptions()
@@ -103,7 +106,7 @@ func (nm *NotificationManager) GetNotificationReminders() []int {
 }
 
 // SendMessage sends a message (surprise surprise)
-func (nm *NotificationManager) SendMessage(title string, msg string) error {
+func (nm *Manager) SendMessage(title string, msg string) error {
 	var err error
 
 	// Call all message senders here ... atm just discord.  The manager will know if it's enabled or not, so just call it
@@ -115,7 +118,7 @@ func (nm *NotificationManager) SendMessage(title string, msg string) error {
 }
 
 // SendMessageWithLink sends a message with an embedded CM join link
-func (nm *NotificationManager) SendMessageWithLink(title string, msg string, linkText string, link *url.URL) error {
+func (nm *Manager) SendMessageWithLink(title string, msg string, linkText string, link *url.URL) error {
 	var err error
 
 	// Call all message senders here ... atm just discord.  The manager will know if it's enabled or not, so just call it
@@ -127,7 +130,7 @@ func (nm *NotificationManager) SendMessageWithLink(title string, msg string, lin
 }
 
 // SendRaceStartMessage sends a message as a race session is started
-func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event smmodel.RaceEvent) error {
+func (nm *Manager) SendRaceStartMessage(config serverconfig.ServerConfig, event smmodel.RaceEvent) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {
@@ -136,8 +139,8 @@ func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerCo
 	}
 
 	msg := ""
-	eventName := event.EventName(trackSummary)
-	trackInfo := trackSummary(config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout)
+	eventName := event.EventName(nm.env.TrackSummary)
+	trackInfo := nm.env.TrackSummary(config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout)
 
 	if eventName != "" {
 		msg = fmt.Sprintf("%s event at %s is starting now", eventName, trackInfo)
@@ -187,7 +190,7 @@ func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerCo
 }
 
 // GetCarList takes a ; sep string of cars from a race config, returns , sep of UI names with download links added
-func (nm *NotificationManager) GetCarList(cars string) string {
+func (nm *Manager) GetCarList(cars string) string {
 	var aCarNames []string
 
 	for _, carName := range strings.Split(cars, ";") {
@@ -209,11 +212,11 @@ func (nm *NotificationManager) GetCarList(cars string) string {
 }
 
 // GetTrackInfo returns the track summary with any download link appended
-func (nm *NotificationManager) GetTrackInfo(track string, layout string, download bool) string {
-	trackInfo := trackSummary(track, layout)
+func (nm *Manager) GetTrackInfo(track string, layout string, download bool) string {
+	trackInfo := nm.env.TrackSummary(track, layout)
 
 	if download {
-		trackLink := trackDownloadLink(track)
+		trackLink := nm.env.TrackDownloadLink(track)
 
 		if trackLink != "" {
 			trackInfo += " ([download](" + trackLink + "))"
@@ -224,7 +227,7 @@ func (nm *NotificationManager) GetTrackInfo(track string, layout string, downloa
 }
 
 // SendRaceScheduledMessage sends a notification when a race is scheduled
-func (nm *NotificationManager) SendRaceScheduledMessage(event *smmodel.CustomRace, date time.Time) error {
+func (nm *Manager) SendRaceScheduledMessage(event *smmodel.CustomRace, date time.Time) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {
@@ -238,7 +241,7 @@ func (nm *NotificationManager) SendRaceScheduledMessage(event *smmodel.CustomRac
 
 	msg := "A new event has been scheduled\n"
 	msg += fmt.Sprintf("Server: %s\n", serverOpts.Name)
-	eventName := event.EventName(trackSummary)
+	eventName := event.EventName(nm.env.TrackSummary)
 
 	if eventName != "" {
 		msg += fmt.Sprintf("Event name: %s\n", eventName)
@@ -255,7 +258,7 @@ func (nm *NotificationManager) SendRaceScheduledMessage(event *smmodel.CustomRac
 }
 
 // SendRaceCancelledMessage sends a notification when a race is cancelled
-func (nm *NotificationManager) SendRaceCancelledMessage(event *smmodel.CustomRace, date time.Time) error {
+func (nm *Manager) SendRaceCancelledMessage(event *smmodel.CustomRace, date time.Time) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {
@@ -271,8 +274,8 @@ func (nm *NotificationManager) SendRaceCancelledMessage(event *smmodel.CustomRac
 
 	msg := "The following scheduled Event has been cancelled\n"
 	msg += fmt.Sprintf("Server: %s\n", serverOpts.Name)
-	eventName := event.EventName(trackSummary)
-	trackInfo := trackSummary(event.RaceConfig.Track, event.RaceConfig.TrackLayout)
+	eventName := event.EventName(nm.env.TrackSummary)
+	trackInfo := nm.env.TrackSummary(event.RaceConfig.Track, event.RaceConfig.TrackLayout)
 
 	if eventName != "" {
 		msg += fmt.Sprintf("Event name: %s\n", eventName)
@@ -286,10 +289,10 @@ func (nm *NotificationManager) SendRaceCancelledMessage(event *smmodel.CustomRac
 }
 
 // SendRaceReminderMessage sends a reminder a configurable number of minutes prior to a race starting
-func (nm *NotificationManager) SendRaceReminderMessage(event *smmodel.CustomRace, timer int) error {
+func (nm *Manager) SendRaceReminderMessage(event *smmodel.CustomRace, timer int) error {
 	msg := ""
 	trackInfo := nm.GetTrackInfo(event.RaceConfig.Track, event.RaceConfig.TrackLayout, true)
-	eventName := event.EventName(trackSummary)
+	eventName := event.EventName(nm.env.TrackSummary)
 	carList := nm.GetCarList(event.RaceConfig.Cars)
 	reminder := durafmt.Parse(time.Duration(timer) * time.Minute).String()
 
@@ -304,7 +307,7 @@ func (nm *NotificationManager) SendRaceReminderMessage(event *smmodel.CustomRace
 }
 
 // SendChampionshipReminderMessage sends a reminder a configurable number of minutes prior to a championship race starting
-func (nm *NotificationManager) SendChampionshipReminderMessage(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, timer int) error {
+func (nm *Manager) SendChampionshipReminderMessage(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, timer int) error {
 	reminder := durafmt.Parse(time.Duration(timer) * time.Minute).String()
 	title := fmt.Sprintf("Event reminder - %s", reminder)
 	trackInfo := nm.GetTrackInfo(event.RaceSetup.Track, event.RaceSetup.TrackLayout, true)
@@ -313,7 +316,7 @@ func (nm *NotificationManager) SendChampionshipReminderMessage(championship *smm
 }
 
 // SendRaceWeekendReminderMessage sends a reminder a configurable number of minutes prior to a RaceWeekendSession starting
-func (nm *NotificationManager) SendRaceWeekendReminderMessage(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, timer int) error {
+func (nm *Manager) SendRaceWeekendReminderMessage(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, timer int) error {
 	reminder := durafmt.Parse(time.Duration(timer) * time.Minute).String()
 	title := fmt.Sprintf("Event reminder - %s", reminder)
 	trackInfo := nm.GetTrackInfo(session.RaceConfig.Track, session.RaceConfig.TrackLayout, true)

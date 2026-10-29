@@ -5,6 +5,7 @@
 package serverenv
 
 import (
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
@@ -21,4 +22,19 @@ type Env struct {
 
 	// Debug is true if the server manager runs in debug mode.
 	Debug bool
+}
+
+// TrackInfo returns the (cached) details of a track, or nil if the track is unknown.
+func (e *Env) TrackInfo(track, layout string) *smcontent.TrackInfo {
+	return smcontent.CachedTrackInfo(e.InstallPath(), track, layout)
+}
+
+// TrackSummary returns the name of a track including its layout, as shown to the users.
+func (e *Env) TrackSummary(track, layout string) string {
+	return smcontent.TrackSummary(e.InstallPath(), track, layout)
+}
+
+// TrackDownloadLink returns the URL from which a track can be downloaded, or an empty string if it is not known.
+func (e *Env) TrackDownloadLink(track string) string {
+	return smcontent.TrackDownloadLink(e.InstallPath(), track)
 }

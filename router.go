@@ -1,9 +1,10 @@
 package servermanager
 
 import (
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 
 	"fmt"
 	"io"
@@ -63,7 +64,7 @@ func Router(
 	contentUploadHandler *ContentUploadHandler,
 	serverAdministrationHandler *ServerAdministrationHandler,
 	raceControlHandler *RaceControlHandler,
-	scheduledRacesHandler *ScheduledRacesHandler,
+	scheduledRacesHandler *schedule.Handler,
 	raceWeekendHandler *RaceWeekendHandler,
 	strackerHandler *StrackerHandler,
 	healthCheck *HealthCheck,
@@ -123,7 +124,7 @@ func Router(
 		r.Get("/track/{track_id}", tracksHandler.view)
 		r.Get("/weather", weatherHandler.list)
 
-		r.Get("/events.ics", scheduledRacesHandler.allScheduledRacesICalHandler)
+		r.Get("/events.ics", scheduledRacesHandler.AllScheduledRacesICalHandler)
 		r.Get("/event-details", customRaceHandler.view)
 
 		// results
@@ -170,9 +171,9 @@ func Router(
 		})
 
 		// calendar
-		r.Get("/calendar", scheduledRacesHandler.calendar)
-		r.Get("/calendar.json", scheduledRacesHandler.calendarJSON)
-		r.Get("/api/upcoming-races", scheduledRacesHandler.upcomingAPI)
+		r.Get("/calendar", scheduledRacesHandler.Calendar)
+		r.Get("/calendar.json", scheduledRacesHandler.CalendarJSON)
+		r.Get("/api/upcoming-races", scheduledRacesHandler.UpcomingAPI)
 
 		// account management
 		r.HandleFunc("/accounts/new-password", accountHandler.NewPassword)

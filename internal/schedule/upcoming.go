@@ -1,4 +1,4 @@
-package servermanager
+package schedule
 
 import (
 	"net/http"
@@ -7,64 +7,24 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/api"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
-// The upcoming races API exposes what the calendar shows (the scheduled custom races, championship events and race
-// weekend sessions) in a stable JSON format, so that other systems can read it. Recurring events are not expanded:
-// an entry is the next start of the event, with its recurrence rule. Passwords, entrants and the server
-// configuration are intentionally left out.
-
-type APIUpcomingKind string
-
-const (
-	APIUpcomingKindCustomRace         APIUpcomingKind = "custom_race"
-	APIUpcomingKindChampionshipEvent  APIUpcomingKind = "championship_event"
-	APIUpcomingKindRaceWeekendSession APIUpcomingKind = "race_weekend_session"
-)
-
-type APIUpcomingRace struct {
-	ID   uuid.UUID
-	Kind APIUpcomingKind
-	Name string
-
-	// Start is the next start of the event. For a recurring event Recurrence is the recurrence rule.
-	Start      time.Time
-	Recurrence string `json:",omitempty"`
-
-	// OnThisServer is false if the event is scheduled on another server of a multiserver setup.
-	OnThisServer bool
-
-	// ChampionshipID and ChampionshipName are set for championship events, RaceWeekendID and RaceWeekendName for
-	// race weekend sessions.
-	ChampionshipID   *uuid.UUID `json:",omitempty"`
-	ChampionshipName string     `json:",omitempty"`
-	RaceWeekendID    *uuid.UUID `json:",omitempty"`
-	RaceWeekendName  string     `json:",omitempty"`
-
-	Track       string
-	TrackLayout string
-	TrackName   string
-
-	Cars     []*api.Car
-	Sessions []*api.Session
-}
-
-// upcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose
+// UpcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose
 // scheduled time has passed is listed with its next recurrence. A limit of 0 returns all events.
-func (srm *ScheduledRacesManager) upcomingRaces(now time.Time, limit int) ([]*APIUpcomingRace, error) {
-	scheduled, err := srm.getScheduledRaces(true)
+func (srm *Manager) UpcomingRaces(now time.Time, limit int) ([]*api.UpcomingRace, error) {
+	scheduled, err := srm.GetScheduledRaces(true)
 
 	if err != nil {
 		return nil, err
 	}
 
-	out := make([]*APIUpcomingRace, 0, len(scheduled))
+	out := make([]*api.UpcomingRace, 0, len(scheduled))
 
 	for _, event := range scheduled {
 		start := event.GetScheduledTime()
@@ -88,7 +48,7 @@ func (srm *ScheduledRacesManager) upcomingRaces(now time.Time, limit int) ([]*AP
 			}
 		}
 
-		if upcoming := newAPIUpcomingRace(event, start); upcoming != nil {
+		if upcoming := srm.newUpcomingRace(event, start); upcoming != nil {
 			out = append(out, upcoming)
 		}
 	}
@@ -104,37 +64,37 @@ func (srm *ScheduledRacesManager) upcomingRaces(now time.Time, limit int) ([]*AP
 	return out, nil
 }
 
-func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace {
+func (srm *Manager) newUpcomingRace(event Event, start time.Time) *api.UpcomingRace {
 	setup := event.GetRaceSetup()
 	scheduledServerID := event.GetScheduledServerID()
 
-	out := &APIUpcomingRace{
+	out := &api.UpcomingRace{
 		ID:           event.GetID(),
 		Start:        start,
-		OnThisServer: scheduledServerID == "" || scheduledServerID == serverID,
+		OnThisServer: scheduledServerID == "" || scheduledServerID == srm.env.ServerID(),
 		Track:        setup.Track,
 		TrackLayout:  setup.TrackLayout,
-		TrackName:    api.TrackName(ServerInstallPath, setup.Track, setup.TrackLayout),
+		TrackName:    api.TrackName(srm.env.InstallPath(), setup.Track, setup.TrackLayout),
 		Cars:         []*api.Car{},
 		Sessions:     []*api.Session{},
 	}
 
 	switch e := event.(type) {
 	case *smmodel.CustomRace:
-		out.Kind = APIUpcomingKindCustomRace
-		out.Name = e.EventName(trackSummary)
+		out.Kind = api.UpcomingKindCustomRace
+		out.Name = e.EventName(srm.env.TrackSummary)
 		out.Recurrence = e.Recurrence
 	case *smmodel.ChampionshipEvent:
-		out.Kind = APIUpcomingKindChampionshipEvent
-		out.Name = trackSummary(setup.Track, setup.TrackLayout)
+		out.Kind = api.UpcomingKindChampionshipEvent
+		out.Name = srm.env.TrackSummary(setup.Track, setup.TrackLayout)
 		out.Recurrence = e.Recurrence
 
 		if e.Championship() != nil {
 			out.ChampionshipID = &e.Championship().ID
 			out.ChampionshipName = e.Championship().Name
 		}
-	case scheduledRaceWeekendSession:
-		out.Kind = APIUpcomingKindRaceWeekendSession
+	case raceWeekendSession:
+		out.Kind = api.UpcomingKindRaceWeekendSession
 		out.Name = e.Name()
 
 		if e.RaceWeekend() != nil {
@@ -147,7 +107,7 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 
 	for _, car := range strings.Split(setup.Cars, ";") {
 		if car != "" {
-			out.Cars = append(out.Cars, &api.Car{ID: car, Name: prettifyName(car, true)})
+			out.Cars = append(out.Cars, &api.Car{ID: car, Name: smcontent.PrettifyName(car, true)})
 		}
 	}
 
@@ -189,7 +149,7 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 
 // upcomingAPI returns the upcoming scheduled events in the API format. The optional query parameter limit caps the
 // number of events.
-func (rs *ScheduledRacesHandler) upcomingAPI(w http.ResponseWriter, r *http.Request) {
+func (rs *Handler) UpcomingAPI(w http.ResponseWriter, r *http.Request) {
 	var limit int
 
 	if limitParam := r.URL.Query().Get("limit"); limitParam != "" {
@@ -203,7 +163,7 @@ func (rs *ScheduledRacesHandler) upcomingAPI(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	upcoming, err := rs.scheduledRacesManager.upcomingRaces(time.Now(), limit)
+	upcoming, err := rs.scheduledRacesManager.UpcomingRaces(time.Now(), limit)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list upcoming races")

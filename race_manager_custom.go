@@ -9,9 +9,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 )
 
 const maxRecentRaces = 40
@@ -90,7 +91,7 @@ func (rm *RaceManager) SaveCustomRace(
 		name = fmt.Sprintf("%s (%s) in %s (%d entrants)",
 			prettifyName(config.Track, false),
 			trackLayout,
-			carList(config.Cars),
+			smcontent.CarList(config.Cars),
 			len(entryList),
 		)
 

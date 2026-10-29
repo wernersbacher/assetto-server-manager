@@ -6,11 +6,7 @@ import (
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"html/template"
-	"reflect"
-	"sort"
 	"strings"
-
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // BuildVersion is the time Server Manager was built at
@@ -55,53 +51,6 @@ func changelogHTML() template.HTML {
 	return Changelog
 }
 
-func carList(cars interface{}) string {
-	var split []string
-
-	switch cars := cars.(type) {
-	case string:
-		split = strings.Split(cars, ";")
-	case []string:
-		split = cars
-	case []*smresults.SessionCar:
-		carMap := make(map[string]bool)
-
-		for _, entrant := range cars {
-			carMap[entrant.Model] = true
-		}
-
-		for car := range carMap {
-			split = append(split, car)
-		}
-	case serverconfig.EntryList:
-		carMap := make(map[string]bool)
-
-		for _, entrant := range cars {
-			carMap[entrant.Model] = true
-		}
-
-		for car := range carMap {
-			split = append(split, car)
-		}
-	default:
-		panic("unknown type of cars: " + reflect.TypeOf(cars).String())
-	}
-
-	var out []string
-
-	for _, s := range split {
-		if s == serverconfig.AnyCarModel {
-			continue
-		}
-
-		out = append(out, prettifyName(s, true))
-	}
-
-	sort.Strings(out)
-
-	return strings.Join(out, ", ")
-}
-
 func varSplit(str string) []string {
 	return strings.Split(str, ";")
 }
@@ -143,7 +92,7 @@ func trackLayoutURL(track, layout string) string {
 func serverTemplateFuncs() template.FuncMap {
 	return template.FuncMap{
 		"weatherName":              weatherName,
-		"carList":                  carList,
+		"carList":                  smcontent.CarList,
 		"varSplit":                 varSplit,
 		"trackInfo":                trackInfo,
 		"classColor":               ChampionshipClassColor,

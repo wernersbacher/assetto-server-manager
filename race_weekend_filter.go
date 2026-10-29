@@ -397,21 +397,15 @@ func raceWeekendFinishingGrid(rws *smmodel.RaceWeekendSession, raceWeekend *smmo
 	return out, nil
 }
 
-// scheduledRaceWeekendSession makes a RaceWeekendSession usable as a ScheduledEvent, which needs the entry list that
-// the session will be run with.
-type scheduledRaceWeekendSession struct {
-	*smmodel.RaceWeekendSession
-}
-
-func (s scheduledRaceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList {
-	rwe, err := getRaceWeekendEntryList(s.RaceWeekendSession, s.RaceWeekend(), nil, "")
+// raceWeekendEntryList returns the entry list which a race weekend session will be run with.
+func raceWeekendEntryList(session *smmodel.RaceWeekendSession) (serverconfig.EntryList, error) {
+	rwe, err := getRaceWeekendEntryList(session, session.RaceWeekend(), nil, "")
 
 	if err != nil {
-		logrus.WithError(err).Error("Could not get race weekend entry list")
-		return make(serverconfig.EntryList)
+		return nil, err
 	}
 
-	return rwe.AsEntryList()
+	return rwe.AsEntryList(), nil
 }
 
 // raceWeekendTrackOverview describes the tracks of all sessions of a race weekend.

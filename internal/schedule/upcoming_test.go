@@ -1,9 +1,11 @@
-package servermanager
+package schedule
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -20,30 +22,34 @@ import (
 	"github.com/google/uuid"
 )
 
-func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, smstore.Store, func()) {
+func setupUpcomingAPITest(t *testing.T) (*Handler, smstore.Store, func()) {
 	dir, err := ioutil.TempDir("", "upcoming-api")
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	oldServerID := serverID
-	serverID = "test-server"
+	env := &serverenv.Env{
+		ServerID:    func() smmodel.ServerID { return serverID },
+		InstallPath: func() string { return dir },
+	}
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
-	handler := NewScheduledRacesHandler(&smweb.BaseHandler{}, NewScheduledRacesManager(&smconfig.Configuration{}, store))
+	handler := NewHandler(&smweb.BaseHandler{}, NewManager(&smconfig.Configuration{}, store, env, func(*smmodel.RaceWeekendSession) (serverconfig.EntryList, error) {
+		return nil, nil
+	}))
 
 	return handler, store, func() {
-		serverID = oldServerID
-
 		_ = os.RemoveAll(dir)
 	}
 }
 
-func getUpcomingAPI(handler *ScheduledRacesHandler, target string) *httptest.ResponseRecorder {
+const serverID smmodel.ServerID = "test-server"
+
+func getUpcomingAPI(handler *Handler, target string) *httptest.ResponseRecorder {
 	rec := httptest.NewRecorder()
-	handler.upcomingAPI(rec, httptest.NewRequest(http.MethodGet, target, nil))
+	handler.UpcomingAPI(rec, httptest.NewRequest(http.MethodGet, target, nil))
 
 	return rec
 }
@@ -127,7 +133,7 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 		}
 	}
 
-	get := func(t *testing.T, target string) []*APIUpcomingRace {
+	get := func(t *testing.T, target string) []*api.UpcomingRace {
 		rec := getUpcomingAPI(handler, target)
 
 		if rec.Code != http.StatusOK {
@@ -138,7 +144,7 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 			t.Errorf("expected no null values in %s", rec.Body.String())
 		}
 
-		var out []*APIUpcomingRace
+		var out []*api.UpcomingRace
 
 		if err := json.Unmarshal(rec.Body.Bytes(), &out); err != nil {
 			t.Fatal(err)
@@ -155,7 +161,7 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 		}
 
 		// championship event in 1h, race weekend session in 2h, custom race in 3h
-		kinds := []APIUpcomingKind{APIUpcomingKindChampionshipEvent, APIUpcomingKindRaceWeekendSession, APIUpcomingKindCustomRace}
+		kinds := []api.UpcomingKind{api.UpcomingKindChampionshipEvent, api.UpcomingKindRaceWeekendSession, api.UpcomingKindCustomRace}
 
 		for i, kind := range kinds {
 			if out[i].Kind != kind {
@@ -201,7 +207,7 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 	t.Run("limit", func(t *testing.T) {
 		out := get(t, "/api/upcoming-races?limit=2")
 
-		if len(out) != 2 || out[0].Kind != APIUpcomingKindChampionshipEvent || out[1].Kind != APIUpcomingKindRaceWeekendSession {
+		if len(out) != 2 || out[0].Kind != api.UpcomingKindChampionshipEvent || out[1].Kind != api.UpcomingKindRaceWeekendSession {
 			t.Errorf("unexpected limited list: %+v", out)
 		}
 
@@ -239,7 +245,7 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 			t.Fatalf("expected 4 upcoming races, got %d", len(out))
 		}
 
-		var found *APIUpcomingRace
+		var found *api.UpcomingRace
 
 		for _, entry := range out {
 			if entry.ID == stale.UUID {

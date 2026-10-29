@@ -5,6 +5,8 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -28,9 +30,9 @@ type Resolver struct {
 	trackManager          *smcontent.TrackManager
 	championshipManager   *ChampionshipManager
 	accountManager        *smaccounts.AccountManager
-	discordManager        *DiscordManager
-	notificationManager   *NotificationManager
-	scheduledRacesManager *ScheduledRacesManager
+	discordManager        *notification.DiscordManager
+	notificationManager   *notification.Manager
+	scheduledRacesManager *schedule.Manager
 	raceWeekendManager    *RaceWeekendManager
 
 	env                   *serverenv.Env
@@ -53,7 +55,7 @@ type Resolver struct {
 	penaltiesHandler            *PenaltiesHandler
 	penaltiesManager            *PenaltiesManager
 	resultsHandler              *ResultsHandler
-	scheduledRacesHandler       *ScheduledRacesHandler
+	scheduledRacesHandler       *schedule.Handler
 	contentUploadHandler        *ContentUploadHandler
 	raceControlHandler          *RaceControlHandler
 	serverAdministrationHandler *ServerAdministrationHandler
@@ -125,19 +127,13 @@ func (r *Resolver) initViewRenderer() error {
 	return nil
 }
 
-// resolveEnv returns the environment of the managers. The values are read when they are needed, because the install
-// path and the server id are set after the resolver has been created.
+// resolveEnv returns the environment of the managers.
 func (r *Resolver) resolveEnv() *serverenv.Env {
 	if r.env != nil {
 		return r.env
 	}
 
-	r.env = &serverenv.Env{
-		ServerID:     func() smmodel.ServerID { return serverID },
-		InstallPath:  func() string { return ServerInstallPath },
-		PanicCapture: func(fn func()) { panicCapture(fn) },
-		Debug:        Debug,
-	}
+	r.env = globalsEnv()
 
 	return r.env
 }
@@ -185,6 +181,7 @@ func (r *Resolver) resolveRaceManager() *RaceManager {
 		r.resolveTrackManager(),
 		r.resolveNotificationManager(),
 		r.ResolveRaceControl(),
+		r.resolveEnv(),
 	)
 
 	return r.raceManager
@@ -365,22 +362,22 @@ func (r *Resolver) resolveResultsHandler() *ResultsHandler {
 	return r.resultsHandler
 }
 
-func (r *Resolver) resolveScheduledRacesManager() *ScheduledRacesManager {
+func (r *Resolver) resolveScheduledRacesManager() *schedule.Manager {
 	if r.scheduledRacesManager != nil {
 		return r.scheduledRacesManager
 	}
 
-	r.scheduledRacesManager = NewScheduledRacesManager(r.config, r.ResolveStore())
+	r.scheduledRacesManager = schedule.NewManager(r.config, r.ResolveStore(), r.resolveEnv(), raceWeekendEntryList)
 
 	return r.scheduledRacesManager
 }
 
-func (r *Resolver) resolveScheduledRacesHandler() *ScheduledRacesHandler {
+func (r *Resolver) resolveScheduledRacesHandler() *schedule.Handler {
 	if r.scheduledRacesHandler != nil {
 		return r.scheduledRacesHandler
 	}
 
-	r.scheduledRacesHandler = NewScheduledRacesHandler(r.resolveBaseHandler(), r.resolveScheduledRacesManager())
+	r.scheduledRacesHandler = schedule.NewHandler(r.resolveBaseHandler(), r.resolveScheduledRacesManager())
 
 	return r.scheduledRacesHandler
 }
@@ -491,23 +488,23 @@ func (r *Resolver) resolveRaceWeekendHandler() *RaceWeekendHandler {
 	return r.raceWeekendHandler
 }
 
-func (r *Resolver) resolveDiscordManager() *DiscordManager {
+func (r *Resolver) resolveDiscordManager() *notification.DiscordManager {
 	if r.discordManager != nil {
 		return r.discordManager
 	}
 
 	// if manager errors, it will log the error and return discordManager flagged as disabled, so no need to handle err
-	r.discordManager, _ = NewDiscordManager(r.store, r.resolveScheduledRacesManager())
+	r.discordManager, _ = notification.NewDiscordManager(r.store, r.resolveScheduledRacesManager(), r.resolveEnv())
 
 	return r.discordManager
 }
 
-func (r *Resolver) resolveNotificationManager() *NotificationManager {
+func (r *Resolver) resolveNotificationManager() *notification.Manager {
 	if r.notificationManager != nil {
 		return r.notificationManager
 	}
 
-	r.notificationManager = NewNotificationManager(r.resolveDiscordManager(), r.resolveCarManager(), r.store)
+	r.notificationManager = notification.NewManager(r.resolveDiscordManager(), r.resolveCarManager(), r.store, r.resolveEnv())
 
 	return r.notificationManager
 }
@@ -582,4 +579,16 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveKissMyRankHandler(),
 		r.resolveRealPenaltyHandler(),
 	)
+}
+
+// globalsEnv returns the environment of the managers, which reads the package variables of the root package. The
+// values are read when they are needed, because the install path and the server id are set after the resolver has
+// been created.
+func globalsEnv() *serverenv.Env {
+	return &serverenv.Env{
+		ServerID:     func() smmodel.ServerID { return serverID },
+		InstallPath:  func() string { return ServerInstallPath },
+		PanicCapture: func(fn func()) { panicCapture(fn) },
+		Debug:        Debug,
+	}
 }

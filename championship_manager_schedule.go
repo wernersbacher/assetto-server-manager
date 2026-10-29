@@ -4,6 +4,7 @@ import (
 	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"errors"
@@ -231,7 +232,7 @@ func (cm *ChampionshipManager) BuildICalFeed(championshipID string, w io.Writer)
 
 		event.SetChampionship(championship)
 
-		icalEvent := BuildICalEvent(event, cm.config.HTTP.BaseURL)
+		icalEvent := schedule.BuildICalEvent(cm.env, event, cm.config.HTTP.BaseURL)
 
 		cal.Events = append(cal.Events, icalEvent)
 	}

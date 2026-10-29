@@ -1,11 +1,11 @@
 package servermanager
 
 import (
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -86,6 +86,7 @@ func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*Cha
 			smcontent.NewTrackManager(ServerInstallPath),
 			&dummyNotificationManager{},
 			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+			globalsEnv(),
 		),
 	)
 

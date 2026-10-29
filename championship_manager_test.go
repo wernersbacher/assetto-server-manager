@@ -184,6 +184,7 @@ func newTestChampionshipManager() *ChampionshipManager {
 			smcontent.NewTrackManager(ServerInstallPath),
 			&dummyNotificationManager{},
 			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore)),
+			globalsEnv(),
 		),
 	)
 }

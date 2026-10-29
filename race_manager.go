@@ -1,12 +1,14 @@
 package servermanager
 
 import (
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/notification"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -29,7 +31,8 @@ type RaceManager struct {
 	carManager          *smcontent.CarManager
 	trackManager        *smcontent.TrackManager
 	raceControl         *RaceControl
-	notificationManager NotificationDispatcher
+	notificationManager notification.Dispatcher
+	env                 *serverenv.Env
 
 	currentRace      *serverconfig.ServerConfig
 	currentEntryList serverconfig.EntryList
@@ -53,8 +56,9 @@ func NewRaceManager(
 	process smserver.ServerProcess,
 	carManager *smcontent.CarManager,
 	trackManager *smcontent.TrackManager,
-	notificationManager NotificationDispatcher,
+	notificationManager notification.Dispatcher,
 	raceControl *RaceControl,
+	env *serverenv.Env,
 ) *RaceManager {
 	return &RaceManager{
 		config:                   config,
@@ -64,6 +68,7 @@ func NewRaceManager(
 		trackManager:             trackManager,
 		notificationManager:      notificationManager,
 		raceControl:              raceControl,
+		env:                      env,
 		customRaceStartTimers:    make(map[string]*when.Timer),
 		customRaceReminderTimers: make(reminder.Timers),
 	}

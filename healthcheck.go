@@ -9,9 +9,9 @@ import (
 	"runtime"
 	"time"
 
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )

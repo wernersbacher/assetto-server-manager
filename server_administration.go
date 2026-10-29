@@ -1,11 +1,13 @@
 package servermanager
 
 import (
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -32,7 +34,7 @@ type ServerAdministrationHandler struct {
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
 	process             smserver.ServerProcess
-	scheduledRaces      *ScheduledRacesManager
+	scheduledRaces      *schedule.Manager
 }
 
 func NewServerAdministrationHandler(
@@ -43,7 +45,7 @@ func NewServerAdministrationHandler(
 	championshipManager *ChampionshipManager,
 	raceWeekendManager *RaceWeekendManager,
 	process smserver.ServerProcess,
-	scheduledRaces *ScheduledRacesManager,
+	scheduledRaces *schedule.Manager,
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
 		config:              config,
@@ -67,7 +69,7 @@ type homeTemplateVars struct {
 
 	RaceDetails     *smmodel.CustomRace
 	PerformanceMode bool
-	UpcomingRaces   []*APIUpcomingRace
+	UpcomingRaces   []*api.UpcomingRace
 	RecentResults   []*smresults.SessionResults
 }
 
@@ -82,7 +84,7 @@ func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Requ
 	}
 
 	// the overview still renders if the calendar or the results can't be loaded, they are just left out
-	upcoming, err := sah.scheduledRaces.upcomingRaces(time.Now(), homeUpcomingRaces)
+	upcoming, err := sah.scheduledRaces.UpcomingRaces(time.Now(), homeUpcomingRaces)
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load upcoming races for the overview")

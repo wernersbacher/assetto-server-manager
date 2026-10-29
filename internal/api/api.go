@@ -345,3 +345,47 @@ func WriteJSON(w http.ResponseWriter, data interface{}) {
 		logrus.WithError(err).Error("couldn't encode api response")
 	}
 }
+
+// The upcoming races API exposes what the calendar shows (the scheduled custom races, championship events and race
+// weekend sessions) in a stable JSON format, so that other systems can read it. Recurring events are not expanded:
+// an entry is the next start of the event, with its recurrence rule. Passwords, entrants and the server
+// configuration are intentionally left out.
+
+// UpcomingKind is the type of an upcoming event.
+type UpcomingKind string
+
+const (
+	UpcomingKindCustomRace         UpcomingKind = "custom_race"
+	UpcomingKindChampionshipEvent  UpcomingKind = "championship_event"
+	UpcomingKindRaceWeekendSession UpcomingKind = "race_weekend_session"
+)
+
+// UpcomingRace is one entry of the upcoming races API.
+type UpcomingRace struct {
+	ID   uuid.UUID
+	Kind UpcomingKind
+	Name string
+
+	// Start is the next start of the event. For a recurring event Recurrence is the recurrence rule.
+	Start      time.Time
+	Recurrence string `json:",omitempty"`
+
+	// OnThisServer is false if the event is scheduled on another server of a multiserver setup.
+	OnThisServer bool
+
+	// ChampionshipID and ChampionshipName are set for championship events, RaceWeekendID and RaceWeekendName for
+	// race weekend sessions.
+	ChampionshipID   *uuid.UUID `json:",omitempty"`
+	ChampionshipName string     `json:",omitempty"`
+	RaceWeekendID    *uuid.UUID `json:",omitempty"`
+	RaceWeekendName  string     `json:",omitempty"`
+
+	Track       string
+	TrackLayout string
+	TrackName   string
+
+	Cars     []*Car
+	Sessions []*Session
+}
+
+// upcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose

@@ -1,4 +1,4 @@
-package servermanager
+package schedule
 
 import (
 	"encoding/json"
@@ -16,12 +16,16 @@ import (
 	"github.com/teambition/rrule-go"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
-type ScheduledEvent interface {
+// Event is an event which has a scheduled start (custom race, championship event or race weekend session).
+type Event interface {
 	GetID() uuid.UUID
 	GetScheduledServerID() smmodel.ServerID
 	GetRaceSetup() serverconfig.CurrentRaceConfig
@@ -36,18 +40,19 @@ type ScheduledEvent interface {
 	ClearRecurrenceRule()
 }
 
-func BuildICalEvent(event ScheduledEvent, baseURL string) *components.Event {
+// BuildICalEvent builds the calendar entry of a scheduled event.
+func BuildICalEvent(env *serverenv.Env, event Event, baseURL string) *components.Event {
 	icalEvent := components.NewEvent(event.GetID().String(), event.GetScheduledTime().UTC())
 
 	raceSetup := event.GetRaceSetup()
 
-	trackInfo := trackInfo(raceSetup.Track, raceSetup.TrackLayout)
+	trackInfo := env.TrackInfo(raceSetup.Track, raceSetup.TrackLayout)
 
 	if trackInfo == nil {
-		icalEvent.Summary = "Race at " + prettifyName(raceSetup.Track, false)
+		icalEvent.Summary = "Race at " + smcontent.PrettifyName(raceSetup.Track, false)
 
 		if raceSetup.TrackLayout != "" {
-			icalEvent.Summary += fmt.Sprintf(" (%s)", prettifyName(raceSetup.TrackLayout, true))
+			icalEvent.Summary += fmt.Sprintf(" (%s)", smcontent.PrettifyName(raceSetup.TrackLayout, true))
 		}
 	} else {
 		icalEvent.Summary = fmt.Sprintf("Race at %s, %s, %s", trackInfo.Name, trackInfo.City, trackInfo.Country)
@@ -81,7 +86,7 @@ func BuildICalEvent(event ScheduledEvent, baseURL string) *components.Event {
 
 	entryList := event.ReadOnlyEntryList()
 
-	description += fmt.Sprintf("\n%d entrants in: %s", len(entryList), carList(entryList))
+	description += fmt.Sprintf("\n%d entrants in: %s", len(entryList), smcontent.CarList(entryList))
 
 	icalEvent.Description = description
 	icalEvent.Duration = values.NewDuration(totalDuration)
@@ -89,24 +94,26 @@ func BuildICalEvent(event ScheduledEvent, baseURL string) *components.Event {
 	return icalEvent
 }
 
-type ScheduledRacesHandler struct {
+// Handler serves the calendar and the iCal feed of the scheduled events.
+type Handler struct {
 	*smweb.BaseHandler
 
-	scheduledRacesManager *ScheduledRacesManager
+	scheduledRacesManager *Manager
 }
 
-func NewScheduledRacesHandler(baseHandler *smweb.BaseHandler, scheduledRacesManager *ScheduledRacesManager) *ScheduledRacesHandler {
-	return &ScheduledRacesHandler{
+// NewHandler creates the handler for the calendar.
+func NewHandler(baseHandler *smweb.BaseHandler, scheduledRacesManager *Manager) *Handler {
+	return &Handler{
 		BaseHandler:           baseHandler,
 		scheduledRacesManager: scheduledRacesManager,
 	}
 }
 
-func (rs *ScheduledRacesHandler) calendar(w http.ResponseWriter, r *http.Request) {
+func (rs *Handler) Calendar(w http.ResponseWriter, r *http.Request) {
 	rs.ViewRenderer.MustLoadTemplate(w, r, "calendar.html", &smweb.BaseTemplateVars{WideContainer: true})
 }
 
-func (rs *ScheduledRacesHandler) calendarJSON(w http.ResponseWriter, r *http.Request) {
+func (rs *Handler) CalendarJSON(w http.ResponseWriter, r *http.Request) {
 	err := rs.generateJSON(w, r)
 
 	if err != nil {
@@ -115,7 +122,7 @@ func (rs *ScheduledRacesHandler) calendarJSON(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (rs *ScheduledRacesHandler) allScheduledRacesICalHandler(w http.ResponseWriter, r *http.Request) {
+func (rs *Handler) AllScheduledRacesICalHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
@@ -128,7 +135,7 @@ func (rs *ScheduledRacesHandler) allScheduledRacesICalHandler(w http.ResponseWri
 	}
 }
 
-func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) error {
+func (rs *Handler) generateJSON(w io.Writer, r *http.Request) error {
 	start, err := time.Parse(time.RFC3339, r.URL.Query().Get("start"))
 
 	if err != nil {
@@ -141,7 +148,7 @@ func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) erro
 		return err
 	}
 
-	calendarObjects, err := rs.scheduledRacesManager.buildCalendar(start, end)
+	calendarObjects, err := rs.scheduledRacesManager.BuildCalendar(start, end)
 
 	if err != nil {
 		return err
@@ -150,31 +157,42 @@ func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) erro
 	return json.NewEncoder(w).Encode(calendarObjects)
 }
 
-type ScheduledRacesManager struct {
+// EntryListFunc returns the entry list a race weekend session will be run with.
+type EntryListFunc func(session *smmodel.RaceWeekendSession) (serverconfig.EntryList, error)
+
+// Manager finds the scheduled events of all types.
+type Manager struct {
 	config *smconfig.Configuration
 	store  smstore.Store
+	env    *serverenv.Env
+
+	raceWeekendEntryList EntryListFunc
 }
 
-func NewScheduledRacesManager(config *smconfig.Configuration, store smstore.Store) *ScheduledRacesManager {
-	return &ScheduledRacesManager{
-		config: config,
-		store:  store,
+// NewManager creates a Manager. raceWeekendEntryList is used to show the entrants of race weekend sessions.
+func NewManager(config *smconfig.Configuration, store smstore.Store, env *serverenv.Env, raceWeekendEntryList EntryListFunc) *Manager {
+	return &Manager{
+		config:               config,
+		store:                store,
+		env:                  env,
+		raceWeekendEntryList: raceWeekendEntryList,
 	}
 }
 
-func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]ScheduledEvent, error) {
+// GetScheduledRaces returns all scheduled events, or only those of this server if forAllServers is false.
+func (srm *Manager) GetScheduledRaces(forAllServers bool) ([]Event, error) {
 	customRaces, err := srm.store.ListCustomRaces()
 
 	if err != nil {
 		return nil, err
 	}
 
-	var scheduled []ScheduledEvent
+	var scheduled []Event
 
 	for _, race := range customRaces {
 		for _, scheduledEvent := range race.ScheduledEvents {
 
-			if scheduledEvent.Scheduled.IsZero() || (!forAllServers && scheduledEvent.ScheduledServerID != serverID) {
+			if scheduledEvent.Scheduled.IsZero() || (!forAllServers && scheduledEvent.ScheduledServerID != srm.env.ServerID()) {
 				continue
 			}
 
@@ -186,7 +204,7 @@ func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]Sched
 			break
 		}
 
-		if race.Scheduled.IsZero() || (!forAllServers && race.ScheduledServerID != serverID) {
+		if race.Scheduled.IsZero() || (!forAllServers && race.ScheduledServerID != srm.env.ServerID()) {
 			continue
 		}
 
@@ -201,7 +219,7 @@ func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]Sched
 
 	for _, championship := range championships {
 		for _, event := range smmodel.ExtractRaceWeekendSessionsIntoIndividualEvents(championship.Events) {
-			if event.Scheduled.IsZero() || (!forAllServers && event.ScheduledServerID != serverID) {
+			if event.Scheduled.IsZero() || (!forAllServers && event.ScheduledServerID != srm.env.ServerID()) {
 				continue
 			}
 
@@ -222,20 +240,20 @@ func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]Sched
 		}
 
 		for _, session := range raceWeekend.Sessions {
-			if session.ScheduledTime.IsZero() || (!forAllServers && session.ScheduledServerID != serverID) {
+			if session.ScheduledTime.IsZero() || (!forAllServers && session.ScheduledServerID != srm.env.ServerID()) {
 				continue
 			}
 
 			session.SetRaceWeekend(raceWeekend)
-			scheduled = append(scheduled, scheduledRaceWeekendSession{session})
+			scheduled = append(scheduled, raceWeekendSession{RaceWeekendSession: session, entryList: srm.raceWeekendEntryList})
 		}
 	}
 
 	return scheduled, nil
 }
 
-func (srm *ScheduledRacesManager) buildScheduledRaces(w io.Writer) error {
-	scheduled, err := srm.getScheduledRaces(true)
+func (srm *Manager) buildScheduledRaces(w io.Writer) error {
+	scheduled, err := srm.GetScheduledRaces(true)
 
 	if err != nil {
 		return err
@@ -244,7 +262,7 @@ func (srm *ScheduledRacesManager) buildScheduledRaces(w io.Writer) error {
 	cal := components.NewCalendar()
 
 	for _, event := range scheduled {
-		icalEvent := BuildICalEvent(event, srm.config.HTTP.BaseURL)
+		icalEvent := BuildICalEvent(srm.env, event, srm.config.HTTP.BaseURL)
 
 		cal.Events = append(cal.Events, icalEvent)
 	}
@@ -285,8 +303,9 @@ type CalendarObject struct {
 	TextColor       string `json:"textColor"`
 }
 
-func (srm *ScheduledRacesManager) buildCalendar(start time.Time, end time.Time) ([]CalendarObject, error) {
-	scheduled, err := srm.getScheduledRaces(true)
+// BuildCalendar returns the calendar entries for the scheduled events between start and end.
+func (srm *Manager) BuildCalendar(start time.Time, end time.Time) ([]CalendarObject, error) {
+	scheduled, err := srm.GetScheduledRaces(true)
 
 	if err != nil {
 		return nil, err
@@ -317,7 +336,7 @@ func (srm *ScheduledRacesManager) buildCalendar(start time.Time, end time.Time) 
 		})
 	}
 
-	var recurring []ScheduledEvent
+	var recurring []Event
 
 	for _, scheduledEvent := range scheduled {
 		if scheduledEvent.HasRecurrenceRule() {
@@ -349,10 +368,10 @@ func (srm *ScheduledRacesManager) buildCalendar(start time.Time, end time.Time) 
 
 	scheduled = append(scheduled, recurring...)
 
-	return BuildCalObject(scheduled, calendarObjects)
+	return srm.buildCalObject(scheduled, calendarObjects)
 }
 
-func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject) ([]CalendarObject, error) {
+func (srm *Manager) buildCalObject(scheduled []Event, calendarObjects []CalendarObject) ([]CalendarObject, error) {
 	for _, scheduledEvent := range scheduled {
 
 		var prevSessionTime time.Duration
@@ -442,7 +461,7 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 
 			scheduledServerID := scheduledEvent.GetScheduledServerID()
 
-			if serverID == scheduledServerID {
+			if srm.env.ServerID() == scheduledServerID {
 				scheduledServerID = ""
 			}
 
@@ -453,8 +472,8 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 				AllDay:            false,
 				Start:             start,
 				End:               end,
-				Title:             GenerateSummary(scheduledEvent.GetRaceSetup(), session.Name) + " " + scheduledEvent.GetSummary(),
-				Description:       carList(scheduledEvent.GetRaceSetup().Cars) + ": " + scheduledEvent.ReadOnlyEntryList().Entrants(driverName),
+				Title:             generateSummary(srm.env, scheduledEvent.GetRaceSetup(), session.Name) + " " + scheduledEvent.GetSummary(),
+				Description:       smcontent.CarList(scheduledEvent.GetRaceSetup().Cars) + ": " + scheduledEvent.ReadOnlyEntryList().Entrants(smresults.DriverName),
 				URL:               pageURL,
 				SignUpURL:         signUpURL,
 				ClassNames:        classNames,
@@ -475,20 +494,39 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 	return calendarObjects, nil
 }
 
-func GenerateSummary(raceSetup serverconfig.CurrentRaceConfig, eventType string) string {
+func generateSummary(env *serverenv.Env, raceSetup serverconfig.CurrentRaceConfig, eventType string) string {
 	var summary string
 
-	trackInfo := trackInfo(raceSetup.Track, raceSetup.TrackLayout)
+	trackInfo := env.TrackInfo(raceSetup.Track, raceSetup.TrackLayout)
 
 	if trackInfo == nil {
-		summary = eventType + " at " + prettifyName(raceSetup.Track, false)
+		summary = eventType + " at " + smcontent.PrettifyName(raceSetup.Track, false)
 
 		if raceSetup.TrackLayout != "" {
-			summary += fmt.Sprintf(" (%s)", prettifyName(raceSetup.TrackLayout, true))
+			summary += fmt.Sprintf(" (%s)", smcontent.PrettifyName(raceSetup.TrackLayout, true))
 		}
 	} else {
 		summary = fmt.Sprintf(eventType+" at %s", trackInfo.Name)
 	}
 
 	return summary
+}
+
+// raceWeekendSession makes a RaceWeekendSession usable as an Event, which needs the entry list that the session will
+// be run with.
+type raceWeekendSession struct {
+	*smmodel.RaceWeekendSession
+
+	entryList EntryListFunc
+}
+
+func (s raceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList {
+	entryList, err := s.entryList(s.RaceWeekendSession)
+
+	if err != nil {
+		logrus.WithError(err).Error("Could not get race weekend entry list")
+		return make(serverconfig.EntryList)
+	}
+
+	return entryList
 }

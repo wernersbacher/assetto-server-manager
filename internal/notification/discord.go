@@ -1,4 +1,4 @@
-package servermanager
+package notification
 
 import (
 	"errors"
@@ -13,23 +13,28 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type DiscordManager struct {
 	store                 smstore.Store
 	discord               *discordgo.Session
-	scheduledRacesManager *ScheduledRacesManager
+	scheduledRacesManager *schedule.Manager
+	env                   *serverenv.Env
 	enabled               bool
 }
 
 // NewDiscordManager instantiates the DiscordManager type.  On error, it will log the error and return the type
 // flagged as disabled
-func NewDiscordManager(store smstore.Store, scheduledRacesManager *ScheduledRacesManager) (*DiscordManager, error) {
+func NewDiscordManager(store smstore.Store, scheduledRacesManager *schedule.Manager, env *serverenv.Env) (*DiscordManager, error) {
 	discordManager := &DiscordManager{
 		store:                 store,
 		scheduledRacesManager: scheduledRacesManager,
+		env:                   env,
 		discord:               nil,
 		enabled:               false,
 	}
@@ -114,7 +119,7 @@ func (dm *DiscordManager) CommandSessions() (string, error) {
 	start := time.Now()
 	end := start.AddDate(0, 0, 7)
 
-	calendar, err := dm.scheduledRacesManager.buildCalendar(start, end)
+	calendar, err := dm.scheduledRacesManager.BuildCalendar(start, end)
 
 	if err != nil {
 		return "A server error occurred, please try again later", err
@@ -141,13 +146,13 @@ func (dm *DiscordManager) CommandSchedule() (string, error) {
 
 	start := time.Now()
 	end := start.AddDate(0, 0, 7)
-	scheduled, err := dm.scheduledRacesManager.getScheduledRaces(true)
+	scheduled, err := dm.scheduledRacesManager.GetScheduledRaces(true)
 
 	if err != nil {
 		return "A server error occurred, please try again later", err
 	}
 
-	var recurring []ScheduledEvent
+	var recurring []schedule.Event
 
 	for _, scheduledEvent := range scheduled {
 		if scheduledEvent.HasRecurrenceRule() {
@@ -183,9 +188,9 @@ func (dm *DiscordManager) CommandSchedule() (string, error) {
 
 	for _, scheduledEvent := range scheduled {
 		raceSetup := scheduledEvent.GetRaceSetup()
-		cars := carList(scheduledEvent.GetRaceSetup().Cars)
+		cars := smcontent.CarList(scheduledEvent.GetRaceSetup().Cars)
 		msg += fmt.Sprintf("Date: %s\n", scheduledEvent.GetScheduledTime().Format("Mon, 02 Jan 2006 15:04:05 MST"))
-		msg += fmt.Sprintf("Track: %s\n", trackSummary(raceSetup.Track, raceSetup.TrackLayout))
+		msg += fmt.Sprintf("Track: %s\n", dm.env.TrackSummary(raceSetup.Track, raceSetup.TrackLayout))
 		msg += fmt.Sprintf("Cars: %s\n", cars)
 		msg += "\n\n"
 	}
