@@ -159,7 +159,7 @@
                     <p class="float-left">Permanently delete this track and all associated layouts.</p>
 
                     <form method="post" action="/track/{{ $.Track.Name }}/delete" class="float-right"
-                          onsubmit="return confirm('Are you sure you want to permanently delete this track and all associated layouts?');">
+                           data-confirm-delete="Delete track {{ prettify $.Track.Name true }}?" data-confirm-detail="The track and all associated layouts are removed from the server permanently ({{ $.Track.Name }})." data-confirm-label="Delete track">
                         <button type="submit" class="btn btn-danger">Delete Track</button>
                     </form>
 

@@ -246,6 +246,24 @@
             </div>
         {{ end }}
     </div>
+        <div class="modal fade" tabindex="-1" role="alertdialog" id="delete-confirm-modal" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-detail" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content delete-dialog">
+                    <div class="modal-body">
+                        <span class="delete-dialog-icon" aria-hidden="true">{{ template "icon" "trash" }}</span>
+                        <div>
+                            <h2 class="delete-dialog-title" id="delete-confirm-title">Delete this item?</h2>
+                            <p class="delete-dialog-detail" id="delete-confirm-detail">This cannot be undone.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline" data-dismiss="modal" id="delete-confirm-cancel">Cancel</button>
+                        <button type="button" class="btn btn-danger" id="delete-confirm-ok">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     {{ if $.User.ShouldSeeIntroPopup }}
         <div class="modal" tabindex="-1" role="dialog" id="intro-modal">

@@ -19,7 +19,7 @@
 
     {{ if DeleteAccess }}
         <form method="post" action="/results/{{ $sessionResults.SessionFile }}.json/delete" class="float-right"
-              onsubmit="return confirm('Are you sure you want to permanently delete this results file?');">
+               data-confirm-delete="Delete results file {{ $sessionResults.SessionFile }}?" data-confirm-detail="The results file is removed permanently." data-confirm-label="Delete results">
             <button type="submit" class="btn btn-danger">Delete Results</button>
         </form>
     {{ end }}

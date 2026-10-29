@@ -77,7 +77,7 @@
                         {{ end }}
 
                         {{ if DeleteAccess }}
-                            <form method="post" action="/track/{{ $track.Name }}/delete" class="delete-car">
+                            <form method="post" action="/track/{{ $track.Name }}/delete" data-confirm-delete="Delete track {{ $track.Name }}?" data-confirm-detail="The track and all associated layouts are removed from the server permanently." data-confirm-label="Delete track">
                                 <button type="submit" class="btn btn-link text-danger p-0"><i class="fa fa-trash"></i></button>
                             </form>
                         {{ end }}

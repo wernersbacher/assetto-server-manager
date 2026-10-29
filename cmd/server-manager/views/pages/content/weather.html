@@ -63,7 +63,7 @@
 
                 {{ if DeleteAccess }}
                     <td class="text-center">
-                        <form method="post" action="{{ print "/weather/delete/" $i }}" class="d-inline">
+                        <form method="post" action="{{ print "/weather/delete/" $i }}" class="d-inline" data-confirm-delete="Delete weather preset {{ $weather }}?" data-confirm-detail="The weather preset is removed from the server permanently." data-confirm-label="Delete weather preset">
                             <button type="submit" class="btn btn-link p-0"><i class="fas fa-trash fa text-danger"></i></button>
                         </form>
                     </td>

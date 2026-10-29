@@ -25,7 +25,7 @@
                         </a>
                         {{ if ne $.BaseTemplateVars.User.ID.String $account.ID.String }}
                             <form method="post" action="/accounts/delete/{{ $account.ID.String }}" class="d-inline"
-                                  onsubmit="return confirm('I understand that this will delete this account permanently.');">
+                                   data-confirm-delete="Delete account {{ $account.Name }}?" data-confirm-detail="The account is removed permanently." data-confirm-label="Delete account">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
                         {{ end }}

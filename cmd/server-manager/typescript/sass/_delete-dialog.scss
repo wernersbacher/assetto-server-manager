@@ -1,0 +1,43 @@
+// Shared delete confirmation modal (layout/base.html, src/DeleteConfirm.ts)
+.delete-dialog {
+  .modal-body {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 24px 24px 8px;
+  }
+
+  .modal-footer {
+    border-top: 0;
+    padding: 16px 24px 24px;
+  }
+
+  .delete-dialog-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: var(--danger);
+    color: var(--danger-foreground);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .delete-dialog-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    word-break: break-word;
+  }
+
+  .delete-dialog-detail {
+    margin: 6px 0 0;
+    color: var(--muted-foreground);
+  }
+}

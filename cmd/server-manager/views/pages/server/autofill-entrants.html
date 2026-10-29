@@ -25,7 +25,7 @@
                     {{ $entrant.GUID }}
                 </td>
                 <td class="text-center">
-                    <form method="post" action="/autofill-entrants/delete/{{ $entrant.ID }}" class="d-inline">
+                    <form method="post" action="/autofill-entrants/delete/{{ $entrant.ID }}" data-confirm-delete="Delete autofill entrant {{ $entrant.Name }}?" data-confirm-detail="The entrant is removed from the autofill list." data-confirm-label="Delete entrant" class="d-inline">
                         <button type="submit" class="btn btn-link p-0"><i class="fas fa-trash text-danger"></i></button>
                     </form>
                 </td>

@@ -302,8 +302,7 @@
                                     {{ end }}
 
                                     {{ if DeleteAccess }}
-                                        <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/delete"
-                                              onsubmit="return confirm('I understand that this will delete this entire session permanently.');">
+                                        <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/delete" data-confirm-delete="Delete this session?" data-confirm-detail="The entire session is removed from the race weekend permanently." data-confirm-label="Delete session">
                                             <button type="submit" class="dropdown-item text-danger">Delete</button>
                                         </form>
                                     {{ end }}

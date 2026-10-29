@@ -364,7 +364,7 @@
 
                                         {{ if DeleteAccess }}
                                             <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
-                                                  onsubmit="return confirm('I understand that this will delete this entire event permanently.');">
+                                                   data-confirm-delete="Delete this event?" data-confirm-detail="The entire event is removed from the championship permanently." data-confirm-label="Delete event">
                                                 <button type="submit" class="dropdown-item text-danger">Delete</button>
                                             </form>
                                         {{ end }}
@@ -411,7 +411,7 @@
 
                                         {{ if DeleteAccess }}
                                             <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
-                                                  onsubmit="return confirm('I understand that this will delete this entire event permanently.');">
+                                                   data-confirm-delete="Delete this event?" data-confirm-detail="The entire event is removed from the championship permanently." data-confirm-label="Delete event">
                                                 <button type="submit" class="dropdown-item text-danger">Delete</button>
                                             </form>
                                         {{ end }}

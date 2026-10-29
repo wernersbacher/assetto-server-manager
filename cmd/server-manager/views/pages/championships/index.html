@@ -49,7 +49,7 @@
 
 
                             <form method="post" action="/championship/{{ $championship.ID }}/delete" class="d-inline"
-                                  onsubmit="return confirm('I understand that this will delete the entire championship permanently.');">
+                                   data-confirm-delete="Delete championship {{ $championship.Name }}?" data-confirm-detail="The entire championship, including its events and results standings, is removed permanently. This cannot be undone." data-confirm-label="Delete championship">
                                 <button type="submit" class="btn btn-sm btn-danger" {{ if not DeleteAccess }}disabled{{ end }}>Delete</button>
                             </form>
                         {{ end }}

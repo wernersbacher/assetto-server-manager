@@ -108,7 +108,7 @@
                             </div>
 
                             {{ if DeleteAccess }}
-                                <form method="post" action="/car/{{ $car.Name }}/delete" class="delete-car">
+                                <form method="post" action="/car/{{ $car.Name }}/delete" data-confirm-delete="Delete car {{ $car.Name }}?" data-confirm-detail="The car and all associated skins are removed from the server permanently." data-confirm-label="Delete car">
                                     <button type="submit" class="btn btn-link text-danger p-0"><i class="fa fa-trash"></i></button>
                                 </form>
                             {{ end }}

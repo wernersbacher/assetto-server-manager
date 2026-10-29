@@ -24,9 +24,11 @@ import {RaceList} from "./RaceList";
 import {SpectatorCar} from "./SpectatorCar";
 import {Form} from "./Form";
 import {Shell} from "./Shell";
+import {DeleteConfirm} from "./DeleteConfirm";
 
 $(() => {
     new Shell();
+    new DeleteConfirm();
     new Form();
     EntryPoint();
     new RaceControl();

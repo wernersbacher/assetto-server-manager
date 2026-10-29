@@ -72,7 +72,7 @@
                             {{ if WriteAccess }}
                                 <a class="btn btn-sm btn-warning" href="/race-weekend/{{ .ID }}/edit">Edit</a>
                                 <form method="post" action="/race-weekend/{{ .ID }}/delete" class="d-inline"
-                                      onsubmit="return confirm('I understand that this will delete the entire Race Weekend permanently.');">
+                                       data-confirm-delete="Delete race weekend {{ .Name }}?" data-confirm-detail="The entire Race Weekend is removed permanently." data-confirm-label="Delete race weekend">
                                     <button type="submit" class="btn btn-sm btn-danger" {{ if not DeleteAccess }}disabled{{ end }}>Delete</button>
                                 </form>
                             {{ end }}
@@ -118,7 +118,7 @@
                             {{ if WriteAccess }}
                                 <a class="btn btn-sm btn-warning" href="/race-weekend/{{ .ID }}/edit">Edit</a>
                                 <form method="post" action="/race-weekend/{{ .ID }}/delete" class="d-inline"
-                                      onsubmit="return confirm('I understand that this will delete the entire Race Weekend permanently.');">
+                                       data-confirm-delete="Delete race weekend {{ .Name }}?" data-confirm-detail="The entire Race Weekend is removed permanently." data-confirm-label="Delete race weekend">
                                     <button type="submit" class="btn btn-sm btn-danger" {{ if not DeleteAccess }}disabled{{ end }}>Delete</button>
                                 </form>
                             {{ end }}

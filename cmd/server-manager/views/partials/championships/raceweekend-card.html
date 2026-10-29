@@ -96,7 +96,7 @@
 
                                     {{ if DeleteAccess }}
                                         <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
-                                              onsubmit="return confirm('I understand that this will delete this entire event and Race Weekend permanently.');">
+                                               data-confirm-delete="Delete this event and Race Weekend?" data-confirm-detail="The entire event and its Race Weekend are removed permanently." data-confirm-label="Delete event">
                                             <button type="submit" class="dropdown-item text-danger">Delete</button>
                                         </form>
                                     {{ end }}

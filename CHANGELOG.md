@@ -8,6 +8,7 @@ Added:
 * The home page is now an overview of the current session, the next scheduled events, quick actions for organizers and the latest results.
 * Results files can now be deleted from the Results list and the Results page (requires delete access). Results that are used by a Championship or Race Weekend can't be deleted.
 * The Results list can now be filtered by session type, track and driver (name or GUID).
+* Deleting results, Championships, events, Race Weekends, sessions, custom races, cars, skins, tracks, weather presets, setups, accounts and auto-fill entrants now asks for confirmation in a dialog that names what will be deleted, instead of a browser popup. Cancel is focused by default and Esc closes the dialog.
 * Added read-only JSON APIs for results (/api/results, /api/results/{fileName}) and the current server status (/api/server-status). See the API section of the README.
 * Added a read-only JSON API for upcoming scheduled races (/api/upcoming-races).
 * Championships can now drop the worst N event results of each driver and team from the standings ("Drop Worst Results" in the Championship settings). Dropped results are struck through in the standings, missed events count as 0 points and are dropped first, and points penalties are never dropped.

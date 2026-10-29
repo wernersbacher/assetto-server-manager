@@ -127,7 +127,7 @@
                                     {{ if DeleteAccess }}
                                         <td class="text-center">
                                             <form method="post" action="{{ printf "/setups/delete/%s/%s/%s" $.Car.Name $trackName $setup }}" class="d-inline"
-                                                  onsubmit="return confirm('Are you sure you want to permanently delete this setup?');">
+                                                   data-confirm-delete="Delete setup {{ $setup }}?" data-confirm-detail="The setup file is removed permanently." data-confirm-label="Delete setup">
                                                 <button type="submit" class="btn btn-link p-0"><i class="fas fa-trash text-danger"></i></button>
                                             </form>
                                         </td>
@@ -319,7 +319,7 @@
                             {{ if DeleteAccess }}
                                 <hr>
 
-                                <form action="/car/{{ $.Car.Name }}/skin/delete" method="post">
+                                <form action="/car/{{ $.Car.Name }}/skin/delete" method="post" data-confirm-delete="Delete the selected skin?" data-confirm-detail="The skin folder is removed from this car permanently." data-confirm-label="Delete skin">
                                     <div class="form-group row">
                                         <label for="skin-delete" class="col-sm-3 col-form-label">Delete Skin</label>
 
@@ -352,8 +352,7 @@
                         <div class="card-body">
                             <p class="float-left">Permanently delete this car and all associated skins.</p>
 
-                            <form method="post" action="/car/{{ $.Car.Name }}/delete" class="float-right"
-                                  onsubmit="return confirm('Are you sure you want to permanently delete this car and all associated skins?');">
+                            <form method="post" action="/car/{{ $.Car.Name }}/delete" class="float-right" data-confirm-delete="Delete car {{ prettify $.Car.Name true }}?" data-confirm-detail="The car and all associated skins are removed from the server permanently ({{ $.Car.Name }})." data-confirm-label="Delete car">
                                 <button type="submit" class="btn btn-danger">Delete Car</button>
                             </form>
 

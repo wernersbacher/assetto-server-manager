@@ -123,7 +123,7 @@
 
                         {{ if DeleteAccess }}
                             <form method="post" action="/custom/delete/{{ $.Race.UUID.String }}" class="d-inline"
-                                  onsubmit="return confirm('I understand that this will delete this race setup permanently');">
+                                   data-confirm-delete="Delete race setup {{ $.Race.Name }}?" data-confirm-detail="The race setup is removed permanently." data-confirm-label="Delete race setup">
                                 <button type="submit" class="btn btn-danger">Delete</button>
                             </form>
                         {{ end }}
