@@ -185,6 +185,19 @@ type contentManagerDescriptionTemplateOpts struct {
 	CarDownloads       string
 	TrackDownload      string
 	ServerName         string
+
+	eventName string
+	serverID  smmodel.ServerID
+}
+
+// EventName shadows RaceEvent.EventName so the welcome message template can keep using {{ .EventName }}.
+func (o contentManagerDescriptionTemplateOpts) EventName() string {
+	return o.eventName
+}
+
+// IsLooping shadows RaceEvent.IsLooping so the welcome message template can keep using {{ .IsLooping }}.
+func (o contentManagerDescriptionTemplateOpts) IsLooping() bool {
+	return o.RaceEvent.IsLooping(o.serverID)
 }
 
 func (cmw *ContentManagerWrapper) setDescriptionText(event smmodel.RaceEvent) error {
@@ -266,6 +279,8 @@ func (cmw *ContentManagerWrapper) setDescriptionText(event smmodel.RaceEvent) er
 		GlobalServerConfig: cmw.serverConfig.GlobalServerConfig,
 		RaceEvent:          event,
 		ServerName:         cmw.serverConfig.GlobalServerConfig.Name,
+		eventName:          event.EventName(cmw.env.TrackSummary),
+		serverID:           cmw.env.ServerID(),
 	})
 
 	if err != nil {
