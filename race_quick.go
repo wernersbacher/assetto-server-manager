@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"net/http"
 	"time"
@@ -74,7 +75,7 @@ func (q QuickRace) GetEntryList() serverconfig.EntryList {
 	return q.EntryList
 }
 
-func (q QuickRace) IsLooping(serverID ServerID) bool {
+func (q QuickRace) IsLooping(serverID smmodel.ServerID) bool {
 	return false
 }
 

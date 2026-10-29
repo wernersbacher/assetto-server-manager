@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"time"
 
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -50,7 +51,7 @@ type HealthCheckResponse struct {
 	ResultsDirectoryIsWritable bool
 
 	ServerName          string
-	ServerID            ServerID
+	ServerID            smmodel.ServerID
 	EventInProgress     bool
 	EventIsCritical     bool
 	EventIsChampionship bool

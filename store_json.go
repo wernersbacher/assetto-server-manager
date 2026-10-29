@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
@@ -392,14 +393,14 @@ func (rs *JSONStore) ListPrevFrames() ([]string, error) {
 	return links, nil
 }
 
-func (rs *JSONStore) ListAccounts() ([]*Account, error) {
+func (rs *JSONStore) ListAccounts() ([]*smmodel.Account, error) {
 	files, err := rs.listFiles(filepath.Join(rs.shared, accountsDir))
 
 	if err != nil {
 		return nil, err
 	}
 
-	var accounts []*Account
+	var accounts []*smmodel.Account
 
 	for _, file := range files {
 		a, err := rs.FindAccountByName(file)
@@ -414,14 +415,14 @@ func (rs *JSONStore) ListAccounts() ([]*Account, error) {
 	return accounts, nil
 }
 
-func (rs *JSONStore) UpsertAccount(a *Account) error {
+func (rs *JSONStore) UpsertAccount(a *smmodel.Account) error {
 	a.Updated = time.Now()
 
 	return rs.encodeFile(rs.shared, filepath.Join(accountsDir, a.Name+".json"), a)
 }
 
-func (rs *JSONStore) FindAccountByName(name string) (*Account, error) {
-	var account *Account
+func (rs *JSONStore) FindAccountByName(name string) (*smmodel.Account, error) {
+	var account *smmodel.Account
 
 	err := rs.decodeFile(rs.shared, filepath.Join(accountsDir, name+".json"), &account)
 
@@ -434,7 +435,7 @@ func (rs *JSONStore) FindAccountByName(name string) (*Account, error) {
 	return account, nil
 }
 
-func (rs *JSONStore) FindAccountByID(id string) (*Account, error) {
+func (rs *JSONStore) FindAccountByID(id string) (*smmodel.Account, error) {
 	accounts, err := rs.ListAccounts()
 
 	if err != nil {
@@ -476,8 +477,8 @@ func (rs *JSONStore) GetMeta(key string, out interface{}) error {
 	return err
 }
 
-func (rs *JSONStore) GetAuditEntries() ([]*AuditEntry, error) {
-	var entries []*AuditEntry
+func (rs *JSONStore) GetAuditEntries() ([]*smmodel.AuditEntry, error) {
+	var entries []*smmodel.AuditEntry
 
 	err := rs.decodeFile(rs.base, auditFile, &entries)
 
@@ -491,7 +492,7 @@ func (rs *JSONStore) GetAuditEntries() ([]*AuditEntry, error) {
 	return entries, nil
 }
 
-func (rs *JSONStore) AddAuditEntry(entry *AuditEntry) error {
+func (rs *JSONStore) AddAuditEntry(entry *smmodel.AuditEntry) error {
 	entries, err := rs.GetAuditEntries()
 
 	if err != nil {

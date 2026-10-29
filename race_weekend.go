@@ -15,6 +15,7 @@ import (
 	"github.com/teambition/rrule-go"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -553,7 +554,7 @@ type RaceWeekendSession struct {
 	StartedTime                time.Time
 	CompletedTime              time.Time
 	ScheduledTime              time.Time
-	ScheduledServerID          ServerID
+	ScheduledServerID          smmodel.ServerID
 	Results                    *smresults.SessionResults
 	StartWhenParentHasFinished bool
 
@@ -580,7 +581,7 @@ func (rws *RaceWeekendSession) GetID() uuid.UUID {
 	return rws.ID
 }
 
-func (rws *RaceWeekendSession) GetScheduledServerID() ServerID {
+func (rws *RaceWeekendSession) GetScheduledServerID() smmodel.ServerID {
 	return rws.ScheduledServerID
 }
 
@@ -809,7 +810,7 @@ func (a ActiveRaceWeekend) GetEntryList() serverconfig.EntryList {
 	return a.EntryList
 }
 
-func (a ActiveRaceWeekend) IsLooping(serverID ServerID) bool {
+func (a ActiveRaceWeekend) IsLooping(serverID smmodel.ServerID) bool {
 	return false
 }
 

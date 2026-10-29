@@ -1,36 +1,30 @@
 package servermanager
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/internal/steam"
-
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-
 	"context"
 	"crypto/rand"
 	"crypto/subtle"
-	"encoding/gob"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
-	"time"
 
-	"github.com/Masterminds/semver"
 	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
-	"github.com/google/uuid"
 	"github.com/sethvargo/go-diceware/diceware"
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 	"golang.org/x/crypto/scrypt"
 )
 
 const (
 	sessionAccountID                              = "account_id"
 	requestContextKeyAccount    accountContextKey = iota
-	adminUserName                                 = "admin"
 	serverAccountOptionsMetaKey                   = "server-account-options"
 )
 
@@ -40,15 +34,12 @@ type ServerAccountOptions struct {
 	IsOpen bool
 }
 
-// openAccountName is the name of the dummy account used for visitors if read access is open.
-const openAccountName = "Free Access"
-
 // requestScope carries the server wide state which request helpers (sessions, access checks) need. It is attached to
 // every request by AccountManager.RequestScopeMiddleware, so that the helpers do not depend on package variables.
 type requestScope struct {
 	sessionStore   sessions.Store
 	accountOptions *ServerAccountOptions
-	openAccount    *Account
+	openAccount    *smmodel.Account
 }
 
 type requestScopeContextKey struct{}
@@ -72,133 +63,8 @@ func withRequestScope(r *http.Request, scope *requestScope) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), requestScopeContextKey{}, scope))
 }
 
-func init() {
-	// Register the Account struct with gob so that it can be stored in a session
-	gob.Register(Account{})
-}
-
-func NewAccount(serverID ServerID, version string) *Account {
-	return &Account{
-		ID:              uuid.New(),
-		Created:         time.Now(),
-		LastSeenVersion: version,
-		Theme:           ThemeDefault,
-		Groups:          map[ServerID]Group{serverID: GroupRead},
-	}
-}
-
-type Account struct {
-	ID uuid.UUID
-
-	Created time.Time
-	Updated time.Time
-	Deleted time.Time
-
-	Name   string
-	Groups map[ServerID]Group
-
-	DriverName, GUID, Team string
-
-	PasswordHash string
-	PasswordSalt string
-
-	DefaultPassword string
-	LastSeenVersion string
-
-	Theme Theme
-
-	// Deprecated: Use Groups instead.
-	DeprecatedGroup Group `json:"Group"`
-}
-
-func (a Account) GroupFor(serverID ServerID) Group {
-	if a.Groups == nil {
-		return GroupNoAccess
-	}
-
-	if group, ok := a.Groups[serverID]; ok {
-		return group
-	}
-
-	// in the case where a user has not got any group permissions at all for this server instance
-	// give them the first permission we find from other server instances (if any)
-	for _, group := range a.Groups {
-		return group
-	}
-
-	return GroupNoAccess
-}
-
-func (a Account) ShowDarkTheme(serverManagerDarkThemeEnabled bool) bool {
-	if (a.Theme == "" || a.Theme == ThemeDefault) && serverManagerDarkThemeEnabled {
-		return true
-	}
-
-	return a.Theme == ThemeDark
-}
-
-func (a Account) ShouldSeeUpgradePopup(currentVersion, adminPasswordOverride string) bool {
-	return !a.HasSeenVersion(currentVersion) && !a.NeedsPasswordReset(adminPasswordOverride)
-}
-
-func (a Account) HasSeenVersion(version string) bool {
-	if a.Name == openAccountName {
-		return true // open accounts don't see version releases
-	}
-
-	newVersion, err := semver.NewVersion(version)
-
-	if err != nil {
-		return true
-	}
-
-	currentVersion, err := semver.NewVersion(a.LastSeenVersion)
-
-	if err != nil {
-		return true
-	}
-
-	return newVersion.Equal(currentVersion) || newVersion.LessThan(currentVersion)
-}
-
-func (a Account) NeedsPasswordReset(adminPasswordOverride string) bool {
-	return a.DefaultPassword != "" || (a.Name == adminUserName && adminPasswordOverride != "")
-}
-
-func (a Account) HasGroupPrivilege(serverID ServerID, g Group) bool {
-	userGroup := a.GroupFor(serverID)
-
-	if g == userGroup {
-		return true
-	}
-
-	if userGroup == GroupAdmin {
-		return true
-	}
-
-	if g == GroupWrite && userGroup == GroupDelete {
-		return true
-	}
-
-	if g == GroupRead && (userGroup == GroupWrite || userGroup == GroupDelete) {
-		return true
-	}
-
-	return false
-}
-
-type Group string
-
-const (
-	GroupNoAccess Group = "no_access"
-	GroupRead     Group = "read"
-	GroupWrite    Group = "write"
-	GroupDelete   Group = "delete"
-	GroupAdmin    Group = "admin"
-)
-
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
-func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Handler) http.Handler {
+func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		sess := getSession(r)
 
@@ -219,7 +85,7 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Han
 			}
 
 			if !account.HasGroupPrivilege(serverID, requiredGroup) {
-				if account.GroupFor(serverID) == GroupNoAccess {
+				if account.GroupFor(serverID) == smmodel.GroupNoAccess {
 					AddErrorFlash(w, r, "You do not have permission to access this Server Manager instance.")
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
@@ -234,7 +100,7 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Han
 			return
 		}
 
-		if requiredGroup == GroupRead && ah.accountManager.options.IsOpen {
+		if requiredGroup == smmodel.GroupRead && ah.accountManager.options.IsOpen {
 			// if read is open, allow access and use a dummy account so the UI doesn't break
 			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), requestContextKeyAccount, ah.accountManager.openAccount)))
 			return
@@ -249,25 +115,25 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Han
 }
 
 func (ah *AccountHandler) ReadAccessMiddleware(next http.Handler) http.Handler {
-	return ah.MustLoginMiddleware(GroupRead, next)
+	return ah.MustLoginMiddleware(smmodel.GroupRead, next)
 }
 
 func (ah *AccountHandler) WriteAccessMiddleware(next http.Handler) http.Handler {
-	return ah.MustLoginMiddleware(GroupWrite, next)
+	return ah.MustLoginMiddleware(smmodel.GroupWrite, next)
 }
 
 func (ah *AccountHandler) DeleteAccessMiddleware(next http.Handler) http.Handler {
-	return ah.MustLoginMiddleware(GroupDelete, next)
+	return ah.MustLoginMiddleware(smmodel.GroupDelete, next)
 }
 
 func (ah *AccountHandler) AdminAccessMiddleware(next http.Handler) http.Handler {
-	return ah.MustLoginMiddleware(GroupAdmin, next)
+	return ah.MustLoginMiddleware(smmodel.GroupAdmin, next)
 }
 
 func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Request) {
 	account := AccountFromRequest(r)
 
-	if account.Name == openAccountName {
+	if account.Name == smmodel.OpenAccountName {
 		// don't save the open account
 		return
 	}
@@ -281,11 +147,11 @@ func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Reques
 	}
 }
 
-func AccountFromRequest(r *http.Request) *Account {
-	u, ok := r.Context().Value(requestContextKeyAccount).(*Account)
+func AccountFromRequest(r *http.Request) *smmodel.Account {
+	u, ok := r.Context().Value(requestContextKeyAccount).(*smmodel.Account)
 
 	if !ok {
-		return &Account{}
+		return &smmodel.Account{}
 	}
 
 	return u
@@ -295,7 +161,7 @@ func ReadAccess(r *http.Request) func() bool {
 	account := AccountFromRequest(r)
 
 	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
-	ok := account.HasGroupPrivilege(serverID, GroupRead) || (account.Name == "" && requestScopeFromRequest(r).isOpen())
+	ok := account.HasGroupPrivilege(serverID, smmodel.GroupRead) || (account.Name == "" && requestScopeFromRequest(r).isOpen())
 
 	return func() bool {
 		return ok
@@ -313,7 +179,7 @@ func LoggedIn(r *http.Request) func() bool {
 }
 
 func WriteAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, GroupWrite)
+	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupWrite)
 
 	return func() bool {
 		return ok
@@ -321,7 +187,7 @@ func WriteAccess(r *http.Request) func() bool {
 }
 
 func DeleteAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, GroupDelete)
+	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupDelete)
 
 	return func() bool {
 		return ok
@@ -329,7 +195,7 @@ func DeleteAccess(r *http.Request) func() bool {
 }
 
 func AdminAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, GroupAdmin)
+	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupAdmin)
 
 	return func() bool {
 		return ok
@@ -461,7 +327,7 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 type updateAccountTemplateVars struct {
 	BaseTemplateVars
 
-	Account           *Account
+	Account           *smmodel.Account
 	ThemeOptions      []ThemeDetails
 	SteamGUIDOverride string
 }
@@ -543,6 +409,7 @@ func (ah *AccountHandler) resetPassword(w http.ResponseWriter, r *http.Request) 
 }
 
 var ErrAccountNeedsPassword = errors.New("servermanager: account needs to set a password")
+
 var ErrInvalidUsernameOrPassword = errors.New("servermanager: invalid username or password")
 
 type AccountManager struct {
@@ -555,7 +422,7 @@ type AccountManager struct {
 	options *ServerAccountOptions
 
 	// openAccount is the dummy account which is used for visitors if read access is open.
-	openAccount *Account
+	openAccount *smmodel.Account
 	store       Store
 }
 
@@ -581,11 +448,11 @@ func (am *AccountManager) LoadOptions() error {
 
 // InitOpenAccount creates the dummy account for visitors if read access is open. It needs the server ID.
 func (am *AccountManager) InitOpenAccount() {
-	am.openAccount = &Account{
-		Name:            openAccountName,
-		Groups:          map[ServerID]Group{serverID: GroupRead},
+	am.openAccount = &smmodel.Account{
+		Name:            smmodel.OpenAccountName,
+		Groups:          map[smmodel.ServerID]smmodel.Group{serverID: smmodel.GroupRead},
 		LastSeenVersion: BuildVersion,
-		Theme:           ThemeDefault,
+		Theme:           smmodel.ThemeDefault,
 	}
 }
 
@@ -616,7 +483,7 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 	for _, account := range accounts {
 		if username == account.Name {
 			if (account.NeedsPasswordReset(am.config.Accounts.AdminPasswordOverride) && password == account.DefaultPassword && account.DefaultPassword != "") ||
-				(account.Name == adminUserName && am.config.Accounts.AdminPasswordOverride != "" && password == am.config.Accounts.AdminPasswordOverride) {
+				(account.Name == smmodel.AdminUserName && am.config.Accounts.AdminPasswordOverride != "" && password == am.config.Accounts.AdminPasswordOverride) {
 				// first log in of the account, direct them to a reset password form
 				sess := getSession(r)
 				sess.Values[sessionAccountID] = account.ID.String()
@@ -650,7 +517,7 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 	return ErrInvalidUsernameOrPassword
 }
 
-func (am *AccountManager) resetPassword(accountID string) (*Account, error) {
+func (am *AccountManager) resetPassword(accountID string) (*smmodel.Account, error) {
 	account, err := am.store.FindAccountByID(accountID)
 
 	if err != nil {
@@ -670,13 +537,13 @@ func (am *AccountManager) resetPassword(accountID string) (*Account, error) {
 	return account, am.store.UpsertAccount(account)
 }
 
-func (am *AccountManager) SetCurrentVersion(account *Account) error {
+func (am *AccountManager) SetCurrentVersion(account *smmodel.Account) error {
 	account.LastSeenVersion = BuildVersion
 
 	return am.store.UpsertAccount(account)
 }
 
-func (am *AccountManager) ChangePassword(account *Account, password string) error {
+func (am *AccountManager) ChangePassword(account *smmodel.Account, password string) error {
 	salt, err := generateSalt()
 
 	if err != nil {
@@ -696,11 +563,11 @@ func (am *AccountManager) ChangePassword(account *Account, password string) erro
 	return am.store.UpsertAccount(account)
 }
 
-func (am *AccountManager) updateDetails(account *Account, name, guid, team, theme string) error {
+func (am *AccountManager) updateDetails(account *smmodel.Account, name, guid, team, theme string) error {
 	account.DriverName = name
 	account.GUID = guid
 	account.Team = team
-	account.Theme = Theme(theme)
+	account.Theme = smmodel.Theme(theme)
 
 	return am.store.UpsertAccount(account)
 }
@@ -717,12 +584,12 @@ func (ah *AccountHandler) logout(w http.ResponseWriter, r *http.Request) {
 type createAccountTemplateVars struct {
 	BaseTemplateVars
 
-	Account   *Account
+	Account   *smmodel.Account
 	IsEditing bool
 }
 
 func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Request) {
-	var account *Account
+	var account *smmodel.Account
 	isEditing := false
 
 	if id := chi.URLParam(r, "id"); id != "" {
@@ -745,17 +612,17 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		account = NewAccount(serverID, BuildVersion)
+		account = smmodel.NewAccount(serverID, BuildVersion)
 		account.DefaultPassword = strings.Join(defaultPass, "-")
 	}
 
 	if r.Method == http.MethodPost {
 		username := r.FormValue("Username")
-		group := Group(r.FormValue("Group"))
+		group := smmodel.Group(r.FormValue("Group"))
 
 		if !isEditing {
 			// creating new account
-			account = NewAccount(serverID, BuildVersion)
+			account = smmodel.NewAccount(serverID, BuildVersion)
 			account.DefaultPassword = r.FormValue("DefaultPassword")
 		}
 
@@ -795,7 +662,7 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 type manageAccountsTemplateVars struct {
 	BaseTemplateVars
 
-	Accounts         []*Account
+	Accounts         []*smmodel.Account
 	ServerReadIsOpen bool
 }
 

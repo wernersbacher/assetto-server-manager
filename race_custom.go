@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"fmt"
 	"net/http"
@@ -28,7 +29,7 @@ type CustomRace struct {
 	Starred bool
 	// Deprecated: Replaced by LoopServer
 	Loop       bool
-	LoopServer map[ServerID]bool
+	LoopServer map[smmodel.ServerID]bool
 
 	TimeAttackCombinedResultFile string
 
@@ -38,7 +39,7 @@ type CustomRace struct {
 	RaceConfig serverconfig.CurrentRaceConfig
 	EntryList  serverconfig.EntryList
 
-	ScheduledEvents map[ServerID]*ScheduledEventBase
+	ScheduledEvents map[smmodel.ServerID]*ScheduledEventBase
 }
 
 func (cr *CustomRace) GetRaceConfig() serverconfig.CurrentRaceConfig {
@@ -49,7 +50,7 @@ func (cr *CustomRace) GetEntryList() serverconfig.EntryList {
 	return cr.EntryList
 }
 
-func (cr *CustomRace) IsLooping(serverID ServerID) bool {
+func (cr *CustomRace) IsLooping(serverID smmodel.ServerID) bool {
 	if cr.LoopServer == nil {
 		return false
 	}
@@ -97,7 +98,7 @@ func (cr *CustomRace) GetID() uuid.UUID {
 	return cr.UUID
 }
 
-func (cr *CustomRace) GetScheduledServerID() ServerID {
+func (cr *CustomRace) GetScheduledServerID() smmodel.ServerID {
 	return cr.ScheduledServerID
 }
 

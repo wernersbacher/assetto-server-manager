@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
@@ -304,15 +305,15 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Errorf("expected ErrAccountNotFound on fresh store, got: %v", err)
 		}
 
-		admin := NewAccount(serverID, BuildVersion)
+		admin := smmodel.NewAccount(serverID, BuildVersion)
 		admin.Name = "admin"
 		admin.DriverName = "Admin Driver"
-		admin.Groups = map[ServerID]Group{serverID: GroupAdmin}
+		admin.Groups = map[smmodel.ServerID]smmodel.Group{serverID: smmodel.GroupAdmin}
 
-		user := NewAccount(serverID, BuildVersion)
+		user := smmodel.NewAccount(serverID, BuildVersion)
 		user.Name = "user"
 
-		for _, a := range []*Account{admin, user} {
+		for _, a := range []*smmodel.Account{admin, user} {
 			if err := store.UpsertAccount(a); err != nil {
 				t.Fatalf("upsert account: %s", err)
 			}
@@ -328,7 +329,7 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Fatalf("find account by name: %s", err)
 		}
 
-		if byName.ID != admin.ID || byName.DriverName != "Admin Driver" || byName.Groups[serverID] != GroupAdmin {
+		if byName.ID != admin.ID || byName.DriverName != "Admin Driver" || byName.Groups[serverID] != smmodel.GroupAdmin {
 			t.Errorf("account did not round-trip: %+v", byName)
 		}
 
@@ -670,8 +671,8 @@ func TestStoreContract_AuditEntries(t *testing.T) {
 		now := time.Now().Truncate(time.Second)
 
 		for i, url := range []string{"/a", "/b", "/c"} {
-			err := store.AddAuditEntry(&AuditEntry{
-				UserGroup: GroupAdmin,
+			err := store.AddAuditEntry(&smmodel.AuditEntry{
+				UserGroup: smmodel.GroupAdmin,
 				Method:    "POST",
 				URL:       url,
 				User:      "admin",
@@ -696,7 +697,7 @@ func TestStoreContract_AuditEntries(t *testing.T) {
 		for i, url := range []string{"/a", "/b", "/c"} {
 			e := entries[i]
 
-			if e.URL != url || e.Method != "POST" || e.User != "admin" || e.UserGroup != GroupAdmin {
+			if e.URL != url || e.Method != "POST" || e.User != "admin" || e.UserGroup != smmodel.GroupAdmin {
 				t.Errorf("audit entry %d did not round-trip: %+v", i, e)
 			}
 
@@ -1003,7 +1004,7 @@ func entrantIDs(entrants []*serverconfig.Entrant) []string {
 	return out
 }
 
-func accountNames(accounts []*Account) []string {
+func accountNames(accounts []*smmodel.Account) []string {
 	var out []string
 
 	for _, a := range accounts {

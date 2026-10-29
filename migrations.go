@@ -8,9 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	defaultcontent "github.com/wernersbacher/assetto-server-manager/fixtures/default-content"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -135,19 +136,19 @@ func addAdminAccount(rs Store) error {
 
 	for _, account := range accounts {
 		// in a multi-server scenario, don't reset the admin account password to 'servermanager'
-		if account.Name == adminUserName {
+		if account.Name == smmodel.AdminUserName {
 			return nil
 		}
 	}
 
 	logrus.Infof("Running migration: Add Admin Account")
 
-	account := NewAccount(serverID, BuildVersion)
-	account.Name = adminUserName
+	account := smmodel.NewAccount(serverID, BuildVersion)
+	account.Name = smmodel.AdminUserName
 	account.DefaultPassword = "servermanager"
 	// DeprecatedGroup must be assigned to here, since a following migration will just re-set-up Groups.
-	account.DeprecatedGroup = GroupAdmin
-	account.Groups[serverID] = GroupAdmin
+	account.DeprecatedGroup = smmodel.GroupAdmin
+	account.Groups[serverID] = smmodel.GroupAdmin
 
 	return rs.UpsertAccount(account)
 }
@@ -450,7 +451,7 @@ func addThemeChoiceToAccounts(s Store) error {
 	}
 
 	for _, account := range accounts {
-		account.Theme = ThemeDefault
+		account.Theme = smmodel.ThemeDefault
 
 		if err := s.UpsertAccount(account); err != nil {
 			return err
@@ -541,7 +542,6 @@ func addAvailableCarsToChampionshipClass(s Store) error {
 
 	return nil
 }
-
 
 func addTyresForP13c(s Store) error {
 	logrus.Debugf("Running migration: add tyres for IER P13c")
@@ -718,7 +718,7 @@ func addLoopServerToCustomRace(s Store) error {
 
 	for _, customRace := range customRaces {
 		if customRace.Loop {
-			customRace.LoopServer = make(map[ServerID]bool)
+			customRace.LoopServer = make(map[smmodel.ServerID]bool)
 
 			customRace.LoopServer[serverID] = true
 
@@ -913,7 +913,7 @@ func convertAccountGroupToServerIDGroupMap(s Store) error {
 			continue
 		}
 
-		account.Groups = make(map[ServerID]Group)
+		account.Groups = make(map[smmodel.ServerID]smmodel.Group)
 		account.Groups[serverID] = account.DeprecatedGroup
 
 		if err := s.UpsertAccount(account); err != nil {

@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 
@@ -125,7 +126,7 @@ type championshipViewTemplateVars struct {
 
 	Championship    *Championship
 	EventInProgress bool
-	Account         *Account
+	Account         *smmodel.Account
 	RaceWeekends    map[uuid.UUID]*RaceWeekend
 }
 
@@ -183,12 +184,12 @@ func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
 
 	account := AccountFromRequest(r)
 
-	if !account.HasGroupPrivilege(serverID, GroupAdmin) {
+	if !account.HasGroupPrivilege(serverID, smmodel.GroupAdmin) {
 		// sign up responses are hidden for data protection reasons
 		championship.SignUpForm.Responses = nil
 	}
 
-	if !account.HasGroupPrivilege(serverID, GroupWrite) {
+	if !account.HasGroupPrivilege(serverID, smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		championship.ReplacementPassword = ""
 		championship.OverridePassword = false

@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -16,10 +16,8 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-type ServerID string
-
 var (
-	serverID        ServerID
+	serverID        smmodel.ServerID
 	serverIDMetaKey = "server_id"
 )
 
@@ -27,7 +25,7 @@ func initServerID(store Store) error {
 	err := store.GetMeta(serverIDMetaKey, &serverID)
 
 	if err == ErrValueNotSet {
-		serverID = ServerID(uuid.New().String())
+		serverID = smmodel.ServerID(uuid.New().String())
 		err = store.SetMeta(serverIDMetaKey, serverID)
 
 		if err != nil {

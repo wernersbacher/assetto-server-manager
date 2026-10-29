@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
@@ -20,7 +21,7 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 	race.ScheduledServerID = serverID
 
 	if race.ScheduledEvents == nil {
-		race.ScheduledEvents = make(map[ServerID]*ScheduledEventBase)
+		race.ScheduledEvents = make(map[smmodel.ServerID]*ScheduledEventBase)
 	}
 
 	race.ScheduledEvents[serverID] = &ScheduledEventBase{
@@ -265,7 +266,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 						" Start time: %s. The schedule has been cleared. Start the event manually if you wish to run it.", race.Scheduled.String())
 
 					race.Scheduled = emptyTime
-					race.ScheduledEvents = make(map[ServerID]*ScheduledEventBase)
+					race.ScheduledEvents = make(map[smmodel.ServerID]*ScheduledEventBase)
 
 					err := rm.store.UpsertCustomRace(race)
 

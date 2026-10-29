@@ -8,9 +8,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	servermanager "github.com/wernersbacher/assetto-server-manager"
 	"github.com/google/uuid"
+	servermanager "github.com/wernersbacher/assetto-server-manager"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 const (
@@ -146,7 +147,7 @@ func joinCars(cars []string) string {
 }
 
 // seedAll creates everything. The caller has already checked that the store was not seeded yet.
-func seedAll(store servermanager.Store, serverID servermanager.ServerID, now time.Time) (*seedManifest, *seedSummary, error) {
+func seedAll(store servermanager.Store, serverID smmodel.ServerID, now time.Time) (*seedManifest, *seedSummary, error) {
 	rng := rand.New(rand.NewSource(randomSeed))
 	manifest := &seedManifest{Version: manifestVersion, Seeded: now}
 	summary := &seedSummary{}
@@ -314,7 +315,7 @@ func completedEvent(rng *rand.Rand, now time.Time, c *servermanager.Championship
 	return event, nil
 }
 
-func scheduledEvent(c *servermanager.Championship, serverID servermanager.ServerID, cars []string, track, layout string, start time.Time, useSettings bool, rule string) (*servermanager.ChampionshipEvent, error) {
+func scheduledEvent(c *servermanager.Championship, serverID smmodel.ServerID, cars []string, track, layout string, start time.Time, useSettings bool, rule string) (*servermanager.ChampionshipEvent, error) {
 	event := servermanager.NewChampionshipEvent()
 	event.ID = seedID(fmt.Sprintf("event/%s/%s/%d", c.Name, track+layout, start.Unix()/86400))
 	event.RaceSetup = eventSetup(cars, track, layout, 6)
@@ -347,7 +348,7 @@ func newClass(name string, drivers []*seedDriver, cars []string, points serverma
 	return class
 }
 
-func seedDevCup(rng *rand.Rand, now time.Time, serverID servermanager.ServerID, manifest *seedManifest) (*servermanager.Championship, error) {
+func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manifest *seedManifest) (*servermanager.Championship, error) {
 	c := servermanager.NewChampionship(devCupName)
 	c.ID = devCupID
 	c.Created = now.AddDate(0, 0, -30)
@@ -408,7 +409,7 @@ func seedDevCup(rng *rand.Rand, now time.Time, serverID servermanager.ServerID, 
 	return c, nil
 }
 
-func seedDevSprint(rng *rand.Rand, now time.Time, serverID servermanager.ServerID, manifest *seedManifest) (*servermanager.Championship, error) {
+func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manifest *seedManifest) (*servermanager.Championship, error) {
 	c := servermanager.NewChampionship(devSprintName)
 	c.ID = devSprintID
 	c.Created = now.AddDate(0, 0, -12)
@@ -449,7 +450,7 @@ func seedDevSprint(rng *rand.Rand, now time.Time, serverID servermanager.ServerI
 	return c, nil
 }
 
-func seedCustomRaces(now time.Time, serverID servermanager.ServerID) ([]*servermanager.CustomRace, error) {
+func seedCustomRaces(now time.Time, serverID smmodel.ServerID) ([]*servermanager.CustomRace, error) {
 	gt3 := driversOfClass("GT3")
 	mx5 := driversOfClass("MX5")
 
@@ -495,7 +496,7 @@ func seedCustomRaces(now time.Time, serverID servermanager.ServerID) ([]*serverm
 			}
 		}
 
-		s.race.ScheduledEvents = map[servermanager.ServerID]*servermanager.ScheduledEventBase{
+		s.race.ScheduledEvents = map[smmodel.ServerID]*servermanager.ScheduledEventBase{
 			serverID: {
 				Scheduled:         s.race.Scheduled,
 				ScheduledInitial:  s.race.ScheduledInitial,

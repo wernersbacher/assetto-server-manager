@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 const maxRecentRaces = 40
@@ -182,7 +183,7 @@ func (rm *RaceManager) ToggleLoopCustomRace(uuid string) (bool, error) {
 	}
 
 	if race.LoopServer == nil {
-		race.LoopServer = make(map[ServerID]bool)
+		race.LoopServer = make(map[smmodel.ServerID]bool)
 	}
 
 	race.LoopServer[serverID] = !race.LoopServer[serverID]

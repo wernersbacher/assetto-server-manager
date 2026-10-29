@@ -17,6 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -220,7 +221,7 @@ type resultsViewTemplateVars struct {
 
 	Result           *smresults.SessionResults
 	AutoFillEntrants []*serverconfig.Entrant
-	Account          *Account
+	Account          *smmodel.Account
 	UseMPH           bool
 }
 

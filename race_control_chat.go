@@ -5,6 +5,7 @@ import (
 
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sirupsen/logrus"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 	lua "github.com/yuin/gopher-lua"
 )
@@ -93,7 +94,7 @@ func (rc *RaceControl) LuaSendChat(L *lua.LState) int {
 	return 1
 }
 
-func (rc *RaceControl) splitAndBroadcastChat(message string, account *Account) error {
+func (rc *RaceControl) splitAndBroadcastChat(message string, account *smmodel.Account) error {
 	name := "Server"
 	guid := ""
 

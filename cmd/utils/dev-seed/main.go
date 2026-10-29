@@ -18,6 +18,7 @@ import (
 	"time"
 
 	servermanager "github.com/wernersbacher/assetto-server-manager"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"github.com/etcd-io/bbolt"
 )
@@ -121,14 +122,14 @@ func openStore(conf *smconfig.Configuration) (servermanager.Store, func(), error
 	return store, func() { _ = db.Close() }, nil
 }
 
-func loadServerID(store servermanager.Store) (servermanager.ServerID, error) {
-	var id servermanager.ServerID
+func loadServerID(store servermanager.Store) (smmodel.ServerID, error) {
+	var id smmodel.ServerID
 
 	err := store.GetMeta("server_id", &id)
 
 	if err == servermanager.ErrValueNotSet || (err == nil && id == "") {
 		// the server never ran against this database yet, it will pick up the id we store here (see initServerID)
-		id = servermanager.ServerID(seedID("server").String())
+		id = smmodel.ServerID(seedID("server").String())
 
 		return id, store.SetMeta("server_id", id)
 	}

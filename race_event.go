@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 // TrackSummaryFunc returns the display name of a track and layout.
@@ -16,7 +17,7 @@ type RaceEvent interface {
 	GetRaceConfig() serverconfig.CurrentRaceConfig
 	GetEntryList() serverconfig.EntryList
 
-	IsLooping(serverID ServerID) bool
+	IsLooping(serverID smmodel.ServerID) bool
 	IsChampionship() bool
 	IsRaceWeekend() bool
 	IsPractice() bool

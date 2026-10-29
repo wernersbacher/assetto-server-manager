@@ -4,6 +4,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"bytes"
@@ -216,7 +217,7 @@ func (tr *Renderer) init() error {
 	funcs["SessionType"] = func(s string) serverconfig.SessionType { return serverconfig.SessionType(s) }
 	funcs["Config"] = func() *smconfig.Configuration { return tr.config }
 	funcs["Version"] = func() string { return BuildVersion }
-	funcs["AccountGroup"] = func(a Account) Group { return a.GroupFor(serverID) }
+	funcs["AccountGroup"] = func(a smmodel.Account) smmodel.Group { return a.GroupFor(serverID) }
 	funcs["raceWeekendTrackOverview"] = raceWeekendTrackOverview
 	funcs["EventName"] = func(e RaceEvent) string { return e.EventName(trackSummary) }
 	funcs["EventIsLooping"] = func(e RaceEvent) bool { return e.IsLooping(serverID) }
@@ -479,14 +480,14 @@ type BaseTemplateVars struct {
 	ServerEvent           RaceEvent
 	ServerName            string
 	CustomCSS             template.CSS
-	User                  *Account
+	User                  *smmodel.Account
 	IsDarkTheme           bool
 	Request               *http.Request
 	Debug                 bool
 	RecaptchaSiteKey      string
 	WideContainer         bool
 	OGImage               string
-	ServerID              ServerID
+	ServerID              smmodel.ServerID
 	ShowEventDetailsPopup bool
 	ShowUpgradePopup      bool
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/etcd-io/bbolt"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
@@ -469,8 +470,8 @@ func (rs *BoltStore) accountsBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(accountsBucketName)
 }
 
-func (rs *BoltStore) ListAccounts() ([]*Account, error) {
-	var accounts []*Account
+func (rs *BoltStore) ListAccounts() ([]*smmodel.Account, error) {
+	var accounts []*smmodel.Account
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.accountsBucket(tx)
@@ -482,7 +483,7 @@ func (rs *BoltStore) ListAccounts() ([]*Account, error) {
 		}
 
 		return b.ForEach(func(k, v []byte) error {
-			var account *Account
+			var account *smmodel.Account
 
 			err := rs.decode(v, &account)
 
@@ -504,7 +505,7 @@ func (rs *BoltStore) ListAccounts() ([]*Account, error) {
 	return accounts, err
 }
 
-func (rs *BoltStore) UpsertAccount(a *Account) error {
+func (rs *BoltStore) UpsertAccount(a *smmodel.Account) error {
 	a.Updated = time.Now()
 
 	return rs.db.Update(func(tx *bbolt.Tx) error {
@@ -526,8 +527,8 @@ func (rs *BoltStore) UpsertAccount(a *Account) error {
 
 var ErrAccountNotFound = errors.New("servermanager: account not found")
 
-func (rs *BoltStore) FindAccountByName(name string) (*Account, error) {
-	var account *Account
+func (rs *BoltStore) FindAccountByName(name string) (*smmodel.Account, error) {
+	var account *smmodel.Account
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.accountsBucket(tx)
@@ -554,7 +555,7 @@ func (rs *BoltStore) FindAccountByName(name string) (*Account, error) {
 	return account, err
 }
 
-func (rs *BoltStore) FindAccountByID(id string) (*Account, error) {
+func (rs *BoltStore) FindAccountByID(id string) (*smmodel.Account, error) {
 	accounts, err := rs.ListAccounts()
 
 	if err != nil {
@@ -658,8 +659,8 @@ func (rs *BoltStore) auditBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(auditBucketName)
 }
 
-func (rs *BoltStore) GetAuditEntries() ([]*AuditEntry, error) {
-	var audits []*AuditEntry
+func (rs *BoltStore) GetAuditEntries() ([]*smmodel.AuditEntry, error) {
+	var audits []*smmodel.AuditEntry
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.auditBucket(tx)
@@ -685,7 +686,7 @@ func (rs *BoltStore) GetAuditEntries() ([]*AuditEntry, error) {
 	return audits, err
 }
 
-func (rs *BoltStore) AddAuditEntry(entry *AuditEntry) error {
+func (rs *BoltStore) AddAuditEntry(entry *smmodel.AuditEntry) error {
 	entries, err := rs.GetAuditEntries()
 
 	if err != nil {

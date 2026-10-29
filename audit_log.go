@@ -6,15 +6,9 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-)
 
-type AuditEntry struct {
-	UserGroup Group
-	Method    string
-	URL       string
-	User      string
-	Time      time.Time
-}
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+)
 
 var ignoredURLs = [5]string{
 	"/audit-logs",
@@ -53,7 +47,7 @@ func (alh *AuditLogHandler) Middleware(next http.Handler) http.Handler {
 			return
 		}
 
-		entry := &AuditEntry{
+		entry := &smmodel.AuditEntry{
 			UserGroup: account.GroupFor(serverID),
 			Method:    r.Method,
 			URL:       r.URL.String(),
@@ -74,7 +68,7 @@ func (alh *AuditLogHandler) Middleware(next http.Handler) http.Handler {
 type auditLogTemplateVars struct {
 	BaseTemplateVars
 
-	AuditLogs []*AuditEntry
+	AuditLogs []*smmodel.AuditEntry
 }
 
 func (alh *AuditLogHandler) viewLogs(w http.ResponseWriter, r *http.Request) {

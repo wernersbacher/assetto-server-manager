@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
@@ -42,15 +43,15 @@ type Store interface {
 	GetMeta(key string, out interface{}) error
 
 	// Accounts
-	ListAccounts() ([]*Account, error)
-	UpsertAccount(a *Account) error
-	FindAccountByName(name string) (*Account, error)
-	FindAccountByID(id string) (*Account, error)
+	ListAccounts() ([]*smmodel.Account, error)
+	UpsertAccount(a *smmodel.Account) error
+	FindAccountByName(name string) (*smmodel.Account, error)
+	FindAccountByID(id string) (*smmodel.Account, error)
 	DeleteAccount(id string) error
 
 	// Audit Log
-	GetAuditEntries() ([]*AuditEntry, error)
-	AddAuditEntry(entry *AuditEntry) error
+	GetAuditEntries() ([]*smmodel.AuditEntry, error)
+	AddAuditEntry(entry *smmodel.AuditEntry) error
 
 	// Race Weekend
 	ListRaceWeekends() ([]*RaceWeekend, error)

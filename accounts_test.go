@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/cj123/sessions"
+
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 // testRequestScope returns a request scope with a cookie session store and a closed server.
@@ -23,7 +25,7 @@ func TestReadAccess(t *testing.T) {
 		serverID = oldServerID
 	}()
 
-	withAccount := func(account *Account, open bool) func() bool {
+	withAccount := func(account *smmodel.Account, open bool) func() bool {
 		r := httptest.NewRequest("GET", "/login", nil)
 
 		scope := testRequestScope()
@@ -37,8 +39,8 @@ func TestReadAccess(t *testing.T) {
 		return ReadAccess(r)
 	}
 
-	reader := &Account{Name: "reader", Groups: map[ServerID]Group{serverID: GroupRead}}
-	noAccess := &Account{Name: "nobody", Groups: map[ServerID]Group{serverID: GroupNoAccess}}
+	reader := &smmodel.Account{Name: "reader", Groups: map[smmodel.ServerID]smmodel.Group{serverID: smmodel.GroupRead}}
+	noAccess := &smmodel.Account{Name: "nobody", Groups: map[smmodel.ServerID]smmodel.Group{serverID: smmodel.GroupNoAccess}}
 
 	for _, open := range []bool{false, true} {
 		if got := withAccount(nil, open)(); got != open {

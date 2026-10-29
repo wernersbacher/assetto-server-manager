@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -9,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 	"github.com/google/uuid"
+	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
 // reminderNotificationManager has notification reminders configured.
@@ -111,7 +112,7 @@ func TestRaceManager_ScheduleRaceKeepsAllReminders(t *testing.T) {
 		UUID:            uuid.New(),
 		RaceConfig:      serverconfig.ConfigIniDefault().CurrentRaceConfig,
 		EntryList:       serverconfig.EntryList{},
-		ScheduledEvents: make(map[ServerID]*ScheduledEventBase),
+		ScheduledEvents: make(map[smmodel.ServerID]*ScheduledEventBase),
 	}
 
 	if err := store.UpsertCustomRace(race); err != nil {

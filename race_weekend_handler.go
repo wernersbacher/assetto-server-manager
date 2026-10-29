@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -51,7 +52,7 @@ type raceWeekendViewTemplateVars struct {
 	BaseTemplateVars
 
 	RaceWeekend *RaceWeekend
-	Account     *Account
+	Account     *smmodel.Account
 }
 
 func (rwh *RaceWeekendHandler) view(w http.ResponseWriter, r *http.Request) {
@@ -465,7 +466,7 @@ func (rwh *RaceWeekendHandler) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !AccountFromRequest(r).HasGroupPrivilege(serverID, GroupWrite) {
+	if !AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		for _, session := range raceWeekend.Sessions {
 			session.ReplacementPassword = ""

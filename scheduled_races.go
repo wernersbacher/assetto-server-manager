@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"encoding/json"
 	"fmt"
@@ -21,7 +22,7 @@ import (
 
 type ScheduledEvent interface {
 	GetID() uuid.UUID
-	GetScheduledServerID() ServerID
+	GetScheduledServerID() smmodel.ServerID
 	GetRaceSetup() serverconfig.CurrentRaceConfig
 	GetScheduledTime() time.Time
 	GetSummary() string
@@ -150,13 +151,13 @@ func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) erro
 
 type ScheduledRacesManager struct {
 	config *smconfig.Configuration
-	store Store
+	store  Store
 }
 
 func NewScheduledRacesManager(config *smconfig.Configuration, store Store) *ScheduledRacesManager {
 	return &ScheduledRacesManager{
 		config: config,
-		store: store,
+		store:  store,
 	}
 }
 
@@ -259,23 +260,23 @@ func (srm *ScheduledRacesManager) buildScheduledRaces(w io.Writer) error {
 }
 
 type CalendarObject struct {
-	ID                string    `json:"id"`
-	ScheduledServerID ServerID  `json:"scheduledServerID"`
-	GroupID           string    `json:"groupId"`
-	AllDay            bool      `json:"allDay"`
-	Start             time.Time `json:"start"`
-	End               time.Time `json:"end"`
-	Title             string    `json:"title"`
-	Description       string    `json:"description"`
-	URL               string    `json:"url"`
-	SignUpURL         string    `json:"signUpURL"`
-	ClassNames        []string  `json:"classNames"`
-	Editable          bool      `json:"editable"`
-	StartEditable     bool      `json:"startEditable"`
-	DurationEditable  bool      `json:"durationEditable"`
-	ResourceEditable  bool      `json:"resourceEditable"`
-	Rendering         string    `json:"rendering"`
-	Overlap           bool      `json:"overlap"`
+	ID                string           `json:"id"`
+	ScheduledServerID smmodel.ServerID `json:"scheduledServerID"`
+	GroupID           string           `json:"groupId"`
+	AllDay            bool             `json:"allDay"`
+	Start             time.Time        `json:"start"`
+	End               time.Time        `json:"end"`
+	Title             string           `json:"title"`
+	Description       string           `json:"description"`
+	URL               string           `json:"url"`
+	SignUpURL         string           `json:"signUpURL"`
+	ClassNames        []string         `json:"classNames"`
+	Editable          bool             `json:"editable"`
+	StartEditable     bool             `json:"startEditable"`
+	DurationEditable  bool             `json:"durationEditable"`
+	ResourceEditable  bool             `json:"resourceEditable"`
+	Rendering         string           `json:"rendering"`
+	Overlap           bool             `json:"overlap"`
 
 	Constraint      string `json:"constraint"`
 	BackgroundColor string `json:"backgroundColor"`
@@ -495,7 +496,7 @@ type ScheduledEventBase struct {
 	Scheduled         time.Time
 	ScheduledInitial  time.Time
 	Recurrence        string
-	ScheduledServerID ServerID
+	ScheduledServerID smmodel.ServerID
 }
 
 func (seb *ScheduledEventBase) SetRecurrenceRule(input string) error {

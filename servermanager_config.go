@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/etcd-io/bbolt"
-
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 // BuildStore opens the Store configured in StoreConfig and runs migrations.
@@ -38,30 +38,22 @@ func BuildStore(s *smconfig.StoreConfig) (Store, error) {
 	return rs, nil
 }
 
-type Theme string
-
-const (
-	ThemeDefault = "default"
-	ThemeLight   = "light"
-	ThemeDark    = "dark"
-)
-
 type ThemeDetails struct {
-	Theme Theme
+	Theme smmodel.Theme
 	Name  string
 }
 
 var ThemeOptions = []ThemeDetails{
 	{
-		Theme: ThemeDefault,
+		Theme: smmodel.ThemeDefault,
 		Name:  "Use Default",
 	},
 	{
-		Theme: ThemeLight,
+		Theme: smmodel.ThemeLight,
 		Name:  "Light",
 	},
 	{
-		Theme: ThemeDark,
+		Theme: smmodel.ThemeDark,
 		Name:  "Dark",
 	},
 }
