@@ -9,6 +9,7 @@ Added:
 * Results files can now be deleted from the Results list and the Results page (requires delete access). Results that are used by a Championship or Race Weekend can't be deleted.
 * The Results list can now be filtered by session type, track and driver (name or GUID).
 * The Results list and result pages are easier to use on phones: a compact filter bar, entrants shortened to two lines (hidden on small screens), and tables that scroll inside a bordered container.
+* Live Timing is redesigned: a session header with session, time/laps remaining and entrants, a clear "no session running" state, timing numbers in monospace, the fastest lap and personal bests highlighted, and on phones and tablets compact standings cards with Standings and Map & Chat tabs.
 * Deleting results, Championships, events, Race Weekends, sessions, custom races, cars, skins, tracks, weather presets, setups, accounts and auto-fill entrants now asks for confirmation in a dialog that names what will be deleted, instead of a browser popup. Cancel is focused by default and Esc closes the dialog.
 * Added read-only JSON APIs for results (/api/results, /api/results/{fileName}) and the current server status (/api/server-status). See the API section of the README.
 * Added a read-only JSON API for upcoming scheduled races (/api/upcoming-races).

@@ -74,6 +74,7 @@ export class RaceControl {
         });
 
         this.handleIFrames();
+        this.handleTabs();
         setInterval(this.showEventCompletion.bind(this), 1000);
         this.$eventTitle.on("click", function (e: ClickEvent) {
             e.preventDefault();
@@ -286,6 +287,20 @@ export class RaceControl {
         const sessionInfo = this.status.SessionInfo;
 
         return "/content/tracks/" + sessionInfo.Track + "/ui" + (!!sessionInfo.TrackConfig ? "/" + sessionInfo.TrackConfig : "") + "/preview.png";
+    }
+
+    private handleTabs(): void {
+        // on small screens standings and map/chat are shown one at a time
+        $(document).on("click", ".live-tab", (e: ClickEvent) => {
+            const tab = $(e.currentTarget).data("live-tab") as string;
+
+            $(".live-tab").removeClass("active").attr("aria-selected", "false");
+            $(e.currentTarget).addClass("active").attr("aria-selected", "true");
+            $(".live-panes").attr("data-active-tab", tab);
+
+            // the live map calculates its scale from the visible image size
+            $(window).trigger("resize");
+        });
     }
 
     private handleIFrames(): void {
@@ -883,6 +898,16 @@ class LiveTimings implements WebsocketHandler {
         $tr.find(".best-lap").text(msToTime(carInfo.BestLap / 1000000));
 
         if (addingDriverToConnectedTable) {
+            // highlight the fastest lap of the session and personal bests
+            const fastestLap = this.getFastestLap();
+
+            $tr.find(".best-lap").toggleClass("lap-fastest", carInfo.BestLap > 0 && carInfo.BestLap === fastestLap);
+            $tr.find(".last-lap")
+                .toggleClass("lap-fastest", carInfo.LastLap > 0 && carInfo.LastLap === fastestLap)
+                .toggleClass("lap-pb", carInfo.LastLap > 0 && carInfo.LastLap === carInfo.BestLap && carInfo.LastLap !== fastestLap);
+        }
+
+        if (addingDriverToConnectedTable) {
             // gap
             $tr.find(".gap").text(driver.Split);
         }
@@ -981,6 +1006,30 @@ class LiveTimings implements WebsocketHandler {
         if (!addingDriverToConnectedTable) {
             this.sortTable($table);
         }
+    }
+
+    private getFastestLap(): number {
+        let fastest = 0;
+
+        if (!this.raceControl.status || !this.raceControl.status.ConnectedDrivers) {
+            return fastest;
+        }
+
+        const drivers = this.raceControl.status.ConnectedDrivers.Drivers;
+
+        for (const guid in drivers) {
+            const driver = drivers[guid];
+
+            for (const carName in driver.Cars) {
+                const best = driver.Cars[carName].BestLap;
+
+                if (best > 0 && (fastest === 0 || best < fastest)) {
+                    fastest = best;
+                }
+            }
+        }
+
+        return fastest;
     }
 
     private sortTable($table: JQuery<HTMLTableElement>) {

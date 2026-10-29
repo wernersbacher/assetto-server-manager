@@ -38,57 +38,66 @@
     {{ $UseMPH := .UseMPH }}
 
     {{ with .RaceDetails }}
-        <div class="race-control-event-info">
-            {{ range $sessionName, $session := .RaceConfig.Sessions }}
-                <span data-toggle="tooltip" title="{{ $sessionName.String }}" class="badge badge-primary">{{ trunc 1 $sessionName.String }}</span>
-            {{ end }}
-
-            <br>
-
-            <small class="mr-1" data-toggle="tooltip" title="{{ .EntryList.Entrants }}" >{{ len .EntryList }} <i class="fa fa-user"></i></small>
-
-        </div>
-
-        <div class="race-control-weather-info">
-            <img class="img img-fluid mt-1 d-lg-inline-block d-none" id="weatherImage" src="/static/img/no-preview-general.png" alt="Current Weather">
-
-            <div class="d-inline-block">
-                <div id="road-temp-wrapper" data-toggle="tooltip" data-original-title="Road Temp">
-                    <div id="road-temp-text"></div>
-                    <img src="/static/img/temp-road.png" alt="Road Temp" id="road-temp">
+        <div class="live-header">
+            <div class="live-header-main">
+                <div class="live-title">
+                    <a href="#" id="event-title" data-toggle="popover" data-placement="bottom"></a>
+                    <div id="track-location"></div>
                 </div>
-                <div id="ambient-temp-wrapper" class="mt-1" data-toggle="tooltip" data-original-title="Ambient Temp">
-                    <div id="ambient-temp-text"></div>
-                    <img src="/static/img/temp-ambient.png" alt="Ambient Temp" id="ambient-temp">
+
+                <div class="race-control-weather-info">
+                    <img class="img img-fluid d-lg-inline-block d-none" id="weatherImage" src="/static/img/no-preview-general.png" alt="Current Weather">
+
+                    <div class="d-inline-block">
+                        <div id="road-temp-wrapper" data-toggle="tooltip" data-original-title="Road Temp">
+                            <div id="road-temp-text"></div>
+                            <img src="/static/img/temp-road.png" alt="Road Temp" id="road-temp">
+                        </div>
+                        <div id="ambient-temp-wrapper" class="mt-1" data-toggle="tooltip" data-original-title="Ambient Temp">
+                            <div id="ambient-temp-text"></div>
+                            <img src="/static/img/temp-ambient.png" alt="Ambient Temp" id="ambient-temp">
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="text-center pl-5 pr-5" style="margin-top: -15px">
-            <a href="#" id="event-title" data-toggle="popover" data-placement="bottom"></a>
-            <div id="track-location"></div>
+            <div class="live-tiles race-control-event-info">
+                <div class="live-tile">
+                    <div class="live-tile-label">Session</div>
+                    <div class="live-tile-value"><span id="event-type">-</span></div>
+                    <div class="live-tile-sub">
+                        {{ range $sessionName, $session := .RaceConfig.Sessions }}
+                            <span data-toggle="tooltip" title="{{ $sessionName.String }}" class="badge badge-primary">{{ trunc 1 $sessionName.String }}</span>
+                        {{ end }}
+                    </div>
+                </div>
+                <div class="live-tile">
+                    <div class="live-tile-label">Remaining</div>
+                    <div class="live-tile-value live-mono"><span id="race-time">--:--:--</span></div>
+                </div>
+                <div class="live-tile">
+                    <div class="live-tile-label">Entrants</div>
+                    <div class="live-tile-value live-mono" data-toggle="tooltip" title="{{ .EntryList.Entrants }}">{{ len .EntryList }} <i class="fa fa-user"></i></div>
+                </div>
+            </div>
 
-            <span id="race-time" class="mt-2 badge badge-primary" style="font-size: 1em;">--:--:--</span>
-        </div>
+            <div class="race-control-buttons">
+                {{ with $CMJoinLink }}
+                    <a id="cm-join-link" href="{{ . }}" class="btn btn-success btn-sm">Join</a>
+                {{ end }}
 
-        <br>
+                {{ if AdminAccess }}
+                    <button id="admin-panel" data-toggle="popover" class="btn btn-sm btn-info" data-placement="bottom">Admin Panel</button>
+                {{ end }}
 
-        <div class="race-control-buttons">
-            {{ with $CMJoinLink }}
-                <a id="cm-join-link" href="{{ . }}" class="btn btn-success btn-sm mt-1">Join</a>
-            {{ end }}
+                {{ if $.IsStrackerEnabled }}
+                    <a href="{{ $.STrackerInterfacePublicURL }}" class="btn btn-primary btn-sm">sTracker</a>
+                {{ end }}
 
-            {{ if AdminAccess }}
-                <button id="admin-panel" data-toggle="popover" class="btn btn-sm btn-info mt-1" data-placement="bottom">Admin Panel</button>
-            {{ end }}
-
-            {{ if $.IsStrackerEnabled }}
-                <a href="{{ $.STrackerInterfacePublicURL }}" class="btn btn-primary btn-sm mt-1">sTracker</a>
-            {{ end }}
-
-            {{ if and $.IsKissMyRankEnabled (ne $.KissMyRankWebStatsPublicURL "") }}
-                <a href="{{ $.KissMyRankWebStatsPublicURL }}" target="_blank" class="btn btn-warning btn-sm mt-1">KissMyRank</a>
-            {{ end }}
+                {{ if and $.IsKissMyRankEnabled (ne $.KissMyRankWebStatsPublicURL "") }}
+                    <a href="{{ $.KissMyRankWebStatsPublicURL }}" target="_blank" class="btn btn-warning btn-sm">KissMyRank</a>
+                {{ end }}
+            </div>
         </div>
 
         <div id="popover-content-event-title" class="d-none">
@@ -182,10 +191,17 @@
 
         <div class="clearfix"></div>
 
-        <div class="row">
-            <div class="col-lg-7 col-md-12 mt-5">
-                <div class="table-responsive table-sm">
-                    <table id="live-table" class="table table-bordered table-striped">
+        {{ if Config.LiveMap.IsEnabled }}
+            <div class="live-tabs d-xl-none" role="tablist" aria-label="Live timing view">
+                <button type="button" role="tab" class="live-tab active" data-live-tab="standings" aria-selected="true">Standings</button>
+                <button type="button" role="tab" class="live-tab" data-live-tab="map" aria-selected="false">Map &amp; Chat</button>
+            </div>
+        {{ end }}
+
+        <div class="row live-panes" data-active-tab="standings">
+            <div class="col-xl-8 col-12 live-pane live-pane-standings">
+                <div class="table-responsive table-sm live-table-wrapper">
+                    <table id="live-table" class="table table-bordered table-striped live-table">
                         <tr>
                             <th class="p-1 text-center">&num;</th>
                             <th>Driver</th>
@@ -203,10 +219,15 @@
                     </table>
                 </div>
 
+                <div class="live-legend">
+                    <span><i style="background: var(--tertiary)"></i>Fastest lap</span>
+                    <span><i style="background: var(--success-foreground)"></i>Personal best</span>
+                </div>
+
                 <div id="stored-times" style="display: none">
                     <h4>Stored Times</h4>
                     <div class="table-responsive table-sm">
-                        <table id="live-table-disconnected" class="table table-bordered table-striped">
+                        <table id="live-table-disconnected" class="table table-bordered table-striped live-table-stored">
                             <tr>
                                 <th>Driver</th>
                                 <th>Car</th>
@@ -221,7 +242,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-5 col-md-12 mt-5">
+            <div class="col-xl-4 col-12 live-pane live-pane-map">
                 {{ if Config.LiveMap.IsEnabled }}
                     <div class="map-container">
                         <div id="map">
@@ -269,5 +290,20 @@
         <script type="text/javascript">
             const useMPH = {{ $UseMPH }};
         </script>
+    {{ else }}
+        <div class="page-header">
+            <div>
+                <h1>Live Timing</h1>
+                <p>Real-time standings, track map and chat of the running session.</p>
+            </div>
+        </div>
+
+        <div class="card live-empty">
+            <div class="card-body">
+                <h2>No session is running</h2>
+                <p>Start a race, practice or qualifying session and its live timing appears here.</p>
+                <a href="/" class="btn btn-primary">Go to overview</a>
+            </div>
+        </div>
     {{ end }}
 {{ end }}

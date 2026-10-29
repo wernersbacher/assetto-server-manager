@@ -12,17 +12,21 @@
 }
 
 #event-title {
-  font-size: 2em;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
   cursor: pointer;
+  color: var(--foreground);
 }
 
 #event-title:hover {
   text-decoration: none;
-  color: #127ba3;
+  color: var(--primary);
 }
 
 #track-location {
-  color: $black;
+  font-size: 13px;
+  color: var(--muted-foreground);
 }
 
 #road-temp-wrapper {
@@ -34,15 +38,10 @@
 }
 
 .race-control-weather-info {
-  position: absolute;
-  top: 90px;
-  right: 20px;
-}
-
-.race-control-event-info {
-  position: absolute;
-  top: 90px;
-  left: 20px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 #road-temp {
@@ -250,9 +249,317 @@ td .dot-inactive {
   width: 220px;
 }
 
-@media screen and (min-width: 550px) {
-  .race-control-buttons {
-    position: relative;
-    top: -50px;
+// Live timing layout
+
+.live-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.live-header-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.live-title {
+  min-width: 0;
+}
+
+.live-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 640px;
+}
+
+.live-tile {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  min-width: 0;
+}
+
+.live-tile-label {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.live-tile-value {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.live-tile-sub {
+  line-height: 1.2;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.live-mono,
+.live-table .current-lap,
+.live-table .last-lap,
+.live-table .best-lap,
+.live-table .gap,
+.live-table .top-speed,
+.live-table .num-laps,
+.live-table .driver-pos,
+.live-table-stored .best-lap,
+.live-table-stored .top-speed,
+.live-table-stored .num-laps {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.race-control-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &:empty {
+    display: none;
+  }
+
+  .btn {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.live-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 3px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--muted);
+}
+
+.live-tab {
+  height: 38px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+
+  &.active {
+    background: var(--background);
+    color: var(--foreground);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.live-pane {
+  margin-bottom: 16px;
+}
+
+.live-table {
+  .lap-fastest {
+    color: var(--tertiary);
+    font-weight: 700;
+  }
+
+  .lap-pb {
+    color: var(--success-foreground);
+    font-weight: 600;
+  }
+}
+
+.live-legend {
+  display: flex;
+  gap: 14px;
+  padding: 8px 0;
+  font-size: 11px;
+  color: var(--muted-foreground);
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  i {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    display: inline-block;
+  }
+}
+
+.live-empty .card-body {
+  text-align: center;
+  padding: 48px 16px;
+
+  h2 {
+    font-size: 18px;
+  }
+
+  p {
+    color: var(--muted-foreground);
+  }
+}
+
+// Phones and tablets: one pane at a time, standings rows as compact cards
+@media screen and (max-width: 1199.98px) {
+  .live-panes[data-active-tab="standings"] .live-pane-map,
+  .live-panes[data-active-tab="map"] .live-pane-standings {
+    display: none;
+  }
+
+  .live-table-wrapper {
+    overflow-x: visible;
+  }
+
+  #live-table,
+  #live-table-disconnected {
+    border: 0;
+
+    tbody, tr, td {
+      display: block;
+    }
+
+    tr:first-child {
+      display: none;
+    }
+
+    tr.driver-row {
+      display: grid;
+      grid-template-columns: 36px minmax(0, 1fr) minmax(0, 1fr) auto;
+      column-gap: 8px;
+      row-gap: 2px;
+      align-items: center;
+      padding: 8px 4px;
+      border-bottom: 1px solid var(--border);
+      background: transparent;
+    }
+
+    tr.driver-row td {
+      border: 0;
+      padding: 0;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .driver-pos {
+      grid-column: 1;
+      grid-row: 1 / span 3;
+      text-align: right !important;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .driver-name {
+      grid-column: 2 / span 2;
+      grid-row: 1;
+      font-weight: 600;
+    }
+
+    .driver-car {
+      grid-column: 2 / span 2;
+      grid-row: 2;
+      font-size: 12px;
+      color: var(--muted-foreground);
+    }
+
+    .gap {
+      grid-column: 4;
+      grid-row: 1;
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .last-lap {
+      grid-column: 4;
+      grid-row: 2;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .current-lap {
+      display: none;
+    }
+
+    .best-lap, .num-laps, .top-speed {
+      grid-row: 3;
+      font-size: 12px;
+      color: var(--muted-foreground);
+
+      &::before {
+        font-family: var(--font-sans-stack, inherit);
+        margin-right: 4px;
+      }
+    }
+
+    .best-lap {
+      grid-column: 2;
+
+      &::before { content: "Best"; }
+    }
+
+    .num-laps {
+      grid-column: 3;
+
+      &::before { content: "Laps"; }
+    }
+
+    .top-speed {
+      grid-column: 4;
+      text-align: right;
+
+      &:empty { display: none; }
+    }
+
+    .events {
+      grid-column: 2 / -1;
+      grid-row: 4;
+      white-space: normal !important;
+
+      &:empty { display: none; }
+    }
+  }
+
+  #live-table .last-lap.lap-fastest, #live-table .best-lap.lap-fastest { color: var(--tertiary); }
+  #live-table .last-lap.lap-pb { color: var(--success-foreground); }
+
+  // stored times: name/car on top, best lap / laps / speed below
+  #live-table-disconnected tr.driver-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+
+    .driver-name { grid-column: 1 / -1; grid-row: 1; }
+    .driver-car { grid-column: 1 / -1; grid-row: 2; }
+    .best-lap { grid-column: 1; grid-row: 3; }
+    .num-laps { grid-column: 2; grid-row: 3; }
+    .top-speed { grid-column: 3; grid-row: 3; }
+  }
+
+  #chat-container {
+    max-height: 200px;
+  }
+}
+
+@media screen and (max-width: 575.98px) {
+  .live-tiles {
+    gap: 6px;
+  }
+
+  .live-tile {
+    padding: 6px 8px;
+  }
+
+  .live-tile-value {
+    font-size: 13px;
   }
 }
