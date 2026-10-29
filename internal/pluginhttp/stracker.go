@@ -1,4 +1,4 @@
-package servermanager
+package pluginhttp
 
 import (
 	"bytes"
@@ -15,6 +15,7 @@ import (
 	"golang.org/x/net/html"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -23,11 +24,12 @@ type StrackerHandler struct {
 	*smweb.BaseHandler
 
 	store        smstore.Store
+	env          *serverenv.Env
 	reverseProxy *httputil.ReverseProxy
 }
 
-func NewStrackerHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *StrackerHandler {
-	return &StrackerHandler{BaseHandler: baseHandler, store: store}
+func NewStrackerHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *StrackerHandler {
+	return &StrackerHandler{BaseHandler: baseHandler, store: store, env: env}
 }
 
 type strackerConfigurationTemplateVars struct {
@@ -99,7 +101,7 @@ func (sth *StrackerHandler) initReverseProxy() error {
 	return nil
 }
 
-func (sth *StrackerHandler) proxy(w http.ResponseWriter, r *http.Request) {
+func (sth *StrackerHandler) Proxy(w http.ResponseWriter, r *http.Request) {
 	if sth.reverseProxy == nil {
 		err := sth.initReverseProxy()
 
@@ -173,7 +175,7 @@ func processSTrackerLink(attr *html.Attribute) {
 	}
 }
 
-func (sth *StrackerHandler) options(w http.ResponseWriter, r *http.Request) {
+func (sth *StrackerHandler) Options(w http.ResponseWriter, r *http.Request) {
 	strackerOptions, err := sth.store.LoadStrackerOptions()
 
 	if err != nil {
@@ -217,6 +219,6 @@ func (sth *StrackerHandler) options(w http.ResponseWriter, r *http.Request) {
 
 	sth.ViewRenderer.MustLoadTemplate(w, r, "server/stracker-options.html", &strackerConfigurationTemplateVars{
 		Form:                form,
-		IsStrackerInstalled: smplugins.IsStrackerInstalled(ServerInstallPath),
+		IsStrackerInstalled: smplugins.IsStrackerInstalled(sth.env.InstallPath()),
 	})
 }

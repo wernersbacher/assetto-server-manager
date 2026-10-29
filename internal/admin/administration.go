@@ -1,4 +1,4 @@
-package servermanager
+package admin
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
@@ -40,6 +40,16 @@ type ServerAdministrationHandler struct {
 	process             smserver.ServerProcess
 	scheduledRaces      *schedule.Manager
 	env                 *serverenv.Env
+
+	managerLog, pluginsLog *smserver.LogBuffer
+	changelogHTML          func() template.HTML
+	setFallBackSorting     func(bool)
+}
+
+// Logs is what the administration needs from the process wide state which is not part of the serverenv.Env.
+type Logs struct {
+	// Manager and Plugins buffer the output of the server manager and of the plugins.
+	Manager, Plugins *smserver.LogBuffer
 }
 
 func NewServerAdministrationHandler(
@@ -52,6 +62,9 @@ func NewServerAdministrationHandler(
 	process smserver.ServerProcess,
 	scheduledRaces *schedule.Manager,
 	env *serverenv.Env,
+	logs Logs,
+	changelogHTML func() template.HTML,
+	setFallBackSorting func(bool),
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
 		config:              config,
@@ -63,6 +76,10 @@ func NewServerAdministrationHandler(
 		process:             process,
 		scheduledRaces:      scheduledRaces,
 		env:                 env,
+		managerLog:          logs.Manager,
+		pluginsLog:          logs.Plugins,
+		changelogHTML:       changelogHTML,
+		setFallBackSorting:  setFallBackSorting,
 	}
 }
 
@@ -81,7 +98,7 @@ type homeTemplateVars struct {
 }
 
 // homeHandler serves content to /
-func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Request) {
 	currentRace, entryList := sah.raceManager.CurrentRace()
 
 	var customRace *smmodel.CustomRace
@@ -120,7 +137,7 @@ type motdTemplateVars struct {
 	Opts     *serverconfig.GlobalServerConfig
 }
 
-func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Request) {
 	opts, err := sah.store.LoadServerOptions()
 
 	if err != nil {
@@ -134,7 +151,7 @@ func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Requ
 
 		success := true
 
-		err := ioutil.WriteFile(filepath.Join(ServerInstallPath, MOTDFilename), []byte(wrapped), 0644)
+		err := ioutil.WriteFile(filepath.Join(sah.env.InstallPath(), MOTDFilename), []byte(wrapped), 0644)
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save message of the day")
@@ -156,7 +173,7 @@ func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	b, err := ioutil.ReadFile(filepath.Join(ServerInstallPath, MOTDFilename))
+	b, err := ioutil.ReadFile(filepath.Join(sah.env.InstallPath(), MOTDFilename))
 
 	if err != nil && !os.IsNotExist(err) {
 		logrus.WithError(err).Error("couldn't find motd.txt")
@@ -177,11 +194,11 @@ type currentCFGTemplateVars struct {
 	EntryListText string
 }
 
-func (sah *ServerAdministrationHandler) currentConfig(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) CurrentConfig(w http.ResponseWriter, r *http.Request) {
 	config := &serverconfig.ServerConfig{}
 	entryList := &serverconfig.EntryList{}
 
-	configText, err := config.ReadString(filepath.Join(ServerInstallPath, ServerConfigPath))
+	configText, err := config.ReadString(filepath.Join(sah.env.InstallPath(), serverenv.ConfigPath))
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't load server config")
@@ -189,7 +206,7 @@ func (sah *ServerAdministrationHandler) currentConfig(w http.ResponseWriter, r *
 		return
 	}
 
-	entryListText, err := entryList.ReadString(filepath.Join(ServerInstallPath, ServerConfigPath))
+	entryListText, err := entryList.ReadString(filepath.Join(sah.env.InstallPath(), serverenv.ConfigPath))
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't load entry list")
@@ -209,7 +226,7 @@ type serverOptionsTemplateVars struct {
 	Form template.HTML
 }
 
-func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.Request) {
 	serverOpts, err := sah.raceManager.LoadServerOptions()
 
 	if err != nil {
@@ -226,7 +243,7 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 		}
 
 		smresults.UseShortenedDriverNames = serverOpts.UseShortenedDriverNames == 1
-		UseFallBackSorting = serverOpts.FallBackResultsSorting == 1
+		sah.setFallBackSorting(serverOpts.FallBackResultsSorting == 1)
 
 		// save the config
 		err = sah.raceManager.SaveServerOptions(serverOpts)
@@ -259,14 +276,14 @@ type serverBlacklistTemplateVars struct {
 	Text string
 }
 
-func (sah *ServerAdministrationHandler) blacklist(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) Blacklist(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		// save to blacklist.txt
 		var text string
 
 		if r.FormValue("type") == "single" {
 			// we're adding a single GUID, load the existing blacklist list then append
-			b, err := ioutil.ReadFile(filepath.Join(ServerInstallPath, "blacklist.txt"))
+			b, err := ioutil.ReadFile(filepath.Join(sah.env.InstallPath(), "blacklist.txt"))
 			if err != nil {
 				logrus.WithError(err).Error("couldn't find blacklist.txt")
 			}
@@ -280,7 +297,7 @@ func (sah *ServerAdministrationHandler) blacklist(w http.ResponseWriter, r *http
 			text += "\n"
 		}
 
-		err := ioutil.WriteFile(filepath.Join(ServerInstallPath, "blacklist.txt"), []byte(text), 0644)
+		err := ioutil.WriteFile(filepath.Join(sah.env.InstallPath(), "blacklist.txt"), []byte(text), 0644)
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save blacklist")
@@ -291,7 +308,7 @@ func (sah *ServerAdministrationHandler) blacklist(w http.ResponseWriter, r *http
 	}
 
 	// load blacklist.txt
-	b, err := ioutil.ReadFile(filepath.Join(ServerInstallPath, "blacklist.txt")) // just pass the file name
+	b, err := ioutil.ReadFile(filepath.Join(sah.env.InstallPath(), "blacklist.txt")) // just pass the file name
 	if err != nil {
 		logrus.WithError(err).Error("couldn't find blacklist.txt")
 	}
@@ -308,7 +325,7 @@ type autoFillEntrantListTemplateVars struct {
 	Entrants []*serverconfig.Entrant
 }
 
-func (sah *ServerAdministrationHandler) autoFillEntrantList(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) AutoFillEntrantList(w http.ResponseWriter, r *http.Request) {
 	entrants, err := sah.raceManager.ListAutoFillEntrants()
 
 	if err != nil {
@@ -322,7 +339,7 @@ func (sah *ServerAdministrationHandler) autoFillEntrantList(w http.ResponseWrite
 	})
 }
 
-func (sah *ServerAdministrationHandler) autoFillEntrantDelete(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) AutoFillEntrantDelete(w http.ResponseWriter, r *http.Request) {
 	err := sah.store.DeleteEntrant(chi.URLParam(r, "entrantID"))
 
 	if err != nil {
@@ -335,7 +352,7 @@ func (sah *ServerAdministrationHandler) autoFillEntrantDelete(w http.ResponseWri
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (sah *ServerAdministrationHandler) logs(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) Logs(w http.ResponseWriter, r *http.Request) {
 	sah.ViewRenderer.MustLoadTemplate(w, r, "server/logs.html", &smweb.BaseTemplateVars{
 		WideContainer: true,
 	})
@@ -345,27 +362,27 @@ type logData struct {
 	ServerLog, ManagerLog, PluginsLog string
 }
 
-func (sah *ServerAdministrationHandler) logsAPI(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) LogsAPI(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	_ = json.NewEncoder(w).Encode(logData{
 		ServerLog:  sah.process.Logs(),
-		ManagerLog: logOutput.String(),
-		PluginsLog: pluginsOutput.String(),
+		ManagerLog: sah.managerLog.String(),
+		PluginsLog: sah.pluginsLog.String(),
 	})
 }
 
 // downloading logfiles
-func (sah *ServerAdministrationHandler) logsDownload(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) LogsDownload(w http.ResponseWriter, r *http.Request) {
 	logFile := chi.URLParam(r, "logFile")
 	var outputString string
 
 	if logFile == "server" {
 		outputString = sah.process.Logs()
 	} else if logFile == "manager" {
-		outputString = logOutput.String()
+		outputString = sah.managerLog.String()
 	} else if logFile == "plugins" {
-		outputString = pluginsOutput.String()
+		outputString = sah.pluginsLog.String()
 	} else {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
@@ -384,7 +401,7 @@ func (sah *ServerAdministrationHandler) logsDownload(w http.ResponseWriter, r *h
 }
 
 // serverProcessHandler modifies the server process.
-func (sah *ServerAdministrationHandler) serverProcess(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) ServerProcess(w http.ResponseWriter, r *http.Request) {
 	var err error
 	var txt string
 
@@ -439,13 +456,13 @@ type changelogTemplateVars struct {
 	Changelog template.HTML
 }
 
-func (sah *ServerAdministrationHandler) changelog(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) Changelog(w http.ResponseWriter, r *http.Request) {
 	sah.ViewRenderer.MustLoadTemplate(w, r, "changelog.html", &changelogTemplateVars{
-		Changelog: Changelog,
+		Changelog: sah.changelogHTML(),
 	})
 }
 
-func (sah *ServerAdministrationHandler) robots(w http.ResponseWriter, r *http.Request) {
+func (sah *ServerAdministrationHandler) Robots(w http.ResponseWriter, r *http.Request) {
 	// do we want to let robots on the internet know things about us?!?
 	serverOpts, err := sah.store.LoadServerOptions()
 

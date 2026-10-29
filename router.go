@@ -2,9 +2,11 @@ package servermanager
 
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
+	"github.com/wernersbacher/assetto-server-manager/internal/admin"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
+	"github.com/wernersbacher/assetto-server-manager/internal/pluginhttp"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
@@ -57,9 +59,10 @@ func InitLogging() {
 func Router(
 	config *smconfig.Configuration,
 	fs http.FileSystem,
+	installPath string,
 	quickRaceHandler *smrace.QuickRaceHandler,
 	customRaceHandler *smrace.CustomRaceHandler,
-	eventDetailsHandler *EventDetailsHandler,
+	eventDetailsHandler *admin.EventDetailsHandler,
 	championshipsHandler *smchampionship.ChampionshipsHandler,
 	accountHandler *smaccounts.AccountHandler,
 	auditLogHandler *smaccounts.AuditLogHandler,
@@ -70,14 +73,14 @@ func Router(
 	penaltiesHandler *racecontrol.PenaltiesHandler,
 	resultsHandler *resultshttp.ResultsHandler,
 	contentUploadHandler *contenthttp.ContentUploadHandler,
-	serverAdministrationHandler *ServerAdministrationHandler,
+	serverAdministrationHandler *admin.ServerAdministrationHandler,
 	raceControlHandler *racecontrol.RaceControlHandler,
 	scheduledRacesHandler *schedule.Handler,
 	raceWeekendHandler *smraceweekend.RaceWeekendHandler,
-	strackerHandler *StrackerHandler,
-	healthCheck *HealthCheck,
-	kissMyRankHandler *KissMyRankHandler,
-	realPenaltyHandler *RealPenaltyHandler,
+	strackerHandler *pluginhttp.StrackerHandler,
+	healthCheck *admin.HealthCheck,
+	kissMyRankHandler *pluginhttp.KissMyRankHandler,
+	realPenaltyHandler *pluginhttp.RealPenaltyHandler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -90,7 +93,7 @@ func Router(
 
 	r.HandleFunc("/login", accountHandler.Login)
 	r.HandleFunc("/logout", accountHandler.Logout)
-	r.HandleFunc("/robots.txt", serverAdministrationHandler.robots)
+	r.HandleFunc("/robots.txt", serverAdministrationHandler.Robots)
 	r.Handle("/metrics", prometheusMonitoringHandler())
 	r.Get("/healthcheck.json", healthCheck.ServeHTTP)
 
@@ -119,10 +122,10 @@ func Router(
 		r.Use(accountHandler.ReadAccessMiddleware)
 
 		// pages
-		r.Get("/", serverAdministrationHandler.home)
-		r.Get("/changelog", serverAdministrationHandler.changelog)
+		r.Get("/", serverAdministrationHandler.Home)
+		r.Get("/changelog", serverAdministrationHandler.Changelog)
 
-		r.Mount("/stracker/", http.HandlerFunc(strackerHandler.proxy))
+		r.Mount("/stracker/", http.HandlerFunc(strackerHandler.Proxy))
 
 		// content
 		r.Get("/cars", carsHandler.List)
@@ -133,7 +136,7 @@ func Router(
 		r.Get("/weather", weatherHandler.List)
 
 		r.Get("/events.ics", scheduledRacesHandler.AllScheduledRacesICalHandler)
-		r.Get("/event-details", eventDetailsHandler.view)
+		r.Get("/event-details", eventDetailsHandler.View)
 
 		// results
 		r.Get("/results", resultsHandler.List)
@@ -191,8 +194,8 @@ func Router(
 		}))
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
-		FileServer(r, "/content", http.Dir(filepath.Join(ServerInstallPath, "content")), true)
-		FileServer(r, "/setups/download", http.Dir(filepath.Join(ServerInstallPath, "setups")), true)
+		FileServer(r, "/content", http.Dir(filepath.Join(installPath, "content")), true)
+		FileServer(r, "/setups/download", http.Dir(filepath.Join(installPath, "setups")), true)
 
 		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
 		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
@@ -239,10 +242,10 @@ func Router(
 		r.Post("/custom/new/submit", customRaceHandler.Submit)
 
 		// server management
-		r.Get("/process/{action}", serverAdministrationHandler.serverProcess)
-		r.Get("/logs", serverAdministrationHandler.logs)
-		r.Get("/api/logs", serverAdministrationHandler.logsAPI)
-		r.Get("/api/log-download/{logFile}", serverAdministrationHandler.logsDownload)
+		r.Get("/process/{action}", serverAdministrationHandler.ServerProcess)
+		r.Get("/logs", serverAdministrationHandler.Logs)
+		r.Get("/api/logs", serverAdministrationHandler.LogsAPI)
+		r.Get("/api/log-download/{logFile}", serverAdministrationHandler.LogsDownload)
 
 		// championships
 		r.Get("/championships/new", championshipsHandler.CreateOrEdit)
@@ -332,8 +335,8 @@ func Router(
 		r.Post("/weather/delete/{key}", weatherHandler.Delete)
 		r.Post("/setups/delete/{car}/{track}/{setup}", setupsHandler.Delete)
 
-		r.Get("/autofill-entrants", serverAdministrationHandler.autoFillEntrantList)
-		r.Post("/autofill-entrants/delete/{entrantID}", serverAdministrationHandler.autoFillEntrantDelete)
+		r.Get("/autofill-entrants", serverAdministrationHandler.AutoFillEntrantList)
+		r.Post("/autofill-entrants/delete/{entrantID}", serverAdministrationHandler.AutoFillEntrantDelete)
 
 		// race weekend
 		r.Post("/race-weekend/{raceWeekendID}/session/{sessionID}/delete", raceWeekendHandler.DeleteSession)
@@ -346,10 +349,10 @@ func Router(
 			r.Use(auditLogHandler.Middleware)
 		}
 
-		r.HandleFunc("/server-options", serverAdministrationHandler.options)
-		r.HandleFunc("/blacklist", serverAdministrationHandler.blacklist)
-		r.HandleFunc("/motd", serverAdministrationHandler.motd)
-		r.HandleFunc("/current-config", serverAdministrationHandler.currentConfig)
+		r.HandleFunc("/server-options", serverAdministrationHandler.Options)
+		r.HandleFunc("/blacklist", serverAdministrationHandler.Blacklist)
+		r.HandleFunc("/motd", serverAdministrationHandler.MOTD)
+		r.HandleFunc("/current-config", serverAdministrationHandler.CurrentConfig)
 		r.HandleFunc("/audit-logs", auditLogHandler.ViewLogs)
 		r.HandleFunc("/accounts/new", accountHandler.CreateOrEditAccount)
 		r.HandleFunc("/accounts/edit/{id}", accountHandler.CreateOrEditAccount)
@@ -367,10 +370,10 @@ func Router(
 		r.HandleFunc("/send-chat", raceControlHandler.SendChat)
 		r.HandleFunc("/countdown", raceControlHandler.Countdown)
 
-		r.HandleFunc("/stracker/options", strackerHandler.options)
-		r.HandleFunc("/kissmyrank/options", kissMyRankHandler.options)
-		r.HandleFunc("/realpenalty/options", realPenaltyHandler.options)
-		r.HandleFunc("/realpenalty/logs", realPenaltyHandler.downloadLogs)
+		r.HandleFunc("/stracker/options", strackerHandler.Options)
+		r.HandleFunc("/kissmyrank/options", kissMyRankHandler.Options)
+		r.HandleFunc("/realpenalty/options", realPenaltyHandler.Options)
+		r.HandleFunc("/realpenalty/logs", realPenaltyHandler.DownloadLogs)
 	})
 
 	FileServer(r, "/static", fs, false)

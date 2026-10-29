@@ -1,4 +1,4 @@
-package servermanager
+package steam
 
 import (
 	"errors"
@@ -15,39 +15,20 @@ import (
 // assettoServerSteamID is the ID of the server on steam.
 const assettoServerSteamID = "302550"
 
-var (
-	ErrNoSteamCMD = errors.New("servermanager: steamcmd was not found in $PATH")
+var ErrNoSteamCMD = errors.New("servermanager: steamcmd was not found in $PATH")
 
-	// ServerInstallPath is where the assetto corsa server should be/is installed
-	ServerInstallPath = "assetto"
-
-	ServerConfigPath = "cfg"
-)
-
-func SetAssettoInstallPath(installPath string) {
-	if !filepath.IsAbs(installPath) {
-		wd, err := os.Getwd()
-
-		if err == nil {
-			ServerInstallPath = filepath.Join(wd, installPath)
-		} else {
-			panic("unable to get working directory. can't install server")
-		}
-	} else {
-		ServerInstallPath = installPath
-	}
-}
-
-func IsAssettoInstalled() bool {
-	_, err := os.Stat(filepath.Join(ServerInstallPath, "system"))
+// IsAssettoInstalled returns true if the Assetto Corsa server is installed in installPath.
+func IsAssettoInstalled(installPath string) bool {
+	_, err := os.Stat(filepath.Join(installPath, "system"))
 
 	return err == nil
 }
 
-// InstallAssettoCorsaServer takes a steam login and password and runs steamcmd to install the assetto server.
-// If the "ServerInstallPath" exists, this function will exit without installing - unless force == true.
-func InstallAssettoCorsaServer(login, password string, force bool) error {
-	_, err := os.Stat(filepath.Join(ServerInstallPath, "system"))
+// InstallAssettoCorsaServer takes a steam login and password and runs steamcmd to install the assetto server into
+// installPath. If installPath already contains the server, this function will exit without installing - unless
+// force == true.
+func InstallAssettoCorsaServer(installPath, login, password string, force bool) error {
+	_, err := os.Stat(filepath.Join(installPath, "system"))
 
 	if err != nil && !os.IsNotExist(err) {
 		return err
@@ -55,7 +36,7 @@ func InstallAssettoCorsaServer(login, password string, force bool) error {
 		return nil // server is installed
 	}
 
-	logrus.Infof("Attempting to install the Assetto Corsa Server (steamid: %s) to %s", assettoServerSteamID, ServerInstallPath)
+	logrus.Infof("Attempting to install the Assetto Corsa Server (steamid: %s) to %s", assettoServerSteamID, installPath)
 
 	commandToUse := "steamcmd.sh"
 
@@ -71,7 +52,7 @@ func InstallAssettoCorsaServer(login, password string, force bool) error {
 	cmd := exec.Command(commandToUse,
 		"+@sSteamCmdForcePlatformType windows",
 		fmt.Sprintf("+login %s %s", login, password),
-		"+force_install_dir "+ServerInstallPath,
+		"+force_install_dir "+installPath,
 		"+app_update "+assettoServerSteamID,
 		"+quit",
 	)
@@ -87,7 +68,7 @@ func InstallAssettoCorsaServer(login, password string, force bool) error {
 
 	// create default skins
 	for _, f := range smcontent.DefaultSkinsLayout {
-		err := os.MkdirAll(filepath.Join(ServerInstallPath, filepath.FromSlash(f)), 0755)
+		err := os.MkdirAll(filepath.Join(installPath, filepath.FromSlash(f)), 0755)
 
 		if err != nil {
 			return err

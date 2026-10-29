@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	servermanager "github.com/wernersbacher/assetto-server-manager"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
@@ -57,7 +56,9 @@ func TestSeedIsIdempotentAndStandingsWork(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	servermanager.SetAssettoInstallPath(conf.Steam.InstallPath)
+	if err := state.SetInstallPath(conf.Steam.InstallPath); err != nil {
+		t.Fatal(err)
+	}
 
 	store, closeStore, err := openStore(conf)
 

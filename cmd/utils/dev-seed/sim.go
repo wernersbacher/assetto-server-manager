@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	servermanager "github.com/wernersbacher/assetto-server-manager"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
@@ -293,7 +292,7 @@ func collision(rng *rand.Rand, entries []*seedDriver, a, b int, env bool) *smres
 
 // writeResults writes results to the results folder of the AC install and returns the file name.
 func writeResults(res *smresults.SessionResults) (string, error) {
-	dir := filepath.Join(servermanager.ServerInstallPath, "results")
+	dir := filepath.Join(state.InstallPath(), "results")
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return "", err
@@ -327,5 +326,5 @@ func emit(rng *rand.Rand, spec sessionSpec, files *[]string, enhance func(*smres
 
 	*files = append(*files, name)
 
-	return (&smresults.Loader{Dir: filepath.Join(servermanager.ServerInstallPath, "results")}).Load(name, smresults.WithoutPluginFire)
+	return (&smresults.Loader{Dir: filepath.Join(state.InstallPath(), "results")}).Load(name, smresults.WithoutPluginFire)
 }

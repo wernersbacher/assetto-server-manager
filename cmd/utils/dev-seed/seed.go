@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	servermanager "github.com/wernersbacher/assetto-server-manager"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -566,7 +565,7 @@ func removeResultFiles(files []string) int {
 	removed := 0
 
 	for _, f := range files {
-		if err := os.Remove(filepath.Join(servermanager.ServerInstallPath, "results", f)); err == nil {
+		if err := os.Remove(filepath.Join(state.InstallPath(), "results", f)); err == nil {
 			removed++
 		}
 	}

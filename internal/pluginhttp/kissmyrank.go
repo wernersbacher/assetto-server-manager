@@ -1,4 +1,4 @@
-package servermanager
+package pluginhttp
 
 import (
 	"html/template"
@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -21,16 +22,18 @@ type kissMyRankConfigurationTemplateVars struct {
 type KissMyRankHandler struct {
 	*smweb.BaseHandler
 	store smstore.Store
+	env   *serverenv.Env
 }
 
-func NewKissMyRankHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *KissMyRankHandler {
+func NewKissMyRankHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *KissMyRankHandler {
 	return &KissMyRankHandler{
 		BaseHandler: baseHandler,
 		store:       store,
+		env:         env,
 	}
 }
 
-func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
+func (kmrh *KissMyRankHandler) Options(w http.ResponseWriter, r *http.Request) {
 	opts, err := kmrh.store.LoadKissMyRankOptions()
 
 	if err != nil {
@@ -68,6 +71,6 @@ func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
 
 	kmrh.ViewRenderer.MustLoadTemplate(w, r, "server/kissmyrank-options.html", &kissMyRankConfigurationTemplateVars{
 		Form:           form,
-		IsKMRInstalled: smplugins.IsKissMyRankInstalled(ServerInstallPath),
+		IsKMRInstalled: smplugins.IsKissMyRankInstalled(kmrh.env.InstallPath()),
 	})
 }

@@ -3,12 +3,14 @@ package servermanager
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/assetto-server-manager/internal/admin"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	"github.com/wernersbacher/assetto-server-manager/internal/pluginhttp"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
@@ -30,6 +32,7 @@ import (
 type Resolver struct {
 	config          *smconfig.Configuration
 	store           smstore.Store
+	state           *serverenv.State
 	sessionStore    sessions.Store
 	templateLoader  smweb.TemplateLoader
 	reloadTemplates bool
@@ -54,7 +57,7 @@ type Resolver struct {
 	// handlers
 	baseHandler                 *smweb.BaseHandler
 	quickRaceHandler            *smrace.QuickRaceHandler
-	eventDetailsHandler         *EventDetailsHandler
+	eventDetailsHandler         *admin.EventDetailsHandler
 	customRaceHandler           *smrace.CustomRaceHandler
 	championshipsHandler        *smchampionship.ChampionshipsHandler
 	accountHandler              *smaccounts.AccountHandler
@@ -69,16 +72,17 @@ type Resolver struct {
 	scheduledRacesHandler       *schedule.Handler
 	contentUploadHandler        *contenthttp.ContentUploadHandler
 	raceControlHandler          *racecontrol.RaceControlHandler
-	serverAdministrationHandler *ServerAdministrationHandler
+	serverAdministrationHandler *admin.ServerAdministrationHandler
 	raceWeekendHandler          *smraceweekend.RaceWeekendHandler
-	strackerHandler             *StrackerHandler
-	healthCheck                 *HealthCheck
-	kissMyRankHandler           *KissMyRankHandler
-	realPenaltyHandler          *RealPenaltyHandler
+	strackerHandler             *pluginhttp.StrackerHandler
+	healthCheck                 *admin.HealthCheck
+	kissMyRankHandler           *pluginhttp.KissMyRankHandler
+	realPenaltyHandler          *pluginhttp.RealPenaltyHandler
 }
 
-func NewResolver(config *smconfig.Configuration, templateLoader smweb.TemplateLoader, reloadTemplates bool, store smstore.Store) (*Resolver, error) {
+func NewResolver(config *smconfig.Configuration, templateLoader smweb.TemplateLoader, reloadTemplates bool, store smstore.Store, state *serverenv.State) (*Resolver, error) {
 	r := &Resolver{
+		state:           state,
 		config:          config,
 		templateLoader:  templateLoader,
 		reloadTemplates: reloadTemplates,
@@ -144,7 +148,7 @@ func (r *Resolver) resolveEnv() *serverenv.Env {
 		return r.env
 	}
 
-	r.env = globalsEnv()
+	r.env = r.state.Env(func(fn func()) { panicCapture(fn) }, Debug)
 
 	return r.env
 }
@@ -223,12 +227,12 @@ func (r *Resolver) resolveCustomRaceHandler() *smrace.CustomRaceHandler {
 	return r.customRaceHandler
 }
 
-func (r *Resolver) resolveEventDetailsHandler() *EventDetailsHandler {
+func (r *Resolver) resolveEventDetailsHandler() *admin.EventDetailsHandler {
 	if r.eventDetailsHandler != nil {
 		return r.eventDetailsHandler
 	}
 
-	r.eventDetailsHandler = NewEventDetailsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveChampionshipManager(), r.resolveRaceWeekendManager())
+	r.eventDetailsHandler = admin.NewEventDetailsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveChampionshipManager(), r.resolveRaceWeekendManager())
 
 	return r.eventDetailsHandler
 }
@@ -279,7 +283,7 @@ func (r *Resolver) resolveCarManager() *smcontent.CarManager {
 	}
 
 	r.carManager = smcontent.NewCarManager(
-		ServerInstallPath,
+		r.state.InstallPath(),
 		r.config.Server.ScanContentFolderForChanges,
 		r.config.Server.UseCarNameCache,
 	)
@@ -331,7 +335,7 @@ func (r *Resolver) resolveTrackManager() *smcontent.TrackManager {
 		return r.trackManager
 	}
 
-	r.trackManager = smcontent.NewTrackManager(ServerInstallPath)
+	r.trackManager = smcontent.NewTrackManager(r.state.InstallPath())
 
 	return r.trackManager
 }
@@ -421,12 +425,12 @@ func (r *Resolver) resolveScheduledRacesHandler() *schedule.Handler {
 	return r.scheduledRacesHandler
 }
 
-func (r *Resolver) resolveServerAdministrationHandler() *ServerAdministrationHandler {
+func (r *Resolver) resolveServerAdministrationHandler() *admin.ServerAdministrationHandler {
 	if r.serverAdministrationHandler != nil {
 		return r.serverAdministrationHandler
 	}
 
-	r.serverAdministrationHandler = NewServerAdministrationHandler(
+	r.serverAdministrationHandler = admin.NewServerAdministrationHandler(
 		r.config,
 		r.resolveBaseHandler(),
 		r.ResolveStore(),
@@ -436,6 +440,9 @@ func (r *Resolver) resolveServerAdministrationHandler() *ServerAdministrationHan
 		r.resolveServerProcess(),
 		r.resolveScheduledRacesManager(),
 		r.resolveEnv(),
+		admin.Logs{Manager: logOutput, Plugins: pluginsOutput},
+		changelogHTML,
+		r.state.SetFallBackSorting,
 	)
 
 	return r.serverAdministrationHandler
@@ -552,47 +559,49 @@ func (r *Resolver) resolveNotificationManager() *notification.Manager {
 	return r.notificationManager
 }
 
-func (r *Resolver) resolveStrackerHandler() *StrackerHandler {
+func (r *Resolver) resolveStrackerHandler() *pluginhttp.StrackerHandler {
 	if r.strackerHandler != nil {
 		return r.strackerHandler
 	}
 
-	r.strackerHandler = NewStrackerHandler(r.resolveBaseHandler(), r.ResolveStore())
+	r.strackerHandler = pluginhttp.NewStrackerHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv())
 
 	return r.strackerHandler
 }
 
-func (r *Resolver) resolveHealthCheck() *HealthCheck {
+func (r *Resolver) resolveHealthCheck() *admin.HealthCheck {
 	if r.healthCheck != nil {
 		return r.healthCheck
 	}
 
-	r.healthCheck = NewHealthCheck(r.ResolveRaceControl(), r.ResolveStore(), r.resolveServerProcess())
+	r.healthCheck = admin.NewHealthCheck(r.ResolveRaceControl(), r.ResolveStore(), r.resolveServerProcess(), r.resolveEnv(), BuildVersion)
 
 	return r.healthCheck
 }
 
-func (r *Resolver) resolveKissMyRankHandler() *KissMyRankHandler {
+func (r *Resolver) resolveKissMyRankHandler() *pluginhttp.KissMyRankHandler {
 	if r.kissMyRankHandler != nil {
 		return r.kissMyRankHandler
 	}
 
-	r.kissMyRankHandler = NewKissMyRankHandler(
+	r.kissMyRankHandler = pluginhttp.NewKissMyRankHandler(
 		r.resolveBaseHandler(),
 		r.ResolveStore(),
+		r.resolveEnv(),
 	)
 
 	return r.kissMyRankHandler
 }
 
-func (r *Resolver) resolveRealPenaltyHandler() *RealPenaltyHandler {
+func (r *Resolver) resolveRealPenaltyHandler() *pluginhttp.RealPenaltyHandler {
 	if r.realPenaltyHandler != nil {
 		return r.realPenaltyHandler
 	}
 
-	r.realPenaltyHandler = NewRealPenaltyHandler(
+	r.realPenaltyHandler = pluginhttp.NewRealPenaltyHandler(
 		r.resolveBaseHandler(),
 		r.ResolveStore(),
+		r.resolveEnv(),
 	)
 
 	return r.realPenaltyHandler
@@ -602,6 +611,7 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 	return Router(
 		r.config,
 		fs,
+		r.state.InstallPath(),
 		r.resolveQuickRaceHandler(),
 		r.resolveCustomRaceHandler(),
 		r.resolveEventDetailsHandler(),
@@ -624,17 +634,4 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveKissMyRankHandler(),
 		r.resolveRealPenaltyHandler(),
 	)
-}
-
-// globalsEnv returns the environment of the managers, which reads the package variables of the root package. The
-// values are read when they are needed, because the install path and the server id are set after the resolver has
-// been created.
-func globalsEnv() *serverenv.Env {
-	return &serverenv.Env{
-		ServerID:        func() smmodel.ServerID { return serverID },
-		InstallPath:     func() string { return ServerInstallPath },
-		FallBackSorting: func() bool { return UseFallBackSorting },
-		PanicCapture:    func(fn func()) { panicCapture(fn) },
-		Debug:           Debug,
-	}
 }

@@ -1,4 +1,4 @@
-package servermanager
+package admin
 
 import (
 	"fmt"
@@ -39,7 +39,7 @@ type eventDetailsTemplateVars struct {
 	IsChampionship bool
 }
 
-func (edh *EventDetailsHandler) view(w http.ResponseWriter, r *http.Request) {
+func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 	var (
 		eventConfig    serverconfig.CurrentRaceConfig
 		eventName      string

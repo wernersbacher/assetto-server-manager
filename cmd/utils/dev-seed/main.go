@@ -19,6 +19,7 @@ import (
 
 	servermanager "github.com/wernersbacher/assetto-server-manager"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"github.com/etcd-io/bbolt"
@@ -60,6 +61,9 @@ func resolveDir(dir string) (string, error) {
 	return abs, nil
 }
 
+// state holds the install path of the fake Assetto Corsa installation, which is resolved from the configuration.
+var state = serverenv.NewState()
+
 func run(dir string, reset bool, out io.Writer) error {
 	dir, err := resolveDir(dir)
 
@@ -78,10 +82,12 @@ func run(dir string, reset bool, out io.Writer) error {
 		return fmt.Errorf("read config.yml: %v", err)
 	}
 
-	servermanager.SetAssettoInstallPath(conf.Steam.InstallPath)
+	if err := state.SetInstallPath(conf.Steam.InstallPath); err != nil {
+		return err
+	}
 
-	if _, err := os.Stat(servermanager.ServerInstallPath); err != nil {
-		return fmt.Errorf("assetto install path %s does not exist (run ./dev/run.ps1 -NoRun first): %v", servermanager.ServerInstallPath, err)
+	if _, err := os.Stat(state.InstallPath()); err != nil {
+		return fmt.Errorf("assetto install path %s does not exist (run ./dev/run.ps1 -NoRun first): %v", state.InstallPath(), err)
 	}
 
 	store, closeStore, err := openStore(conf)
@@ -99,7 +105,7 @@ func run(dir string, reset bool, out io.Writer) error {
 // instead of waiting for the database lock forever.
 func openStore(conf *smconfig.Configuration) (smstore.Store, func(), error) {
 	if conf.Store.Type != "boltdb" {
-		store, err := servermanager.BuildStore(&conf.Store)
+		store, err := servermanager.BuildStore(&conf.Store, state.InstallPath)
 
 		return store, func() {}, err
 	}
@@ -112,7 +118,7 @@ func openStore(conf *smconfig.Configuration) (smstore.Store, func(), error) {
 		return nil, nil, err
 	}
 
-	installPath := func() string { return servermanager.ServerInstallPath }
+	installPath := func() string { return state.InstallPath() }
 	store := smstore.NewBoltStore(db, smstore.WithInstallPath(installPath))
 
 	if err := smstore.Migrate(store, smstore.MigrationEnv{BuildVersion: servermanager.BuildVersion, InstallPath: installPath}); err != nil {

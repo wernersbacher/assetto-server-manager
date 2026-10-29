@@ -16,11 +16,6 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-var serverID smmodel.ServerID
-
-// UseFallBackSorting makes loaded results use SessionResults.FallBackSort. It is set from the server options.
-var UseFallBackSorting = false
-
 func InitWithResolver(resolver *Resolver) error {
 	store := resolver.ResolveStore()
 
@@ -36,11 +31,11 @@ func InitWithResolver(resolver *Resolver) error {
 		return err
 	}
 
-	serverID = id
+	resolver.state.SetServerID(id)
 
-	accountManager.Init(serverID)
+	accountManager.Init(id)
 
-	logrus.Infof("Server manager instance identifies as: %s", serverID)
+	logrus.Infof("Server manager instance identifies as: %s", id)
 
 	opts, err := store.LoadServerOptions()
 
@@ -49,7 +44,7 @@ func InitWithResolver(resolver *Resolver) error {
 	}
 
 	smresults.UseShortenedDriverNames = opts != nil && opts.UseShortenedDriverNames == 1
-	UseFallBackSorting = opts != nil && opts.FallBackResultsSorting == 1
+	resolver.state.SetFallBackSorting(opts != nil && opts.FallBackResultsSorting == 1)
 
 	process := resolver.resolveServerProcess()
 	championshipManager := resolver.resolveChampionshipManager()

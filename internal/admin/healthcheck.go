@@ -1,4 +1,4 @@
-package servermanager
+package admin
 
 import (
 	"encoding/json"
@@ -13,23 +13,30 @@ import (
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 var LaunchTime = time.Now()
 
+// HealthCheck serves the health of the server manager as JSON.
 type HealthCheck struct {
-	raceControl *racecontrol.RaceControl
-	process     smserver.ServerProcess
-	store       smstore.Store
+	raceControl  *racecontrol.RaceControl
+	process      smserver.ServerProcess
+	store        smstore.Store
+	env          *serverenv.Env
+	buildVersion string
 }
 
-func NewHealthCheck(raceControl *racecontrol.RaceControl, store smstore.Store, process smserver.ServerProcess) *HealthCheck {
+func NewHealthCheck(raceControl *racecontrol.RaceControl, store smstore.Store, process smserver.ServerProcess, env *serverenv.Env, buildVersion string) *HealthCheck {
 	return &HealthCheck{
-		store:       store,
-		raceControl: raceControl,
-		process:     process,
+		env:          env,
+		buildVersion: buildVersion,
+		store:        store,
+		raceControl:  raceControl,
+		process:      process,
 	}
 }
 
@@ -76,29 +83,29 @@ func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode(HealthCheckResponse{
 		OK:            true,
 		OS:            runtime.GOOS + "/" + runtime.GOARCH,
-		Version:       BuildVersion,
+		Version:       h.buildVersion,
 		NumCPU:        runtime.NumCPU(),
 		NumGoroutines: runtime.NumGoroutine(),
 		Uptime:        time.Since(LaunchTime).String(),
 		GoVersion:     runtime.Version(),
 
 		ServerName:          serverName,
-		ServerID:            serverID,
+		ServerID:            h.env.ServerID(),
 		EventInProgress:     h.process.IsRunning(),
 		EventIsCritical:     !event.IsPractice() && (event.IsChampionship() || event.IsRaceWeekend() || h.raceControl.SessionInfo.Type == udp.SessionTypeRace || h.raceControl.SessionInfo.Type == udp.SessionTypeQualifying),
 		EventIsChampionship: event.IsChampionship(),
 		EventIsRaceWeekend:  event.IsRaceWeekend(),
 		EventIsPractice:     event.IsPractice(),
 		NumConnectedDrivers: h.raceControl.ConnectedDrivers.Len(),
-		AssettoIsInstalled:  IsAssettoInstalled(),
-		StrackerIsInstalled: smplugins.IsStrackerInstalled(ServerInstallPath),
+		AssettoIsInstalled:  steam.IsAssettoInstalled(h.env.InstallPath()),
+		StrackerIsInstalled: smplugins.IsStrackerInstalled(h.env.InstallPath()),
 
-		ConfigDirectoryIsWritable:  IsDirWriteable(filepath.Join(ServerInstallPath, "cfg")) == nil,
-		CarDirectoryIsWritable:     IsDirWriteable(filepath.Join(ServerInstallPath, "content", "cars")) == nil,
-		TrackDirectoryIsWritable:   IsDirWriteable(filepath.Join(ServerInstallPath, "content", "tracks")) == nil,
-		WeatherDirectoryIsWritable: IsDirWriteable(filepath.Join(ServerInstallPath, "content", "weather")) == nil,
-		SetupsDirectoryIsWritable:  IsDirWriteable(filepath.Join(ServerInstallPath, "setups")) == nil,
-		ResultsDirectoryIsWritable: IsDirWriteable(filepath.Join(ServerInstallPath, "results")) == nil,
+		ConfigDirectoryIsWritable:  IsDirWriteable(filepath.Join(h.env.InstallPath(), "cfg")) == nil,
+		CarDirectoryIsWritable:     IsDirWriteable(filepath.Join(h.env.InstallPath(), "content", "cars")) == nil,
+		TrackDirectoryIsWritable:   IsDirWriteable(filepath.Join(h.env.InstallPath(), "content", "tracks")) == nil,
+		WeatherDirectoryIsWritable: IsDirWriteable(filepath.Join(h.env.InstallPath(), "content", "weather")) == nil,
+		SetupsDirectoryIsWritable:  IsDirWriteable(filepath.Join(h.env.InstallPath(), "setups")) == nil,
+		ResultsDirectoryIsWritable: IsDirWriteable(filepath.Join(h.env.InstallPath(), "results")) == nil,
 	})
 }
 

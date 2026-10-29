@@ -8,12 +8,10 @@ import (
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
-// BuildStore opens the Store configured in StoreConfig and runs migrations.
-func BuildStore(s *smconfig.StoreConfig) (smstore.Store, error) {
+// BuildStore opens the Store configured in StoreConfig and runs migrations. installPath returns the install path of
+// the Assetto Corsa server; it is called when the path is needed, because it is only set after the store was built.
+func BuildStore(s *smconfig.StoreConfig, installPath func() string) (smstore.Store, error) {
 	var rs smstore.Store
-
-	// the install path is set after the store was built, so it is looked up when it is needed
-	installPath := func() string { return ServerInstallPath }
 
 	if s.SharedPath == "" {
 		s.SharedPath = s.Path

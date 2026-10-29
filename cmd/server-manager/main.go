@@ -16,6 +16,8 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/static"
 	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/views"
 	"github.com/wernersbacher/assetto-server-manager/internal/changelog"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 
@@ -50,7 +52,10 @@ func main() {
 		servermanager.InitMonitoring()
 	}
 
-	store, err := servermanager.BuildStore(&config.Store)
+	// the install path is set from the configuration once the store was built, the migrations see the default
+	state := serverenv.NewState()
+
+	store, err := servermanager.BuildStore(&config.Store, state.InstallPath)
 
 	if err != nil {
 		ServeHTTPWithError(config.HTTP.Hostname, "Open server manager storage (bolt or json)", err)
@@ -77,15 +82,19 @@ func main() {
 		filesystem = static.FS(false)
 	}
 
-	resolver, err := servermanager.NewResolver(config, templateLoader, os.Getenv("FILESYSTEM_HTML") == "true", store)
+	resolver, err := servermanager.NewResolver(config, templateLoader, os.Getenv("FILESYSTEM_HTML") == "true", store, state)
 
 	if err != nil {
 		ServeHTTPWithError(config.HTTP.Hostname, "Initialise resolver (internal error)", err)
 		return
 	}
-	servermanager.SetAssettoInstallPath(config.Steam.InstallPath)
 
-	err = servermanager.InstallAssettoCorsaServer(config.Steam.Username, config.Steam.Password, config.Steam.ForceUpdate)
+	if err := state.SetInstallPath(config.Steam.InstallPath); err != nil {
+		ServeHTTPWithError(defaultAddress, "Resolve the assetto corsa install path", err)
+		return
+	}
+
+	err = steam.InstallAssettoCorsaServer(state.InstallPath(), config.Steam.Username, config.Steam.Password, config.Steam.ForceUpdate)
 
 	if err != nil {
 		ServeHTTPWithError(defaultAddress, "Install assetto corsa server with steamcmd. Likely you do not have steamcmd installed correctly.", err)

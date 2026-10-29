@@ -1,4 +1,4 @@
-package servermanager
+package pluginhttp
 
 import (
 	"archive/zip"
@@ -14,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -22,10 +23,11 @@ type RealPenaltyHandler struct {
 	*smweb.BaseHandler
 
 	store smstore.Store
+	env   *serverenv.Env
 }
 
-func NewRealPenaltyHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *RealPenaltyHandler {
-	return &RealPenaltyHandler{BaseHandler: baseHandler, store: store}
+func NewRealPenaltyHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *RealPenaltyHandler {
+	return &RealPenaltyHandler{BaseHandler: baseHandler, store: store, env: env}
 }
 
 type realPenaltyConfigurationTemplateVars struct {
@@ -36,7 +38,7 @@ type realPenaltyConfigurationTemplateVars struct {
 	RealPenaltySupportedVersion string
 }
 
-func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
+func (rph *RealPenaltyHandler) Options(w http.ResponseWriter, r *http.Request) {
 	realPenaltyOptions, err := rph.store.LoadRealPenaltyOptions()
 
 	if err != nil {
@@ -74,12 +76,12 @@ func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
 
 	rph.ViewRenderer.MustLoadTemplate(w, r, "server/realpenalty-options.html", &realPenaltyConfigurationTemplateVars{
 		Form:                        form,
-		IsRealPenaltyInstalled:      smplugins.IsRealPenaltyInstalled(ServerInstallPath),
+		IsRealPenaltyInstalled:      smplugins.IsRealPenaltyInstalled(rph.env.InstallPath()),
 		RealPenaltySupportedVersion: smplugins.RealPenaltySupportedVersion,
 	})
 }
 
-func (rph *RealPenaltyHandler) downloadLogs(w http.ResponseWriter, r *http.Request) {
+func (rph *RealPenaltyHandler) DownloadLogs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Disposition", fmt.Sprintf(`attachment;filename="realpenalty_logs_%s.zip"`, time.Now().Format("2006-01-02_15_04")))
 	w.Header().Set("Content-Type", "application/zip")
 
@@ -94,7 +96,7 @@ func (rph *RealPenaltyHandler) buildLogZip(w io.Writer) error {
 	z := zip.NewWriter(w)
 	defer z.Close()
 
-	logFiles, err := ioutil.ReadDir(filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "logs"))
+	logFiles, err := ioutil.ReadDir(filepath.Join(smplugins.RealPenaltyFolderPath(rph.env.InstallPath()), "logs"))
 
 	if err != nil {
 		return err
@@ -116,7 +118,7 @@ func (rph *RealPenaltyHandler) writeRealPenaltyLogFileToZip(z *zip.Writer, info 
 		return err
 	}
 
-	f, err := os.Open(filepath.Join(filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "logs"), info.Name()))
+	f, err := os.Open(filepath.Join(filepath.Join(smplugins.RealPenaltyFolderPath(rph.env.InstallPath()), "logs"), info.Name()))
 
 	if err != nil {
 		return err
