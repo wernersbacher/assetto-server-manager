@@ -23,7 +23,7 @@ import (
 )
 
 type ServerAdministrationHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	config              *smconfig.Configuration
 	store               smstore.Store
@@ -36,7 +36,7 @@ type ServerAdministrationHandler struct {
 
 func NewServerAdministrationHandler(
 	config *smconfig.Configuration,
-	baseHandler *BaseHandler,
+	baseHandler *smweb.BaseHandler,
 	store smstore.Store,
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
@@ -62,7 +62,7 @@ const (
 )
 
 type homeTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceDetails     *smmodel.CustomRace
 	PerformanceMode bool
@@ -93,7 +93,7 @@ func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("couldn't load recent results for the overview")
 	}
 
-	sah.viewRenderer.MustLoadTemplate(w, r, "home.html", &homeTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "home.html", &homeTemplateVars{
 		RaceDetails:     customRace,
 		PerformanceMode: sah.config.Server.PerformanceMode,
 		UpcomingRaces:   upcoming,
@@ -104,7 +104,7 @@ func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Requ
 const MOTDFilename = "motd.txt"
 
 type motdTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	MOTDText string
 	Opts     *serverconfig.GlobalServerConfig
@@ -154,14 +154,14 @@ func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	sah.viewRenderer.MustLoadTemplate(w, r, "server/motd.html", &motdTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/motd.html", &motdTemplateVars{
 		MOTDText: string(b),
 		Opts:     opts,
 	})
 }
 
 type currentCFGTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	ConfigText    string
 	EntryListText string
@@ -187,14 +187,14 @@ func (sah *ServerAdministrationHandler) currentConfig(w http.ResponseWriter, r *
 		return
 	}
 
-	sah.viewRenderer.MustLoadTemplate(w, r, "server/current-config.html", &currentCFGTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/current-config.html", &currentCFGTemplateVars{
 		ConfigText:    configText,
 		EntryListText: entryListText,
 	})
 }
 
 type serverOptionsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Form template.HTML
 }
@@ -238,13 +238,13 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	sah.viewRenderer.MustLoadTemplate(w, r, "server/options.html", &serverOptionsTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/options.html", &serverOptionsTemplateVars{
 		Form: form,
 	})
 }
 
 type serverBlacklistTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Text string
 }
@@ -287,13 +287,13 @@ func (sah *ServerAdministrationHandler) blacklist(w http.ResponseWriter, r *http
 	}
 
 	// render blacklist edit page
-	sah.viewRenderer.MustLoadTemplate(w, r, "server/blacklist.html", &serverBlacklistTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/blacklist.html", &serverBlacklistTemplateVars{
 		Text: string(b),
 	})
 }
 
 type autoFillEntrantListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Entrants []*serverconfig.Entrant
 }
@@ -307,7 +307,7 @@ func (sah *ServerAdministrationHandler) autoFillEntrantList(w http.ResponseWrite
 		return
 	}
 
-	sah.viewRenderer.MustLoadTemplate(w, r, "server/autofill-entrants.html", &autoFillEntrantListTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/autofill-entrants.html", &autoFillEntrantListTemplateVars{
 		Entrants: entrants,
 	})
 }
@@ -326,7 +326,7 @@ func (sah *ServerAdministrationHandler) autoFillEntrantDelete(w http.ResponseWri
 }
 
 func (sah *ServerAdministrationHandler) logs(w http.ResponseWriter, r *http.Request) {
-	sah.viewRenderer.MustLoadTemplate(w, r, "server/logs.html", &BaseTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/logs.html", &smweb.BaseTemplateVars{
 		WideContainer: true,
 	})
 }
@@ -424,13 +424,13 @@ func (sah *ServerAdministrationHandler) serverProcess(w http.ResponseWriter, r *
 }
 
 type changelogTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Changelog template.HTML
 }
 
 func (sah *ServerAdministrationHandler) changelog(w http.ResponseWriter, r *http.Request) {
-	sah.viewRenderer.MustLoadTemplate(w, r, "changelog.html", &changelogTemplateVars{
+	sah.ViewRenderer.MustLoadTemplate(w, r, "changelog.html", &changelogTemplateVars{
 		Changelog: Changelog,
 	})
 }

@@ -9,13 +9,13 @@ import (
 )
 
 type QuickRaceHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	config      *smconfig.Configuration
 	raceManager *RaceManager
 }
 
-func NewQuickRaceHandler(config *smconfig.Configuration, baseHandler *BaseHandler, raceManager *RaceManager) *QuickRaceHandler {
+func NewQuickRaceHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHandler, raceManager *RaceManager) *QuickRaceHandler {
 	return &QuickRaceHandler{
 		config:      config,
 		BaseHandler: baseHandler,
@@ -32,7 +32,7 @@ func (qrh *QuickRaceHandler) create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	qrh.viewRenderer.MustLoadTemplate(w, r, "quick-race.html", quickRaceData)
+	qrh.ViewRenderer.MustLoadTemplate(w, r, "quick-race.html", quickRaceData)
 }
 
 func (qrh *QuickRaceHandler) submit(w http.ResponseWriter, r *http.Request) {

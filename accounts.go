@@ -117,7 +117,7 @@ func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Reques
 }
 
 type AccountHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 	steam.LoginHandler
 
 	config         *smconfig.Configuration
@@ -125,7 +125,7 @@ type AccountHandler struct {
 	accountManager *AccountManager
 }
 
-func NewAccountHandler(config *smconfig.Configuration, baseHandler *BaseHandler, store smstore.Store, accountManager *AccountManager) *AccountHandler {
+func NewAccountHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHandler, store smstore.Store, accountManager *AccountManager) *AccountHandler {
 	return &AccountHandler{
 		config:         config,
 		BaseHandler:    baseHandler,
@@ -156,7 +156,7 @@ func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/login.html", nil)
+	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/login.html", nil)
 }
 
 func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +183,7 @@ func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.
 }
 
 type newPasswordTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	NewAccount bool
 }
@@ -233,13 +233,13 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/new-password.html", &newPasswordTemplateVars{
+	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/new-password.html", &newPasswordTemplateVars{
 		NewAccount: account.NeedsPasswordReset(ah.config.Accounts.AdminPasswordOverride),
 	})
 }
 
 type updateAccountTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Account           *smmodel.Account
 	ThemeOptions      []ThemeDetails
@@ -279,7 +279,7 @@ func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/update.html", &updateAccountTemplateVars{
+	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/update.html", &updateAccountTemplateVars{
 		Account:           account,
 		ThemeOptions:      ThemeOptions,
 		SteamGUIDOverride: r.URL.Query().Get("steamGUID"),
@@ -497,7 +497,7 @@ func (ah *AccountHandler) logout(w http.ResponseWriter, r *http.Request) {
 }
 
 type createAccountTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Account   *smmodel.Account
 	IsEditing bool
@@ -568,14 +568,14 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/new.html", &createAccountTemplateVars{
+	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/new.html", &createAccountTemplateVars{
 		Account:   account,
 		IsEditing: isEditing,
 	})
 }
 
 type manageAccountsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Accounts         []*smmodel.Account
 	ServerReadIsOpen bool
@@ -590,7 +590,7 @@ func (ah *AccountHandler) manageAccounts(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/manage.html", &manageAccountsTemplateVars{
+	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/manage.html", &manageAccountsTemplateVars{
 		Accounts:         accounts,
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 	})

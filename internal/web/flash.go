@@ -13,7 +13,7 @@ func Session(r *http.Request) *sessions.Session {
 	return session
 }
 
-func ErrorSession(r *http.Request) *sessions.Session {
+func errorSession(r *http.Request) *sessions.Session {
 	session, _ := ScopeFromRequest(r).SessionStore.Get(r, "errors")
 
 	return session
@@ -30,7 +30,7 @@ func AddFlash(w http.ResponseWriter, r *http.Request, message string) {
 }
 
 func AddErrorFlash(w http.ResponseWriter, r *http.Request, message string) {
-	session := ErrorSession(r)
+	session := errorSession(r)
 
 	session.AddFlash(message)
 

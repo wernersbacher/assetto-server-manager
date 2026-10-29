@@ -21,13 +21,13 @@ import (
 )
 
 type CarsHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
 }
 
-func NewCarsHandler(baseHandler *BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *CarsHandler {
+func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *CarsHandler {
 	return &CarsHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,
@@ -36,7 +36,7 @@ func NewCarsHandler(baseHandler *BaseHandler, carManager *smcontent.CarManager, 
 }
 
 type carListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Results     *bleve.SearchResult
 	Cars        smcontent.Cars
@@ -59,7 +59,7 @@ func (ch *CarsHandler) list(w http.ResponseWriter, r *http.Request) {
 
 	numPages := int(math.Ceil(float64(results.Total) / float64(smcontent.SearchPageSize)))
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "content/cars.html", &carListTemplateVars{
+	ch.ViewRenderer.MustLoadTemplate(w, r, "content/cars.html", &carListTemplateVars{
 		Results:     results,
 		Cars:        cars,
 		Query:       searchTerm,
@@ -164,7 +164,7 @@ func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "content/car-details.html", templateParams)
+	ch.ViewRenderer.MustLoadTemplate(w, r, "content/car-details.html", templateParams)
 }
 
 func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
@@ -287,7 +287,7 @@ func (ch *CarsHandler) rebuildSearchIndex(w http.ResponseWriter, r *http.Request
 }
 
 type carDetailsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Car       *smcontent.Car
 	Results   []smresults.SessionResults

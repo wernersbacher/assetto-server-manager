@@ -11,6 +11,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 func (rm *RaceManager) ListAutoFillEntrants() ([]*serverconfig.Entrant, error) {
@@ -49,7 +50,7 @@ func (tog TrackOptsGrouped) Split() TracksSplit {
 }
 
 type RaceTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	CarOpts             smcontent.Cars
 	TrackOpts           TrackOptsGrouped

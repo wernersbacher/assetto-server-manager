@@ -39,13 +39,13 @@ type ContentFile struct {
 var base64HeaderRegex = regexp.MustCompile("^(data:.+;base64,)")
 
 type ContentUploadHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
 }
 
-func NewContentUploadHandler(baseHandler *BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentUploadHandler {
+func NewContentUploadHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentUploadHandler {
 	return &ContentUploadHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,

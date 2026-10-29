@@ -22,14 +22,14 @@ import (
 )
 
 type ChampionshipsHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 	steam.LoginHandler
 
 	config              *smconfig.Configuration
 	championshipManager *ChampionshipManager
 }
 
-func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
+func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
 	return &ChampionshipsHandler{
 		config:              config,
 		BaseHandler:         baseHandler,
@@ -38,7 +38,7 @@ func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *BaseHa
 }
 
 type championshipListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	ActiveChampionships, CompletedChampionships []*smmodel.Championship
 }
@@ -63,7 +63,7 @@ func (ch *ChampionshipsHandler) list(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/index.html", &championshipListTemplateVars{
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/index.html", &championshipListTemplateVars{
 		ActiveChampionships:    activeChampionships,
 		CompletedChampionships: completedChampionships,
 	})
@@ -79,7 +79,7 @@ func (ch *ChampionshipsHandler) createOrEdit(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/new.html", opts)
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/new.html", opts)
 }
 
 // submit creates a given Championship and redirects the user to begin
@@ -123,7 +123,7 @@ func (ch *ChampionshipsHandler) duplicate(w http.ResponseWriter, r *http.Request
 }
 
 type championshipViewTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Championship    *smmodel.Championship
 	EventInProgress bool
@@ -165,7 +165,7 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 	}
 
 	account := smweb.AccountFromRequest(r)
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/view.html", &championshipViewTemplateVars{
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/view.html", &championshipViewTemplateVars{
 		Championship:    championship,
 		EventInProgress: eventInProgress,
 		Account:         account,
@@ -217,7 +217,7 @@ func (ch *ChampionshipsHandler) importChampionship(w http.ResponseWriter, r *htt
 		}
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/import-championship.html", nil)
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/import-championship.html", nil)
 }
 
 type championshipResultsCollection struct {
@@ -291,7 +291,7 @@ func (ch *ChampionshipsHandler) delete(w http.ResponseWriter, r *http.Request) {
 }
 
 type eventImportTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Results        []smresults.SessionResults
 	ChampionshipID string
@@ -323,7 +323,7 @@ func (ch *ChampionshipsHandler) eventImport(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/import-event.html", &eventImportTemplateVars{
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/import-event.html", &eventImportTemplateVars{
 		Results:        results,
 		ChampionshipID: championshipID,
 		Event:          event,
@@ -341,7 +341,7 @@ func (ch *ChampionshipsHandler) eventConfiguration(w http.ResponseWriter, r *htt
 		return
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", championshipRaceOpts)
+	ch.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", championshipRaceOpts)
 }
 
 // submitEventConfiguration takes an Event Configuration from a form and
@@ -514,14 +514,14 @@ func (ch *ChampionshipsHandler) restartEvent(w http.ResponseWriter, r *http.Requ
 }
 
 type championshipCustomRaceImportTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Recent, Starred, Loop, Scheduled []*smmodel.CustomRace
 	Championship                     *smmodel.Championship
 }
 
 type championshipRaceWeekendImportTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceWeekends []*smmodel.RaceWeekend
 	Championship *smmodel.Championship
@@ -544,7 +544,7 @@ func (ch *ChampionshipsHandler) listCustomRacesForImport(w http.ResponseWriter, 
 		return
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/import-custom.html", &championshipCustomRaceImportTemplateVars{
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/import-custom.html", &championshipCustomRaceImportTemplateVars{
 		Recent:       recent,
 		Starred:      starred,
 		Loop:         looped,
@@ -584,7 +584,7 @@ func (ch *ChampionshipsHandler) listRaceWeekendsForImport(w http.ResponseWriter,
 		return
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/import-weekend.html", &championshipRaceWeekendImportTemplateVars{
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/import-weekend.html", &championshipRaceWeekendImportTemplateVars{
 		RaceWeekends: raceWeekends,
 		Championship: championship,
 	})
@@ -731,11 +731,11 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 		opts.LockSteamGUID = true
 	}
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/sign-up.html", opts)
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/sign-up.html", opts)
 }
 
 type signedUpEntrantsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Championship *smmodel.Championship
 }
@@ -758,8 +758,8 @@ func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.
 		return championship.SignUpForm.Responses[i].Created.After(championship.SignUpForm.Responses[j].Created)
 	})
 
-	ch.viewRenderer.MustLoadTemplate(w, r, "championships/signed-up-entrants.html", &signedUpEntrantsTemplateVars{
-		BaseTemplateVars: BaseTemplateVars{WideContainer: true},
+	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/signed-up-entrants.html", &signedUpEntrantsTemplateVars{
+		BaseTemplateVars: smweb.BaseTemplateVars{WideContainer: true},
 		Championship:     championship,
 	})
 }

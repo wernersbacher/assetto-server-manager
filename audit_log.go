@@ -21,12 +21,12 @@ var ignoredURLs = [5]string{
 }
 
 type AuditLogHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	store smstore.Store
 }
 
-func NewAuditLogHandler(baseHandler *BaseHandler, store smstore.Store) *AuditLogHandler {
+func NewAuditLogHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *AuditLogHandler {
 	return &AuditLogHandler{
 		BaseHandler: baseHandler,
 		store:       store,
@@ -68,7 +68,7 @@ func (alh *AuditLogHandler) Middleware(next http.Handler) http.Handler {
 }
 
 type auditLogTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	AuditLogs []*smmodel.AuditEntry
 }
@@ -88,8 +88,8 @@ func (alh *AuditLogHandler) viewLogs(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// render audit log page
-	alh.viewRenderer.MustLoadTemplate(w, r, "server/audit-logs.html", &auditLogTemplateVars{
-		BaseTemplateVars: BaseTemplateVars{
+	alh.ViewRenderer.MustLoadTemplate(w, r, "server/audit-logs.html", &auditLogTemplateVars{
+		BaseTemplateVars: smweb.BaseTemplateVars{
 			WideContainer: true,
 		},
 		AuditLogs: auditLogs,

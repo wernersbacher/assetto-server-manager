@@ -16,7 +16,7 @@ import (
 )
 
 type CustomRaceHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	config              *smconfig.Configuration
 	raceManager         *RaceManager
@@ -25,7 +25,7 @@ type CustomRaceHandler struct {
 	store               smstore.Store
 }
 
-func NewCustomRaceHandler(config *smconfig.Configuration, base *BaseHandler, raceManager *RaceManager, store smstore.Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
+func NewCustomRaceHandler(config *smconfig.Configuration, base *smweb.BaseHandler, raceManager *RaceManager, store smstore.Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
 	return &CustomRaceHandler{
 		config:              config,
 		BaseHandler:         base,
@@ -37,7 +37,7 @@ func NewCustomRaceHandler(config *smconfig.Configuration, base *BaseHandler, rac
 }
 
 type customRaceListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Recent, Starred, Loop, Scheduled []*smmodel.CustomRace
 }
@@ -51,7 +51,7 @@ func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	crh.viewRenderer.MustLoadTemplate(w, r, "custom-race/index.html", &customRaceListTemplateVars{
+	crh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/index.html", &customRaceListTemplateVars{
 		Recent:    recent,
 		Starred:   starred,
 		Loop:      looped,
@@ -60,7 +60,7 @@ func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {
 }
 
 type eventDetailsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	EventConfig    serverconfig.CurrentRaceConfig
 	EntryList      serverconfig.EntryList
@@ -148,7 +148,7 @@ func (crh *CustomRaceHandler) view(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	crh.viewRenderer.MustLoadPartial(w, r, "custom-race/popups/view.html", &eventDetailsTemplateVars{
+	crh.ViewRenderer.MustLoadPartial(w, r, "custom-race/popups/view.html", &eventDetailsTemplateVars{
 		EventConfig:    eventConfig,
 		EventName:      eventName,
 		EntryList:      entryList,
@@ -165,7 +165,7 @@ func (crh *CustomRaceHandler) createOrEdit(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	crh.viewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", customRaceData)
+	crh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", customRaceData)
 }
 
 func (crh *CustomRaceHandler) submit(w http.ResponseWriter, r *http.Request) {

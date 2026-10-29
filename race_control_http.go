@@ -139,7 +139,7 @@ func (c *raceControlClient) writePump() {
 }
 
 type RaceControlHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 	serverProcess ServerProcess
 
 	store          smstore.Store
@@ -148,7 +148,7 @@ type RaceControlHandler struct {
 	raceControlHub *RaceControlHub
 }
 
-func NewRaceControlHandler(baseHandler *BaseHandler, store smstore.Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess ServerProcess) *RaceControlHandler {
+func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess ServerProcess) *RaceControlHandler {
 	return &RaceControlHandler{
 		BaseHandler:    baseHandler,
 		store:          store,
@@ -160,7 +160,7 @@ func NewRaceControlHandler(baseHandler *BaseHandler, store smstore.Store, raceMa
 }
 
 type liveTimingTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceDetails                 *smmodel.CustomRace
 	FrameLinks                  []string
@@ -232,8 +232,8 @@ func (rch *RaceControlHandler) liveTiming(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	rch.viewRenderer.MustLoadTemplate(w, r, "live-timing.html", &liveTimingTemplateVars{
-		BaseTemplateVars: BaseTemplateVars{
+	rch.ViewRenderer.MustLoadTemplate(w, r, "live-timing.html", &liveTimingTemplateVars{
+		BaseTemplateVars: smweb.BaseTemplateVars{
 			WideContainer: true,
 		},
 		RaceDetails:                 customRace,

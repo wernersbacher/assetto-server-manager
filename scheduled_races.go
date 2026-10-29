@@ -18,6 +18,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type ScheduledEvent interface {
@@ -89,12 +90,12 @@ func BuildICalEvent(event ScheduledEvent, baseURL string) *components.Event {
 }
 
 type ScheduledRacesHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	scheduledRacesManager *ScheduledRacesManager
 }
 
-func NewScheduledRacesHandler(baseHandler *BaseHandler, scheduledRacesManager *ScheduledRacesManager) *ScheduledRacesHandler {
+func NewScheduledRacesHandler(baseHandler *smweb.BaseHandler, scheduledRacesManager *ScheduledRacesManager) *ScheduledRacesHandler {
 	return &ScheduledRacesHandler{
 		BaseHandler:           baseHandler,
 		scheduledRacesManager: scheduledRacesManager,
@@ -102,7 +103,7 @@ func NewScheduledRacesHandler(baseHandler *BaseHandler, scheduledRacesManager *S
 }
 
 func (rs *ScheduledRacesHandler) calendar(w http.ResponseWriter, r *http.Request) {
-	rs.viewRenderer.MustLoadTemplate(w, r, "calendar.html", &BaseTemplateVars{WideContainer: true})
+	rs.ViewRenderer.MustLoadTemplate(w, r, "calendar.html", &smweb.BaseTemplateVars{WideContainer: true})
 }
 
 func (rs *ScheduledRacesHandler) calendarJSON(w http.ResponseWriter, r *http.Request) {

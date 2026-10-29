@@ -17,12 +17,12 @@ import (
 )
 
 type RaceWeekendHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	raceWeekendManager *RaceWeekendManager
 }
 
-func NewRaceWeekendHandler(baseHandler *BaseHandler, raceWeekendManager *RaceWeekendManager) *RaceWeekendHandler {
+func NewRaceWeekendHandler(baseHandler *smweb.BaseHandler, raceWeekendManager *RaceWeekendManager) *RaceWeekendHandler {
 	return &RaceWeekendHandler{
 		BaseHandler:        baseHandler,
 		raceWeekendManager: raceWeekendManager,
@@ -30,7 +30,7 @@ func NewRaceWeekendHandler(baseHandler *BaseHandler, raceWeekendManager *RaceWee
 }
 
 type raceWeekendListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceWeekends []*smmodel.RaceWeekend
 }
@@ -44,13 +44,13 @@ func (rwh *RaceWeekendHandler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rwh.viewRenderer.MustLoadTemplate(w, r, "race-weekend/index.html", &raceWeekendListTemplateVars{
+	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/index.html", &raceWeekendListTemplateVars{
 		RaceWeekends: raceWeekends,
 	})
 }
 
 type raceWeekendViewTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceWeekend *smmodel.RaceWeekend
 	Account     *smmodel.Account
@@ -65,8 +65,8 @@ func (rwh *RaceWeekendHandler) view(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rwh.viewRenderer.MustLoadTemplate(w, r, "race-weekend/view.html", &raceWeekendViewTemplateVars{
-		BaseTemplateVars: BaseTemplateVars{
+	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/view.html", &raceWeekendViewTemplateVars{
+		BaseTemplateVars: smweb.BaseTemplateVars{
 			WideContainer: true,
 		},
 		RaceWeekend: raceWeekend,
@@ -83,7 +83,7 @@ func (rwh *RaceWeekendHandler) createOrEdit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	rwh.viewRenderer.MustLoadTemplate(w, r, "race-weekend/new.html", raceWeekendOpts)
+	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/new.html", raceWeekendOpts)
 }
 
 func (rwh *RaceWeekendHandler) delete(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +126,7 @@ func (rwh *RaceWeekendHandler) sessionConfiguration(w http.ResponseWriter, r *ht
 		return
 	}
 
-	rwh.viewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", raceWeekendSessionOpts)
+	rwh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", raceWeekendSessionOpts)
 }
 
 func (rwh *RaceWeekendHandler) submitSessionConfiguration(w http.ResponseWriter, r *http.Request) {
@@ -239,7 +239,7 @@ func (rwh *RaceWeekendHandler) deleteSession(w http.ResponseWriter, r *http.Requ
 }
 
 type raceWeekendSessionImportTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Results       []smresults.SessionResults
 	RaceWeekendID string
@@ -271,7 +271,7 @@ func (rwh *RaceWeekendHandler) importSessionResults(w http.ResponseWriter, r *ht
 		return
 	}
 
-	rwh.viewRenderer.MustLoadTemplate(w, r, "race-weekend/import-session.html", &raceWeekendSessionImportTemplateVars{
+	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/import-session.html", &raceWeekendSessionImportTemplateVars{
 		Results:       results,
 		RaceWeekendID: raceWeekendID,
 		Session:       session,
@@ -279,7 +279,7 @@ func (rwh *RaceWeekendHandler) importSessionResults(w http.ResponseWriter, r *ht
 }
 
 type raceWeekendFilterTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceWeekend                 *smmodel.RaceWeekend
 	ParentSession, ChildSession *smmodel.RaceWeekendSession
@@ -337,7 +337,7 @@ func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	rwh.viewRenderer.MustLoadPartial(w, r, "race-weekend/popups/manage-filters.html", &raceWeekendFilterTemplateVars{
+	rwh.ViewRenderer.MustLoadPartial(w, r, "race-weekend/popups/manage-filters.html", &raceWeekendFilterTemplateVars{
 		RaceWeekend:                raceWeekend,
 		ParentSession:              parentSession,
 		ChildSession:               childSession,
@@ -398,7 +398,7 @@ func (rwh *RaceWeekendHandler) updateGrid(w http.ResponseWriter, r *http.Request
 }
 
 type raceWeekendManageEntryListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	RaceWeekend      *smmodel.RaceWeekend
 	Session          *smmodel.RaceWeekendSession
@@ -417,7 +417,7 @@ func (rwh *RaceWeekendHandler) manageEntryList(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	rwh.viewRenderer.MustLoadPartial(w, r, "race-weekend/popups/manage-entrylist.html", &raceWeekendManageEntryListTemplateVars{
+	rwh.ViewRenderer.MustLoadPartial(w, r, "race-weekend/popups/manage-entrylist.html", &raceWeekendManageEntryListTemplateVars{
 		RaceWeekend:      raceWeekend,
 		Session:          session,
 		AvailableSorters: RaceWeekendEntryListSorters,
@@ -494,7 +494,7 @@ func (rwh *RaceWeekendHandler) importRaceWeekend(w http.ResponseWriter, r *http.
 		}
 	}
 
-	rwh.viewRenderer.MustLoadTemplate(w, r, "race-weekend/import-raceweekend.html", nil)
+	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/import-raceweekend.html", nil)
 }
 
 func (rwh *RaceWeekendHandler) scheduleSession(w http.ResponseWriter, r *http.Request) {

@@ -19,17 +19,17 @@ import (
 )
 
 type RealPenaltyHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	store smstore.Store
 }
 
-func NewRealPenaltyHandler(baseHandler *BaseHandler, store smstore.Store) *RealPenaltyHandler {
+func NewRealPenaltyHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *RealPenaltyHandler {
 	return &RealPenaltyHandler{BaseHandler: baseHandler, store: store}
 }
 
 type realPenaltyConfigurationTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Form                        template.HTML
 	IsRealPenaltyInstalled      bool
@@ -72,7 +72,7 @@ func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rph.viewRenderer.MustLoadTemplate(w, r, "server/realpenalty-options.html", &realPenaltyConfigurationTemplateVars{
+	rph.ViewRenderer.MustLoadTemplate(w, r, "server/realpenalty-options.html", &realPenaltyConfigurationTemplateVars{
 		Form:                        form,
 		IsRealPenaltyInstalled:      smplugins.IsRealPenaltyInstalled(ServerInstallPath),
 		RealPenaltySupportedVersion: smplugins.RealPenaltySupportedVersion,

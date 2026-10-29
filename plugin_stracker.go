@@ -20,18 +20,18 @@ import (
 )
 
 type StrackerHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	store        smstore.Store
 	reverseProxy *httputil.ReverseProxy
 }
 
-func NewStrackerHandler(baseHandler *BaseHandler, store smstore.Store) *StrackerHandler {
+func NewStrackerHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *StrackerHandler {
 	return &StrackerHandler{BaseHandler: baseHandler, store: store}
 }
 
 type strackerConfigurationTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Form                template.HTML
 	IsStrackerInstalled bool
@@ -215,7 +215,7 @@ func (sth *StrackerHandler) options(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sth.viewRenderer.MustLoadTemplate(w, r, "server/stracker-options.html", &strackerConfigurationTemplateVars{
+	sth.ViewRenderer.MustLoadTemplate(w, r, "server/stracker-options.html", &strackerConfigurationTemplateVars{
 		Form:                form,
 		IsStrackerInstalled: smplugins.IsStrackerInstalled(ServerInstallPath),
 	})

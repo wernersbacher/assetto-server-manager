@@ -18,12 +18,12 @@ import (
 )
 
 type PenaltiesHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	penaltiesManager *PenaltiesManager
 }
 
-func NewPenaltiesHandler(baseHandler *BaseHandler, penaltiesManager *PenaltiesManager) *PenaltiesHandler {
+func NewPenaltiesHandler(baseHandler *smweb.BaseHandler, penaltiesManager *PenaltiesManager) *PenaltiesHandler {
 	return &PenaltiesHandler{
 		BaseHandler:      baseHandler,
 		penaltiesManager: penaltiesManager,

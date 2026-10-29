@@ -19,12 +19,12 @@ import (
 )
 
 type TracksHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	trackManager *smcontent.TrackManager
 }
 
-func NewTracksHandler(baseHandler *BaseHandler, trackManager *smcontent.TrackManager) *TracksHandler {
+func NewTracksHandler(baseHandler *smweb.BaseHandler, trackManager *smcontent.TrackManager) *TracksHandler {
 	return &TracksHandler{
 		BaseHandler:  baseHandler,
 		trackManager: trackManager,
@@ -32,7 +32,7 @@ func NewTracksHandler(baseHandler *BaseHandler, trackManager *smcontent.TrackMan
 }
 
 type trackListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Tracks []smcontent.Track
 }
@@ -44,7 +44,7 @@ func (th *TracksHandler) list(w http.ResponseWriter, r *http.Request) {
 		logrus.WithError(err).Errorf("could not get track list")
 	}
 
-	th.viewRenderer.MustLoadTemplate(w, r, "content/tracks.html", &trackListTemplateVars{
+	th.ViewRenderer.MustLoadTemplate(w, r, "content/tracks.html", &trackListTemplateVars{
 		Tracks: tracks,
 	})
 }
@@ -114,7 +114,7 @@ func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	th.viewRenderer.MustLoadTemplate(w, r, "content/track-details.html", templateParams)
+	th.ViewRenderer.MustLoadTemplate(w, r, "content/track-details.html", templateParams)
 }
 
 func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
@@ -170,7 +170,7 @@ func (th *TracksHandler) trackInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 type trackDetailsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Track     *smcontent.Track
 	TrackInfo map[string]*smcontent.TrackInfo
@@ -214,7 +214,7 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDe
 	}
 
 	return &trackDetailsTemplateVars{
-		BaseTemplateVars: BaseTemplateVars{},
+		BaseTemplateVars: smweb.BaseTemplateVars{},
 		Track:            track,
 		TrackInfo:        trackInfoMap,
 		Results:          resultsMap,

@@ -24,12 +24,12 @@ import (
 )
 
 type ResultsHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 
 	store smstore.Store
 }
 
-func NewResultsHandler(baseHandler *BaseHandler, store smstore.Store) *ResultsHandler {
+func NewResultsHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *ResultsHandler {
 	return &ResultsHandler{
 		BaseHandler: baseHandler,
 		store:       store,
@@ -37,7 +37,7 @@ func NewResultsHandler(baseHandler *BaseHandler, store smstore.Store) *ResultsHa
 }
 
 type resultsListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Results     []smresults.SessionResults
 	Pages       []int
@@ -75,7 +75,7 @@ func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rh.viewRenderer.MustLoadTemplate(w, r, "results/index.html", &resultsListTemplateVars{
+	rh.ViewRenderer.MustLoadTemplate(w, r, "results/index.html", &resultsListTemplateVars{
 		Results:     results,
 		Pages:       pages,
 		CurrentPage: page,
@@ -99,7 +99,7 @@ func (rh *ResultsHandler) uploadHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 type combineResultsTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Results []smresults.SessionResults
 }
@@ -159,7 +159,7 @@ func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	rh.viewRenderer.MustLoadTemplate(w, r, "results/combine.html", &combineResultsTemplateVars{
+	rh.ViewRenderer.MustLoadTemplate(w, r, "results/combine.html", &combineResultsTemplateVars{
 		Results: results,
 	})
 }
@@ -219,7 +219,7 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 }
 
 type resultsViewTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Result           *smresults.SessionResults
 	AutoFillEntrants []*serverconfig.Entrant
@@ -261,8 +261,8 @@ func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 	result.ClearKickedGUIDs()
 	result.NormaliseCarIDs()
 
-	rh.viewRenderer.MustLoadTemplate(w, r, "results/result.html", &resultsViewTemplateVars{
-		BaseTemplateVars: BaseTemplateVars{
+	rh.ViewRenderer.MustLoadTemplate(w, r, "results/result.html", &resultsViewTemplateVars{
+		BaseTemplateVars: smweb.BaseTemplateVars{
 			WideContainer: true,
 		},
 		Result:           result,

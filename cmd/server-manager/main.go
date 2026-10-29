@@ -16,6 +16,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/static"
 	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/views"
 	"github.com/wernersbacher/assetto-server-manager/internal/changelog"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 
 	"github.com/dustin/go-humanize"
@@ -65,11 +66,11 @@ func main() {
 
 	servermanager.Changelog = changes
 
-	var templateLoader servermanager.TemplateLoader
+	var templateLoader smweb.TemplateLoader
 	var filesystem http.FileSystem
 
 	if os.Getenv("FILESYSTEM_HTML") == "true" {
-		templateLoader = servermanager.NewFilesystemTemplateLoader("views")
+		templateLoader = smweb.NewFilesystemTemplateLoader("views")
 		filesystem = http.Dir("static")
 	} else {
 		templateLoader = &views.TemplateLoader{}

@@ -5,6 +5,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/json"
 	"io/ioutil"
@@ -31,7 +32,7 @@ func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, smstore.Store, 
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
-	handler := NewScheduledRacesHandler(&BaseHandler{}, NewScheduledRacesManager(&smconfig.Configuration{}, store))
+	handler := NewScheduledRacesHandler(&smweb.BaseHandler{}, NewScheduledRacesManager(&smconfig.Configuration{}, store))
 
 	return handler, store, func() {
 		serverID = oldServerID

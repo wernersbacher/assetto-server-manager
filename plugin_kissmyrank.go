@@ -12,18 +12,18 @@ import (
 )
 
 type kissMyRankConfigurationTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Form           template.HTML
 	IsKMRInstalled bool
 }
 
 type KissMyRankHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 	store smstore.Store
 }
 
-func NewKissMyRankHandler(baseHandler *BaseHandler, store smstore.Store) *KissMyRankHandler {
+func NewKissMyRankHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *KissMyRankHandler {
 	return &KissMyRankHandler{
 		BaseHandler: baseHandler,
 		store:       store,
@@ -66,7 +66,7 @@ func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	kmrh.viewRenderer.MustLoadTemplate(w, r, "server/kissmyrank-options.html", &kissMyRankConfigurationTemplateVars{
+	kmrh.ViewRenderer.MustLoadTemplate(w, r, "server/kissmyrank-options.html", &kissMyRankConfigurationTemplateVars{
 		Form:           form,
 		IsKMRInstalled: smplugins.IsKissMyRankInstalled(ServerInstallPath),
 	})

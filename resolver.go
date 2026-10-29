@@ -4,6 +4,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"net/http"
 
@@ -15,7 +16,7 @@ type Resolver struct {
 	config          *smconfig.Configuration
 	store           smstore.Store
 	sessionStore    sessions.Store
-	templateLoader  TemplateLoader
+	templateLoader  smweb.TemplateLoader
 	reloadTemplates bool
 
 	raceManager           *RaceManager
@@ -28,14 +29,14 @@ type Resolver struct {
 	scheduledRacesManager *ScheduledRacesManager
 	raceWeekendManager    *RaceWeekendManager
 
-	viewRenderer          *Renderer
+	viewRenderer          *smweb.Renderer
 	serverProcess         ServerProcess
 	raceControl           *RaceControl
 	raceControlHub        *RaceControlHub
 	contentManagerWrapper *ContentManagerWrapper
 
 	// handlers
-	baseHandler                 *BaseHandler
+	baseHandler                 *smweb.BaseHandler
 	quickRaceHandler            *QuickRaceHandler
 	customRaceHandler           *CustomRaceHandler
 	championshipsHandler        *ChampionshipsHandler
@@ -58,7 +59,7 @@ type Resolver struct {
 	realPenaltyHandler          *RealPenaltyHandler
 }
 
-func NewResolver(config *smconfig.Configuration, templateLoader TemplateLoader, reloadTemplates bool, store smstore.Store) (*Resolver, error) {
+func NewResolver(config *smconfig.Configuration, templateLoader smweb.TemplateLoader, reloadTemplates bool, store smstore.Store) (*Resolver, error) {
 	r := &Resolver{
 		config:          config,
 		templateLoader:  templateLoader,
@@ -99,7 +100,16 @@ func (r *Resolver) initViewRenderer() error {
 		return nil
 	}
 
-	viewRenderer, err := NewRenderer(r.config, r.templateLoader, r.store, r.resolveServerProcess(), r.reloadTemplates)
+	viewRenderer, err := smweb.NewRenderer(smweb.RendererOptions{
+		Config:       r.config,
+		Store:        r.store,
+		Loader:       r.templateLoader,
+		Server:       r.resolveServerProcess(),
+		BuildVersion: BuildVersion,
+		Debug:        Debug,
+		Reload:       r.reloadTemplates,
+		Funcs:        serverTemplateFuncs(),
+	})
 
 	if err != nil {
 		return err
@@ -157,12 +167,12 @@ func (r *Resolver) resolveRaceManager() *RaceManager {
 	return r.raceManager
 }
 
-func (r *Resolver) resolveBaseHandler() *BaseHandler {
+func (r *Resolver) resolveBaseHandler() *smweb.BaseHandler {
 	if r.baseHandler != nil {
 		return r.baseHandler
 	}
 
-	r.baseHandler = NewBaseHandler(r.viewRenderer)
+	r.baseHandler = smweb.NewBaseHandler(r.viewRenderer)
 
 	return r.baseHandler
 }
@@ -549,14 +559,4 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveKissMyRankHandler(),
 		r.resolveRealPenaltyHandler(),
 	)
-}
-
-type BaseHandler struct {
-	viewRenderer *Renderer
-}
-
-func NewBaseHandler(viewRenderer *Renderer) *BaseHandler {
-	return &BaseHandler{
-		viewRenderer: viewRenderer,
-	}
 }

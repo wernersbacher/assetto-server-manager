@@ -13,17 +13,17 @@ import (
 )
 
 type WeatherHandler struct {
-	*BaseHandler
+	*smweb.BaseHandler
 }
 
-func NewWeatherHandler(baseHandler *BaseHandler) *WeatherHandler {
+func NewWeatherHandler(baseHandler *smweb.BaseHandler) *WeatherHandler {
 	return &WeatherHandler{
 		BaseHandler: baseHandler,
 	}
 }
 
 type weatherListTemplateVars struct {
-	BaseTemplateVars
+	smweb.BaseTemplateVars
 
 	Weathers smcontent.Weather
 }
@@ -37,7 +37,7 @@ func (wh *WeatherHandler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	wh.viewRenderer.MustLoadTemplate(w, r, "content/weather.html", &weatherListTemplateVars{
+	wh.ViewRenderer.MustLoadTemplate(w, r, "content/weather.html", &weatherListTemplateVars{
 		Weathers: weather,
 	})
 }
