@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/sirupsen/logrus"
+
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 )
 
 // assettoServerSteamID is the ID of the server on steam.
@@ -84,7 +86,7 @@ func InstallAssettoCorsaServer(login, password string, force bool) error {
 	}
 
 	// create default skins
-	for _, f := range defaultSkinsLayout {
+	for _, f := range smcontent.DefaultSkinsLayout {
 		err := os.MkdirAll(filepath.Join(ServerInstallPath, filepath.FromSlash(f)), 0755)
 
 		if err != nil {

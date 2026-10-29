@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"bytes"
@@ -233,7 +234,7 @@ func (tr *Renderer) init() error {
 
 		return "No"
 	}
-	funcs["trackMapURL"] = TrackMapImageURL
+	funcs["trackMapURL"] = smcontent.TrackMapImageURL
 	funcs["sunAngleToTimeOfDay"] = sunAngleToTimeOfDay
 	funcs["anonymiseDriverGUID"] = smresults.AnonymiseDriverGUID
 
@@ -387,35 +388,12 @@ func varSplit(str string) []string {
 	return strings.Split(str, ";")
 }
 
-var (
-	trackInfoCache      = make(map[string]*TrackInfo)
-	trackInfoCacheMutex sync.Mutex
-)
-
-func trackInfo(track, layout string) *TrackInfo {
-	trackInfoCacheMutex.Lock()
-	defer trackInfoCacheMutex.Unlock()
-
-	if t, ok := trackInfoCache[track+layout]; ok {
-		return t
-	}
-
-	t, err := GetTrackInfo(track, layout)
-
-	if err != nil {
-		return nil
-	}
-
-	trackInfoCache[track+layout] = t
-
-	return t
+func trackInfo(track, layout string) *smcontent.TrackInfo {
+	return smcontent.CachedTrackInfo(ServerInstallPath, track, layout)
 }
 
 func clearFromTrackInfoCache(track, layout string) {
-	trackInfoCacheMutex.Lock()
-	defer trackInfoCacheMutex.Unlock()
-
-	delete(trackInfoCache, track+layout)
+	smcontent.ClearTrackInfoCache(track, layout)
 }
 
 func multiplyFloats(a, b float64) float64 {
@@ -453,36 +431,12 @@ func stripGeotagCrap(tag string, north bool) string {
 	return "-3.0774"
 }
 
-var nameRegex = regexp.MustCompile(`^[A-Za-z]{0,5}[0-9]+`)
-
 func prettifyName(s string, acronyms bool) string {
-	if s == serverconfig.AnyCarModel {
-		return "Any Car Model"
-	}
-
-	if carName, ok := carNameCache.get(s); ok {
-		return carName
-	}
-
-	parts := strings.Split(s, "_")
-
-	if parts[0] == "ks" {
-		parts = parts[1:]
-	}
-
-	for i := range parts {
-		if (acronyms && len(parts[i]) <= 3) || (acronyms && nameRegex.MatchString(parts[i])) {
-			parts[i] = strings.ToUpper(parts[i])
-		} else {
-			parts[i] = strings.Title(strings.ToLower(parts[i]))
-		}
-	}
-
-	return strings.Join(parts, " ")
+	return smcontent.PrettifyName(s, acronyms)
 }
 
 func weatherName(key string) string {
-	weathers, err := ListWeather()
+	weathers, err := smcontent.ListWeather(ServerInstallPath)
 
 	if err != nil {
 		return key
@@ -743,4 +697,8 @@ func (a *AssetHelper) GetURL(location string) string {
 	u.RawQuery = q.Encode()
 
 	return u.String()
+}
+
+func trackLayoutURL(track, layout string) string {
+	return smcontent.TrackLayoutURL(ServerInstallPath, track, layout)
 }

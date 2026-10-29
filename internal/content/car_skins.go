@@ -1,7 +1,7 @@
-package servermanager
+package content
 
-// defaultSkinsLayout, as defined by https://github.com/Pringlez/ACServerManager
-var defaultSkinsLayout = []string{
+// DefaultSkinsLayout, as defined by https://github.com/Pringlez/ACServerManager
+var DefaultSkinsLayout = []string{
 	"content/cars/ks_mazda_787b/skins",
 	"content/cars/ks_mazda_787b/skins/02_mazda_18",
 	"content/cars/ks_mazda_787b/skins/03_mazda_56",

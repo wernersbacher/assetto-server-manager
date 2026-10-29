@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 )
 
 func (rm *RaceManager) ListAutoFillEntrants() ([]*serverconfig.Entrant, error) {
@@ -25,10 +26,10 @@ func (rm *RaceManager) ListAutoFillEntrants() ([]*serverconfig.Entrant, error) {
 	return entrants, nil
 }
 
-type TrackOptsGrouped []Track
+type TrackOptsGrouped []smcontent.Track
 
 type TracksSplit struct {
-	Stock, DLC, Mod []Track
+	Stock, DLC, Mod []smcontent.Track
 }
 
 func (tog TrackOptsGrouped) Split() TracksSplit {
@@ -49,22 +50,22 @@ func (tog TrackOptsGrouped) Split() TracksSplit {
 type RaceTemplateVars struct {
 	BaseTemplateVars
 
-	CarOpts             Cars
+	CarOpts             smcontent.Cars
 	TrackOpts           TrackOptsGrouped
 	AvailableSessions   []serverconfig.SessionType
-	Weather             Weather
+	Weather             smcontent.Weather
 	SolIsInstalled      bool
 	Current             serverconfig.CurrentRaceConfig
 	CurrentEntrants     serverconfig.EntryList
 	PossibleEntrants    []*serverconfig.Entrant
-	FixedSetups         CarSetups
+	FixedSetups         smcontent.CarSetups
 	IsEditing           bool
 	EditingID           string
 	CustomRaceName      string
-	SurfacePresets      []TrackSurfacePreset
+	SurfacePresets      []smcontent.TrackSurfacePreset
 	OverridePassword    bool
 	ReplacementPassword string
-	Tyres               Tyres
+	Tyres               smcontent.Tyres
 	DeselectedTyres     map[string]bool
 
 	ForceStopTime        int
@@ -100,7 +101,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		return nil, err
 	}
 
-	weather, err := ListWeather()
+	weather, err := smcontent.ListWeather(ServerInstallPath)
 
 	if err != nil {
 		return nil, err
@@ -153,7 +154,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		return nil, err
 	}
 
-	fixedSetups, err := ListAllSetups()
+	fixedSetups, err := smcontent.ListAllSetups(ServerInstallPath)
 
 	if err != nil {
 		return nil, err
@@ -191,7 +192,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		IsEditing:                isEditing,
 		EditingID:                templateIDForEditing,
 		CustomRaceName:           customRaceName,
-		SurfacePresets:           DefaultTrackSurfacePresets,
+		SurfacePresets:           smcontent.DefaultTrackSurfacePresets,
 		OverridePassword:         overridePassword,
 		ReplacementPassword:      replacementPassword,
 		ShowOverridePasswordCard: true,

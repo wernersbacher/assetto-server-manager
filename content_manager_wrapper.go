@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"bytes"
@@ -107,8 +108,8 @@ type CMCar struct {
 type ContentManagerWrapper struct {
 	config       *smconfig.Configuration
 	store        Store
-	carManager   *CarManager
-	trackManager *TrackManager
+	carManager   *smcontent.CarManager
+	trackManager *smcontent.TrackManager
 
 	sessionInfo udp.SessionInfo
 	logger      cmwSessionLogger
@@ -123,7 +124,7 @@ type ContentManagerWrapper struct {
 	mutex       sync.Mutex
 }
 
-func NewContentManagerWrapper(config *smconfig.Configuration, store Store, carManager *CarManager, trackManager *TrackManager) *ContentManagerWrapper {
+func NewContentManagerWrapper(config *smconfig.Configuration, store Store, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentManagerWrapper {
 	return &ContentManagerWrapper{
 		config:       config,
 		store:        store,
@@ -147,7 +148,7 @@ func (cmw *ContentManagerWrapper) NewCMContent(cars []string, trackName string, 
 		carsMap[car.Name] = ContentURL{URL: car.Details.DownloadURL}
 	}
 
-	trackMeta, err := LoadTrackMetaDataFromName(trackName)
+	trackMeta, err := smcontent.LoadTrackMetaDataFromName(ServerInstallPath, trackName)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load track for CM Wrapper: %s", trackName)
@@ -236,7 +237,7 @@ func (cmw *ContentManagerWrapper) setDescriptionText(event RaceEvent) error {
 	if err != nil {
 		logrus.WithError(err).Warnf("Could not load track: %s, skipping attaching download URL to Content Manager Wrapper", cmw.serverConfig.CurrentRaceConfig.Track)
 	} else {
-		err := track.LoadMetaData()
+		err := track.LoadMetaData(ServerInstallPath)
 
 		if err != nil {
 			logrus.WithError(err).Debugf("Could not load meta data for: %s, skipping attaching download URL to Content Manager Wrapper", cmw.serverConfig.CurrentRaceConfig.Track)

@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
 
 	"encoding/base64"
@@ -39,11 +40,11 @@ var base64HeaderRegex = regexp.MustCompile("^(data:.+;base64,)")
 type ContentUploadHandler struct {
 	*BaseHandler
 
-	carManager   *CarManager
-	trackManager *TrackManager
+	carManager   *smcontent.CarManager
+	trackManager *smcontent.TrackManager
 }
 
-func NewContentUploadHandler(baseHandler *BaseHandler, carManager *CarManager, trackManager *TrackManager) *ContentUploadHandler {
+func NewContentUploadHandler(baseHandler *BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentUploadHandler {
 	return &ContentUploadHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,

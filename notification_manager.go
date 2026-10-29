@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 )
 
 type NotificationDispatcher interface {
@@ -32,12 +33,12 @@ type NotificationDispatcher interface {
 // managers. Initially, only a Discord manager is implemented.
 type NotificationManager struct {
 	discordManager *DiscordManager
-	carManager     *CarManager
+	carManager     *smcontent.CarManager
 	store          Store
 	testing        bool
 }
 
-func NewNotificationManager(discord *DiscordManager, cars *CarManager, store Store) *NotificationManager {
+func NewNotificationManager(discord *DiscordManager, cars *smcontent.CarManager, store Store) *NotificationManager {
 	return &NotificationManager{
 		discordManager: discord,
 		carManager:     cars,

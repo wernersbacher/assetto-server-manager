@@ -1,4 +1,4 @@
-package servermanager
+package content
 
 import (
 	"bytes"
@@ -45,11 +45,11 @@ func (t Tyres) Name(search string, cars []string) string {
 }
 
 // ListTyres reads tyres from the TyreFiles and returns them as a map of car => tyre short name => tyre long name
-func ListTyres() (Tyres, error) {
+func ListTyres(installPath string) (Tyres, error) {
 	out := make(Tyres)
 
 	for _, file := range tyreFiles {
-		tyres, err := loadTyresFromFile(file)
+		tyres, err := loadTyresFromFile(installPath, file)
 
 		if os.IsNotExist(err) {
 			logrus.Debugf("Skipping loading tyre data from %s, file does not exist", file)
@@ -72,8 +72,8 @@ func ListTyres() (Tyres, error) {
 	return out, nil
 }
 
-func loadTyresFromFile(name string) (map[string]map[string]string, error) {
-	f, err := os.Open(filepath.Join(ServerInstallPath, "manager", name))
+func loadTyresFromFile(installPath, name string) (map[string]map[string]string, error) {
+	f, err := os.Open(filepath.Join(installPath, "manager", name))
 
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ func CarNameFromFilepath(path string) (string, error) {
 }
 
 // addTyresFromDataACD looks for tyres within the data.acd file and adds them to mod_tyres.ini if any are found
-func addTyresFromDataACD(filename string, dataACD []byte) error {
+func addTyresFromDataACD(installPath, filename string, dataACD []byte) error {
 	carName, err := CarNameFromFilepath(filename)
 
 	if err != nil {
@@ -150,7 +150,7 @@ func addTyresFromDataACD(filename string, dataACD []byte) error {
 			return err
 		}
 
-		return addTyresToModTyres(carName, newTyres)
+		return AddTyresToModTyres(installPath, carName, newTyres)
 	}
 
 	logrus.Warnf("Couldn't find tyres.ini within filepath: '%s'. Cannot add mod_tyres.ini", filename)
@@ -158,7 +158,7 @@ func addTyresFromDataACD(filename string, dataACD []byte) error {
 	return nil
 }
 
-func addTyresFromTyresIni(filename string, iniFile []byte) error {
+func addTyresFromTyresIni(installPath, filename string, iniFile []byte) error {
 	carName, err := CarNameFromFilepath(filename)
 
 	if err != nil {
@@ -171,10 +171,11 @@ func addTyresFromTyresIni(filename string, iniFile []byte) error {
 		return err
 	}
 
-	return addTyresToModTyres(carName, newTyres)
+	return AddTyresToModTyres(installPath, carName, newTyres)
 }
 
-func addTyresToModTyres(model string, newTyres map[string]string) error {
+// AddTyresToModTyres adds the given tyres (short name => long name) of a car model to the mod_tyres.ini in the manager folder.
+func AddTyresToModTyres(installPath, model string, newTyres map[string]string) error {
 	for key, tyreName := range newTyres {
 		if strings.Contains(key, " ") {
 			logrus.Errorf("Couldn't import tyre: %s. Tyre is incompatible with AC Server due to space in its short name (%s).", tyreName, key)
@@ -183,7 +184,7 @@ func addTyresToModTyres(model string, newTyres map[string]string) error {
 		}
 	}
 
-	managerPath := filepath.Join(ServerInstallPath, "manager")
+	managerPath := filepath.Join(installPath, "manager")
 
 	if _, err := os.Stat(managerPath); os.IsNotExist(err) {
 		err := os.MkdirAll(managerPath, 0755)
@@ -213,7 +214,7 @@ func addTyresToModTyres(model string, newTyres map[string]string) error {
 		return err
 	}
 
-	currentTyres, err := ListTyres()
+	currentTyres, err := ListTyres(installPath)
 
 	if err != nil {
 		return err
@@ -342,7 +343,8 @@ var DefaultTrackSurfacePresets = []TrackSurfacePreset{
 
 var ErrCouldNotFindTyreForCar = errors.New("servermanager: could not find tyres for car")
 
-func findTyreIndex(carModel, tyreName string, raceSetup serverconfig.CurrentRaceConfig) (int, error) {
+// FindTyreIndex returns the index of the tyre among the tyres of the car that are legal in raceSetup.
+func FindTyreIndex(installPath, carModel, tyreName string, raceSetup serverconfig.CurrentRaceConfig) (int, error) {
 	tyreIndexCount := 0
 	legalTyres := raceSetup.Tyres()
 
@@ -362,7 +364,7 @@ func findTyreIndex(carModel, tyreName string, raceSetup serverconfig.CurrentRace
 		return -1, ErrCouldNotFindTyreForCar
 	}
 
-	tyres, err := CarDataFile(carModel, "tyres.ini")
+	tyres, err := CarDataFile(installPath, carModel, "tyres.ini")
 
 	if err != nil {
 		return -1, err
@@ -400,14 +402,14 @@ func findTyreIndex(carModel, tyreName string, raceSetup serverconfig.CurrentRace
 	return -1, ErrCouldNotFindTyreForCar
 }
 
-func CarDataFile(carModel, dataFile string) (io.ReadCloser, error) {
-	carDataFile := filepath.Join(ServerInstallPath, "content", "cars", carModel, "data.acd")
+func CarDataFile(installPath, carModel, dataFile string) (io.ReadCloser, error) {
+	carDataFile := filepath.Join(installPath, "content", "cars", carModel, "data.acd")
 
 	f, err := os.Open(carDataFile)
 
 	if os.IsNotExist(err) {
 		// this is likely an older car with a data folder
-		f, err := os.Open(filepath.Join(ServerInstallPath, "content", "cars", carModel, "data", dataFile))
+		f, err := os.Open(filepath.Join(installPath, "content", "cars", carModel, "data", dataFile))
 
 		if err != nil {
 			return nil, err
@@ -440,3 +442,9 @@ func CarDataFile(carModel, dataFile string) (io.ReadCloser, error) {
 
 	return nil, os.ErrNotExist
 }
+
+// IERP13c is the car model of the IER P13c, whose tyre information is encrypted.
+const IERP13c = "ier_p13c"
+
+// IERP13cTyres are the hardcoded tyres of the IER P13c.
+var IERP13cTyres = []string{"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"}

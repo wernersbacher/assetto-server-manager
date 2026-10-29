@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 
 	"math/rand"
 	"os"
@@ -273,12 +274,12 @@ func TestRaceControl_OnClientLoaded(t *testing.T) {
 
 type nilTrackData struct{}
 
-func (nilTrackData) TrackInfo(name, layout string) (*TrackInfo, error) {
-	return &TrackInfo{}, nil
+func (nilTrackData) TrackInfo(name, layout string) (*smcontent.TrackInfo, error) {
+	return &smcontent.TrackInfo{}, nil
 }
 
-func (nilTrackData) TrackMap(name, layout string) (*TrackMapData, error) {
-	return &TrackMapData{}, nil
+func (nilTrackData) TrackMap(name, layout string) (*smcontent.TrackMapData, error) {
+	return &smcontent.TrackMapData{}, nil
 }
 
 func TestRaceControl_OnNewSession(t *testing.T) {

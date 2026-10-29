@@ -14,18 +14,23 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
+
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type CarsHandler struct {
 	*BaseHandler
 
-	carManager *CarManager
+	carManager   *smcontent.CarManager
+	trackManager *smcontent.TrackManager
 }
 
-func NewCarsHandler(baseHandler *BaseHandler, carManager *CarManager) *CarsHandler {
+func NewCarsHandler(baseHandler *BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *CarsHandler {
 	return &CarsHandler{
-		BaseHandler: baseHandler,
-		carManager:  carManager,
+		BaseHandler:  baseHandler,
+		carManager:   carManager,
+		trackManager: trackManager,
 	}
 }
 
@@ -33,7 +38,7 @@ type carListTemplateVars struct {
 	BaseTemplateVars
 
 	Results     *bleve.SearchResult
-	Cars        Cars
+	Cars        smcontent.Cars
 	Query       string
 	CurrentPage int
 	NumPages    int
@@ -43,7 +48,7 @@ type carListTemplateVars struct {
 func (ch *CarsHandler) list(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("q")
 	page := formValueAsInt(r.URL.Query().Get("page"))
-	results, cars, err := ch.carManager.Search(r.Context(), searchTerm, page*searchPageSize, searchPageSize)
+	results, cars, err := ch.carManager.Search(r.Context(), searchTerm, page*smcontent.SearchPageSize, smcontent.SearchPageSize)
 
 	if err != nil {
 		logrus.WithError(err).Error("Could not perform search")
@@ -51,7 +56,7 @@ func (ch *CarsHandler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	numPages := int(math.Ceil(float64(results.Total) / float64(searchPageSize)))
+	numPages := int(math.Ceil(float64(results.Total) / float64(smcontent.SearchPageSize)))
 
 	ch.viewRenderer.MustLoadTemplate(w, r, "content/cars.html", &carListTemplateVars{
 		Results:     results,
@@ -59,7 +64,7 @@ func (ch *CarsHandler) list(w http.ResponseWriter, r *http.Request) {
 		Query:       searchTerm,
 		CurrentPage: page,
 		NumPages:    numPages,
-		PageSize:    searchPageSize,
+		PageSize:    smcontent.SearchPageSize,
 	})
 }
 
@@ -147,7 +152,7 @@ func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateParams, err := ch.carManager.loadCarDetailsForTemplate(carName)
+	templateParams, err := ch.loadCarDetailsForTemplate(carName)
 
 	if os.IsNotExist(err) {
 		http.NotFound(w, r)
@@ -278,4 +283,81 @@ func (ch *CarsHandler) rebuildSearchIndex(w http.ResponseWriter, r *http.Request
 
 	AddFlash(w, r, "Started re-indexing cars!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
+
+type carDetailsTemplateVars struct {
+	BaseTemplateVars
+
+	Car       *smcontent.Car
+	Results   []smresults.SessionResults
+	Setups    map[string][]string
+	TrackOpts []smcontent.Track
+}
+
+// loadCarDetailsForTemplate loads all necessary items to generate the car details template.
+func (ch *CarsHandler) loadCarDetailsForTemplate(carName string) (*carDetailsTemplateVars, error) {
+	tyres, err := smcontent.ListTyres(ServerInstallPath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	car, err := ch.carManager.LoadCar(carName, tyres)
+
+	if err != nil {
+		return nil, err
+	}
+
+	results, err := resultsForCar(carName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	setups, err := smcontent.ListSetupsForCar(ServerInstallPath, carName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	tracks, err := ch.trackManager.ListTracks()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &carDetailsTemplateVars{
+		Car:       car,
+		Results:   results,
+		Setups:    setups,
+		TrackOpts: tracks,
+	}, nil
+}
+
+// resultsForCar finds results for a given car.
+func resultsForCar(car string) ([]smresults.SessionResults, error) {
+	results, err := ListAllResults()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var out []smresults.SessionResults
+
+	for _, result := range results {
+		hasCar := false
+
+		for _, driver := range result.Result {
+			if driver.CarModel == car {
+				hasCar = true
+				break
+			}
+		}
+
+		if hasCar {
+			out = append(out, result)
+		}
+	}
+
+	return out, nil
 }

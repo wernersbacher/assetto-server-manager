@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 
 	"net/http"
 
@@ -17,8 +18,8 @@ type Resolver struct {
 	reloadTemplates bool
 
 	raceManager           *RaceManager
-	carManager            *CarManager
-	trackManager          *TrackManager
+	carManager            *smcontent.CarManager
+	trackManager          *smcontent.TrackManager
 	championshipManager   *ChampionshipManager
 	accountManager        *AccountManager
 	discordManager        *DiscordManager
@@ -222,16 +223,18 @@ func (r *Resolver) resolveAuditLogHandler() *AuditLogHandler {
 	return r.auditLogHandler
 }
 
-func (r *Resolver) resolveCarManager() *CarManager {
+func (r *Resolver) resolveCarManager() *smcontent.CarManager {
 	if r.carManager != nil {
 		return r.carManager
 	}
 
-	r.carManager = NewCarManager(
-		r.resolveTrackManager(),
+	r.carManager = smcontent.NewCarManager(
+		ServerInstallPath,
 		r.config.Server.ScanContentFolderForChanges,
 		r.config.Server.UseCarNameCache,
 	)
+
+	r.carManager.PanicCapture = func(fn func()) { panicCapture(fn) }
 
 	return r.carManager
 }
@@ -241,7 +244,7 @@ func (r *Resolver) resolveCarsHandler() *CarsHandler {
 		return r.carsHandler
 	}
 
-	r.carsHandler = NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager())
+	r.carsHandler = NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager())
 
 	return r.carsHandler
 }
@@ -268,12 +271,12 @@ func (r *Resolver) resolveChampionshipsHandler() *ChampionshipsHandler {
 	return r.championshipsHandler
 }
 
-func (r *Resolver) resolveTrackManager() *TrackManager {
+func (r *Resolver) resolveTrackManager() *smcontent.TrackManager {
 	if r.trackManager != nil {
 		return r.trackManager
 	}
 
-	r.trackManager = NewTrackManager()
+	r.trackManager = smcontent.NewTrackManager(ServerInstallPath)
 
 	return r.trackManager
 }

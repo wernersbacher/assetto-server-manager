@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 
 	"fmt"
 	"sync"
@@ -17,11 +18,11 @@ type RaceControl struct {
 	store            Store
 	penaltiesManager *PenaltiesManager
 
-	SessionInfo                udp.SessionInfo `json:"SessionInfo"`
-	TrackMapData               TrackMapData    `json:"TrackMapData"`
-	TrackInfo                  TrackInfo       `json:"TrackInfo"`
-	SessionStartTime           time.Time       `json:"SessionStartTime"`
-	CurrentRealtimePosInterval int             `json:"CurrentRealtimePosInterval"`
+	SessionInfo                udp.SessionInfo        `json:"SessionInfo"`
+	TrackMapData               smcontent.TrackMapData `json:"TrackMapData"`
+	TrackInfo                  smcontent.TrackInfo    `json:"TrackInfo"`
+	SessionStartTime           time.Time              `json:"SessionStartTime"`
+	CurrentRealtimePosInterval int                    `json:"CurrentRealtimePosInterval"`
 
 	ChatMessages      []udp.Chat
 	ChatMessagesMutex sync.Mutex

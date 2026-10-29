@@ -1,4 +1,4 @@
-package servermanager
+package content
 
 var isCarPaidDLC = map[string]bool{
 	"abarth500":                          false,

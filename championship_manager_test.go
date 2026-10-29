@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -179,8 +180,8 @@ func newTestChampionshipManager() *ChampionshipManager {
 			&smconfig.Configuration{},
 			NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared")),
 			dummyServerProcess{},
-			NewCarManager(NewTrackManager(), false, false),
-			NewTrackManager(),
+			smcontent.NewCarManager(ServerInstallPath, false, false),
+			smcontent.NewTrackManager(ServerInstallPath),
 			&dummyNotificationManager{},
 			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore)),
 		),
@@ -200,9 +201,9 @@ func doReplay(filename string, multiplier int, callbackFunc udp.CallbackFunc, wa
 }
 
 func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
-	championshipManager := newTestChampionshipManager()
-
 	ServerInstallPath = filepath.Join("cmd", "server-manager", "assetto")
+
+	championshipManager := newTestChampionshipManager()
 
 	t.Run("Basic championship flow, closed entrylist", func(t *testing.T) {
 		// make a championship

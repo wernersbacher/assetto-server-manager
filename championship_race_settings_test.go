@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 
 	"context"
 	"net/http"
@@ -462,7 +463,7 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
-	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &dummyNotificationManager{}, NewCarManager(NewTrackManager(), false, false))
+	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &dummyNotificationManager{}, smcontent.NewCarManager(ServerInstallPath, false, false))
 
 	for _, useSettings := range []bool{false, true} {
 		process.event = nil

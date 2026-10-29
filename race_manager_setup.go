@@ -14,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 )
 
 var ErrMustSubmitCar = errors.New("servermanager: you must set a car")
@@ -32,11 +33,11 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 	quickRace.Track = r.Form.Get("Track")
 	quickRace.TrackLayout = r.Form.Get("TrackLayout")
 
-	if quickRace.TrackLayout == defaultLayoutName {
+	if quickRace.TrackLayout == smcontent.DefaultLayoutName {
 		quickRace.TrackLayout = ""
 	}
 
-	tyres, err := ListTyres()
+	tyres, err := smcontent.ListTyres(ServerInstallPath)
 
 	if err != nil {
 		return err
@@ -102,7 +103,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 
 	var numPitboxes int
 
-	trackInfo, err := GetTrackInfo(quickRace.Track, quickRace.TrackLayout)
+	trackInfo, err := smcontent.GetTrackInfo(ServerInstallPath, quickRace.Track, quickRace.TrackLayout)
 
 	if err == nil {
 		boxes, err := trackInfo.Pitboxes.Int64()
@@ -370,7 +371,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 	for i := 0; i < len(r.Form["Graphics"]); i++ {
 		weatherName := r.Form["Graphics"][i]
 
-		WFXType, err := getWeatherType(weatherName)
+		WFXType, err := smcontent.GetWeatherType(ServerInstallPath, weatherName)
 
 		// if WFXType can't be found due to an error, default to non-sol weather.
 		if !isSol || err != nil {
@@ -543,7 +544,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 // applyCurrentRaceSetupToOptions takes current values in race which require more detailed configuration
 // and applies them to the template opts.
 func (rm *RaceManager) applyCurrentRaceSetupToOptions(opts *RaceTemplateVars, race serverconfig.CurrentRaceConfig) error {
-	tyres, err := ListTyres()
+	tyres, err := smcontent.ListTyres(ServerInstallPath)
 
 	if err != nil {
 		return err

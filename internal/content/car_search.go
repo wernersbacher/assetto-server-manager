@@ -1,4 +1,4 @@
-package servermanager
+package content
 
 import (
 	"context"
@@ -15,12 +15,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const searchPageSize = 50
+// SearchPageSize is the number of cars on one page of the car search results.
+const SearchPageSize = 50
 
 // CreateSearchIndex builds a search index for the cars
 func (cm *CarManager) CreateOrOpenSearchIndex() error {
 	cm.searchMutex.Lock()
-	indexPath := filepath.Join(ServerInstallPath, "search-index", "cars")
+	indexPath := filepath.Join(cm.installPath, "search-index", "cars")
 
 	var err error
 
@@ -46,7 +47,7 @@ func (cm *CarManager) CreateOrOpenSearchIndex() error {
 	}
 
 	if cm.watchFilesystemForCarChanges {
-		go panicCapture(func() {
+		go cm.capturePanic(func() {
 			err := cm.watchForCarChanges()
 
 			if err != nil {
@@ -66,13 +67,13 @@ func (cm *CarManager) UpdateTyres(car *Car) error {
 	cm.tyreUpdateMutex.Lock()
 	defer cm.tyreUpdateMutex.Unlock()
 
-	carPath := filepath.Join(ServerInstallPath, "content", "cars", car.Name)
+	carPath := filepath.Join(cm.installPath, "content", "cars", car.Name)
 	acdPath := filepath.Join(carPath, "data.acd")
 
 	b, err := ioutil.ReadFile(acdPath)
 
 	if err == nil {
-		return addTyresFromDataACD(acdPath, b)
+		return addTyresFromDataACD(cm.installPath, acdPath, b)
 	} else if !os.IsNotExist(err) {
 		return err
 	}
@@ -85,7 +86,7 @@ func (cm *CarManager) UpdateTyres(car *Car) error {
 		return err
 	}
 
-	return addTyresFromTyresIni(tyresIniPath, b)
+	return addTyresFromTyresIni(cm.installPath, tyresIniPath, b)
 }
 
 // IndexCar indexes an individual car.

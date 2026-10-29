@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -23,8 +24,8 @@ type RaceManager struct {
 	config              *smconfig.Configuration
 	process             ServerProcess
 	store               Store
-	carManager          *CarManager
-	trackManager        *TrackManager
+	carManager          *smcontent.CarManager
+	trackManager        *smcontent.TrackManager
 	raceControl         *RaceControl
 	notificationManager NotificationDispatcher
 
@@ -48,8 +49,8 @@ func NewRaceManager(
 	config *smconfig.Configuration,
 	store Store,
 	process ServerProcess,
-	carManager *CarManager,
-	trackManager *TrackManager,
+	carManager *smcontent.CarManager,
+	trackManager *smcontent.TrackManager,
 	notificationManager NotificationDispatcher,
 	raceControl *RaceControl,
 ) *RaceManager {
@@ -211,7 +212,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	}
 
 	// drs zones management
-	err = ToggleDRSForTrack(config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout, !config.CurrentRaceConfig.DisableDRSZones)
+	err = smcontent.ToggleDRSForTrack(ServerInstallPath, config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout, !config.CurrentRaceConfig.DisableDRSZones)
 
 	if err != nil {
 		return err

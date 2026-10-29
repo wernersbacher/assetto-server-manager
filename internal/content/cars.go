@@ -1,4 +1,4 @@
-package servermanager
+package content
 
 import (
 	"fmt"
@@ -19,28 +19,40 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/cj123/watcher"
 	"github.com/sirupsen/logrus"
-
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
+// CarManager lists, loads, searches and modifies the cars in the content/cars folder of an AC server installation.
 type CarManager struct {
+	installPath string
+
 	carIndex                     bleve.Index
 	watchFilesystemForCarChanges bool
 
 	searchMutex     sync.Mutex
 	tyreUpdateMutex sync.Mutex
 
-	trackManager *TrackManager
+	// PanicCapture, if set, wraps the background goroutines of the CarManager so that panics can be recovered.
+	PanicCapture func(fn func())
 }
 
-func NewCarManager(trackManager *TrackManager, watchForCarChanges, useCarNameCache bool) *CarManager {
-	cm := &CarManager{trackManager: trackManager, watchFilesystemForCarChanges: watchForCarChanges}
+// NewCarManager creates a CarManager for the AC server installed in installPath.
+func NewCarManager(installPath string, watchForCarChanges, useCarNameCache bool) *CarManager {
+	cm := &CarManager{installPath: installPath, watchFilesystemForCarChanges: watchForCarChanges}
 
 	if useCarNameCache {
 		cm.initCarNames()
 	}
 
 	return cm
+}
+
+func (cm *CarManager) capturePanic(fn func()) {
+	if cm.PanicCapture != nil {
+		cm.PanicCapture(fn)
+		return
+	}
+
+	fn()
 }
 
 type carNames map[string]string
@@ -112,7 +124,7 @@ func (cm *CarManager) initCarNames() {
 func (cm *CarManager) watchForCarChanges() error {
 	w := watcher.New()
 
-	err := w.Add(filepath.Join(ServerInstallPath, "content", "cars"))
+	err := w.Add(filepath.Join(cm.installPath, "content", "cars"))
 
 	if err != nil {
 		return err
@@ -132,7 +144,7 @@ func (cm *CarManager) watchForCarChanges() error {
 		return watcher.ErrSkip
 	})
 
-	go panicCapture(func() {
+	go cm.capturePanic(func() {
 		for {
 			select {
 			case event := <-w.Event:
@@ -181,13 +193,13 @@ func (cm *CarManager) watchForCarChanges() error {
 func (cm *CarManager) ListCars() (Cars, error) {
 	var cars Cars
 
-	carFiles, err := ioutil.ReadDir(filepath.Join(ServerInstallPath, "content", "cars"))
+	carFiles, err := ioutil.ReadDir(filepath.Join(cm.installPath, "content", "cars"))
 
 	if err != nil {
 		return nil, err
 	}
 
-	tyres, err := ListTyres()
+	tyres, err := ListTyres(cm.installPath)
 
 	if err != nil {
 		return nil, err
@@ -218,7 +230,7 @@ func (cm *CarManager) ListCars() (Cars, error) {
 
 // LoadCar reads a car from the content folder on the filesystem
 func (cm *CarManager) LoadCar(name string, tyres Tyres) (*Car, error) {
-	carDirectory := filepath.Join(ServerInstallPath, "content", "cars", name)
+	carDirectory := filepath.Join(cm.installPath, "content", "cars", name)
 	skinFiles, err := ioutil.ReadDir(filepath.Join(carDirectory, "skins"))
 
 	var skins []string
@@ -243,17 +255,17 @@ func (cm *CarManager) LoadCar(name string, tyres Tyres) (*Car, error) {
 
 	carDetails := CarDetails{}
 
-	if err := carDetails.Load(name); err != nil {
+	if err := carDetails.Load(cm.installPath, name); err != nil {
 		if !os.IsNotExist(err) {
 			logrus.WithError(err).Errorf("could not parse car details json for: %s (likely this is invalid/malformed JSON). falling back to empty car details", name)
 		}
 
 		// the car details don't exist or can't be loaded, just create some fake ones.
-		carDetails.Name = prettifyName(name, true)
+		carDetails.Name = PrettifyName(name, true)
 	}
 
 	carDetails.Key = name
-	carDetails.PrettifiedKey = prettifyName(name, true)
+	carDetails.PrettifiedKey = PrettifyName(name, true)
 
 	return &Car{
 		Name:    name,
@@ -278,37 +290,9 @@ func (cm *CarManager) RandomSkin(model string) string {
 	}
 }
 
-// ResultsForCar finds results for a given car.
-func (cm *CarManager) ResultsForCar(car string) ([]smresults.SessionResults, error) {
-	results, err := ListAllResults()
-
-	if err != nil {
-		return nil, err
-	}
-
-	var out []smresults.SessionResults
-
-	for _, result := range results {
-		hasCar := false
-
-		for _, driver := range result.Result {
-			if driver.CarModel == car {
-				hasCar = true
-				break
-			}
-		}
-
-		if hasCar {
-			out = append(out, result)
-		}
-	}
-
-	return out, nil
-}
-
 // DeleteCar removes a car from the file system and search index.
 func (cm *CarManager) DeleteCar(carName string) error {
-	carsPath := filepath.Join(ServerInstallPath, "content", "cars")
+	carsPath := filepath.Join(cm.installPath, "content", "cars")
 
 	existingCars, err := cm.ListCars()
 
@@ -359,60 +343,11 @@ func (cm *CarManager) DelTag(carName, tag string) error {
 
 // SaveCarDetails saves a car's details, and indexes that car.
 func (cm *CarManager) SaveCarDetails(carName string, car *Car) error {
-	if err := car.Details.Save(carName); err != nil {
+	if err := car.Details.Save(cm.installPath, carName); err != nil {
 		return err
 	}
 
 	return cm.IndexCar(car)
-}
-
-type carDetailsTemplateVars struct {
-	BaseTemplateVars
-
-	Car       *Car
-	Results   []smresults.SessionResults
-	Setups    map[string][]string
-	TrackOpts []Track
-}
-
-// loadCarDetailsForTemplate loads all necessary items to generate the car details template.
-func (cm *CarManager) loadCarDetailsForTemplate(carName string) (*carDetailsTemplateVars, error) {
-	tyres, err := ListTyres()
-
-	if err != nil {
-		return nil, err
-	}
-
-	car, err := cm.LoadCar(carName, tyres)
-
-	if err != nil {
-		return nil, err
-	}
-
-	results, err := cm.ResultsForCar(carName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	setups, err := ListSetupsForCar(carName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	tracks, err := cm.trackManager.ListTracks()
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &carDetailsTemplateVars{
-		Car:       car,
-		Results:   results,
-		Setups:    setups,
-		TrackOpts: tracks,
-	}, nil
 }
 
 func (cm *CarManager) UpdateCarMetadata(carName string, r *http.Request) error {
@@ -425,11 +360,11 @@ func (cm *CarManager) UpdateCarMetadata(carName string, r *http.Request) error {
 	car.Details.Notes = r.FormValue("Notes")
 	car.Details.DownloadURL = r.FormValue("DownloadURL")
 
-	return car.Details.Save(carName)
+	return car.Details.Save(cm.installPath, carName)
 }
 
 func (cm *CarManager) UploadSkin(carName string, files map[string][]*multipart.FileHeader) error {
-	carDirectory := filepath.Join(ServerInstallPath, "content", "cars", carName, "skins")
+	carDirectory := filepath.Join(cm.installPath, "content", "cars", carName, "skins")
 
 	for _, files := range files {
 		for _, fh := range files {
@@ -488,5 +423,5 @@ func skinUploadFilePath(header *multipart.FileHeader) string {
 }
 
 func (cm *CarManager) DeleteSkin(car, skin string) error {
-	return os.RemoveAll(filepath.Join(ServerInstallPath, "content", "cars", car, "skins", skin))
+	return os.RemoveAll(filepath.Join(cm.installPath, "content", "cars", car, "skins", skin))
 }

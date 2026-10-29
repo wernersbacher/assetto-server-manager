@@ -13,6 +13,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -67,7 +68,7 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	trackMapData, err := LoadTrackMapData(result.TrackName, result.TrackConfig)
+	trackMapData, err := smcontent.LoadTrackMapData(ServerInstallPath, result.TrackName, result.TrackConfig)
 
 	if err != nil {
 		logrus.WithError(err).Error("could not load track map data")
@@ -75,7 +76,7 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	trackMapImage, err := LoadTrackMapImage(result.TrackName, result.TrackConfig)
+	trackMapImage, err := smcontent.LoadTrackMapImage(ServerInstallPath, result.TrackName, result.TrackConfig)
 
 	if err != nil {
 		logrus.WithError(err).Error("could not load track map image")

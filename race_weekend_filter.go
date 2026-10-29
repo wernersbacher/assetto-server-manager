@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -185,10 +186,10 @@ func (f RaceWeekendSessionToSessionFilter) Filter(raceWeekend *RaceWeekend, pare
 	return nil
 }
 
-const lockedTyreSetupFolder = "server_manager_locked_tyres"
+const lockedTyreSetupFolder = smcontent.LockedTyreSetupFolder
 
 func (rw *RaceWeekend) buildLockedTyreSetup(session *RaceWeekendSession, entrant *RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
-	tyreIndex, err := findTyreIndex(entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
+	tyreIndex, err := smcontent.FindTyreIndex(ServerInstallPath, entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
 
 	if err != nil {
 		return err

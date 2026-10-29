@@ -1,4 +1,4 @@
-package servermanager
+package content
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 
 	"github.com/dimchansky/utfbom"
 )
@@ -17,8 +18,9 @@ type Car struct {
 	Details CarDetails
 }
 
+// PrettyName is the readable name of the car, taking the car name cache into account.
 func (c Car) PrettyName() string {
-	return prettifyName(c.Name, true)
+	return PrettifyName(c.Name, true)
 }
 
 func (c Car) IsPaidDLC() bool {
@@ -124,8 +126,8 @@ func (cd *CarDetails) DelTag(name string) {
 	cd.Tags = append(cd.Tags[:deleteIndex], cd.Tags[deleteIndex+1:]...)
 }
 
-func (cd *CarDetails) Save(carName string) error {
-	uiDirectory := filepath.Join(ServerInstallPath, "content", "cars", carName, "ui")
+func (cd *CarDetails) Save(installPath, carName string) error {
+	uiDirectory := filepath.Join(installPath, "content", "cars", carName, "ui")
 
 	err := os.MkdirAll(uiDirectory, 0755)
 
@@ -147,8 +149,8 @@ func (cd *CarDetails) Save(carName string) error {
 	return enc.Encode(cd)
 }
 
-func (cd *CarDetails) Load(carName string) error {
-	f, err := os.Open(filepath.Join(ServerInstallPath, "content", "cars", carName, "ui", "ui_car.json"))
+func (cd *CarDetails) Load(installPath, carName string) error {
+	f, err := os.Open(filepath.Join(installPath, "content", "cars", carName, "ui", "ui_car.json"))
 
 	if err != nil {
 		return err
@@ -215,4 +217,19 @@ func (cs CarSpecs) Numeric() CarSpecsNumeric {
 		Torque:       toNumber(cs.Torque),
 		Weight:       toNumber(cs.Weight),
 	}
+}
+
+// formValueAsInt parses val as an int, "on" (checkbox) counts as 1. Anything unparseable is 0.
+func formValueAsInt(val string) int {
+	if val == "on" {
+		return 1
+	}
+
+	i, err := strconv.ParseInt(val, 10, 0)
+
+	if err != nil {
+		return 0
+	}
+
+	return int(i)
 }
