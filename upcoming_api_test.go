@@ -4,6 +4,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
 	"io/ioutil"
@@ -18,7 +19,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, Store, func()) {
+func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, smstore.Store, func()) {
 	dir, err := ioutil.TempDir("", "upcoming-api")
 
 	if err != nil {
@@ -28,7 +29,7 @@ func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, Store, func()) 
 	oldServerID := serverID
 	serverID = "test-server"
 
-	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	handler := NewScheduledRacesHandler(&BaseHandler{}, NewScheduledRacesManager(&smconfig.Configuration{}, store))
 

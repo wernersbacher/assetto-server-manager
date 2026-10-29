@@ -9,13 +9,14 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 type RaceControl struct {
 	config           *smconfig.Configuration
 	process          ServerProcess
-	store            Store
+	store            smstore.Store
 	penaltiesManager *PenaltiesManager
 
 	SessionInfo                udp.SessionInfo        `json:"SessionInfo"`
@@ -57,7 +58,7 @@ func (rc *RaceControl) Event() udp.Event {
 	return 200
 }
 
-func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store Store, penaltiesManager *PenaltiesManager) *RaceControl {
+func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store smstore.Store, penaltiesManager *PenaltiesManager) *RaceControl {
 	rc := &RaceControl{
 		config:               config,
 		broadcaster:          broadcaster,

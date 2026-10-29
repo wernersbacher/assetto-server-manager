@@ -1,4 +1,4 @@
-package servermanager
+package store
 
 import (
 	"encoding/json"
@@ -13,11 +13,12 @@ import (
 )
 
 type BoltStore struct {
-	db *bbolt.DB
+	db   *bbolt.DB
+	opts storeOptions
 }
 
-func NewBoltStore(db *bbolt.DB) Store {
-	return &BoltStore{db: db}
+func NewBoltStore(db *bbolt.DB, opts ...Option) Store {
+	return &BoltStore{db: db, opts: newStoreOptions(opts)}
 }
 
 var (
@@ -845,7 +846,7 @@ func (rs *BoltStore) UpsertStrackerOptions(sto *smplugins.StrackerConfiguration)
 
 func (rs *BoltStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, error) {
 	// start with defaults
-	sto := smplugins.DefaultStrackerIni(ServerInstallPath)
+	sto := smplugins.DefaultStrackerIni(rs.opts.serverInstallPath())
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)

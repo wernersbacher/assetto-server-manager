@@ -19,15 +19,16 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type ResultsHandler struct {
 	*BaseHandler
 
-	store Store
+	store smstore.Store
 }
 
-func NewResultsHandler(baseHandler *BaseHandler, store Store) *ResultsHandler {
+func NewResultsHandler(baseHandler *BaseHandler, store smstore.Store) *ResultsHandler {
 	return &ResultsHandler{
 		BaseHandler: baseHandler,
 		store:       store,

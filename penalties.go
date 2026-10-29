@@ -13,6 +13,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type PenaltiesHandler struct {
@@ -82,10 +83,10 @@ func (ph *PenaltiesHandler) managePenalty(w http.ResponseWriter, r *http.Request
 }
 
 type PenaltiesManager struct {
-	store Store
+	store smstore.Store
 }
 
-func NewPenaltiesManager(store Store) *PenaltiesManager {
+func NewPenaltiesManager(store smstore.Store) *PenaltiesManager {
 	return &PenaltiesManager{
 		store: store,
 	}

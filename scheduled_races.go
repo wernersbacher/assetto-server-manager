@@ -17,6 +17,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type ScheduledEvent interface {
@@ -150,10 +151,10 @@ func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) erro
 
 type ScheduledRacesManager struct {
 	config *smconfig.Configuration
-	store  Store
+	store  smstore.Store
 }
 
-func NewScheduledRacesManager(config *smconfig.Configuration, store Store) *ScheduledRacesManager {
+func NewScheduledRacesManager(config *smconfig.Configuration, store smstore.Store) *ScheduledRacesManager {
 	return &ScheduledRacesManager{
 		config: config,
 		store:  store,

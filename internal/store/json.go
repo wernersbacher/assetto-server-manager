@@ -1,4 +1,4 @@
-package servermanager
+package store
 
 import (
 	"encoding/json"
@@ -37,16 +37,18 @@ const (
 	entrantsFile     = "entrants.json"
 )
 
-func NewJSONStore(dir string, sharedDir string) Store {
+func NewJSONStore(dir string, sharedDir string, opts ...Option) Store {
 	return &JSONStore{
 		base:   dir,
 		shared: sharedDir,
+		opts:   newStoreOptions(opts),
 	}
 }
 
 type JSONStore struct {
 	base   string
 	shared string
+	opts   storeOptions
 
 	mutex sync.RWMutex
 }
@@ -576,7 +578,7 @@ func (rs *JSONStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, er
 	err := rs.decodeFile(rs.base, strackerOptionsFile, &out)
 
 	if os.IsNotExist(err) {
-		strackerConfig := smplugins.DefaultStrackerIni(ServerInstallPath)
+		strackerConfig := smplugins.DefaultStrackerIni(rs.opts.serverInstallPath())
 
 		return strackerConfig, rs.UpsertStrackerOptions(strackerConfig)
 	} else if err != nil {

@@ -11,6 +11,7 @@ import (
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -19,10 +20,10 @@ var LaunchTime = time.Now()
 type HealthCheck struct {
 	raceControl *RaceControl
 	process     ServerProcess
-	store       Store
+	store       smstore.Store
 }
 
-func NewHealthCheck(raceControl *RaceControl, store Store, process ServerProcess) *HealthCheck {
+func NewHealthCheck(raceControl *RaceControl, store smstore.Store, process ServerProcess) *HealthCheck {
 	return &HealthCheck{
 		store:       store,
 		raceControl: raceControl,

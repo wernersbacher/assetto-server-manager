@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type kissMyRankConfigurationTemplateVars struct {
@@ -18,10 +19,10 @@ type kissMyRankConfigurationTemplateVars struct {
 
 type KissMyRankHandler struct {
 	*BaseHandler
-	store Store
+	store smstore.Store
 }
 
-func NewKissMyRankHandler(baseHandler *BaseHandler, store Store) *KissMyRankHandler {
+func NewKissMyRankHandler(baseHandler *BaseHandler, store smstore.Store) *KissMyRankHandler {
 	return &KissMyRankHandler{
 		BaseHandler: baseHandler,
 		store:       store,

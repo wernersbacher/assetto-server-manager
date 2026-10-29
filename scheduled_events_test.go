@@ -5,6 +5,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -58,7 +59,7 @@ func (p *interruptibleServerProcess) Event() smmodel.RaceEvent {
 }
 
 // setupScheduledEventTest builds a ChampionshipManager on top of a temporary store and fake server install.
-func setupScheduledEventTest(t *testing.T, process ServerProcess) (*ChampionshipManager, Store, func()) {
+func setupScheduledEventTest(t *testing.T, process ServerProcess) (*ChampionshipManager, smstore.Store, func()) {
 	dir, err := ioutil.TempDir("", "scheduled-events")
 
 	if err != nil {
@@ -73,7 +74,7 @@ func setupScheduledEventTest(t *testing.T, process ServerProcess) (*Championship
 	ServerInstallPath = dir
 	serverID = "test-server"
 
-	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	cm := NewChampionshipManager(
 		NewRaceManager(
@@ -94,7 +95,7 @@ func setupScheduledEventTest(t *testing.T, process ServerProcess) (*Championship
 	}
 }
 
-func newScheduledTestChampionship(t *testing.T, store Store, scheduled ...time.Time) *smmodel.Championship {
+func newScheduledTestChampionship(t *testing.T, store smstore.Store, scheduled ...time.Time) *smmodel.Championship {
 	championship := smmodel.NewChampionship("Scheduled Championship")
 
 	for _, scheduledTime := range scheduled {
@@ -221,7 +222,7 @@ func TestChampionshipManager_InitScheduledChampionships(t *testing.T) {
 }
 
 // newRecurringTestChampionship creates a championship with one recurring event that is due at the given time.
-func newRecurringTestChampionship(t *testing.T, store Store, due time.Time) *smmodel.Championship {
+func newRecurringTestChampionship(t *testing.T, store smstore.Store, due time.Time) *smmodel.Championship {
 	championship := newScheduledTestChampionship(t, store, due)
 
 	if err := championship.Events[0].SetRecurrenceRule("FREQ=DAILY"); err != nil {

@@ -5,6 +5,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"context"
 	"net/http"
@@ -262,7 +263,7 @@ func TestChampionship_RaceSettingsForForm(t *testing.T) {
 	}
 }
 
-func newRaceSettingsTestChampionship(t *testing.T, store Store, useSettings bool) *smmodel.Championship {
+func newRaceSettingsTestChampionship(t *testing.T, store smstore.Store, useSettings bool) *smmodel.Championship {
 	championship := smmodel.NewChampionship("Race Settings")
 	championship.RaceSettings = testChampionshipRaceSettings()
 

@@ -1,10 +1,46 @@
-package servermanager
+package store
 
 import (
+	"errors"
+
+	"github.com/google/uuid"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
+
+// Option configures a Store.
+type Option func(*storeOptions)
+
+type storeOptions struct {
+	installPath func() string
+}
+
+// WithInstallPath sets the function which returns the install path of the assetto corsa server, which the default
+// plugin configuration is based on. It is a function because the path is only set after the store has been opened.
+func WithInstallPath(installPath func() string) Option {
+	return func(o *storeOptions) {
+		o.installPath = installPath
+	}
+}
+
+func newStoreOptions(opts []Option) storeOptions {
+	var o storeOptions
+
+	for _, opt := range opts {
+		opt(&o)
+	}
+
+	return o
+}
+
+func (o storeOptions) serverInstallPath() string {
+	if o.installPath == nil {
+		return ""
+	}
+
+	return o.installPath()
+}
 
 type Store interface {
 	// Custom Races
@@ -97,4 +133,29 @@ func loadChampionshipRaceWeekends(championship *smmodel.Championship, store Stor
 	}
 
 	return nil
+}
+
+// ErrCustomRaceNotFound is returned when a custom race does not exist.
+var ErrCustomRaceNotFound = errors.New("servermanager: custom race not found")
+
+const serverIDMetaKey = "server_id"
+
+// InitServerID loads the id of this server manager instance from the store. If the instance does not have an id yet
+// a new one is created and stored.
+func InitServerID(store Store) (smmodel.ServerID, error) {
+	var serverID smmodel.ServerID
+
+	err := store.GetMeta(serverIDMetaKey, &serverID)
+
+	if err == ErrValueNotSet {
+		serverID = smmodel.ServerID(uuid.New().String())
+
+		if err := store.SetMeta(serverIDMetaKey, serverID); err != nil {
+			return "", err
+		}
+	} else if err != nil {
+		return "", err
+	}
+
+	return serverID, nil
 }

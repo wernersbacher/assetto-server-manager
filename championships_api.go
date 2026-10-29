@@ -12,6 +12,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 // The championship API exposes the information that is publicly visible on the championship pages (events,
@@ -349,7 +350,7 @@ func (ch *ChampionshipsHandler) listAPI(w http.ResponseWriter, r *http.Request) 
 func (ch *ChampionshipsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
-	if err == ErrChampionshipNotFound {
+	if err == smstore.ErrChampionshipNotFound {
 		http.NotFound(w, r)
 		return
 	} else if err != nil {

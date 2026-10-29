@@ -3,6 +3,7 @@ package servermanager
 import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"errors"
 	"fmt"
@@ -134,7 +135,7 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *smmodel.Champio
 	championship, err := cm.store.LoadChampionship(championshipID)
 
 	if err != nil {
-		if err == ErrChampionshipNotFound {
+		if err == smstore.ErrChampionshipNotFound {
 			logrus.Warnf("Scheduled championship event %s not started: championship %s no longer exists", eventID, championshipID)
 			return nil
 		}

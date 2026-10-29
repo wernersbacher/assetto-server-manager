@@ -12,6 +12,7 @@ import (
 	"time"
 
 	servermanager "github.com/wernersbacher/assetto-server-manager"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 const testConfig = `
@@ -121,7 +122,7 @@ func TestSeedIsIdempotentAndStandingsWork(t *testing.T) {
 }
 
 // countSeeded counts the seeded objects in the store. A fresh store contains examples added by migrations.
-func countSeeded(store servermanager.Store) (championships, races, weekends, entrants int) {
+func countSeeded(store smstore.Store) (championships, races, weekends, entrants int) {
 	cs, _ := store.ListChampionships()
 
 	for _, c := range cs {

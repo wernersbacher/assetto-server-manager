@@ -12,6 +12,7 @@ import (
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -140,13 +141,13 @@ type RaceControlHandler struct {
 	*BaseHandler
 	serverProcess ServerProcess
 
-	store          Store
+	store          smstore.Store
 	raceManager    *RaceManager
 	raceControl    *RaceControl
 	raceControlHub *RaceControlHub
 }
 
-func NewRaceControlHandler(baseHandler *BaseHandler, store Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess ServerProcess) *RaceControlHandler {
+func NewRaceControlHandler(baseHandler *BaseHandler, store smstore.Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess ServerProcess) *RaceControlHandler {
 	return &RaceControlHandler{
 		BaseHandler:    baseHandler,
 		store:          store,

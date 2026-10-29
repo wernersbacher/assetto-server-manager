@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"io/ioutil"
 	"net/http"
@@ -25,7 +26,7 @@ func TestRouterDeleteRoutesArePostOnly(t *testing.T) {
 
 	defer os.RemoveAll(dir)
 
-	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
 	resolver, err := NewResolver(&smconfig.Configuration{}, NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store)
 

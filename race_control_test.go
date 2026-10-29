@@ -4,6 +4,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"math/rand"
 	"os"
@@ -14,7 +15,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
-var testStore = NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
+var testStore = smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
 
 var drivers = []udp.SessionCarInfo{
 	{

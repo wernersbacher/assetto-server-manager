@@ -4,6 +4,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"bytes"
 	"context"
@@ -108,7 +109,7 @@ type CMCar struct {
 
 type ContentManagerWrapper struct {
 	config       *smconfig.Configuration
-	store        Store
+	store        smstore.Store
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
 
@@ -125,7 +126,7 @@ type ContentManagerWrapper struct {
 	mutex       sync.Mutex
 }
 
-func NewContentManagerWrapper(config *smconfig.Configuration, store Store, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentManagerWrapper {
+func NewContentManagerWrapper(config *smconfig.Configuration, store smstore.Store, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentManagerWrapper {
 	return &ContentManagerWrapper{
 		config:       config,
 		store:        store,

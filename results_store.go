@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 // UseFallBackSorting makes loaded results use SessionResults.FallBackSort. It is set from the server options.
@@ -94,7 +95,7 @@ func (e ResultsFileReferencedError) Error() string {
 // findResultsReference returns a description of the championship or race weekend which uses the given results file,
 // or an empty string if it is not referenced. Championship events and race weekend sessions embed a copy of the
 // results they were built from, so they are matched by the results' SessionFile.
-func findResultsReference(store Store, fileName string) (string, error) {
+func findResultsReference(store smstore.Store, fileName string) (string, error) {
 	// LoadResult derives SessionFile from the file name in this way
 	sessionFile := strings.Trim(fileName, ".json")
 
@@ -136,7 +137,7 @@ func findResultsReference(store Store, fileName string) (string, error) {
 }
 
 // deleteResultsFile removes a results file from the results directory, unless it is used by a championship or race weekend.
-func deleteResultsFile(store Store, fileName string) error {
+func deleteResultsFile(store smstore.Store, fileName string) error {
 	return resultsLoader().Remove(fileName, func() error {
 		reference, err := findResultsReference(store, fileName)
 

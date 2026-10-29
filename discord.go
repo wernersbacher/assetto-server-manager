@@ -14,10 +14,11 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type DiscordManager struct {
-	store                 Store
+	store                 smstore.Store
 	discord               *discordgo.Session
 	scheduledRacesManager *ScheduledRacesManager
 	enabled               bool
@@ -25,7 +26,7 @@ type DiscordManager struct {
 
 // NewDiscordManager instantiates the DiscordManager type.  On error, it will log the error and return the type
 // flagged as disabled
-func NewDiscordManager(store Store, scheduledRacesManager *ScheduledRacesManager) (*DiscordManager, error) {
+func NewDiscordManager(store smstore.Store, scheduledRacesManager *ScheduledRacesManager) (*DiscordManager, error) {
 	discordManager := &DiscordManager{
 		store:                 store,
 		scheduledRacesManager: scheduledRacesManager,

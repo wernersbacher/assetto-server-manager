@@ -14,15 +14,16 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type RealPenaltyHandler struct {
 	*BaseHandler
 
-	store Store
+	store smstore.Store
 }
 
-func NewRealPenaltyHandler(baseHandler *BaseHandler, store Store) *RealPenaltyHandler {
+func NewRealPenaltyHandler(baseHandler *BaseHandler, store smstore.Store) *RealPenaltyHandler {
 	return &RealPenaltyHandler{BaseHandler: baseHandler, store: store}
 }
 

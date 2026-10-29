@@ -19,6 +19,7 @@ import (
 
 	servermanager "github.com/wernersbacher/assetto-server-manager"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"github.com/etcd-io/bbolt"
 )
@@ -96,7 +97,7 @@ func run(dir string, reset bool, out io.Writer) error {
 
 // openStore opens the store of the config. BoltDB is opened with a timeout, so a running server is reported
 // instead of waiting for the database lock forever.
-func openStore(conf *smconfig.Configuration) (servermanager.Store, func(), error) {
+func openStore(conf *smconfig.Configuration) (smstore.Store, func(), error) {
 	if conf.Store.Type != "boltdb" {
 		store, err := servermanager.BuildStore(&conf.Store)
 
@@ -111,9 +112,10 @@ func openStore(conf *smconfig.Configuration) (servermanager.Store, func(), error
 		return nil, nil, err
 	}
 
-	store := servermanager.NewBoltStore(db)
+	installPath := func() string { return servermanager.ServerInstallPath }
+	store := smstore.NewBoltStore(db, smstore.WithInstallPath(installPath))
 
-	if err := servermanager.Migrate(store); err != nil {
+	if err := smstore.Migrate(store, smstore.MigrationEnv{BuildVersion: servermanager.BuildVersion, InstallPath: installPath}); err != nil {
 		_ = db.Close()
 
 		return nil, nil, err
@@ -122,12 +124,12 @@ func openStore(conf *smconfig.Configuration) (servermanager.Store, func(), error
 	return store, func() { _ = db.Close() }, nil
 }
 
-func loadServerID(store servermanager.Store) (smmodel.ServerID, error) {
+func loadServerID(store smstore.Store) (smmodel.ServerID, error) {
 	var id smmodel.ServerID
 
 	err := store.GetMeta("server_id", &id)
 
-	if err == servermanager.ErrValueNotSet || (err == nil && id == "") {
+	if err == smstore.ErrValueNotSet || (err == nil && id == "") {
 		// the server never ran against this database yet, it will pick up the id we store here (see initServerID)
 		id = smmodel.ServerID(seedID("server").String())
 
@@ -137,12 +139,12 @@ func loadServerID(store servermanager.Store) (smmodel.ServerID, error) {
 	return id, err
 }
 
-func isSeeded(store servermanager.Store) (bool, error) {
+func isSeeded(store smstore.Store) (bool, error) {
 	var m seedManifest
 
 	err := store.GetMeta(manifestMetaKey, &m)
 
-	if err != nil && err != servermanager.ErrValueNotSet {
+	if err != nil && err != smstore.ErrValueNotSet {
 		return false, err
 	}
 
@@ -158,7 +160,7 @@ func isSeeded(store servermanager.Store) (bool, error) {
 	return false, nil
 }
 
-func seed(store servermanager.Store, reset bool, now time.Time, out io.Writer) error {
+func seed(store smstore.Store, reset bool, now time.Time, out io.Writer) error {
 	if reset {
 		if err := resetSeed(store, out); err != nil {
 			return err
@@ -206,10 +208,10 @@ func seed(store servermanager.Store, reset bool, now time.Time, out io.Writer) e
 
 // resetSeed removes everything a previous run created. Objects are found by their fixed ids, result files by the
 // manifest. Deleting is the same (soft) delete the UI does.
-func resetSeed(store servermanager.Store, out io.Writer) error {
+func resetSeed(store smstore.Store, out io.Writer) error {
 	var m seedManifest
 
-	if err := store.GetMeta(manifestMetaKey, &m); err != nil && err != servermanager.ErrValueNotSet {
+	if err := store.GetMeta(manifestMetaKey, &m); err != nil && err != smstore.ErrValueNotSet {
 		return err
 	}
 
@@ -250,7 +252,7 @@ func resetSeed(store servermanager.Store, out io.Writer) error {
 
 // checkStandings loads a championship back from the store and prints its class standings. It fails if the
 // standings look broken: no points at all, or a championship with DropWorstResults where nothing is dropped.
-func checkStandings(out io.Writer, store servermanager.Store, id string) error {
+func checkStandings(out io.Writer, store smstore.Store, id string) error {
 	c, err := store.LoadChampionship(id)
 
 	if err != nil {

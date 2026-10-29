@@ -3,6 +3,7 @@ package servermanager
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"net/http"
 
@@ -12,7 +13,7 @@ import (
 
 type Resolver struct {
 	config          *smconfig.Configuration
-	store           Store
+	store           smstore.Store
 	sessionStore    sessions.Store
 	templateLoader  TemplateLoader
 	reloadTemplates bool
@@ -57,7 +58,7 @@ type Resolver struct {
 	realPenaltyHandler          *RealPenaltyHandler
 }
 
-func NewResolver(config *smconfig.Configuration, templateLoader TemplateLoader, reloadTemplates bool, store Store) (*Resolver, error) {
+func NewResolver(config *smconfig.Configuration, templateLoader TemplateLoader, reloadTemplates bool, store smstore.Store) (*Resolver, error) {
 	r := &Resolver{
 		config:          config,
 		templateLoader:  templateLoader,
@@ -109,7 +110,7 @@ func (r *Resolver) initViewRenderer() error {
 	return nil
 }
 
-func (r *Resolver) ResolveStore() Store {
+func (r *Resolver) ResolveStore() smstore.Store {
 	return r.store
 }
 

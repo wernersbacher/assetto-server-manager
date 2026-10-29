@@ -6,37 +6,17 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-var (
-	serverID        smmodel.ServerID
-	serverIDMetaKey = "server_id"
-)
-
-func initServerID(store Store) error {
-	err := store.GetMeta(serverIDMetaKey, &serverID)
-
-	if err == ErrValueNotSet {
-		serverID = smmodel.ServerID(uuid.New().String())
-		err = store.SetMeta(serverIDMetaKey, serverID)
-
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
-		return err
-	}
-
-	return nil
-}
+var serverID smmodel.ServerID
 
 func InitWithResolver(resolver *Resolver) error {
 	store := resolver.ResolveStore()
@@ -47,9 +27,13 @@ func InitWithResolver(resolver *Resolver) error {
 		return err
 	}
 
-	if err := initServerID(store); err != nil {
+	id, err := smstore.InitServerID(store)
+
+	if err != nil {
 		return err
 	}
+
+	serverID = id
 
 	accountManager.InitOpenAccount()
 
@@ -57,7 +41,7 @@ func InitWithResolver(resolver *Resolver) error {
 
 	opts, err := store.LoadServerOptions()
 
-	if err != nil && err != ErrValueNotSet {
+	if err != nil && err != smstore.ErrValueNotSet {
 		return err
 	}
 

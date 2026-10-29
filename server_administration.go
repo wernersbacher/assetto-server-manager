@@ -5,6 +5,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
 	"html/template"
@@ -24,7 +25,7 @@ type ServerAdministrationHandler struct {
 	*BaseHandler
 
 	config              *smconfig.Configuration
-	store               Store
+	store               smstore.Store
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
@@ -35,7 +36,7 @@ type ServerAdministrationHandler struct {
 func NewServerAdministrationHandler(
 	config *smconfig.Configuration,
 	baseHandler *BaseHandler,
-	store Store,
+	store smstore.Store,
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
 	raceWeekendManager *RaceWeekendManager,

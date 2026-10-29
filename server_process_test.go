@@ -3,6 +3,7 @@ package servermanager
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"fmt"
 	"io/ioutil"
@@ -38,7 +39,7 @@ func setupServerProcessTest(t *testing.T, executablePath string) (*AssettoServer
 	config := &smconfig.Configuration{}
 	config.Steam.ExecutablePath = executablePath
 
-	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	if err := os.Setenv(fakeACServerEnv, "1"); err != nil {
 		t.Fatal(err)

@@ -12,6 +12,7 @@ import (
 	servermanager "github.com/wernersbacher/assetto-server-manager"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 const (
@@ -147,7 +148,7 @@ func joinCars(cars []string) string {
 }
 
 // seedAll creates everything. The caller has already checked that the store was not seeded yet.
-func seedAll(store servermanager.Store, serverID smmodel.ServerID, now time.Time) (*seedManifest, *seedSummary, error) {
+func seedAll(store smstore.Store, serverID smmodel.ServerID, now time.Time) (*seedManifest, *seedSummary, error) {
 	rng := rand.New(rand.NewSource(randomSeed))
 	manifest := &seedManifest{Version: manifestVersion, Seeded: now}
 	summary := &seedSummary{}

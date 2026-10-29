@@ -19,6 +19,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"golang.org/x/crypto/scrypt"
 )
 
@@ -207,11 +208,11 @@ type AccountHandler struct {
 	steam.LoginHandler
 
 	config         *smconfig.Configuration
-	store          Store
+	store          smstore.Store
 	accountManager *AccountManager
 }
 
-func NewAccountHandler(config *smconfig.Configuration, baseHandler *BaseHandler, store Store, accountManager *AccountManager) *AccountHandler {
+func NewAccountHandler(config *smconfig.Configuration, baseHandler *BaseHandler, store smstore.Store, accountManager *AccountManager) *AccountHandler {
 	return &AccountHandler{
 		config:         config,
 		BaseHandler:    baseHandler,
@@ -248,7 +249,7 @@ func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
 func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
 	err := ah.store.GetMeta(serverAccountOptionsMetaKey, &ah.accountManager.options)
 
-	if err != nil && err != ErrValueNotSet {
+	if err != nil && err != smstore.ErrValueNotSet {
 		logrus.WithError(err).Errorf("Could not determine server open status")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -423,10 +424,10 @@ type AccountManager struct {
 
 	// openAccount is the dummy account which is used for visitors if read access is open.
 	openAccount *smmodel.Account
-	store       Store
+	store       smstore.Store
 }
 
-func NewAccountManager(config *smconfig.Configuration, store Store, sessionStore sessions.Store) *AccountManager {
+func NewAccountManager(config *smconfig.Configuration, store smstore.Store, sessionStore sessions.Store) *AccountManager {
 	return &AccountManager{
 		config:       config,
 		sessionStore: sessionStore,
@@ -439,7 +440,7 @@ func NewAccountManager(config *smconfig.Configuration, store Store, sessionStore
 func (am *AccountManager) LoadOptions() error {
 	err := am.store.GetMeta(serverAccountOptionsMetaKey, &am.options)
 
-	if err != nil && err != ErrValueNotSet {
+	if err != nil && err != smstore.ErrValueNotSet {
 		return err
 	}
 

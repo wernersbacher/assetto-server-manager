@@ -1,4 +1,4 @@
-package servermanager
+package store
 
 import (
 	"encoding/json"
@@ -21,7 +21,26 @@ const (
 	versionMetaKey = "version"
 )
 
-func Migrate(store Store) error {
+// MigrationEnv carries the process wide values which migrations depend on.
+type MigrationEnv struct {
+	// BuildVersion is the version of the running server manager.
+	BuildVersion string
+
+	// InstallPath returns the installation path of the assetto corsa server. It is a function because the path is
+	// only set after the store has been opened and migrated.
+	InstallPath func() string
+}
+
+func (e MigrationEnv) installPath() string {
+	if e.InstallPath == nil {
+		return ""
+	}
+
+	return e.InstallPath()
+}
+
+// Migrate brings the data in the store up to date with the current version of the data structures.
+func Migrate(store Store, env MigrationEnv) error {
 	var storeVersion int
 
 	err := store.GetMeta(versionMetaKey, &storeVersion)
@@ -38,6 +57,8 @@ func Migrate(store Store) error {
 		}
 	}
 
+	migrations := buildMigrations(env)
+
 	for i := storeVersion; i < CurrentMigrationVersion; i++ {
 		err := migrations[i](store)
 
@@ -51,12 +72,15 @@ func Migrate(store Store) error {
 
 type migrationFunc func(Store) error
 
-var (
-	CurrentMigrationVersion = len(migrations)
+// CurrentMigrationVersion is the number of migrations, which is the version of up to date stores.
+var CurrentMigrationVersion = len(buildMigrations(MigrationEnv{}))
 
-	migrations = []migrationFunc{
+// buildMigrations returns all migrations in the order they run. Never reorder or remove entries, the stored version is
+// the index into this list.
+func buildMigrations(env MigrationEnv) []migrationFunc {
+	return []migrationFunc{
 		addEntrantIDToChampionships,
-		addAdminAccount,
+		func(s Store) error { return addAdminAccount(s, env.BuildVersion) },
 		// migration 2 (below) is left intentionally blank. it replaces a migration which worked with deprecated data.
 		func(Store) error { return nil },
 		addEntrantsToChampionshipEvents,
@@ -74,7 +98,7 @@ var (
 		addRaceWeekendExamples,
 		addServerNameTemplate,
 		addAvailableCarsToChampionshipClass,
-		addTyresForP13c,
+		func(s Store) error { return addTyresForP13c(s, env.installPath()) },
 		changeNotificationTimer,
 		addContentExamples,
 		addServerIDToScheduledEvents,
@@ -93,7 +117,7 @@ var (
 		fixCarDuplicationInRaceSetups,
 		addRealPenaltyAppUDPPort,
 	}
-)
+}
 
 func addEntrantIDToChampionships(rs Store) error {
 	logrus.Infof("Running migration: Add Internal UUID to Championship Entrants")
@@ -123,8 +147,10 @@ func addEntrantIDToChampionships(rs Store) error {
 	return nil
 }
 
-func addAdminAccount(rs Store) error {
-	if err := initServerID(rs); err != nil {
+func addAdminAccount(rs Store, buildVersion string) error {
+	serverID, err := InitServerID(rs)
+
+	if err != nil {
 		return err
 	}
 
@@ -143,7 +169,7 @@ func addAdminAccount(rs Store) error {
 
 	logrus.Infof("Running migration: Add Admin Account")
 
-	account := smmodel.NewAccount(serverID, BuildVersion)
+	account := smmodel.NewAccount(serverID, buildVersion)
 	account.Name = smmodel.AdminUserName
 	account.DefaultPassword = "servermanager"
 	// DeprecatedGroup must be assigned to here, since a following migration will just re-set-up Groups.
@@ -543,7 +569,7 @@ func addAvailableCarsToChampionshipClass(s Store) error {
 	return nil
 }
 
-func addTyresForP13c(s Store) error {
+func addTyresForP13c(s Store, installPath string) error {
 	logrus.Debugf("Running migration: add tyres for IER P13c")
 
 	tyres := make(map[string]string)
@@ -552,7 +578,7 @@ func addTyresForP13c(s Store) error {
 		tyres[tyre] = tyre
 	}
 
-	return smcontent.AddTyresToModTyres(ServerInstallPath, smcontent.IERP13c, tyres)
+	return smcontent.AddTyresToModTyres(installPath, smcontent.IERP13c, tyres)
 }
 
 func addContentExamples(s Store) error {
@@ -620,7 +646,9 @@ func addContentExamples(s Store) error {
 func addServerIDToScheduledEvents(s Store) error {
 	logrus.Infof("Running migration: Add Server ID to Scheduled Events")
 
-	if err := initServerID(s); err != nil {
+	serverID, err := InitServerID(s)
+
+	if err != nil {
 		return err
 	}
 
@@ -706,7 +734,9 @@ func addServerIDToScheduledEvents(s Store) error {
 func addLoopServerToCustomRace(s Store) error {
 	logrus.Infof("Running migration: Add Loop Per Server to Custom Race")
 
-	if err := initServerID(s); err != nil {
+	serverID, err := InitServerID(s)
+
+	if err != nil {
 		return err
 	}
 
@@ -892,7 +922,9 @@ func enableLoggingWith5LogsKept(s Store) error {
 func convertAccountGroupToServerIDGroupMap(s Store) error {
 	logrus.Infof("Running migration: Convert Account Group to Server ID Group Map")
 
-	if err := initServerID(s); err != nil {
+	serverID, err := InitServerID(s)
+
+	if err != nil {
 		return err
 	}
 
@@ -976,7 +1008,7 @@ func addCorrectCarNameToLiveTimingsData(s Store) error {
 
 	for _, driver := range timings.Drivers {
 		for key, car := range driver.Cars {
-			car.CarName = prettifyName(key, true)
+			car.CarName = smcontent.PrettifyName(key, true)
 		}
 	}
 

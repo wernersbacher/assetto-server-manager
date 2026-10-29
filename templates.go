@@ -6,6 +6,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"bytes"
 	"encoding/json"
@@ -136,7 +137,7 @@ func driverInitials(name string) string {
 // Renderer is the template engine.
 type Renderer struct {
 	config  *smconfig.Configuration
-	store   Store
+	store   smstore.Store
 	process ServerProcess
 	loader  TemplateLoader
 
@@ -146,7 +147,7 @@ type Renderer struct {
 	mutex  sync.Mutex
 }
 
-func NewRenderer(config *smconfig.Configuration, loader TemplateLoader, store Store, process ServerProcess, reload bool) (*Renderer, error) {
+func NewRenderer(config *smconfig.Configuration, loader TemplateLoader, store smstore.Store, process ServerProcess, reload bool) (*Renderer, error) {
 	tr := &Renderer{
 		config:  config,
 		store:   store,

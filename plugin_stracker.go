@@ -15,16 +15,17 @@ import (
 	"golang.org/x/net/html"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type StrackerHandler struct {
 	*BaseHandler
 
-	store        Store
+	store        smstore.Store
 	reverseProxy *httputil.ReverseProxy
 }
 
-func NewStrackerHandler(baseHandler *BaseHandler, store Store) *StrackerHandler {
+func NewStrackerHandler(baseHandler *BaseHandler, store smstore.Store) *StrackerHandler {
 	return &StrackerHandler{BaseHandler: baseHandler, store: store}
 }
 

@@ -5,6 +5,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -23,7 +24,7 @@ type RaceWeekendManager struct {
 	championshipManager *ChampionshipManager
 	notificationManager NotificationDispatcher
 	carManager          *smcontent.CarManager
-	store               Store
+	store               smstore.Store
 	process             ServerProcess
 
 	activeRaceWeekend *smmodel.ActiveRaceWeekend
@@ -37,7 +38,7 @@ func NewRaceWeekendManager(
 	config *smconfig.Configuration,
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
-	store Store,
+	store smstore.Store,
 	process ServerProcess,
 	notificationManager NotificationDispatcher,
 	carManager *smcontent.CarManager,

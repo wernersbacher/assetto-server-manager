@@ -6,11 +6,15 @@ import (
 	"github.com/etcd-io/bbolt"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 // BuildStore opens the Store configured in StoreConfig and runs migrations.
-func BuildStore(s *smconfig.StoreConfig) (Store, error) {
-	var rs Store
+func BuildStore(s *smconfig.StoreConfig) (smstore.Store, error) {
+	var rs smstore.Store
+
+	// the install path is set after the store was built, so it is looked up when it is needed
+	installPath := func() string { return ServerInstallPath }
 
 	if s.SharedPath == "" {
 		s.SharedPath = s.Path
@@ -24,14 +28,14 @@ func BuildStore(s *smconfig.StoreConfig) (Store, error) {
 			return nil, err
 		}
 
-		rs = NewBoltStore(bbdb)
+		rs = smstore.NewBoltStore(bbdb, smstore.WithInstallPath(installPath))
 	case "json":
-		rs = NewJSONStore(s.Path, s.SharedPath)
+		rs = smstore.NewJSONStore(s.Path, s.SharedPath, smstore.WithInstallPath(installPath))
 	default:
 		return nil, fmt.Errorf("invalid store type (%s), must be either boltdb/json", s.Type)
 	}
 
-	if err := Migrate(rs); err != nil {
+	if err := smstore.Migrate(rs, smstore.MigrationEnv{BuildVersion: BuildVersion, InstallPath: installPath}); err != nil {
 		return nil, err
 	}
 

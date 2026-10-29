@@ -5,6 +5,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"bytes"
 	"context"
@@ -43,7 +44,7 @@ type ServerProcess interface {
 // AssettoServerProcess manages the Assetto Corsa Server process.
 type AssettoServerProcess struct {
 	config                *smconfig.Configuration
-	store                 Store
+	store                 smstore.Store
 	contentManagerWrapper *ContentManagerWrapper
 
 	start                 chan smmodel.RaceEvent
@@ -79,7 +80,7 @@ type pluginProcess struct {
 	stdin io.WriteCloser
 }
 
-func NewAssettoServerProcess(config *smconfig.Configuration, callbackFunc udp.CallbackFunc, store Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
+func NewAssettoServerProcess(config *smconfig.Configuration, callbackFunc udp.CallbackFunc, store smstore.Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
 	sp := &AssettoServerProcess{
 		config:                config,
 		start:                 make(chan smmodel.RaceEvent),

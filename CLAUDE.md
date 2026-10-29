@@ -72,10 +72,14 @@ Frontend: `cd cmd/server-manager/typescript && npm ci && npx gulp build` (`npx g
   under `/api/...`.
 - **Global config**: `config` (`*Configuration` from `config.yml`, `servermanager_config.go`) is a package-level
   variable; tests set it themselves (`config = &Configuration{}`).
-- **Persistence**: everything goes through the `Store` interface (`store.go`) with two implementations, `BoltStore`
-  and `JSONStore` — new persisted data must be implemented in both. Changes to stored structs that need data
-  conversion get a migration appended to `migrations` in `migrations.go` (never reorder/remove entries; the stored
-  version is the slice index).
+- **Domain model**: `internal/model` holds the persisted domain types (championships, race weekends, custom/quick
+  races, `RaceEvent`, accounts, audit entries, live timing data) with their pure methods. It must not depend on the root
+  package; anything that needs the install path, server id, build version or track lookups takes them as arguments.
+  Stored type names (`RaceEvent` names, gob registrations) keep their old `servermanager.X` names.
+- **Persistence**: everything goes through the `Store` interface (`internal/store/store.go`) with two implementations,
+  `BoltStore` and `JSONStore` (same package) — new persisted data must be implemented in both. Changes to stored
+  structs that need data conversion get a migration appended to `buildMigrations` in `internal/store/migrations.go`
+  (never reorder/remove entries; the stored version is the slice index).
 - **AC server integration**: `ServerProcess` (`server_process*.go`, OS-specific) starts/stops `acServer` and plugins
   after writing `server_cfg.ini` / `entry_list.ini`. Live data comes back via the AC UDP plugin protocol
   (`pkg/udp`) and is dispatched by `Resolver.UDPCallback` to race control, championship and race weekend managers —

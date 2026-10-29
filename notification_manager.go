@@ -14,6 +14,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type NotificationDispatcher interface {
@@ -35,11 +36,11 @@ type NotificationDispatcher interface {
 type NotificationManager struct {
 	discordManager *DiscordManager
 	carManager     *smcontent.CarManager
-	store          Store
+	store          smstore.Store
 	testing        bool
 }
 
-func NewNotificationManager(discord *DiscordManager, cars *smcontent.CarManager, store Store) *NotificationManager {
+func NewNotificationManager(discord *DiscordManager, cars *smcontent.CarManager, store smstore.Store) *NotificationManager {
 	return &NotificationManager{
 		discordManager: discord,
 		carManager:     cars,

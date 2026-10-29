@@ -15,9 +15,10 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
-func setupResultsDeleteTest(t *testing.T) (store Store, resultsDir string, cleanup func()) {
+func setupResultsDeleteTest(t *testing.T) (store smstore.Store, resultsDir string, cleanup func()) {
 	t.Helper()
 
 	dir, err := ioutil.TempDir("", "results-delete")
@@ -52,7 +53,7 @@ func setupResultsDeleteTest(t *testing.T) (store Store, resultsDir string, clean
 	oldInstallPath := ServerInstallPath
 	ServerInstallPath = dir
 
-	store = NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
+	store = smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	return store, resultsDir, func() {
 		ServerInstallPath = oldInstallPath

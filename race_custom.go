@@ -11,6 +11,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 type CustomRaceHandler struct {
@@ -20,10 +21,10 @@ type CustomRaceHandler struct {
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
-	store               Store
+	store               smstore.Store
 }
 
-func NewCustomRaceHandler(config *smconfig.Configuration, base *BaseHandler, raceManager *RaceManager, store Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
+func NewCustomRaceHandler(config *smconfig.Configuration, base *BaseHandler, raceManager *RaceManager, store smstore.Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
 	return &CustomRaceHandler{
 		config:              config,
 		BaseHandler:         base,

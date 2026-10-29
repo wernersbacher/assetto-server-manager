@@ -5,6 +5,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
 	"io/ioutil"
@@ -40,7 +41,7 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 
 	defer os.RemoveAll(dir)
 
-	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	opts := serverconfig.ConfigIniDefault().GlobalServerConfig
 	opts.Name = "Test Server"

@@ -5,6 +5,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -19,12 +20,10 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
-var ErrCustomRaceNotFound = errors.New("servermanager: custom race not found")
-
 type RaceManager struct {
 	config              *smconfig.Configuration
 	process             ServerProcess
-	store               Store
+	store               smstore.Store
 	carManager          *smcontent.CarManager
 	trackManager        *smcontent.TrackManager
 	raceControl         *RaceControl
@@ -48,7 +47,7 @@ type RaceManager struct {
 
 func NewRaceManager(
 	config *smconfig.Configuration,
-	store Store,
+	store smstore.Store,
 	process ServerProcess,
 	carManager *smcontent.CarManager,
 	trackManager *smcontent.TrackManager,

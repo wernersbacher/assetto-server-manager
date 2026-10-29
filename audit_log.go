@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
 var ignoredURLs = [5]string{
@@ -21,10 +22,10 @@ var ignoredURLs = [5]string{
 type AuditLogHandler struct {
 	*BaseHandler
 
-	store Store
+	store smstore.Store
 }
 
-func NewAuditLogHandler(baseHandler *BaseHandler, store Store) *AuditLogHandler {
+func NewAuditLogHandler(baseHandler *BaseHandler, store smstore.Store) *AuditLogHandler {
 	return &AuditLogHandler{
 		BaseHandler: baseHandler,
 		store:       store,

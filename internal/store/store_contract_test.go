@@ -1,4 +1,4 @@
-package servermanager
+package store
 
 import (
 	"io/ioutil"
@@ -19,6 +19,11 @@ import (
 // The tests in this file form a contract test suite for the Store interface. Every test runs identically against
 // both implementations (BoltStore and JSONStore), including the errors returned for missing data, so both stores
 // must behave identically.
+
+const (
+	testServerID     = smmodel.ServerID("test-server")
+	testBuildVersion = "test"
+)
 
 type storeContractImpl struct {
 	name string
@@ -305,12 +310,12 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Errorf("expected ErrAccountNotFound on fresh store, got: %v", err)
 		}
 
-		admin := smmodel.NewAccount(serverID, BuildVersion)
+		admin := smmodel.NewAccount(testServerID, testBuildVersion)
 		admin.Name = "admin"
 		admin.DriverName = "Admin Driver"
-		admin.Groups = map[smmodel.ServerID]smmodel.Group{serverID: smmodel.GroupAdmin}
+		admin.Groups = map[smmodel.ServerID]smmodel.Group{testServerID: smmodel.GroupAdmin}
 
-		user := smmodel.NewAccount(serverID, BuildVersion)
+		user := smmodel.NewAccount(testServerID, testBuildVersion)
 		user.Name = "user"
 
 		for _, a := range []*smmodel.Account{admin, user} {
@@ -329,7 +334,7 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Fatalf("find account by name: %s", err)
 		}
 
-		if byName.ID != admin.ID || byName.DriverName != "Admin Driver" || byName.Groups[serverID] != smmodel.GroupAdmin {
+		if byName.ID != admin.ID || byName.DriverName != "Admin Driver" || byName.Groups[testServerID] != smmodel.GroupAdmin {
 			t.Errorf("account did not round-trip: %+v", byName)
 		}
 
@@ -876,7 +881,7 @@ func TestStoreContract_PluginOptions(t *testing.T) {
 			t.Fatalf("load stracker defaults: %s", err)
 		}
 
-		if sto.InstanceConfiguration.ACServerAddress != smplugins.DefaultStrackerIni(ServerInstallPath).InstanceConfiguration.ACServerAddress {
+		if sto.InstanceConfiguration.ACServerAddress != smplugins.DefaultStrackerIni("").InstanceConfiguration.ACServerAddress {
 			t.Errorf("expected default stracker options, got %+v", sto.InstanceConfiguration)
 		}
 
