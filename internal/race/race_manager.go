@@ -229,7 +229,7 @@ func (rm *RaceManager) ApplyConfigAndStart(event smmodel.RaceEvent) error {
 	if config.GlobalServerConfig.ShowRaceNameInServerLobby == 1 {
 		// append the race name to the server name
 		if name := event.EventName(rm.env.TrackSummary); name != "" {
-			config.GlobalServerConfig.Name = buildFinalServerName(config.GlobalServerConfig.ServerNameTemplate, event, config)
+			config.GlobalServerConfig.Name = buildFinalServerName(config.GlobalServerConfig.ServerNameTemplate, name, rm.env.ServerID(), event, config)
 		}
 	}
 

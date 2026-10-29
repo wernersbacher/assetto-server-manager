@@ -16,9 +16,22 @@ type serverNameTemplateOpts struct {
 	smmodel.RaceEvent
 
 	ServerName string
+
+	eventName string
+	serverID  smmodel.ServerID
 }
 
-func buildFinalServerName(userTemplate string, event smmodel.RaceEvent, config serverconfig.ServerConfig) string {
+// EventName shadows RaceEvent.EventName so user server name templates can keep using {{ .EventName }}.
+func (o serverNameTemplateOpts) EventName() string {
+	return o.eventName
+}
+
+// IsLooping shadows RaceEvent.IsLooping so user server name templates can keep using {{ .IsLooping }}.
+func (o serverNameTemplateOpts) IsLooping() bool {
+	return o.RaceEvent.IsLooping(o.serverID)
+}
+
+func buildFinalServerName(userTemplate, eventName string, serverID smmodel.ServerID, event smmodel.RaceEvent, config serverconfig.ServerConfig) string {
 	t, err := template.New("serverName").Parse(userTemplate)
 
 	if err != nil {
@@ -33,6 +46,8 @@ func buildFinalServerName(userTemplate string, event smmodel.RaceEvent, config s
 		CurrentRaceConfig:  config.CurrentRaceConfig,
 		GlobalServerConfig: config.GlobalServerConfig,
 		RaceEvent:          event,
+		eventName:          eventName,
+		serverID:           serverID,
 	})
 
 	if err != nil {
