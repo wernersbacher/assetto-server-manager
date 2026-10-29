@@ -1,15 +1,5 @@
-ui:
-- skin hochladen fixen (UNTESTED)
-- 
+bugs
+- wenn ein 2. rennen nicht gefahren wurde, wartet das rennen für immer auf das 2. rennen, wenn ich dann cancel mache werden alle results gelöscht. -> button um zweites rennen zu canceln?
 
-apis: 
-- championship liste - > welche championships gibt es?
-- races -> welche races stehen an? (heute über calendar ics mit umweg abgreifbar)
-
-core: 
-- championship-weite einstellungen konfigurieren wie grip, verbruach usw anstatt pro rennen (pro rennen ist optional und ünd überschreibt championship sachen)
-- drop result für championship konfigurierbar
-- skins für fahrzeuge herunterladen oder sogar über content manager verteilen können
-- wenn scheduled race starten soll aber es läuft ein championship practice, dann startet das championship event nicht -> andere session stoppen
-
-tests erweitern2
+große features:
+- skill rating, driver history (nur logged in users)
