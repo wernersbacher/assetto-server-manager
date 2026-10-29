@@ -28,7 +28,6 @@ import (
 
 type ChampionshipManager struct {
 	*RaceManager
-	acsrClient *ACSRClient
 
 	activeChampionship *ActiveChampionship
 	mutex              sync.Mutex
@@ -37,10 +36,9 @@ type ChampionshipManager struct {
 	championshipEventReminderTimers reminderTimers
 }
 
-func NewChampionshipManager(raceManager *RaceManager, acsrClient *ACSRClient) *ChampionshipManager {
+func NewChampionshipManager(raceManager *RaceManager) *ChampionshipManager {
 	return &ChampionshipManager{
 		RaceManager: raceManager,
-		acsrClient:  acsrClient,
 	}
 }
 
@@ -66,26 +64,10 @@ func (cm *ChampionshipManager) UpsertChampionship(c *Championship) error {
 		return err
 	}
 
-	if c.ACSR {
-		cm.acsrClient.SendChampionship(*c)
-	}
-
 	return nil
 }
 
 func (cm *ChampionshipManager) DeleteChampionship(id string) error {
-	championship, err := cm.store.LoadChampionship(id)
-
-	if err != nil {
-		return err
-	}
-
-	if championship.ACSR {
-		championship.ACSR = false
-
-		cm.acsrClient.SendChampionship(*championship)
-	}
-
 	return cm.store.DeleteChampionship(id)
 }
 
@@ -117,75 +99,17 @@ func (cm *ChampionshipManager) ListChampionships() ([]*Championship, error) {
 	return championships, nil
 }
 
-func (cm *ChampionshipManager) LoadACSRRatings(championship *Championship) (map[string]*ACSRDriverRating, error) {
-	if !championship.ACSR || !cm.acsrClient.Enabled {
-		return nil, nil
-	}
 
-	guidMap := make(map[string]bool)
 
-	for _, class := range championship.Classes {
-		for _, standing := range class.Standings(championship, championship.Events) {
-			guidMap[standing.Car.Driver.GUID] = true
-		}
-	}
-
-	for _, entrant := range championship.AllEntrants() {
-		guidMap[entrant.GUID] = true
-	}
-
-	if championship.SignUpForm.Enabled {
-		for _, entrant := range championship.SignUpForm.Responses {
-			guidMap[entrant.GUID] = true
-		}
-	}
-
-	var guids []string
-
-	for guid := range guidMap {
-		guids = append(guids, guid)
-	}
-
-	return cm.acsrClient.GetRating(guids...)
-}
-
-func (cm *ChampionshipManager) LoadACSRRating(guid string) (*ACSRDriverRating, error) {
-	if !cm.acsrClient.Enabled {
-		return nil, nil
-	}
-
-	ratingMap, err := cm.acsrClient.GetRating(guid)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return ratingMap[guid], nil
-}
-
-func (cm *ChampionshipManager) LoadACSRRanges() ([]*ACSRRatingRanges, error) {
-	if !cm.acsrClient.Enabled {
-		return nil, nil
-	}
-
-	return cm.acsrClient.GetRanges()
-}
 
 type ChampionshipTemplateVars struct {
 	*RaceTemplateVars
 
 	DefaultPoints             ChampionshipPoints
 	DefaultClass              *ChampionshipClass
-	ACSREnabled               bool
-	ACSRRanges                *ACSRRanges
 	AvailableChampionshipTabs []ChampionshipTab
 }
 
-type ACSRRanges struct {
-	Ranges             []*ACSRRatingRanges
-	HighestSkillCount  int
-	HighestSafetyCount int
-}
 
 func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (championship *Championship, opts *ChampionshipTemplateVars, err error) {
 	raceOpts, err := cm.BuildRaceOpts(r)
@@ -220,37 +144,6 @@ func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (champions
 	}
 
 	opts.Championship = championship
-	opts.ACSREnabled = cm.acsrClient.Enabled
-
-	if opts.ACSREnabled {
-		ranges, err := cm.LoadACSRRanges()
-
-		if err != nil {
-			logrus.WithError(err).Errorf("couldn't load ACSR skill/safety range information")
-		} else {
-			highestSkillCount := 0
-			highestSafetyCount := 0
-
-			for _, acsrRange := range ranges {
-				switch acsrRange.RatingType {
-				case "skill":
-					if acsrRange.Count > highestSkillCount {
-						highestSkillCount = acsrRange.Count
-					}
-				case "safety":
-					if acsrRange.Count > highestSafetyCount {
-						highestSafetyCount = acsrRange.Count
-					}
-				}
-			}
-
-			opts.ACSRRanges = &ACSRRanges{
-				Ranges:             ranges,
-				HighestSkillCount:  highestSkillCount,
-				HighestSafetyCount: highestSafetyCount,
-			}
-		}
-	}
 
 	return championship, opts, nil
 }
@@ -317,28 +210,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 
 	championship.OGImage = r.FormValue("ChampionshipOGImage")
 
-	newACSR := r.FormValue("ACSR") == "on" || r.FormValue("ACSR") == "1"
-
-	if championship.ACSR && !newACSR {
-		championship.ACSR = newACSR
-
-		cm.acsrClient.SendChampionship(*championship)
-	} else {
-		championship.ACSR = newACSR
-	}
-
-	if championship.ACSR {
-		championship.OverridePassword = true
-		championship.ReplacementPassword = ""
-		championship.SignUpForm.Enabled = true
-
-		championship.ACSRSkillGate = r.FormValue("SkillGate")
-		championship.ACSRSafetyGate = formValueAsInt(r.FormValue("SafetyGate"))
-		championship.EnableACSRSafetyGate = r.FormValue("EnableACSRSafetyGate") == "on" || r.FormValue("EnableACSRSafetyGate") == "1"
-		championship.EnableACSRSkillGate = r.FormValue("EnableACSRSkillGate") == "on" || r.FormValue("EnableACSRSkillGate") == "1"
-	} else {
-		championship.ReplacementPassword = r.FormValue("ReplacementPassword")
-	}
+	championship.ReplacementPassword = r.FormValue("ReplacementPassword")
 
 	previousNumEntrants := 0
 	previousNumPoints := 0
@@ -1229,12 +1101,6 @@ func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, champio
 				logrus.WithError(err).Errorf("Could not stop Assetto Process")
 			}
 		}
-
-		if championship.ACSR {
-			go panicCapture(func() {
-				cm.acsrClient.SendChampionship(*championship)
-			})
-		}
 	default:
 		saveChampionship = false
 		return
@@ -1739,25 +1605,6 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 
 	if !steamGUIDRegex.MatchString(signUpResponse.GUID) {
 		return signUpResponse, false, ValidationError("Please enter a valid SteamID64.")
-	}
-
-	serverOptions, err := cm.store.LoadServerOptions()
-
-	if err != nil {
-		return signUpResponse, false, err
-	}
-
-	if serverOptions.EnableACSR {
-		rating, err := cm.LoadACSRRating(signUpResponse.GUID)
-
-		if err != nil {
-			logrus.WithError(err).Errorf("Couldn't load ACSR rating for guid: %s", signUpResponse.GUID)
-			return signUpResponse, false, ValidationError("Please register your GUID to an account with ACSR.")
-		}
-
-		if !championship.DriverMeetsACSRGates(rating) {
-			return signUpResponse, false, ValidationError("You do not meet the minimum ACSR skill/safety requirements.")
-		}
 	}
 
 	for _, entrant := range championship.SignUpForm.Responses {

@@ -27,7 +27,6 @@ type RaceWeekendManager struct {
 	carManager          *CarManager
 	store               Store
 	process             ServerProcess
-	acsrClient          *ACSRClient
 
 	activeRaceWeekend *ActiveRaceWeekend
 	mutex             sync.Mutex
@@ -42,7 +41,6 @@ func NewRaceWeekendManager(
 	store Store,
 	process ServerProcess,
 	notificationManager NotificationDispatcher,
-	acsrClient *ACSRClient,
 	carManager *CarManager,
 ) *RaceWeekendManager {
 	return &RaceWeekendManager{
@@ -51,7 +49,6 @@ func NewRaceWeekendManager(
 		notificationManager: notificationManager,
 		store:               store,
 		process:             process,
-		acsrClient:          acsrClient,
 		carManager:          carManager,
 
 		scheduledSessionTimers:         make(map[string]*when.Timer),
@@ -280,18 +277,6 @@ func (rwm *RaceWeekendManager) UpsertRaceWeekend(raceWeekend *RaceWeekend) error
 
 	if err != nil {
 		return err
-	}
-
-	if raceWeekend.HasLinkedChampionship() {
-		championship, err := rwm.championshipManager.LoadChampionship(raceWeekend.ChampionshipID.String())
-
-		if err != nil {
-			return err
-		}
-
-		if championship.ACSR {
-			rwm.acsrClient.SendChampionship(*championship)
-		}
 	}
 
 	return nil

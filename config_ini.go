@@ -180,12 +180,6 @@ type GlobalServerConfig struct {
 	FreeUDPPluginLocalPort int    `ini:"-" show:"-"`
 	FreeUDPPluginAddress   string `ini:"-" show:"-"`
 
-	// ACSR
-	AssettoCorsaSkillRating FormHeading `ini:"-" json:"-" show:"-"`
-	EnableACSR              bool        `ini:"-" show:"-" help:"Enable ACSR integration. <a href='https://acsr.assettocorsaservers.com'>You can read more about ACSR here</a>."`
-	ACSRAccountID           string      `ini:"-" show:"-" help:"Your ACSR account ID. You can <a href='https://acsr.assettocorsaservers.com/account'>request an ACSR key here</a>."`
-	ACSRAPIKey              string      `ini:"-" show:"-" name:"ACSR API Key" help:"Your ACSR API Key. You can <a href='https://acsr.assettocorsaservers.com/account'>request an ACSR key here</a>."`
-
 	ServerName                FormHeading          `ini:"-" json:"-"`
 	ShowRaceNameInServerLobby formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager append the Custom Race or Championship name to the Server name in the lobby."`
 	ServerNameTemplate        string               `ini:"-" help:"You can enter anything you like in here. If you put <code>{{ .ServerName }}</code> in, the Server Name will replace it. If you put <code>{{ .EventName }}</code>, then the Event Name will replace it. Note this only works if 'Show Race Name In Server Lobby' (above) is enabled. You can <a href='https://github.com/JustaPenguin/assetto-server-manager/wiki/Server-Name-Template-Examples'>view some examples</a> on the Server Manager Wiki!"`
@@ -345,8 +339,6 @@ type CurrentRaceConfig struct {
 	DisableDRSZones bool `ini:"-"`
 
 	TimeAttack bool `ini:"-"` // time attack races will force loop ON and merge all results files (practice only)
-
-	ExportSecondRaceToACSR bool `ini:"-"`
 
 	DynamicTrack DynamicTrackConfig `ini:"-"`
 

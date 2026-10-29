@@ -8,7 +8,6 @@ var ChampionshipMulticlassEndurance = []byte(`{
 "Deleted": "0001-01-01T00:00:00Z",
 "OverridePassword": false,
 "ReplacementPassword": "",
-"ACSR": false,
 "Info": "<p>This is an example Multiclass Championship - feel free to edit it or delete it! Entrants are asked to sign up with the Sign up form, and admins must approve their registration requests. Users have free choice of class, car and skin from a given list (set up in the Championship page).</p>",
 "OpenEntrants": false,
 "PersistOpenEntrants": true,

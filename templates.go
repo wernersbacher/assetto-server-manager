@@ -537,9 +537,6 @@ type BaseTemplateVars struct {
 	RecaptchaSiteKey      string
 	WideContainer         bool
 	OGImage               string
-	ACSREnabled           bool
-	BaseURLIsSet          bool
-	BaseURLIsValid        bool
 	ServerID              ServerID
 	ShowEventDetailsPopup bool
 }
@@ -581,9 +578,6 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.Request = r
 	data.Debug = Debug
 	data.RecaptchaSiteKey = config.Championships.RecaptchaConfig.SiteKey
-	data.BaseURLIsSet = baseURLIsSet()
-	data.BaseURLIsValid = baseURLIsValid()
-	data.ACSREnabled = opts.EnableACSR
 	data.ServerID = serverID
 	data.ShowEventDetailsPopup = opts.ShowEventDetailsPopup
 

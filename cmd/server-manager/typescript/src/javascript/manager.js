@@ -2242,47 +2242,7 @@ let championships = {
         championships.initDisplayOrder();
         championships.initConfigureSignUpForm();
         championships.initSignUpForm();
-        championships.initACSRWatcher();
         championships.initOpenChampionshipWatcher();
-    },
-
-    initACSRWatcher: function () {
-        let $acsrSwitch = $("#ACSR");
-
-        if ($acsrSwitch.length) {
-            let state = $acsrSwitch.bootstrapSwitch('state');
-
-            championships.setSwitchesForACSR(state);
-        }
-
-        $acsrSwitch.on('switchChange.bootstrapSwitch', function (event, state) {
-            championships.setSwitchesForACSR(state);
-        });
-    },
-
-    setSwitchesForACSR: function (state) {
-        let $signUpFormSwitch = $("#ChampionshipSignUpFormEnabled");
-        let $overridePasswordSwitch = $("#OverridePassword");
-        let $acsrOptions = $("#acsr-options")
-
-        if (state) {
-            $acsrOptions.removeClass("d-none")
-
-            $signUpFormSwitch.bootstrapSwitch('state', true);
-            $signUpFormSwitch.bootstrapSwitch('disabled', true);
-
-            $overridePasswordSwitch.bootstrapSwitch('state', true);
-            $overridePasswordSwitch.bootstrapSwitch('disabled', true);
-
-            $overridePasswordSwitch.closest(".card-body").find("#ReplacementPasswordWrapper").hide();
-        } else {
-            $acsrOptions.addClass("d-none")
-
-            $overridePasswordSwitch.closest(".card-body").find("#ReplacementPasswordWrapper").show();
-
-            $signUpFormSwitch.bootstrapSwitch('disabled', false);
-            $overridePasswordSwitch.bootstrapSwitch('disabled', false);
-        }
     },
 
     initOpenChampionshipWatcher: function() {

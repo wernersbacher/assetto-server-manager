@@ -33,10 +33,11 @@ assetto/
 *.map
 changelog_embed.go
 
-
 # Beads / Dolt files (added by bd init)
 .dolt/
 *.db
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+todo.md

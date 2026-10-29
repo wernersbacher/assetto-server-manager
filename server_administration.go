@@ -23,7 +23,6 @@ type ServerAdministrationHandler struct {
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
 	process             ServerProcess
-	acsrClient          *ACSRClient
 	scheduledRaces      *ScheduledRacesManager
 }
 
@@ -34,7 +33,6 @@ func NewServerAdministrationHandler(
 	championshipManager *ChampionshipManager,
 	raceWeekendManager *RaceWeekendManager,
 	process ServerProcess,
-	acsrClient *ACSRClient,
 	scheduledRaces *ScheduledRacesManager,
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
@@ -44,7 +42,6 @@ func NewServerAdministrationHandler(
 		championshipManager: championshipManager,
 		raceWeekendManager:  raceWeekendManager,
 		process:             process,
-		acsrClient:          acsrClient,
 		scheduledRaces:      scheduledRaces,
 	}
 }
@@ -221,10 +218,6 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 			AddFlash(w, r, "Server options successfully saved!")
 		}
 
-		// update ACSR options to the client
-		sah.acsrClient.AccountID = serverOpts.ACSRAccountID
-		sah.acsrClient.APIKey = serverOpts.ACSRAPIKey
-		sah.acsrClient.Enabled = serverOpts.EnableACSR
 	}
 
 	form, err := EncodeFormData(serverOpts, r)

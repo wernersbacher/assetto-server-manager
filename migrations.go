@@ -988,25 +988,8 @@ func addCorrectCarNameToLiveTimingsData(s Store) error {
 	return nil
 }
 
+// addDefaultACSRGateOptionsToChampionships is a no-op: the ACSR integration has been removed. It stays in the list because the stored migration version is the index.
 func addDefaultACSRGateOptionsToChampionships(s Store) error {
-	logrus.Infof("Running migration: Add Default ACSR Gate Options to Championships")
-
-	championships, err := s.ListChampionships()
-
-	if err != nil {
-		return err
-	}
-
-	for _, championship := range championships {
-		championship.ACSRSkillGate = "E"
-
-		err := s.UpsertChampionship(championship)
-
-		if err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 

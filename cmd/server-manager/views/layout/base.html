@@ -192,16 +192,6 @@
 
         <main class="app-main">
             <div class="app-content {{ with $.WideContainer }}is-wide{{ end }}">
-                {{ if WriteAccess }}
-                    {{ if and $.ACSREnabled (or (not $.BaseURLIsSet) (not $.BaseURLIsValid)) }}
-                        <div class="alert alert-danger mb-4">
-                            <strong>ACSR Configuration Issue:</strong>
-                            You have enabled ACSR in the Server Options, but your server config.yml does not have
-                            {{ if not $.BaseURLIsSet }}a BaseURL set{{ else if not $.BaseURLIsValid}}a valid BaseURL{{ end }}.
-                            Server Manager will not be able to connect to ACSR.
-                        </div>
-                    {{ end }}
-                {{ end }}
 
                 {{ block "content" . }}{{ end }}
 

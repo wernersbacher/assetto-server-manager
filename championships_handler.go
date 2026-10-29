@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"strconv"
 	"time"
 
 	"4d63.com/tz"
@@ -121,8 +120,6 @@ type championshipViewTemplateVars struct {
 	EventInProgress bool
 	Account         *Account
 	RaceWeekends    map[uuid.UUID]*RaceWeekend
-	DriverRatings   map[string]*ACSRDriverRating
-	AccountRating   *ACSRDriverRating
 }
 
 // view shows details of a given Championship
@@ -144,12 +141,6 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ratings, err := ch.championshipManager.LoadACSRRatings(championship)
-
-	if err != nil {
-		logrus.WithError(err).Error("could not get driver ratings from ACSR")
-	}
-
 	raceWeekends := make(map[uuid.UUID]*RaceWeekend)
 
 	for _, event := range championship.Events {
@@ -164,83 +155,16 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var rating *ACSRDriverRating
 	account := AccountFromRequest(r)
-
-	if account.GUID != "" {
-		rating, err = ch.championshipManager.LoadACSRRating(account.GUID)
-
-		if err != nil {
-			logrus.WithError(err).Errorf("Couldn't load ACSR rating for guid: %s", account.GUID)
-		}
-	}
-
 	ch.viewRenderer.MustLoadTemplate(w, r, "championships/view.html", &championshipViewTemplateVars{
 		Championship:    championship,
 		EventInProgress: eventInProgress,
 		Account:         account,
 		RaceWeekends:    raceWeekends,
-		DriverRatings:   ratings,
-		AccountRating:   rating,
 	})
 }
 
-type ACSRRatingGateMet struct {
-	ACSRDriverRating *ACSRDriverRating `json:"acsr_driver_rating"`
-	GateMet          bool              `json:"gate_met"`
-	ACSREnabled      bool              `json:"acsr_enabled"`
-}
 
-func (ch *ChampionshipsHandler) acsrRating(w http.ResponseWriter, r *http.Request) {
-	serverOptions, err := ch.championshipManager.store.LoadServerOptions()
-
-	if err != nil {
-		logrus.WithError(err).Error("acsr rating: couldn't load server options")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	if !serverOptions.EnableACSR {
-		ratingGateMet := &ACSRRatingGateMet{
-			ACSRDriverRating: &ACSRDriverRating{},
-			GateMet:          true,
-			ACSREnabled:      false,
-		}
-
-		_ = json.NewEncoder(w).Encode(ratingGateMet)
-
-		return
-	}
-
-	guid := chi.URLParam(r, "guid")
-	championshipID := chi.URLParam(r, "championshipID")
-
-	championship, err := ch.championshipManager.LoadChampionship(championshipID)
-
-	if err != nil {
-		logrus.WithError(err).Errorf("acsr rating: couldn't load championship for ID: %s", championshipID)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	rating, err := ch.championshipManager.LoadACSRRating(guid)
-
-	if err != nil {
-		logrus.WithError(err).Errorf("Couldn't load ACSR rating for guid: %s", guid)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	gateMet := championship.DriverMeetsACSRGates(rating)
-
-	ratingGateMet := &ACSRRatingGateMet{
-		ACSRDriverRating: rating,
-		GateMet:          gateMet,
-		ACSREnabled:      true,
-	}
-
-	_ = json.NewEncoder(w).Encode(ratingGateMet)
-}
 
 // export returns all known data about a Championship in JSON format.
 func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
@@ -807,7 +731,6 @@ type signedUpEntrantsTemplateVars struct {
 	BaseTemplateVars
 
 	Championship  *Championship
-	DriverRatings map[string]*ACSRDriverRating
 }
 
 func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.Request) {
@@ -824,12 +747,6 @@ func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ratings, err := ch.championshipManager.LoadACSRRatings(championship)
-
-	if err != nil {
-		logrus.WithError(err).Error("couldn't load ratings from ACSR")
-	}
-
 	sort.Slice(championship.SignUpForm.Responses, func(i, j int) bool {
 		return championship.SignUpForm.Responses[i].Created.After(championship.SignUpForm.Responses[j].Created)
 	})
@@ -837,7 +754,6 @@ func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.
 	ch.viewRenderer.MustLoadTemplate(w, r, "championships/signed-up-entrants.html", &signedUpEntrantsTemplateVars{
 		BaseTemplateVars: BaseTemplateVars{WideContainer: true},
 		Championship:     championship,
-		DriverRatings:    ratings,
 	})
 }
 
@@ -863,15 +779,6 @@ func (ch *ChampionshipsHandler) signedUpEntrantsCSV(w http.ResponseWriter, r *ht
 
 	headers = append(headers, championship.SignUpForm.ExtraFields...)
 
-	ratings, err := ch.championshipManager.LoadACSRRatings(championship)
-
-	if err != nil {
-		logrus.WithError(err).Error("couldn't load ratings from ACSR")
-	}
-
-	if ratings != nil {
-		headers = append(headers, "ACSR Skill Rating", "ACSR Safety Rating", "ACSR Provisional?")
-	}
 
 	var out [][]string
 
@@ -897,13 +804,6 @@ func (ch *ChampionshipsHandler) signedUpEntrantsCSV(w http.ResponseWriter, r *ht
 			}
 		}
 
-		if ratings != nil {
-			if rating, ok := ratings[entrant.GUID]; ok {
-				data = append(data, rating.SkillRatingGrade, strconv.Itoa(rating.SafetyRating), strconv.FormatBool(rating.IsProvisional))
-			} else {
-				data = append(data, "Unranked", "Unranked", "Unranked")
-			}
-		}
 
 		out = append(out, data)
 	}

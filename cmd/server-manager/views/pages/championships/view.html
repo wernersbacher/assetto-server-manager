@@ -11,13 +11,10 @@
         {{ $account := .Account }}
         {{ $serverID := .ServerID }}
 
-        {{ $meetsACSRGates := $championship.DriverMeetsACSRGates $.AccountRating }}
-
         <div class="page-header championship-header">
             <div>
                 <h1>{{ $championship.Name }}</h1>
                 <p class="championship-meta">
-                    {{ if $championship.ACSR }}<span><a href="https://acsr.assettocorsaservers.com">ACSR</a> Championship</span>{{ end }}
                     <span>{{ len $championship.Events }} event{{ if ne (len $championship.Events) 1 }}s{{ end }}</span>
                     <span>{{ len $championship.Classes }} class{{ if ne (len $championship.Classes) 1 }}es{{ end }}</span>
                     <span>{{ $championship.NumEntrants }} entrants</span>
@@ -83,48 +80,12 @@
                         {{ end }}
                     </p>
 
-                    {{ if $championship.ACSR }}
-                        {{ if or $championship.EnableACSRSkillGate $championship.EnableACSRSafetyGate }}
-                            You need to meet the following minimum ACSR ratings to join this Championship:
-
-                            {{ if $championship.EnableACSRSkillGate }}
-                                <span data-toggle="tooltip" title="Skill" class="badge badge-primary acsr-badge--skill">{{ $championship.ACSRSkillGate }}</span>
-                            {{ end }}
-                            {{ if $championship.EnableACSRSafetyGate }}
-                                <span data-toggle="tooltip" title="Safety" class="badge badge-success acsr-badge--safety">{{ $championship.ACSRSafetyGate }} </span>
-                            {{ end }}
-                            {{ with $account }}
-                                <p>
-                                    Your Rating:
-                                    {{ with $.AccountRating }}
-                                        <a class="acsr-link" href="https://acsr.assettocorsaservers.com/ratings/{{ anonymiseDriverGUID $account.GUID }}">
-                                            {{ if $championship.EnableACSRSkillGate }}
-                                                <span data-toggle="tooltip" title="Skill from {{ .NumEvents }} Sessions" class="badge badge-primary acsr-badge--skill">{{ .SkillRatingGrade }}</span>
-                                            {{ end }}
-                                            {{ if $championship.EnableACSRSafetyGate }}
-                                                <span data-toggle="tooltip" title="Safety from {{ .NumEvents }} Sessions" class="badge badge-success acsr-badge--safety">{{ .SafetyRating }}</span>
-                                            {{ end }}
-                                        </a>
-
-                                        {{ if $meetsACSRGates }}
-                                            <span class="text-success">You meet the requirements!</span>
-                                        {{ else }}
-                                            <span class="text-danger">Sorry, you don't meet the requirements!</span>
-                                        {{ end }}
-                                    {{ else }}
-                                        <span class="text-danger">Unknown! Please set your GUID on your account page or click register and enter your guid on the registration page!</span>
-                                    {{ end }}
-                                </p>
-                            {{ end }}
-                        {{ end }}
-                    {{ end }}
-
                     <div class="float-right">
-                        <a class="btn btn-info {{ if not $meetsACSRGates }}disabled{{ end }}" href="/championship/{{ $championship.ID.String }}/sign-up/steam">Register with Steam</a>
+                        <a class="btn btn-info" href="/championship/{{ $championship.ID.String }}/sign-up/steam">Register with Steam</a>
 
                         <small class="pl-2 pr-2">or</small>
 
-                        <a class="btn btn-primary {{ if not $meetsACSRGates }}disabled{{ end }}" href="/championship/{{ $championship.ID.String }}/sign-up">Register Now</a>
+                        <a class="btn btn-primary" href="/championship/{{ $championship.ID.String }}/sign-up">Register Now</a>
                     </div>
                 </div>
             </div>
@@ -226,11 +187,6 @@
                                 {{ if $championship.IsMultiClass }}<th>Class</th>{{ end }}
                                 <th>#</th>
                                 <th class="sticky-col">Driver</th>
-                                {{ with $.DriverRatings }}
-                                    <th>
-                                        Rating
-                                    </th>
-                                {{ end }}
 
                                 {{ if $championship.HasTeamNames }}
                                     <th>Team</th>
@@ -266,12 +222,6 @@
                                                 <span class="badge badge-danger ml-2">Points Penalty: {{ $driverPenalty }}</span>
                                             {{ end }}
                                         </td>
-
-                                        {{ with $.DriverRatings }}
-                                            <td>
-                                                {{ template "acsr-rating" dict "DriverRatings" $.DriverRatings "GUID" $entrant.Car.Driver.GUID }}
-                                            </td>
-                                        {{ end }}
 
                                         {{ if $championship.HasTeamNames }}
                                             <td>{{ $entrant.TeamSummary }}</td>
@@ -415,9 +365,6 @@
                             {{ if $championship.IsMultiClass }}<th>Class</th>{{ end }}
                             <th>#</th>
                             <th class="sticky-col">Driver</th>
-                            {{ with $.DriverRatings }}
-                                <th>Rating</th>
-                            {{ end }}
                             {{ if $championship.HasTeamNames }}
                                 <th>Team</th>
                             {{ end }}
@@ -443,11 +390,6 @@
                                         {{ end }}
                                         <td><span data-toggle="tooltip" title="Pit Box: {{ $entrant.PitBox }}">{{ add $i 1 }}</span></td>
                                         <td class="sticky-col">{{ driverName $entrant.Name }}</td>
-                                        {{ with $.DriverRatings }}
-                                            <td>
-                                                {{ template "acsr-rating" dict "DriverRatings" $.DriverRatings "GUID" $entrant.GUID }}
-                                            </td>
-                                        {{ end }}
                                         {{ if $championship.HasTeamNames }}
                                             <td>{{ $entrant.Team }}</td>
                                         {{ end }}

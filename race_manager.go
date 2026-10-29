@@ -650,7 +650,6 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 		DriverSwapMinimumNumberOfSwaps:  formValueAsInt(r.FormValue("DriverSwapMinimumNumberOfSwaps")),
 		DriverSwapNotEnoughSwapsPenalty: formValueAsInt(r.FormValue("DriverSwapNotEnoughSwapsPenalty")),
 
-		ExportSecondRaceToACSR: formValueAsInt(r.FormValue("ExportSecondRaceToACSR")) == 1,
 	}
 
 	if isSol {

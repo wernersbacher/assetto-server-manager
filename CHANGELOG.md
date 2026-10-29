@@ -51,6 +51,7 @@ Fixed:
 Removed:
 
 * Hosted mode (the HOSTED and MAX_CLIENTS_OVERRIDE environment variables, the default "acserver" hosting account and the hosted intro popup), which only applied to the upstream hosting service.
+* The Assetto Corsa Skill Rating (ACSR) integration: the ACSR option, skill and safety gates and rating badges in Championships, the ACSR server options and the "Export 2nd Race to ACSR" setting. The ACSR service no longer exists. Championships and server options saved with these settings can still be loaded; the settings are ignored.
 * Sentry error reporting and the Google Analytics tracking script, which sent data to the upstream project's servers when monitoring was enabled. The monitoring option now only exposes Prometheus metrics at /metrics.
 
 ---
@@ -300,7 +301,6 @@ Fixes:
 
 Removed:
 
-* Hosted mode (the HOSTED and MAX_CLIENTS_OVERRIDE environment variables, the default "acserver" hosting account and the hosted intro popup), which only applied to the upstream hosting service.
 * Removed max limit of Damage Multiplier (was 100%). Happy crashing!
 
 ---
@@ -728,7 +728,6 @@ Fixes:
 
 Removed:
 
-* Hosted mode (the HOSTED and MAX_CLIENTS_OVERRIDE environment variables, the default "acserver" hosting account and the hosted intro popup), which only applied to the upstream hosting service.
 * In an effort to reduce the build size and complexity, we have removed the old Entrant autofill method. This has been
   replaced by the more obvious dropdown in the Entrant box.
 

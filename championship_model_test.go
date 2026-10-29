@@ -1,6 +1,9 @@
 package servermanager
 
 import (
+	"bytes"
+	"encoding/gob"
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -893,52 +896,6 @@ func TestActiveChampionship_Password(t *testing.T) {
 	}
 }
 
-func TestChampionship_DriverMeetsACSRGates(t *testing.T) {
-	tests := []struct {
-		name                      string
-		safetyGate                int
-		enableSafety, enableSkill bool
-		skillGate                 string
-		rating                    *ACSRDriverRating
-		want                      bool
-	}{
-		{name: "nil rating", enableSafety: true, safetyGate: 100, rating: nil, want: true},
-		{name: "no gates", rating: &ACSRDriverRating{SkillRatingGrade: "E"}, want: true},
-		{name: "safety below gate", enableSafety: true, safetyGate: 50, rating: &ACSRDriverRating{SafetyRating: 49}, want: false},
-		{name: "safety at gate", enableSafety: true, safetyGate: 50, rating: &ACSRDriverRating{SafetyRating: 50}, want: true},
-		{name: "safety gate disabled", safetyGate: 50, rating: &ACSRDriverRating{SafetyRating: 0}, want: true},
-		{name: "skill gate disabled", skillGate: "A*", rating: &ACSRDriverRating{SkillRatingGrade: "E"}, want: true},
-		{name: "skill gate empty", enableSkill: true, rating: &ACSRDriverRating{SkillRatingGrade: "E"}, want: true},
-		{name: "skill gate E", enableSkill: true, skillGate: "E", rating: &ACSRDriverRating{SkillRatingGrade: "E"}, want: true},
-		{name: "skill gate D, grade E", enableSkill: true, skillGate: "D", rating: &ACSRDriverRating{SkillRatingGrade: "E"}, want: false},
-		{name: "skill gate D, grade D", enableSkill: true, skillGate: "D", rating: &ACSRDriverRating{SkillRatingGrade: "D"}, want: true},
-		{name: "skill gate C, grade D", enableSkill: true, skillGate: "C", rating: &ACSRDriverRating{SkillRatingGrade: "D"}, want: false},
-		{name: "skill gate C, grade B", enableSkill: true, skillGate: "C", rating: &ACSRDriverRating{SkillRatingGrade: "B"}, want: true},
-		{name: "skill gate B, grade C", enableSkill: true, skillGate: "B", rating: &ACSRDriverRating{SkillRatingGrade: "C"}, want: false},
-		{name: "skill gate B, grade A", enableSkill: true, skillGate: "B", rating: &ACSRDriverRating{SkillRatingGrade: "A"}, want: true},
-		{name: "skill gate A, grade B", enableSkill: true, skillGate: "A", rating: &ACSRDriverRating{SkillRatingGrade: "B"}, want: false},
-		{name: "skill gate A, grade A+", enableSkill: true, skillGate: "A", rating: &ACSRDriverRating{SkillRatingGrade: "A+"}, want: true},
-		{name: "skill gate A+, grade A", enableSkill: true, skillGate: "A+", rating: &ACSRDriverRating{SkillRatingGrade: "A"}, want: false},
-		{name: "skill gate A+, grade A*", enableSkill: true, skillGate: "A+", rating: &ACSRDriverRating{SkillRatingGrade: "A*"}, want: true},
-		{name: "skill gate A*, grade A+", enableSkill: true, skillGate: "A*", rating: &ACSRDriverRating{SkillRatingGrade: "A+"}, want: false},
-		{name: "skill gate A*, grade A*", enableSkill: true, skillGate: "A*", rating: &ACSRDriverRating{SkillRatingGrade: "A*"}, want: true},
-		{name: "unknown skill gate", enableSkill: true, skillGate: "Z", rating: &ACSRDriverRating{SkillRatingGrade: "E"}, want: true},
-		{name: "safety fails before skill", enableSafety: true, safetyGate: 50, enableSkill: true, skillGate: "E", rating: &ACSRDriverRating{SafetyRating: 10, SkillRatingGrade: "A*"}, want: false},
-	}
-
-	for _, tc := range tests {
-		championship := NewChampionship("ACSR")
-		championship.ACSRSafetyGate = tc.safetyGate
-		championship.EnableACSRSafetyGate = tc.enableSafety
-		championship.EnableACSRSkillGate = tc.enableSkill
-		championship.ACSRSkillGate = tc.skillGate
-
-		if got := championship.DriverMeetsACSRGates(tc.rating); got != tc.want {
-			t.Errorf("%s: expected %v, got %v", tc.name, tc.want, got)
-		}
-	}
-}
-
 func TestChampionship_ImportEvent(t *testing.T) {
 	newChampionship := func() (*Championship, *ChampionshipClass) {
 		championship := NewChampionship("Import")
@@ -1082,6 +1039,54 @@ func TestChampionship_ImportEvent(t *testing.T) {
 
 		if len(event.EntryList) != 3 || len(championship.Events) != 1 {
 			t.Errorf("expected event with all entrants appended to championship")
+		}
+	})
+}
+
+// Championships and server options stored by versions that still had the ACSR integration must stay loadable.
+func TestChampionship_LegacyACSRFieldsAreIgnored(t *testing.T) {
+	legacy := struct {
+		Name                 string
+		ACSR                 bool
+		ACSRSkillGate        string
+		ACSRSafetyGate       int
+		EnableACSRSafetyGate bool
+		EnableACSRSkillGate  bool
+	}{Name: "Legacy", ACSR: true, ACSRSkillGate: "E", ACSRSafetyGate: 50, EnableACSRSafetyGate: true}
+
+	t.Run("json", func(t *testing.T) {
+		data, err := json.Marshal(legacy)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		var championship Championship
+
+		if err := json.Unmarshal(data, &championship); err != nil {
+			t.Fatal(err)
+		}
+
+		if championship.Name != "Legacy" {
+			t.Errorf("expected name Legacy, got %q", championship.Name)
+		}
+	})
+
+	t.Run("gob", func(t *testing.T) {
+		buf := new(bytes.Buffer)
+
+		if err := gob.NewEncoder(buf).Encode(legacy); err != nil {
+			t.Fatal(err)
+		}
+
+		var championship Championship
+
+		if err := gob.NewDecoder(buf).Decode(&championship); err != nil {
+			t.Fatal(err)
+		}
+
+		if championship.Name != "Legacy" {
+			t.Errorf("expected name Legacy, got %q", championship.Name)
 		}
 	})
 }

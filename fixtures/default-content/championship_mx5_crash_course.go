@@ -8,7 +8,6 @@ var ChampionshipMX5CrashCourse = []byte(`{
 "Deleted": "0001-01-01T00:00:00Z",
 "OverridePassword": false,
 "ReplacementPassword": "",
-"ACSR": false,
 "Info": "<p>This is an example Championship - feel free to edit it or delete it! The EntryList for this Championship is open, so anyone can join and take part!&nbsp;</p><p>MX5s are typically one of the most loved cars in Assetto Corsa, so expect a lot of people to join if you run these events!</p><p>Each event has a short qualifying, then a race and a second reverse grid (top 8) race. The second race points are affected by a 0.5x multiplier, so it is worth less than the first race.</p>",
 "OpenEntrants": true,
 "PersistOpenEntrants": false,

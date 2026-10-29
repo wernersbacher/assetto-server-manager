@@ -78,7 +78,6 @@ func setupScheduledEventTest(t *testing.T, process ServerProcess) (*Championship
 			&dummyNotificationManager{},
 			NewRaceControl(NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
 		),
-		&ACSRClient{Enabled: false},
 	)
 
 	return cm, store, func() {

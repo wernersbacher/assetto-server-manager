@@ -8,7 +8,6 @@
         <div>
             <h1>Register for {{ $championship.Name }}</h1>
             <p>
-                {{ if $championship.ACSR }}An <a href="https://acsr.assettocorsaservers.com">Assetto Corsa Skill Rating</a> Championship. {{ end }}
                 {{ if $championship.SignUpForm.RequiresApproval }}Registrations are checked by the organisers before you are added to the grid.{{ else }}Fill in your details to take a place on the grid.{{ end }}
             </p>
         </div>
@@ -70,7 +69,7 @@
                     <label for="GUID" class="col-sm-4 col-form-label">Steam GUID</label>
 
                     <div class="col-sm-8">
-                        <input type="text" class="form-control acsrGUID" id="GUID" name="GUID"
+                        <input type="text" class="form-control" id="GUID" name="GUID"
                                placeholder="" value="{{ .FormData.GUID }}" {{ if .LockSteamGUID }} readonly{{ end }}>
                         {{ if not .LockSteamGUID }}
                             <small>
@@ -171,50 +170,9 @@
         {{ end }}
 
 
-        {{ if $championship.ACSR }}
-            <div class="card mt-3">
-                <div class="card-header">
-                    <strong>Assetto Corsa Skill Rating Championship</strong>
-                </div>
-                <div class="card-body">
-                    <p>
-                        This is an <a target="_blanK" href="https://acsr.assettocorsaservers.com">ACSR</a> Championship.
-                        That means that when you sign up for this Championship, the following details will be sent to ACSR:
-                    </p>
-                    <ul>
-                        <li>Your Name, as provided in the form above (anonymised if possible, e.g. "Alan Turing" would become "Alan T.")</li>
-                        <li>An anonymized version of your Steam GUID</li>
-                        <li>All Race, Qualifying and Practice results and Championship Positions</li>
-                    </ul>
-
-                    <p>By signing up to this Championship, you agree that this data can be shared with ACSR.</p>
-
-                    {{ if or $championship.EnableACSRSkillGate $championship.EnableACSRSafetyGate }}
-                        <p>You need to meet the following minimum ACSR ratings to join this Championship:</p>
-
-                        {{ if $championship.EnableACSRSkillGate }}
-                            <span data-toggle="tooltip" title="Skill" class="badge badge-primary acsr-badge--skill">{{ $championship.ACSRSkillGate }}</span>
-                        {{ end }}
-                        {{ if $championship.EnableACSRSafetyGate }}
-                            <span data-toggle="tooltip" title="Safety" class="badge badge-success acsr-badge--safety">{{ $championship.ACSRSafetyGate }} </span>
-                        {{ end }}
-
-                        <div class="mt-3 mb-3">Your Rating:</div>
-
-                        <div id="acsr-rating-container">
-                            <!-- Rating information is appended by JS! -->
-                            <span class="text-danger">Unknown! Please enter your GUID in the Steam GUID input above!</span>
-                        </div>
-                    {{ end }}
-                </div>
-            </div>
-        {{ end }}
 
         <div class="mt-4 text-right">
             <button type="submit"
-                    {{ if and ($championship.ACSR) (or $championship.EnableACSRSkillGate $championship.EnableACSRSafetyGate) }}
-                        disabled id="register-for-championship"
-                    {{ end }}
                     class="btn btn-primary btn-lg signup-submit">Register</button>
         </div>
     </form>

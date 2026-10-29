@@ -181,7 +181,6 @@ func init() {
 			&dummyNotificationManager{},
 			NewRaceControl(NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore)),
 		),
-		&ACSRClient{Enabled: false},
 	)
 }
 

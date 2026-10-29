@@ -47,9 +47,6 @@
             <tr>
                 <th>Created</th>
                 <th>Name</th>
-                {{ with $.DriverRatings }}
-                    <th>Rating</th>
-                {{ end }}
                 {{ if $championship.SignUpForm.AskForTeam }}
                     <th>Team</th>
                 {{ end }}
@@ -73,11 +70,6 @@
                     <td>
                         {{ $entrant.Name }}
                     </td>
-                    {{ with $.DriverRatings }}
-                        <td>
-                            {{ template "acsr-rating" dict "DriverRatings" $.DriverRatings "GUID" $entrant.GUID }}
-                        </td>
-                    {{ end }}
                     {{ if $championship.SignUpForm.AskForTeam }}
                         <td>
                             {{ $entrant.Team }}
