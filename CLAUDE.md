@@ -32,7 +32,7 @@ go install github.com/mjibson/esc@v0.2.0   # once
 go generate ./...
 
 go test ./...                               # all tests
-go test -run TestNewAPIChampionship .       # single test (root package is `servermanager`)
+go test -run TestNewAPIChampionship ./internal/championship   # single test in its package       # single test (root package is `servermanager`)
 go vet ./...
 ```
 
@@ -59,37 +59,58 @@ Frontend: `cd cmd/server-manager/typescript && npm ci && npx gulp build` (`npx g
 
 ## Architecture
 
-- **Root package `servermanager`** holds nearly all logic as flat files grouped by prefix: `race_*` (custom/quick
-  races, race weekends, race control/live timing), `championship*`, `content_*` (cars, tracks, weather, uploads),
-  `plugin_*` (KissMyRank, Real Penalty, stracker), `store_*`, `*_ini.go` (AC config file generation).
-  `cmd/server-manager/main.go` only wires config, store, migrations, UDP and HTTP together.
-- **Dependency wiring** is manual in `resolver.go`: `Resolver` lazily builds every manager and handler via
-  `resolveXxx()` methods. New managers/handlers must be added there; handlers are also passed into `Router()`.
-- **Managers vs. handlers**: `*Manager` types hold business logic (`RaceManager`, `ChampionshipManager`,
-  `RaceWeekendManager`, ...); `*Handler` types are thin HTTP layers embedding `BaseHandler` for template rendering.
+The root package `servermanager` is only the wiring layer (about 1.6k lines including tests); all domain code lives in packages under
+`internal/` and `pkg/`:
+
+- **Root (wiring only)**: `resolver.go` (manual dependency wiring, UDP dispatch `Resolver.UDPCallback`), `router.go`
+  (routes and permission groups), `template_funcs.go` (template functions that need domain code), `init.go`
+  (`InitWithResolver`: startup, signal handling, scheduled events), `servermanager_config.go` (`BuildStore`),
+  `monitoring.go` (Prometheus, panic capture), `lua.go`. `cmd/server-manager/main.go` only wires config, store,
+  migrations, UDP and HTTP together. The root stays the wiring package because `main.go`, `cmd/utils/*` and the
+  `-X github.com/wernersbacher/assetto-server-manager.BuildVersion` ldflags (Makefile, Dockerfile, `dev/run.ps1`)
+  reference it.
+- **Dependency direction** (roughly bottom to top; a package imports only packages listed before it, no cycles):
+  `pkg/*`, `acserver/serverconfig`, `plainname`, `formfields`, `lua`, `results`; `model`, `content`, `plugins`; `store`,
+  `config`; `web` (renderer, `BaseHandler`, access checks, form encoding); `serverenv`; `server` (AC process, content
+  manager wrapper); `accounts`, `api`, `notification`, `schedule`, `racecontrol`; `race`; `championship`;
+  `raceweekend`; the handler packages `contenthttp`, `resultshttp`, `pluginhttp`, `admin`; the root.
+- **Domain packages with their own HTTP handlers**: `race` (custom/quick races), `championship`, `raceweekend`,
+  `racecontrol` (live timing, penalties), `schedule` (calendar, upcoming races), `accounts`. Each holds its `*Manager`
+  (business logic) and `*Handler` (thin HTTP layer embedding `smweb.BaseHandler`).
+- **Handler-only packages** for handlers that cannot live in the package of their data (those packages are imported by
+  `web`, so they cannot import it): `contenthttp` (cars, tracks, weather, setups, uploads), `resultshttp` (results
+  list/API/collisions/delete), `pluginhttp` (KissMyRank, Real Penalty, stracker), `admin` (server administration,
+  healthcheck, event details; they need several managers).
+- **Process state**: `serverenv.State` holds the install path, server id and the fallback-sorting option and builds the
+  `serverenv.Env` which managers and handlers get injected (`env.InstallPath()`, `env.Results()`, ...). The values are
+  functions on purpose: the install path is set after `NewResolver` and migrations run before it. Remaining globals:
+  `BuildVersion` (ldflags target), `Debug` (from `$DEBUG`), the log buffers / `panicCapture` and the Prometheus metrics
+  in `router.go` / `monitoring.go` (process-wide singletons), `smresults.UseShortenedDriverNames`.
+- **Where new code goes**: a new manager/handler goes into the domain package it belongs to (a handler-only package if
+  it would otherwise form a cycle), gets exported handler methods, is created in a `resolveXxx()` method of
+  `resolver.go` and is passed to `Router()`; do not read package globals, take a `*serverenv.Env`.
 - **Routing & permissions** (`router.go`): routes are grouped by `AccountHandler` access-level middleware
   (read / write / delete / admin) — put new routes in the group matching the required permission. JSON APIs live
   under `/api/...`.
-- **Global config**: `config` (`*Configuration` from `config.yml`, `servermanager_config.go`) is a package-level
-  variable; tests set it themselves (`config = &Configuration{}`).
-- **Domain model**: `internal/model` holds the persisted domain types (championships, race weekends, custom/quick
-  races, `RaceEvent`, accounts, audit entries, live timing data) with their pure methods. It must not depend on the root
-  package; anything that needs the install path, server id, build version or track lookups takes them as arguments.
-  Stored type names (`RaceEvent` names, gob registrations) keep their old `servermanager.X` names.
-- **Persistence**: everything goes through the `Store` interface (`internal/store/store.go`) with two implementations,
-  `BoltStore` and `JSONStore` (same package) — new persisted data must be implemented in both. Changes to stored
-  structs that need data conversion get a migration appended to `buildMigrations` in `internal/store/migrations.go`
-  (never reorder/remove entries; the stored version is the slice index).
-- **AC server integration**: `ServerProcess` (`server_process*.go`, OS-specific) starts/stops `acServer` and plugins
-  after writing `server_cfg.ini` / `entry_list.ini`. Live data comes back via the AC UDP plugin protocol
-  (`pkg/udp`) and is dispatched by `Resolver.UDPCallback` to race control, championship and race weekend managers —
-  championship/race weekend progress and results are driven by these events.
-- **Forms**: many edit forms are generated from struct tags via `github.com/cj123/formulate` (`formulate.go`).
-- **Templates** live in `cmd/server-manager/views` (`layout/`, `pages/`, `partials/`), rendered via `templates.go`
-  (sprig + custom funcs); views and static files are embedded into the binary with `esc`.
+- **Persistence**: everything goes through the `Store` interface (`internal/store`) with two implementations,
+  `BoltStore` and `JSONStore` — new persisted data must be implemented in both. Stored types live in `internal/model`
+  (registered with `gob.RegisterName`; the names are the persisted format, never change them). Changes to stored
+  structs that need data conversion get a migration appended to `migrations` (never reorder/remove entries; the stored
+  version is the slice index).
+- **AC server integration**: `server.AssettoServerProcess` (OS-specific files) starts/stops `acServer` and plugins
+  after writing `server_cfg.ini` / `entry_list.ini`. Live data comes back via the AC UDP plugin protocol (`pkg/udp`)
+  and is dispatched by `Resolver.UDPCallback` to race control, championship and race weekend managers.
+- **Forms**: many edit forms are generated from struct tags via `github.com/cj123/formulate`
+  (`web.EncodeFormData` / `web.DecodeFormData`).
+- **Templates** live in `cmd/server-manager/views` (`layout/`, `pages/`, `partials/`), rendered by `web.Renderer`
+  (sprig + `web` funcs + `serverTemplateFuncs`); views and static files are embedded with `esc`. Templates call
+  methods and functions by name at runtime: after moving or changing a symbol, grep the views for it and smoke-test
+  the pages (the compiler does not check templates).
+- **Tests**: helpers live in `envtest` (`serverenv.Env` for a temp install), `webtest` (request scope for handlers),
+  `server/servertest` (`Dummy`, `Interruptible` process), `notification/notificationtest`. Results/championship
+  fixtures are read from `fixtures/` and `cmd/server-manager/assetto`.
 - `pkg/` holds standalone libraries: `udp` (AC UDP protocol), `acd` (encrypted car data), `when` (timers).
 
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:1105d646 -->
 ## Beads Issue Tracker
 
 This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
