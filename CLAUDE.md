@@ -83,7 +83,7 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   healthcheck, event details; they need several managers).
 - **Process state**: `serverenv.State` holds the install path, server id and the fallback-sorting option and builds the
   `serverenv.Env` which managers and handlers get injected (`env.InstallPath()`, `env.Results()`, ...). The values are
-  functions on purpose: the install path is set after `NewResolver` and migrations run before it. Remaining globals:
+  functions on purpose: migrations run (in `BuildStore`) before the install path is set from the config, which `main` does before `NewResolver` because the car and track managers are given the path at creation. Remaining globals:
   `BuildVersion` (ldflags target), `Debug` (from `$DEBUG`), the log buffers / `panicCapture` and the Prometheus metrics
   in `router.go` / `monitoring.go` (process-wide singletons), `smresults.UseShortenedDriverNames`.
 - **Where new code goes**: a new manager/handler goes into the domain package it belongs to (a handler-only package if

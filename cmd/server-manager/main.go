@@ -82,15 +82,16 @@ func main() {
 		filesystem = static.FS(false)
 	}
 
+	// the managers created by the resolver (cars, tracks) are given the install path, so it has to be set before
+	if err := state.SetInstallPath(config.Steam.InstallPath); err != nil {
+		ServeHTTPWithError(defaultAddress, "Resolve the assetto corsa install path", err)
+		return
+	}
+
 	resolver, err := servermanager.NewResolver(config, templateLoader, os.Getenv("FILESYSTEM_HTML") == "true", store, state)
 
 	if err != nil {
 		ServeHTTPWithError(config.HTTP.Hostname, "Initialise resolver (internal error)", err)
-		return
-	}
-
-	if err := state.SetInstallPath(config.Steam.InstallPath); err != nil {
-		ServeHTTPWithError(defaultAddress, "Resolve the assetto corsa install path", err)
 		return
 	}
 
