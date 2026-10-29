@@ -11,6 +11,7 @@ import (
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
@@ -19,12 +20,12 @@ import (
 var LaunchTime = time.Now()
 
 type HealthCheck struct {
-	raceControl *RaceControl
+	raceControl *racecontrol.RaceControl
 	process     smserver.ServerProcess
 	store       smstore.Store
 }
 
-func NewHealthCheck(raceControl *RaceControl, store smstore.Store, process smserver.ServerProcess) *HealthCheck {
+func NewHealthCheck(raceControl *racecontrol.RaceControl, store smstore.Store, process smserver.ServerProcess) *HealthCheck {
 	return &HealthCheck{
 		store:       store,
 		raceControl: raceControl,
@@ -83,7 +84,7 @@ func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		ServerName:          serverName,
 		ServerID:            serverID,
-		EventInProgress:     h.raceControl.process.IsRunning(),
+		EventInProgress:     h.process.IsRunning(),
 		EventIsCritical:     !event.IsPractice() && (event.IsChampionship() || event.IsRaceWeekend() || h.raceControl.SessionInfo.Type == udp.SessionTypeRace || h.raceControl.SessionInfo.Type == udp.SessionTypeQualifying),
 		EventIsChampionship: event.IsChampionship(),
 		EventIsRaceWeekend:  event.IsRaceWeekend(),

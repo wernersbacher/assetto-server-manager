@@ -6,6 +6,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
@@ -38,8 +39,8 @@ type Resolver struct {
 	env                   *serverenv.Env
 	viewRenderer          *smweb.Renderer
 	serverProcess         smserver.ServerProcess
-	raceControl           *RaceControl
-	raceControlHub        *RaceControlHub
+	raceControl           *racecontrol.RaceControl
+	raceControlHub        *racecontrol.RaceControlHub
 	contentManagerWrapper *smserver.ContentManagerWrapper
 
 	// handlers
@@ -52,12 +53,12 @@ type Resolver struct {
 	carsHandler                 *CarsHandler
 	tracksHandler               *TracksHandler
 	weatherHandler              *WeatherHandler
-	penaltiesHandler            *PenaltiesHandler
-	penaltiesManager            *PenaltiesManager
+	penaltiesHandler            *racecontrol.PenaltiesHandler
+	penaltiesManager            *racecontrol.PenaltiesManager
 	resultsHandler              *ResultsHandler
 	scheduledRacesHandler       *schedule.Handler
 	contentUploadHandler        *ContentUploadHandler
-	raceControlHandler          *RaceControlHandler
+	raceControlHandler          *racecontrol.RaceControlHandler
 	serverAdministrationHandler *ServerAdministrationHandler
 	raceWeekendHandler          *RaceWeekendHandler
 	strackerHandler             *StrackerHandler
@@ -332,22 +333,22 @@ func (r *Resolver) resolveWeatherHandler() *WeatherHandler {
 	return r.weatherHandler
 }
 
-func (r *Resolver) resolvePenaltiesHandler() *PenaltiesHandler {
+func (r *Resolver) resolvePenaltiesHandler() *racecontrol.PenaltiesHandler {
 	if r.penaltiesHandler != nil {
 		return r.penaltiesHandler
 	}
 
-	r.penaltiesHandler = NewPenaltiesHandler(r.resolveBaseHandler(), r.resolvePenaltiesManager())
+	r.penaltiesHandler = racecontrol.NewPenaltiesHandler(r.resolveBaseHandler(), r.resolvePenaltiesManager())
 
 	return r.penaltiesHandler
 }
 
-func (r *Resolver) resolvePenaltiesManager() *PenaltiesManager {
+func (r *Resolver) resolvePenaltiesManager() *racecontrol.PenaltiesManager {
 	if r.penaltiesHandler != nil {
 		return r.penaltiesManager
 	}
 
-	r.penaltiesManager = NewPenaltiesManager(r.ResolveStore())
+	r.penaltiesManager = racecontrol.NewPenaltiesManager(r.ResolveStore(), r.resolveEnv())
 
 	return r.penaltiesManager
 }
@@ -411,35 +412,36 @@ func (r *Resolver) resolveContentUploadHandler() *ContentUploadHandler {
 	return r.contentUploadHandler
 }
 
-func (r *Resolver) resolveRaceControlHub() *RaceControlHub {
+func (r *Resolver) resolveRaceControlHub() *racecontrol.RaceControlHub {
 	if r.raceControlHub != nil {
 		return r.raceControlHub
 	}
 
-	r.raceControlHub = newRaceControlHub()
-	go panicCapture(r.raceControlHub.run)
+	r.raceControlHub = racecontrol.NewRaceControlHub()
+	go panicCapture(r.raceControlHub.Run)
 
 	return r.raceControlHub
 }
 
-func (r *Resolver) ResolveRaceControl() *RaceControl {
+func (r *Resolver) ResolveRaceControl() *racecontrol.RaceControl {
 	if r.raceControl != nil {
 		return r.raceControl
 	}
 
-	r.raceControl = NewRaceControl(
+	r.raceControl = racecontrol.NewRaceControl(
 		r.config,
 		r.resolveRaceControlHub(),
-		filesystemTrackData{},
+		racecontrol.NewFilesystemTrackData(r.resolveEnv()),
 		r.resolveServerProcess(),
 		r.ResolveStore(),
 		r.resolvePenaltiesManager(),
+		r.resolveEnv(),
 	)
 
 	return r.raceControl
 }
 
-func (r *Resolver) resolveRaceControlHandler() *RaceControlHandler {
+func (r *Resolver) resolveRaceControlHandler() *racecontrol.RaceControlHandler {
 	if r.config.Server.PerformanceMode {
 		return nil
 	}
@@ -448,13 +450,14 @@ func (r *Resolver) resolveRaceControlHandler() *RaceControlHandler {
 		return r.raceControlHandler
 	}
 
-	r.raceControlHandler = NewRaceControlHandler(
+	r.raceControlHandler = racecontrol.NewRaceControlHandler(
 		r.resolveBaseHandler(),
 		r.ResolveStore(),
 		r.resolveRaceManager(),
 		r.ResolveRaceControl(),
 		r.resolveRaceControlHub(),
 		r.resolveServerProcess(),
+		r.resolveEnv(),
 	)
 
 	return r.raceControlHandler
@@ -586,9 +589,10 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 // been created.
 func globalsEnv() *serverenv.Env {
 	return &serverenv.Env{
-		ServerID:     func() smmodel.ServerID { return serverID },
-		InstallPath:  func() string { return ServerInstallPath },
-		PanicCapture: func(fn func()) { panicCapture(fn) },
-		Debug:        Debug,
+		ServerID:        func() smmodel.ServerID { return serverID },
+		InstallPath:     func() string { return ServerInstallPath },
+		FallBackSorting: func() bool { return UseFallBackSorting },
+		PanicCapture:    func(fn func()) { panicCapture(fn) },
+		Debug:           Debug,
 	}
 }

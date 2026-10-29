@@ -1,4 +1,4 @@
-package servermanager
+package racecontrol
 
 import (
 	"fmt"
@@ -10,13 +10,15 @@ import (
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 // OnVersion occurs when the Assetto Corsa Server starts up for the first time.
 func (rc *RaceControl) OnVersion(version udp.Version) error {
-	go panicCapture(rc.requestSessionInfo)
+	go rc.env.PanicCapture(rc.requestSessionInfo)
 
 	// clear chat messages on new server start
 	rc.ChatMessagesMutex.Lock()
@@ -34,7 +36,7 @@ func (rc *RaceControl) OnCarUpdate(update udp.CarUpdate) error {
 	if ch, ok := rc.carUpdaters[update.CarID]; !ok || ch == nil {
 		rc.carUpdaters[update.CarID] = make(chan udp.CarUpdate, 1000)
 
-		go panicCapture(func() {
+		go rc.env.PanicCapture(func() {
 			for update := range rc.carUpdaters[update.CarID] {
 				err := rc.handleCarUpdate(update)
 
@@ -83,9 +85,9 @@ func (rc *RaceControl) OnClientConnect(client udp.SessionCarInfo) error {
 	rc.CarIDToGUID[client.CarID] = client.DriverGUID
 	rc.carIDToGUIDMutex.Unlock()
 
-	client.DriverInitials = driverInitials(client.DriverName)
-	client.DriverName = driverName(client.DriverName)
-	client.CarName = prettifyName(client.CarModel, true)
+	client.DriverInitials = smresults.DriverInitials(client.DriverName)
+	client.DriverName = smresults.DriverName(client.DriverName)
+	client.CarName = smcontent.PrettifyName(client.CarModel, true)
 
 	var driver *smmodel.RaceControlDriver
 
@@ -387,7 +389,7 @@ func (rc *RaceControl) OnLapCompleted(lap udp.LapCompleted) error {
 		})
 	}
 
-	rc.persistTimingData()
+	rc.PersistTimingData()
 
 	return nil
 }

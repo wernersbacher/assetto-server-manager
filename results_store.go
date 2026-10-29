@@ -2,10 +2,8 @@ package servermanager
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
@@ -34,17 +32,7 @@ const (
 
 // resultsLoader builds a smresults.Loader from the current installation path and server options.
 func resultsLoader() *smresults.Loader {
-	loader := &smresults.Loader{
-		Dir:             filepath.Join(ServerInstallPath, "results"),
-		FallBackSorting: UseFallBackSorting,
-		PrettifyName:    func(name string) string { return prettifyName(name, false) },
-	}
-
-	if smlua.Initialised() {
-		loader.OnLoad = resultsLoadPlugin
-	}
-
-	return loader
+	return globalsEnv().Results()
 }
 
 func LoadResult(fileName string, opts ...LoadResultOpts) (*smresults.SessionResults, error) {
@@ -65,23 +53,6 @@ func listRecentResults(n int) ([]*smresults.SessionResults, error) {
 
 func saveResults(jsonFileName string, results *smresults.SessionResults) error {
 	return resultsLoader().Save(jsonFileName, results)
-}
-
-func resultsLoadPlugin(results *smresults.SessionResults) error {
-	p := smlua.NewPlugin()
-
-	newSessionResults := &smresults.SessionResults{}
-
-	p.Inputs(results).Outputs(newSessionResults)
-	err := p.Call("./plugins/results.lua", "onResultsLoad")
-
-	if err != nil {
-		return err
-	}
-
-	*results = *newSessionResults
-
-	return nil
 }
 
 // ResultsFileReferencedError is returned when a results file can't be deleted because a championship or race weekend uses it.

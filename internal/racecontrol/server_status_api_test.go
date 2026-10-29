@@ -1,10 +1,11 @@
-package servermanager
+package racecontrol
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
@@ -21,7 +22,7 @@ import (
 )
 
 type stoppedServerProcess struct {
-	dummyServerProcess
+	servertest.Dummy
 }
 
 func (stoppedServerProcess) IsRunning() bool {
@@ -54,11 +55,12 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 	rch := &RaceControlHandler{
 		store:         store,
 		serverProcess: process,
-		raceControl:   NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+		env:           testEnv(),
+		raceControl:   NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, NilTrackData{}, process, store, NewPenaltiesManager(store, testEnv()), testEnv()),
 	}
 
 	rec := httptest.NewRecorder()
-	rch.serverStatusAPI(rec, httptest.NewRequest(http.MethodGet, "/api/server-status", nil))
+	rch.ServerStatusAPI(rec, httptest.NewRequest(http.MethodGet, "/api/server-status", nil))
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("expected 200, got %d", rec.Code)
@@ -85,7 +87,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 
 	defer func() { smresults.UseShortenedDriverNames = oldShortened }()
 
-	raceControl := NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore))
+	raceControl := NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, NilTrackData{}, servertest.Dummy{}, testStore, NewPenaltiesManager(testStore, testEnv()), testEnv())
 
 	if err := raceControl.OnNewSession(udp.SessionInfo{
 		ServerName:  "Lobby Name",
@@ -116,7 +118,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 	}
 
 	t.Run("championship", func(t *testing.T) {
-		out := NewAPIServerStatus(true, "Configured Name", event, raceControl)
+		out := NewAPIServerStatus(testEnv(), true, "Configured Name", event, raceControl)
 
 		if !out.Running || out.ServerName != "Lobby Name" || !out.IsChampionship || out.ChampionshipName != "Test Championship" || out.IsRaceWeekend {
 			t.Errorf("unexpected status: %+v", out)
@@ -151,7 +153,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 	})
 
 	t.Run("race weekend", func(t *testing.T) {
-		out := NewAPIServerStatus(true, "", smmodel.ActiveRaceWeekend{Name: "Endurance"}, raceControl)
+		out := NewAPIServerStatus(testEnv(), true, "", smmodel.ActiveRaceWeekend{Name: "Endurance"}, raceControl)
 
 		if !out.IsRaceWeekend || out.RaceWeekendName != "Endurance" || out.IsChampionship {
 			t.Errorf("unexpected status: %+v", out)
@@ -159,7 +161,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 	})
 
 	t.Run("not running", func(t *testing.T) {
-		out := NewAPIServerStatus(false, "Configured Name", event, raceControl)
+		out := NewAPIServerStatus(testEnv(), false, "Configured Name", event, raceControl)
 
 		if out.Running || out.ServerName != "Configured Name" || out.Session != nil || out.EventName != "" || len(out.ConnectedDrivers) != 0 {
 			t.Errorf("unexpected status: %+v", out)

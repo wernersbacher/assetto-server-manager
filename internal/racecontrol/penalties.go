@@ -1,4 +1,4 @@
-package servermanager
+package racecontrol
 
 import (
 	"fmt"
@@ -13,6 +13,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -30,7 +31,8 @@ func NewPenaltiesHandler(baseHandler *smweb.BaseHandler, penaltiesManager *Penal
 	}
 }
 
-func (ph *PenaltiesHandler) managePenalty(w http.ResponseWriter, r *http.Request) {
+// ManagePenalty adds or clears a penalty on a results file.
+func (ph *PenaltiesHandler) ManagePenalty(w http.ResponseWriter, r *http.Request) {
 	jsonFileName := chi.URLParam(r, "sessionFile")
 	guid := chi.URLParam(r, "driverGUID")
 	carModel := r.URL.Query().Get("model")
@@ -83,13 +85,17 @@ func (ph *PenaltiesHandler) managePenalty(w http.ResponseWriter, r *http.Request
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
+// PenaltiesManager applies penalties to results files.
 type PenaltiesManager struct {
 	store smstore.Store
+	env   *serverenv.Env
 }
 
-func NewPenaltiesManager(store smstore.Store) *PenaltiesManager {
+// NewPenaltiesManager creates a PenaltiesManager.
+func NewPenaltiesManager(store smstore.Store, env *serverenv.Env) *PenaltiesManager {
 	return &PenaltiesManager{
 		store: store,
+		env:   env,
 	}
 }
 
@@ -106,7 +112,7 @@ func (pm *PenaltiesManager) applyPenalty(jsonFileName, guid, carModel string, pe
 		jsonFileName = strings.TrimSuffix(jsonFileName, ".json")
 	}
 
-	results, err := LoadResult(fullFileName)
+	results, err := pm.env.Results().Load(fullFileName)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not load session result file")
@@ -212,7 +218,7 @@ func (pm *PenaltiesManager) applyPenalty(jsonFileName, guid, carModel string, pe
 		})
 	}
 
-	err = saveResults(fullFileName, results)
+	err = pm.env.Results().Save(fullFileName, results)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not encode to session result file")

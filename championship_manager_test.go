@@ -5,6 +5,8 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
@@ -63,52 +65,6 @@ var TestEntryList = serverconfig.EntryList{
 		Model: "rss_formula_rss_4",
 		Skin:  "",
 	},
-}
-
-type dummyServerProcess struct {
-	doneCh chan struct{}
-}
-
-func (dummyServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
-	return nil
-}
-
-func (dummyServerProcess) Logs() string {
-	return ""
-}
-
-func (d dummyServerProcess) Stop() error {
-	if d.doneCh != nil {
-		d.doneCh <- struct{}{}
-	}
-	return nil
-}
-
-func (dummyServerProcess) Restart() error {
-	return nil
-}
-
-func (dummyServerProcess) IsRunning() bool {
-	return true
-}
-
-func (dummyServerProcess) Event() smmodel.RaceEvent {
-	return &smmodel.ActiveChampionship{}
-}
-
-func (dummyServerProcess) UDPCallback(message udp.Message) {
-}
-
-func (dummyServerProcess) SendUDPMessage(message udp.Message) error {
-	return nil
-}
-
-func (d dummyServerProcess) NotifyDone(chan struct{}) {
-
-}
-
-func (dummyServerProcess) GetServerConfig() serverconfig.ServerConfig {
-	return serverconfig.ConfigIniDefault()
 }
 
 var championshipEventFixtures = []string{
@@ -179,11 +135,11 @@ func newTestChampionshipManager() *ChampionshipManager {
 		NewRaceManager(
 			&smconfig.Configuration{},
 			smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared")),
-			dummyServerProcess{},
+			servertest.Dummy{},
 			smcontent.NewCarManager(ServerInstallPath, false, false),
 			smcontent.NewTrackManager(ServerInstallPath),
 			&dummyNotificationManager{},
-			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore)),
+			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, servertest.Dummy{}, testStore, racecontrol.NewPenaltiesManager(testStore, globalsEnv()), globalsEnv()),
 			globalsEnv(),
 		),
 	)
@@ -510,3 +466,5 @@ func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t 
 		eventNum++
 	}
 }
+
+var testStore = smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))

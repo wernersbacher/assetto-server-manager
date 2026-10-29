@@ -3,6 +3,7 @@ package servermanager
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 
@@ -59,11 +60,11 @@ func Router(
 	carsHandler *CarsHandler,
 	tracksHandler *TracksHandler,
 	weatherHandler *WeatherHandler,
-	penaltiesHandler *PenaltiesHandler,
+	penaltiesHandler *racecontrol.PenaltiesHandler,
 	resultsHandler *ResultsHandler,
 	contentUploadHandler *ContentUploadHandler,
 	serverAdministrationHandler *ServerAdministrationHandler,
-	raceControlHandler *RaceControlHandler,
+	raceControlHandler *racecontrol.RaceControlHandler,
 	scheduledRacesHandler *schedule.Handler,
 	raceWeekendHandler *RaceWeekendHandler,
 	strackerHandler *StrackerHandler,
@@ -165,9 +166,9 @@ func Router(
 				return http.HandlerFunc(fn)
 			})
 
-			r.Get("/live-timing", raceControlHandler.liveTiming)
-			r.Get("/api/race-control", raceControlHandler.websocket)
-			r.Get("/api/server-status", raceControlHandler.serverStatusAPI)
+			r.Get("/live-timing", raceControlHandler.LiveTiming)
+			r.Get("/api/race-control", raceControlHandler.Websocket)
+			r.Get("/api/server-status", raceControlHandler.ServerStatusAPI)
 		})
 
 		// calendar
@@ -270,13 +271,13 @@ func Router(
 		r.Get("/championship/{championshipID}/race-weekend/{weekendID}/import", championshipsHandler.raceWeekendImport)
 
 		// penalties
-		r.Post("/penalties/{sessionFile}/{driverGUID}", penaltiesHandler.managePenalty)
+		r.Post("/penalties/{sessionFile}/{driverGUID}", penaltiesHandler.ManagePenalty)
 
 		// results
 		r.Post("/results/{fileName}/edit", resultsHandler.edit)
 
 		// live timings
-		r.Post("/live-timing/save-frames", raceControlHandler.saveIFrames)
+		r.Post("/live-timing/save-frames", raceControlHandler.SaveIFrames)
 
 		// endpoints
 		r.Post("/api/track/upload", contentUploadHandler.upload(ContentTypeTrack))
@@ -351,13 +352,13 @@ func Router(
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.rebuildSearchIndex)
 
-		r.HandleFunc("/restart-session", raceControlHandler.restartSession)
-		r.HandleFunc("/next-session", raceControlHandler.nextSession)
-		r.HandleFunc("/broadcast-chat", raceControlHandler.broadcastChat)
-		r.HandleFunc("/admin-command", raceControlHandler.adminCommand)
-		r.HandleFunc("/kick-user", raceControlHandler.kickUser)
-		r.HandleFunc("/send-chat", raceControlHandler.sendChat)
-		r.HandleFunc("/countdown", raceControlHandler.countdown)
+		r.HandleFunc("/restart-session", raceControlHandler.RestartSession)
+		r.HandleFunc("/next-session", raceControlHandler.NextSession)
+		r.HandleFunc("/broadcast-chat", raceControlHandler.BroadcastChat)
+		r.HandleFunc("/admin-command", raceControlHandler.AdminCommand)
+		r.HandleFunc("/kick-user", raceControlHandler.KickUser)
+		r.HandleFunc("/send-chat", raceControlHandler.SendChat)
+		r.HandleFunc("/countdown", raceControlHandler.Countdown)
 
 		r.HandleFunc("/stracker/options", strackerHandler.options)
 		r.HandleFunc("/kissmyrank/options", kissMyRankHandler.options)

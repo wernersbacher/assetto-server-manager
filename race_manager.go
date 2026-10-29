@@ -6,6 +6,7 @@ import (
 	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
+	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
@@ -30,7 +31,7 @@ type RaceManager struct {
 	store               smstore.Store
 	carManager          *smcontent.CarManager
 	trackManager        *smcontent.TrackManager
-	raceControl         *RaceControl
+	raceControl         *racecontrol.RaceControl
 	notificationManager notification.Dispatcher
 	env                 *serverenv.Env
 
@@ -57,7 +58,7 @@ func NewRaceManager(
 	carManager *smcontent.CarManager,
 	trackManager *smcontent.TrackManager,
 	notificationManager notification.Dispatcher,
-	raceControl *RaceControl,
+	raceControl *racecontrol.RaceControl,
 	env *serverenv.Env,
 ) *RaceManager {
 	return &RaceManager{
@@ -98,7 +99,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 
 	if !event.IsTimeAttack() {
 		logrus.Debug("event is not time attack, clearing time attack event on race control")
-		rm.raceControl.currentTimeAttackEvent = nil
+		rm.raceControl.SetTimeAttackEvent(nil)
 	}
 
 	// load server opts

@@ -1,10 +1,11 @@
-package servermanager
+package racecontrol
 
 import (
 	"sort"
 	"sync"
 	"time"
 
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -23,7 +24,7 @@ func NewRaceControlDriver(carInfo udp.SessionCarInfo) *smmodel.RaceControlDriver
 
 func NewRaceControlCarLapInfo(carModel string) *smmodel.RaceControlCarLapInfo {
 	return &smmodel.RaceControlCarLapInfo{
-		CarName: prettifyName(carModel, true),
+		CarName: smcontent.PrettifyName(carModel, true),
 	}
 }
 

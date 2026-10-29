@@ -1,4 +1,4 @@
-package servermanager
+package racecontrol
 
 import (
 	"net/http"
@@ -7,7 +7,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/api"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -60,7 +63,7 @@ type APIConnectedDriver struct {
 
 // NewAPIServerStatus converts the state of the server process and race control to the API format. serverName is the
 // configured server name, used when the running server has not reported its own yet.
-func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent, raceControl *RaceControl) *APIServerStatus {
+func NewAPIServerStatus(env *serverenv.Env, running bool, serverName string, event smmodel.RaceEvent, raceControl *RaceControl) *APIServerStatus {
 	out := &APIServerStatus{
 		Running:          running,
 		ServerName:       serverName,
@@ -75,7 +78,7 @@ func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent
 		out.ServerName = raceControl.SessionInfo.ServerName
 	}
 
-	out.EventName = event.EventName(trackSummary)
+	out.EventName = event.EventName(env.TrackSummary)
 	out.IsChampionship = event.IsChampionship()
 	out.IsRaceWeekend = event.IsRaceWeekend()
 	out.IsPractice = event.IsPractice()
@@ -104,7 +107,7 @@ func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent
 	}
 
 	if out.Track != "" {
-		out.TrackName = api.TrackName(ServerInstallPath, out.Track, out.TrackLayout)
+		out.TrackName = api.TrackName(env.InstallPath(), out.Track, out.TrackLayout)
 	}
 
 	if !raceControl.SessionStartTime.IsZero() {
@@ -127,9 +130,9 @@ func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent
 		driver.Unlock()
 
 		out.ConnectedDrivers = append(out.ConnectedDrivers, &APIConnectedDriver{
-			Name:     driverName(carInfo.DriverName),
+			Name:     smresults.DriverName(carInfo.DriverName),
 			CarModel: carInfo.CarModel,
-			CarName:  prettifyName(carInfo.CarModel, true),
+			CarName:  smcontent.PrettifyName(carInfo.CarModel, true),
 			CarSkin:  carInfo.CarSkin,
 		})
 
@@ -142,7 +145,7 @@ func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent
 }
 
 // serverStatusAPI returns the current state of the server in the API format.
-func (rch *RaceControlHandler) serverStatusAPI(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) ServerStatusAPI(w http.ResponseWriter, r *http.Request) {
 	var serverName string
 
 	opts, err := rch.store.LoadServerOptions()
@@ -153,7 +156,7 @@ func (rch *RaceControlHandler) serverStatusAPI(w http.ResponseWriter, r *http.Re
 		serverName = opts.Name
 	}
 
-	api.WriteJSON(w, NewAPIServerStatus(rch.serverProcess.IsRunning(), serverName, rch.serverProcess.Event(), rch.raceControl))
+	api.WriteJSON(w, NewAPIServerStatus(rch.env, rch.serverProcess.IsRunning(), serverName, rch.serverProcess.Event(), rch.raceControl))
 }
 
 // apiSessionType converts the session type of the UDP plugin protocol to the session types used in results and

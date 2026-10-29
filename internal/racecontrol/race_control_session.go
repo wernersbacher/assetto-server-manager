@@ -1,4 +1,4 @@
-package servermanager
+package racecontrol
 
 import (
 	"path/filepath"
@@ -143,7 +143,7 @@ func (rc *RaceControl) requestSessionInfo() {
 
 			var drivers []*smmodel.RaceControlDriver
 
-			rc.persistTimingData()
+			rc.PersistTimingData()
 
 			// the server has just stopped. send disconnect messages for all connected cars.
 			_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
@@ -228,7 +228,7 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 		defer rc.driverSwapPenaltiesMutex.Unlock()
 
 		if config.DriverSwapMinimumNumberOfSwaps > 0 {
-			results, err := LoadResult(filename, LoadResultWithoutPluginFire)
+			results, err := rc.env.Results().Load(filename, smresults.WithoutPluginFire)
 
 			if err != nil {
 				logrus.WithError(err).Errorf("Could not load results file to check min driver swaps")
@@ -272,7 +272,7 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 			return err
 		}
 
-		logrus.Infof("Time Attack Event (%s) Finished, results files have been combined and saved as %s", rc.currentTimeAttackEvent.EventName(trackSummary), filename)
+		logrus.Infof("Time Attack Event (%s) Finished, results files have been combined and saved as %s", rc.currentTimeAttackEvent.EventName(rc.env.TrackSummary), filename)
 	}
 
 	return nil
@@ -281,7 +281,7 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 func (rc *RaceControl) addFileToTimeAttackEvent(file string) error {
 	logrus.Info("Time Attack event completed, combining with any previous results")
 
-	results, err := LoadResult(file)
+	results, err := rc.env.Results().Load(file)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not read session results: %s", file)
@@ -293,7 +293,7 @@ func (rc *RaceControl) addFileToTimeAttackEvent(file string) error {
 	resultsArray = append(resultsArray, results)
 
 	if rc.currentTimeAttackEvent.TimeAttackCombinedResultFile != "" {
-		result, err := LoadResult(rc.currentTimeAttackEvent.TimeAttackCombinedResultFile + ".json")
+		result, err := rc.env.Results().Load(rc.currentTimeAttackEvent.TimeAttackCombinedResultFile + ".json")
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not read session results: %s", file)
@@ -309,13 +309,13 @@ func (rc *RaceControl) addFileToTimeAttackEvent(file string) error {
 	results.ClearKickedGUIDs()
 	results.NormaliseCarIDs()
 
-	if !strings.HasSuffix(results.SessionFile, timeAttackSuffix) {
-		results.SessionFile = results.SessionFile + timeAttackSuffix
+	if !strings.HasSuffix(results.SessionFile, smresults.TimeAttackSuffix) {
+		results.SessionFile = results.SessionFile + smresults.TimeAttackSuffix
 	}
 
 	results.Date = time.Now()
 
-	err = saveResults(results.SessionFile+".json", results)
+	err = rc.env.Results().Save(results.SessionFile+".json", results)
 
 	if err != nil {
 		return err

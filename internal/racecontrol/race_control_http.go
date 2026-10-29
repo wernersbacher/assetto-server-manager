@@ -1,4 +1,4 @@
-package servermanager
+package racecontrol
 
 import (
 	"encoding/json"
@@ -10,9 +10,11 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
@@ -71,7 +73,9 @@ func (h *RaceControlHub) Send(message udp.Message) ([]byte, error) {
 	return encoded, nil
 }
 
-func newRaceControlHub() *RaceControlHub {
+// NewRaceControlHub creates the hub which sends the live timing updates to the connected browsers. Run has to be
+// started in a goroutine.
+func NewRaceControlHub() *RaceControlHub {
 	return &RaceControlHub{
 		broadcast: make(chan []byte, 1000),
 		register:  make(chan *raceControlClient),
@@ -79,7 +83,8 @@ func newRaceControlHub() *RaceControlHub {
 	}
 }
 
-func (h *RaceControlHub) run() {
+// Run distributes the messages to the clients, it blocks forever.
+func (h *RaceControlHub) Run() {
 	for {
 		select {
 		case client := <-h.register:
@@ -139,17 +144,25 @@ func (c *raceControlClient) writePump() {
 	}
 }
 
+// CurrentRaceProvider returns the race which is running on the server, and its entry list.
+type CurrentRaceProvider interface {
+	CurrentRace() (*serverconfig.ServerConfig, serverconfig.EntryList)
+}
+
+// RaceControlHandler serves the live timing page and the race control actions.
 type RaceControlHandler struct {
 	*smweb.BaseHandler
 	serverProcess smserver.ServerProcess
 
 	store          smstore.Store
-	raceManager    *RaceManager
+	raceManager    CurrentRaceProvider
+	env            *serverenv.Env
 	raceControl    *RaceControl
 	raceControlHub *RaceControlHub
 }
 
-func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess smserver.ServerProcess) *RaceControlHandler {
+// NewRaceControlHandler creates the handler of the live timing.
+func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, raceManager CurrentRaceProvider, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess smserver.ServerProcess, env *serverenv.Env) *RaceControlHandler {
 	return &RaceControlHandler{
 		BaseHandler:    baseHandler,
 		store:          store,
@@ -157,6 +170,7 @@ func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, 
 		raceControl:    raceControl,
 		raceControlHub: raceControlHub,
 		serverProcess:  serverProcess,
+		env:            env,
 	}
 }
 
@@ -174,7 +188,7 @@ type liveTimingTemplateVars struct {
 	STrackerInterfacePublicURL  string
 }
 
-func (rch *RaceControlHandler) liveTiming(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request) {
 	currentRace, entryList := rch.raceManager.CurrentRace()
 
 	var customRace *smmodel.CustomRace
@@ -242,8 +256,8 @@ func (rch *RaceControlHandler) liveTiming(w http.ResponseWriter, r *http.Request
 		CSSDotSmoothing:             udp.RealtimePosIntervalMs,
 		CMJoinLink:                  linkString,
 		UseMPH:                      serverOpts.UseMPH == 1,
-		IsStrackerEnabled:           smplugins.IsStrackerInstalled(ServerInstallPath) && strackerOptions.EnableStracker,
-		IsKissMyRankEnabled:         smplugins.IsKissMyRankInstalled(ServerInstallPath) && kissMyRankOptions.EnableKissMyRank,
+		IsStrackerEnabled:           smplugins.IsStrackerInstalled(rch.env.InstallPath()) && strackerOptions.EnableStracker,
+		IsKissMyRankEnabled:         smplugins.IsKissMyRankInstalled(rch.env.InstallPath()) && kissMyRankOptions.EnableKissMyRank,
 		KissMyRankWebStatsPublicURL: kissMyRankOptions.WebStatsPublicURL,
 		STrackerInterfacePublicURL:  sTrackerPublicURL,
 	})
@@ -259,7 +273,7 @@ func deleteEmpty(s []string) []string {
 	return r
 }
 
-func (rch *RaceControlHandler) saveIFrames(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) SaveIFrames(w http.ResponseWriter, r *http.Request) {
 	// Save the frame links from the form
 	err := r.ParseForm()
 
@@ -278,7 +292,7 @@ func (rch *RaceControlHandler) saveIFrames(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rch *RaceControlHandler) websocket(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) Websocket(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -312,7 +326,7 @@ func (rch *RaceControlHandler) websocket(w http.ResponseWriter, r *http.Request)
 	rch.raceControl.ChatMessagesMutex.Unlock()
 }
 
-func (rch *RaceControlHandler) broadcastChat(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) BroadcastChat(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -324,7 +338,7 @@ func (rch *RaceControlHandler) broadcastChat(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-func (rch *RaceControlHandler) adminCommand(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) AdminCommand(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -342,7 +356,7 @@ func (rch *RaceControlHandler) adminCommand(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (rch *RaceControlHandler) kickUser(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) KickUser(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -372,7 +386,7 @@ func (rch *RaceControlHandler) kickUser(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (rch *RaceControlHandler) sendChat(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) SendChat(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -390,7 +404,7 @@ func (rch *RaceControlHandler) sendChat(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (rch *RaceControlHandler) restartSession(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) RestartSession(w http.ResponseWriter, r *http.Request) {
 	err := rch.serverProcess.SendUDPMessage(&udp.RestartSession{})
 
 	if err != nil {
@@ -402,7 +416,7 @@ func (rch *RaceControlHandler) restartSession(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, "/live-timing", http.StatusFound)
 }
 
-func (rch *RaceControlHandler) nextSession(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) NextSession(w http.ResponseWriter, r *http.Request) {
 	err := rch.serverProcess.SendUDPMessage(&udp.NextSession{})
 
 	if err != nil {
@@ -414,7 +428,7 @@ func (rch *RaceControlHandler) nextSession(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, "/live-timing", http.StatusFound)
 }
 
-func (rch *RaceControlHandler) countdown(w http.ResponseWriter, r *http.Request) {
+func (rch *RaceControlHandler) Countdown(w http.ResponseWriter, r *http.Request) {
 
 	// broadcast countdown
 	ticker := time.NewTicker(time.Second * 3)

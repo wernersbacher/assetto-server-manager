@@ -17,32 +17,7 @@ func driverName(name string) string {
 }
 
 func driverInitials(name string) string {
-
-	name = strings.TrimSpace(name)
-
-	if smresults.UseShortenedDriverNames {
-		nameParts := strings.Split(name, " ")
-
-		if len(nameParts) == 1 {
-			return name
-		}
-
-		for i := range nameParts {
-			if len(nameParts[i]) > 0 {
-				nameParts[i] = nameParts[i][:1]
-			}
-		}
-
-		return strings.ToUpper(strings.Join(nameParts, ""))
-	}
-
-	nameParts := strings.Split(name, " ")
-
-	if len(nameParts) > 0 && len(nameParts[len(nameParts)-1]) >= 3 {
-		return strings.ToUpper(nameParts[len(nameParts)-1][:3])
-	}
-
-	return strings.ToUpper(name)
+	return smresults.DriverInitials(name)
 }
 
 var Changelog template.HTML

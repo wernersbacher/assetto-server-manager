@@ -4,8 +4,10 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -22,7 +24,7 @@ import (
 // interruptibleServerProcess behaves like AssettoServerProcess when it comes to starting events: starting an event
 // while another one is running stops the running one first.
 type interruptibleServerProcess struct {
-	dummyServerProcess
+	servertest.Dummy
 
 	event   smmodel.RaceEvent
 	started []smmodel.RaceEvent
@@ -85,7 +87,7 @@ func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*Cha
 			smcontent.NewCarManager(ServerInstallPath, false, false),
 			smcontent.NewTrackManager(ServerInstallPath),
 			&dummyNotificationManager{},
-			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, process, store, racecontrol.NewPenaltiesManager(store, globalsEnv()), globalsEnv()),
 			globalsEnv(),
 		),
 	)

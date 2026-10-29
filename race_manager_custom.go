@@ -132,7 +132,7 @@ func (rm *RaceManager) StartCustomRace(uuid string, forceRestart bool) (*smmodel
 
 	if race.RaceConfig.TimeAttack {
 		logrus.Info("Time Attack event started")
-		rm.raceControl.currentTimeAttackEvent = race
+		rm.raceControl.SetTimeAttackEvent(race)
 	}
 
 	// Required for our nice auto loop stuff

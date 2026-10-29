@@ -519,7 +519,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 
 	if race.RaceConfig.TimeAttack {
 		logrus.Info("Time Attack event started")
-		rm.raceControl.currentTimeAttackEvent = race
+		rm.raceControl.SetTimeAttackEvent(race)
 	}
 
 	if saveAsPresetWithoutStartingRace {

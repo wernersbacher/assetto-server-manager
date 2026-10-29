@@ -1,4 +1,4 @@
-package servermanager
+package racecontrol
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -19,6 +20,7 @@ type RaceControl struct {
 	process          smserver.ServerProcess
 	store            smstore.Store
 	penaltiesManager *PenaltiesManager
+	env              *serverenv.Env
 
 	SessionInfo                udp.SessionInfo        `json:"SessionInfo"`
 	TrackMapData               smcontent.TrackMapData `json:"TrackMapData"`
@@ -59,7 +61,8 @@ func (rc *RaceControl) Event() udp.Event {
 	return 200
 }
 
-func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process smserver.ServerProcess, store smstore.Store, penaltiesManager *PenaltiesManager) *RaceControl {
+// NewRaceControl creates the race control, which follows the state of the running server from its UDP messages.
+func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process smserver.ServerProcess, store smstore.Store, penaltiesManager *PenaltiesManager, env *serverenv.Env) *RaceControl {
 	rc := &RaceControl{
 		config:               config,
 		broadcaster:          broadcaster,
@@ -68,6 +71,7 @@ func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, tra
 		store:                store,
 		driverSwapTimers:     make(map[int]*time.Timer),
 		penaltiesManager:     penaltiesManager,
+		env:                  env,
 		carUpdaters:          make(map[udp.CarID]chan udp.CarUpdate),
 		serverProcessStopped: make(chan struct{}),
 	}
@@ -76,7 +80,7 @@ func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, tra
 
 	rc.clearAllDrivers()
 
-	go panicCapture(rc.watchForTimedOutDrivers)
+	go env.PanicCapture(rc.watchForTimedOutDrivers)
 
 	return rc
 }
@@ -251,7 +255,8 @@ func metersPerSecondToKilometersPerHour(mps float64) float64 {
 	return mps * 3.6
 }
 
-func (rc *RaceControl) persistTimingData() {
+// PersistTimingData writes the live timing data to the store.
+func (rc *RaceControl) PersistTimingData() {
 	rc.persistStoreDataMutex.Lock()
 	defer rc.persistStoreDataMutex.Unlock()
 
@@ -295,4 +300,55 @@ func lapToDuration(i int) time.Duration {
 	d, _ := time.ParseDuration(fmt.Sprintf("%dms", i))
 
 	return d
+}
+
+// TrackDataGateway gives the race control access to the details of the tracks.
+type TrackDataGateway interface {
+	TrackInfo(name, layout string) (*smcontent.TrackInfo, error)
+	TrackMap(name, layout string) (*smcontent.TrackMapData, error)
+}
+
+type filesystemTrackData struct {
+	env *serverenv.Env
+}
+
+// NewFilesystemTrackData returns a TrackDataGateway which reads the track data from the Assetto Corsa installation.
+func NewFilesystemTrackData(env *serverenv.Env) TrackDataGateway {
+	return filesystemTrackData{env: env}
+}
+
+func (f filesystemTrackData) TrackMap(name, layout string) (*smcontent.TrackMapData, error) {
+	return smcontent.LoadTrackMapData(f.env.InstallPath(), name, layout)
+}
+
+func (f filesystemTrackData) TrackInfo(name, layout string) (*smcontent.TrackInfo, error) {
+	trackInfo, err := smcontent.GetTrackInfo(f.env.InstallPath(), name, layout)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("Could not load track info")
+
+		return &smcontent.TrackInfo{
+			Name:    f.env.TrackSummary(name, layout),
+			City:    "Unknown",
+			Country: "Unknown",
+		}, nil
+	}
+
+	return trackInfo, err
+}
+
+// NilTrackData is a TrackDataGateway which knows no tracks.
+type NilTrackData struct{}
+
+func (NilTrackData) TrackInfo(name, layout string) (*smcontent.TrackInfo, error) {
+	return &smcontent.TrackInfo{}, nil
+}
+
+func (NilTrackData) TrackMap(name, layout string) (*smcontent.TrackMapData, error) {
+	return &smcontent.TrackMapData{}, nil
+}
+
+// SetTimeAttackEvent sets the time attack race which is currently running, or clears it if race is nil.
+func (rc *RaceControl) SetTimeAttackEvent(race *smmodel.CustomRace) {
+	rc.currentTimeAttackEvent = race
 }

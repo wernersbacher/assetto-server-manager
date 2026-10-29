@@ -93,7 +93,7 @@ func InitWithResolver(resolver *Resolver) error {
 				logrus.WithError(err).Errorf("Could not stop notification manager")
 			}
 
-			raceControl.persistTimingData()
+			raceControl.PersistTimingData()
 
 			os.Exit(0)
 		}
