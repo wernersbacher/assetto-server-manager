@@ -289,7 +289,10 @@ func AccountFromRequest(r *http.Request) *Account {
 }
 
 func ReadAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(GroupRead)
+	account := AccountFromRequest(r)
+
+	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
+	ok := account.HasGroupPrivilege(GroupRead) || (account.Name == "" && accountOptions.IsOpen)
 
 	return func() bool {
 		return ok

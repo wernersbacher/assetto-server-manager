@@ -75,9 +75,11 @@
     <body {{ with $.User }}class="user-group-{{ $.User.Group }}"{{ end }}>
 
     <header class="app-topbar">
-        <button type="button" class="btn-icon app-sidebar-toggle" data-sidebar-toggle aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false">
-            {{ template "icon" "menu" }}
-        </button>
+        {{ if ReadAccess }}
+            <button type="button" class="btn-icon app-sidebar-toggle" data-sidebar-toggle aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false">
+                {{ template "icon" "menu" }}
+            </button>
+        {{ end }}
 
         <a class="app-brand" href="/" title="{{ $.ServerName }}">
             <span class="app-brand-mark">{{ template "icon" "flag" }}</span>
@@ -89,7 +91,7 @@
 
         <div class="app-topbar-actions">
             {{ if $.ServerStatus }}
-                <a class="server-status is-running" href="/live-timing" role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}">
+                <a class="server-status is-running" {{ if ReadAccess }}href="/live-timing"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}">
                     <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}</span>
                 </a>
 
@@ -132,6 +134,7 @@
     </header>
 
     <div class="app-body">
+        {{ if ReadAccess }}
         <nav class="app-sidebar" id="app-sidebar" aria-label="Main">
             <div class="nav-group">
                 <div class="nav-group-title">Racing</div>
@@ -200,6 +203,7 @@
         </nav>
 
         <div class="app-sidebar-backdrop" data-sidebar-toggle></div>
+        {{ end }}
 
         <main class="app-main">
             <div class="app-content {{ with $.WideContainer }}is-wide{{ end }}">
@@ -218,7 +222,7 @@
 
                 <footer class="app-footer">
                     <span>Assetto Corsa Server Manager {{ Version }}</span>
-                    <a href="/changelog">Changelog</a>
+                    {{ if ReadAccess }}<a href="/changelog">Changelog</a>{{ end }}
                     <a href="https://github.com/wernersbacher/assetto-server-manager">GitHub</a>
                     <a href="https://github.com/wernersbacher/assetto-server-manager/issues">Report a bug</a>
                     <a href="https://github.com/JustaPenguin/assetto-server-manager/wiki">Wiki</a>
