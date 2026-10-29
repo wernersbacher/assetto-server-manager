@@ -3,6 +3,7 @@ Unreleased
 
 Added:
 
+* The Cars, Tracks and Weather pages are reworked: a page header with an upload button (write access), card grids with DLC/Mod/Default badges, a search bar that wraps on phones, and an upload area with drag and drop, an overall progress bar with transferred size, and clear success and error messages (a failed upload no longer reloads the page).
 * New look: a top bar that always shows the server status (with Stop and Restart for organizers), a sidebar navigation grouped by Racing, Organize, Content, Server and Plugins that only shows what you are allowed to use, and a menu button on phones.
 * Light and dark theme with a toggle in the top bar. The choice is remembered in your browser; the server and account theme settings are still used as the default.
 * The home page is now an overview of the current session, the next scheduled events, quick actions for organizers and the latest results.

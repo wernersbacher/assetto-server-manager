@@ -65,3 +65,113 @@
     cursor: pointer;
   }
 }
+
+// content lists (cars, tracks)
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+
+  .content-card.car-wrapper {
+    height: 100%;
+
+    .card-car {
+      height: 100%;
+      overflow: hidden;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+
+    &:hover .card-car {
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    .car-link {
+      z-index: 2;
+    }
+  }
+
+  .content-card-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--muted);
+  }
+
+  .content-card-noimage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted-foreground);
+
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  .card-body {
+    padding: 12px 16px 16px;
+  }
+
+  h3 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--foreground);
+  }
+
+  .content-card-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .content-card-meta {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted-foreground);
+  }
+
+  .content-tag {
+    position: relative;
+    z-index: 3;
+  }
+
+  .content-card-delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 4;
+
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 4px 8px;
+    }
+  }
+}
+
+.content-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .form-control {
+    flex: 1 1 220px;
+    width: auto;
+  }
+}
+
+.content-search-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 16px;
+}
+
+.content-table {
+  overflow: hidden;
+}

@@ -1,0 +1,50 @@
+{{/* Upload panel shared by the cars, tracks and weather pages. Takes a dict with Kind (car|track|weather),
+     Plural, and optionally Tags and OnlyKS. The element ids are used by manager.js. */}}
+{{ define "content-upload" }}
+    <div class="collapse upload-panel-wrapper" id="upload-panel">
+        <div class="card upload-panel mb-4">
+            <div class="card-body">
+                <form class="upload-form" onsubmit="return false;">
+                    {{ if .Tags }}
+                        <input type="text" class="form-control mb-3" id="tags" name="tags"
+                               placeholder="Add tags to all uploaded {{ .Plural }} (e.g. GT3, Enduro)">
+                    {{ end }}
+
+                    <div id="drop-zone" class="{{ .Kind }}-drop drop-zone">
+                        <span class="drop-zone-icon">{{ template "icon" "upload" }}</span>
+                        <div class="drop-zone-title">Drag &amp; drop {{ .Kind }} folder(s) here</div>
+                        <div class="drop-zone-hint">A single {{ .Kind }} folder, several {{ .Kind }} folders, or a "{{ .Plural }}" folder containing multiple {{ .Plural }}.</div>
+
+                        <div class="btn-file btn btn-outline mt-2">
+                            Choose a folder
+                            <input id="input-folder-{{ .Kind }}" name="input-folder-{{ .Kind }}[]" type="file"
+                                   webkitdirectory multiple value="Choose Folder"/>
+                        </div>
+                    </div>
+
+                    {{ if .OnlyKS }}
+                        <div class="upload-option mt-3">
+                            <input type="checkbox" name="only-ks" id="only-ks">
+                            <label for="only-ks" class="mb-0 ml-2">Only upload official KS content</label>
+                        </div>
+                    {{ end }}
+
+                    <div id="upload-button" class="mt-3"></div>
+
+                    <div class="upload-progress mt-3" id="upload-progress" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar" id="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <div class="upload-status" id="upload-status" role="status" aria-live="polite"></div>
+                    </div>
+                </form>
+
+                <p class="upload-help mb-0">
+                    Only the files the server requires are uploaded. After choosing a folder, check the preview
+                    below and press the upload button. If uploading many {{ .Plural }} at once fails, upload them in
+                    smaller batches.
+                </p>
+            </div>
+        </div>
+    </div>
+{{ end }}

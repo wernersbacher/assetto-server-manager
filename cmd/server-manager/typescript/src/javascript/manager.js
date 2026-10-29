@@ -1399,18 +1399,37 @@ function initUploaders() {
 }
 
 
+function formatBytes(bytes) {
+    if (bytes < 1024 * 1024) {
+        return Math.max(1, Math.round(bytes / 1024)) + " KB";
+    }
+
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function setUploadStatus(text, state) {
+    $("#upload-status").text(text).removeClass("is-success is-error").addClass(state ? "is-" + state : "");
+}
+
+function setUploadProgress($progressBar, percent) {
+    $progressBar.css('width', percent + '%').attr('aria-valuenow', percent);
+}
+
 function postWithProgressBar(path, data, onSuccess, onFail, $progressBar) {
-    $progressBar.closest(".progress").show();
-    $progressBar.removeClass("bg-success");
+    $("#upload-progress").show();
+    $progressBar.removeClass("bg-success bg-danger").addClass("progress-bar-striped progress-bar-animated");
+    setUploadProgress($progressBar, 0);
+    setUploadStatus("Uploading...");
 
     function showProgress(evt) {
         if (evt.lengthComputable) {
             let percentComplete = Math.round((evt.loaded / evt.total) * 100);
-            $progressBar.css('width', percentComplete + '%').attr('aria-valuenow', percentComplete);
-            $progressBar.text(percentComplete + "%");
+            setUploadProgress($progressBar, percentComplete);
 
-            if (percentComplete === 100) {
-                $progressBar.addClass("bg-success");
+            if (percentComplete >= 100) {
+                setUploadStatus("Upload sent (" + formatBytes(evt.total) + "), the server is processing the files...");
+            } else {
+                setUploadStatus("Uploading " + percentComplete + "% (" + formatBytes(evt.loaded) + " of " + formatBytes(evt.total) + ")");
             }
         }
     }
@@ -1419,14 +1438,21 @@ function postWithProgressBar(path, data, onSuccess, onFail, $progressBar) {
         xhr: function () {
             let xhr = new window.XMLHttpRequest();
             xhr.upload.addEventListener("progress", showProgress, false);
-            xhr.addEventListener("progress", showProgress, false);
             return xhr;
         },
         type: 'POST',
         url: path,
         data: data,
-        success: onSuccess,
-        fail: onFail,
+        success: function (data) {
+            $progressBar.removeClass("progress-bar-striped progress-bar-animated").addClass("bg-success");
+            setUploadProgress($progressBar, 100);
+            setUploadStatus("Upload finished. Reloading...", "success");
+            onSuccess(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            $progressBar.removeClass("progress-bar-striped progress-bar-animated").addClass("bg-danger");
+            onFail(xhr, textStatus, errorThrown);
+        },
     });
 }
 
@@ -1455,6 +1481,22 @@ function submitFiles(path) {
         }
     }
 
+    let $progressBar = $("#progress-bar");
+    let $buttons = $("#upload-button button");
+
+    $buttons.prop("disabled", true);
+    $("#upload-progress").show();
+    $progressBar.removeClass("bg-success bg-danger").addClass("progress-bar-striped progress-bar-animated");
+    setUploadProgress($progressBar, 0);
+    setUploadStatus("Reading " + filesToUpload.length + " files...");
+
+    if (filesToUpload.length === 0) {
+        setUploadStatus("There are no files to upload.", "error");
+        $buttons.prop("disabled", false);
+
+        return;
+    }
+
     for (let x = 0; x < filesToUpload.length; x++) {
         // Encode and upload, don't post until all files are read
         let reader = new FileReader();
@@ -1473,20 +1515,32 @@ function submitFiles(path) {
             count++;
 
             if (count === filesToUpload.length) {
-                postWithProgressBar(path, JSON.stringify(newFiles), onSuccess, onFail, $("#progress-bar"));
+                postWithProgressBar(path, JSON.stringify(newFiles), onSuccess, onFail, $progressBar);
+            } else {
+                setUploadStatus("Reading files (" + count + " of " + filesToUpload.length + ")...");
             }
+        });
+
+        reader.addEventListener("error", function () {
+            $progressBar.removeClass("progress-bar-striped progress-bar-animated").addClass("bg-danger");
+            setUploadStatus("Could not read " + filesToUpload[x].name + ".", "error");
+            $buttons.prop("disabled", false);
         });
     }
 }
 
 function onSuccess(data) {
-    console.log("Track Successfully Added");
-    location.reload(); // reload for flashes
+    console.log("Content Successfully Added");
+    // the server reports the result of the upload as a flash message, so reload to show it
+    setTimeout(function () {
+        location.reload();
+    }, 400);
 }
 
-function onFail(data) {
-    console.log("Track Could Not be Added");
-    location.reload(); // reload for flashes
+function onFail(xhr, textStatus, errorThrown) {
+    console.log("Content Could Not be Added");
+    setUploadStatus("The upload failed (" + (errorThrown || textStatus || "network error") + "). Please try again, or upload fewer files at once.", "error");
+    $("#upload-button button").prop("disabled", false);
 }
 
 function handleWeatherFiles(fileList) {
@@ -1588,7 +1642,7 @@ function handleWeatherFilesLoop(fileList) {
 
     if (filesToUploadLocal.length === 0) {
         $uploadButton.text("Sorry, the files you uploaded don't seem to be a compatible weather preset!");
-        $uploadButton.empty()
+        $uploadButton.addClass("text-danger")
     } else {
         if (!$("#weather-upload-button").length) {
             let $button = $("<button/>");
@@ -1759,7 +1813,7 @@ function handleCarFilesLoop(fileList) {
 
     if (filesToUploadLocal.length === 0) {
         $uploadButton.text("Sorry, the files you uploaded don't seem to be a compatible car!");
-        $uploadButton.empty()
+        $uploadButton.addClass("text-danger")
     } else {
         if (!$("#car-upload-button").length) {
             let $button = $("<button/>");
@@ -2026,7 +2080,7 @@ function handleTrackFilesLoop(fileList) {
 
     if (filesToUploadLocal.length === 0) {
         $uploadButton.text("Sorry, the files you uploaded don't seem to be a compatible track!");
-        $uploadButton.empty()
+        $uploadButton.addClass("text-danger")
     } else {
         if (!$("#track-upload-button").length) {
             let $button = $("<button/>");

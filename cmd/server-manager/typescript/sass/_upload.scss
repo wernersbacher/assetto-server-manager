@@ -1,41 +1,88 @@
-
-
 .drop-zone {
-  background: #f0f0f0;
-  width: 210px;
-  height: 33px;
-  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 180px;
+  padding: 24px 16px;
   text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-  text-transform: uppercase;
-  border-radius: 0.25rem;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  background: var(--muted);
+  transition: border-color 0.15s, background-color 0.15s;
 
-  background: linear-gradient(90deg, black 50%, transparent 50%), linear-gradient(90deg, black 50%, transparent 50%),
-  linear-gradient(0deg, black 50%, transparent 50%), linear-gradient(0deg, black 50%, transparent 50%);
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  background-size: 15px 2px, 15px 2px, 2px 15px, 2px 15px;
-  background-position: 0px 0px, 208px 31px, 0px 31px, 208px 0px;
+  // keep dragleave from firing when the pointer moves over a child element
+  > *:not(.btn-file) {
+    pointer-events: none;
+  }
+
+  .drop-zone-icon svg {
+    width: 28px;
+    height: 28px;
+    color: var(--muted-foreground);
+  }
+
+  .drop-zone-title {
+    font-weight: 600;
+  }
+
+  .drop-zone-hint {
+    font-size: 13px;
+    color: var(--muted-foreground);
+    max-width: 480px;
+  }
 }
 
 .drop-zone-hovered {
-  background: linear-gradient(90deg, black 50%, transparent 50%), linear-gradient(90deg, black 50%, transparent 50%),
-  linear-gradient(0deg, black 50%, transparent 50%), linear-gradient(0deg, black 50%, transparent 50%);
-  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-  background-size: 15px 2px, 15px 2px, 2px 15px, 2px 15px;
-  background-position: 0px 0px, 208px 31px, 0px 31px, 208px 0px;
-  animation: border-dance 4s infinite linear;
+  border-color: var(--primary);
+  background: var(--accent);
 }
 
-@keyframes border-dance {
-  0% {
-    background-position: 0px 0px, 208px 31px, 0px 104px, 208px 0px;
+.upload-panel {
+  .upload-option {
+    display: flex;
+    align-items: center;
   }
-  100% {
-    background-position: 208px 0px, 0px 31px, 0px 0px, 208px 104px;
+
+  .upload-help {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted-foreground);
+  }
+
+  .upload-status {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted-foreground);
+
+    &.is-success {
+      color: var(--success);
+    }
+
+    &.is-error {
+      color: var(--danger);
+      font-weight: 600;
+    }
+  }
+
+  .progress {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--muted);
+  }
+
+  .progress-bar {
+    font-size: 0;
+    min-width: 2px;
   }
 }
 
+.btn-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
 
 .custom-file input {
   cursor: pointer !important;
