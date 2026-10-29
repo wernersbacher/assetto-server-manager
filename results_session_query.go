@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func (s *SessionResults) FallBackSort() {
@@ -137,7 +139,7 @@ results:
 	sort.Slice(s.Result, func(i, j int) bool {
 		if (!s.Result[i].Disqualified && !s.Result[j].Disqualified) || (s.Result[i].Disqualified && s.Result[j].Disqualified) {
 
-			if s.Type == SessionTypeQualifying || s.Type == SessionTypePractice {
+			if s.Type == serverconfig.SessionTypeQualifying || s.Type == serverconfig.SessionTypePractice {
 
 				if s.Result[i].BestLap == 0 {
 					return false
@@ -225,7 +227,7 @@ func (s *SessionResults) GetTime(timeINT int, driverGUID, model string, penalty 
 			if driver.CarID == carID && driver.HasPenalty {
 				d += driver.PenaltyTime
 
-				if s.Type == SessionTypeRace {
+				if s.Type == serverconfig.SessionTypeRace {
 					d -= time.Duration(driver.LapPenalty) * s.GetLastLapTime(driverGUID, model)
 				}
 			}
@@ -416,7 +418,7 @@ func (s *SessionResults) LapAssociatedWithGUIDAndModel(lap *SessionLap, driverGU
 		return true
 	}
 
-	for _, driverGUID := range strings.Split(driverGUID, driverSwapEntrantSeparator) {
+	for _, driverGUID := range strings.Split(driverGUID, serverconfig.DriverSwapEntrantSeparator) {
 		for _, car := range s.Cars {
 			if car.Model != model {
 				continue

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 const (
@@ -224,7 +226,7 @@ func (rs *JSONStore) DeleteCustomRace(race *CustomRace) error {
 	return rs.UpsertCustomRace(race)
 }
 
-func (rs *JSONStore) UpsertEntrant(entrant Entrant) error {
+func (rs *JSONStore) UpsertEntrant(entrant serverconfig.Entrant) error {
 	entrants, err := rs.ListEntrants()
 
 	if err != nil {
@@ -277,8 +279,8 @@ func (rs *JSONStore) DeleteEntrant(id string) error {
 	return rs.encodeFile(rs.shared, entrantsFile, entrants)
 }
 
-func (rs *JSONStore) ListEntrants() ([]*Entrant, error) {
-	var entrants []*Entrant
+func (rs *JSONStore) ListEntrants() ([]*serverconfig.Entrant, error) {
+	var entrants []*serverconfig.Entrant
 
 	err := rs.decodeFile(rs.shared, entrantsFile, &entrants)
 
@@ -289,17 +291,17 @@ func (rs *JSONStore) ListEntrants() ([]*Entrant, error) {
 	return entrants, nil
 }
 
-func (rs *JSONStore) UpsertServerOptions(so *GlobalServerConfig) error {
+func (rs *JSONStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) error {
 	return rs.encodeFile(rs.base, serverOptionsFile, so)
 }
 
-func (rs *JSONStore) LoadServerOptions() (*GlobalServerConfig, error) {
-	var out *GlobalServerConfig
+func (rs *JSONStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, error) {
+	var out *serverconfig.GlobalServerConfig
 
 	err := rs.decodeFile(rs.base, serverOptionsFile, &out)
 
 	if os.IsNotExist(err) {
-		defaultConfig := ConfigIniDefault()
+		defaultConfig := serverconfig.ConfigIniDefault()
 
 		return &defaultConfig.GlobalServerConfig, rs.UpsertServerOptions(&defaultConfig.GlobalServerConfig)
 	} else if err != nil {

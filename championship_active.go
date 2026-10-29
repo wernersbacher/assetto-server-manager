@@ -4,28 +4,30 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type ActiveChampionship struct {
 	Name                    string
 	ChampionshipID, EventID uuid.UUID
-	SessionType             SessionType
+	SessionType             serverconfig.SessionType
 	OverridePassword        bool
 	ReplacementPassword     string
 	Description             string
 	IsPracticeSession       bool
-	RaceConfig              CurrentRaceConfig
-	EntryList               EntryList
+	RaceConfig              serverconfig.CurrentRaceConfig
+	EntryList               serverconfig.EntryList
 
 	NumLapsCompleted   int `json:"-"`
 	NumRaceStartEvents int `json:"-"`
 }
 
-func (a *ActiveChampionship) GetRaceConfig() CurrentRaceConfig {
+func (a *ActiveChampionship) GetRaceConfig() serverconfig.CurrentRaceConfig {
 	return a.RaceConfig
 }
 
-func (a *ActiveChampionship) GetEntryList() EntryList {
+func (a *ActiveChampionship) GetEntryList() serverconfig.EntryList {
 	return a.EntryList
 }
 

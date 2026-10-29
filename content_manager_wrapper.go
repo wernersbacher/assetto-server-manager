@@ -24,13 +24,15 @@ import (
 	"github.com/google/uuid"
 	"github.com/jaytaylor/html2text"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 const (
 	// contentManagerWrapperSeparator is a special character used by Content Manager to determine which port
 	// the content manager wrapper is running on. The server name shows "<server name> <separator><port>",
 	// which Content Manager uses to split the string and find the port.
-	contentManagerWrapperSeparator = 'ℹ'
+	contentManagerWrapperSeparator = serverconfig.ContentManagerWrapperSeparator
 
 	ContentManagerJoinLinkBase string = "https://acstuff.ru/s/q:race/online/join"
 )
@@ -62,14 +64,14 @@ type ContentManagerWrapperData struct {
 }
 
 type CMAssists struct {
-	ABSState             FactoryAssist `json:"absState"`
+	ABSState             serverconfig.FactoryAssist `json:"absState"`
 	AllowedTyresOut      int           `json:"allowedTyresOut"`
 	AutoClutchAllowed    bool          `json:"autoclutchAllowed"`
 	DamageMultiplier     int           `json:"damageMultiplier"`
 	ForceVirtualMirror   bool          `json:"forceVirtualMirror"`
 	FuelRate             int           `json:"fuelRate"`
 	StabilityAllowed     bool          `json:"stabilityAllowed"`
-	TractionControlState FactoryAssist `json:"tcState"`
+	TractionControlState serverconfig.FactoryAssist `json:"tcState"`
 	TyreBlanketsAllowed  bool          `json:"tyreBlanketsAllowed"`
 	TyreWearRate         int           `json:"tyreWearRate"`
 }
@@ -112,8 +114,8 @@ type ContentManagerWrapper struct {
 	logger      cmwSessionLogger
 
 	reverseProxy *httputil.ReverseProxy
-	serverConfig ServerConfig
-	entryList    EntryList
+	serverConfig serverconfig.ServerConfig
+	entryList    serverconfig.EntryList
 	event        RaceEvent
 
 	srv         *http.Server
@@ -172,8 +174,8 @@ func (cmw *ContentManagerWrapper) UDPCallback(message udp.Message) {
 }
 
 type contentManagerDescriptionTemplateOpts struct {
-	GlobalServerConfig
-	CurrentRaceConfig
+	serverconfig.GlobalServerConfig
+	serverconfig.CurrentRaceConfig
 	RaceEvent
 
 	EventDescription   string
@@ -297,7 +299,7 @@ func (cmw *ContentManagerWrapper) Start(servePort int, event RaceEvent, logger c
 		return err
 	}
 
-	cmw.serverConfig = ServerConfig{GlobalServerConfig: *serverOptions, CurrentRaceConfig: event.GetRaceConfig()}
+	cmw.serverConfig = serverconfig.ServerConfig{GlobalServerConfig: *serverOptions, CurrentRaceConfig: event.GetRaceConfig()}
 	cmw.entryList = event.GetEntryList()
 	cmw.event = event
 	cmw.reverseProxy = httputil.NewSingleHostReverseProxy(u)
@@ -434,7 +436,7 @@ func (cmw *ContentManagerWrapper) buildContentManagerDetails(guid string) (*Cont
 
 	for index, duration := range sessionInfo.Durations {
 		// convert durations to seconds
-		if !(race.HasSession(SessionTypeRace) && index == len(sessionInfo.Durations)-1 && race.Sessions[SessionTypeRace].Laps > 0) {
+		if !(race.HasSession(serverconfig.SessionTypeRace) && index == len(sessionInfo.Durations)-1 && race.Sessions[serverconfig.SessionTypeRace].Laps > 0) {
 			sessionInfo.Durations[index] = duration * 60
 		}
 	}
@@ -655,7 +657,7 @@ func geoIP() (*GeoIP, error) {
 	return geoIPData, nil
 }
 
-func getContentManagerJoinLink(config GlobalServerConfig) (*url.URL, error) {
+func getContentManagerJoinLink(config serverconfig.GlobalServerConfig) (*url.URL, error) {
 	geoIP, err := geoIP()
 
 	if err != nil {

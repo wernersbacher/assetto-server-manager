@@ -8,6 +8,7 @@ import (
 	"sort"
 	"time"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	servermanager "github.com/wernersbacher/assetto-server-manager"
 
 	"github.com/sirupsen/logrus"
@@ -46,15 +47,15 @@ func main() {
 	for _, session := range raceOut.Sessions {
 		playerToCarIDMap := make(map[string]int)
 
-		var sessionType servermanager.SessionType
+		var sessionType serverconfig.SessionType
 
 		switch session.Type {
 		case 1:
-			sessionType = servermanager.SessionTypePractice
+			sessionType = serverconfig.SessionTypePractice
 		case 2:
-			sessionType = servermanager.SessionTypeQualifying
+			sessionType = serverconfig.SessionTypeQualifying
 		case 3:
-			sessionType = servermanager.SessionTypeRace
+			sessionType = serverconfig.SessionTypeRace
 		}
 
 		results := &servermanager.SessionResults{

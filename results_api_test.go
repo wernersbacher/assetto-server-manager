@@ -10,6 +10,8 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func setupResultsAPITest(t *testing.T) func() {
@@ -117,7 +119,7 @@ func TestResultsHandlerListAPI(t *testing.T) {
 
 		race := out.Results[1]
 
-		if race.SessionType != SessionTypeRace || race.Track != "barbagallo" || race.TrackName != "Barbagallo" || race.Date.IsZero() {
+		if race.SessionType != serverconfig.SessionTypeRace || race.Track != "barbagallo" || race.TrackName != "Barbagallo" || race.Date.IsZero() {
 			t.Errorf("unexpected race summary: %+v", race)
 		}
 
@@ -194,7 +196,7 @@ func TestResultsHandlerViewAPI(t *testing.T) {
 		t.Run("found "+target, func(t *testing.T) {
 			out := view(t, target)
 
-			if out.FileName != "2019_2_15_21_16_RACE.json" || out.SessionType != SessionTypeRace || out.TrackName != "Barbagallo" {
+			if out.FileName != "2019_2_15_21_16_RACE.json" || out.SessionType != serverconfig.SessionTypeRace || out.TrackName != "Barbagallo" {
 				t.Errorf("unexpected result: %+v", out.APIResultSummary)
 			}
 

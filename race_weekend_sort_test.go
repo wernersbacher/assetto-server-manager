@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 const sortTestCarModel = "sort_test_car"
@@ -34,7 +36,7 @@ type sortTestDriver struct {
 
 // buildSortTestResults builds SessionResults for the given drivers. Car IDs start at 1 so that a
 // failed car lookup (which yields car ID 0) can never match a real car.
-func buildSortTestResults(sessionType SessionType, drivers ...sortTestDriver) *SessionResults {
+func buildSortTestResults(sessionType serverconfig.SessionType, drivers ...sortTestDriver) *SessionResults {
 	results := &SessionResults{Type: sessionType}
 
 	for i, d := range drivers {
@@ -108,7 +110,7 @@ func buildSortTestResults(sessionType SessionType, drivers ...sortTestDriver) *S
 
 // buildSortTestEntrants builds RaceWeekendSessionEntrants that share one SessionResults, the same
 // way a finished parent session feeds its entrants into the next session.
-func buildSortTestEntrants(sessionType SessionType, drivers ...sortTestDriver) []*RaceWeekendSessionEntrant {
+func buildSortTestEntrants(sessionType serverconfig.SessionType, drivers ...sortTestDriver) []*RaceWeekendSessionEntrant {
 	results := buildSortTestResults(sessionType, drivers...)
 	sessionID := uuid.New()
 
@@ -121,11 +123,11 @@ func buildSortTestEntrants(sessionType SessionType, drivers ...sortTestDriver) [
 	return entrants
 }
 
-func sortTestSession(sessionType SessionType) *RaceWeekendSession {
+func sortTestSession(sessionType serverconfig.SessionType) *RaceWeekendSession {
 	return &RaceWeekendSession{
 		ID: uuid.New(),
-		RaceConfig: CurrentRaceConfig{
-			Sessions: Sessions{sessionType: &SessionConfig{}},
+		RaceConfig: serverconfig.CurrentRaceConfig{
+			Sessions: serverconfig.Sessions{sessionType: &serverconfig.SessionConfig{}},
 		},
 	}
 }
@@ -150,7 +152,7 @@ func assertSortTestOrder(t *testing.T, entrants []*RaceWeekendSessionEntrant, ex
 
 type sorterTestCase struct {
 	name        string
-	sessionType SessionType
+	sessionType serverconfig.SessionType
 	drivers     []sortTestDriver
 	expected    []string
 	// unorderedTail is a set of GUIDs expected (in any order) after the ordered ones,
@@ -168,7 +170,7 @@ func runSorterTestCases(t *testing.T, sorter RaceWeekendEntryListSortFunc, cases
 			sessionType := tc.sessionType
 
 			if sessionType == "" {
-				sessionType = SessionTypeRace
+				sessionType = serverconfig.SessionTypeRace
 			}
 
 			entrants := buildSortTestEntrants(sessionType, tc.drivers...)
@@ -242,7 +244,7 @@ func TestRaceWeekendSort_FastestLap(t *testing.T) {
 		},
 		{
 			name:        "qualifying session sorts the same way",
-			sessionType: SessionTypeQualifying,
+			sessionType: serverconfig.SessionTypeQualifying,
 			drivers: []sortTestDriver{
 				{guid: "A", bestLap: 91000, laps: 1},
 				{guid: "B", bestLap: 0},
@@ -331,7 +333,7 @@ func TestRaceWeekendSort_FewestCollisions(t *testing.T) {
 		},
 		{
 			name:        "race tie-break is total race time",
-			sessionType: SessionTypeRace,
+			sessionType: serverconfig.SessionTypeRace,
 			drivers: []sortTestDriver{
 				{guid: "A", laps: 10, bestLap: 80000, totalTime: 950000, crashes: 1},
 				{guid: "B", laps: 10, bestLap: 90000, totalTime: 900000, crashes: 1},
@@ -341,7 +343,7 @@ func TestRaceWeekendSort_FewestCollisions(t *testing.T) {
 		},
 		{
 			name:        "race tie-break puts no total time last",
-			sessionType: SessionTypeRace,
+			sessionType: serverconfig.SessionTypeRace,
 			drivers: []sortTestDriver{
 				{guid: "NOTIME", laps: 10, bestLap: 80000, totalTime: 0, crashes: 1},
 				{guid: "A", laps: 10, bestLap: 90000, totalTime: 900000, crashes: 1},
@@ -350,7 +352,7 @@ func TestRaceWeekendSort_FewestCollisions(t *testing.T) {
 		},
 		{
 			name:        "qualifying tie-break is best lap",
-			sessionType: SessionTypeQualifying,
+			sessionType: serverconfig.SessionTypeQualifying,
 			drivers: []sortTestDriver{
 				{guid: "A", laps: 3, bestLap: 80000, totalTime: 950000, crashes: 1},
 				{guid: "B", laps: 3, bestLap: 90000, totalTime: 900000, crashes: 1},
@@ -374,7 +376,7 @@ func TestRaceWeekendSort_FewestCuts(t *testing.T) {
 		},
 		{
 			name:        "race tie-break is total race time",
-			sessionType: SessionTypeRace,
+			sessionType: serverconfig.SessionTypeRace,
 			drivers: []sortTestDriver{
 				{guid: "A", laps: 10, bestLap: 80000, totalTime: 950000, cuts: 2},
 				{guid: "B", laps: 10, bestLap: 90000, totalTime: 900000, cuts: 2},
@@ -384,7 +386,7 @@ func TestRaceWeekendSort_FewestCuts(t *testing.T) {
 		},
 		{
 			name:        "practice tie-break is best lap",
-			sessionType: SessionTypePractice,
+			sessionType: serverconfig.SessionTypePractice,
 			drivers: []sortTestDriver{
 				{guid: "A", laps: 3, bestLap: 92000, cuts: 1},
 				{guid: "B", laps: 3, bestLap: 91000, cuts: 1},
@@ -416,7 +418,7 @@ func TestRaceWeekendSort_Safety(t *testing.T) {
 		},
 		{
 			name:        "race tie-break is total race time",
-			sessionType: SessionTypeRace,
+			sessionType: serverconfig.SessionTypeRace,
 			drivers: []sortTestDriver{
 				{guid: "A", laps: 10, bestLap: 80000, totalTime: 950000, crashes: 1, cuts: 1},
 				{guid: "B", laps: 10, bestLap: 90000, totalTime: 900000, crashes: 1, cuts: 1},
@@ -425,7 +427,7 @@ func TestRaceWeekendSort_Safety(t *testing.T) {
 		},
 		{
 			name:        "qualifying tie-break is best lap",
-			sessionType: SessionTypeQualifying,
+			sessionType: serverconfig.SessionTypeQualifying,
 			drivers: []sortTestDriver{
 				{guid: "A", laps: 3, bestLap: 80000, totalTime: 950000, crashes: 1, cuts: 1},
 				{guid: "B", laps: 3, bestLap: 90000, totalTime: 900000, crashes: 1, cuts: 1},
@@ -470,14 +472,14 @@ func TestRaceWeekendSort_RandomIsPermutation(t *testing.T) {
 		drivers = append(drivers, sortTestDriver{guid: fmt.Sprintf("D%02d", i), bestLap: 90000 + i, laps: 1, totalTime: 90000 + i})
 	}
 
-	original := sortTestGUIDs(buildSortTestEntrants(SessionTypeRace, drivers...))
+	original := sortTestGUIDs(buildSortTestEntrants(serverconfig.SessionTypeRace, drivers...))
 	changed := false
 
 	// run it a few times; it's very unlikely that 10 entrants keep their order every time.
 	for run := 0; run < 5; run++ {
-		entrants := buildSortTestEntrants(SessionTypeRace, drivers...)
+		entrants := buildSortTestEntrants(serverconfig.SessionTypeRace, drivers...)
 
-		if err := RandomRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, nil); err != nil {
+		if err := RandomRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -500,7 +502,7 @@ func TestRaceWeekendSort_RandomIsPermutation(t *testing.T) {
 	}
 
 	// empty and single entry lists must not panic
-	if err := RandomRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), nil, nil); err != nil {
+	if err := RandomRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), nil, nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -549,20 +551,20 @@ func withSortTestResultsDir(t *testing.T) func() {
 func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	defer withSortTestResultsDir(t)()
 
-	file1 := writeSortTestResultsFile(t, "2020_1_2_10_00_PRACTICE", buildSortTestResults(SessionTypePractice,
+	file1 := writeSortTestResultsFile(t, "2020_1_2_10_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "A", bestLap: 95000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "B", bestLap: 91000, laps: 3, totalTime: 300000},
 		// zero best lap must not override anything
 		sortTestDriver{guid: "C", bestLap: 0, laps: 0, totalTime: 1},
 	))
 
-	file2 := writeSortTestResultsFile(t, "2020_1_2_11_00_PRACTICE", buildSortTestResults(SessionTypePractice,
+	file2 := writeSortTestResultsFile(t, "2020_1_2_11_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "A", bestLap: 89000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "B", bestLap: 93000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "C", bestLap: 92000, laps: 3, totalTime: 300000},
 	))
 
-	entrants := buildSortTestEntrants(SessionTypeRace,
+	entrants := buildSortTestEntrants(serverconfig.SessionTypeRace,
 		sortTestDriver{guid: "NOLAPS"},
 		sortTestDriver{guid: "C"},
 		sortTestDriver{guid: "B"},
@@ -570,7 +572,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	)
 
 	t.Run("nil filter keeps order", func(t *testing.T) {
-		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, nil); err != nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -580,7 +582,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	t.Run("best lap across all files, drivers without laps last", func(t *testing.T) {
 		filter := &RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{file1, file2}}
 
-		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, filter); err != nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
 			t.Fatal(err)
 		}
 
@@ -591,7 +593,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	t.Run("single file", func(t *testing.T) {
 		filter := &RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{file1}}
 
-		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, filter); err != nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
 			t.Fatal(err)
 		}
 
@@ -605,7 +607,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	t.Run("missing results file returns an error", func(t *testing.T) {
 		filter := &RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{"2020_1_2_12_00_RACE"}}
 
-		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, filter); err == nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err == nil {
 			t.Error("expected an error for a missing results file")
 		}
 	})
@@ -614,18 +616,18 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	defer withSortTestResultsDir(t)()
 
-	file1 := writeSortTestResultsFile(t, "2020_1_2_10_00_PRACTICE", buildSortTestResults(SessionTypePractice,
+	file1 := writeSortTestResultsFile(t, "2020_1_2_10_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "A", bestLap: 90000, laps: 2, totalTime: 200000},
 		sortTestDriver{guid: "B", bestLap: 90000, laps: 5, totalTime: 500000},
 		sortTestDriver{guid: "C", bestLap: 90000, laps: 1, totalTime: 100000},
 	))
 
-	file2 := writeSortTestResultsFile(t, "2020_1_2_11_00_PRACTICE", buildSortTestResults(SessionTypePractice,
+	file2 := writeSortTestResultsFile(t, "2020_1_2_11_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "C", bestLap: 90000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "A", bestLap: 90000, laps: 5, totalTime: 500000},
 	))
 
-	entrants := buildSortTestEntrants(SessionTypeRace,
+	entrants := buildSortTestEntrants(serverconfig.SessionTypeRace,
 		sortTestDriver{guid: "NOLAPS"},
 		sortTestDriver{guid: "C"},
 		sortTestDriver{guid: "B"},
@@ -633,7 +635,7 @@ func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	)
 
 	t.Run("nil filter keeps order", func(t *testing.T) {
-		if err := NumberResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, nil); err != nil {
+		if err := NumberResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -643,7 +645,7 @@ func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	t.Run("most laps across all files first", func(t *testing.T) {
 		filter := &RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{file1, file2}}
 
-		if err := NumberResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, filter); err != nil {
+		if err := NumberResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
 			t.Fatal(err)
 		}
 
@@ -654,7 +656,7 @@ func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	t.Run("missing results file returns an error", func(t *testing.T) {
 		filter := &RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{"2020_1_2_12_00_RACE"}}
 
-		if err := NumberResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, filter); err == nil {
+		if err := NumberResultsFileRaceWeekendEntryListSort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err == nil {
 			t.Error("expected an error for a missing results file")
 		}
 	})
@@ -683,7 +685,7 @@ func TestSortDriversWithNoTimeToBackOfGrid(t *testing.T) {
 				drivers = append(drivers, sortTestDriver{guid: guid, totalTime: totalTime, laps: 1, bestLap: 90000})
 			}
 
-			entrants := buildSortTestEntrants(SessionTypeRace, drivers...)
+			entrants := buildSortTestEntrants(serverconfig.SessionTypeRace, drivers...)
 			sortDriversWithNoTimeToBackOfGrid(entrants)
 
 			// relative order of both groups is kept
@@ -718,10 +720,10 @@ func sortTestChampionship(events ...[]string) (*Championship, *ChampionshipClass
 		event := NewChampionshipEvent()
 		event.StartedTime = time.Now().Add(-time.Duration(len(events)-i+1) * time.Hour)
 		event.CompletedTime = event.StartedTime.Add(time.Minute * 30)
-		event.Sessions[SessionTypeRace] = &ChampionshipSession{
+		event.Sessions[serverconfig.SessionTypeRace] = &ChampionshipSession{
 			StartedTime:   event.StartedTime,
 			CompletedTime: event.CompletedTime,
-			Results:       buildSortTestResults(SessionTypeRace, drivers...),
+			Results:       buildSortTestResults(serverconfig.SessionTypeRace, drivers...),
 		}
 
 		championship.Events = append(championship.Events, event)
@@ -746,7 +748,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 	)
 
 	newEntrants := func() []*RaceWeekendSessionEntrant {
-		return buildSortTestEntrants(SessionTypeQualifying,
+		return buildSortTestEntrants(serverconfig.SessionTypeQualifying,
 			sortTestDriver{guid: "D", bestLap: 80000, laps: 1, totalTime: 80000},
 			sortTestDriver{guid: "C", bestLap: 81000, laps: 1, totalTime: 81000},
 			sortTestDriver{guid: "A", bestLap: 82000, laps: 1, totalTime: 82000},
@@ -757,7 +759,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 	t.Run("without linked championship order is kept", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(&RaceWeekend{}, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -768,7 +770,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 		entrants := newEntrants()
 		rw := &RaceWeekend{ChampionshipID: championship.ID}
 
-		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(rw, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(rw, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -776,7 +778,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 	})
 
 	t.Run("empty entrant list", func(t *testing.T) {
-		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(SessionTypeQualifying), nil, nil); err != nil {
+		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(serverconfig.SessionTypeQualifying), nil, nil); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -784,7 +786,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 	t.Run("sorted by standings, drivers not in standings last", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+		if err := (&ChampionshipStandingsOrderEntryListSort{}).Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -793,7 +795,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 
 	t.Run("via GetRaceWeekendEntryListSort, drivers without championship races at the back", func(t *testing.T) {
 		entrants := newEntrants()
-		session := sortTestSession(SessionTypeQualifying)
+		session := sortTestSession(serverconfig.SessionTypeQualifying)
 
 		if err := GetRaceWeekendEntryListSort("championship_standings_order").Sort(sortTestRaceWeekendWithChampionship(championship), session, entrants, nil); err != nil {
 			t.Fatal(err)
@@ -804,7 +806,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 
 	t.Run("via GetRaceWeekendEntryListSort with reversed grid", func(t *testing.T) {
 		entrants := newEntrants()
-		session := sortTestSession(SessionTypeQualifying)
+		session := sortTestSession(serverconfig.SessionTypeQualifying)
 		session.NumEntrantsToReverse = -1
 
 		if err := GetRaceWeekendEntryListSort("championship_standings_order").Sort(sortTestRaceWeekendWithChampionship(championship), session, entrants, nil); err != nil {
@@ -833,7 +835,7 @@ func TestRaceWeekendSort_ChampionshipClass(t *testing.T) {
 	firstModel, secondModel := classes[0].AvailableCars[0], classes[1].AvailableCars[0]
 
 	newEntrants := func() []*RaceWeekendSessionEntrant {
-		return buildSortTestEntrants(SessionTypeRace,
+		return buildSortTestEntrants(serverconfig.SessionTypeRace,
 			sortTestDriver{guid: "S1", model: secondModel, bestLap: 80000, laps: 1, totalTime: 80000},
 			sortTestDriver{guid: "F1", model: firstModel, bestLap: 90000, laps: 1, totalTime: 90000},
 			sortTestDriver{guid: "S2", model: secondModel, bestLap: 81000, laps: 1, totalTime: 81000},
@@ -844,7 +846,7 @@ func TestRaceWeekendSort_ChampionshipClass(t *testing.T) {
 	t.Run("without linked championship order is kept", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := (&ChampionshipClassSort{}).Sort(&RaceWeekend{}, sortTestSession(SessionTypeRace), entrants, nil); err != nil {
+		if err := (&ChampionshipClassSort{}).Sort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -854,7 +856,7 @@ func TestRaceWeekendSort_ChampionshipClass(t *testing.T) {
 	t.Run("grouped by class ID", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := (&ChampionshipClassSort{}).Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(SessionTypeRace), entrants, nil); err != nil {
+		if err := (&ChampionshipClassSort{}).Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -870,7 +872,7 @@ func TestRaceWeekendSort_ChampionshipClass(t *testing.T) {
 	t.Run("via GetRaceWeekendEntryListSort it is not split per results class", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := GetRaceWeekendEntryListSort("championship_class").Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(SessionTypeRace), entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort("championship_class").Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -891,7 +893,7 @@ func TestSortDriversWithNoChampionshipRacesToBackOfGrid(t *testing.T) {
 	)
 
 	t.Run("drivers without attendance go to the back, order kept", func(t *testing.T) {
-		entrants := buildSortTestEntrants(SessionTypeRace,
+		entrants := buildSortTestEntrants(serverconfig.SessionTypeRace,
 			sortTestDriver{guid: "X"},
 			sortTestDriver{guid: "C"},
 			sortTestDriver{guid: "Y"},
@@ -908,7 +910,7 @@ func TestSortDriversWithNoChampionshipRacesToBackOfGrid(t *testing.T) {
 		withInProgress, _ := sortTestChampionship([]string{"A"}, []string{"Z", "A"})
 		withInProgress.Events[1].CompletedTime = time.Time{}
 
-		entrants := buildSortTestEntrants(SessionTypeRace,
+		entrants := buildSortTestEntrants(serverconfig.SessionTypeRace,
 			sortTestDriver{guid: "Z"},
 			sortTestDriver{guid: "A"},
 		)
@@ -921,7 +923,7 @@ func TestSortDriversWithNoChampionshipRacesToBackOfGrid(t *testing.T) {
 
 func TestGetRaceWeekendEntryListSort(t *testing.T) {
 	newEntrants := func() []*RaceWeekendSessionEntrant {
-		return buildSortTestEntrants(SessionTypeQualifying,
+		return buildSortTestEntrants(serverconfig.SessionTypeQualifying,
 			sortTestDriver{guid: "A", bestLap: 92000, laps: 3, totalTime: 300000},
 			sortTestDriver{guid: "DNF", bestLap: 0, laps: 0, totalTime: 0},
 			sortTestDriver{guid: "B", bestLap: 90000, laps: 3, totalTime: 300000},
@@ -951,7 +953,7 @@ func TestGetRaceWeekendEntryListSort(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			entrants := newEntrants()
-			session := sortTestSession(SessionTypeQualifying)
+			session := sortTestSession(serverconfig.SessionTypeQualifying)
 			session.NumEntrantsToReverse = tc.reverse
 
 			if err := GetRaceWeekendEntryListSort(tc.key).Sort(&RaceWeekend{}, session, entrants, nil); err != nil {
@@ -967,7 +969,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 	slowClass, fastClass := uuid.New(), uuid.New()
 
 	newEntrants := func() []*RaceWeekendSessionEntrant {
-		return buildSortTestEntrants(SessionTypeQualifying,
+		return buildSortTestEntrants(serverconfig.SessionTypeQualifying,
 			sortTestDriver{guid: "S1", classID: slowClass, bestLap: 100000, laps: 2, totalTime: 200000},
 			sortTestDriver{guid: "F1", classID: fastClass, bestLap: 82000, laps: 2, totalTime: 200000},
 			sortTestDriver{guid: "S2", classID: slowClass, bestLap: 99000, laps: 2, totalTime: 200000},
@@ -979,7 +981,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 	t.Run("classes ordered by their fastest lap, sorted within class", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -988,7 +990,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 
 	t.Run("reverse grid applies per class", func(t *testing.T) {
 		entrants := newEntrants()
-		session := sortTestSession(SessionTypeQualifying)
+		session := sortTestSession(serverconfig.SessionTypeQualifying)
 		session.NumEntrantsToReverse = 2
 
 		if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, session, entrants, nil); err != nil {
@@ -1005,14 +1007,14 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 			classA, classB = classB, classA
 		}
 
-		entrants := buildSortTestEntrants(SessionTypeQualifying,
+		entrants := buildSortTestEntrants(serverconfig.SessionTypeQualifying,
 			sortTestDriver{guid: "B1", classID: classB},
 			sortTestDriver{guid: "A1", classID: classA},
 			sortTestDriver{guid: "B2", classID: classB},
 			sortTestDriver{guid: "A2", classID: classA},
 		)
 
-		session := sortTestSession(SessionTypeQualifying)
+		session := sortTestSession(serverconfig.SessionTypeQualifying)
 		session.isBase = true
 
 		if err := GetRaceWeekendEntryListSort("").Sort(&RaceWeekend{}, session, entrants, nil); err != nil {
@@ -1032,13 +1034,13 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 		// the class order used to come from map iteration when a class had no lap time in a
 		// non-base session, so run it often enough to catch a random order.
 		for run := 0; run < 100; run++ {
-			entrants := buildSortTestEntrants(SessionTypeQualifying,
+			entrants := buildSortTestEntrants(serverconfig.SessionTypeQualifying,
 				sortTestDriver{guid: "Z1", classID: withoutLap2, bestLap: 0},
 				sortTestDriver{guid: "N1", classID: withoutLap1, bestLap: 0},
 				sortTestDriver{guid: "L1", classID: withLap, bestLap: 90000, laps: 1, totalTime: 90000},
 			)
 
-			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 				t.Fatal(err)
 			}
 
@@ -1056,12 +1058,12 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 		}
 
 		for run := 0; run < 100; run++ {
-			entrants := buildSortTestEntrants(SessionTypeQualifying,
+			entrants := buildSortTestEntrants(serverconfig.SessionTypeQualifying,
 				sortTestDriver{guid: "B1", classID: classB, bestLap: 90000, laps: 1, totalTime: 90000},
 				sortTestDriver{guid: "A1", classID: classA, bestLap: 90000, laps: 1, totalTime: 90000},
 			)
 
-			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(SessionTypeQualifying), entrants, nil); err != nil {
+			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 				t.Fatal(err)
 			}
 

@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type SessionResult struct {
@@ -97,7 +99,7 @@ func (c *SessionCar) GetTeam() string {
 }
 
 func (c *SessionCar) HasMultipleDrivers() bool {
-	return len(c.Driver.GuidsList) > 1 || strings.Count(c.GetGUID(), driverSwapEntrantSeparator) > 0
+	return len(c.Driver.GuidsList) > 1 || strings.Count(c.GetGUID(), serverconfig.DriverSwapEntrantSeparator) > 0
 }
 
 type SessionEvent struct {
@@ -128,7 +130,7 @@ type SessionDriver struct {
 	ClassID   uuid.UUID `json:"ClassID"`
 }
 
-func (sd *SessionDriver) AssignEntrant(entrant *Entrant, classID uuid.UUID) {
+func (sd *SessionDriver) AssignEntrant(entrant *serverconfig.Entrant, classID uuid.UUID) {
 	if sd.GUID != entrant.GUID {
 		return
 	}

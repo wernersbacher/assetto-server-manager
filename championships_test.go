@@ -3,75 +3,77 @@ package servermanager
 import (
 	"math/rand"
 	"testing"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type lastSessionTest struct {
-	expected SessionType
+	expected serverconfig.SessionType
 
-	sessions []SessionType
+	sessions []serverconfig.SessionType
 }
 
 func TestChampionshipEvent_LastSession(t *testing.T) {
 	lastSessionTests := []lastSessionTest{
 		{
-			expected: SessionTypeRace,
+			expected: serverconfig.SessionTypeRace,
 
-			sessions: []SessionType{
-				SessionTypeRace,
-				SessionTypeQualifying,
-				SessionTypePractice,
-				SessionTypeBooking,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypeRace,
+				serverconfig.SessionTypeQualifying,
+				serverconfig.SessionTypePractice,
+				serverconfig.SessionTypeBooking,
 			},
 		},
 		{
-			expected: SessionTypeQualifying,
+			expected: serverconfig.SessionTypeQualifying,
 
-			sessions: []SessionType{
-				SessionTypeQualifying,
-				SessionTypePractice,
-				SessionTypeBooking,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypeQualifying,
+				serverconfig.SessionTypePractice,
+				serverconfig.SessionTypeBooking,
 			},
 		},
 		{
-			expected: SessionTypePractice,
+			expected: serverconfig.SessionTypePractice,
 
-			sessions: []SessionType{
-				SessionTypeBooking,
-				SessionTypePractice,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypeBooking,
+				serverconfig.SessionTypePractice,
 			},
 		},
 		{
-			expected: SessionTypeBooking,
+			expected: serverconfig.SessionTypeBooking,
 
-			sessions: []SessionType{
-				SessionTypeBooking,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypeBooking,
 			},
 		},
 		{
-			expected: SessionTypeBooking,
+			expected: serverconfig.SessionTypeBooking,
 
-			sessions: []SessionType{},
+			sessions: []serverconfig.SessionType{},
 		},
 		{
-			expected: SessionTypeRace,
+			expected: serverconfig.SessionTypeRace,
 
-			sessions: []SessionType{
-				SessionTypeRace,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypeRace,
 			},
 		},
 		{
-			expected: SessionTypePractice,
+			expected: serverconfig.SessionTypePractice,
 
-			sessions: []SessionType{
-				SessionTypePractice,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypePractice,
 			},
 		},
 		{
-			expected: SessionTypeQualifying,
+			expected: serverconfig.SessionTypeQualifying,
 
-			sessions: []SessionType{
-				SessionTypeQualifying,
-				SessionTypeBooking,
+			sessions: []serverconfig.SessionType{
+				serverconfig.SessionTypeQualifying,
+				serverconfig.SessionTypeBooking,
 			},
 		},
 	}
@@ -80,7 +82,7 @@ func TestChampionshipEvent_LastSession(t *testing.T) {
 		e := NewChampionshipEvent()
 
 		for _, session := range x.sessions {
-			e.RaceSetup.AddSession(session, &SessionConfig{})
+			e.RaceSetup.AddSession(session, &serverconfig.SessionConfig{})
 		}
 
 		if e.LastSession() != x.expected {
@@ -173,7 +175,7 @@ func TestChampionship_FindClassForCarModel(t *testing.T) {
 
 			for _, model := range models {
 				for i := 0; i < rand.Intn(20)+1; i++ {
-					class.Entrants.AddToBackOfGrid(&Entrant{
+					class.Entrants.AddToBackOfGrid(&serverconfig.Entrant{
 						Model: model,
 					})
 				}
@@ -212,7 +214,7 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 		}
 
 		class := NewChampionshipClass("FXX K")
-		class.Entrants.AddToBackOfGrid(&Entrant{
+		class.Entrants.AddToBackOfGrid(&serverconfig.Entrant{
 			Model: "ferrari_fxx_k",
 		})
 
@@ -256,7 +258,7 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 		}
 
 		class := NewChampionshipClass("FXX K")
-		class.Entrants.AddToBackOfGrid(&Entrant{
+		class.Entrants.AddToBackOfGrid(&serverconfig.Entrant{
 			Model: "ferrari_fxx_k",
 		})
 
@@ -330,7 +332,7 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 		}
 
 		class := NewChampionshipClass("FXX K")
-		class.Entrants.AddToBackOfGrid(&Entrant{
+		class.Entrants.AddToBackOfGrid(&serverconfig.Entrant{
 			Model: "ferrari_fxx_k",
 		})
 
@@ -404,12 +406,12 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 		}
 
 		class := NewChampionshipClass("FXX K")
-		e := NewEntrant()
+		e := serverconfig.NewEntrant()
 		e.Model = "ferrari_fxx_k"
 
 		class.Entrants.AddToBackOfGrid(e)
 
-		e2 := NewEntrant()
+		e2 := serverconfig.NewEntrant()
 		e2.Model = "ferrari_fxx_k"
 		e2.GUID = "78987656782716273"
 

@@ -9,6 +9,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/haisum/recaptcha"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type ValidationError string
@@ -33,7 +35,7 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 	signUpResponse := &ChampionshipSignUpResponse{
 		Created: time.Now(),
 		Name:    strings.TrimSpace(r.FormValue("Name")),
-		GUID:    NormaliseEntrantGUID(r.FormValue("GUID")),
+		GUID:    serverconfig.NormaliseEntrantGUID(r.FormValue("GUID")),
 		Team:    strings.TrimSpace(r.FormValue("Team")),
 		Email:   strings.TrimSpace(r.FormValue("Email")),
 

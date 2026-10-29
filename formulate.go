@@ -12,6 +12,8 @@ import (
 	"github.com/cj123/formulate"
 	"github.com/cj123/formulate/decorators"
 	"golang.org/x/net/html"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/formfields"
 )
 
 // EncodeFormData uses formulate to build template.HTML from a struct
@@ -48,47 +50,8 @@ func DecodeFormData(out interface{}, r *http.Request) error {
 	return formulate.NewDecoder(r.Form).Decode(out)
 }
 
-type FormHeading string
-
-func (f FormHeading) BuildFormElement(_ string, parent *html.Node, field formulate.StructField, _ formulate.Decorator) error {
-	// scrap the label
-	parent = parent.Parent
-	parent.RemoveChild(parent.FirstChild)
-
-	div := &html.Node{
-		Type: html.ElementNode,
-		Data: "div",
-	}
-
-	formulate.AppendClass(div, "col-12")
-
-	div.AppendChild(&html.Node{
-		Type: html.ElementNode,
-		Data: "hr",
-		Attr: []html.Attribute{
-			{
-				Key: "class",
-				Val: "mt-5",
-			},
-		},
-	})
-
-	h2 := &html.Node{
-		Type: html.ElementNode,
-		Data: "h3",
-	}
-
-	h2.AppendChild(&html.Node{
-		Type: html.TextNode,
-		Data: field.GetName(),
-	})
-
-	div.AppendChild(h2)
-
-	parent.AppendChild(div)
-
-	return nil
-}
+// FormHeading renders a section heading in generated forms.
+type FormHeading = formfields.FormHeading
 
 type decorator struct {
 	decorators.BootstrapDecorator

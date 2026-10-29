@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // The results API exposes the information that is publicly visible on the results pages (session, track, drivers,
@@ -29,7 +31,7 @@ type APIResultSummary struct {
 	FileName string
 
 	Date        time.Time
-	SessionType SessionType
+	SessionType serverconfig.SessionType
 	TimeAttack  bool
 
 	Track       string

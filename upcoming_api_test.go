@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/json"
@@ -60,12 +61,12 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 
 	// a recurring custom race on another server
 	customRace := &CustomRace{UUID: uuid.New(), Name: "Sunday Cruise", HasCustomName: true}
-	customRace.RaceConfig = ConfigIniDefault().CurrentRaceConfig
+	customRace.RaceConfig = serverconfig.ConfigIniDefault().CurrentRaceConfig
 	customRace.RaceConfig.Track = "api_test_track"
 	customRace.RaceConfig.Cars = "dev_car_gt3;dev_car_gt4"
-	customRace.RaceConfig.Sessions = Sessions{
-		SessionTypePractice: &SessionConfig{Name: "Practice", Time: 10},
-		SessionTypeRace:     &SessionConfig{Name: "Race", Laps: 5},
+	customRace.RaceConfig.Sessions = serverconfig.Sessions{
+		serverconfig.SessionTypePractice: &serverconfig.SessionConfig{Name: "Practice", Time: 10},
+		serverconfig.SessionTypeRace:     &serverconfig.SessionConfig{Name: "Race", Laps: 5},
 	}
 	customRace.Scheduled = now.Add(3 * time.Hour)
 	customRace.ScheduledInitial = customRace.Scheduled
@@ -77,18 +78,18 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 
 	// a custom race that is not scheduled
 	unscheduled := &CustomRace{UUID: uuid.New(), Name: "Not scheduled"}
-	unscheduled.RaceConfig = ConfigIniDefault().CurrentRaceConfig
+	unscheduled.RaceConfig = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 	// a championship with an event in the past and one in the future
 	championship := NewChampionship("Test Championship")
 
 	pastEvent := NewChampionshipEvent()
-	pastEvent.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+	pastEvent.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 	pastEvent.Scheduled = now.Add(-time.Hour)
 	pastEvent.ScheduledServerID = serverID
 
 	futureEvent := NewChampionshipEvent()
-	futureEvent.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+	futureEvent.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 	futureEvent.RaceSetup.Track = "api_test_ring"
 	futureEvent.RaceSetup.TrackLayout = "gp"
 	futureEvent.Scheduled = now.Add(time.Hour)
@@ -102,13 +103,13 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 
 	qualifying := NewRaceWeekendSession()
 	qualifying.RaceConfig.Track = "api_test_ring"
-	qualifying.RaceConfig.Sessions = Sessions{SessionTypeQualifying: &SessionConfig{Name: "Qualy", Time: 20}}
+	qualifying.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeQualifying: &serverconfig.SessionConfig{Name: "Qualy", Time: 20}}
 	qualifying.ScheduledTime = now.Add(2 * time.Hour)
 	qualifying.ScheduledServerID = serverID
 
 	race := NewRaceWeekendSession()
 	race.ParentIDs = []uuid.UUID{qualifying.ID}
-	race.RaceConfig.Sessions = Sessions{SessionTypeRace: &SessionConfig{Name: "Main Race", Laps: 50}}
+	race.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{Name: "Main Race", Laps: 50}}
 
 	raceWeekend.Sessions = []*RaceWeekendSession{qualifying, race}
 
@@ -216,7 +217,7 @@ func TestScheduledRacesHandlerUpcomingAPI(t *testing.T) {
 
 	t.Run("recurring event in the past", func(t *testing.T) {
 		stale := &CustomRace{UUID: uuid.New(), Name: "Daily"}
-		stale.RaceConfig = ConfigIniDefault().CurrentRaceConfig
+		stale.RaceConfig = serverconfig.ConfigIniDefault().CurrentRaceConfig
 		stale.Scheduled = now.Add(-36 * time.Hour)
 		stale.ScheduledInitial = stale.Scheduled
 		stale.ScheduledServerID = serverID

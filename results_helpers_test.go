@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // GUIDs must be numeric, NormaliseEntrantGUIDs strips everything that isn't a digit.
@@ -49,7 +51,7 @@ func helperLap(carID int, guid, name, model string, lapTime, cuts int, sectors [
 // (see newHelperResultsWithCarZero for that case).
 func newHelperResults() *SessionResults {
 	return &SessionResults{
-		Type: SessionTypeRace,
+		Type: serverconfig.SessionTypeRace,
 		Cars: []*SessionCar{
 			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}, Name: "Alice Smith", Team: "Red", ClassID: helperClassFerrari}},
 			{CarID: 2, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDBob, GuidsList: []string{helperGUIDBob}, Name: "Bob Jones", ClassID: helperClassFerrari}},
@@ -525,7 +527,7 @@ func TestSessionResultsGetTime(t *testing.T) {
 			t.Errorf("GetTime = %s, want %s", got, want)
 		}
 
-		results.Type = SessionTypeQualifying
+		results.Type = serverconfig.SessionTypeQualifying
 
 		if got, want := results.GetTime(297000, helperGUIDAlice, helperModelFerrari, true), 307*time.Second; got != want {
 			t.Errorf("GetTime (qualifying) = %s, want %s", got, want)
@@ -1075,7 +1077,7 @@ func resultOrder(results *SessionResults) []string {
 func TestSessionResultsFallBackSortRace(t *testing.T) {
 	// Results only contain Bob, Alice is missing, Dan has no laps, "1006" only appears in the laps.
 	results := &SessionResults{
-		Type: SessionTypeRace,
+		Type: serverconfig.SessionTypeRace,
 		Cars: []*SessionCar{
 			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, Name: "Alice Smith"}, BallastKG: 20},
 			{CarID: 2, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDBob, Name: "Bob Jones"}},
@@ -1148,7 +1150,7 @@ func TestSessionResultsFallBackSortRace(t *testing.T) {
 
 func TestSessionResultsFallBackSortTimePenalty(t *testing.T) {
 	results := &SessionResults{
-		Type: SessionTypeRace,
+		Type: serverconfig.SessionTypeRace,
 		Cars: []*SessionCar{
 			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}}},
 			{CarID: 2, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDBob, GuidsList: []string{helperGUIDBob}}},
@@ -1184,7 +1186,7 @@ func TestSessionResultsFallBackSortTimePenalty(t *testing.T) {
 
 func TestSessionResultsFallBackSortDisqualified(t *testing.T) {
 	results := &SessionResults{
-		Type: SessionTypeRace,
+		Type: serverconfig.SessionTypeRace,
 		Cars: []*SessionCar{
 			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice}},
 			{CarID: 2, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDBob}},
@@ -1209,7 +1211,7 @@ func TestSessionResultsFallBackSortDisqualified(t *testing.T) {
 
 func TestSessionResultsFallBackSortQualifying(t *testing.T) {
 	results := &SessionResults{
-		Type: SessionTypeQualifying,
+		Type: serverconfig.SessionTypeQualifying,
 		Cars: []*SessionCar{
 			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice}},
 			{CarID: 2, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDBob}},

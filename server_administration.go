@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/json"
@@ -102,7 +103,7 @@ type motdTemplateVars struct {
 	BaseTemplateVars
 
 	MOTDText string
-	Opts     *GlobalServerConfig
+	Opts     *serverconfig.GlobalServerConfig
 }
 
 func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Request) {
@@ -163,10 +164,10 @@ type currentCFGTemplateVars struct {
 }
 
 func (sah *ServerAdministrationHandler) currentConfig(w http.ResponseWriter, r *http.Request) {
-	config := &ServerConfig{}
-	entryList := &EntryList{}
+	config := &serverconfig.ServerConfig{}
+	entryList := &serverconfig.EntryList{}
 
-	configText, err := config.ReadString()
+	configText, err := config.ReadString(filepath.Join(ServerInstallPath, ServerConfigPath))
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't load server config")
@@ -174,7 +175,7 @@ func (sah *ServerAdministrationHandler) currentConfig(w http.ResponseWriter, r *
 		return
 	}
 
-	entryListText, err := entryList.ReadString()
+	entryListText, err := entryList.ReadString(filepath.Join(ServerInstallPath, ServerConfigPath))
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't load entry list")
@@ -290,7 +291,7 @@ func (sah *ServerAdministrationHandler) blacklist(w http.ResponseWriter, r *http
 type autoFillEntrantListTemplateVars struct {
 	BaseTemplateVars
 
-	Entrants []*Entrant
+	Entrants []*serverconfig.Entrant
 }
 
 func (sah *ServerAdministrationHandler) autoFillEntrantList(w http.ResponseWriter, r *http.Request) {

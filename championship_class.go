@@ -6,6 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // ChampionshipClassColors are sequentially selected to indicate different classes within a Championship
@@ -33,7 +35,7 @@ func (c *Championship) FindClassForCarModel(model string) (*ChampionshipClass, e
 		}
 	}
 
-	if model == AnyCarModel {
+	if model == serverconfig.AnyCarModel {
 		// randomly assign a class based from whatever classes we have with AnyCarModel in their entrylist.
 		classes := make([]*ChampionshipClass, len(c.Classes))
 
@@ -45,7 +47,7 @@ func (c *Championship) FindClassForCarModel(model string) (*ChampionshipClass, e
 
 		for _, class := range classes {
 			for _, entrant := range class.Entrants {
-				if entrant.Model == AnyCarModel {
+				if entrant.Model == serverconfig.AnyCarModel {
 					return class, nil
 				}
 			}
@@ -61,7 +63,7 @@ func NewChampionshipClass(name string) *ChampionshipClass {
 		ID:       uuid.New(),
 		Name:     name,
 		Points:   DefaultChampionshipPoints,
-		Entrants: make(EntryList),
+		Entrants: make(serverconfig.EntryList),
 	}
 }
 
@@ -70,7 +72,7 @@ type ChampionshipClass struct {
 	ID   uuid.UUID
 	Name string
 
-	Entrants      EntryList
+	Entrants      serverconfig.EntryList
 	Points        ChampionshipPoints
 	AvailableCars []string
 
@@ -118,7 +120,7 @@ func (c *ChampionshipClass) DriverInClass(result *SessionResult) bool {
 	return result.ClassID == c.ID
 }
 
-func (c *ChampionshipClass) AssignToFreeEntrantSlot(entrant *Entrant, potentialEntrant PotentialChampionshipEntrant) {
+func (c *ChampionshipClass) AssignToFreeEntrantSlot(entrant *serverconfig.Entrant, potentialEntrant PotentialChampionshipEntrant) {
 	entrant.Name = potentialEntrant.GetName()
 	entrant.GUID = potentialEntrant.GetGUID()
 	entrant.Model = potentialEntrant.GetCar()
@@ -130,7 +132,7 @@ func (c *ChampionshipClass) AssignToFreeEntrantSlot(entrant *Entrant, potentialE
 	}
 }
 
-func (c *ChampionshipClass) AttachEntrantToResult(entrant *Entrant, results *SessionResults) {
+func (c *ChampionshipClass) AttachEntrantToResult(entrant *serverconfig.Entrant, results *SessionResults) {
 	for _, car := range results.Cars {
 		if car.Driver.GUID == entrant.GUID {
 			car.Driver.AssignEntrant(entrant, c.ID)

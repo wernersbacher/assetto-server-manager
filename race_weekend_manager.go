@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -91,7 +92,7 @@ func (rwm *RaceWeekendManager) LoadRaceWeekend(id string) (*RaceWeekend, error) 
 				if len(class.Points.Places) > len(raceWeekendSessionPoints.Places) {
 					var extendedPlaces []int
 
-					if session.SessionType() == SessionTypeRace {
+					if session.SessionType() == serverconfig.SessionTypeRace {
 						extendedPlaces = class.Points.Places[len(raceWeekendSessionPoints.Places):]
 					} else {
 						extendedPlaces = make([]int, len(class.Points.Places)-len(raceWeekendSessionPoints.Places))
@@ -235,7 +236,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *Ra
 			carSkinChoice := make(map[string]int)
 
 			for _, entrant := range entryList {
-				if entrant.Model == AnyCarModel {
+				if entrant.Model == serverconfig.AnyCarModel {
 					entrant.Model = cars[availableCarIndex%len(cars)]
 
 					if skins, ok := carMap[entrant.Model]; ok && len(skins) > 0 {

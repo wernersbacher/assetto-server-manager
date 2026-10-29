@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -15,7 +16,7 @@ type driverSwapPenalty struct {
 	carModel string
 }
 
-func (rc *RaceControl) handleDriverSwap(ticker *time.Ticker, config CurrentRaceConfig, client udp.SessionCarInfo, driver *RaceControlDriver) {
+func (rc *RaceControl) handleDriverSwap(ticker *time.Ticker, config serverconfig.CurrentRaceConfig, client udp.SessionCarInfo, driver *RaceControlDriver) {
 	var (
 		totalTime           time.Duration
 		newDriverConnected  bool

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -148,7 +149,7 @@ func (rc *RaceControl) OnClientDisconnect(client udp.SessionCarInfo) error {
 	config := rc.process.Event().GetRaceConfig()
 
 	// if this race has driver swaps enabled we should initialise one now
-	if config.DriverSwapEnabled == 1 && rc.SessionInfo.Type.String() == SessionTypeRace.String() {
+	if config.DriverSwapEnabled == 1 && rc.SessionInfo.Type.String() == serverconfig.SessionTypeRace.String() {
 		ticker := time.NewTicker(time.Second)
 
 		go rc.handleDriverSwap(ticker, config, client, driver)

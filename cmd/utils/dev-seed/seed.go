@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	servermanager "github.com/wernersbacher/assetto-server-manager"
 	"github.com/google/uuid"
 )
@@ -59,8 +60,8 @@ func at(now time.Time, daysFromNow, hour, minute int) time.Time {
 	return time.Date(now.Year(), now.Month(), now.Day()+daysFromNow, hour, minute, 0, 0, time.Local)
 }
 
-func seedEntrant(d *seedDriver) *servermanager.Entrant {
-	return &servermanager.Entrant{
+func seedEntrant(d *seedDriver) *serverconfig.Entrant {
+	return &serverconfig.Entrant{
 		InternalUUID: seedID("entrant/" + d.GUID),
 		Name:         d.Name,
 		Team:         d.Team,
@@ -78,8 +79,8 @@ func asModel(d *seedDriver, model, skin string) *seedDriver {
 	return &c
 }
 
-func entryListOf(drivers []*seedDriver) servermanager.EntryList {
-	entryList := make(servermanager.EntryList)
+func entryListOf(drivers []*seedDriver) serverconfig.EntryList {
+	entryList := make(serverconfig.EntryList)
 
 	for _, d := range drivers {
 		entryList.AddToBackOfGrid(seedEntrant(d))
@@ -115,16 +116,16 @@ func penalties(secs map[string]int) map[string]time.Duration {
 	return out
 }
 
-func eventSetup(cars []string, track, layout string, raceLaps int) servermanager.CurrentRaceConfig {
-	setup := servermanager.ConfigIniDefault().CurrentRaceConfig
+func eventSetup(cars []string, track, layout string, raceLaps int) serverconfig.CurrentRaceConfig {
+	setup := serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 	setup.Cars = joinCars(cars)
 	setup.Track = track
 	setup.TrackLayout = layout
 	setup.LegalTyres = "SM"
-	setup.Sessions = servermanager.Sessions{
-		servermanager.SessionTypeQualifying: {Name: "Qualify", Time: 10, IsOpen: 1},
-		servermanager.SessionTypeRace:       {Name: "Race", Laps: raceLaps, IsOpen: 1, WaitTime: 60},
+	setup.Sessions = serverconfig.Sessions{
+		serverconfig.SessionTypeQualifying: {Name: "Qualify", Time: 10, IsOpen: 1},
+		serverconfig.SessionTypeRace:       {Name: "Race", Laps: raceLaps, IsOpen: 1, WaitTime: 60},
 	}
 
 	return setup
@@ -222,20 +223,20 @@ func seedPlainResults(rng *rand.Rand, now time.Time, manifest *seedManifest) err
 	all := seedDrivers
 
 	specs := []sessionSpec{
-		{Track: trackRing, Layout: layoutGP, Type: servermanager.SessionTypePractice, Start: at(now, -24, 19, 30), Entries: all, Laps: 9, CutChance: 0.08, Collisions: 2},
-		{Track: trackRing, Layout: layoutGP, Type: servermanager.SessionTypeQualifying, Start: at(now, -24, 20, 10), Entries: all, Laps: 6, CutChance: 0.06, Collisions: 1},
+		{Track: trackRing, Layout: layoutGP, Type: serverconfig.SessionTypePractice, Start: at(now, -24, 19, 30), Entries: all, Laps: 9, CutChance: 0.08, Collisions: 2},
+		{Track: trackRing, Layout: layoutGP, Type: serverconfig.SessionTypeQualifying, Start: at(now, -24, 20, 10), Entries: all, Laps: 6, CutChance: 0.06, Collisions: 1},
 		{
-			Track: trackRing, Layout: layoutGP, Type: servermanager.SessionTypeRace, Start: at(now, -24, 20, 35), Entries: all, Laps: 5,
+			Track: trackRing, Layout: layoutGP, Type: serverconfig.SessionTypeRace, Start: at(now, -24, 20, 35), Entries: all, Laps: 5,
 			CutChance: 0.05, Collisions: 5,
 			Penalties:    penalties(map[string]int{"Marco": 5, "Jack": 10}),
 			Disqualified: map[string]bool{driverByName("Tomasz").GUID: true},
 			LapsDown:     map[string]int{driverByName("Sam").GUID: 1},
 		},
-		{Track: trackRing, Layout: layoutShort, Type: servermanager.SessionTypePractice, Start: at(now, -17, 18, 5), Entries: all[3:9], Laps: 8, CutChance: 0.1, Collisions: 1},
-		{Track: trackOther, Layout: "", Type: servermanager.SessionTypePractice, Start: at(now, -10, 21, 10), Entries: all, Laps: 10, CutChance: 0.07, Collisions: 3},
-		{Track: trackOther, Layout: "", Type: servermanager.SessionTypeQualifying, Start: at(now, -10, 21, 35), Entries: all, Laps: 6, CutChance: 0.05},
+		{Track: trackRing, Layout: layoutShort, Type: serverconfig.SessionTypePractice, Start: at(now, -17, 18, 5), Entries: all[3:9], Laps: 8, CutChance: 0.1, Collisions: 1},
+		{Track: trackOther, Layout: "", Type: serverconfig.SessionTypePractice, Start: at(now, -10, 21, 10), Entries: all, Laps: 10, CutChance: 0.07, Collisions: 3},
+		{Track: trackOther, Layout: "", Type: serverconfig.SessionTypeQualifying, Start: at(now, -10, 21, 35), Entries: all, Laps: 6, CutChance: 0.05},
 		{
-			Track: trackRing, Layout: layoutShort, Type: servermanager.SessionTypeRace, Start: at(now, -3, 17, 50), Entries: all[:8], Laps: 8,
+			Track: trackRing, Layout: layoutShort, Type: serverconfig.SessionTypeRace, Start: at(now, -3, 17, 50), Entries: all[:8], Laps: 8,
 			CutChance: 0.04, Collisions: 3,
 			Penalties: penalties(map[string]int{"Pierre": 10}),
 		},
@@ -283,7 +284,7 @@ func completedEvent(rng *rand.Rand, now time.Time, c *servermanager.Championship
 	}
 
 	qualy, err := emit(rng, sessionSpec{
-		Track: spec.track, Layout: spec.layout, Type: servermanager.SessionTypeQualifying, Start: qualyStart,
+		Track: spec.track, Layout: spec.layout, Type: serverconfig.SessionTypeQualifying, Start: qualyStart,
 		Entries: entries, Laps: 6, CutChance: 0.05,
 	}, &manifest.ResultFiles, c.EnhanceResults)
 
@@ -292,7 +293,7 @@ func completedEvent(rng *rand.Rand, now time.Time, c *servermanager.Championship
 	}
 
 	race, err := emit(rng, sessionSpec{
-		Track: spec.track, Layout: spec.layout, Type: servermanager.SessionTypeRace, Start: raceStart,
+		Track: spec.track, Layout: spec.layout, Type: serverconfig.SessionTypeRace, Start: raceStart,
 		Entries: entries, Laps: 6, CutChance: 0.04, Collisions: spec.collisions,
 		Penalties: penalties(spec.penalties), LapsDown: lapsDown,
 	}, &manifest.ResultFiles, c.EnhanceResults)
@@ -303,10 +304,10 @@ func completedEvent(rng *rand.Rand, now time.Time, c *servermanager.Championship
 
 	event.StartedTime = qualyStart.Add(-2 * time.Minute)
 	event.CompletedTime = raceStart.Add(15 * time.Minute)
-	event.Sessions[servermanager.SessionTypeQualifying] = &servermanager.ChampionshipSession{
+	event.Sessions[serverconfig.SessionTypeQualifying] = &servermanager.ChampionshipSession{
 		StartedTime: event.StartedTime, CompletedTime: qualyStart.Add(10 * time.Minute), Results: qualy,
 	}
-	event.Sessions[servermanager.SessionTypeRace] = &servermanager.ChampionshipSession{
+	event.Sessions[serverconfig.SessionTypeRace] = &servermanager.ChampionshipSession{
 		StartedTime: raceStart.Add(-time.Minute), CompletedTime: event.CompletedTime, Results: race,
 	}
 
@@ -363,7 +364,7 @@ func seedDevCup(rng *rand.Rand, now time.Time, serverID servermanager.ServerID, 
 		AutoClutchAllowed:       0,
 		TyreBlanketsAllowed:     1,
 		ForceVirtualMirror:      1,
-		DynamicTrack:            servermanager.DynamicTrackConfig{SessionStart: 95, Randomness: 2, SessionTransfer: 80, LapGain: 12},
+		DynamicTrack:            serverconfig.DynamicTrackConfig{SessionStart: 95, Randomness: 2, SessionTransfer: 80, LapGain: 12},
 	}
 
 	points := servermanager.DefaultChampionshipPoints
@@ -453,7 +454,7 @@ func seedCustomRaces(now time.Time, serverID servermanager.ServerID) ([]*serverm
 	mx5 := driversOfClass("MX5")
 
 	newRace := func(name string, cars []string, track, layout string, drivers []*seedDriver) *servermanager.CustomRace {
-		setup := servermanager.ConfigIniDefault().CurrentRaceConfig
+		setup := serverconfig.ConfigIniDefault().CurrentRaceConfig
 		setup.Cars = joinCars(cars)
 		setup.Track = track
 		setup.TrackLayout = layout
@@ -516,7 +517,7 @@ func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*se
 
 	cars := []string{carGT3, carMX5}
 
-	newSession := func(name string, sessionType servermanager.SessionType, laps, minutes int, parent uuid.UUID, sortType string) *servermanager.RaceWeekendSession {
+	newSession := func(name string, sessionType serverconfig.SessionType, laps, minutes int, parent uuid.UUID, sortType string) *servermanager.RaceWeekendSession {
 		s := servermanager.NewRaceWeekendSession()
 		s.ID = seedID("raceweekend/session/" + name)
 		s.Created = rw.Created
@@ -524,21 +525,21 @@ func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*se
 		s.SortType = sortType
 
 		s.RaceConfig = eventSetup(cars, trackRing, layoutGP, laps)
-		s.RaceConfig.Sessions = servermanager.Sessions{
+		s.RaceConfig.Sessions = serverconfig.Sessions{
 			sessionType: {Name: name, Time: minutes, Laps: laps, IsOpen: 1},
 		}
 
 		return s
 	}
 
-	practice := newSession("Practice", servermanager.SessionTypePractice, 0, 20, rw.ID, "")
-	qualy := newSession("Qualify", servermanager.SessionTypeQualifying, 0, 10, practice.ID, "fastest_lap")
-	race := newSession("Race", servermanager.SessionTypeRace, 6, 0, qualy.ID, "fastest_lap")
+	practice := newSession("Practice", serverconfig.SessionTypePractice, 0, 20, rw.ID, "")
+	qualy := newSession("Qualify", serverconfig.SessionTypeQualifying, 0, 10, practice.ID, "fastest_lap")
+	race := newSession("Race", serverconfig.SessionTypeRace, 6, 0, qualy.ID, "fastest_lap")
 
 	start := at(now, -1, 19, 0)
 
 	results, err := emit(rng, sessionSpec{
-		Track: trackRing, Layout: layoutGP, Type: servermanager.SessionTypePractice, Start: start,
+		Track: trackRing, Layout: layoutGP, Type: serverconfig.SessionTypePractice, Start: start,
 		Entries: seedDrivers, Laps: 8, CutChance: 0.06, Collisions: 2,
 	}, &manifest.ResultFiles, rw.EnhanceResults)
 

@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // RaceWeekendEntryListSorter is a function which takes a race weekend, session and entrylist and sorts the entrylist based on some criteria.
@@ -381,7 +383,7 @@ func FewestCollisionsRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeek
 		entrantJCrashes := entrantJ.SessionResults.GetCrashes(entrantJ.Car.Driver.GUID, entrantJ.Car.Model)
 
 		if entrantICrashes == entrantJCrashes {
-			if session.SessionType() == SessionTypeRace {
+			if session.SessionType() == serverconfig.SessionTypeRace {
 				return lessTotalEntrantTime(rw, session, entrantI, entrantJ)
 			}
 
@@ -401,7 +403,7 @@ func FewestCutsRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSes
 		entrantJCuts := entrantJ.SessionResults.GetCuts(entrantJ.Car.Driver.GUID, entrantJ.Car.Model)
 
 		if entrantICuts == entrantJCuts {
-			if session.SessionType() == SessionTypeRace {
+			if session.SessionType() == serverconfig.SessionTypeRace {
 				return lessTotalEntrantTime(rw, session, entrantI, entrantJ)
 			}
 
@@ -424,7 +426,7 @@ func SafetyRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession
 
 		if entrantICrashes == entrantJCrashes {
 			if entrantICuts == entrantJCuts {
-				if session.SessionType() == SessionTypeRace {
+				if session.SessionType() == serverconfig.SessionTypeRace {
 					return lessTotalEntrantTime(rw, session, entrantI, entrantJ)
 				}
 

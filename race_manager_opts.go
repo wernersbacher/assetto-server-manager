@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
-func (rm *RaceManager) ListAutoFillEntrants() ([]*Entrant, error) {
+func (rm *RaceManager) ListAutoFillEntrants() ([]*serverconfig.Entrant, error) {
 	entrants, err := rm.store.ListEntrants()
 
 	if err != nil {
@@ -49,12 +51,12 @@ type RaceTemplateVars struct {
 
 	CarOpts             Cars
 	TrackOpts           TrackOptsGrouped
-	AvailableSessions   []SessionType
+	AvailableSessions   []serverconfig.SessionType
 	Weather             Weather
 	SolIsInstalled      bool
-	Current             CurrentRaceConfig
-	CurrentEntrants     EntryList
-	PossibleEntrants    []*Entrant
+	Current             serverconfig.CurrentRaceConfig
+	CurrentEntrants     serverconfig.EntryList
+	PossibleEntrants    []*serverconfig.Entrant
 	FixedSetups         CarSetups
 	IsEditing           bool
 	EditingID           string
@@ -104,11 +106,11 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 		return nil, err
 	}
 
-	race := ConfigIniDefault()
+	race := serverconfig.ConfigIniDefault()
 
 	templateID := r.URL.Query().Get("from")
 
-	var entrants EntryList
+	var entrants serverconfig.EntryList
 
 	if templateID != "" {
 		// load a from a custom race template
@@ -177,7 +179,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 	opts := &RaceTemplateVars{
 		CarOpts:                  cars,
 		TrackOpts:                tracks,
-		AvailableSessions:        AvailableSessions,
+		AvailableSessions:        serverconfig.AvailableSessions,
 		Weather:                  weather,
 		SolIsInstalled:           solIsInstalled,
 		Current:                  race.CurrentRaceConfig,
@@ -206,7 +208,7 @@ func (rm *RaceManager) BuildRaceOpts(r *http.Request) (*RaceTemplateVars, error)
 	return opts, nil
 }
 
-func (rm *RaceManager) SaveEntrantsForAutoFill(entryList EntryList) error {
+func (rm *RaceManager) SaveEntrantsForAutoFill(entryList serverconfig.EntryList) error {
 	for _, entrant := range entryList {
 		if entrant.Name == "" || entrant.GUID == "" {
 			continue // only save entrants that have a name

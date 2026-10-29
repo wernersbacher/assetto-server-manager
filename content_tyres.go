@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/acd"
 
 	"github.com/cj123/ini"
@@ -341,7 +342,7 @@ var DefaultTrackSurfacePresets = []TrackSurfacePreset{
 
 var ErrCouldNotFindTyreForCar = errors.New("servermanager: could not find tyres for car")
 
-func findTyreIndex(carModel, tyreName string, raceSetup CurrentRaceConfig) (int, error) {
+func findTyreIndex(carModel, tyreName string, raceSetup serverconfig.CurrentRaceConfig) (int, error) {
 	tyreIndexCount := 0
 	legalTyres := raceSetup.Tyres()
 

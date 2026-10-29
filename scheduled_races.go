@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/json"
@@ -21,12 +22,12 @@ import (
 type ScheduledEvent interface {
 	GetID() uuid.UUID
 	GetScheduledServerID() ServerID
-	GetRaceSetup() CurrentRaceConfig
+	GetRaceSetup() serverconfig.CurrentRaceConfig
 	GetScheduledTime() time.Time
 	GetSummary() string
 	GetURL() string
 	HasSignUpForm() bool
-	ReadOnlyEntryList() EntryList
+	ReadOnlyEntryList() serverconfig.EntryList
 	HasRecurrenceRule() bool
 	GetRecurrenceRule() (*rrule.RRule, error)
 	SetRecurrenceRule(input string) error
@@ -356,22 +357,22 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 		start := scheduledEvent.GetScheduledTime()
 		end := scheduledEvent.GetScheduledTime()
 
-		var sessionTypes []SessionType
+		var sessionTypes []serverconfig.SessionType
 
-		if _, ok := scheduledEvent.GetRaceSetup().Sessions[SessionTypeBooking]; ok {
-			sessionTypes = append(sessionTypes, SessionTypeBooking)
+		if _, ok := scheduledEvent.GetRaceSetup().Sessions[serverconfig.SessionTypeBooking]; ok {
+			sessionTypes = append(sessionTypes, serverconfig.SessionTypeBooking)
 		}
 
-		if _, ok := scheduledEvent.GetRaceSetup().Sessions[SessionTypePractice]; ok {
-			sessionTypes = append(sessionTypes, SessionTypePractice)
+		if _, ok := scheduledEvent.GetRaceSetup().Sessions[serverconfig.SessionTypePractice]; ok {
+			sessionTypes = append(sessionTypes, serverconfig.SessionTypePractice)
 		}
 
-		if _, ok := scheduledEvent.GetRaceSetup().Sessions[SessionTypeQualifying]; ok {
-			sessionTypes = append(sessionTypes, SessionTypeQualifying)
+		if _, ok := scheduledEvent.GetRaceSetup().Sessions[serverconfig.SessionTypeQualifying]; ok {
+			sessionTypes = append(sessionTypes, serverconfig.SessionTypeQualifying)
 		}
 
-		if _, ok := scheduledEvent.GetRaceSetup().Sessions[SessionTypeRace]; ok {
-			sessionTypes = append(sessionTypes, SessionTypeRace)
+		if _, ok := scheduledEvent.GetRaceSetup().Sessions[serverconfig.SessionTypeRace]; ok {
+			sessionTypes = append(sessionTypes, serverconfig.SessionTypeRace)
 		}
 
 		sessionTypes = append(sessionTypes, "Default")
@@ -404,13 +405,13 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 			classNames = append(classNames, "calendar-card")
 
 			switch sessionTypes[x] {
-			case SessionTypeBooking:
+			case serverconfig.SessionTypeBooking:
 				borderColor = "#c480ff"
-			case SessionTypePractice:
+			case serverconfig.SessionTypePractice:
 				borderColor = "#5dc972"
-			case SessionTypeQualifying:
+			case serverconfig.SessionTypeQualifying:
 				borderColor = "#ffd080"
-			case SessionTypeRace:
+			case serverconfig.SessionTypeRace:
 				borderColor = "#ff8080"
 			case "Default":
 				borderColor = "#5dc972"
@@ -420,13 +421,13 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 				classNames = append(classNames, "calendar-link")
 
 				switch sessionTypes[x] {
-				case SessionTypeBooking:
+				case serverconfig.SessionTypeBooking:
 					backgroundColor = "#c480ff"
-				case SessionTypePractice:
+				case serverconfig.SessionTypePractice:
 					backgroundColor = "#5dc972"
-				case SessionTypeQualifying:
+				case serverconfig.SessionTypeQualifying:
 					backgroundColor = "#ffd080"
-				case SessionTypeRace:
+				case serverconfig.SessionTypeRace:
 					backgroundColor = "#ff8080"
 				case "Default":
 					backgroundColor = "#5dc972"
@@ -451,7 +452,7 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 				Start:             start,
 				End:               end,
 				Title:             GenerateSummary(scheduledEvent.GetRaceSetup(), session.Name) + " " + scheduledEvent.GetSummary(),
-				Description:       carList(scheduledEvent.GetRaceSetup().Cars) + ": " + scheduledEvent.ReadOnlyEntryList().Entrants(),
+				Description:       carList(scheduledEvent.GetRaceSetup().Cars) + ": " + scheduledEvent.ReadOnlyEntryList().Entrants(driverName),
 				URL:               pageURL,
 				SignUpURL:         signUpURL,
 				ClassNames:        classNames,
@@ -472,7 +473,7 @@ func BuildCalObject(scheduled []ScheduledEvent, calendarObjects []CalendarObject
 	return calendarObjects, nil
 }
 
-func GenerateSummary(raceSetup CurrentRaceConfig, eventType string) string {
+func GenerateSummary(raceSetup serverconfig.CurrentRaceConfig, eventType string) string {
 	var summary string
 
 	trackInfo := trackInfo(raceSetup.Track, raceSetup.TrackLayout)

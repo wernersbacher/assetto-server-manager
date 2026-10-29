@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	servermanager "github.com/wernersbacher/assetto-server-manager"
 )
 
@@ -90,7 +91,7 @@ func refLapMs(track, layout string) float64 {
 
 type sessionSpec struct {
 	Track, Layout string
-	Type          servermanager.SessionType
+	Type          serverconfig.SessionType
 	Start         time.Time
 	Entries       []*seedDriver
 	Laps          int
@@ -102,7 +103,7 @@ type sessionSpec struct {
 	CutChance    float64
 }
 
-func fileNameFor(start time.Time, t servermanager.SessionType) string {
+func fileNameFor(start time.Time, t serverconfig.SessionType) string {
 	return fmt.Sprintf("%d_%d_%d_%d_%d_%s", start.Year(), int(start.Month()), start.Day(), start.Hour(), start.Minute(), string(t))
 }
 
@@ -152,11 +153,11 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 			lapTime := base * (1 + rng.NormFloat64()*0.003)
 
 			switch spec.Type {
-			case servermanager.SessionTypeRace:
+			case serverconfig.SessionTypeRace:
 				if n == 0 {
 					lapTime *= 1.04
 				}
-			case servermanager.SessionTypePractice:
+			case serverconfig.SessionTypePractice:
 				if n == 0 {
 					lapTime *= 1.30
 				} else if rng.Float64() < 0.15 {
@@ -227,7 +228,7 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 			return b.result.Disqualified
 		}
 
-		if spec.Type == servermanager.SessionTypeRace {
+		if spec.Type == serverconfig.SessionTypeRace {
 			if a.laps != b.laps {
 				return a.laps > b.laps
 			}

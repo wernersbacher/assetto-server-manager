@@ -1,10 +1,12 @@
 package servermanager
 
+import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+
 func combineResults(results []*SessionResults) *SessionResults {
 	output := &SessionResults{}
 
 	var trackName, trackConfig, championshipID, raceWeekendID string
-	var sessionType SessionType
+	var sessionType serverconfig.SessionType
 
 	for i, result := range results {
 

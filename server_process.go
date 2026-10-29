@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"bytes"
@@ -351,7 +352,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 	}
 
 	if strackerEnabled && strackerOptions != nil && udpPluginPortsSetup {
-		strackerOptions.InstanceConfiguration.ACServerConfigIni = filepath.Join(ServerInstallPath, "cfg", serverConfigIniPath)
+		strackerOptions.InstanceConfiguration.ACServerConfigIni = filepath.Join(ServerInstallPath, "cfg", serverconfig.ServerConfigIniFilename)
 		strackerOptions.InstanceConfiguration.ACServerWorkingDir = ServerInstallPath
 		strackerOptions.ACPlugin.SendPort = sp.forwardListenPort
 		strackerOptions.ACPlugin.ReceivePort = formValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])

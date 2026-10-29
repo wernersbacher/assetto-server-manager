@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
-func modelTestSlot(model, name, guid, team string) *Entrant {
-	e := NewEntrant()
+func modelTestSlot(model, name, guid, team string) *serverconfig.Entrant {
+	e := serverconfig.NewEntrant()
 	e.Model = model
 	e.Name = name
 	e.GUID = guid
@@ -20,7 +22,7 @@ func modelTestSlot(model, name, guid, team string) *Entrant {
 	return e
 }
 
-func modelTestClass(name string, slots ...*Entrant) *ChampionshipClass {
+func modelTestClass(name string, slots ...*serverconfig.Entrant) *ChampionshipClass {
 	class := NewChampionshipClass(name)
 
 	for _, slot := range slots {
@@ -156,7 +158,7 @@ func TestChampionship_AddEntrantInFirstFreeSlot(t *testing.T) {
 		// the class entry list is a map, so run it a few times to rule out lucky map iteration orders
 		for run := 0; run < 50; run++ {
 			championship := NewChampionship("Test")
-			slots := []*Entrant{
+			slots := []*serverconfig.Entrant{
 				modelTestSlot("car_a", "", "", ""),
 				modelTestSlot("car_a", "", "", ""),
 				modelTestSlot("car_a", "", "", ""),
@@ -408,7 +410,7 @@ func TestChampionship_HasTeamNames(t *testing.T) {
 		class := modelTestClass("A", modelTestSlot("car_a", "", "", ""))
 		championship.AddClass(class)
 		event := dropTestEvent(class, dropDriverA)
-		event.Sessions[SessionTypeRace].CompletedTime = time.Time{}
+		event.Sessions[serverconfig.SessionTypeRace].CompletedTime = time.Time{}
 		championship.Events = []*ChampionshipEvent{event}
 
 		if championship.HasTeamNames() {
@@ -478,7 +480,7 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 	// make completion order explicit: E1 < E2 < E3 < E4, but store them out of order
 	for i, event := range championship.Events {
 		event.CompletedTime = base.Add(time.Duration(i) * time.Hour)
-		event.Sessions[SessionTypeRace].StartedTime = event.CompletedTime.Add(-time.Minute)
+		event.Sessions[serverconfig.SessionTypeRace].StartedTime = event.CompletedTime.Add(-time.Minute)
 	}
 
 	e1, e2, e3, e4 := championship.Events[0], championship.Events[1], championship.Events[2], championship.Events[3]
@@ -486,7 +488,7 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 
 	result, team := championship.FindLastResultForDriver("C")
 
-	if result == nil || result != e4.Sessions[SessionTypeRace].Results.Result[2] {
+	if result == nil || result != e4.Sessions[serverconfig.SessionTypeRace].Results.Result[2] {
 		t.Fatalf("expected C's result from the last event, got %+v", result)
 	}
 
@@ -499,8 +501,8 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 		Result: []*SessionResult{{DriverGUID: "C", DriverName: "C"}},
 		Cars:   []*SessionCar{{Driver: SessionDriver{GUID: "C", Team: "Q"}}},
 	}
-	e4.Sessions[SessionTypeQualifying] = &ChampionshipSession{
-		StartedTime:   e4.Sessions[SessionTypeRace].StartedTime.Add(time.Second),
+	e4.Sessions[serverconfig.SessionTypeQualifying] = &ChampionshipSession{
+		StartedTime:   e4.Sessions[serverconfig.SessionTypeRace].StartedTime.Add(time.Second),
 		CompletedTime: e4.CompletedTime,
 		Results:       qualiResults,
 	}
@@ -516,32 +518,32 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 
 	result, _ = championship.FindLastResultForDriver("C")
 
-	if result != e3.Sessions[SessionTypeRace].Results.Result[1] {
+	if result != e3.Sessions[serverconfig.SessionTypeRace].Results.Result[1] {
 		t.Errorf("expected C's result from E3 when E4 is not complete, got %+v", result)
 	}
 
 	// the most recently completed event (E2) doesn't contain C, result and team come from C's last event (E4)
 	e4.CompletedTime = base.Add(3 * time.Hour)
-	delete(e4.Sessions, SessionTypeQualifying)
+	delete(e4.Sessions, serverconfig.SessionTypeQualifying)
 	e2.CompletedTime = base.Add(5 * time.Hour)
-	e2.Sessions[SessionTypeRace].StartedTime = e2.CompletedTime.Add(-time.Minute)
+	e2.Sessions[serverconfig.SessionTypeRace].StartedTime = e2.CompletedTime.Add(-time.Minute)
 
 	result, team = championship.FindLastResultForDriver("C")
 
-	if result != e4.Sessions[SessionTypeRace].Results.Result[2] || team != "Y" {
+	if result != e4.Sessions[serverconfig.SessionTypeRace].Results.Result[2] || team != "Y" {
 		t.Errorf("expected C's result and team from E4, got %+v team %q", result, team)
 	}
 
 	// a later session of the same event without the driver doesn't change result or team
-	e4.Sessions[SessionTypePractice] = &ChampionshipSession{
-		StartedTime:   e4.Sessions[SessionTypeRace].StartedTime.Add(time.Second),
+	e4.Sessions[serverconfig.SessionTypePractice] = &ChampionshipSession{
+		StartedTime:   e4.Sessions[serverconfig.SessionTypeRace].StartedTime.Add(time.Second),
 		CompletedTime: e4.CompletedTime,
 		Results:       dropTestResults(NewChampionshipClass("Other"), dropDriverA),
 	}
 
 	result, team = championship.FindLastResultForDriver("C")
 
-	if result != e4.Sessions[SessionTypeRace].Results.Result[2] || team != "Y" {
+	if result != e4.Sessions[serverconfig.SessionTypeRace].Results.Result[2] || team != "Y" {
 		t.Errorf("expected C's result and team from E4's race, got %+v team %q", result, team)
 	}
 
@@ -573,9 +575,9 @@ func TestChampionshipClass_CountPositionsForTeam(t *testing.T) {
 	e2 := dropTestEvent(class, teamY, teamX1)
 
 	// qualifying sessions and incomplete races are ignored
-	e2.Sessions[SessionTypeQualifying] = modelTestRaceSession(dropTestResults(class, teamX1, teamX2, teamY))
+	e2.Sessions[serverconfig.SessionTypeQualifying] = modelTestRaceSession(dropTestResults(class, teamX1, teamX2, teamY))
 	e3 := dropTestEvent(class, teamX1, teamX2)
-	e3.Sessions[SessionTypeRace].CompletedTime = time.Time{}
+	e3.Sessions[serverconfig.SessionTypeRace].CompletedTime = time.Time{}
 
 	events := []*ChampionshipEvent{e1, e2, e3}
 
@@ -597,7 +599,7 @@ func TestChampionshipClass_CountPositionsForTeam(t *testing.T) {
 	}
 
 	// second races count as well
-	e1.Sessions[SessionTypeSecondRace] = modelTestRaceSession(dropTestResults(class, teamX1))
+	e1.Sessions[serverconfig.SessionTypeSecondRace] = modelTestRaceSession(dropTestResults(class, teamX1))
 
 	if got := class.CountPositionsForTeam(1, "X", events); got != 2 {
 		t.Errorf("expected second race win to count, got %d", got)
@@ -616,7 +618,7 @@ func TestChampionshipClass_CountPositionsForTeam_MultiClass(t *testing.T) {
 
 	event := NewChampionshipEvent()
 	event.CompletedTime = time.Now()
-	event.Sessions[SessionTypeRace] = modelTestRaceSession(results)
+	event.Sessions[serverconfig.SessionTypeRace] = modelTestRaceSession(results)
 	events := []*ChampionshipEvent{event}
 
 	tests := []struct {
@@ -729,7 +731,7 @@ func TestChampionshipClass_TeamStandings_TieBreakMoreCarsThanTeams(t *testing.T)
 
 func modelTestRaceWeekendRace(class *ChampionshipClass, finishOrder ...dropTestDriver) *RaceWeekendSession {
 	session := NewRaceWeekendSession()
-	session.RaceConfig.Sessions = Sessions{SessionTypeRace: &SessionConfig{}}
+	session.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{}}
 	session.StartedTime = time.Now().Add(-time.Hour)
 	session.CompletedTime = time.Now()
 	session.Results = dropTestResults(class, finishOrder...)
@@ -909,7 +911,7 @@ func TestChampionship_ImportEvent(t *testing.T) {
 
 	t.Run("custom race", func(t *testing.T) {
 		championship, _ := newChampionship()
-		race := &CustomRace{UUID: uuid.New(), RaceConfig: CurrentRaceConfig{Track: "monza"}}
+		race := &CustomRace{UUID: uuid.New(), RaceConfig: serverconfig.CurrentRaceConfig{Track: "monza"}}
 
 		event, err := championship.ImportEvent(race)
 
@@ -934,7 +936,7 @@ func TestChampionship_ImportEvent(t *testing.T) {
 		championship, _ := newChampionship()
 		source := NewChampionshipEvent()
 		source.RaceSetup.Track = "spa"
-		source.EntryList = EntryList{}
+		source.EntryList = serverconfig.EntryList{}
 		source.EntryList.AddToBackOfGrid(modelTestSlot("car_x", "X", "9", ""))
 		source.CompletedTime = time.Now()
 
@@ -972,7 +974,7 @@ func TestChampionship_ImportEvent(t *testing.T) {
 		oldID := rw.ID
 
 		quali := NewRaceWeekendSession()
-		quali.RaceConfig.Sessions = Sessions{SessionTypeQualifying: &SessionConfig{}}
+		quali.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeQualifying: &serverconfig.SessionConfig{}}
 		quali.ParentIDs = []uuid.UUID{oldID}
 		quali.StartedTime = time.Now()
 		quali.CompletedTime = time.Now()
@@ -980,7 +982,7 @@ func TestChampionship_ImportEvent(t *testing.T) {
 		quali.Results = &SessionResults{}
 
 		race := NewRaceWeekendSession()
-		race.RaceConfig.Sessions = Sessions{SessionTypeRace: &SessionConfig{}}
+		race.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{}}
 		race.ParentIDs = []uuid.UUID{quali.ID}
 
 		rw.Sessions = []*RaceWeekendSession{quali, race}

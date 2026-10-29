@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
@@ -280,7 +281,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 }
 
 // reschedule notifications if notification timer changed
-func (rm *RaceManager) RescheduleNotifications(oldServerOpts *GlobalServerConfig, newServerOpts *GlobalServerConfig) error {
+func (rm *RaceManager) RescheduleNotifications(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
 	if newServerOpts.NotificationReminderTimers == oldServerOpts.NotificationReminderTimers {
 		return nil
 	}

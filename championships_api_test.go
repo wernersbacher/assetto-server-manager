@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func TestNewAPIChampionship(t *testing.T) {
@@ -21,10 +23,10 @@ func TestNewAPIChampionship(t *testing.T) {
 	scheduledEvent.Scheduled = scheduled
 	scheduledEvent.RaceSetup.Track = "api_test_track"
 	scheduledEvent.RaceSetup.ReversedGridRacePositions = -1
-	scheduledEvent.RaceSetup.Sessions = Sessions{
-		SessionTypePractice:   &SessionConfig{Name: "Practice", Time: 30},
-		SessionTypeQualifying: &SessionConfig{Name: "Qualify", Time: 15},
-		SessionTypeRace:       &SessionConfig{Name: "Race", Laps: 20},
+	scheduledEvent.RaceSetup.Sessions = serverconfig.Sessions{
+		serverconfig.SessionTypePractice:   &serverconfig.SessionConfig{Name: "Practice", Time: 30},
+		serverconfig.SessionTypeQualifying: &serverconfig.SessionConfig{Name: "Qualify", Time: 15},
+		serverconfig.SessionTypeRace:       &serverconfig.SessionConfig{Name: "Race", Laps: 20},
 	}
 
 	// a completed event with a timed race
@@ -32,12 +34,12 @@ func TestNewAPIChampionship(t *testing.T) {
 	completedEvent.RaceSetup.Track = "api_test_ring"
 	completedEvent.RaceSetup.TrackLayout = "gp"
 	completedEvent.RaceSetup.RaceExtraLap = 1
-	completedEvent.RaceSetup.Sessions = Sessions{
-		SessionTypeRace: &SessionConfig{Name: "Race", Time: 45},
+	completedEvent.RaceSetup.Sessions = serverconfig.Sessions{
+		serverconfig.SessionTypeRace: &serverconfig.SessionConfig{Name: "Race", Time: 45},
 	}
 	completedEvent.StartedTime = scheduled.Add(-time.Hour)
 	completedEvent.CompletedTime = scheduled
-	completedEvent.Sessions[SessionTypeRace] = &ChampionshipSession{
+	completedEvent.Sessions[serverconfig.SessionTypeRace] = &ChampionshipSession{
 		StartedTime:   scheduled.Add(-time.Hour),
 		CompletedTime: scheduled,
 		Results:       &SessionResults{},
@@ -50,7 +52,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	qualifying := NewRaceWeekendSession()
 	qualifying.RaceConfig.Track = "api_test_ring"
 	qualifying.RaceConfig.TrackLayout = "short"
-	qualifying.RaceConfig.Sessions = Sessions{SessionTypeQualifying: &SessionConfig{Name: "Qualy", Time: 20}}
+	qualifying.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeQualifying: &serverconfig.SessionConfig{Name: "Qualy", Time: 20}}
 	qualifying.ScheduledTime = scheduled
 	qualifying.StartedTime = scheduled
 	qualifying.CompletedTime = scheduled.Add(20 * time.Minute)
@@ -60,7 +62,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	race.ParentIDs = []uuid.UUID{qualifying.ID}
 	race.RaceConfig.Track = "api_test_ring"
 	race.RaceConfig.TrackLayout = "short"
-	race.RaceConfig.Sessions = Sessions{SessionTypeRace: &SessionConfig{Name: "Main Race", Laps: 50}}
+	race.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{Name: "Main Race", Laps: 50}}
 
 	// added in reverse order, sessions must be sorted by their dependencies
 	raceWeekend.Sessions = []*RaceWeekendSession{race, qualifying}
@@ -93,14 +95,14 @@ func TestNewAPIChampionship(t *testing.T) {
 		}
 
 		expected := []struct {
-			sessionType SessionType
+			sessionType serverconfig.SessionType
 			start       *time.Time
 		}{
-			{SessionTypePractice, apiTime(scheduled)},
-			{SessionTypeQualifying, apiTime(scheduled.Add(30 * time.Minute))},
-			{SessionTypeRace, apiTime(scheduled.Add(45 * time.Minute))},
+			{serverconfig.SessionTypePractice, apiTime(scheduled)},
+			{serverconfig.SessionTypeQualifying, apiTime(scheduled.Add(30 * time.Minute))},
+			{serverconfig.SessionTypeRace, apiTime(scheduled.Add(45 * time.Minute))},
 			// the race has a number of laps, so the second race's start is unknown
-			{SessionTypeSecondRace, nil},
+			{serverconfig.SessionTypeSecondRace, nil},
 		}
 
 		if len(event.Sessions) != len(expected) {

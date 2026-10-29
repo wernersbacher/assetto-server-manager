@@ -11,6 +11,8 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type DiscordManager struct {
@@ -65,7 +67,7 @@ func NewDiscordManager(store Store, scheduledRacesManager *ScheduledRacesManager
 	return discordManager, nil
 }
 
-func (dm *DiscordManager) SaveServerOptions(oldServerOpts *GlobalServerConfig, newServerOpts *GlobalServerConfig) error {
+func (dm *DiscordManager) SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
 	if newServerOpts.DiscordAPIToken != "" && (oldServerOpts.DiscordAPIToken != newServerOpts.DiscordAPIToken) {
 		// existing token changed, so stop
 		if oldServerOpts.DiscordAPIToken != "" && dm.enabled {

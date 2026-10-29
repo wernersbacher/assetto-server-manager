@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func (cm *ChampionshipManager) ImportChampionship(jsonData string) (string, error) {
@@ -98,20 +100,20 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 		return err
 	}
 
-	event.Sessions = make(map[SessionType]*ChampionshipSession)
+	event.Sessions = make(map[serverconfig.SessionType]*ChampionshipSession)
 
-	sessions := map[SessionType]string{
-		SessionTypePractice:   r.FormValue("PracticeResult"),
-		SessionTypeQualifying: r.FormValue("QualifyingResult"),
-		SessionTypeRace:       r.FormValue("RaceResult"),
-		SessionTypeSecondRace: r.FormValue("SecondRaceResult"),
+	sessions := map[serverconfig.SessionType]string{
+		serverconfig.SessionTypePractice:   r.FormValue("PracticeResult"),
+		serverconfig.SessionTypeQualifying: r.FormValue("QualifyingResult"),
+		serverconfig.SessionTypeRace:       r.FormValue("RaceResult"),
+		serverconfig.SessionTypeSecondRace: r.FormValue("SecondRaceResult"),
 	}
 
-	sessionsOrdered := []SessionType{
-		SessionTypePractice,
-		SessionTypeQualifying,
-		SessionTypeRace,
-		SessionTypeSecondRace,
+	sessionsOrdered := []serverconfig.SessionType{
+		serverconfig.SessionTypePractice,
+		serverconfig.SessionTypeQualifying,
+		serverconfig.SessionTypeRace,
+		serverconfig.SessionTypeSecondRace,
 	}
 
 	for _, sessionType := range sessionsOrdered {
@@ -167,7 +169,7 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 }
 
 func (cm *ChampionshipManager) AddEntrantFromSessionData(championship *Championship, potentialEntrant PotentialChampionshipEntrant, overwriteSkinForAllEvents bool, takeFirstFreeSlot bool) (foundFreeEntrantSlot bool, entrantClass *ChampionshipClass, err error) {
-	var entrant *Entrant
+	var entrant *serverconfig.Entrant
 
 	if takeFirstFreeSlot {
 		foundFreeEntrantSlot, entrant, entrantClass, err = championship.AddEntrantInFirstFreeSlot(potentialEntrant)
@@ -189,13 +191,13 @@ func (cm *ChampionshipManager) AddEntrantFromSessionData(championship *Champions
 			}
 		}
 
-		newEntrant := NewEntrant()
+		newEntrant := serverconfig.NewEntrant()
 
 		newEntrant.GUID = potentialEntrant.GetGUID()
 		newEntrant.Name = potentialEntrant.GetName()
 		newEntrant.Team = potentialEntrant.GetTeam()
 
-		e := make(EntryList)
+		e := make(serverconfig.EntryList)
 
 		e.AddToBackOfGrid(newEntrant)
 

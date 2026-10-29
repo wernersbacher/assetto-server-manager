@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -32,14 +33,14 @@ func (rm *RaceManager) LoopRaces() {
 			}
 
 			// Reset the stored session types
-			rm.loopedRaceSessionTypes = []SessionType{}
+			rm.loopedRaceSessionTypes = []serverconfig.SessionType{}
 
 			for sessionID := range looped[i].RaceConfig.Sessions {
 				rm.loopedRaceSessionTypes = append(rm.loopedRaceSessionTypes, sessionID)
 			}
 
 			if looped[i].RaceConfig.ReversedGridRacePositions != 0 {
-				rm.loopedRaceSessionTypes = append(rm.loopedRaceSessionTypes, SessionTypeSecondRace)
+				rm.loopedRaceSessionTypes = append(rm.loopedRaceSessionTypes, serverconfig.SessionTypeSecondRace)
 			}
 
 			_, err := rm.StartCustomRace(looped[i].UUID.String(), true)
@@ -72,13 +73,13 @@ func (rm *RaceManager) LoopCallback(message udp.Message) {
 			return
 		}
 
-		var endSession SessionType
+		var endSession serverconfig.SessionType
 
 		// If this is a race, and there is a second race configured
 		// then wait for the second race to happen.
-		if results.Type == SessionTypeRace {
+		if results.Type == serverconfig.SessionTypeRace {
 			for _, session := range rm.loopedRaceSessionTypes {
-				if session == SessionTypeSecondRace {
+				if session == serverconfig.SessionTypeSecondRace {
 					if !rm.loopedRaceWaitForSecondRace {
 						rm.loopedRaceWaitForSecondRace = true
 						return
@@ -90,15 +91,15 @@ func (rm *RaceManager) LoopCallback(message udp.Message) {
 		}
 
 		for _, session := range rm.loopedRaceSessionTypes {
-			if session == SessionTypeRace {
-				endSession = SessionTypeRace
+			if session == serverconfig.SessionTypeRace {
+				endSession = serverconfig.SessionTypeRace
 				break
-			} else if session == SessionTypeQualifying {
-				endSession = SessionTypeQualifying
-			} else if session == SessionTypePractice && endSession != SessionTypeQualifying {
-				endSession = SessionTypePractice
-			} else if session == SessionTypeBooking && (endSession != SessionTypeQualifying && endSession != SessionTypePractice) {
-				endSession = SessionTypeBooking
+			} else if session == serverconfig.SessionTypeQualifying {
+				endSession = serverconfig.SessionTypeQualifying
+			} else if session == serverconfig.SessionTypePractice && endSession != serverconfig.SessionTypeQualifying {
+				endSession = serverconfig.SessionTypePractice
+			} else if session == serverconfig.SessionTypeBooking && (endSession != serverconfig.SessionTypeQualifying && endSession != serverconfig.SessionTypePractice) {
+				endSession = serverconfig.SessionTypeBooking
 			}
 		}
 

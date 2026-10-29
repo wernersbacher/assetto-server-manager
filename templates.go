@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"bytes"
@@ -226,7 +227,7 @@ func (tr *Renderer) init() error {
 	funcs["stringArrayToCSV"] = stringArrayToCSV
 	funcs["dict"] = templateDict
 	funcs["asset"] = NewAssetHelper("/", "", "", map[string]string{"cb": BuildVersion}).GetURL
-	funcs["SessionType"] = func(s string) SessionType { return SessionType(s) }
+	funcs["SessionType"] = func(s string) serverconfig.SessionType { return serverconfig.SessionType(s) }
 	funcs["Config"] = func() *smconfig.Configuration { return tr.config }
 	funcs["Version"] = func() string { return BuildVersion }
 	funcs["fullTimeFormat"] = fullTimeFormat
@@ -368,7 +369,7 @@ func carList(cars interface{}) string {
 		for car := range carMap {
 			split = append(split, car)
 		}
-	case EntryList:
+	case serverconfig.EntryList:
 		carMap := make(map[string]bool)
 
 		for _, entrant := range cars {
@@ -385,7 +386,7 @@ func carList(cars interface{}) string {
 	var out []string
 
 	for _, s := range split {
-		if s == AnyCarModel {
+		if s == serverconfig.AnyCarModel {
 			continue
 		}
 
@@ -470,7 +471,7 @@ func stripGeotagCrap(tag string, north bool) string {
 var nameRegex = regexp.MustCompile(`^[A-Za-z]{0,5}[0-9]+`)
 
 func prettifyName(s string, acronyms bool) string {
-	if s == AnyCarModel {
+	if s == serverconfig.AnyCarModel {
 		return "Any Car Model"
 	}
 

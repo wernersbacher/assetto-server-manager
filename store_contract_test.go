@@ -10,6 +10,8 @@ import (
 
 	"github.com/etcd-io/bbolt"
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // The tests in this file form a contract test suite for the Store interface. Every test runs identically against
@@ -174,7 +176,7 @@ func TestStoreContract_Entrants(t *testing.T) {
 		}
 
 		// race specific values (Model, Skin, SpectatorMode) are not stored in the AutoFill entrant list
-		alice := Entrant{
+		alice := serverconfig.Entrant{
 			Name:          "Alice",
 			Team:          "Team A",
 			GUID:          "76561198000000001",
@@ -184,12 +186,12 @@ func TestStoreContract_Entrants(t *testing.T) {
 			Skin:          "red",
 			SpectatorMode: 1,
 		}
-		bob := Entrant{Name: "Bob", Team: "Team B", GUID: "76561198000000002"}
+		bob := serverconfig.Entrant{Name: "Bob", Team: "Team B", GUID: "76561198000000002"}
 		// entrants without a GUID are identified by their name (Entrant.ID())
-		carol := Entrant{Name: "Carol", Team: "Team C"}
-		dave := Entrant{Name: "Dave", Team: "Team D"}
+		carol := serverconfig.Entrant{Name: "Carol", Team: "Team C"}
+		dave := serverconfig.Entrant{Name: "Dave", Team: "Team D"}
 
-		for _, e := range []Entrant{alice, bob, carol, dave} {
+		for _, e := range []serverconfig.Entrant{alice, bob, carol, dave} {
 			if err := store.UpsertEntrant(e); err != nil {
 				t.Fatalf("upsert entrant: %s", err)
 			}
@@ -225,7 +227,7 @@ func TestStoreContract_Entrants(t *testing.T) {
 		carolUpdated := carol
 		carolUpdated.Team = "Team C2"
 
-		for _, e := range []Entrant{aliceUpdated, carolUpdated} {
+		for _, e := range []serverconfig.Entrant{aliceUpdated, carolUpdated} {
 			if err := store.UpsertEntrant(e); err != nil {
 				t.Fatalf("upsert existing entrant: %s", err)
 			}
@@ -832,7 +834,7 @@ func TestStoreContract_LiveFrames(t *testing.T) {
 
 func TestStoreContract_ServerOptions(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
-		defaults := ConfigIniDefault().GlobalServerConfig
+		defaults := serverconfig.ConfigIniDefault().GlobalServerConfig
 
 		so, err := store.LoadServerOptions()
 
@@ -955,7 +957,7 @@ func TestStoreContract_PluginOptions(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if so.Name != ConfigIniDefault().GlobalServerConfig.Name {
+		if so.Name != serverconfig.ConfigIniDefault().GlobalServerConfig.Name {
 			t.Errorf("expected server options to be unaffected by plugin options, got name %q", so.Name)
 		}
 	})
@@ -990,7 +992,7 @@ func customRaceNames(races []*CustomRace) []string {
 	return out
 }
 
-func entrantIDs(entrants []*Entrant) []string {
+func entrantIDs(entrants []*serverconfig.Entrant) []string {
 	var out []string
 
 	for _, e := range entrants {

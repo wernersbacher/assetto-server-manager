@@ -10,6 +10,8 @@ import (
 
 	"github.com/hako/durafmt"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type NotificationDispatcher interface {
@@ -17,13 +19,13 @@ type NotificationDispatcher interface {
 	GetNotificationReminders() []int
 	SendMessage(title string, msg string) error
 	SendMessageWithLink(title string, msg string, linkText string, link *url.URL) error
-	SendRaceStartMessage(config ServerConfig, event RaceEvent) error
+	SendRaceStartMessage(config serverconfig.ServerConfig, event RaceEvent) error
 	SendRaceScheduledMessage(event *CustomRace, date time.Time) error
 	SendRaceCancelledMessage(event *CustomRace, date time.Time) error
 	SendRaceReminderMessage(event *CustomRace, timer int) error
 	SendChampionshipReminderMessage(championship *Championship, event *ChampionshipEvent, timer int) error
 	SendRaceWeekendReminderMessage(raceWeekend *RaceWeekend, session *RaceWeekendSession, timer int) error
-	SaveServerOptions(oldServerOpts *GlobalServerConfig, newServerOpts *GlobalServerConfig) error
+	SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error
 }
 
 // NotificationManager is the generic notification handler, which calls the individual notification
@@ -45,7 +47,7 @@ func NewNotificationManager(discord *DiscordManager, cars *CarManager, store Sto
 }
 
 // check to see if any notification handlers need to process option changes
-func (nm *NotificationManager) SaveServerOptions(oldServerOpts *GlobalServerConfig, newServerOpts *GlobalServerConfig) error {
+func (nm *NotificationManager) SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
 	return nm.discordManager.SaveServerOptions(oldServerOpts, newServerOpts)
 }
 
@@ -121,7 +123,7 @@ func (nm *NotificationManager) SendMessageWithLink(title string, msg string, lin
 }
 
 // SendRaceStartMessage sends a message as a race session is started
-func (nm *NotificationManager) SendRaceStartMessage(config ServerConfig, event RaceEvent) error {
+func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event RaceEvent) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {

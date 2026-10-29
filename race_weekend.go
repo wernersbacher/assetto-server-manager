@@ -14,6 +14,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/teambition/rrule-go"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func init() {
@@ -32,7 +34,7 @@ type RaceWeekend struct {
 	Filters map[string]map[string]*RaceWeekendSessionToSessionFilter
 
 	// Deprecated: use GetEntryList() instead
-	EntryList EntryList
+	EntryList serverconfig.EntryList
 
 	Sessions []*RaceWeekendSession
 
@@ -42,7 +44,7 @@ type RaceWeekend struct {
 	// If ChampionshipID is uuid.Nil, Championship will also be nil
 	Championship *Championship `json:"-"`
 
-	SpectatorCar        Entrant
+	SpectatorCar        serverconfig.Entrant
 	SpectatorCarEnabled bool
 }
 
@@ -94,7 +96,7 @@ func (rw *RaceWeekend) HasLinkedChampionship() bool {
 	return rw.ChampionshipID != uuid.Nil
 }
 
-func (rw *RaceWeekend) GetSpectatorCar() Entrant {
+func (rw *RaceWeekend) GetSpectatorCar() serverconfig.Entrant {
 	if rw.HasLinkedChampionship() && rw.Championship != nil {
 		return rw.Championship.SpectatorCar
 	}
@@ -122,9 +124,9 @@ func (rw *RaceWeekend) InProgress() bool {
 	return false
 }
 
-func (rw *RaceWeekend) GetEntryList() EntryList {
+func (rw *RaceWeekend) GetEntryList() serverconfig.EntryList {
 	if rw.HasLinkedChampionship() {
-		entryList := make(EntryList)
+		entryList := make(serverconfig.EntryList)
 
 		count := 0
 
@@ -136,7 +138,7 @@ func (rw *RaceWeekend) GetEntryList() EntryList {
 					entrant.Name = fmt.Sprintf("Placeholder Entrant %d", count)
 					entrant.IsPlaceHolder = true
 
-					if entrant.Model == "" || entrant.Model == AnyCarModel {
+					if entrant.Model == "" || entrant.Model == serverconfig.AnyCarModel {
 						// assign the entrant some car model for ease of sorting
 						entrant.Model = class.AvailableCars[rand.Intn(len(class.AvailableCars))]
 					}
@@ -541,10 +543,10 @@ func NewRaceWeekendSessionEntrant(previousSessionID uuid.UUID, car *SessionCar, 
 }
 
 // GetEntrant returns the RaceWeekendSessionEntrant as an EntryList Entrant (used for building the final entry_list.ini)
-func (se *RaceWeekendSessionEntrant) GetEntrant() *Entrant {
-	e := NewEntrant()
+func (se *RaceWeekendSessionEntrant) GetEntrant() *serverconfig.Entrant {
+	e := serverconfig.NewEntrant()
 
-	e.AssignFromResult(se.EntrantResult, se.Car)
+	assignEntrantFromResult(e, se.EntrantResult, se.Car)
 	e.IsPlaceHolder = se.IsPlaceholder
 	e.FixedSetup = se.OverrideSetupFile
 
@@ -578,7 +580,7 @@ type RaceWeekendSession struct {
 	SortType             string
 	NumEntrantsToReverse int
 
-	RaceConfig          CurrentRaceConfig
+	RaceConfig          serverconfig.CurrentRaceConfig
 	OverridePassword    bool
 	ReplacementPassword string
 
@@ -605,7 +607,7 @@ func (rws *RaceWeekendSession) GetScheduledServerID() ServerID {
 	return rws.ScheduledServerID
 }
 
-func (rws *RaceWeekendSession) GetRaceSetup() CurrentRaceConfig {
+func (rws *RaceWeekendSession) GetRaceSetup() serverconfig.CurrentRaceConfig {
 	return rws.RaceConfig
 }
 
@@ -625,12 +627,12 @@ func (rws *RaceWeekendSession) HasSignUpForm() bool {
 	return false
 }
 
-func (rws *RaceWeekendSession) ReadOnlyEntryList() EntryList {
+func (rws *RaceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList {
 	rwe, err := rws.GetRaceWeekendEntryList(rws.raceWeekend, nil, "")
 
 	if err != nil {
 		logrus.WithError(err).Error("Could not get race weekend entry list")
-		return make(EntryList)
+		return make(serverconfig.EntryList)
 	}
 
 	return rwe.AsEntryList()
@@ -671,16 +673,16 @@ func (rws *RaceWeekendSession) Name() string {
 }
 
 // SessionInfo returns the information about the Assetto Corsa Session (i.e. practice, qualifying, race)
-func (rws *RaceWeekendSession) SessionInfo() *SessionConfig {
+func (rws *RaceWeekendSession) SessionInfo() *serverconfig.SessionConfig {
 	for _, sess := range rws.RaceConfig.Sessions {
 		return sess
 	}
 
-	return &SessionConfig{}
+	return &serverconfig.SessionConfig{}
 }
 
 // SessionType returns the type of the RaceWeekendSession (practice, qualifying, race)
-func (rws *RaceWeekendSession) SessionType() SessionType {
+func (rws *RaceWeekendSession) SessionType() serverconfig.SessionType {
 	for sessType := range rws.RaceConfig.Sessions {
 		return sessType
 	}
@@ -719,7 +721,7 @@ func (rws *RaceWeekendSession) FinishingGrid(raceWeekend *RaceWeekend) ([]*RaceW
 			foundEntrant := false
 
 			for _, driver := range out {
-				if driver.Car.GetGUID() == entrant.Car.GetGUID() || NormaliseEntrantGUIDs(driver.Car.Driver.GuidsList) == entrant.Car.GetGUID() {
+				if driver.Car.GetGUID() == entrant.Car.GetGUID() || serverconfig.NormaliseEntrantGUIDs(driver.Car.Driver.GuidsList) == entrant.Car.GetGUID() {
 					foundEntrant = true
 					break
 				}
@@ -907,11 +909,11 @@ func (rws *RaceWeekendSession) GetRaceWeekendEntryList(rw *RaceWeekend, override
 }
 
 // EntryListToRaceWeekendEntryList converts an EntryList to a RaceWeekendEntryList for a given RaceWeekendSession
-func EntryListToRaceWeekendEntryList(e EntryList, sessionID uuid.UUID) RaceWeekendEntryList {
+func EntryListToRaceWeekendEntryList(e serverconfig.EntryList, sessionID uuid.UUID) RaceWeekendEntryList {
 	out := make(RaceWeekendEntryList, 0, len(e))
 
 	for _, entrant := range e.AsSlice() {
-		rwe := NewRaceWeekendSessionEntrant(sessionID, entrant.AsSessionCar(), entrant.AsSessionResult(), nil)
+		rwe := NewRaceWeekendSessionEntrant(sessionID, entrantAsSessionCar(entrant), entrantAsSessionResult(entrant), nil)
 		rwe.IsPlaceholder = entrant.IsPlaceHolder
 
 		out.AddInPitBox(rwe, entrant.PitBox)
@@ -966,8 +968,8 @@ func (e *RaceWeekendEntryList) Sorted() []*RaceWeekendSessionEntrant {
 }
 
 // AsEntryList returns a RaceWeekendEntryList as an EntryList
-func (e RaceWeekendEntryList) AsEntryList() EntryList {
-	entryList := make(EntryList)
+func (e RaceWeekendEntryList) AsEntryList() serverconfig.EntryList {
+	entryList := make(serverconfig.EntryList)
 
 	for _, entrant := range e {
 		x := entrant.GetEntrant()
@@ -990,15 +992,15 @@ type ActiveRaceWeekend struct {
 	ReplacementPassword                      string
 	Description                              string
 	IsPracticeSession                        bool
-	RaceConfig                               CurrentRaceConfig
-	EntryList                                EntryList
+	RaceConfig                               serverconfig.CurrentRaceConfig
+	EntryList                                serverconfig.EntryList
 }
 
-func (a ActiveRaceWeekend) GetRaceConfig() CurrentRaceConfig {
+func (a ActiveRaceWeekend) GetRaceConfig() serverconfig.CurrentRaceConfig {
 	return a.RaceConfig
 }
 
-func (a ActiveRaceWeekend) GetEntryList() EntryList {
+func (a ActiveRaceWeekend) GetEntryList() serverconfig.EntryList {
 	return a.EntryList
 }
 

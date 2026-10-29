@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -108,8 +109,8 @@ func TestRaceManager_ScheduleRaceKeepsAllReminders(t *testing.T) {
 	race := &CustomRace{
 		Name:            "Scheduled Race",
 		UUID:            uuid.New(),
-		RaceConfig:      ConfigIniDefault().CurrentRaceConfig,
-		EntryList:       EntryList{},
+		RaceConfig:      serverconfig.ConfigIniDefault().CurrentRaceConfig,
+		EntryList:       serverconfig.EntryList{},
 		ScheduledEvents: make(map[ServerID]*ScheduledEventBase),
 	}
 

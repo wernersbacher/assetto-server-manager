@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -484,7 +485,7 @@ func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
 				logrus.WithError(err).Errorf("Could not update details for account id: %s", account.ID.String())
 			} else {
 				if account.GUID != "" {
-					err := ah.store.UpsertEntrant(Entrant{
+					err := ah.store.UpsertEntrant(serverconfig.Entrant{
 						Name: account.DriverName,
 						GUID: account.GUID,
 						Team: account.Team,

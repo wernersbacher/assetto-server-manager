@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 var (
@@ -68,13 +70,13 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*Rac
 			}
 
 			if !foundEvent {
-				defaultConfig := ConfigIniDefault()
+				defaultConfig := serverconfig.ConfigIniDefault()
 				opts.Current = defaultConfig.CurrentRaceConfig
 			}
 
 			opts.ChampionshipHasAtLeastOnceRace = true
 		} else {
-			defaultConfig := ConfigIniDefault()
+			defaultConfig := serverconfig.ConfigIniDefault()
 
 			opts.Current = defaultConfig.CurrentRaceConfig
 			opts.ChampionshipHasAtLeastOnceRace = false
@@ -82,7 +84,7 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*Rac
 	}
 
 	if !championship.OpenEntrants {
-		opts.AvailableSessions = AvailableSessionsNoBooking
+		opts.AvailableSessions = serverconfig.AvailableSessionsNoBooking
 	}
 
 	opts.ShowOverridePasswordCard = false
@@ -190,7 +192,7 @@ func (cm *ChampionshipManager) StartPracticeEvent(championshipID string, eventID
 	return cm.StartEvent(championshipID, eventID, true)
 }
 
-func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *Championship, event *ChampionshipEvent, isPreChampionshipPracticeEvent bool) (CurrentRaceConfig, EntryList) {
+func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *Championship, event *ChampionshipEvent, isPreChampionshipPracticeEvent bool) (serverconfig.CurrentRaceConfig, serverconfig.EntryList) {
 	// the event's stored config is never modified: championship wide settings are only applied to this copy.
 	raceSetup := championship.EffectiveRaceSetup(event)
 
@@ -199,11 +201,11 @@ func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *Champi
 	entryList := event.CombineEntryLists(championship)
 
 	if championship.HasSpectatorCar() {
-		entryList.AddInPitBox(&championship.SpectatorCar, maxEntryListSize+1)
+		entryList.AddInPitBox(&championship.SpectatorCar, serverconfig.MaxEntryListSize+1)
 	}
 
 	if championship.SignUpForm.Enabled && !championship.OpenEntrants && !isPreChampionshipPracticeEvent {
-		filteredEntryList := make(EntryList)
+		filteredEntryList := make(serverconfig.EntryList)
 
 		// a sign up championship (which is not open) should remove all empty entrants before the event starts
 		// here we are building a new filtered entry list so grid positions are not 'missing'.
@@ -229,7 +231,7 @@ func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *Champi
 
 	raceSetup.LoopMode = 1
 
-	if raceSetup.HasSession(SessionTypeBooking) {
+	if raceSetup.HasSession(serverconfig.SessionTypeBooking) {
 		logrus.Infof("Championship event has a booking session. Disabling PickupMode, clearing EntryList")
 		// championship events with booking do not have an entry list. pick up mode is disabled.
 		raceSetup.PickupModeEnabled = 0
@@ -275,17 +277,17 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 	}
 
 	// delete all sessions other than booking (if there is a booking session)
-	delete(raceSetup.Sessions, SessionTypePractice)
-	delete(raceSetup.Sessions, SessionTypeQualifying)
-	delete(raceSetup.Sessions, SessionTypeRace)
+	delete(raceSetup.Sessions, serverconfig.SessionTypePractice)
+	delete(raceSetup.Sessions, serverconfig.SessionTypeQualifying)
+	delete(raceSetup.Sessions, serverconfig.SessionTypeRace)
 
-	raceSetup.Sessions[SessionTypePractice] = &SessionConfig{
+	raceSetup.Sessions[serverconfig.SessionTypePractice] = &serverconfig.SessionConfig{
 		Name:   "Practice",
 		Time:   120,
 		IsOpen: 1,
 	}
 
-	if !raceSetup.HasSession(SessionTypeBooking) {
+	if !raceSetup.HasSession(serverconfig.SessionTypeBooking) {
 		// #271: override pickup mode to ON for practice sessions
 		raceSetup.PickupModeEnabled = 1
 	}
@@ -305,7 +307,7 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 	})
 }
 
-func championshipEventStartPlugin(event *ChampionshipEvent, championship *Championship, entryList *EntryList) error {
+func championshipEventStartPlugin(event *ChampionshipEvent, championship *Championship, entryList *serverconfig.EntryList) error {
 	var standings [][]*ChampionshipStanding
 
 	for _, class := range championship.Classes {
@@ -314,7 +316,7 @@ func championshipEventStartPlugin(event *ChampionshipEvent, championship *Champi
 
 	p := NewLuaPlugin()
 
-	newEvent, newChampionship, newEntryList := NewChampionshipEvent(), NewChampionship(championship.Name), &EntryList{}
+	newEvent, newChampionship, newEntryList := NewChampionshipEvent(), NewChampionship(championship.Name), &serverconfig.EntryList{}
 
 	p.Inputs(event, championship, standings, entryList).Outputs(&newEntryList, newEvent, newChampionship)
 	err := p.Call("./plugins/championship.lua", "onChampionshipEventStart")

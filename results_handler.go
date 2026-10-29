@@ -15,6 +15,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type ResultsHandler struct {
@@ -216,7 +218,7 @@ type resultsViewTemplateVars struct {
 	BaseTemplateVars
 
 	Result           *SessionResults
-	AutoFillEntrants []*Entrant
+	AutoFillEntrants []*serverconfig.Entrant
 	Account          *Account
 	UseMPH           bool
 }

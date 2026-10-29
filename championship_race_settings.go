@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // ChampionshipRaceSettings are race settings which are configured once for a whole Championship instead of on every
@@ -19,18 +21,18 @@ type ChampionshipRaceSettings struct {
 	DamageMultiplier        int
 	TyreWearRate            int
 	AllowedTyresOut         int
-	ABSAllowed              FactoryAssist
-	TractionControlAllowed  FactoryAssist
+	ABSAllowed              serverconfig.FactoryAssist
+	TractionControlAllowed  serverconfig.FactoryAssist
 	StabilityControlAllowed int
 	AutoClutchAllowed       int
 	TyreBlanketsAllowed     int
 	ForceVirtualMirror      int
 
-	DynamicTrack DynamicTrackConfig
+	DynamicTrack serverconfig.DynamicTrackConfig
 }
 
 // NewChampionshipRaceSettingsFromConfig copies the championship wide fields out of a race config.
-func NewChampionshipRaceSettingsFromConfig(config CurrentRaceConfig) *ChampionshipRaceSettings {
+func NewChampionshipRaceSettingsFromConfig(config serverconfig.CurrentRaceConfig) *ChampionshipRaceSettings {
 	return &ChampionshipRaceSettings{
 		FuelRate:                config.FuelRate,
 		DamageMultiplier:        config.DamageMultiplier,
@@ -47,7 +49,7 @@ func NewChampionshipRaceSettingsFromConfig(config CurrentRaceConfig) *Championsh
 }
 
 // ApplyTo returns a copy of config in which all fields of the settings are replaced. config itself is not modified.
-func (s *ChampionshipRaceSettings) ApplyTo(config CurrentRaceConfig) CurrentRaceConfig {
+func (s *ChampionshipRaceSettings) ApplyTo(config serverconfig.CurrentRaceConfig) serverconfig.CurrentRaceConfig {
 	if s == nil {
 		return config
 	}
@@ -79,13 +81,13 @@ func ParseChampionshipRaceSettings(r *http.Request) *ChampionshipRaceSettings {
 		DamageMultiplier:        formValueAsInt(r.FormValue("ChampionshipRaceSettings.DamageMultiplier")),
 		TyreWearRate:            formValueAsInt(r.FormValue("ChampionshipRaceSettings.TyreWearRate")),
 		AllowedTyresOut:         formValueAsInt(r.FormValue("ChampionshipRaceSettings.AllowedTyresOut")),
-		ABSAllowed:              FactoryAssist(formValueAsInt(r.FormValue("ChampionshipRaceSettings.ABSAllowed"))),
-		TractionControlAllowed:  FactoryAssist(formValueAsInt(r.FormValue("ChampionshipRaceSettings.TractionControlAllowed"))),
+		ABSAllowed:              serverconfig.FactoryAssist(formValueAsInt(r.FormValue("ChampionshipRaceSettings.ABSAllowed"))),
+		TractionControlAllowed:  serverconfig.FactoryAssist(formValueAsInt(r.FormValue("ChampionshipRaceSettings.TractionControlAllowed"))),
 		StabilityControlAllowed: formValueAsInt(r.FormValue("ChampionshipRaceSettings.StabilityControlAllowed")),
 		AutoClutchAllowed:       formValueAsInt(r.FormValue("ChampionshipRaceSettings.AutoClutchAllowed")),
 		TyreBlanketsAllowed:     formValueAsInt(r.FormValue("ChampionshipRaceSettings.TyreBlanketsAllowed")),
 		ForceVirtualMirror:      formValueAsInt(r.FormValue("ChampionshipRaceSettings.ForceVirtualMirror")),
-		DynamicTrack: DynamicTrackConfig{
+		DynamicTrack: serverconfig.DynamicTrackConfig{
 			SessionStart:    formValueAsInt(r.FormValue("ChampionshipRaceSettings.SessionStart")),
 			Randomness:      formValueAsInt(r.FormValue("ChampionshipRaceSettings.Randomness")),
 			SessionTransfer: formValueAsInt(r.FormValue("ChampionshipRaceSettings.SessionTransfer")),
@@ -112,7 +114,7 @@ func (c *Championship) RaceSettingsForForm() ChampionshipRaceSettings {
 		}
 	}
 
-	return *NewChampionshipRaceSettingsFromConfig(ConfigIniDefault().CurrentRaceConfig)
+	return *NewChampionshipRaceSettingsFromConfig(serverconfig.ConfigIniDefault().CurrentRaceConfig)
 }
 
 // UsesChampionshipRaceSettings reports whether the given Event takes its race settings from the Championship.
@@ -122,7 +124,7 @@ func (c *Championship) UsesChampionshipRaceSettings(event *ChampionshipEvent) bo
 
 // EffectiveRaceSetup returns the race config the Event actually runs with: the Event's own config, with the
 // championship wide race settings applied if the Event uses them. The stored Event is never modified.
-func (c *Championship) EffectiveRaceSetup(event *ChampionshipEvent) CurrentRaceConfig {
+func (c *Championship) EffectiveRaceSetup(event *ChampionshipEvent) serverconfig.CurrentRaceConfig {
 	if !c.UsesChampionshipRaceSettings(event) {
 		return event.RaceSetup
 	}
@@ -132,7 +134,7 @@ func (c *Championship) EffectiveRaceSetup(event *ChampionshipEvent) CurrentRaceC
 
 // EffectiveRaceWeekendSessionSetup returns the race config of a session of a Race Weekend which is part of this
 // Championship. The settings are applied if the Championship Event of the Race Weekend uses them.
-func (c *Championship) EffectiveRaceWeekendSessionSetup(raceWeekendID uuid.UUID, config CurrentRaceConfig) CurrentRaceConfig {
+func (c *Championship) EffectiveRaceWeekendSessionSetup(raceWeekendID uuid.UUID, config serverconfig.CurrentRaceConfig) serverconfig.CurrentRaceConfig {
 	if c == nil {
 		return config
 	}

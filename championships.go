@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // NewChampionship creates a Championship with a given name, creating a UUID for the championship as well.
@@ -55,7 +57,7 @@ type Championship struct {
 
 	// SpectatorCar is a car defined in the Championship settings that if set up is added to the back of the grid
 	// of every event in the Championship.
-	SpectatorCar        Entrant
+	SpectatorCar        serverconfig.Entrant
 	SpectatorCarEnabled bool
 
 	DefaultTab ChampionshipTab

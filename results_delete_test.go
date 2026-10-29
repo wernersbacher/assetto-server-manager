@@ -11,6 +11,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func setupResultsDeleteTest(t *testing.T) (store Store, resultsDir string, cleanup func()) {
@@ -137,8 +139,8 @@ func TestDeleteResultsFileReferenced(t *testing.T) {
 		Name: "Test Championship",
 		Events: []*ChampionshipEvent{
 			{
-				Sessions: map[SessionType]*ChampionshipSession{
-					SessionTypeRace: {Results: &SessionResults{SessionFile: "2019_2_15_21_16_RACE"}},
+				Sessions: map[serverconfig.SessionType]*ChampionshipSession{
+					serverconfig.SessionTypeRace: {Results: &SessionResults{SessionFile: "2019_2_15_21_16_RACE"}},
 				},
 			},
 		},

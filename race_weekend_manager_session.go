@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mattn/go-zglob"
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -64,10 +65,10 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*Ra
 
 			opts.RaceWeekendHasAtLeastOneSession = true
 		} else {
-			current := ConfigIniDefault().CurrentRaceConfig
-			delete(current.Sessions, SessionTypeBooking)
-			delete(current.Sessions, SessionTypeQualifying)
-			delete(current.Sessions, SessionTypeRace)
+			current := serverconfig.ConfigIniDefault().CurrentRaceConfig
+			delete(current.Sessions, serverconfig.SessionTypeBooking)
+			delete(current.Sessions, serverconfig.SessionTypeQualifying)
+			delete(current.Sessions, serverconfig.SessionTypeRace)
 
 			opts.Current = current
 			opts.RaceWeekendHasAtLeastOneSession = false
@@ -90,7 +91,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*Ra
 	opts.IsRaceWeekend = true
 	opts.RaceWeekend = raceWeekend
 
-	opts.AvailableSessions = AvailableSessionsNoBooking
+	opts.AvailableSessions = serverconfig.AvailableSessionsNoBooking
 	opts.ShowOverridePasswordCard = !raceWeekend.HasLinkedChampionship()
 	opts.OverridePassword = raceWeekendSession.OverridePassword
 	opts.ReplacementPassword = raceWeekendSession.ReplacementPassword
@@ -291,7 +292,7 @@ func (rwm *RaceWeekendManager) StartSession(raceWeekendID string, raceWeekendSes
 	if raceWeekend.HasSpectatorCar() {
 		car := raceWeekend.GetSpectatorCar()
 
-		entryList.AddInPitBox(&car, maxEntryListSize+1)
+		entryList.AddInPitBox(&car, serverconfig.MaxEntryListSize+1)
 	}
 
 	if raceWeekend.HasLinkedChampionship() {
@@ -335,11 +336,11 @@ func (rwm *RaceWeekendManager) StartSession(raceWeekendID string, raceWeekendSes
 	}
 
 	if isPracticeSession {
-		delete(session.RaceConfig.Sessions, SessionTypePractice)
-		delete(session.RaceConfig.Sessions, SessionTypeQualifying)
-		delete(session.RaceConfig.Sessions, SessionTypeRace)
+		delete(session.RaceConfig.Sessions, serverconfig.SessionTypePractice)
+		delete(session.RaceConfig.Sessions, serverconfig.SessionTypeQualifying)
+		delete(session.RaceConfig.Sessions, serverconfig.SessionTypeRace)
 
-		session.RaceConfig.Sessions[SessionTypePractice] = &SessionConfig{
+		session.RaceConfig.Sessions[serverconfig.SessionTypePractice] = &serverconfig.SessionConfig{
 			Name:   "Practice",
 			Time:   120,
 			IsOpen: 1,

@@ -5,6 +5,8 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func (c *Championship) ClearEntrant(entrantGUID string) {
@@ -44,8 +46,8 @@ func (c *Championship) NumEntrants() int {
 }
 
 // AllEntrants returns the list of all entrants in the championship (across ALL classes)
-func (c *Championship) AllEntrants() EntryList {
-	e := make(EntryList)
+func (c *Championship) AllEntrants() serverconfig.EntryList {
+	e := make(serverconfig.EntryList)
 
 	for _, class := range c.Classes {
 		for _, entrant := range class.Entrants {
@@ -102,7 +104,7 @@ var ErrEntrantHasNoGUID = errors.New("servermanager: entrant has no GUID")
 
 var entryListMutex = sync.Mutex{}
 
-func (c *Championship) AddEntrantInFirstFreeSlot(potentialEntrant PotentialChampionshipEntrant) (foundFreeEntrantSlot bool, entrant *Entrant, entrantClass *ChampionshipClass, err error) {
+func (c *Championship) AddEntrantInFirstFreeSlot(potentialEntrant PotentialChampionshipEntrant) (foundFreeEntrantSlot bool, entrant *serverconfig.Entrant, entrantClass *ChampionshipClass, err error) {
 	if potentialEntrant.GetGUID() == "" {
 		// an empty GUID would match every free slot as an existing entrant (and couldn't take a slot anyway)
 		return false, nil, nil, ErrEntrantHasNoGUID
@@ -144,7 +146,7 @@ func (c *Championship) AddEntrantInFirstFreeSlot(potentialEntrant PotentialChamp
 	return false, nil, nil, ErrEntryListFull
 }
 
-func (c *Championship) AddEntrantFromSession(potentialEntrant PotentialChampionshipEntrant) (foundFreeEntrantSlot bool, entrant *Entrant, entrantClass *ChampionshipClass, err error) {
+func (c *Championship) AddEntrantFromSession(potentialEntrant PotentialChampionshipEntrant) (foundFreeEntrantSlot bool, entrant *serverconfig.Entrant, entrantClass *ChampionshipClass, err error) {
 	entryListMutex.Lock()
 	defer entryListMutex.Unlock()
 
@@ -156,7 +158,7 @@ func (c *Championship) AddEntrantFromSession(potentialEntrant PotentialChampions
 		return false, nil, nil, err
 	}
 
-	var oldEntrant *Entrant
+	var oldEntrant *serverconfig.Entrant
 	var oldEntrantClass *ChampionshipClass
 
 	for _, class := range c.Classes {
@@ -190,7 +192,7 @@ func (c *Championship) AddEntrantFromSession(potentialEntrant PotentialChampions
 
 	// now look for empty Entrants in the Entrylist with an 'any free car' slot
 	for carNum, entrant := range classForCar.Entrants {
-		if entrant.Name == "" && entrant.GUID == "" && entrant.Model == AnyCarModel {
+		if entrant.Name == "" && entrant.GUID == "" && entrant.Model == serverconfig.AnyCarModel {
 			if oldEntrant != nil {
 				// swap the old entrant properties
 				oldEntrant.SwapProperties(entrant, oldEntrantClass == classForCar)

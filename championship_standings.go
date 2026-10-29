@@ -8,6 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // DefaultChampionshipPoints is the Formula 1 points system.
@@ -75,7 +77,7 @@ func (c *ChampionshipClass) HadBetterFinishingPositions(guidA, guidB string, inE
 func forEachCompletedRace(inEvents []*ChampionshipEvent, fn func(results *SessionResults)) {
 	for _, event := range ExtractRaceWeekendSessionsIntoIndividualEvents(inEvents) {
 		for sessionType, session := range event.Sessions {
-			if session.Completed() && (sessionType == SessionTypeRace || sessionType == SessionTypeSecondRace) {
+			if session.Completed() && (sessionType == serverconfig.SessionTypeRace || sessionType == serverconfig.SessionTypeSecondRace) {
 				fn(session.Results)
 			}
 		}
@@ -470,7 +472,7 @@ func (c *ChampionshipClass) standings(championship *Championship, events []*Cham
 				}
 			} else {
 				switch sessionType {
-				case SessionTypeQualifying:
+				case serverconfig.SessionTypeQualifying:
 					// non race weekend qualifying results get pole position points
 					for pos, driver := range c.ResultsForClass(session.Results.Result, championship) {
 						if pos != 0 {
@@ -482,9 +484,9 @@ func (c *ChampionshipClass) standings(championship *Championship, events []*Cham
 
 					continue
 
-				case SessionTypeSecondRace:
+				case serverconfig.SessionTypeSecondRace:
 					pointsMultiplier = points.SecondRaceMultiplier
-				case SessionTypeBooking, SessionTypePractice:
+				case serverconfig.SessionTypeBooking, serverconfig.SessionTypePractice:
 					continue
 
 				default:
@@ -505,7 +507,7 @@ func (c *ChampionshipClass) standings(championship *Championship, events []*Cham
 					givePoints(event, driver.DriverGUID, float64(points.BestLap)*pointsMultiplier, PointsFastestLap)
 				}
 
-				if sessionType == SessionTypeRace || sessionType == SessionTypeSecondRace {
+				if sessionType == serverconfig.SessionTypeRace || sessionType == serverconfig.SessionTypeSecondRace {
 					givePoints(event, driver.DriverGUID, float64(points.CollisionWithDriver*session.Results.GetCrashesOfType(driver.DriverGUID, driver.CarModel, "COLLISION_WITH_CAR"))*pointsMultiplier*-1, PointsCollisionWithCar)
 					givePoints(event, driver.DriverGUID, float64(points.CollisionWithEnv*session.Results.GetCrashesOfType(driver.DriverGUID, driver.CarModel, "COLLISION_WITH_ENV"))*pointsMultiplier*-1, PointsCollisionWithEnvironment)
 					givePoints(event, driver.DriverGUID, float64(points.CutTrack*session.Results.GetCuts(driver.DriverGUID, driver.CarModel))*pointsMultiplier*-1, PointsCutTrack)
@@ -515,12 +517,12 @@ func (c *ChampionshipClass) standings(championship *Championship, events []*Cham
 	}
 }
 
-var championshipStandingSessionOrder = []SessionType{
-	SessionTypeSecondRace,
-	SessionTypeRace,
-	SessionTypeQualifying,
-	SessionTypePractice,
-	SessionTypeBooking,
+var championshipStandingSessionOrder = []serverconfig.SessionType{
+	serverconfig.SessionTypeSecondRace,
+	serverconfig.SessionTypeRace,
+	serverconfig.SessionTypeQualifying,
+	serverconfig.SessionTypePractice,
+	serverconfig.SessionTypeBooking,
 }
 
 type StandingsOption int
@@ -589,7 +591,7 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 					break
 				}
 
-				if NormaliseEntrantGUIDs(sessionCar.Driver.GuidsList) == driverGUID {
+				if serverconfig.NormaliseEntrantGUIDs(sessionCar.Driver.GuidsList) == driverGUID {
 					car = sessionCar
 					break
 				}
@@ -752,7 +754,7 @@ func (c *ChampionshipClass) TeamStandings(championship *Championship, inEvents [
 						break
 					}
 
-					if NormaliseEntrantGUIDs(car.Driver.GuidsList) == driverGUID {
+					if serverconfig.NormaliseEntrantGUIDs(car.Driver.GuidsList) == driverGUID {
 						team = car.Driver.Team
 						break
 					}

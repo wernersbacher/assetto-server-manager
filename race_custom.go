@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"fmt"
@@ -34,17 +35,17 @@ type CustomRace struct {
 	ForceStopTime        int
 	ForceStopWithDrivers bool
 
-	RaceConfig CurrentRaceConfig
-	EntryList  EntryList
+	RaceConfig serverconfig.CurrentRaceConfig
+	EntryList  serverconfig.EntryList
 
 	ScheduledEvents map[ServerID]*ScheduledEventBase
 }
 
-func (cr *CustomRace) GetRaceConfig() CurrentRaceConfig {
+func (cr *CustomRace) GetRaceConfig() serverconfig.CurrentRaceConfig {
 	return cr.RaceConfig
 }
 
-func (cr *CustomRace) GetEntryList() EntryList {
+func (cr *CustomRace) GetEntryList() serverconfig.EntryList {
 	return cr.EntryList
 }
 
@@ -100,7 +101,7 @@ func (cr *CustomRace) GetScheduledServerID() ServerID {
 	return cr.ScheduledServerID
 }
 
-func (cr *CustomRace) GetRaceSetup() CurrentRaceConfig {
+func (cr *CustomRace) GetRaceSetup() serverconfig.CurrentRaceConfig {
 	return cr.RaceConfig
 }
 
@@ -116,7 +117,7 @@ func (cr *CustomRace) EventDescription() string {
 	return ""
 }
 
-func (cr *CustomRace) ReadOnlyEntryList() EntryList {
+func (cr *CustomRace) ReadOnlyEntryList() serverconfig.EntryList {
 	return cr.EntryList
 }
 
@@ -175,17 +176,17 @@ func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {
 type eventDetailsTemplateVars struct {
 	BaseTemplateVars
 
-	EventConfig    CurrentRaceConfig
-	EntryList      EntryList
+	EventConfig    serverconfig.CurrentRaceConfig
+	EntryList      serverconfig.EntryList
 	EventName      string
 	IsChampionship bool
 }
 
 func (crh *CustomRaceHandler) view(w http.ResponseWriter, r *http.Request) {
 	var (
-		eventConfig    CurrentRaceConfig
+		eventConfig    serverconfig.CurrentRaceConfig
 		eventName      string
-		entryList      EntryList
+		entryList      serverconfig.EntryList
 		isChampionship bool
 	)
 

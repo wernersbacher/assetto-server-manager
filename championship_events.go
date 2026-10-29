@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func (c *Championship) HasScheduledEvents() bool {
@@ -79,7 +81,7 @@ func (c *Championship) ImportEvent(eventToImport interface{}) (*ChampionshipEven
 			}
 
 			for _, class := range c.Classes {
-				if session.SessionType() == SessionTypeRace {
+				if session.SessionType() == serverconfig.SessionTypeRace {
 					session.Points[class.ID] = &class.Points
 				} else {
 					var points []int
@@ -176,7 +178,7 @@ func ExtractRaceWeekendSessionsIntoIndividualEvents(inEvents []*ChampionshipEven
 func NewChampionshipEvent() *ChampionshipEvent {
 	return &ChampionshipEvent{
 		ID:       uuid.New(),
-		Sessions: make(map[SessionType]*ChampionshipSession),
+		Sessions: make(map[serverconfig.SessionType]*ChampionshipSession),
 	}
 }
 
@@ -196,14 +198,14 @@ type ChampionshipEvent struct {
 
 	ID uuid.UUID
 
-	RaceSetup CurrentRaceConfig
-	EntryList EntryList
+	RaceSetup serverconfig.CurrentRaceConfig
+	EntryList serverconfig.EntryList
 
 	// UseChampionshipRaceSettings makes the event use the Championship's RaceSettings (if the championship has
 	// any) instead of the corresponding values in RaceSetup. RaceSetup always keeps the event's own values.
 	UseChampionshipRaceSettings bool
 
-	Sessions map[SessionType]*ChampionshipSession `json:",omitempty"`
+	Sessions map[serverconfig.SessionType]*ChampionshipSession `json:",omitempty"`
 
 	// RaceWeekendID is the ID of the linked RaceWeekend for this ChampionshipEvent
 	RaceWeekendID uuid.UUID
@@ -232,7 +234,7 @@ func (cr *ChampionshipEvent) HasSignUpForm() bool {
 	return cr.championship.SignUpForm.Enabled
 }
 
-func (cr *ChampionshipEvent) ReadOnlyEntryList() EntryList {
+func (cr *ChampionshipEvent) ReadOnlyEntryList() serverconfig.EntryList {
 	return cr.CombineEntryLists(cr.championship)
 }
 
@@ -245,7 +247,7 @@ func (cr *ChampionshipEvent) GetScheduledServerID() ServerID {
 }
 
 // GetRaceSetup returns the effective race setup of the event (including championship wide race settings).
-func (cr *ChampionshipEvent) GetRaceSetup() CurrentRaceConfig {
+func (cr *ChampionshipEvent) GetRaceSetup() serverconfig.CurrentRaceConfig {
 	if cr.championship != nil {
 		return cr.championship.EffectiveRaceSetup(cr)
 	}
@@ -278,7 +280,7 @@ func (cr *ChampionshipEvent) Cars(c *Championship) []string {
 	return c.ValidCarIDs()
 }
 
-func (cr *ChampionshipEvent) CombineEntryLists(championship *Championship) EntryList {
+func (cr *ChampionshipEvent) CombineEntryLists(championship *Championship) serverconfig.EntryList {
 	entryList := championship.AllEntrants()
 
 	if cr.EntryList == nil {
@@ -301,19 +303,19 @@ func (cr *ChampionshipEvent) CombineEntryLists(championship *Championship) Entry
 
 // LastSession returns the last configured session in the championship, in the following order:
 // Race, Qualifying, Practice, Booking
-func (cr *ChampionshipEvent) LastSession() SessionType {
+func (cr *ChampionshipEvent) LastSession() serverconfig.SessionType {
 	switch {
 	case cr.RaceSetup.HasMultipleRaces():
 		// there must be two races as reversed grid positions are on
-		return SessionTypeSecondRace
-	case cr.RaceSetup.HasSession(SessionTypeRace):
-		return SessionTypeRace
-	case cr.RaceSetup.HasSession(SessionTypeQualifying):
-		return SessionTypeQualifying
-	case cr.RaceSetup.HasSession(SessionTypePractice):
-		return SessionTypePractice
+		return serverconfig.SessionTypeSecondRace
+	case cr.RaceSetup.HasSession(serverconfig.SessionTypeRace):
+		return serverconfig.SessionTypeRace
+	case cr.RaceSetup.HasSession(serverconfig.SessionTypeQualifying):
+		return serverconfig.SessionTypeQualifying
+	case cr.RaceSetup.HasSession(serverconfig.SessionTypePractice):
+		return serverconfig.SessionTypePractice
 	default:
-		return SessionTypeBooking
+		return serverconfig.SessionTypeBooking
 	}
 }
 

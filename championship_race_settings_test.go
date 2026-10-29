@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"context"
@@ -29,7 +30,7 @@ func testChampionshipRaceSettings() *ChampionshipRaceSettings {
 		AutoClutchAllowed:       1,
 		TyreBlanketsAllowed:     1,
 		ForceVirtualMirror:      1,
-		DynamicTrack: DynamicTrackConfig{
+		DynamicTrack: serverconfig.DynamicTrackConfig{
 			SessionStart:    95,
 			Randomness:      3,
 			SessionTransfer: 50,
@@ -39,8 +40,8 @@ func testChampionshipRaceSettings() *ChampionshipRaceSettings {
 }
 
 // testEventSetup returns a config with values that differ from testChampionshipRaceSettings everywhere.
-func testEventSetup() CurrentRaceConfig {
-	setup := ConfigIniDefault().CurrentRaceConfig
+func testEventSetup() serverconfig.CurrentRaceConfig {
+	setup := serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 	setup.Track = "event_track"
 	setup.TrackLayout = "event_layout"
@@ -57,15 +58,15 @@ func testEventSetup() CurrentRaceConfig {
 	setup.AutoClutchAllowed = 0
 	setup.TyreBlanketsAllowed = 0
 	setup.ForceVirtualMirror = 0
-	setup.DynamicTrack = DynamicTrackConfig{SessionStart: 1, Randomness: 2, SessionTransfer: 3, LapGain: 4}
-	setup.Sessions = Sessions{
-		SessionTypeRace: &SessionConfig{Name: "Race", Laps: 5},
+	setup.DynamicTrack = serverconfig.DynamicTrackConfig{SessionStart: 1, Randomness: 2, SessionTransfer: 3, LapGain: 4}
+	setup.Sessions = serverconfig.Sessions{
+		serverconfig.SessionTypeRace: &serverconfig.SessionConfig{Name: "Race", Laps: 5},
 	}
 
 	return setup
 }
 
-func assertChampionshipSettingsApplied(t *testing.T, got CurrentRaceConfig, settings *ChampionshipRaceSettings) {
+func assertChampionshipSettingsApplied(t *testing.T, got serverconfig.CurrentRaceConfig, settings *ChampionshipRaceSettings) {
 	t.Helper()
 
 	if !reflect.DeepEqual(NewChampionshipRaceSettingsFromConfig(got), settings) {
@@ -73,7 +74,7 @@ func assertChampionshipSettingsApplied(t *testing.T, got CurrentRaceConfig, sett
 	}
 }
 
-func assertEventSpecificFieldsKept(t *testing.T, got, want CurrentRaceConfig) {
+func assertEventSpecificFieldsKept(t *testing.T, got, want serverconfig.CurrentRaceConfig) {
 	t.Helper()
 
 	if got.Track != want.Track || got.TrackLayout != want.TrackLayout || got.Cars != want.Cars ||
@@ -240,7 +241,7 @@ func TestParseChampionshipRaceSettings(t *testing.T) {
 func TestChampionship_RaceSettingsForForm(t *testing.T) {
 	championship := NewChampionship("c")
 
-	if got := championship.RaceSettingsForForm(); !reflect.DeepEqual(got, *NewChampionshipRaceSettingsFromConfig(ConfigIniDefault().CurrentRaceConfig)) {
+	if got := championship.RaceSettingsForForm(); !reflect.DeepEqual(got, *NewChampionshipRaceSettingsFromConfig(serverconfig.ConfigIniDefault().CurrentRaceConfig)) {
 		t.Errorf("expected defaults, got %+v", got)
 	}
 
@@ -308,7 +309,7 @@ func TestChampionshipManager_StartEventUsesEffectiveRaceSetup(t *testing.T) {
 				t.Errorf("practice=%t use=%t: track must come from the event, got %s/%s", practice, useSettings, started.Track, started.TrackLayout)
 			}
 
-			if race := started.Sessions[SessionTypeRace]; !practice && (race == nil || race.Laps != 5) {
+			if race := started.Sessions[serverconfig.SessionTypeRace]; !practice && (race == nil || race.Laps != 5) {
 				t.Errorf("sessions must come from the event, got %+v", started.Sessions)
 			}
 
@@ -472,7 +473,7 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 
 		class := NewChampionshipClass("Class")
 		class.AvailableCars = []string{"event_car"}
-		class.Entrants = EntryList{"CAR_0": &Entrant{Name: "Driver", GUID: "123", Model: "event_car"}}
+		class.Entrants = serverconfig.EntryList{"CAR_0": &serverconfig.Entrant{Name: "Driver", GUID: "123", Model: "event_car"}}
 		championship.Classes = append(championship.Classes, class)
 
 		raceWeekend := NewRaceWeekend()

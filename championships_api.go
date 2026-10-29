@@ -9,6 +9,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // The championship API exposes the information that is publicly visible on the championship pages (events,
@@ -71,7 +73,7 @@ type APIChampionshipEvent struct {
 }
 
 type APISession struct {
-	Type   SessionType
+	Type   serverconfig.SessionType
 	Name   string
 	Status APIEventStatus
 
@@ -183,9 +185,9 @@ func newAPIChampionshipEvent(event *ChampionshipEvent) *APIChampionshipEvent {
 		apiSession.Status = apiChampionshipSessionStatus(event, sessionType, out.Status)
 		out.Sessions = append(out.Sessions, apiSession)
 
-		if sessionType == SessionTypeRace && setup.HasMultipleRaces() {
-			secondRace := newAPISession(SessionTypeSecondRace, "2nd Race", *session, setup.RaceExtraLap == 1)
-			secondRace.Status = apiChampionshipSessionStatus(event, SessionTypeSecondRace, out.Status)
+		if sessionType == serverconfig.SessionTypeRace && setup.HasMultipleRaces() {
+			secondRace := newAPISession(serverconfig.SessionTypeSecondRace, "2nd Race", *session, setup.RaceExtraLap == 1)
+			secondRace.Status = apiChampionshipSessionStatus(event, serverconfig.SessionTypeSecondRace, out.Status)
 
 			out.Sessions = append(out.Sessions, secondRace)
 		}
@@ -194,7 +196,7 @@ func newAPIChampionshipEvent(event *ChampionshipEvent) *APIChampionshipEvent {
 	return out
 }
 
-func apiChampionshipSessionStatus(event *ChampionshipEvent, sessionType SessionType, eventStatus APIEventStatus) APIEventStatus {
+func apiChampionshipSessionStatus(event *ChampionshipEvent, sessionType serverconfig.SessionType, eventStatus APIEventStatus) APIEventStatus {
 	if session, ok := event.Sessions[sessionType]; ok {
 		if session.Completed() {
 			return APIEventStatusCompleted
@@ -285,7 +287,7 @@ func newAPIRaceWeekendEvent(event *ChampionshipEvent) *APIChampionshipEvent {
 	return out
 }
 
-func newAPISession(sessionType SessionType, name string, session SessionConfig, extraLap bool) *APISession {
+func newAPISession(sessionType serverconfig.SessionType, name string, session serverconfig.SessionConfig, extraLap bool) *APISession {
 	out := &APISession{
 		Type: sessionType,
 		Name: name,
@@ -293,7 +295,7 @@ func newAPISession(sessionType SessionType, name string, session SessionConfig, 
 
 	if session.Time > 0 {
 		out.Time = session.Time
-		out.ExtraLap = extraLap && (sessionType == SessionTypeRace || sessionType == SessionTypeSecondRace)
+		out.ExtraLap = extraLap && (sessionType == serverconfig.SessionTypeRace || sessionType == serverconfig.SessionTypeSecondRace)
 	} else {
 		out.Laps = session.Laps
 	}

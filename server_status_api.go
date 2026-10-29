@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 	"github.com/sirupsen/logrus"
 )
@@ -38,7 +39,7 @@ type APIServerStatus struct {
 }
 
 type APIServerSession struct {
-	Type SessionType
+	Type serverconfig.SessionType
 	Name string
 
 	// Time is the length of the session in minutes, Laps the number of laps. Only one of them is set.
@@ -156,17 +157,17 @@ func (rch *RaceControlHandler) serverStatusAPI(w http.ResponseWriter, r *http.Re
 
 // apiSessionType converts the session type of the UDP plugin protocol to the session types used in results and
 // championships.
-func apiSessionType(sessionType udp.SessionType) SessionType {
+func apiSessionType(sessionType udp.SessionType) serverconfig.SessionType {
 	switch sessionType {
 	case udp.SessionTypeBooking:
-		return SessionTypeBooking
+		return serverconfig.SessionTypeBooking
 	case udp.SessionTypePractice:
-		return SessionTypePractice
+		return serverconfig.SessionTypePractice
 	case udp.SessionTypeQualifying:
-		return SessionTypeQualifying
+		return serverconfig.SessionTypeQualifying
 	case udp.SessionTypeRace:
-		return SessionTypeRace
+		return serverconfig.SessionTypeRace
 	default:
-		return SessionType(sessionType.String())
+		return serverconfig.SessionType(sessionType.String())
 	}
 }

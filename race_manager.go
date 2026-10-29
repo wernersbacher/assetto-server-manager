@@ -1,12 +1,14 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -26,15 +28,15 @@ type RaceManager struct {
 	raceControl         *RaceControl
 	notificationManager NotificationDispatcher
 
-	currentRace      *ServerConfig
-	currentEntryList EntryList
+	currentRace      *serverconfig.ServerConfig
+	currentEntryList serverconfig.EntryList
 
 	mutex sync.RWMutex
 
 	forceStopTimer *when.Timer
 
 	// looped races
-	loopedRaceSessionTypes      []SessionType
+	loopedRaceSessionTypes      []serverconfig.SessionType
 	loopedRaceWaitForSecondRace bool
 
 	// scheduled races
@@ -64,7 +66,7 @@ func NewRaceManager(
 	}
 }
 
-func (rm *RaceManager) CurrentRace() (*ServerConfig, EntryList) {
+func (rm *RaceManager) CurrentRace() (*serverconfig.ServerConfig, serverconfig.EntryList) {
 	rm.mutex.RLock()
 	defer rm.mutex.RUnlock()
 
@@ -124,12 +126,12 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 
 	// if this is a championship practice and some practice weathers exist replace weather in config with them
 	if event.IsChampionship() && event.IsPractice() {
-		practiceWeather := make(map[string]*WeatherConfig)
+		practiceWeather := make(map[string]*serverconfig.WeatherConfig)
 
 		id := 0
 
 		for _, weather := range raceConfig.Weather {
-			if weather.ChampionshipPracticeWeather == weatherPractice || weather.ChampionshipPracticeWeather == weatherAny {
+			if weather.ChampionshipPracticeWeather == serverconfig.WeatherPractice || weather.ChampionshipPracticeWeather == serverconfig.WeatherAny {
 				practiceWeather[fmt.Sprintf("WEATHER_%d", id)] = weather
 
 				id++
@@ -140,12 +142,12 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 			raceConfig.Weather = practiceWeather
 		}
 	} else if event.IsChampionship() {
-		nonPracticeWeather := make(map[string]*WeatherConfig)
+		nonPracticeWeather := make(map[string]*serverconfig.WeatherConfig)
 
 		id := 0
 
 		for _, weather := range raceConfig.Weather {
-			if weather.ChampionshipPracticeWeather == weatherEvent || weather.ChampionshipPracticeWeather == weatherAny {
+			if weather.ChampionshipPracticeWeather == serverconfig.WeatherEvent || weather.ChampionshipPracticeWeather == serverconfig.WeatherAny {
 				nonPracticeWeather[fmt.Sprintf("WEATHER_%d", id)] = weather
 
 				id++
@@ -157,7 +159,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 		}
 	}
 
-	config := ServerConfig{
+	config := serverconfig.ServerConfig{
 		CurrentRaceConfig:  raceConfig,
 		GlobalServerConfig: *serverOpts,
 	}
@@ -172,7 +174,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	finalCars := make([]string, 0)
 
 	for _, car := range strings.Split(config.CurrentRaceConfig.Cars, ";") {
-		if car == AnyCarModel {
+		if car == serverconfig.AnyCarModel {
 			continue
 		}
 
@@ -188,7 +190,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 		config.GlobalServerConfig.Password = serverOpts.Password
 	}
 
-	if config.CurrentRaceConfig.HasSession(SessionTypeBooking) {
+	if config.CurrentRaceConfig.HasSession(serverconfig.SessionTypeBooking) {
 		config.CurrentRaceConfig.PickupModeEnabled = 0
 	}
 
@@ -197,13 +199,13 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	if len(sessions) > 0 {
 		session, sessionType := sessions[0], sessionTypes[0]
 
-		if session.IsOpen == SessionOpennessNoJoin {
-			if sessionType == SessionTypeRace {
+		if session.IsOpen == serverconfig.SessionOpennessNoJoin {
+			if sessionType == serverconfig.SessionTypeRace {
 				logrus.Warnf("Session openness was set to no join on the first session of this event! Corrected to 'Free Join until 20 seconds to the green light'")
-				session.IsOpen = SessionOpennessFreeJoinUntil20SecondsToTheGreenLight
+				session.IsOpen = serverconfig.SessionOpennessFreeJoinUntil20SecondsToTheGreenLight
 			} else {
 				logrus.Warnf("Session openness was set to no join on the first session of this event! Corrected to 'Free Join'")
-				session.IsOpen = SessionOpennessFreeJoin
+				session.IsOpen = serverconfig.SessionOpennessFreeJoin
 			}
 		}
 	}
@@ -226,7 +228,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 		config.GlobalServerConfig.Name += fmt.Sprintf(" %c%d", contentManagerWrapperSeparator, config.GlobalServerConfig.ContentManagerWrapperPort)
 	}
 
-	err = config.Write()
+	err = config.Write(filepath.Join(ServerInstallPath, ServerConfigPath))
 
 	if err != nil {
 		return err
@@ -235,7 +237,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	numEntrantsWithAnyCar := 0
 
 	for _, entrant := range entryList {
-		if entrant.Model == AnyCarModel {
+		if entrant.Model == serverconfig.AnyCarModel {
 			// cars with 'any car model' become random in the entry list.
 			entrant.Model = finalCars[numEntrantsWithAnyCar%len(finalCars)]
 			entrant.Skin = rm.carManager.RandomSkin(entrant.Model)
@@ -244,7 +246,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 		}
 	}
 
-	err = entryList.Write()
+	err = entryList.Write(filepath.Join(ServerInstallPath, "setups"), filepath.Join(ServerInstallPath, ServerConfigPath))
 
 	if err != nil {
 		return err
@@ -308,10 +310,10 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	return nil
 }
 
-func eventStartPlugin(raceConfig *CurrentRaceConfig, serverOpts *GlobalServerConfig, entryList *EntryList) error {
+func eventStartPlugin(raceConfig *serverconfig.CurrentRaceConfig, serverOpts *serverconfig.GlobalServerConfig, entryList *serverconfig.EntryList) error {
 	p := NewLuaPlugin()
 
-	newRaceConfig, newServerOpts, newEntryList := &CurrentRaceConfig{}, &GlobalServerConfig{}, &EntryList{}
+	newRaceConfig, newServerOpts, newEntryList := &serverconfig.CurrentRaceConfig{}, &serverconfig.GlobalServerConfig{}, &serverconfig.EntryList{}
 
 	p.Inputs(raceConfig, serverOpts, entryList).Outputs(newRaceConfig, newServerOpts, newEntryList)
 	err := p.Call("./plugins/events.lua", "onEventStart")

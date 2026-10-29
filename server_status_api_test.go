@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/json"
@@ -39,7 +40,7 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
-	opts := ConfigIniDefault().GlobalServerConfig
+	opts := serverconfig.ConfigIniDefault().GlobalServerConfig
 	opts.Name = "Test Server"
 
 	if err := store.UpsertServerOptions(&opts); err != nil {
@@ -107,8 +108,8 @@ func TestNewAPIServerStatus(t *testing.T) {
 
 	event := &ActiveChampionship{
 		Name:        "Test Championship",
-		RaceConfig:  CurrentRaceConfig{Track: "other_track", MaxClients: 18},
-		SessionType: SessionTypeQualifying,
+		RaceConfig:  serverconfig.CurrentRaceConfig{Track: "other_track", MaxClients: 18},
+		SessionType: serverconfig.SessionTypeQualifying,
 	}
 
 	t.Run("championship", func(t *testing.T) {
@@ -122,7 +123,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 			t.Errorf("unexpected track or max clients: %+v", out)
 		}
 
-		if out.Session == nil || out.Session.Type != SessionTypeQualifying || out.Session.Name != "Qualify" || out.Session.Time != 15 || out.Session.Laps != 0 || time.Since(out.Session.Started) > time.Minute {
+		if out.Session == nil || out.Session.Type != serverconfig.SessionTypeQualifying || out.Session.Name != "Qualify" || out.Session.Time != 15 || out.Session.Laps != 0 || time.Since(out.Session.Started) > time.Minute {
 			t.Errorf("unexpected session: %+v", out.Session)
 		}
 

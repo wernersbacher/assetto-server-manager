@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/json"
@@ -16,7 +17,7 @@ import (
 	"github.com/etcd-io/bbolt"
 )
 
-var TestEntryList = EntryList{
+var TestEntryList = serverconfig.EntryList{
 	"CAR_0": {
 		Name:  "",
 		GUID:  "",
@@ -103,8 +104,8 @@ func (d dummyServerProcess) NotifyDone(chan struct{}) {
 
 }
 
-func (dummyServerProcess) GetServerConfig() ServerConfig {
-	return ConfigIniDefault()
+func (dummyServerProcess) GetServerConfig() serverconfig.ServerConfig {
+	return serverconfig.ConfigIniDefault()
 }
 
 var championshipEventFixtures = []string{
@@ -140,7 +141,7 @@ func (d dummyNotificationManager) SendMessageWithLink(title string, msg string, 
 	return nil
 }
 
-func (d dummyNotificationManager) SendRaceStartMessage(config ServerConfig, event RaceEvent) error {
+func (d dummyNotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event RaceEvent) error {
 	return nil
 }
 
@@ -168,7 +169,7 @@ func (d dummyNotificationManager) SendChampionshipReminderMessage(championship *
 	return nil
 }
 
-func (d dummyNotificationManager) SaveServerOptions(oldServerOpts *GlobalServerConfig, newServerOpts *GlobalServerConfig) error {
+func (d dummyNotificationManager) SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error {
 	return nil
 }
 
@@ -213,7 +214,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 		for range championshipEventFixtures {
 			e := NewChampionshipEvent()
-			e.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
 		}
@@ -255,7 +256,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 		for range championshipEventFixtures {
 			e := NewChampionshipEvent()
-			e.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
 		}
@@ -292,7 +293,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 		champ := NewChampionship("Test Championship")
 		champ.OpenEntrants = true
 		cl := NewChampionshipClass("Default")
-		cl.Entrants = EntryList{
+		cl.Entrants = serverconfig.EntryList{
 			"CAR_0": {
 				Name:  "",
 				GUID:  "",
@@ -305,7 +306,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 		for range championshipEventFixtures {
 			e := NewChampionshipEvent()
-			e.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
 		}
@@ -342,7 +343,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 		champ := NewChampionship("Test Championship")
 		champ.OpenEntrants = true
 		cl := NewChampionshipClass("Default")
-		cl.Entrants = EntryList{
+		cl.Entrants = serverconfig.EntryList{
 			"CAR_0": {
 				Name:  "",
 				GUID:  "",
@@ -355,7 +356,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 		for range championshipEventFixtures {
 			e := NewChampionshipEvent()
-			e.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
 		}

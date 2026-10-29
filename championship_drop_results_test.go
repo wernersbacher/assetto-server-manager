@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type dropTestDriver struct {
@@ -55,7 +57,7 @@ func dropTestEvent(class *ChampionshipClass, finishOrder ...dropTestDriver) *Cha
 	event := NewChampionshipEvent()
 	event.StartedTime = time.Now().Add(-time.Hour)
 	event.CompletedTime = time.Now()
-	event.Sessions[SessionTypeRace] = &ChampionshipSession{
+	event.Sessions[serverconfig.SessionTypeRace] = &ChampionshipSession{
 		StartedTime:   event.StartedTime,
 		CompletedTime: event.CompletedTime,
 		Results:       dropTestResults(class, finishOrder...),
@@ -188,7 +190,7 @@ func TestChampionshipClass_Standings_DropWorstResultsIgnoresIncompleteEvents(t *
 
 	inProgress := dropTestEvent(class, dropDriverC, dropDriverA, dropDriverB)
 	inProgress.CompletedTime = time.Time{}
-	inProgress.Sessions[SessionTypeRace].CompletedTime = time.Time{}
+	inProgress.Sessions[serverconfig.SessionTypeRace].CompletedTime = time.Time{}
 	championship.Events = append(championship.Events, inProgress)
 
 	standings := class.Standings(championship, championship.Events)
@@ -246,7 +248,7 @@ func TestChampionshipClass_Standings_DropWorstResultsRaceWeekend(t *testing.T) {
 			ID:            uuid.New(),
 			StartedTime:   time.Now().Add(-time.Hour),
 			CompletedTime: time.Now(),
-			RaceConfig:    CurrentRaceConfig{Sessions: Sessions{SessionTypeRace: &SessionConfig{Laps: 5}}},
+			RaceConfig:    serverconfig.CurrentRaceConfig{Sessions: serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{Laps: 5}}},
 			Results:       dropTestResults(class, dropDriverA, dropDriverB),
 			Points:        map[uuid.UUID]*ChampionshipPoints{class.ID: {Places: []int{10, 6}}},
 		})
@@ -306,7 +308,7 @@ func TestChampionshipClass_Standings_DropWorstResultsPerClass(t *testing.T) {
 			results.Laps = append(results.Laps, r.Laps...)
 		}
 
-		event.Sessions[SessionTypeRace] = &ChampionshipSession{StartedTime: event.StartedTime, CompletedTime: event.CompletedTime, Results: results}
+		event.Sessions[serverconfig.SessionTypeRace] = &ChampionshipSession{StartedTime: event.StartedTime, CompletedTime: event.CompletedTime, Results: results}
 		championship.Events = append(championship.Events, event)
 	}
 

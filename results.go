@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type SessionResults struct {
@@ -19,7 +21,7 @@ type SessionResults struct {
 	Result         []*SessionResult `json:"Result"`
 	TrackConfig    string           `json:"TrackConfig"`
 	TrackName      string           `json:"TrackName"`
-	Type           SessionType      `json:"Type"`
+	Type           serverconfig.SessionType      `json:"Type"`
 	Date           time.Time        `json:"Date"`
 	SessionFile    string           `json:"SessionFile"`
 	ChampionshipID string           `json:"ChampionshipID"`
@@ -187,7 +189,7 @@ func (s *SessionResults) NormaliseDriverSwapGUIDs() {
 	for _, car := range s.Cars {
 		if len(car.Driver.GuidsList) > 1 {
 			// this car has been subjected to a driver swap.
-			carIDToGUID[car.CarID] = NormaliseEntrantGUIDs(car.Driver.GuidsList)
+			carIDToGUID[car.CarID] = serverconfig.NormaliseEntrantGUIDs(car.Driver.GuidsList)
 		}
 	}
 
@@ -315,7 +317,7 @@ func (s *SessionResults) GetCrashesOfType(guid, model, collisionType string) int
 	return num
 }
 
-func (s *SessionResults) GetDriverDescriptionForLap(lap *SessionLap, autoFillEntrantList []*Entrant) string {
+func (s *SessionResults) GetDriverDescriptionForLap(lap *SessionLap, autoFillEntrantList []*serverconfig.Entrant) string {
 	var car *SessionCar
 
 	for _, sessionCar := range s.Cars {
@@ -364,7 +366,7 @@ func (s *SessionResults) FindCarIDForGUIDAndModel(guid, model string) (carID int
 			return car.CarID, true
 		}
 
-		if NormaliseEntrantGUIDs(car.Driver.GuidsList) == guid {
+		if serverconfig.NormaliseEntrantGUIDs(car.Driver.GuidsList) == guid {
 			return car.CarID, true
 		}
 

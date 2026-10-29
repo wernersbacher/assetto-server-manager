@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -96,7 +97,7 @@ func newScheduledTestChampionship(t *testing.T, store Store, scheduled ...time.T
 
 	for _, scheduledTime := range scheduled {
 		event := NewChampionshipEvent()
-		event.RaceSetup = ConfigIniDefault().CurrentRaceConfig
+		event.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 		event.Scheduled = scheduledTime
 		event.ScheduledServerID = serverID
 

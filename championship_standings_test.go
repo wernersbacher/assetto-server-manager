@@ -2,6 +2,8 @@ package servermanager
 
 import (
 	"testing"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 func TestChampionshipClass_Standings_ResultsWithoutLaps(t *testing.T) {
@@ -13,7 +15,7 @@ func TestChampionshipClass_Standings_ResultsWithoutLaps(t *testing.T) {
 
 	event := dropTestEvent(class, dropDriverA, dropDriverB)
 	// e.g. imported or manually edited results, which have finishing times but no laps
-	event.Sessions[SessionTypeRace].Results.Laps = nil
+	event.Sessions[serverconfig.SessionTypeRace].Results.Laps = nil
 	championship.Events = []*ChampionshipEvent{event}
 
 	standings := class.Standings(championship, championship.Events)
@@ -32,7 +34,7 @@ func TestChampionshipClass_Standings_FastestLapPoints(t *testing.T) {
 
 	event := dropTestEvent(class, dropDriverA, dropDriverB)
 	// B sets the fastest lap
-	event.Sessions[SessionTypeRace].Results.Laps[1].LapTime = 50
+	event.Sessions[serverconfig.SessionTypeRace].Results.Laps[1].LapTime = 50
 	championship.Events = []*ChampionshipEvent{event}
 
 	standings := class.Standings(championship, championship.Events)

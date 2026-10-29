@@ -1,4 +1,4 @@
-package servermanager
+package serverconfig
 
 // ConfigIniDefault is the default server config (ish) as supplied via the assetto corsa server.
 func ConfigIniDefault() ServerConfig {
@@ -24,11 +24,11 @@ func ConfigIniDefault() ServerConfig {
 			AuthPluginAddress:                 "",
 			NumberOfThreads:                   2,
 			ShowRaceNameInServerLobby:         1,
-			ServerNameTemplate:                defaultServerNameTemplate,
+			ServerNameTemplate:                DefaultServerNameTemplate,
 			ShowContentManagerJoinLink:        1,
 			SleepTime:                         1,
 			RestartEventOnServerManagerLaunch: 1,
-			ContentManagerWelcomeMessage:      defaultContentManagerDescription,
+			ContentManagerWelcomeMessage:      DefaultContentManagerDescription,
 			ShowEventDetailsPopup:             true,
 		},
 
@@ -101,7 +101,7 @@ func ConfigIniDefault() ServerConfig {
 			Weather: map[string]*WeatherConfig{
 				"WEATHER_0": {
 					Graphics:                    "3_clear",
-					ChampionshipPracticeWeather: weatherAny,
+					ChampionshipPracticeWeather: WeatherAny,
 					BaseTemperatureAmbient:      26,
 					BaseTemperatureRoad:         11,
 					VariationAmbient:            1,
@@ -116,6 +116,8 @@ func ConfigIniDefault() ServerConfig {
 	}
 }
 
-const defaultServerNameTemplate = "{{ .ServerName }} - {{ .EventName }}"
-const defaultContentManagerDescription = "{{ .Track }} {{ with .TrackLayout }}({{ . }}){{ end }} " +
+// DefaultServerNameTemplate is the default template for the server name shown in the lobby.
+const DefaultServerNameTemplate = "{{ .ServerName }} - {{ .EventName }}"
+// DefaultContentManagerDescription is the default Content Manager welcome message template.
+const DefaultContentManagerDescription = "{{ .Track }} {{ with .TrackLayout }}({{ . }}){{ end }} " +
 	"- an event hosted by {{ .ServerName }}<br><br>{{ .EventDescription }}<br>{{ .ChampionshipPoints }}<br>{{ .CarDownloads }}<br>{{ .TrackDownload }}"

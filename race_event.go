@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type RaceEvent interface {
-	GetRaceConfig() CurrentRaceConfig
-	GetEntryList() EntryList
+	GetRaceConfig() serverconfig.CurrentRaceConfig
+	GetEntryList() serverconfig.EntryList
 
 	IsLooping() bool
 	IsChampionship() bool

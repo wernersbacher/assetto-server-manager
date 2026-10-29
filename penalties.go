@@ -10,6 +10,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type PenaltiesHandler struct {
@@ -153,7 +155,7 @@ func (pm *PenaltiesManager) applyPenalty(jsonFileName, guid, carModel string, pe
 	}
 
 	switch results.Type {
-	case SessionTypePractice, SessionTypeQualifying:
+	case serverconfig.SessionTypePractice, serverconfig.SessionTypeQualifying:
 		sort.Slice(results.Result, func(i, j int) bool {
 			if (!results.Result[i].Disqualified && !results.Result[j].Disqualified) || (results.Result[i].Disqualified && results.Result[j].Disqualified) {
 
@@ -174,7 +176,7 @@ func (pm *PenaltiesManager) applyPenalty(jsonFileName, guid, carModel string, pe
 			// driver i is closer to the front than j if they are not disqualified and j is
 			return results.Result[j].Disqualified
 		})
-	case SessionTypeRace:
+	case serverconfig.SessionTypeRace:
 		// sort results.Result, if disqualified go to back, if time penalty sort by laps completed then lap time
 		sort.Slice(results.Result, func(i, j int) bool {
 			if !results.Result[i].Disqualified && !results.Result[j].Disqualified {

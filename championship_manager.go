@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	"errors"
@@ -272,7 +273,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 					continue
 				}
 
-				if session.SessionType() == SessionTypeRace {
+				if session.SessionType() == serverconfig.SessionTypeRace {
 					session.Points[class.ID] = &class.Points
 				} else {
 					session.Points[class.ID] = &ChampionshipPoints{Places: make([]int, len(class.Points.Places))}

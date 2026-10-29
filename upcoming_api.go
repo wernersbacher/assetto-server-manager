@@ -9,6 +9,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 // The upcoming races API exposes what the calendar shows (the scheduled custom races, championship events and race
@@ -172,8 +174,8 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 
 		out.Sessions = append(out.Sessions, apiSession)
 
-		if sessionType == SessionTypeRace && setup.HasMultipleRaces() {
-			secondRace := newAPISession(SessionTypeSecondRace, "2nd Race", *session, setup.RaceExtraLap == 1)
+		if sessionType == serverconfig.SessionTypeRace && setup.HasMultipleRaces() {
+			secondRace := newAPISession(serverconfig.SessionTypeSecondRace, "2nd Race", *session, setup.RaceExtraLap == 1)
 			secondRace.Status = APIEventStatusScheduled
 
 			out.Sessions = append(out.Sessions, secondRace)

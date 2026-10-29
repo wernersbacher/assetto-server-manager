@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/etcd-io/bbolt"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 type BoltStore struct {
@@ -155,7 +157,7 @@ func (rs *BoltStore) entrantsBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(entrantsBucketName)
 }
 
-func (rs *BoltStore) UpsertEntrant(entrant Entrant) error {
+func (rs *BoltStore) UpsertEntrant(entrant serverconfig.Entrant) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.entrantsBucket(tx)
 
@@ -187,8 +189,8 @@ func (rs *BoltStore) DeleteEntrant(id string) error {
 	})
 }
 
-func (rs *BoltStore) ListEntrants() ([]*Entrant, error) {
-	var entrants []*Entrant
+func (rs *BoltStore) ListEntrants() ([]*serverconfig.Entrant, error) {
+	var entrants []*serverconfig.Entrant
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.entrantsBucket(tx)
@@ -200,7 +202,7 @@ func (rs *BoltStore) ListEntrants() ([]*Entrant, error) {
 		}
 
 		return bkt.ForEach(func(k, v []byte) error {
-			var entrant *Entrant
+			var entrant *serverconfig.Entrant
 
 			err := rs.decode(v, &entrant)
 
@@ -289,7 +291,7 @@ func (rs *BoltStore) serverOptionsBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(serverOptionsBucketName)
 }
 
-func (rs *BoltStore) UpsertServerOptions(so *GlobalServerConfig) error {
+func (rs *BoltStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -307,9 +309,9 @@ func (rs *BoltStore) UpsertServerOptions(so *GlobalServerConfig) error {
 	})
 }
 
-func (rs *BoltStore) LoadServerOptions() (*GlobalServerConfig, error) {
+func (rs *BoltStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, error) {
 	// start with defaults
-	defaultConfig := ConfigIniDefault()
+	defaultConfig := serverconfig.ConfigIniDefault()
 
 	so := &defaultConfig.GlobalServerConfig
 

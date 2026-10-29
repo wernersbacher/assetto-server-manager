@@ -13,6 +13,8 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 const pageSize = 25
@@ -49,11 +51,11 @@ func (f ResultsFilter) matchesFileName(name string) bool {
 	want := strings.ToUpper(f.Type)
 
 	if want == "BOOKING" {
-		want = string(SessionTypeBooking)
+		want = string(serverconfig.SessionTypeBooking)
 	}
 
 	// RACEx2 counts as a race
-	return sessionType == want || (want == string(SessionTypeRace) && strings.HasPrefix(sessionType, want))
+	return sessionType == want || (want == string(serverconfig.SessionTypeRace) && strings.HasPrefix(sessionType, want))
 }
 
 // resultSummary is the part of a results file that the track and driver filters look at.

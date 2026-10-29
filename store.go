@@ -1,5 +1,7 @@
 package servermanager
 
+import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+
 type Store interface {
 	// Custom Races
 	UpsertCustomRace(race *CustomRace) error
@@ -8,13 +10,13 @@ type Store interface {
 	DeleteCustomRace(race *CustomRace) error
 
 	// Entrants
-	UpsertEntrant(entrant Entrant) error
-	ListEntrants() ([]*Entrant, error)
+	UpsertEntrant(entrant serverconfig.Entrant) error
+	ListEntrants() ([]*serverconfig.Entrant, error)
 	DeleteEntrant(id string) error
 
 	// Server Options
-	UpsertServerOptions(so *GlobalServerConfig) error
-	LoadServerOptions() (*GlobalServerConfig, error)
+	UpsertServerOptions(so *serverconfig.GlobalServerConfig) error
+	LoadServerOptions() (*serverconfig.GlobalServerConfig, error)
 
 	// Championships
 	UpsertChampionship(c *Championship) error
@@ -69,7 +71,7 @@ type Store interface {
 // autoFillEntrant prepares an entrant for storage in the AutoFill entrant list. The list is used to fill in
 // driver details (name, team, GUID) when building entry lists, so race specific values (car, skin, spectator mode)
 // are cleared out and not stored.
-func autoFillEntrant(entrant Entrant) Entrant {
+func autoFillEntrant(entrant serverconfig.Entrant) serverconfig.Entrant {
 	entrant.Model = ""
 	entrant.Skin = ""
 	entrant.SpectatorMode = 0

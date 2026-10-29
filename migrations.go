@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	defaultcontent "github.com/wernersbacher/assetto-server-manager/fixtures/default-content"
 
 	"github.com/google/uuid"
@@ -481,7 +482,7 @@ func addServerNameTemplate(s Store) error {
 		return err
 	}
 
-	opts.ServerNameTemplate = defaultServerNameTemplate
+	opts.ServerNameTemplate = serverconfig.DefaultServerNameTemplate
 
 	return s.UpsertServerOptions(opts)
 }
@@ -766,7 +767,7 @@ func amendChampionshipClassIDIncorrectValues(s Store) error {
 
 						for _, session := range rw.Sessions {
 
-							if session.SessionType() == SessionTypeRace {
+							if session.SessionType() == serverconfig.SessionTypeRace {
 								session.Points[class.ID] = &class.Points
 							} else {
 								var points []int
@@ -936,7 +937,7 @@ func convertContentManagerDescriptionToNewTemplate(s Store) error {
 
 	if !strings.Contains(serverOpts.ContentManagerWelcomeMessage, "{{") {
 		// assume that no placeholders have been added.
-		serverOpts.ContentManagerWelcomeMessage += defaultContentManagerDescription
+		serverOpts.ContentManagerWelcomeMessage += serverconfig.DefaultContentManagerDescription
 	}
 
 	return s.UpsertServerOptions(serverOpts)

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -120,7 +121,7 @@ func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, champio
 			}
 
 			if championship.Events[currentEventIndex].Sessions == nil {
-				championship.Events[currentEventIndex].Sessions = make(map[SessionType]*ChampionshipSession)
+				championship.Events[currentEventIndex].Sessions = make(map[serverconfig.SessionType]*ChampionshipSession)
 			}
 
 			// new session created
@@ -225,14 +226,14 @@ var (
 	ErrResultFileNotFound = errors.New("servermanager: results files not found")
 )
 
-func (cm *ChampionshipManager) findSessionWithName(event *ChampionshipEvent, name string) (SessionType, error) {
+func (cm *ChampionshipManager) findSessionWithName(event *ChampionshipEvent, name string) (serverconfig.SessionType, error) {
 	for t, sess := range event.RaceSetup.Sessions {
 		if sess.Name == name {
-			savedRace, hasSavedRace := event.Sessions[SessionTypeRace]
+			savedRace, hasSavedRace := event.Sessions[serverconfig.SessionTypeRace]
 
-			if t == SessionTypeRace && event.RaceSetup.HasMultipleRaces() && hasSavedRace && savedRace.Completed() {
+			if t == serverconfig.SessionTypeRace && event.RaceSetup.HasMultipleRaces() && hasSavedRace && savedRace.Completed() {
 				// this is a second race session
-				return SessionTypeSecondRace, nil
+				return serverconfig.SessionTypeSecondRace, nil
 			}
 
 			return t, nil
@@ -277,7 +278,7 @@ func (cm *ChampionshipManager) CancelEvent(championshipID string, eventID string
 	event.StartedTime = time.Time{}
 	event.CompletedTime = time.Time{}
 
-	event.Sessions = make(map[SessionType]*ChampionshipSession)
+	event.Sessions = make(map[serverconfig.SessionType]*ChampionshipSession)
 
 	if err := cm.process.Stop(); err != nil {
 		return err

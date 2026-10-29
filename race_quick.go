@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"net/http"
@@ -61,15 +62,15 @@ func (qrh *QuickRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
 type QuickRace struct {
 	OverridePassword    bool
 	ReplacementPassword string
-	RaceConfig          CurrentRaceConfig
-	EntryList           EntryList
+	RaceConfig          serverconfig.CurrentRaceConfig
+	EntryList           serverconfig.EntryList
 }
 
-func (q QuickRace) GetRaceConfig() CurrentRaceConfig {
+func (q QuickRace) GetRaceConfig() serverconfig.CurrentRaceConfig {
 	return q.RaceConfig
 }
 
-func (q QuickRace) GetEntryList() EntryList {
+func (q QuickRace) GetEntryList() serverconfig.EntryList {
 	return q.EntryList
 }
 

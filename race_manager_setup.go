@@ -12,6 +12,8 @@ import (
 	"4d63.com/tz"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 var ErrMustSubmitCar = errors.New("servermanager: you must set a car")
@@ -22,7 +24,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 	}
 
 	// load default config values
-	quickRace := ConfigIniDefault().CurrentRaceConfig
+	quickRace := serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 	cars := r.Form["Cars"]
 
@@ -58,7 +60,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 
 	quickRace.LegalTyres = strings.Join(quickRaceTyres, ";")
 
-	quickRace.Sessions = make(map[SessionType]*SessionConfig)
+	quickRace.Sessions = make(map[serverconfig.SessionType]*serverconfig.SessionConfig)
 
 	qualifyingTime, err := strconv.ParseInt(r.Form.Get("Qualifying.Time"), 10, 0)
 
@@ -66,7 +68,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		return err
 	}
 
-	quickRace.AddSession(SessionTypeQualifying, &SessionConfig{
+	quickRace.AddSession(serverconfig.SessionTypeQualifying, &serverconfig.SessionConfig{
 		Name:   "Qualify",
 		Time:   int(qualifyingTime),
 		IsOpen: 1,
@@ -84,7 +86,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		return err
 	}
 
-	quickRace.AddSession(SessionTypeRace, &SessionConfig{
+	quickRace.AddSession(serverconfig.SessionTypeRace, &serverconfig.SessionConfig{
 		Name:     "Race",
 		Time:     int(raceTime),
 		Laps:     int(raceLaps),
@@ -96,7 +98,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		return ErrMustSubmitCar
 	}
 
-	entryList := EntryList{}
+	entryList := serverconfig.EntryList{}
 
 	var numPitboxes int
 
@@ -132,7 +134,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 			skin = carMap[model][rand.Intn(len(carMap[model]))]
 		}
 
-		e := NewEntrant()
+		e := serverconfig.NewEntrant()
 		e.PitBox = i
 		e.Model = model
 		e.Skin = skin
@@ -172,8 +174,8 @@ func formValueAsFloat(val string) float64 {
 	return i
 }
 
-func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (EntryList, error) {
-	entryList := EntryList{}
+func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (serverconfig.EntryList, error) {
+	entryList := serverconfig.EntryList{}
 
 	allCars, err := rm.carManager.ListCars()
 
@@ -193,7 +195,7 @@ func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (Entry
 			}
 		}
 
-		e := NewEntrant()
+		e := serverconfig.NewEntrant()
 
 		if r.Form["EntryList.InternalUUID"][i] != "" || r.Form["EntryList.InternalUUID"][i] != uuid.Nil.String() {
 			internalUUID, err := uuid.Parse(r.Form["EntryList.InternalUUID"][i])
@@ -206,7 +208,7 @@ func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (Entry
 		e.Name = r.Form["EntryList.Name"][i]
 		e.Team = r.Form["EntryList.Team"][i]
 
-		e.GUID = NormaliseEntrantGUID(r.Form["EntryList.GUID"][i])
+		e.GUID = serverconfig.NormaliseEntrantGUID(r.Form["EntryList.GUID"][i])
 		e.Model = model
 		e.Skin = skin
 		// Despite having the option for SpectatorMode, the server does not support it, and panics if set to 1
@@ -236,7 +238,7 @@ func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (Entry
 	return entryList, nil
 }
 
-func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceConfig, error) {
+func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.CurrentRaceConfig, error) {
 	cars := r.Form["Cars"]
 	isSol := r.FormValue("Sol.Enabled") == "1"
 
@@ -272,15 +274,15 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 		legalTyres = legalTyresUnescaped
 	}
 
-	raceConfig := &CurrentRaceConfig{
+	raceConfig := &serverconfig.CurrentRaceConfig{
 		// general race config
 		Cars:        strings.Join(cars, ";"),
 		Track:       r.FormValue("Track"),
 		TrackLayout: trackLayout,
 
 		// assists
-		ABSAllowed:              FactoryAssist(formValueAsInt(r.FormValue("ABSAllowed"))),
-		TractionControlAllowed:  FactoryAssist(formValueAsInt(r.FormValue("TractionControlAllowed"))),
+		ABSAllowed:              serverconfig.FactoryAssist(formValueAsInt(r.FormValue("ABSAllowed"))),
+		TractionControlAllowed:  serverconfig.FactoryAssist(formValueAsInt(r.FormValue("TractionControlAllowed"))),
 		StabilityControlAllowed: formValueAsInt(r.FormValue("StabilityControlAllowed")),
 		AutoClutchAllowed:       formValueAsInt(r.FormValue("AutoClutchAllowed")),
 		TyreBlanketsAllowed:     formValueAsInt(r.FormValue("TyreBlanketsAllowed")),
@@ -297,7 +299,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 		ForceVirtualMirror:  formValueAsInt(r.FormValue("ForceVirtualMirror")),
 		TimeOfDayMultiplier: formValueAsInt(r.FormValue("TimeOfDayMultiplier")),
 
-		DynamicTrack: DynamicTrackConfig{
+		DynamicTrack: serverconfig.DynamicTrackConfig{
 			SessionStart:    formValueAsInt(r.FormValue("SessionStart")),
 			Randomness:      formValueAsInt(r.FormValue("Randomness")),
 			SessionTransfer: formValueAsInt(r.FormValue("SessionTransfer")),
@@ -316,7 +318,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 		AllowedTyresOut:           formValueAsInt(r.FormValue("AllowedTyresOut")),
 		LoopMode:                  loopMode,
 		RaceOverTime:              formValueAsInt(r.FormValue("RaceOverTime")),
-		StartRule:                 StartRule(formValueAsInt(r.FormValue("StartRule"))),
+		StartRule:                 serverconfig.StartRule(formValueAsInt(r.FormValue("StartRule"))),
 		MaxClients:                formValueAsInt(r.FormValue("MaxClients")),
 		RaceExtraLap:              formValueAsInt(r.FormValue("RaceExtraLap")),
 		MaxContactsPerKilometer:   formValueAsInt(r.FormValue("MaxContactsPerKilometer")),
@@ -338,13 +340,13 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 		raceConfig.TimeOfDayMultiplier = 0
 	}
 
-	for _, session := range AvailableSessions {
+	for _, session := range serverconfig.AvailableSessions {
 		sessName := session.String()
 
 		disabled := r.FormValue(sessName+".Enabled") != "1"
 
 		if timeAttack {
-			if sessName != SessionTypePractice.String() {
+			if sessName != serverconfig.SessionTypePractice.String() {
 				continue
 			} else {
 				disabled = false
@@ -355,11 +357,11 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 			continue
 		}
 
-		raceConfig.AddSession(session, &SessionConfig{
+		raceConfig.AddSession(session, &serverconfig.SessionConfig{
 			Name:     r.FormValue(sessName + ".Name"),
 			Time:     formValueAsInt(r.FormValue(sessName + ".Time")),
 			Laps:     formValueAsInt(r.FormValue(sessName + ".Laps")),
-			IsOpen:   SessionOpenness(formValueAsInt(r.FormValue(sessName + ".IsOpen"))),
+			IsOpen:   serverconfig.SessionOpenness(formValueAsInt(r.FormValue(sessName + ".IsOpen"))),
 			WaitTime: formValueAsInt(r.FormValue(sessName + ".WaitTime")),
 		})
 	}
@@ -372,7 +374,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 
 		// if WFXType can't be found due to an error, default to non-sol weather.
 		if !isSol || err != nil {
-			raceConfig.AddWeather(&WeatherConfig{
+			raceConfig.AddWeather(&serverconfig.WeatherConfig{
 				Graphics:               weatherName,
 				BaseTemperatureAmbient: formValueAsInt(r.Form["BaseTemperatureAmbient"][i]),
 				BaseTemperatureRoad:    formValueAsInt(r.Form["BaseTemperatureRoad"][i]),
@@ -404,7 +406,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*CurrentRaceCon
 				startTimeFinal = unixTime
 			}
 
-			raceConfig.AddWeather(&WeatherConfig{
+			raceConfig.AddWeather(&serverconfig.WeatherConfig{
 				Graphics: weatherName + "_type=" + strconv.Itoa(WFXType) + "_time=0_mult=" +
 					timeMulti + "_start=" + strconv.Itoa(int(startTimeFinal.Unix())),
 				BaseTemperatureAmbient: formValueAsInt(r.Form["BaseTemperatureAmbient"][i]),
@@ -444,9 +446,9 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 		return err
 	}
 
-	var entryList EntryList
+	var entryList serverconfig.EntryList
 
-	if !raceConfig.HasSession(SessionTypeBooking) {
+	if !raceConfig.HasSession(serverconfig.SessionTypeBooking) {
 		entryList, err = rm.BuildEntryList(r, 0, len(r.Form["EntryList.Name"]))
 
 		if err != nil {
@@ -458,7 +460,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 		return err
 	}
 
-	completeConfig := ConfigIniDefault()
+	completeConfig := serverconfig.ConfigIniDefault()
 	completeConfig.CurrentRaceConfig = *raceConfig
 
 	overridePassword := r.FormValue("OverridePassword") == "1"
@@ -540,7 +542,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 
 // applyCurrentRaceSetupToOptions takes current values in race which require more detailed configuration
 // and applies them to the template opts.
-func (rm *RaceManager) applyCurrentRaceSetupToOptions(opts *RaceTemplateVars, race CurrentRaceConfig) error {
+func (rm *RaceManager) applyCurrentRaceSetupToOptions(opts *RaceTemplateVars, race serverconfig.CurrentRaceConfig) error {
 	tyres, err := ListTyres()
 
 	if err != nil {

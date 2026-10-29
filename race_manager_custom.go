@@ -8,6 +8,8 @@ import (
 	"github.com/etcd-io/bbolt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
 const maxRecentRaces = 40
@@ -68,8 +70,8 @@ func (rm *RaceManager) SaveCustomRace(
 	name string,
 	overridePassword bool,
 	replacementPassword string,
-	config CurrentRaceConfig,
-	entryList EntryList,
+	config serverconfig.CurrentRaceConfig,
+	entryList serverconfig.EntryList,
 	starred bool,
 	forceStopTime int,
 	forceStopWithDrivers bool,
@@ -188,7 +190,7 @@ func (rm *RaceManager) ToggleLoopCustomRace(uuid string) (bool, error) {
 	return race.LoopServer[serverID], rm.store.UpsertCustomRace(race)
 }
 
-func (rm *RaceManager) SaveServerOptions(newServerOpts *GlobalServerConfig) error {
+func (rm *RaceManager) SaveServerOptions(newServerOpts *serverconfig.GlobalServerConfig) error {
 	oldServerOpts, err := rm.store.LoadServerOptions()
 
 	if err != nil {
@@ -216,7 +218,7 @@ func (rm *RaceManager) SaveServerOptions(newServerOpts *GlobalServerConfig) erro
 	return nil
 }
 
-func (rm *RaceManager) LoadServerOptions() (*GlobalServerConfig, error) {
+func (rm *RaceManager) LoadServerOptions() (*serverconfig.GlobalServerConfig, error) {
 	serverOpts, err := rm.store.LoadServerOptions()
 
 	if err != nil {
