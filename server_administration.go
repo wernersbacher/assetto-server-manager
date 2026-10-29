@@ -24,6 +24,7 @@ type ServerAdministrationHandler struct {
 	raceWeekendManager  *RaceWeekendManager
 	process             ServerProcess
 	acsrClient          *ACSRClient
+	scheduledRaces      *ScheduledRacesManager
 }
 
 func NewServerAdministrationHandler(
@@ -34,6 +35,7 @@ func NewServerAdministrationHandler(
 	raceWeekendManager *RaceWeekendManager,
 	process ServerProcess,
 	acsrClient *ACSRClient,
+	scheduledRaces *ScheduledRacesManager,
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
 		BaseHandler:         baseHandler,
@@ -43,14 +45,22 @@ func NewServerAdministrationHandler(
 		raceWeekendManager:  raceWeekendManager,
 		process:             process,
 		acsrClient:          acsrClient,
+		scheduledRaces:      scheduledRaces,
 	}
 }
+
+const (
+	homeUpcomingRaces = 5
+	homeRecentResults = 5
+)
 
 type homeTemplateVars struct {
 	BaseTemplateVars
 
 	RaceDetails     *CustomRace
 	PerformanceMode bool
+	UpcomingRaces   []*APIUpcomingRace
+	RecentResults   []*SessionResults
 }
 
 // homeHandler serves content to /
@@ -63,9 +73,24 @@ func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Requ
 		customRace = &CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
 	}
 
+	// the overview still renders if the calendar or the results can't be loaded, they are just left out
+	upcoming, err := sah.scheduledRaces.upcomingRaces(time.Now(), homeUpcomingRaces)
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't load upcoming races for the overview")
+	}
+
+	recentResults, err := listRecentResults(homeRecentResults)
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't load recent results for the overview")
+	}
+
 	sah.viewRenderer.MustLoadTemplate(w, r, "home.html", &homeTemplateVars{
 		RaceDetails:     customRace,
 		PerformanceMode: config.Server.PerformanceMode,
+		UpcomingRaces:   upcoming,
+		RecentResults:   recentResults,
 	})
 }
 

@@ -1,44 +1,126 @@
+// Overview / dashboard
 
-a.card h3 {
-  color: $body-color;
-  margin-top: 20px;
-  font-size: 1.50rem;
+.section-title {
+  font-size: 16px;
+  margin-bottom: 12px;
 }
 
-
-a.card:hover {
-  text-decoration: none;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
 }
 
-.home-race-info {
-  min-height: 200px;
+.dashboard-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-@media screen and (max-width: 768px) {
-  .home-race-info .race-info {
-    min-height: 200px;
-  }
+.dashboard-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 
-  .home-race-info .button-bar {
-    position: relative;
-    width: auto;
-    margin-bottom: 10px;
-  }
-
-  .home-race-info .float-right {
-    float: unset !important;
-  }
-
-  .home-race-info .btn {
-    width: 100%;
-  }
-
-  #trackImage {
-    padding-left: 0 !important;
-    width: 100%;
+  h2 {
+    margin: 0;
+    font-size: 16px;
   }
 }
 
-.home-race-info .race-info, .home-race-info .race-info small {
-  font-size: 1.1em;
+.current-session {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.current-session-image {
+  width: 96px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background-color: var(--muted);
+}
+
+.current-session-track {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin: 0;
+
+  dt {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--muted-foreground);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.upcoming-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-top: 1px solid var(--border);
+  }
+}
+
+.upcoming-date {
+  width: 52px;
+  flex-shrink: 0;
+  text-align: center;
+  line-height: 1.2;
+
+  span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted-foreground);
+  }
+
+  strong {
+    font-size: 15px;
+    white-space: nowrap;
+  }
+}
+
+.upcoming-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.upcoming-name {
+  font-weight: 600;
+}
+
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.quick-action {
+  padding: 16px;
+  gap: 4px;
+
+  span {
+    font-size: 13px;
+  }
 }

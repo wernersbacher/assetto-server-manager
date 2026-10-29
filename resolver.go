@@ -362,6 +362,7 @@ func (r *Resolver) resolveServerAdministrationHandler() *ServerAdministrationHan
 		r.resolveRaceWeekendManager(),
 		r.resolveServerProcess(),
 		r.acsrClient,
+		r.resolveScheduledRacesManager(),
 	)
 
 	return r.serverAdministrationHandler

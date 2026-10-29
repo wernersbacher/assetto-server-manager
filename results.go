@@ -1426,6 +1426,45 @@ func ListAllResults() ([]SessionResults, error) {
 	return results, nil
 }
 
+// listRecentResults returns the newest n results, newest first. Results that can't be loaded are skipped.
+func listRecentResults(n int) ([]*SessionResults, error) {
+	resultFiles, err := ioutil.ReadDir(filepath.Join(ServerInstallPath, "results"))
+
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Slice(resultFiles, func(i, j int) bool {
+		d1, _ := GetResultDate(resultFiles[i].Name())
+		d2, _ := GetResultDate(resultFiles[j].Name())
+
+		return d1.After(d2)
+	})
+
+	var results []*SessionResults
+
+	for _, resultFile := range resultFiles {
+		if len(results) >= n {
+			break
+		}
+
+		if resultFile.IsDir() || filepath.Ext(resultFile.Name()) != ".json" {
+			continue
+		}
+
+		result, err := LoadResult(resultFile.Name(), LoadResultWithoutPluginFire)
+
+		if err != nil {
+			logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
+			continue
+		}
+
+		results = append(results, result)
+	}
+
+	return results, nil
+}
+
 func GetResultDate(name string) (time.Time, error) {
 	dateSplit := strings.Split(name, "_")
 	dateSplit = dateSplit[0 : len(dateSplit)-1]

@@ -1,428 +1,192 @@
 {{/* gotype: github.com/JustaPenguin/assetto-server-manager.homeTemplateVars */}}
 
-{{ define "title" }}Home{{ end }}
+{{ define "title" }}Overview{{ end }}
 
 {{ define "content" }}
+    <div class="page-header">
+        <div>
+            <h1>Overview</h1>
+            <p>What is happening on the server right now and what comes next.</p>
+        </div>
+    </div>
 
-    {{ with .RaceDetails }}
-        <div class="card mb-4">
-            {{ if $.ServerEvent.IsChampionship }}
-                <h5 class="card-header">Championship {{ if $.ServerEvent.IsPractice }}Practice{{ else }}Event{{ end }} in Progress</h5>
-            {{ else if $.ServerEvent.IsRaceWeekend }}
-                <h5 class="card-header">Race Weekend {{ if $.ServerEvent.IsPractice }}Practice{{ end }} in Progress</h5>
-            {{ else }}
-                <h5 class="card-header">Event in Progress</h5>
-            {{ end }}
-
-            <div class="card-body row home-race-info">
-                <div class="col-md-8">
-
-                    {{ template "race-card" . }}
-
-                    <div class="button-bar">
-                        {{ if not $.PerformanceMode }}
-                            <a href="/live-timing" class="btn btn-primary">Live Timings</a>
-                        {{ end }}
-
-
-                        {{ if WriteAccess }}
-                            <div class="float-right">
-                                <a
-                                    href="/process/restart"
-                                    class="btn btn-warning"
-
-                                    {{ if not $.ServerEvent.IsPractice }}
-                                        {{ if $.ServerEvent.IsChampionship }}
-                                            onClick="return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');"
-                                        {{ else if $.ServerEvent.IsRaceWeekend }}
-                                            onClick="return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');"
-                                        {{ end }}
-                                    {{ end }}
-                                >
-                                    Restart Event
-                                </a>
-                                <a
-                                    href="/process/stop"
-                                    class="btn btn-danger"
-
-                                    {{ if not $.ServerEvent.IsPractice }}
-                                        {{ if $.ServerEvent.IsChampionship }}
-                                            onClick="return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');"
-                                        {{ else if $.ServerEvent.IsRaceWeekend }}
-                                            onClick="return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');"
-                                        {{ end }}
-                                    {{ end }}
-                                >
-                                    Stop Event
-                                </a>
-                            </div>
-                        {{ end }}
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <img class="img img-fluid ml-2"
-                         id="trackImage"
-                         src="/content/tracks/{{ .RaceConfig.Track }}/ui{{ with .RaceConfig.TrackLayout }}/{{.}}{{ end }}/preview.png"
-                         alt="{{ .RaceConfig.Track }} {{ .RaceConfig.TrackLayout }}"
-                    >
-                </div>
-            </div>
+    {{ if not LoggedIn }}
+        <div class="alert alert-info mb-4">
+            You are viewing as a guest. <a href="/login">Sign in</a> to manage races, content and the server.
         </div>
     {{ end }}
 
-    <h2>Races</h2>
+    <div class="dashboard-grid mb-4">
+        <section class="card dashboard-card" aria-labelledby="current-session-heading">
+            <div class="dashboard-card-header">
+                <h2 id="current-session-heading">Current session</h2>
 
-    <div class="row">
-        {{ if WriteAccess }}
-            <div class="col-md-6 col-lg-4 mt-4">
-                <a class="card" href="/quick">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-5">
-                                <h1 class="text-center"><i class="fas fa-fighter-jet fa-2x"></i></h1>
-                            </div>
-
-                            <div class="col-7">
-                                <h3>Quick Race</h3>
-                            </div>
-                        </div>
-                    </div>
-                </a>
+                {{ if $.ServerStatus }}
+                    <span class="badge badge-success">{{ template "ServerEventType" $.ServerEvent }}</span>
+                {{ else }}
+                    <span class="badge badge-secondary">Stopped</span>
+                {{ end }}
             </div>
-        {{ end }}
 
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/custom">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-palette fa-2x"></i></h1>
+            {{ with .RaceDetails }}
+                {{ $trackInfo := trackInfo .RaceConfig.Track .RaceConfig.TrackLayout }}
+
+                <div class="current-session">
+                    <img class="current-session-image"
+                         src="/content/tracks/{{ .RaceConfig.Track }}/ui{{ with .RaceConfig.TrackLayout }}/{{.}}{{ end }}/preview.png"
+                         alt="" onerror="this.style.display='none'">
+
+                    <div class="current-session-info">
+                        <div class="current-session-track">
+                            {{ with $trackInfo }}
+                                {{ .Name }}
+                            {{ else }}
+                                {{ prettify .RaceConfig.Track false }} {{ with .RaceConfig.TrackLayout }}({{ prettify . true }}){{ end }}
+                            {{ end }}
                         </div>
-
-                        <div class="col-7">
-                            <h3>Custom Races</h3>
-                        </div>
-                    </div>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/championships">
-                <div class="card-body">
-                    <div class="row">
-
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-flag-checkered fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Championships</h3>
-                        </div>
-                    </div>
-
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/race-weekends">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-car-crash fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Race Weekends</h3>
+                        <div class="text-muted">
+                            {{ $.ServerEvent.EventName }}{{ with $trackInfo }} · {{ .City }}, {{ .Country }}{{ end }}
                         </div>
                     </div>
                 </div>
-            </a>
-        </div>
 
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/results">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-poll-h fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Results</h3>
-                        </div>
+                <dl class="stat-row">
+                    <div>
+                        <dt>Sessions</dt>
+                        <dd>
+                            {{ range $sessionType, $session := .RaceConfig.Sessions }}
+                                <span class="badge badge-secondary">{{ $sessionType.String }}</span>
+                            {{ end }}
+                        </dd>
                     </div>
-                </div>
-            </a>
-        </div>
-
-
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/calendar">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-calendar-check fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Calendar</h3>
-                        </div>
+                    <div>
+                        <dt>Entrants</dt>
+                        <dd>{{ len .EntryList }}</dd>
                     </div>
-                </div>
-            </a>
-        </div>
-
-    </div>
-
-    <h2 class="mt-4">Content</h2>
-
-    <div class="row">
-
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/tracks">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-road fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Tracks</h3>
-                        </div>
+                    <div>
+                        <dt>Cars</dt>
+                        <dd>{{ carList .RaceConfig.Cars }}</dd>
                     </div>
-                </div>
-            </a>
-        </div>
+                </dl>
 
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/cars">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-car fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Cars &amp; Setups</h3>
-                        </div>
+                {{ if not $.PerformanceMode }}
+                    <div>
+                        <a href="/live-timing" class="btn btn-primary">Open live timing {{ template "icon" "arrow-right" }}</a>
                     </div>
+                {{ end }}
+            {{ else }}
+                <p class="text-muted mb-0">
+                    No event is running.
+                    {{ with .UpcomingRaces }}
+                        {{ $next := index . 0 }}
+                        Next up: <strong class="text-body">{{ $next.Name }}</strong>, {{ localFormat $next.Start }}.
+                    {{ end }}
+                </p>
 
-                </div>
-            </a>
-        </div>
-
-        <div class="col-md-6 col-lg-4 mt-4">
-            <a class="card" href="/weather">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-5">
-                            <h1 class="text-center"><i class="fas fa-cloud-moon fa-2x"></i></h1>
-                        </div>
-
-                        <div class="col-7">
-                            <h3>Weather</h3>
-                        </div>
+                {{ if WriteAccess }}
+                    <div>
+                        <a href="/quick" class="btn btn-primary">{{ template "icon" "play" }} Start a quick race</a>
                     </div>
-                </div>
-            </a>
-        </div>
+                {{ end }}
+            {{ end }}
+        </section>
+
+        <section class="card dashboard-card" aria-labelledby="upcoming-heading">
+            <div class="dashboard-card-header">
+                <h2 id="upcoming-heading">Coming up</h2>
+                <a href="/calendar" class="small text-muted">Calendar</a>
+            </div>
+
+            {{ with .UpcomingRaces }}
+                <ul class="upcoming-list">
+                    {{ range . }}
+                        <li>
+                            <div class="upcoming-date">
+                                <span>{{ .Start.Format "Mon" }}</span>
+                                <strong>{{ .Start.Format "Jan 2" }}</strong>
+                            </div>
+                            <div class="upcoming-info">
+                                <div class="upcoming-name">
+                                    {{ if .ChampionshipID }}
+                                        <a href="/championship/{{ .ChampionshipID }}">{{ .ChampionshipName }}</a> · {{ .Name }}
+                                    {{ else if .RaceWeekendID }}
+                                        <a href="/race-weekend/{{ .RaceWeekendID }}">{{ .RaceWeekendName }}</a> · {{ .Name }}
+                                    {{ else }}
+                                        {{ .Name }}
+                                    {{ end }}
+                                </div>
+                                <div class="small text-muted">{{ .TrackName }} · {{ localFormatHourAndZone .Start }}</div>
+                            </div>
+                            {{ with .Recurrence }}<span class="badge badge-secondary">Recurring</span>{{ end }}
+                        </li>
+                    {{ end }}
+                </ul>
+            {{ else }}
+                <p class="text-muted mb-0">Nothing is scheduled.</p>
+            {{ end }}
+        </section>
     </div>
 
     {{ if WriteAccess }}
+        <section class="mb-4" aria-labelledby="quick-actions-heading">
+            <h2 id="quick-actions-heading" class="section-title">Quick actions</h2>
 
-        <h2 class="mt-4">Server Management</h2>
-
-        <div class="row">
-
-            {{ if AdminAccess }}
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/server-options">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-cog fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Options</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            {{ end }}
-
-
-            {{ if WriteAccess }}
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/logs">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-file-alt fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Logs</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            {{ end }}
-
-
-            {{ if AdminAccess }}
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/accounts">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-user fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Accounts</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/blacklist">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-gavel fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Blacklist</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/motd">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-comment-alt fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Messages</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/audit-logs">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-clipboard-list fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Audit Logs</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/stracker/options">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-stopwatch fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>STracker</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/kissmyrank/options">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-balance-scale fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>KissMyRank</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/realpenalty/options">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-shield-alt fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Real Penalty</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/current-config">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-scroll fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>Current Config</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            {{ end }}
-
-            {{ if DeleteAccess }}
-                <div class="col-md-6 col-lg-4 mt-4">
-                    <a class="card" href="/autofill-entrants">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-5">
-                                    <h1 class="text-center"><i class="fas fa-users-cog fa-2x"></i></h1>
-                                </div>
-
-                                <div class="col-7">
-                                    <h3>AutoFill Entrants</h3>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            {{ end }}
-        </div>
+            <div class="quick-actions">
+                <a href="/quick" class="card quick-action">
+                    <strong>Quick race</strong>
+                    <span class="text-muted">Start with defaults in one step</span>
+                </a>
+                <a href="/custom/new" class="card quick-action">
+                    <strong>New custom race</strong>
+                    <span class="text-muted">Track, cars, sessions, entry list</span>
+                </a>
+                <a href="/championships/new" class="card quick-action">
+                    <strong>New championship</strong>
+                    <span class="text-muted">Classes, points, sign-up form</span>
+                </a>
+                <a href="/race-weekends/new" class="card quick-action">
+                    <strong>New race weekend</strong>
+                    <span class="text-muted">Sessions with grids from earlier results</span>
+                </a>
+            </div>
+        </section>
     {{ end }}
 
-    <div class="clearfix"></div>
+    <section aria-labelledby="recent-results-heading">
+        <div class="d-flex align-items-center justify-content-between">
+            <h2 id="recent-results-heading" class="section-title">Recent results</h2>
+            <a href="/results" class="small text-muted">All results</a>
+        </div>
+
+        {{ with .RecentResults }}
+            <div class="table-responsive border rounded">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Session</th>
+                            <th scope="col">Track</th>
+                            <th scope="col">Winner</th>
+                            <th scope="col" class="text-right">Best lap</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range . }}
+                            <tr>
+                                <td class="text-nowrap text-muted">{{ localFormat .Date }}</td>
+                                <td>
+                                    <a href="/results/{{ .SessionFile }}">{{ if .IsTimeAttack }}Time Attack{{ else }}{{ .Type }}{{ end }}</a>
+                                </td>
+                                <td>{{ prettify .TrackName false }}</td>
+                                <td>{{ if .Result }}{{ driverName (index .Result 0).DriverName }}{{ end }}</td>
+                                <td class="text-right text-monospace">{{ with .FastestLap }}{{ formatDuration .GetLapTime true }}{{ end }}</td>
+                            </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        {{ else }}
+            <p class="text-muted">No results yet.</p>
+        {{ end }}
+    </section>
 {{ end }}
