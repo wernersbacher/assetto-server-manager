@@ -16,10 +16,6 @@ import (
 // BuildVersion is the time Server Manager was built at
 var BuildVersion string
 
-func driverName(name string) string {
-	return smresults.DriverName(name)
-}
-
 func driverInitials(name string) string {
 	return smresults.DriverInitials(name)
 }
