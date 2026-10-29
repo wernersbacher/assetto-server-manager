@@ -1,10 +1,11 @@
-package servermanager
+package server
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -47,6 +48,10 @@ type AssettoServerProcess struct {
 	config                *smconfig.Configuration
 	store                 smstore.Store
 	contentManagerWrapper *ContentManagerWrapper
+	env                   *serverenv.Env
+
+	// pluginsOutput receives the output of the plugin processes (stracker, kissmyrank, ...)
+	pluginsOutput io.Writer
 
 	start                 chan smmodel.RaceEvent
 	startMutex            sync.Mutex
@@ -56,7 +61,7 @@ type AssettoServerProcess struct {
 	ctx context.Context
 	cfn context.CancelFunc
 
-	logBuffer *logBuffer
+	logBuffer *LogBuffer
 
 	raceEvent      smmodel.RaceEvent
 	cmd            *exec.Cmd
@@ -81,17 +86,26 @@ type pluginProcess struct {
 	stdin io.WriteCloser
 }
 
-func NewAssettoServerProcess(config *smconfig.Configuration, callbackFunc udp.CallbackFunc, store smstore.Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
+func NewAssettoServerProcess(
+	config *smconfig.Configuration,
+	callbackFunc udp.CallbackFunc,
+	store smstore.Store,
+	contentManagerWrapper *ContentManagerWrapper,
+	env *serverenv.Env,
+	pluginsOutput io.Writer,
+) *AssettoServerProcess {
 	sp := &AssettoServerProcess{
 		config:                config,
 		start:                 make(chan smmodel.RaceEvent),
 		started:               make(chan error),
 		stopped:               make(chan error),
 		run:                   make(chan error),
-		logBuffer:             newLogBuffer(MaxLogSizeBytes),
+		logBuffer:             NewLogBuffer(MaxLogSizeBytes),
 		callbackFunc:          callbackFunc,
 		store:                 store,
 		contentManagerWrapper: contentManagerWrapper,
+		env:                   env,
+		pluginsOutput:         pluginsOutput,
 		sessionStartedChan:    make(chan struct{}),
 	}
 
@@ -101,7 +115,7 @@ func NewAssettoServerProcess(config *smconfig.Configuration, callbackFunc udp.Ca
 }
 
 func (sp *AssettoServerProcess) UDPCallback(message udp.Message) {
-	panicCapture(func() {
+	sp.env.PanicCapture(func() {
 		sp.callbackFunc(message)
 
 		if sp.config.Server.PersistMidSessionResults && message.Event() == udp.EventNewSession {
@@ -240,7 +254,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	if filepath.IsAbs(sp.config.Steam.ExecutablePath) {
 		executablePath = sp.config.Steam.ExecutablePath
 	} else {
-		executablePath = filepath.Join(ServerInstallPath, sp.config.Steam.ExecutablePath)
+		executablePath = filepath.Join(sp.env.InstallPath(), sp.config.Steam.ExecutablePath)
 	}
 
 	serverOptions, err := sp.store.LoadServerOptions()
@@ -251,14 +265,14 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 
 	sp.ctx, sp.cfn = context.WithCancel(context.Background())
 	sp.cmd = buildCommand(sp.ctx, executablePath)
-	sp.cmd.Dir = ServerInstallPath
+	sp.cmd.Dir = sp.env.InstallPath()
 
 	var logOutput io.Writer
 	var errorOutput io.Writer
 
 	if serverOptions.LogACServerOutputToFile {
-		logDirectory := filepath.Join(ServerInstallPath, "logs", "session")
-		errorDirectory := filepath.Join(ServerInstallPath, "logs", "error")
+		logDirectory := filepath.Join(sp.env.InstallPath(), "logs", "session")
+		errorDirectory := filepath.Join(sp.env.InstallPath(), "logs", "error")
 
 		if err := os.MkdirAll(logDirectory, 0755); err != nil {
 			return err
@@ -328,7 +342,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	}()
 
 	if serverOptions.EnableContentManagerWrapper == 1 && serverOptions.ContentManagerWrapperPort > 0 {
-		go panicCapture(func() {
+		go sp.env.PanicCapture(func() {
 			err := sp.contentManagerWrapper.Start(serverOptions.ContentManagerWrapperPort, sp.raceEvent, sp)
 
 			if err != nil {
@@ -338,16 +352,16 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	}
 
 	strackerOptions, err := sp.store.LoadStrackerOptions()
-	strackerEnabled := err == nil && strackerOptions.EnableStracker && smplugins.IsStrackerInstalled(ServerInstallPath)
+	strackerEnabled := err == nil && strackerOptions.EnableStracker && smplugins.IsStrackerInstalled(sp.env.InstallPath())
 
 	// if stracker is enabled we need to let it set the interval
 	udp.PosIntervalModifierEnabled = !strackerEnabled
 
 	kissMyRankOptions, err := sp.store.LoadKissMyRankOptions()
-	kissMyRankEnabled := err == nil && kissMyRankOptions.EnableKissMyRank && smplugins.IsKissMyRankInstalled(ServerInstallPath)
+	kissMyRankEnabled := err == nil && kissMyRankOptions.EnableKissMyRank && smplugins.IsKissMyRankInstalled(sp.env.InstallPath())
 
 	realPenaltyOptions, err := sp.store.LoadRealPenaltyOptions()
-	realPenaltyEnabled := err == nil && realPenaltyOptions.RealPenaltyAppConfig.General.EnableRealPenalty && smplugins.IsRealPenaltyInstalled(ServerInstallPath)
+	realPenaltyEnabled := err == nil && realPenaltyOptions.RealPenaltyAppConfig.General.EnableRealPenalty && smplugins.IsRealPenaltyInstalled(sp.env.InstallPath())
 
 	udpPluginPortsSetup := sp.forwardListenPort >= 0 && sp.forwardingAddress != "" || strings.Contains(sp.forwardingAddress, ":")
 
@@ -356,8 +370,8 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	}
 
 	if strackerEnabled && strackerOptions != nil && udpPluginPortsSetup {
-		strackerOptions.InstanceConfiguration.ACServerConfigIni = filepath.Join(ServerInstallPath, "cfg", serverconfig.ServerConfigIniFilename)
-		strackerOptions.InstanceConfiguration.ACServerWorkingDir = ServerInstallPath
+		strackerOptions.InstanceConfiguration.ACServerConfigIni = filepath.Join(sp.env.InstallPath(), "cfg", serverconfig.ServerConfigIniFilename)
+		strackerOptions.InstanceConfiguration.ACServerWorkingDir = sp.env.InstallPath()
 		strackerOptions.ACPlugin.SendPort = sp.forwardListenPort
 		strackerOptions.ACPlugin.ReceivePort = smweb.FormValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
 
@@ -380,15 +394,15 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 			}
 		}
 
-		if err := strackerOptions.Write(ServerInstallPath); err != nil {
+		if err := strackerOptions.Write(sp.env.InstallPath()); err != nil {
 			return err
 		}
 
 		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
-			Executable: smplugins.StrackerExecutablePath(ServerInstallPath),
+			Executable: smplugins.StrackerExecutablePath(sp.env.InstallPath()),
 			Arguments: []string{
 				"--stracker_ini",
-				filepath.Join(smplugins.StrackerFolderPath(ServerInstallPath), smplugins.StrackerConfigIniFilename),
+				filepath.Join(smplugins.StrackerFolderPath(sp.env.InstallPath()), smplugins.StrackerConfigIniFilename),
 			},
 		})
 
@@ -400,7 +414,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	}
 
 	if realPenaltyEnabled && realPenaltyOptions != nil && udpPluginPortsSetup {
-		if err := smplugins.FixRealPenaltyExecutablePermissions(ServerInstallPath); err != nil {
+		if err := smplugins.FixRealPenaltyExecutablePermissions(sp.env.InstallPath()); err != nil {
 			return err
 		}
 
@@ -447,21 +461,21 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 
 		realPenaltyOptions.RealPenaltyAppConfig.General.UDPPort = port
 		realPenaltyOptions.RealPenaltyAppConfig.General.UDPResponse = response
-		realPenaltyOptions.RealPenaltyAppConfig.General.ACServerPath = ServerInstallPath
-		realPenaltyOptions.RealPenaltyAppConfig.General.ACCFGFile = filepath.Join(ServerInstallPath, "cfg", "server_cfg.ini")
-		realPenaltyOptions.RealPenaltyAppConfig.General.ACTracksFolder = filepath.Join(ServerInstallPath, "content", "tracks")
-		realPenaltyOptions.RealPenaltyAppConfig.General.ACWeatherFolder = filepath.Join(ServerInstallPath, "content", "weather")
-		realPenaltyOptions.RealPenaltyAppConfig.General.AppFile = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "files", "app")
-		realPenaltyOptions.RealPenaltyAppConfig.General.ImagesFile = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "files", "images")
-		realPenaltyOptions.RealPenaltyAppConfig.General.SoundsFile = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "files", "sounds")
-		realPenaltyOptions.RealPenaltyAppConfig.General.TracksFolder = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "tracks")
+		realPenaltyOptions.RealPenaltyAppConfig.General.ACServerPath = sp.env.InstallPath()
+		realPenaltyOptions.RealPenaltyAppConfig.General.ACCFGFile = filepath.Join(sp.env.InstallPath(), "cfg", "server_cfg.ini")
+		realPenaltyOptions.RealPenaltyAppConfig.General.ACTracksFolder = filepath.Join(sp.env.InstallPath(), "content", "tracks")
+		realPenaltyOptions.RealPenaltyAppConfig.General.ACWeatherFolder = filepath.Join(sp.env.InstallPath(), "content", "weather")
+		realPenaltyOptions.RealPenaltyAppConfig.General.AppFile = filepath.Join(smplugins.RealPenaltyFolderPath(sp.env.InstallPath()), "files", "app")
+		realPenaltyOptions.RealPenaltyAppConfig.General.ImagesFile = filepath.Join(smplugins.RealPenaltyFolderPath(sp.env.InstallPath()), "files", "images")
+		realPenaltyOptions.RealPenaltyAppConfig.General.SoundsFile = filepath.Join(smplugins.RealPenaltyFolderPath(sp.env.InstallPath()), "files", "sounds")
+		realPenaltyOptions.RealPenaltyAppConfig.General.TracksFolder = filepath.Join(smplugins.RealPenaltyFolderPath(sp.env.InstallPath()), "tracks")
 
-		if err := realPenaltyOptions.Write(ServerInstallPath); err != nil {
+		if err := realPenaltyOptions.Write(sp.env.InstallPath()); err != nil {
 			return err
 		}
 
 		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
-			Executable: smplugins.RealPenaltyExecutablePath(ServerInstallPath),
+			Executable: smplugins.RealPenaltyExecutablePath(sp.env.InstallPath()),
 			Arguments: []string{
 				"--print_on",
 			},
@@ -475,14 +489,14 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	}
 
 	if kissMyRankEnabled && kissMyRankOptions != nil && udpPluginPortsSetup {
-		if err := smplugins.FixKissMyRankExecutablePermissions(ServerInstallPath); err != nil {
+		if err := smplugins.FixKissMyRankExecutablePermissions(sp.env.InstallPath()); err != nil {
 			return err
 		}
 
 		kissMyRankOptions.ACServerIP = "127.0.0.1"
 		kissMyRankOptions.ACServerHTTPPort = serverOptions.HTTPPort
 		kissMyRankOptions.UpdateInterval = sp.config.LiveMap.IntervalMs
-		kissMyRankOptions.ACServerResultsBasePath = ServerInstallPath
+		kissMyRankOptions.ACServerResultsBasePath = sp.env.InstallPath()
 
 		raceConfig := sp.raceEvent.GetRaceConfig()
 		entryList := sp.raceEvent.GetEntryList()
@@ -510,12 +524,12 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 			kissMyRankOptions.ACServerPluginAddressPort = smweb.FormValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
 		}
 
-		if err := kissMyRankOptions.Write(ServerInstallPath); err != nil {
+		if err := kissMyRankOptions.Write(sp.env.InstallPath()); err != nil {
 			return err
 		}
 
 		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
-			Executable: smplugins.KissMyRankExecutablePath(ServerInstallPath),
+			Executable: smplugins.KissMyRankExecutablePath(sp.env.InstallPath()),
 		})
 
 		if err != nil {
@@ -577,8 +591,8 @@ func (sp *AssettoServerProcess) deleteOldLogFiles(numFilesToKeep int) error {
 		return nil
 	}
 
-	logDirectory := filepath.Join(ServerInstallPath, "logs", "session")
-	errorDirectory := filepath.Join(ServerInstallPath, "logs", "error")
+	logDirectory := filepath.Join(sp.env.InstallPath(), "logs", "session")
+	errorDirectory := filepath.Join(sp.env.InstallPath(), "logs", "error")
 
 	if err := tidyFunc(logDirectory); err != nil {
 		return err
@@ -687,8 +701,8 @@ func (sp *AssettoServerProcess) startPlugin(wd string, plugin *smconfig.CommandP
 		pluginDir = wd
 	}
 
-	cmd.Stdout = pluginsOutput
-	cmd.Stderr = pluginsOutput
+	cmd.Stdout = sp.pluginsOutput
+	cmd.Stderr = sp.pluginsOutput
 
 	cmd.Dir = pluginDir
 
@@ -743,8 +757,8 @@ func (sp *AssettoServerProcess) startChildProcess(wd string, command string) err
 		pluginDir = wd
 	}
 
-	cmd.Stdout = pluginsOutput
-	cmd.Stderr = pluginsOutput
+	cmd.Stdout = sp.pluginsOutput
+	cmd.Stderr = sp.pluginsOutput
 
 	cmd.Dir = pluginDir
 	stdin, err := cmd.StdinPipe()
@@ -776,7 +790,7 @@ func (sp *AssettoServerProcess) stopChildProcesses() {
 			waitDone <- command.cmd.Wait()
 		}()
 
-		if command.cmd.Dir == filepath.Join(ServerInstallPath, "kissmyrank") {
+		if command.cmd.Dir == filepath.Join(sp.env.InstallPath(), "kissmyrank") {
 			_, _ = fmt.Fprintf(command.stdin, "exit\r\n")
 
 			kmrStopTimeout := time.After(time.Second * 15)
@@ -833,14 +847,16 @@ func (sp *AssettoServerProcess) stopUDPListener() error {
 	return sp.udpServerConn.Close()
 }
 
-func newLogBuffer(maxSize int) *logBuffer {
-	return &logBuffer{
+// NewLogBuffer returns a buffer which keeps (about) the last maxSize bytes written to it.
+func NewLogBuffer(maxSize int) *LogBuffer {
+	return &LogBuffer{
 		size: maxSize,
 		buf:  new(bytes.Buffer),
 	}
 }
 
-type logBuffer struct {
+// LogBuffer is a size limited, concurrency safe io.Writer, which is used to show the logs in the UI.
+type LogBuffer struct {
 	buf *bytes.Buffer
 
 	size int
@@ -848,7 +864,7 @@ type logBuffer struct {
 	mutex sync.Mutex
 }
 
-func (lb *logBuffer) Write(p []byte) (n int, err error) {
+func (lb *LogBuffer) Write(p []byte) (n int, err error) {
 	lb.mutex.Lock()
 	defer lb.mutex.Unlock()
 
@@ -861,7 +877,7 @@ func (lb *logBuffer) Write(p []byte) (n int, err error) {
 	return lb.buf.Write(p)
 }
 
-func (lb *logBuffer) String() string {
+func (lb *LogBuffer) String() string {
 	lb.mutex.Lock()
 	defer lb.mutex.Unlock()
 
@@ -916,4 +932,10 @@ func stopCommand(cmd *exec.Cmd, waiter chan error, timeout float32) error {
 	case err := <-waiter:
 		return err
 	}
+}
+
+func describeRaceEvent(raceEvent smmodel.RaceEvent) string {
+	cfg := raceEvent.GetRaceConfig()
+
+	return fmt.Sprintf("%d sessions with %d entrants at %s (%s)", len(cfg.Sessions), len(raceEvent.GetEntryList()), cfg.Track, cfg.TrackLayout)
 }

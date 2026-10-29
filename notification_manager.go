@@ -11,6 +11,7 @@ import (
 	"github.com/hako/durafmt"
 	"github.com/sirupsen/logrus"
 
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
@@ -163,7 +164,7 @@ func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerCo
 	title := fmt.Sprintf("Event starting at %s", trackInfo)
 
 	if config.GlobalServerConfig.ShowContentManagerJoinLink == 1 {
-		link, err := getContentManagerJoinLink(config.GlobalServerConfig)
+		link, err := smserver.GetContentManagerJoinLink(config.GlobalServerConfig)
 		linkText := ""
 
 		if err != nil {

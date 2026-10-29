@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
@@ -26,7 +27,7 @@ type RaceWeekendManager struct {
 	notificationManager NotificationDispatcher
 	carManager          *smcontent.CarManager
 	store               smstore.Store
-	process             ServerProcess
+	process             smserver.ServerProcess
 
 	activeRaceWeekend *smmodel.ActiveRaceWeekend
 	mutex             sync.Mutex
@@ -40,7 +41,7 @@ func NewRaceWeekendManager(
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
 	store smstore.Store,
-	process ServerProcess,
+	process smserver.ServerProcess,
 	notificationManager NotificationDispatcher,
 	carManager *smcontent.CarManager,
 ) *RaceWeekendManager {

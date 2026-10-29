@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
@@ -229,13 +230,13 @@ func (rm *RaceManager) LoadServerOptions() (*serverconfig.GlobalServerConfig, er
 	udpListenPort, udpSendPort := 0, 0
 
 	for udpListenPort == udpSendPort {
-		udpListenPort, err = FreeUDPPort()
+		udpListenPort, err = smserver.FreeUDPPort()
 
 		if err != nil {
 			return nil, err
 		}
 
-		udpSendPort, err = FreeUDPPort()
+		udpSendPort, err = smserver.FreeUDPPort()
 
 		if err != nil {
 			return nil, err

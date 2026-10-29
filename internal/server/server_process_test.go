@@ -1,8 +1,9 @@
-package servermanager
+package server
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"fmt"
@@ -34,8 +35,10 @@ func setupServerProcessTest(t *testing.T, executablePath string) (*AssettoServer
 		t.Fatal(err)
 	}
 
-	oldInstallPath := ServerInstallPath
-	ServerInstallPath = dir
+	env := &serverenv.Env{
+		InstallPath:  func() string { return dir },
+		PanicCapture: func(fn func()) { fn() },
+	}
 	config := &smconfig.Configuration{}
 	config.Steam.ExecutablePath = executablePath
 
@@ -51,11 +54,10 @@ func setupServerProcessTest(t *testing.T, executablePath string) (*AssettoServer
 		t.Fatal(err)
 	}
 
-	sp := NewAssettoServerProcess(config, func(udp.Message) {}, store, NewContentManagerWrapper(config, store, nil, nil))
+	sp := NewAssettoServerProcess(config, func(udp.Message) {}, store, NewContentManagerWrapper(config, store, nil, nil, env), env, ioutil.Discard)
 
 	return sp, fmt.Sprintf("127.0.0.1:%d", udpPort), func() {
 		_ = os.Unsetenv(fakeACServerEnv)
-		ServerInstallPath = oldInstallPath
 		_ = os.RemoveAll(dir)
 	}
 }

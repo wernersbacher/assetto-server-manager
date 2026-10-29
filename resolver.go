@@ -4,6 +4,9 @@ import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -30,11 +33,12 @@ type Resolver struct {
 	scheduledRacesManager *ScheduledRacesManager
 	raceWeekendManager    *RaceWeekendManager
 
+	env                   *serverenv.Env
 	viewRenderer          *smweb.Renderer
-	serverProcess         ServerProcess
+	serverProcess         smserver.ServerProcess
 	raceControl           *RaceControl
 	raceControlHub        *RaceControlHub
-	contentManagerWrapper *ContentManagerWrapper
+	contentManagerWrapper *smserver.ContentManagerWrapper
 
 	// handlers
 	baseHandler                 *smweb.BaseHandler
@@ -121,30 +125,48 @@ func (r *Resolver) initViewRenderer() error {
 	return nil
 }
 
+// resolveEnv returns the environment of the managers. The values are read when they are needed, because the install
+// path and the server id are set after the resolver has been created.
+func (r *Resolver) resolveEnv() *serverenv.Env {
+	if r.env != nil {
+		return r.env
+	}
+
+	r.env = &serverenv.Env{
+		ServerID:     func() smmodel.ServerID { return serverID },
+		InstallPath:  func() string { return ServerInstallPath },
+		PanicCapture: func(fn func()) { panicCapture(fn) },
+		Debug:        Debug,
+	}
+
+	return r.env
+}
+
 func (r *Resolver) ResolveStore() smstore.Store {
 	return r.store
 }
 
-func (r *Resolver) resolveServerProcess() ServerProcess {
+func (r *Resolver) resolveServerProcess() smserver.ServerProcess {
 	if r.serverProcess != nil {
 		return r.serverProcess
 	}
 
-	r.serverProcess = NewAssettoServerProcess(r.config, r.UDPCallback, r.ResolveStore(), r.resolveContentManagerWrapper())
+	r.serverProcess = smserver.NewAssettoServerProcess(r.config, r.UDPCallback, r.ResolveStore(), r.resolveContentManagerWrapper(), r.resolveEnv(), pluginsOutput)
 
 	return r.serverProcess
 }
 
-func (r *Resolver) resolveContentManagerWrapper() *ContentManagerWrapper {
+func (r *Resolver) resolveContentManagerWrapper() *smserver.ContentManagerWrapper {
 	if r.contentManagerWrapper != nil {
 		return r.contentManagerWrapper
 	}
 
-	r.contentManagerWrapper = NewContentManagerWrapper(
+	r.contentManagerWrapper = smserver.NewContentManagerWrapper(
 		r.config,
 		r.ResolveStore(),
 		r.resolveCarManager(),
 		r.resolveTrackManager(),
+		r.resolveEnv(),
 	)
 
 	return r.contentManagerWrapper

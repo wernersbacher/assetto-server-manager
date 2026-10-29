@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
@@ -15,7 +16,7 @@ import (
 
 type RaceControl struct {
 	config           *smconfig.Configuration
-	process          ServerProcess
+	process          smserver.ServerProcess
 	store            smstore.Store
 	penaltiesManager *PenaltiesManager
 
@@ -58,7 +59,7 @@ func (rc *RaceControl) Event() udp.Event {
 	return 200
 }
 
-func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store smstore.Store, penaltiesManager *PenaltiesManager) *RaceControl {
+func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process smserver.ServerProcess, store smstore.Store, penaltiesManager *PenaltiesManager) *RaceControl {
 	rc := &RaceControl{
 		config:               config,
 		broadcaster:          broadcaster,

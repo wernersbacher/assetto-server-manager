@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
@@ -23,7 +24,7 @@ import (
 
 type RaceManager struct {
 	config              *smconfig.Configuration
-	process             ServerProcess
+	process             smserver.ServerProcess
 	store               smstore.Store
 	carManager          *smcontent.CarManager
 	trackManager        *smcontent.TrackManager
@@ -49,7 +50,7 @@ type RaceManager struct {
 func NewRaceManager(
 	config *smconfig.Configuration,
 	store smstore.Store,
-	process ServerProcess,
+	process smserver.ServerProcess,
 	carManager *smcontent.CarManager,
 	trackManager *smcontent.TrackManager,
 	notificationManager NotificationDispatcher,
@@ -227,7 +228,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 	}
 
 	if config.GlobalServerConfig.EnableContentManagerWrapper == 1 && config.GlobalServerConfig.ContentManagerWrapperPort > 0 {
-		config.GlobalServerConfig.Name += fmt.Sprintf(" %c%d", contentManagerWrapperSeparator, config.GlobalServerConfig.ContentManagerWrapperPort)
+		config.GlobalServerConfig.Name += fmt.Sprintf(" %c%d", serverconfig.ContentManagerWrapperSeparator, config.GlobalServerConfig.ContentManagerWrapperPort)
 	}
 
 	err = config.Write(filepath.Join(ServerInstallPath, ServerConfigPath))

@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
@@ -30,7 +31,7 @@ type ServerAdministrationHandler struct {
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
-	process             ServerProcess
+	process             smserver.ServerProcess
 	scheduledRaces      *ScheduledRacesManager
 }
 
@@ -41,7 +42,7 @@ func NewServerAdministrationHandler(
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
 	raceWeekendManager *RaceWeekendManager,
-	process ServerProcess,
+	process smserver.ServerProcess,
 	scheduledRaces *ScheduledRacesManager,
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{

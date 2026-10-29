@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
@@ -128,7 +129,7 @@ func (rc *RaceControl) requestSessionInfo() {
 		case <-sessionInfoTicker.C:
 			err := rc.process.SendUDPMessage(udp.GetSessionInfo{})
 
-			if err == ErrNoOpenUDPConnection {
+			if err == smserver.ErrNoOpenUDPConnection {
 				logrus.WithError(err).Warnf("Couldn't send session info udp request. Breaking loop.")
 				sessionInfoTicker.Stop()
 				return

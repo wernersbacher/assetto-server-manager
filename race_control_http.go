@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -140,7 +141,7 @@ func (c *raceControlClient) writePump() {
 
 type RaceControlHandler struct {
 	*smweb.BaseHandler
-	serverProcess ServerProcess
+	serverProcess smserver.ServerProcess
 
 	store          smstore.Store
 	raceManager    *RaceManager
@@ -148,7 +149,7 @@ type RaceControlHandler struct {
 	raceControlHub *RaceControlHub
 }
 
-func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess ServerProcess) *RaceControlHandler {
+func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, raceManager *RaceManager, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess smserver.ServerProcess) *RaceControlHandler {
 	return &RaceControlHandler{
 		BaseHandler:    baseHandler,
 		store:          store,
@@ -201,7 +202,7 @@ func (rch *RaceControlHandler) liveTiming(w http.ResponseWriter, r *http.Request
 	linkString := ""
 
 	if serverOpts.ShowContentManagerJoinLink == 1 {
-		link, err := getContentManagerJoinLink(*serverOpts)
+		link, err := smserver.GetContentManagerJoinLink(*serverOpts)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("could not get content manager join link")

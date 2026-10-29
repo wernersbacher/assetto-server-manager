@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -19,8 +20,8 @@ import (
 )
 
 var (
-	logOutput     = newLogBuffer(MaxLogSizeBytes)
-	pluginsOutput = newLogBuffer(MaxLogSizeBytes)
+	logOutput     = smserver.NewLogBuffer(smserver.MaxLogSizeBytes)
+	pluginsOutput = smserver.NewLogBuffer(smserver.MaxLogSizeBytes)
 
 	logMultiWriter io.Writer
 

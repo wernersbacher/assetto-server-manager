@@ -1,9 +1,10 @@
-package servermanager
+package server
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -33,11 +34,6 @@ import (
 )
 
 const (
-	// contentManagerWrapperSeparator is a special character used by Content Manager to determine which port
-	// the content manager wrapper is running on. The server name shows "<server name> <separator><port>",
-	// which Content Manager uses to split the string and find the port.
-	contentManagerWrapperSeparator = serverconfig.ContentManagerWrapperSeparator
-
 	ContentManagerJoinLinkBase string = "https://acstuff.ru/s/q:race/online/join"
 )
 
@@ -113,6 +109,7 @@ type ContentManagerWrapper struct {
 	store        smstore.Store
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
+	env          *serverenv.Env
 
 	sessionInfo udp.SessionInfo
 	logger      cmwSessionLogger
@@ -127,12 +124,13 @@ type ContentManagerWrapper struct {
 	mutex       sync.Mutex
 }
 
-func NewContentManagerWrapper(config *smconfig.Configuration, store smstore.Store, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentManagerWrapper {
+func NewContentManagerWrapper(config *smconfig.Configuration, store smstore.Store, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env) *ContentManagerWrapper {
 	return &ContentManagerWrapper{
 		config:       config,
 		store:        store,
 		carManager:   carManager,
 		trackManager: trackManager,
+		env:          env,
 	}
 }
 
@@ -151,7 +149,7 @@ func (cmw *ContentManagerWrapper) NewCMContent(cars []string, trackName string, 
 		carsMap[car.Name] = ContentURL{URL: car.Details.DownloadURL}
 	}
 
-	trackMeta, err := smcontent.LoadTrackMetaDataFromName(ServerInstallPath, trackName)
+	trackMeta, err := smcontent.LoadTrackMetaDataFromName(cmw.env.InstallPath(), trackName)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load track for CM Wrapper: %s", trackName)
@@ -240,7 +238,7 @@ func (cmw *ContentManagerWrapper) setDescriptionText(event smmodel.RaceEvent) er
 	if err != nil {
 		logrus.WithError(err).Warnf("Could not load track: %s, skipping attaching download URL to Content Manager Wrapper", cmw.serverConfig.CurrentRaceConfig.Track)
 	} else {
-		err := track.LoadMetaData(ServerInstallPath)
+		err := track.LoadMetaData(cmw.env.InstallPath())
 
 		if err != nil {
 			logrus.WithError(err).Debugf("Could not load meta data for: %s, skipping attaching download URL to Content Manager Wrapper", cmw.serverConfig.CurrentRaceConfig.Track)
@@ -355,7 +353,7 @@ func (cmw *ContentManagerWrapper) ServeHTTP(w http.ResponseWriter, r *http.Reque
 	}
 
 	enc := json.NewEncoder(w)
-	if Debug {
+	if cmw.env.Debug {
 		enc.SetIndent("", "    ")
 	}
 	_ = enc.Encode(details)
@@ -483,7 +481,7 @@ func (cmw *ContentManagerWrapper) buildContentManagerDetails(guid string) (*Cont
 		geoInfo = &GeoIP{}
 	}
 
-	serverNameSplit := strings.Split(sessionInfo.Name, fmt.Sprintf(" %c", contentManagerWrapperSeparator))
+	serverNameSplit := strings.Split(sessionInfo.Name, fmt.Sprintf(" %c", serverconfig.ContentManagerWrapperSeparator))
 
 	if len(serverNameSplit) > 0 {
 		sessionInfo.Name = serverNameSplit[0]
@@ -661,7 +659,8 @@ func geoIP() (*GeoIP, error) {
 	return geoIPData, nil
 }
 
-func getContentManagerJoinLink(config serverconfig.GlobalServerConfig) (*url.URL, error) {
+// GetContentManagerJoinLink returns the link which opens the server in Content Manager.
+func GetContentManagerJoinLink(config serverconfig.GlobalServerConfig) (*url.URL, error) {
 	geoIP, err := geoIP()
 
 	if err != nil {

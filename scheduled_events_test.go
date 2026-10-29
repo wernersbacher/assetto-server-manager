@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
@@ -59,7 +60,7 @@ func (p *interruptibleServerProcess) Event() smmodel.RaceEvent {
 }
 
 // setupScheduledEventTest builds a ChampionshipManager on top of a temporary store and fake server install.
-func setupScheduledEventTest(t *testing.T, process ServerProcess) (*ChampionshipManager, smstore.Store, func()) {
+func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*ChampionshipManager, smstore.Store, func()) {
 	dir, err := ioutil.TempDir("", "scheduled-events")
 
 	if err != nil {
