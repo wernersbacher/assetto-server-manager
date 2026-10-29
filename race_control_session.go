@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -34,7 +35,7 @@ func (rc *RaceControl) OnNewSession(sessionInfo udp.SessionInfo) error {
 	}
 
 	if emptyCarInfo {
-		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 			emptyCarInfoMutex.Lock()
 			defer emptyCarInfoMutex.Unlock()
 
@@ -49,9 +50,9 @@ func (rc *RaceControl) OnNewSession(sessionInfo udp.SessionInfo) error {
 	}
 
 	// clear out last lap completed time each new session
-	_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
-		driver.mutex.Lock()
-		defer driver.mutex.Unlock()
+	_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
+		driver.Lock()
+		defer driver.Unlock()
 
 		driver.CurrentCar().LastLapCompletedTime = time.Now()
 
@@ -139,12 +140,12 @@ func (rc *RaceControl) requestSessionInfo() {
 			logrus.Debugf("Assetto Process completed. Disconnecting all connected drivers. Session done.")
 			sessionInfoTicker.Stop()
 
-			var drivers []*RaceControlDriver
+			var drivers []*smmodel.RaceControlDriver
 
 			rc.persistTimingData()
 
 			// the server has just stopped. send disconnect messages for all connected cars.
-			_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+			_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 				// Each takes a read lock, so we cannot call disconnectDriver (which takes a write lock) from inside it.
 				// we must instead append them to a slice and disconnect them outside the Each call.
 				drivers = append(drivers, driver)
@@ -171,11 +172,11 @@ func (rc *RaceControl) requestSessionInfo() {
 	}
 }
 
-func (rc *RaceControl) disconnectDriver(driver *RaceControlDriver) error {
-	driver.mutex.Lock()
+func (rc *RaceControl) disconnectDriver(driver *smmodel.RaceControlDriver) error {
+	driver.Lock()
 	carInfo := driver.CarInfo
 	carInfo.EventType = udp.EventConnectionClosed
-	driver.mutex.Unlock()
+	driver.Unlock()
 
 	return rc.OnClientDisconnect(carInfo)
 }
@@ -204,19 +205,19 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 	config := rc.process.Event().GetRaceConfig()
 
 	if config.DriverSwapEnabled == 1 {
-		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
-			if driver.driverSwapCfn != nil {
+		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
+			if driver.HasDriverSwap() {
 				logrus.Infof("Cancelling active driver swap for driver: %s. Reason: Session ended", driver.CarInfo.DriverGUID)
-				driver.driverSwapCfn()
+				driver.CancelDriverSwap()
 			}
 
 			return nil
 		})
 
-		_ = rc.DisconnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
-			if driver.driverSwapCfn != nil {
+		_ = rc.DisconnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
+			if driver.HasDriverSwap() {
 				logrus.Infof("Cancelling active driver swap for driver: %s. Reason: Session ended", driver.CarInfo.DriverGUID)
-				driver.driverSwapCfn()
+				driver.CancelDriverSwap()
 			}
 
 			return nil

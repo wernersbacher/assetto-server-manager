@@ -1,20 +1,18 @@
 package servermanager
 
 import (
-	"context"
 	"sort"
 	"sync"
 	"time"
 
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
-
-	"github.com/sirupsen/logrus"
 )
 
-func NewRaceControlDriver(carInfo udp.SessionCarInfo) *RaceControlDriver {
-	driver := &RaceControlDriver{
+func NewRaceControlDriver(carInfo udp.SessionCarInfo) *smmodel.RaceControlDriver {
+	driver := &smmodel.RaceControlDriver{
 		CarInfo:  carInfo,
-		Cars:     make(map[string]*RaceControlCarLapInfo),
+		Cars:     make(map[string]*smmodel.RaceControlCarLapInfo),
 		LastSeen: time.Now(),
 	}
 
@@ -23,58 +21,15 @@ func NewRaceControlDriver(carInfo udp.SessionCarInfo) *RaceControlDriver {
 	return driver
 }
 
-func NewRaceControlCarLapInfo(carModel string) *RaceControlCarLapInfo {
-	return &RaceControlCarLapInfo{
+func NewRaceControlCarLapInfo(carModel string) *smmodel.RaceControlCarLapInfo {
+	return &smmodel.RaceControlCarLapInfo{
 		CarName: prettifyName(carModel, true),
 	}
 }
 
-type RaceControlDriver struct {
-	CarInfo      udp.SessionCarInfo `json:"CarInfo"`
-	TotalNumLaps int                `json:"TotalNumLaps"`
-
-	ConnectedTime time.Time `json:"ConnectedTime" ts:"date"`
-	LoadedTime    time.Time `json:"LoadedTime" ts:"date"`
-
-	Position int       `json:"Position"`
-	Split    string    `json:"Split"`
-	LastSeen time.Time `json:"LastSeen" ts:"date"`
-	LastPos  udp.Vec   `json:"LastPos"`
-
-	Collisions []Collision `json:"Collisions"`
-
-	driverSwapContext context.Context
-	driverSwapCfn     context.CancelFunc
-
-	// Cars is a map of CarModel to the information for that car.
-	Cars map[string]*RaceControlCarLapInfo `json:"Cars"`
-
-	mutex sync.Mutex
-}
-
-func (rcd *RaceControlDriver) CurrentCar() *RaceControlCarLapInfo {
-	if car, ok := rcd.Cars[rcd.CarInfo.CarModel]; ok {
-		return car
-	}
-
-	logrus.Warnf("Could not find current car for driver: %s (current car: %s)", rcd.CarInfo.DriverGUID, rcd.CarInfo.CarModel)
-	return &RaceControlCarLapInfo{}
-}
-
-type RaceControlCarLapInfo struct {
-	TopSpeedThisLap      float64       `json:"TopSpeedThisLap"`
-	TopSpeedBestLap      float64       `json:"TopSpeedBestLap"`
-	BestLap              time.Duration `json:"BestLap"`
-	NumLaps              int           `json:"NumLaps"`
-	LastLap              time.Duration `json:"LastLap"`
-	LastLapCompletedTime time.Time     `json:"LastLapCompletedTime" ts:"date"`
-	TotalLapTime         time.Duration `json:"TotalLapTime"`
-	CarName              string        `json:"CarName"`
-}
-
 type DriverMap struct {
-	Drivers                map[udp.DriverGUID]*RaceControlDriver `json:"Drivers"`
-	GUIDsInPositionalOrder []udp.DriverGUID                      `json:"GUIDsInPositionalOrder"`
+	Drivers                map[udp.DriverGUID]*smmodel.RaceControlDriver `json:"Drivers"`
+	GUIDsInPositionalOrder []udp.DriverGUID                              `json:"GUIDsInPositionalOrder"`
 
 	driverSortLessFunc driverSortLessFunc
 	driverGroup        RaceControlDriverGroup
@@ -89,17 +44,17 @@ const (
 	DisconnectedDrivers RaceControlDriverGroup = 1
 )
 
-type driverSortLessFunc func(group RaceControlDriverGroup, driverA, driverB *RaceControlDriver) bool
+type driverSortLessFunc func(group RaceControlDriverGroup, driverA, driverB *smmodel.RaceControlDriver) bool
 
 func NewDriverMap(driverGroup RaceControlDriverGroup, driverSortLessFunc driverSortLessFunc) *DriverMap {
 	return &DriverMap{
-		Drivers:            make(map[udp.DriverGUID]*RaceControlDriver),
+		Drivers:            make(map[udp.DriverGUID]*smmodel.RaceControlDriver),
 		driverSortLessFunc: driverSortLessFunc,
 		driverGroup:        driverGroup,
 	}
 }
 
-func (d *DriverMap) Each(fn func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error) error {
+func (d *DriverMap) Each(fn func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error) error {
 	d.rwMutex.RLock()
 	defer d.rwMutex.RUnlock()
 
@@ -120,7 +75,7 @@ func (d *DriverMap) Each(fn func(driverGUID udp.DriverGUID, driver *RaceControlD
 	return nil
 }
 
-func (d *DriverMap) Get(driverGUID udp.DriverGUID) (*RaceControlDriver, bool) {
+func (d *DriverMap) Get(driverGUID udp.DriverGUID) (*smmodel.RaceControlDriver, bool) {
 	d.rwMutex.RLock()
 	defer d.rwMutex.RUnlock()
 
@@ -129,7 +84,7 @@ func (d *DriverMap) Get(driverGUID udp.DriverGUID) (*RaceControlDriver, bool) {
 	return driver, ok
 }
 
-func (d *DriverMap) Add(driverGUID udp.DriverGUID, driver *RaceControlDriver) {
+func (d *DriverMap) Add(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) {
 	d.rwMutex.Lock()
 	defer d.rwMutex.Unlock()
 	defer d.sort()

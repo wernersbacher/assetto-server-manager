@@ -29,8 +29,8 @@ type Store interface {
 	DeleteChampionship(id string) error
 
 	// Live Timings
-	UpsertLiveTimingsData(*LiveTimingsPersistedData) error
-	LoadLiveTimingsData() (*LiveTimingsPersistedData, error)
+	UpsertLiveTimingsData(*smmodel.LiveTimingsPersistedData) error
+	LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, error)
 	UpsertLastRaceEvent(r RaceEvent) error
 	LoadLastRaceEvent() (RaceEvent, error)
 	ClearLastRaceEvent() error

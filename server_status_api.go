@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 // The server status API exposes what the live timing page shows about the running event (track, session and the
@@ -92,7 +93,6 @@ func NewAPIServerStatus(running bool, serverName string, event RaceEvent, raceCo
 
 	out.MaxClients = raceConfig.MaxClients
 
-
 	// the server reports the track it is actually running, fall back to the event's track until it has done so
 	out.Track, out.TrackLayout = raceConfig.Track, raceConfig.TrackLayout
 
@@ -120,10 +120,10 @@ func NewAPIServerStatus(running bool, serverName string, event RaceEvent, raceCo
 		}
 	}
 
-	_ = raceControl.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
-		driver.mutex.Lock()
+	_ = raceControl.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
+		driver.Lock()
 		carInfo := driver.CarInfo
-		driver.mutex.Unlock()
+		driver.Unlock()
 
 		out.ConnectedDrivers = append(out.ConnectedDrivers, &APIConnectedDriver{
 			Name:     driverName(carInfo.DriverName),

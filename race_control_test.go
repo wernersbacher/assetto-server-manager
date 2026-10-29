@@ -3,6 +3,7 @@ package servermanager
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"math/rand"
 	"os"
@@ -218,7 +219,7 @@ func TestRaceControl_OnClientLoaded(t *testing.T) {
 		}
 	}
 
-	_ = raceControl.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+	_ = raceControl.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 		switch driverGUID {
 		case drivers[1].DriverGUID, drivers[2].DriverGUID, drivers[3].DriverGUID:
 		default:

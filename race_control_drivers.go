@@ -10,6 +10,7 @@ import (
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -56,8 +57,8 @@ func (rc *RaceControl) handleCarUpdate(update udp.CarUpdate) error {
 		return err
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
+	driver.Lock()
+	defer driver.Unlock()
 
 	speed := metersPerSecondToKilometersPerHour(
 		math.Sqrt(math.Pow(float64(update.Velocity.X), 2) + math.Pow(float64(update.Velocity.Z), 2)),
@@ -86,7 +87,7 @@ func (rc *RaceControl) OnClientConnect(client udp.SessionCarInfo) error {
 	client.DriverName = driverName(client.DriverName)
 	client.CarName = prettifyName(client.CarModel, true)
 
-	var driver *RaceControlDriver
+	var driver *smmodel.RaceControlDriver
 
 	if disconnectedDriver, ok := rc.DisconnectedDrivers.Get(client.DriverGUID); ok {
 		driver = disconnectedDriver
@@ -102,8 +103,8 @@ func (rc *RaceControl) OnClientConnect(client udp.SessionCarInfo) error {
 		}
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
+	driver.Lock()
+	defer driver.Unlock()
 	driver.CarInfo = client
 
 	if _, ok := driver.Cars[driver.CarInfo.CarModel]; !ok {
@@ -133,8 +134,8 @@ func (rc *RaceControl) OnClientDisconnect(client udp.SessionCarInfo) error {
 		return fmt.Errorf("racecontrol: client disconnected without ever being connected: %s (%s)", client.DriverName, client.DriverGUID)
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
+	driver.Lock()
+	defer driver.Unlock()
 
 	logrus.Debugf("Driver %s (%s) disconnected", driver.CarInfo.DriverName, driver.CarInfo.DriverGUID)
 
@@ -162,7 +163,7 @@ func (rc *RaceControl) OnClientDisconnect(client udp.SessionCarInfo) error {
 
 // findConnectedDriverByCarID looks for a driver in ConnectedDrivers by their CarID. This is the only place CarID
 // is used for a look-up, and it uses the CarIDToGUID map to perform the lookup.
-func (rc *RaceControl) findConnectedDriverByCarID(carID udp.CarID) (*RaceControlDriver, error) {
+func (rc *RaceControl) findConnectedDriverByCarID(carID udp.CarID) (*smmodel.RaceControlDriver, error) {
 	rc.carIDToGUIDMutex.RLock()
 	driverGUID, ok := rc.CarIDToGUID[carID]
 	rc.carIDToGUIDMutex.RUnlock()
@@ -244,7 +245,7 @@ func (rc *RaceControl) OnClientLoaded(loadedCar udp.ClientLoaded) error {
 	return err
 }
 
-func (rc *RaceControl) sendChampionshipPlayerSummaryMessage(driver *RaceControlDriver) error {
+func (rc *RaceControl) sendChampionshipPlayerSummaryMessage(driver *smmodel.RaceControlDriver) error {
 	var championshipID uuid.UUID
 
 	if championship, ok := rc.process.Event().(*ActiveChampionship); ok {
@@ -315,8 +316,8 @@ func (rc *RaceControl) OnLapCompleted(lap udp.LapCompleted) error {
 		return err
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
+	driver.Lock()
+	defer driver.Unlock()
 
 	lapDuration := lapToDuration(int(lap.LapTime))
 
@@ -344,7 +345,7 @@ func (rc *RaceControl) OnLapCompleted(lap udp.LapCompleted) error {
 		if driver.Position == 1 {
 			driver.Split = time.Duration(0).String()
 		} else {
-			_ = rc.ConnectedDrivers.Each(func(otherDriverGUID udp.DriverGUID, otherDriver *RaceControlDriver) error {
+			_ = rc.ConnectedDrivers.Each(func(otherDriverGUID udp.DriverGUID, otherDriver *smmodel.RaceControlDriver) error {
 				if otherDriver.Position == driver.Position-1 {
 					driverCar := driver.CurrentCar()
 					otherDriverCar := otherDriver.CurrentCar()
@@ -364,10 +365,10 @@ func (rc *RaceControl) OnLapCompleted(lap udp.LapCompleted) error {
 			})
 		}
 	} else {
-		var previousCar *RaceControlCarLapInfo
+		var previousCar *smmodel.RaceControlCarLapInfo
 
 		// gaps are calculated vs best lap
-		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 			if previousCar == nil {
 				driver.Split = "0s"
 			} else {
@@ -399,15 +400,15 @@ func (rc *RaceControl) OnCollisionWithCar(collision udp.CollisionWithCar) error 
 		return err
 	}
 
-	c := Collision{
+	c := smmodel.Collision{
 		ID:    uuid.New().String(),
-		Type:  CollisionWithCar,
+		Type:  smmodel.CollisionWithCar,
 		Time:  time.Now(),
 		Speed: metersPerSecondToKilometersPerHour(float64(collision.ImpactSpeed)),
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
+	driver.Lock()
+	defer driver.Unlock()
 
 	otherDriver, err := rc.findConnectedDriverByCarID(collision.OtherCarID)
 
@@ -431,12 +432,12 @@ func (rc *RaceControl) OnCollisionWithEnvironment(collision udp.CollisionWithEnv
 		return err
 	}
 
-	driver.mutex.Lock()
-	defer driver.mutex.Unlock()
+	driver.Lock()
+	defer driver.Unlock()
 
-	driver.Collisions = append(driver.Collisions, Collision{
+	driver.Collisions = append(driver.Collisions, smmodel.Collision{
 		ID:    uuid.New().String(),
-		Type:  CollisionWithEnvironment,
+		Type:  smmodel.CollisionWithEnvironment,
 		Time:  time.Now(),
 		Speed: metersPerSecondToKilometersPerHour(float64(collision.ImpactSpeed)),
 	})

@@ -971,7 +971,7 @@ func (rs *BoltStore) liveTimingsDataBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) 
 	return tx.CreateBucketIfNotExists(liveTimingsBucketName)
 }
 
-func (rs *BoltStore) UpsertLiveTimingsData(lt *LiveTimingsPersistedData) error {
+func (rs *BoltStore) UpsertLiveTimingsData(lt *smmodel.LiveTimingsPersistedData) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
@@ -989,8 +989,8 @@ func (rs *BoltStore) UpsertLiveTimingsData(lt *LiveTimingsPersistedData) error {
 	})
 }
 
-func (rs *BoltStore) LoadLiveTimingsData() (*LiveTimingsPersistedData, error) {
-	var lt *LiveTimingsPersistedData
+func (rs *BoltStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, error) {
+	var lt *smmodel.LiveTimingsPersistedData
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)

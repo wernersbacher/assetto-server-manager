@@ -626,12 +626,12 @@ func (rs *JSONStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, err
 	return out, err
 }
 
-func (rs *JSONStore) UpsertLiveTimingsData(lt *LiveTimingsPersistedData) error {
+func (rs *JSONStore) UpsertLiveTimingsData(lt *smmodel.LiveTimingsPersistedData) error {
 	return rs.encodeFile(rs.base, liveTimingsDataFile, lt)
 }
 
-func (rs *JSONStore) LoadLiveTimingsData() (*LiveTimingsPersistedData, error) {
-	var lt *LiveTimingsPersistedData
+func (rs *JSONStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, error) {
+	var lt *smmodel.LiveTimingsPersistedData
 
 	err := rs.decodeFile(rs.base, liveTimingsDataFile, &lt)
 

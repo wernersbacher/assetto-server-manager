@@ -1,13 +1,13 @@
 package servermanager
 
 import (
-	"context"
 	"fmt"
 	"math"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -16,7 +16,7 @@ type driverSwapPenalty struct {
 	carModel string
 }
 
-func (rc *RaceControl) handleDriverSwap(ticker *time.Ticker, config serverconfig.CurrentRaceConfig, client udp.SessionCarInfo, driver *RaceControlDriver) {
+func (rc *RaceControl) handleDriverSwap(ticker *time.Ticker, config serverconfig.CurrentRaceConfig, client udp.SessionCarInfo, driver *smmodel.RaceControlDriver) {
 	var (
 		totalTime           time.Duration
 		newDriverConnected  bool
@@ -37,11 +37,11 @@ func (rc *RaceControl) handleDriverSwap(ticker *time.Ticker, config serverconfig
 		currentDriver.LastPos.Z,
 	)
 
-	driver.driverSwapContext, driver.driverSwapCfn = context.WithCancel(context.Background())
+	driverSwapDone := driver.BeginDriverSwap()
 
 	for {
 		select {
-		case <-driver.driverSwapContext.Done():
+		case <-driverSwapDone:
 			return
 		case <-ticker.C:
 			totalTime += time.Second
@@ -51,7 +51,7 @@ func (rc *RaceControl) handleDriverSwap(ticker *time.Ticker, config serverconfig
 			if !newDriverConnected {
 				reconnect := false
 
-				_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+				_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 					if driver.CarInfo.CarID == currentDriver.CarInfo.CarID {
 						if driver.CarInfo.DriverGUID != currentDriver.CarInfo.DriverGUID {
 							if !driver.LoadedTime.IsZero() {

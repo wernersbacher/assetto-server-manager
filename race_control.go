@@ -1,14 +1,14 @@
 package servermanager
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-
 	"fmt"
 	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -55,22 +55,6 @@ type RaceControl struct {
 // RaceControl piggyback's on the udp.Message interface so that the entire data can be sent to newly connected clients.
 func (rc *RaceControl) Event() udp.Event {
 	return 200
-}
-
-type CollisionType string
-
-const (
-	CollisionWithCar         CollisionType = "with other car"
-	CollisionWithEnvironment CollisionType = "with environment"
-)
-
-type Collision struct {
-	ID              string         `json:"ID"`
-	Type            CollisionType  `json:"Type"`
-	Time            time.Time      `json:"Time" ts:"date"`
-	OtherDriverGUID udp.DriverGUID `json:"OtherDriverGUID"`
-	OtherDriverName string         `json:"OtherDriverName"`
-	Speed           float64        `json:"Speed"`
 }
 
 func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store Store, penaltiesManager *PenaltiesManager) *RaceControl {
@@ -141,7 +125,7 @@ func (rc *RaceControl) UDPCallback(message udp.Message) {
 		sendUpdatedRaceControlStatus = true
 	case udp.Chat:
 		// received a chat message
-		var driver *RaceControlDriver
+		var driver *smmodel.RaceControlDriver
 
 		driver, err = rc.findConnectedDriverByCarID(m.CarID)
 
@@ -193,11 +177,11 @@ func (rc *RaceControl) watchForTimedOutDrivers() {
 	ticker := time.NewTicker(time.Minute)
 
 	for range ticker.C {
-		var driversToDisconnect []*RaceControlDriver
+		var driversToDisconnect []*smmodel.RaceControlDriver
 
-		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
-			driver.mutex.Lock()
-			defer driver.mutex.Unlock()
+		_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
+			driver.Lock()
+			defer driver.Unlock()
 
 			if !driver.LastSeen.IsZero() && time.Since(driver.LastSeen) > driverTimeout || driver.LastSeen.IsZero() && time.Since(driver.ConnectedTime) > driverTimeout {
 				driversToDisconnect = append(driversToDisconnect, driver)
@@ -226,7 +210,7 @@ func (rc *RaceControl) watchForTimedOutDrivers() {
 	}
 }
 
-func (rc *RaceControl) SortDrivers(driverGroup RaceControlDriverGroup, driverA, driverB *RaceControlDriver) bool {
+func (rc *RaceControl) SortDrivers(driverGroup RaceControlDriverGroup, driverA, driverB *smmodel.RaceControlDriver) bool {
 	driverACar := driverA.CurrentCar()
 	driverBCar := driverB.CurrentCar()
 
@@ -265,20 +249,11 @@ func metersPerSecondToKilometersPerHour(mps float64) float64 {
 	return mps * 3.6
 }
 
-type LiveTimingsPersistedData struct {
-	SessionType udp.SessionType
-	Track       string
-	TrackLayout string
-	SessionName string
-
-	Drivers map[udp.DriverGUID]*RaceControlDriver
-}
-
 func (rc *RaceControl) persistTimingData() {
 	rc.persistStoreDataMutex.Lock()
 	defer rc.persistStoreDataMutex.Unlock()
 
-	data := &LiveTimingsPersistedData{
+	data := &smmodel.LiveTimingsPersistedData{
 		SessionType: rc.SessionInfo.Type,
 		Track:       rc.SessionInfo.Track,
 		TrackLayout: rc.SessionInfo.TrackConfig,
@@ -296,16 +271,16 @@ func (rc *RaceControl) persistTimingData() {
 	logrus.Debug("successfully persisted live timing data")
 }
 
-func (rc *RaceControl) AllLapTimes() map[udp.DriverGUID]*RaceControlDriver {
-	out := make(map[udp.DriverGUID]*RaceControlDriver)
+func (rc *RaceControl) AllLapTimes() map[udp.DriverGUID]*smmodel.RaceControlDriver {
+	out := make(map[udp.DriverGUID]*smmodel.RaceControlDriver)
 
-	_ = rc.DisconnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+	_ = rc.DisconnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 		out[driverGUID] = driver
 
 		return nil
 	})
 
-	_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *RaceControlDriver) error {
+	_ = rc.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 		out[driverGUID] = driver
 
 		return nil

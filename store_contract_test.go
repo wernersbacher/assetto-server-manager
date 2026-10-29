@@ -780,7 +780,7 @@ func TestStoreContract_LiveTimingsData(t *testing.T) {
 			t.Errorf("expected (nil, nil) on fresh store, got (%+v, %v)", lt, err)
 		}
 
-		in := &LiveTimingsPersistedData{
+		in := &smmodel.LiveTimingsPersistedData{
 			Track:       "ks_nurburgring",
 			TrackLayout: "gp",
 			SessionName: "Practice",
