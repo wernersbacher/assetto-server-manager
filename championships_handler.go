@@ -18,13 +18,13 @@ type ChampionshipsHandler struct {
 	*BaseHandler
 	SteamLoginHandler
 
-	config *Configuration
+	config              *Configuration
 	championshipManager *ChampionshipManager
 }
 
 func NewChampionshipsHandler(config *Configuration, baseHandler *BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
 	return &ChampionshipsHandler{
-		config: config,
+		config:              config,
 		BaseHandler:         baseHandler,
 		championshipManager: championshipManager,
 	}
@@ -165,8 +165,6 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 		RaceWeekends:    raceWeekends,
 	})
 }
-
-
 
 // export returns all known data about a Championship in JSON format.
 func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
@@ -680,7 +678,7 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 
 	account := AccountFromRequest(r)
 
-	if account != OpenAccount {
+	if account != requestScopeFromRequest(r).openAccount {
 		opts.FormData = &ChampionshipSignUpResponse{
 			Name: account.DriverName,
 			GUID: account.GUID,
@@ -732,7 +730,7 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 type signedUpEntrantsTemplateVars struct {
 	BaseTemplateVars
 
-	Championship  *Championship
+	Championship *Championship
 }
 
 func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.Request) {
@@ -781,7 +779,6 @@ func (ch *ChampionshipsHandler) signedUpEntrantsCSV(w http.ResponseWriter, r *ht
 
 	headers = append(headers, championship.SignUpForm.ExtraFields...)
 
-
 	var out [][]string
 
 	out = append(out, headers)
@@ -805,7 +802,6 @@ func (ch *ChampionshipsHandler) signedUpEntrantsCSV(w http.ResponseWriter, r *ht
 				data = append(data, "")
 			}
 		}
-
 
 		out = append(out, data)
 	}

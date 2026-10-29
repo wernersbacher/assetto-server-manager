@@ -35,28 +35,23 @@ func initServerID(store Store) error {
 		return err
 	}
 
-	OpenAccount = &Account{
-		Name:            "Free Access",
-		Groups:          map[ServerID]Group{serverID: GroupRead},
-		LastSeenVersion: BuildVersion,
-		Theme:           ThemeDefault,
-	}
-
 	return nil
 }
 
 func InitWithResolver(resolver *Resolver) error {
 	store := resolver.ResolveStore()
 
-	err := store.GetMeta(serverAccountOptionsMetaKey, &accountOptions)
+	accountManager := resolver.resolveAccountManager()
 
-	if err != nil && err != ErrValueNotSet {
+	if err := accountManager.LoadOptions(); err != nil {
 		return err
 	}
 
 	if err := initServerID(store); err != nil {
 		return err
 	}
+
+	accountManager.InitOpenAccount()
 
 	logrus.Infof("Server manager instance identifies as: %s", serverID)
 

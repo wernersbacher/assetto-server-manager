@@ -340,6 +340,8 @@ func TestParseDropWorstResults(t *testing.T) {
 }
 
 func TestChampionshipManager_HandleCreateChampionship_DropWorstResults(t *testing.T) {
+	championshipManager := newTestChampionshipManager()
+
 	newRequest := func(value string) *http.Request {
 		form := url.Values{}
 		form.Set("ChampionshipName", "Drop Form Test")

@@ -3,7 +3,6 @@ package servermanager
 import (
 	"bytes"
 	"context"
-	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
 	"io/ioutil"
 	"mime/multipart"
@@ -69,10 +68,6 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 	oldInstallPath := ServerInstallPath
 	defer func() { ServerInstallPath = oldInstallPath }()
 
-	oldSessionsStore := sessionsStore
-	sessionsStore = sessions.NewCookieStore([]byte("test"))
-	defer func() { sessionsStore = oldSessionsStore }()
-
 	root, err := ioutil.TempDir("", "skin-upload")
 
 	if err != nil {
@@ -125,6 +120,7 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 		}
 
 		req := httptest.NewRequest(http.MethodPost, "/car/dev_car/skin", body)
+		req = withRequestScope(req, testRequestScope())
 		req.Header.Set("Content-Type", mw.FormDataContentType())
 
 		rctx := chi.NewRouteContext()
@@ -192,10 +188,6 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 	oldInstallPath := ServerInstallPath
 	defer func() { ServerInstallPath = oldInstallPath }()
 
-	oldSessionsStore := sessionsStore
-	sessionsStore = sessions.NewCookieStore([]byte("test"))
-	defer func() { sessionsStore = oldSessionsStore }()
-
 	root, err := ioutil.TempDir("", "skin-delete")
 
 	if err != nil {
@@ -230,6 +222,7 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 	deleteSkin := func(car, skin string) int {
 		form := url.Values{"skin-delete": {skin}}
 		req := httptest.NewRequest(http.MethodPost, "/car/"+car+"/skin/delete", strings.NewReader(form.Encode()))
+		req = withRequestScope(req, testRequestScope())
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		rctx := chi.NewRouteContext()
@@ -369,6 +362,7 @@ func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
 
 	for _, params := range [][3]string{{"..", "..", ".."}, {"car", "..", ".."}, {"car", "track", ".."}, {`car\..`, "track", "a.ini"}} {
 		req := httptest.NewRequest(http.MethodGet, "/setups/delete/x/y/z", nil)
+		req = withRequestScope(req, testRequestScope())
 		rctx := chi.NewRouteContext()
 		rctx.URLParams.Add("car", params[0])
 		rctx.URLParams.Add("track", params[1])

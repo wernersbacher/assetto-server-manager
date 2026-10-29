@@ -35,8 +35,36 @@ type ServerAccountOptions struct {
 	IsOpen bool
 }
 
-var accountOptions = &ServerAccountOptions{
-	IsOpen: false,
+// openAccountName is the name of the dummy account used for visitors if read access is open.
+const openAccountName = "Free Access"
+
+// requestScope carries the server wide state which request helpers (sessions, access checks) need. It is attached to
+// every request by AccountManager.RequestScopeMiddleware, so that the helpers do not depend on package variables.
+type requestScope struct {
+	sessionStore   sessions.Store
+	accountOptions *ServerAccountOptions
+	openAccount    *Account
+}
+
+type requestScopeContextKey struct{}
+
+func requestScopeFromRequest(r *http.Request) *requestScope {
+	scope, _ := r.Context().Value(requestScopeContextKey{}).(*requestScope)
+
+	if scope == nil {
+		return &requestScope{}
+	}
+
+	return scope
+}
+
+func (s *requestScope) isOpen() bool {
+	return s.accountOptions != nil && s.accountOptions.IsOpen
+}
+
+// withRequestScope returns a copy of r which carries the given scope.
+func withRequestScope(r *http.Request, scope *requestScope) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), requestScopeContextKey{}, scope))
 }
 
 func init() {
@@ -113,7 +141,7 @@ func (a Account) ShouldSeeUpgradePopup(adminPasswordOverride string) bool {
 }
 
 func (a Account) HasSeenVersion(version string) bool {
-	if a.Name == OpenAccount.Name {
+	if a.Name == openAccountName {
 		return true // open accounts don't see version releases
 	}
 
@@ -168,8 +196,6 @@ const (
 	GroupAdmin    Group = "admin"
 )
 
-var OpenAccount *Account
-
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
 func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -207,9 +233,9 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Han
 			return
 		}
 
-		if requiredGroup == GroupRead && accountOptions.IsOpen {
+		if requiredGroup == GroupRead && ah.accountManager.options.IsOpen {
 			// if read is open, allow access and use a dummy account so the UI doesn't break
-			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), requestContextKeyAccount, OpenAccount)))
+			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), requestContextKeyAccount, ah.accountManager.openAccount)))
 			return
 		}
 
@@ -240,7 +266,7 @@ func (ah *AccountHandler) AdminAccessMiddleware(next http.Handler) http.Handler 
 func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Request) {
 	account := AccountFromRequest(r)
 
-	if account.Name == OpenAccount.Name {
+	if account.Name == openAccountName {
 		// don't save the open account
 		return
 	}
@@ -268,7 +294,7 @@ func ReadAccess(r *http.Request) func() bool {
 	account := AccountFromRequest(r)
 
 	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
-	ok := account.HasGroupPrivilege(GroupRead) || (account.Name == "" && accountOptions.IsOpen)
+	ok := account.HasGroupPrivilege(GroupRead) || (account.Name == "" && requestScopeFromRequest(r).isOpen())
 
 	return func() bool {
 		return ok
@@ -278,7 +304,7 @@ func ReadAccess(r *http.Request) func() bool {
 func LoggedIn(r *http.Request) func() bool {
 	account := AccountFromRequest(r)
 
-	ok := account.Name != "" && account != OpenAccount
+	ok := account.Name != "" && account != requestScopeFromRequest(r).openAccount
 
 	return func() bool {
 		return ok
@@ -353,7 +379,7 @@ func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
-	err := ah.store.GetMeta(serverAccountOptionsMetaKey, &accountOptions)
+	err := ah.store.GetMeta(serverAccountOptionsMetaKey, &ah.accountManager.options)
 
 	if err != nil && err != ErrValueNotSet {
 		logrus.WithError(err).Errorf("Could not determine server open status")
@@ -361,9 +387,9 @@ func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.
 		return
 	}
 
-	accountOptions.IsOpen = !accountOptions.IsOpen
+	ah.accountManager.options.IsOpen = !ah.accountManager.options.IsOpen
 
-	err = ah.store.SetMeta(serverAccountOptionsMetaKey, accountOptions)
+	err = ah.store.SetMeta(serverAccountOptionsMetaKey, ah.accountManager.options)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not save server open status")
@@ -520,14 +546,57 @@ var ErrInvalidUsernameOrPassword = errors.New("servermanager: invalid username o
 
 type AccountManager struct {
 	config *Configuration
-	store Store
+
+	// sessionStore keeps the login sessions and flash messages.
+	sessionStore sessions.Store
+
+	// options are the server wide account options, loaded from the store by Init.
+	options *ServerAccountOptions
+
+	// openAccount is the dummy account which is used for visitors if read access is open.
+	openAccount *Account
+	store       Store
 }
 
-func NewAccountManager(config *Configuration, store Store) *AccountManager {
+func NewAccountManager(config *Configuration, store Store, sessionStore sessions.Store) *AccountManager {
 	return &AccountManager{
-		config: config,
-		store: store,
+		config:       config,
+		sessionStore: sessionStore,
+		options:      &ServerAccountOptions{},
+		store:        store,
 	}
+}
+
+// LoadOptions reads the server wide account options from the store.
+func (am *AccountManager) LoadOptions() error {
+	err := am.store.GetMeta(serverAccountOptionsMetaKey, &am.options)
+
+	if err != nil && err != ErrValueNotSet {
+		return err
+	}
+
+	return nil
+}
+
+// InitOpenAccount creates the dummy account for visitors if read access is open. It needs the server ID.
+func (am *AccountManager) InitOpenAccount() {
+	am.openAccount = &Account{
+		Name:            openAccountName,
+		Groups:          map[ServerID]Group{serverID: GroupRead},
+		LastSeenVersion: BuildVersion,
+		Theme:           ThemeDefault,
+	}
+}
+
+// RequestScopeMiddleware attaches the session store and account state to each request.
+func (am *AccountManager) RequestScopeMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, withRequestScope(r, &requestScope{
+			sessionStore:   am.sessionStore,
+			accountOptions: am.options,
+			openAccount:    am.openAccount,
+		}))
+	})
 }
 
 func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
@@ -740,7 +809,7 @@ func (ah *AccountHandler) manageAccounts(w http.ResponseWriter, r *http.Request)
 
 	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/manage.html", &manageAccountsTemplateVars{
 		Accounts:         accounts,
-		ServerReadIsOpen: accountOptions.IsOpen,
+		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 	})
 }
 

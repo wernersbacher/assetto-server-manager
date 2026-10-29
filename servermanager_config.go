@@ -185,12 +185,6 @@ func ReadConfig(location string) (conf *Configuration, err error) {
 		return nil, err
 	}
 
-	sessionsStore, err = conf.HTTP.createSessionStore()
-
-	if err != nil {
-		return nil, err
-	}
-
 	if conf.Accounts.AdminPasswordOverride != "" {
 		logrus.Infof("WARNING! Admin Password Override is set. Please only have this set if you are resetting your admin account password!")
 	}

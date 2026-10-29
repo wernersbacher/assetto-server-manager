@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 )
@@ -46,14 +45,13 @@ func setupResultsDeleteTest(t *testing.T) (store Store, resultsDir string, clean
 		t.Fatal(err)
 	}
 
-	oldInstallPath, oldSessionsStore := ServerInstallPath, sessionsStore
+	oldInstallPath := ServerInstallPath
 	ServerInstallPath = dir
-	sessionsStore = sessions.NewCookieStore([]byte("test"))
 
 	store = NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	return store, resultsDir, func() {
-		ServerInstallPath, sessionsStore = oldInstallPath, oldSessionsStore
+		ServerInstallPath = oldInstallPath
 		_ = os.RemoveAll(dir)
 	}
 }
@@ -65,6 +63,7 @@ func postResultsDelete(t *testing.T, rh *ResultsHandler, fileName string) *httpt
 	r.Post("/results/{fileName}/delete", rh.delete)
 
 	req := httptest.NewRequest(http.MethodPost, "/results/"+fileName+"/delete", nil)
+	req = withRequestScope(req, testRequestScope())
 	rec := httptest.NewRecorder()
 
 	r.ServeHTTP(rec, req)

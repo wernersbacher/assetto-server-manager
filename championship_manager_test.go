@@ -112,7 +112,7 @@ var championshipEventFixtures = []string{
 	// "barbagello-no-end-sessions.db",
 }
 
-var championshipManager *ChampionshipManager
+
 
 type dummyNotificationManager struct{}
 
@@ -170,8 +170,8 @@ func (d dummyNotificationManager) SaveServerOptions(oldServerOpts *GlobalServerC
 	return nil
 }
 
-func init() {
-	championshipManager = NewChampionshipManager(
+func newTestChampionshipManager() *ChampionshipManager {
+	return NewChampionshipManager(
 		NewRaceManager(
 			&Configuration{},
 			NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared")),
@@ -197,6 +197,8 @@ func doReplay(filename string, multiplier int, callbackFunc udp.CallbackFunc, wa
 }
 
 func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
+	championshipManager := newTestChampionshipManager()
+
 	ServerInstallPath = filepath.Join("cmd", "server-manager", "assetto")
 
 	t.Run("Basic championship flow, closed entrylist", func(t *testing.T) {
@@ -234,11 +236,11 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				checkChampionshipEventCompletion(t, champ.ID.String(), champ.Events[i].ID.String())
+				checkChampionshipEventCompletion(t, championshipManager, champ.ID.String(), champ.Events[i].ID.String())
 			})
 		}
 
-		checkAutoPopulatedEntryList(t, champ.ID.String(), 0)
+		checkAutoPopulatedEntryList(t, championshipManager, champ.ID.String(), 0)
 	})
 
 	t.Run("Basic championship flow, open entrylist", func(t *testing.T) {
@@ -276,11 +278,11 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				checkChampionshipEventCompletion(t, champ.ID.String(), champ.Events[i].ID.String())
+				checkChampionshipEventCompletion(t, championshipManager, champ.ID.String(), champ.Events[i].ID.String())
 			})
 		}
 
-		checkAutoPopulatedEntryList(t, champ.ID.String(), 2)
+		checkAutoPopulatedEntryList(t, championshipManager, champ.ID.String(), 2)
 	})
 
 	t.Run("Basic championship flow, open entrylist with only one free slot", func(t *testing.T) {
@@ -326,11 +328,11 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				checkChampionshipEventCompletion(t, champ.ID.String(), champ.Events[i].ID.String())
+				checkChampionshipEventCompletion(t, championshipManager, champ.ID.String(), champ.Events[i].ID.String())
 			})
 		}
 
-		checkAutoPopulatedEntryList(t, champ.ID.String(), 1)
+		checkAutoPopulatedEntryList(t, championshipManager, champ.ID.String(), 1)
 	})
 
 	t.Run("Basic championship flow, open entrylist with one free slot for a non-matching car", func(t *testing.T) {
@@ -376,15 +378,15 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				checkChampionshipEventCompletion(t, champ.ID.String(), champ.Events[i].ID.String())
+				checkChampionshipEventCompletion(t, championshipManager, champ.ID.String(), champ.Events[i].ID.String())
 			})
 		}
 
-		checkAutoPopulatedEntryList(t, champ.ID.String(), 0)
+		checkAutoPopulatedEntryList(t, championshipManager, champ.ID.String(), 0)
 	})
 }
 
-func checkAutoPopulatedEntryList(t *testing.T, championshipID string, expected int) {
+func checkAutoPopulatedEntryList(t *testing.T, championshipManager *ChampionshipManager, championshipID string, expected int) {
 	loadedChampionship, err := championshipManager.LoadChampionship(championshipID)
 
 	if err != nil {
@@ -405,7 +407,7 @@ func checkAutoPopulatedEntryList(t *testing.T, championshipID string, expected i
 	}
 }
 
-func checkChampionshipEventCompletion(t *testing.T, championshipID string, eventID string) {
+func checkChampionshipEventCompletion(t *testing.T, championshipManager *ChampionshipManager, championshipID string, eventID string) {
 	// now look at the championship event and see if it has a start/end time
 	loadedChampionship, err := championshipManager.LoadChampionship(championshipID)
 
@@ -449,6 +451,8 @@ func checkChampionshipEventCompletion(t *testing.T, championshipID string, event
 }
 
 func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t *testing.T) {
+	championshipManager := newTestChampionshipManager()
+
 	var champ *Championship
 
 	f, err := os.Open(filepath.Join("fixtures", "open-championship", "championship-setup.json"))
@@ -497,7 +501,7 @@ func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t 
 			return
 		}
 
-		checkChampionshipEventCompletion(t, champ.ID.String(), eventID)
+		checkChampionshipEventCompletion(t, championshipManager, champ.ID.String(), eventID)
 		eventNum++
 	}
 }

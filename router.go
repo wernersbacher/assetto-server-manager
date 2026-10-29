@@ -74,6 +74,7 @@ func Router(
 	r.Use(middleware.RealIP)
 	r.Use(compressor)
 	r.Use(panicHandler)
+	r.Use(accountHandler.accountManager.RequestScopeMiddleware)
 
 	r.HandleFunc("/login", accountHandler.login)
 	r.HandleFunc("/logout", accountHandler.logout)
@@ -396,16 +397,14 @@ func AssetCacheHeaders(next http.Handler, useRevalidation bool) http.HandlerFunc
 	}
 }
 
-var sessionsStore sessions.Store
-
 func getSession(r *http.Request) *sessions.Session {
-	session, _ := sessionsStore.Get(r, "messages")
+	session, _ := requestScopeFromRequest(r).sessionStore.Get(r, "messages")
 
 	return session
 }
 
 func getErrSession(r *http.Request) *sessions.Session {
-	session, _ := sessionsStore.Get(r, "errors")
+	session, _ := requestScopeFromRequest(r).sessionStore.Get(r, "errors")
 
 	return session
 }

@@ -3,12 +3,14 @@ package servermanager
 import (
 	"net/http"
 
+	"github.com/cj123/sessions"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 type Resolver struct {
 	config          *Configuration
 	store           Store
+	sessionStore    sessions.Store
 	templateLoader  TemplateLoader
 	reloadTemplates bool
 
@@ -59,6 +61,14 @@ func NewResolver(config *Configuration, templateLoader TemplateLoader, reloadTem
 		reloadTemplates: reloadTemplates,
 		store:           store,
 	}
+
+	sessionStore, err := config.HTTP.createSessionStore()
+
+	if err != nil {
+		return nil, err
+	}
+
+	r.sessionStore = sessionStore
 
 	if err := r.initViewRenderer(); err != nil {
 		return nil, err
@@ -175,7 +185,7 @@ func (r *Resolver) resolveAccountManager() *AccountManager {
 		return r.accountManager
 	}
 
-	r.accountManager = NewAccountManager(r.config, r.store)
+	r.accountManager = NewAccountManager(r.config, r.store, r.sessionStore)
 
 	return r.accountManager
 }
