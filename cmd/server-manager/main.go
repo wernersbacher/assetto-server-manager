@@ -10,11 +10,11 @@ import (
 	"strconv"
 	"strings"
 
-	servermanager "github.com/JustaPenguin/assetto-server-manager"
-	"github.com/JustaPenguin/assetto-server-manager/cmd/server-manager/static"
-	"github.com/JustaPenguin/assetto-server-manager/cmd/server-manager/views"
-	"github.com/JustaPenguin/assetto-server-manager/internal/changelog"
-	"github.com/JustaPenguin/assetto-server-manager/pkg/udp"
+	servermanager "github.com/wernersbacher/assetto-server-manager"
+	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/static"
+	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/views"
+	"github.com/wernersbacher/assetto-server-manager/internal/changelog"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"

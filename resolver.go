@@ -3,7 +3,7 @@ package servermanager
 import (
 	"net/http"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 type Resolver struct {

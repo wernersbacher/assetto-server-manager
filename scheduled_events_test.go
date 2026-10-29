@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
 // interruptibleServerProcess behaves like AssettoServerProcess when it comes to starting events: starting an event

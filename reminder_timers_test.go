@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 	"github.com/google/uuid"
 )
 

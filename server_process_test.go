@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 const fakeACServerEnv = "SERVER_MANAGER_TEST_FAKE_ACSERVER"

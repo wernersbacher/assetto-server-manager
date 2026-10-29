@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"time"
 
-	servermanager "github.com/JustaPenguin/assetto-server-manager"
+	servermanager "github.com/wernersbacher/assetto-server-manager"
 	"github.com/google/uuid"
 )
 

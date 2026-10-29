@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/udp"
-	"github.com/JustaPenguin/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 	"github.com/cj123/ini"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"

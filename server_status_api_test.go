@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 type stoppedServerProcess struct {

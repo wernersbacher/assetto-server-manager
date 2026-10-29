@@ -17,7 +17,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/JustaPenguin/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 
 	"github.com/google/uuid"
 	"github.com/jaytaylor/html2text"

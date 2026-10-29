@@ -1,7 +1,7 @@
 package servermanager
 
 import (
-	"github.com/JustaPenguin/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
 // reminderTimers holds the notification reminder timers of scheduled events, keyed by event ID. An event has one
