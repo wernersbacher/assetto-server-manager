@@ -15,7 +15,6 @@
         <h4 class="text-center">in the {{ $.Championship.Name }} Championship</h4>
     {{ end }}
 
-    {{ template "raceweekend-premium" dict "IsPremium" $.IsPremium }}
 
     <form action="/race-weekends/new/submit" method="post" id="raceweekend-form" data-safe-submit>
         <div class="race-setup">

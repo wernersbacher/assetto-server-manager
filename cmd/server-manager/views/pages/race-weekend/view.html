@@ -25,7 +25,6 @@
             </div>
         {{ end }}
 
-        {{ template "raceweekend-premium" dict "IsPremium" $.IsPremium }}
 
         {{ if not $.RaceWeekend.HasLinkedChampionship }}
             <h2>Entrants</h2>
@@ -232,17 +231,6 @@
                                     >
                                         Schedule Session
                                     </button>
-                                {{ else }}
-                                    {{ if $.RaceWeekend.SessionCanBeRun $session }}
-                                        <a class="btn btn-success btn-sm"
-                                           data-toggle="tooltip"
-                                           title="Upgrade to Server Manager Premium to start Race Weekend Sessions!"
-                                           href="#"
-                                           onClick="return false;"
-                                        >
-                                            Start Session
-                                        </a>
-                                    {{ end }}
                                 {{ end }}
 
                                 <div id="popover-content-schedule-{{ $session.ID.String }}" style="display: none;">
