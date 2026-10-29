@@ -173,13 +173,6 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	config.GlobalServerConfig.UDPPluginAddress = config.GlobalServerConfig.FreeUDPPluginAddress
 	config.GlobalServerConfig.UDPPluginLocalPort = config.GlobalServerConfig.FreeUDPPluginLocalPort
 
-	if MaxClientsOverride > 0 {
-		config.CurrentRaceConfig.MaxClients = MaxClientsOverride
-
-		if len(entryList) > MaxClientsOverride {
-			return ErrEntryListTooBig
-		}
-	}
 
 	// filter out "AnyCarModel"
 	finalCars := make([]string, 0)
@@ -439,9 +432,6 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		numPitboxes = quickRace.MaxClients
 	}
 
-	if numPitboxes > MaxClientsOverride && MaxClientsOverride > 0 {
-		numPitboxes = MaxClientsOverride
-	}
 
 	allCars, err := rm.carManager.ListCars()
 

@@ -91,9 +91,6 @@ func NewAPIServerStatus(running bool, serverName string, event RaceEvent, raceCo
 
 	out.MaxClients = raceConfig.MaxClients
 
-	if MaxClientsOverride > 0 && (out.MaxClients == 0 || out.MaxClients > MaxClientsOverride) {
-		out.MaxClients = MaxClientsOverride
-	}
 
 	// the server reports the track it is actually running, fall back to the event's track until it has done so
 	out.Track, out.TrackLayout = raceConfig.Track, raceConfig.TrackLayout

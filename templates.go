@@ -531,8 +531,6 @@ type BaseTemplateVars struct {
 	ServerName            string
 	CustomCSS             template.CSS
 	User                  *Account
-	IsHosted              bool
-	MaxClientsOverride    int
 	IsDarkTheme           bool
 	Request               *http.Request
 	Debug                 bool
@@ -579,8 +577,6 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.ServerName = opts.Name
 	data.CustomCSS = template.CSS(opts.CustomCSS)
 	data.User = AccountFromRequest(r)
-	data.IsHosted = IsHosted
-	data.MaxClientsOverride = MaxClientsOverride
 	data.IsDarkTheme = opts.DarkTheme == 1
 	data.Request = r
 	data.Debug = Debug

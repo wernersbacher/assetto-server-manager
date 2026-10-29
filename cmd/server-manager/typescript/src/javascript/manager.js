@@ -750,17 +750,10 @@ class RaceSetup {
                 $pitBoxesWarning.hide()
             }
 
-            let overrideAmount = $maxClients.data('value-override');
+            $maxClients.attr("max", trackInfo.pitboxes);
 
-            if ((overrideAmount && trackInfo.pitboxes <= overrideAmount) || !overrideAmount) {
-                $maxClients.attr("max", trackInfo.pitboxes);
-
-                if (parseInt($maxClients.val()) > trackInfo.pitboxes) {
-                    $maxClients.val(trackInfo.pitboxes);
-                }
-            } else if (overrideAmount) {
-                $maxClients.attr("max", overrideAmount);
-                $maxClients.val(overrideAmount);
+            if (parseInt($maxClients.val()) > trackInfo.pitboxes) {
+                $maxClients.val(trackInfo.pitboxes);
             }
         }).fail(function () {
             $pitBoxes.closest(".row").hide()

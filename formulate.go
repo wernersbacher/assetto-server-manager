@@ -20,15 +20,6 @@ func EncodeFormData(data interface{}, r *http.Request) (template.HTML, error) {
 
 	enc := formulate.NewEncoder(buf, &decorator{})
 	enc.SetFormat(true)
-	enc.AddShowCondition("open", func() bool {
-		if !IsHosted {
-			return true
-		}
-
-		account := AccountFromRequest(r)
-
-		return account.Name == adminUserName
-	})
 	enc.AddShowCondition("read", func() bool {
 		return ReadAccess(r)()
 	})

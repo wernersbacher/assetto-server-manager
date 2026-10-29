@@ -29,9 +29,8 @@ func NewHealthCheck(raceControl *RaceControl, store Store, process ServerProcess
 }
 
 type HealthCheckResponse struct {
-	OK       bool
-	Version  string
-	IsHosted bool
+	OK      bool
+	Version string
 
 	OS            string
 	NumCPU        int
@@ -57,7 +56,6 @@ type HealthCheckResponse struct {
 	EventIsRaceWeekend  bool
 	EventIsPractice     bool
 	NumConnectedDrivers int
-	MaxClientsOverride  int
 }
 
 func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -71,15 +69,13 @@ func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_ = json.NewEncoder(w).Encode(HealthCheckResponse{
-		OK:                 true,
-		OS:                 runtime.GOOS + "/" + runtime.GOARCH,
-		Version:            BuildVersion,
-		IsHosted:           IsHosted,
-		MaxClientsOverride: MaxClientsOverride,
-		NumCPU:             runtime.NumCPU(),
-		NumGoroutines:      runtime.NumGoroutine(),
-		Uptime:             time.Since(LaunchTime).String(),
-		GoVersion:          runtime.Version(),
+		OK:            true,
+		OS:            runtime.GOOS + "/" + runtime.GOARCH,
+		Version:       BuildVersion,
+		NumCPU:        runtime.NumCPU(),
+		NumGoroutines: runtime.NumGoroutine(),
+		Uptime:        time.Since(LaunchTime).String(),
+		GoVersion:     runtime.Version(),
 
 		ServerName:          serverName,
 		ServerID:            serverID,

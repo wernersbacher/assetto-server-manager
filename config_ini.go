@@ -158,21 +158,21 @@ type GlobalServerConfig struct {
 	Name                      string               `ini:"NAME" help:"Server Name"`
 	Password                  string               `ini:"PASSWORD" type:"password" help:"Server password"`
 	AdminPassword             string               `ini:"ADMIN_PASSWORD" type:"password" help:"The password needed to be recognized as server administrator: you can join the server using it to be recognized automatically. Type /help in the game's chat to see the command list. Warning: Leaving this blank will allow any driver to connect as Admin!"`
-	UDPPort                   int                  `ini:"UDP_PORT" show:"open" min:"0" max:"65535" help:"UDP port number: open this port on your server's firewall"`
-	TCPPort                   int                  `ini:"TCP_PORT" show:"open" min:"0" max:"65535" help:"TCP port number: open this port on your server's firewall"`
-	HTTPPort                  int                  `ini:"HTTP_PORT" show:"open" min:"0" max:"65535" help:"Lobby port number: open these ports (both UDP and TCP) on your server's firewall"`
-	UDPPluginLocalPort        int                  `ini:"UDP_PLUGIN_LOCAL_PORT" show:"open" min:"0" max:"65535" help:"The port on which to listen for UDP messages from a plugin. Please note that Server Manager proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
-	UDPPluginAddress          string               `ini:"UDP_PLUGIN_ADDRESS" show:"open" help:"The address of the plugin to which UDP messages are sent.  Please note that Server Manager proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
-	AuthPluginAddress         string               `ini:"AUTH_PLUGIN_ADDRESS" show:"open" help:"The address of the auth plugin"`
-	RegisterToLobby           formulate.BoolNumber `ini:"REGISTER_TO_LOBBY" show:"open" help:"Register the AC Server to the main lobby"`
-	ClientSendIntervalInHertz int                  `ini:"CLIENT_SEND_INTERVAL_HZ" show:"open" help:"Refresh rate of packet sending by the server. 10Hz = ~100ms. Higher number = higher MP quality = higher bandwidth resources needed. Really high values can create connection issues"`
-	SendBufferSize            int                  `ini:"SEND_BUFFER_SIZE" show:"open" help:""`
-	ReceiveBufferSize         int                  `ini:"RECV_BUFFER_SIZE" show:"open" help:""`
+	UDPPort                   int                  `ini:"UDP_PORT" min:"0" max:"65535" help:"UDP port number: open this port on your server's firewall"`
+	TCPPort                   int                  `ini:"TCP_PORT" min:"0" max:"65535" help:"TCP port number: open this port on your server's firewall"`
+	HTTPPort                  int                  `ini:"HTTP_PORT" min:"0" max:"65535" help:"Lobby port number: open these ports (both UDP and TCP) on your server's firewall"`
+	UDPPluginLocalPort        int                  `ini:"UDP_PLUGIN_LOCAL_PORT" min:"0" max:"65535" help:"The port on which to listen for UDP messages from a plugin. Please note that Server Manager proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
+	UDPPluginAddress          string               `ini:"UDP_PLUGIN_ADDRESS" help:"The address of the plugin to which UDP messages are sent.  Please note that Server Manager proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
+	AuthPluginAddress         string               `ini:"AUTH_PLUGIN_ADDRESS" help:"The address of the auth plugin"`
+	RegisterToLobby           formulate.BoolNumber `ini:"REGISTER_TO_LOBBY" help:"Register the AC Server to the main lobby"`
+	ClientSendIntervalInHertz int                  `ini:"CLIENT_SEND_INTERVAL_HZ" help:"Refresh rate of packet sending by the server. 10Hz = ~100ms. Higher number = higher MP quality = higher bandwidth resources needed. Really high values can create connection issues"`
+	SendBufferSize            int                  `ini:"SEND_BUFFER_SIZE" help:""`
+	ReceiveBufferSize         int                  `ini:"RECV_BUFFER_SIZE" help:""`
 	KickQuorum                int                  `ini:"KICK_QUORUM" help:"Percentage that is required for the kick vote to pass"`
 	VotingQuorum              int                  `ini:"VOTING_QUORUM" min:"0" help:"Percentage that is required for the session vote to pass"`
 	VoteDuration              int                  `ini:"VOTE_DURATION" min:"0" help:"Vote length in seconds"`
 	BlacklistMode             BlockListMode        `ini:"BLACKLIST_MODE" name:"BlockList mode" help:"How to handle blocklisting of players."`
-	NumberOfThreads           int                  `ini:"NUM_THREADS" show:"open" min:"1" help:"Number of threads to run on"`
+	NumberOfThreads           int                  `ini:"NUM_THREADS" min:"1" help:"Number of threads to run on"`
 	WelcomeMessage            string               `ini:"WELCOME_MESSAGE" show:"-" help:"Path to the file that contains the server welcome message"`
 
 	SleepTime int `ini:"SLEEP_TIME" help:"The use of this setting is not fully known. Leave the value as 1 unless you really know what you're doing. (Values other than 1 cause excessive CPU usage)"`
@@ -197,9 +197,9 @@ type GlobalServerConfig struct {
 
 	ContentManagerIntegration   FormHeading          `ini:"-" json:"-"`
 	EnableContentManagerWrapper formulate.BoolNumber `ini:"-" help:"When on, this option makes Server Manager provide extra information to Content Manager. This includes more detail about connected clients, event descriptions and download links. A side-effect of this is that your server name will contain a new piece of information (an 'i' character followed by a port - which Content Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality provided by <a href='https://freegeoip.app''>freegeoip.app</a>."`
-	ContentManagerWrapperPort   int                  `ini:"-" show:"open" min:"0" max:"65535" help:"The port on which to serve Content Manager with the above information. Please make sure this port is open on your firewall."`
+	ContentManagerWrapperPort   int                  `ini:"-" min:"0" max:"65535" help:"The port on which to serve Content Manager with the above information. Please make sure this port is open on your firewall."`
 	ShowContentManagerJoinLink  formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager display Content Manager join links on the Live Timing page and (if enabled) in Discord race start notifications."`
-	ContentManagerIPOverride    string               `ini:"-" show:"open" help:"When set, this overrides the IP address detected by the GeoIP service used for the Content Manager join link. This must be an IPv4 address."`
+	ContentManagerIPOverride    string               `ini:"-" help:"When set, this overrides the IP address detected by the GeoIP service used for the Content Manager join link. This must be an IPv4 address."`
 	//ContentManagerWrapperContentRequiresPassword formulate.BoolNumber `ini:"-" help:"When on a user will require the server password in order to download linked content through the Content Manager Wrapper."`
 
 	Miscellaneous                     FormHeading          `ini:"-" json:"-"`
@@ -208,8 +208,8 @@ type GlobalServerConfig struct {
 	UseMPH                            formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager use MPH instead of Km/h for all speed values."`
 	PreventWebCrawlers                formulate.BoolNumber `ini:"-" help:"When on, robots will be prohibited from indexing this manager by the robots.txt. Please note this will only deter well behaved bots, and not malware/spam bots etc."`
 	RestartEventOnServerManagerLaunch formulate.BoolNumber `ini:"-" help:"When on, if Server Manager is stopped while there is an event in progress, Server Manager will try to restart the event when Server Manager is restarted."`
-	LogACServerOutputToFile           bool                 `ini:"-" show:"open" help:"When on, Server Manager will output each Assetto Corsa session into a log file in the logs folder."`
-	NumberOfACServerLogsToKeep        int                  `ini:"-" show:"open" help:"The number of AC Server logs to keep in the logs folder. (Oldest files will be deleted first. 0 = keep all files)"`
+	LogACServerOutputToFile           bool                 `ini:"-" help:"When on, Server Manager will output each Assetto Corsa session into a log file in the logs folder."`
+	NumberOfACServerLogsToKeep        int                  `ini:"-" help:"The number of AC Server logs to keep in the logs folder. (Oldest files will be deleted first. 0 = keep all files)"`
 	ShowEventDetailsPopup             bool                 `ini:"-" help:"Allows all users to view a popup that describes in detail the setup of Custom Races, Championship Events and Race Weekend Sessions."`
 
 	// Discord Integration

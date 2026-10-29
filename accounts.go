@@ -23,11 +23,10 @@ import (
 )
 
 const (
-	sessionAccountID                                = "account_id"
-	requestContextKeyAccount      accountContextKey = iota
-	adminUserName                                   = "admin"
-	serverAccountOptionsMetaKey                     = "server-account-options"
-	defaultHostedAdminAccountName                   = "acserver"
+	sessionAccountID                              = "account_id"
+	requestContextKeyAccount    accountContextKey = iota
+	adminUserName                                 = "admin"
+	serverAccountOptionsMetaKey                   = "server-account-options"
 )
 
 type accountContextKey int
@@ -70,9 +69,8 @@ type Account struct {
 	PasswordHash string
 	PasswordSalt string
 
-	DefaultPassword   string
-	LastSeenVersion   string
-	HasSeenIntroPopup bool
+	DefaultPassword string
+	LastSeenVersion string
 
 	Theme Theme
 
@@ -111,15 +109,7 @@ func (a Account) HasSeenCurrentVersion() bool {
 }
 
 func (a Account) ShouldSeeUpgradePopup() bool {
-	return !a.HasSeenCurrentVersion() && !a.ShouldSeeIntroPopup() && !a.NeedsPasswordReset()
-}
-
-func (a Account) ShouldSeeIntroPopup() bool {
-	return IsHosted && !a.HasSeenIntroPopup && !a.NeedsPasswordReset() && a.IsDefaultHostedAccount()
-}
-
-func (a Account) IsDefaultHostedAccount() bool {
-	return a.Name == defaultHostedAdminAccountName
+	return !a.HasSeenCurrentVersion() && !a.NeedsPasswordReset()
 }
 
 func (a Account) HasSeenVersion(version string) bool {
@@ -259,20 +249,6 @@ func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Reques
 
 	if err != nil {
 		logrus.WithError(err).Error("could not save current account version")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-}
-
-func (ah *AccountHandler) dismissIntro(w http.ResponseWriter, r *http.Request) {
-	account := AccountFromRequest(r)
-
-	account.HasSeenIntroPopup = true
-
-	err := ah.accountManager.store.UpsertAccount(account)
-
-	if err != nil {
-		logrus.WithError(err).Error("could not save current account (dismiss intro)")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -702,10 +678,6 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 	if r.Method == http.MethodPost {
 		username := r.FormValue("Username")
 		group := Group(r.FormValue("Group"))
-
-		if isEditing && IsHosted && account.Name == defaultHostedAdminAccountName {
-			group = GroupAdmin
-		}
 
 		if !isEditing {
 			// creating new account

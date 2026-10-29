@@ -152,15 +152,6 @@ func TestNewAPIServerStatus(t *testing.T) {
 		}
 	})
 
-	t.Run("max clients override", func(t *testing.T) {
-		MaxClientsOverride = 10
-
-		defer func() { MaxClientsOverride = 0 }()
-
-		if out := NewAPIServerStatus(true, "", event, raceControl); out.MaxClients != 10 {
-			t.Errorf("expected max clients 10, got %d", out.MaxClients)
-		}
-	})
 
 	t.Run("not running", func(t *testing.T) {
 		out := NewAPIServerStatus(false, "Configured Name", event, raceControl)

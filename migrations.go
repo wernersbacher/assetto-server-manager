@@ -942,39 +942,14 @@ func convertContentManagerDescriptionToNewTemplate(s Store) error {
 	return s.UpsertServerOptions(serverOpts)
 }
 
+// addHasSeenIntroPopupToAccounts is a no-op: it only applied to the removed hosted mode. It stays in the list because the stored migration version is the index.
 func addHasSeenIntroPopupToAccounts(s Store) error {
-	logrus.Infof("Running migration: Add Has Seen Intro Popup to Accounts")
-
-	account, err := s.FindAccountByName(defaultHostedAdminAccountName)
-
-	if err == ErrAccountNotFound {
-		return nil
-	} else if err != nil {
-		return err
-	}
-
-	account.HasSeenIntroPopup = true
-
-	return s.UpsertAccount(account)
+	return nil
 }
 
+// forceLoggingWith5LogsKeptForHosted is a no-op: it only applied to the removed hosted mode. It stays in the list because the stored migration version is the index.
 func forceLoggingWith5LogsKeptForHosted(s Store) error {
-	if !IsHosted {
-		return nil
-	}
-
-	logrus.Infof("Running migration: Force AC Server Logging On Hosted Instances")
-
-	opts, err := s.LoadServerOptions()
-
-	if err != nil {
-		return err
-	}
-
-	opts.LogACServerOutputToFile = true
-	opts.NumberOfACServerLogsToKeep = 5
-
-	return s.UpsertServerOptions(opts)
+	return nil
 }
 
 func showEventDetailsPopupOn(s Store) error {

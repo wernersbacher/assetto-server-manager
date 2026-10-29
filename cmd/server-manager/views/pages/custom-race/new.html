@@ -765,24 +765,13 @@
                                         name="MaxClients"
                                         class="form-control"
 
-                                        {{ if gt $.MaxClientsOverride 0 }}
-                                            data-value-override="{{ $.MaxClientsOverride }}"
-                                            value="{{ $.MaxClientsOverride }}"
-
-                                            max="{{ $.MaxClientsOverride }}"
-                                        {{ else }}
-                                            value="{{ $f.MaxClients }}"
-                                            {{ with $trackInfo }}max="{{ $trackInfo.Pitboxes }}"{{ end }}
-                                        {{ end }}
+                                        value="{{ $f.MaxClients }}"
+                                        {{ with $trackInfo }}max="{{ $trackInfo.Pitboxes }}"{{ end }}
                                         step="1"
                                 >
 
                             <small>
                                 Maximum number of clients allowed on the server.
-
-                                {{ if gt $.MaxClientsOverride 0 }}
-                                    <strong>Cannot be greater than {{ $.MaxClientsOverride }}</strong>. (This value is restricted by your hosting provider.)<br>
-                                {{ end }}
                             </small>
                         </div>
                     </div>

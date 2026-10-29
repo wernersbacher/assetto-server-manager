@@ -57,7 +57,7 @@ func DefaultRealPenaltyAppConfig() RealPenaltyAppConfig {
 
 type RealPenaltyAppConfig struct {
 	General      RealPenaltyConfigGeneral `ini:"General"`
-	PluginsRelay RealPenaltyPluginsRelay  `ini:"Plugins_Relay" show:"open"`
+	PluginsRelay RealPenaltyPluginsRelay  `ini:"Plugins_Relay"`
 }
 
 func (rpa *RealPenaltyAppConfig) write() error {
@@ -109,8 +109,8 @@ type RealPenaltyConfigGeneral struct {
 
 	UDPPort     int    `ini:"UDP_PORT" show:"-" help:"Listening UDP port - Set the same port (without IP) of cfg of the server, UDP_PLUGIN_ADDRESS "`
 	UDPResponse string `ini:"UDP_RESPONSE" show:"-" help:"Destination IP and UDP port for response - Set the same port in the cfg of the AC server, UDP_PLUGIN_LOCAL_PORT"`
-	AppTCPPort  int    `ini:"APP_TCP_PORT" show:"open" help:"Listening TCP port from AC app (to open in firewall/router). Must be one of 53000, 53001, 53002 to 53020, or the port of cfg AC server, HTTP_PORT + 27. The app will try all these ports on the ac server's ip address (until the right connection is found)"`
-	AppUDPPort  int    `ini:"APP_UDP_PORT" show:"open" help:"Listening UDP port from AC app (to open in firewall/router). Any free UDP port is OK"`
+	AppTCPPort  int    `ini:"APP_TCP_PORT" help:"Listening TCP port from AC app (to open in firewall/router). Must be one of 53000, 53001, 53002 to 53020, or the port of cfg AC server, HTTP_PORT + 27. The app will try all these ports on the ac server's ip address (until the right connection is found)"`
+	AppUDPPort  int    `ini:"APP_UDP_PORT" help:"Listening UDP port from AC app (to open in firewall/router). Any free UDP port is OK"`
 
 	AppFile      string `ini:"APP_FILE" show:"-" help:"Path and file names of the app from the plugin package"`
 	ImagesFile   string `ini:"IMAGES_FILE" show:"-" help:"Path and file names of the images from the plugin package"`
@@ -119,8 +119,8 @@ type RealPenaltyConfigGeneral struct {
 }
 
 type RealPenaltyPluginsRelay struct {
-	OtherUDPPlugin string `ini:"OTHER_UDP_PLUGIN" show:"open" help:"List of all other UDP plugins connected to AC Server (format: IP:Ports - separated by a semicolon)"`
-	UDPPort        string `ini:"UDP_PORT" show:"open" help:"List of listening UDP ports for all other plugins connected (separated by a semicolon)"`
+	OtherUDPPlugin string `ini:"OTHER_UDP_PLUGIN" help:"List of all other UDP plugins connected to AC Server (format: IP:Ports - separated by a semicolon)"`
+	UDPPort        string `ini:"UDP_PORT" help:"List of listening UDP ports for all other plugins connected (separated by a semicolon)"`
 }
 
 type RealPenaltySettings struct {
