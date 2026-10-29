@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -15,11 +16,11 @@ type EventDetailsHandler struct {
 	*smweb.BaseHandler
 
 	store               smstore.Store
-	championshipManager *ChampionshipManager
+	championshipManager *smchampionship.ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
 }
 
-func NewEventDetailsHandler(base *smweb.BaseHandler, store smstore.Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *EventDetailsHandler {
+func NewEventDetailsHandler(base *smweb.BaseHandler, store smstore.Store, championshipManager *smchampionship.ChampionshipManager, raceWeekendManager *RaceWeekendManager) *EventDetailsHandler {
 	return &EventDetailsHandler{
 		BaseHandler:         base,
 		store:               store,

@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 // ChampionshipClassColors are sequentially selected to indicate different classes within a Championship
 var ChampionshipClassColors = []string{

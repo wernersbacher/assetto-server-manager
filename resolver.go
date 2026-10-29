@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
@@ -30,7 +31,7 @@ type Resolver struct {
 	raceManager           *smrace.RaceManager
 	carManager            *smcontent.CarManager
 	trackManager          *smcontent.TrackManager
-	championshipManager   *ChampionshipManager
+	championshipManager   *smchampionship.ChampionshipManager
 	accountManager        *smaccounts.AccountManager
 	discordManager        *notification.DiscordManager
 	notificationManager   *notification.Manager
@@ -49,7 +50,7 @@ type Resolver struct {
 	quickRaceHandler            *smrace.QuickRaceHandler
 	eventDetailsHandler         *EventDetailsHandler
 	customRaceHandler           *smrace.CustomRaceHandler
-	championshipsHandler        *ChampionshipsHandler
+	championshipsHandler        *smchampionship.ChampionshipsHandler
 	accountHandler              *smaccounts.AccountHandler
 	auditLogHandler             *smaccounts.AuditLogHandler
 	carsHandler                 *CarsHandler
@@ -291,12 +292,12 @@ func (r *Resolver) resolveCarsHandler() *CarsHandler {
 	return r.carsHandler
 }
 
-func (r *Resolver) resolveChampionshipManager() *ChampionshipManager {
+func (r *Resolver) resolveChampionshipManager() *smchampionship.ChampionshipManager {
 	if r.championshipManager != nil {
 		return r.championshipManager
 	}
 
-	r.championshipManager = NewChampionshipManager(
+	r.championshipManager = smchampionship.NewChampionshipManager(
 		r.resolveRaceManager(),
 		r.config,
 		r.ResolveStore(),
@@ -308,12 +309,12 @@ func (r *Resolver) resolveChampionshipManager() *ChampionshipManager {
 	return r.championshipManager
 }
 
-func (r *Resolver) resolveChampionshipsHandler() *ChampionshipsHandler {
+func (r *Resolver) resolveChampionshipsHandler() *smchampionship.ChampionshipsHandler {
 	if r.championshipsHandler != nil {
 		return r.championshipsHandler
 	}
 
-	r.championshipsHandler = NewChampionshipsHandler(r.config, r.resolveBaseHandler(), r.resolveChampionshipManager())
+	r.championshipsHandler = smchampionship.NewChampionshipsHandler(r.config, r.resolveBaseHandler(), r.resolveChampionshipManager())
 
 	return r.championshipsHandler
 }

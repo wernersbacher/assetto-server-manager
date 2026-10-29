@@ -1,6 +1,7 @@
-package servermanager
+package championship
 
 import (
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
@@ -44,7 +45,7 @@ type championshipListTemplateVars struct {
 }
 
 // lists all available Championships known to Server Manager
-func (ch *ChampionshipsHandler) list(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) List(w http.ResponseWriter, r *http.Request) {
 	championships, err := ch.championshipManager.ListChampionships()
 
 	if err != nil {
@@ -70,7 +71,7 @@ func (ch *ChampionshipsHandler) list(w http.ResponseWriter, r *http.Request) {
 }
 
 // createOrEdit builds a Championship form for the user to create a Championship.
-func (ch *ChampionshipsHandler) createOrEdit(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) CreateOrEdit(w http.ResponseWriter, r *http.Request) {
 	_, opts, err := ch.championshipManager.BuildChampionshipOpts(r)
 
 	if err != nil {
@@ -84,7 +85,7 @@ func (ch *ChampionshipsHandler) createOrEdit(w http.ResponseWriter, r *http.Requ
 
 // submit creates a given Championship and redirects the user to begin
 // the flow of adding events to the new Championship
-func (ch *ChampionshipsHandler) submit(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	championship, edited, err := ch.championshipManager.HandleCreateChampionship(r)
 
 	if err != nil {
@@ -109,7 +110,7 @@ func (ch *ChampionshipsHandler) submit(w http.ResponseWriter, r *http.Request) {
 }
 
 // duplicate duplicates a championship, clearing results
-func (ch *ChampionshipsHandler) duplicate(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) Duplicate(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.DuplicateChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -132,7 +133,7 @@ type championshipViewTemplateVars struct {
 }
 
 // view shows details of a given Championship
-func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) View(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -174,7 +175,7 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 }
 
 // export returns all known data about a Championship in JSON format.
-func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) Export(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -185,12 +186,12 @@ func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
 
 	account := smweb.AccountFromRequest(r)
 
-	if !account.HasGroupPrivilege(serverID, smmodel.GroupAdmin) {
+	if !account.HasGroupPrivilege(ch.championshipManager.env.ServerID(), smmodel.GroupAdmin) {
 		// sign up responses are hidden for data protection reasons
 		championship.SignUpForm.Responses = nil
 	}
 
-	if !account.HasGroupPrivilege(serverID, smmodel.GroupWrite) {
+	if !account.HasGroupPrivilege(ch.championshipManager.env.ServerID(), smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		championship.ReplacementPassword = ""
 		championship.OverridePassword = false
@@ -204,7 +205,7 @@ func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
 }
 
 // importChampionship reads Championship data from JSON.
-func (ch *ChampionshipsHandler) importChampionship(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ImportChampionship(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		championshipID, err := ch.championshipManager.ImportChampionship(r.FormValue("import"))
 
@@ -231,7 +232,7 @@ type championshipResults struct {
 }
 
 // exportResults returns championship result files in JSON format.
-func (ch *ChampionshipsHandler) exportResults(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ExportResults(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -259,7 +260,7 @@ func (ch *ChampionshipsHandler) exportResults(w http.ResponseWriter, r *http.Req
 		}
 
 		results = append(results, championshipResults{
-			Name: "Event at " + prettifyName(event.RaceSetup.Track, false) + ", completed on " + event.CompletedTime.Format("Monday, January 2, 2006 3:04 PM (MST)"),
+			Name: "Event at " + smcontent.PrettifyName(event.RaceSetup.Track, false) + ", completed on " + event.CompletedTime.Format("Monday, January 2, 2006 3:04 PM (MST)"),
 			Log:  sessionFiles,
 		})
 	}
@@ -277,7 +278,7 @@ func (ch *ChampionshipsHandler) exportResults(w http.ResponseWriter, r *http.Req
 }
 
 // delete soft deletes a Championship.
-func (ch *ChampionshipsHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.DeleteChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -298,7 +299,7 @@ type eventImportTemplateVars struct {
 	Event          *smmodel.ChampionshipEvent
 }
 
-func (ch *ChampionshipsHandler) eventImport(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) EventImport(w http.ResponseWriter, r *http.Request) {
 	championshipID := chi.URLParam(r, "championshipID")
 	eventID := chi.URLParam(r, "eventID")
 
@@ -332,7 +333,7 @@ func (ch *ChampionshipsHandler) eventImport(w http.ResponseWriter, r *http.Reque
 
 // eventConfiguration builds a Custom Race form with slight modifications
 // to allow a user to configure a ChampionshipEvent.
-func (ch *ChampionshipsHandler) eventConfiguration(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) EventConfiguration(w http.ResponseWriter, r *http.Request) {
 	championshipRaceOpts, err := ch.championshipManager.BuildChampionshipEventOpts(r)
 
 	if err != nil {
@@ -346,7 +347,7 @@ func (ch *ChampionshipsHandler) eventConfiguration(w http.ResponseWriter, r *htt
 
 // submitEventConfiguration takes an Event Configuration from a form and
 // builds an event optionally, this is used for editing ChampionshipEvents.
-func (ch *ChampionshipsHandler) submitEventConfiguration(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) SubmitEventConfiguration(w http.ResponseWriter, r *http.Request) {
 	championship, event, edited, err := ch.championshipManager.SaveChampionshipEvent(r)
 
 	if err != nil {
@@ -359,14 +360,14 @@ func (ch *ChampionshipsHandler) submitEventConfiguration(w http.ResponseWriter, 
 		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Championship race at %s was successfully edited!",
-				prettifyName(event.RaceSetup.Track, false),
+				smcontent.PrettifyName(event.RaceSetup.Track, false),
 			),
 		)
 	} else {
 		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Championship race at %s was successfully added!",
-				prettifyName(event.RaceSetup.Track, false),
+				smcontent.PrettifyName(event.RaceSetup.Track, false),
 			),
 		)
 	}
@@ -382,7 +383,7 @@ func (ch *ChampionshipsHandler) submitEventConfiguration(w http.ResponseWriter, 
 }
 
 // startEvent begins a championship event given by its ID
-func (ch *ChampionshipsHandler) startEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) StartEvent(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.StartEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"), false)
 
 	if err != nil {
@@ -397,7 +398,7 @@ func (ch *ChampionshipsHandler) startEvent(w http.ResponseWriter, r *http.Reques
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *ChampionshipsHandler) scheduleEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ScheduleEvent(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -438,7 +439,7 @@ func (ch *ChampionshipsHandler) scheduleEvent(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *ChampionshipsHandler) scheduleEventRemove(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ScheduleEventRemove(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.ScheduleEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"),
 		time.Time{}, "remove", "")
 
@@ -452,7 +453,7 @@ func (ch *ChampionshipsHandler) scheduleEventRemove(w http.ResponseWriter, r *ht
 }
 
 // deleteEvent soft deletes a championship event
-func (ch *ChampionshipsHandler) deleteEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.DeleteEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
 
 	if err != nil {
@@ -467,7 +468,7 @@ func (ch *ChampionshipsHandler) deleteEvent(w http.ResponseWriter, r *http.Reque
 }
 
 // startPracticeEvent starts a Practice session for a given event
-func (ch *ChampionshipsHandler) startPracticeEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) StartPracticeEvent(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.StartPracticeEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
 
 	if err != nil {
@@ -483,7 +484,7 @@ func (ch *ChampionshipsHandler) startPracticeEvent(w http.ResponseWriter, r *htt
 }
 
 // cancelEvent stops a running championship event and clears any saved results
-func (ch *ChampionshipsHandler) cancelEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) CancelEvent(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.CancelEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
 
 	if err != nil {
@@ -499,7 +500,7 @@ func (ch *ChampionshipsHandler) cancelEvent(w http.ResponseWriter, r *http.Reque
 
 // restartEvent stops a running championship event and clears any saved results
 // then starts the event again.
-func (ch *ChampionshipsHandler) restartEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) RestartEvent(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.RestartEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
 
 	if err != nil {
@@ -527,7 +528,7 @@ type championshipRaceWeekendImportTemplateVars struct {
 	Championship *smmodel.Championship
 }
 
-func (ch *ChampionshipsHandler) listCustomRacesForImport(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ListCustomRacesForImport(w http.ResponseWriter, r *http.Request) {
 	recent, starred, looped, scheduled, err := ch.championshipManager.RaceManager.ListCustomRaces()
 
 	if err != nil {
@@ -553,7 +554,7 @@ func (ch *ChampionshipsHandler) listCustomRacesForImport(w http.ResponseWriter, 
 	})
 }
 
-func (ch *ChampionshipsHandler) customRaceImport(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) CustomRaceImport(w http.ResponseWriter, r *http.Request) {
 	championshipID := chi.URLParam(r, "championshipID")
 
 	err := ch.championshipManager.ImportEventSetup(championshipID, chi.URLParam(r, "eventID"))
@@ -567,7 +568,7 @@ func (ch *ChampionshipsHandler) customRaceImport(w http.ResponseWriter, r *http.
 	http.Redirect(w, r, "/championship/"+championshipID, http.StatusFound)
 }
 
-func (ch *ChampionshipsHandler) listRaceWeekendsForImport(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ListRaceWeekendsForImport(w http.ResponseWriter, r *http.Request) {
 	raceWeekends, err := ch.championshipManager.store.ListRaceWeekends()
 
 	if err != nil {
@@ -590,7 +591,7 @@ func (ch *ChampionshipsHandler) listRaceWeekendsForImport(w http.ResponseWriter,
 	})
 }
 
-func (ch *ChampionshipsHandler) raceWeekendImport(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) RaceWeekendImport(w http.ResponseWriter, r *http.Request) {
 	championshipID := chi.URLParam(r, "championshipID")
 
 	err := ch.championshipManager.ImportRaceWeekendSetup(championshipID, chi.URLParam(r, "weekendID"))
@@ -604,7 +605,7 @@ func (ch *ChampionshipsHandler) raceWeekendImport(w http.ResponseWriter, r *http
 	http.Redirect(w, r, "/championship/"+championshipID, http.StatusFound)
 }
 
-func (ch *ChampionshipsHandler) icalFeed(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) IcalFeed(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
@@ -617,7 +618,7 @@ func (ch *ChampionshipsHandler) icalFeed(w http.ResponseWriter, r *http.Request)
 	}
 }
 
-func (ch *ChampionshipsHandler) driverPenalty(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) DriverPenalty(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.ModifyDriverPenalty(
 		chi.URLParam(r, "championshipID"),
 		chi.URLParam(r, "classID"),
@@ -637,7 +638,7 @@ func (ch *ChampionshipsHandler) driverPenalty(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *ChampionshipsHandler) teamPenalty(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) TeamPenalty(w http.ResponseWriter, r *http.Request) {
 	err := ch.championshipManager.ModifyTeamPenalty(
 		chi.URLParam(r, "championshipID"),
 		chi.URLParam(r, "classID"),
@@ -665,7 +666,7 @@ type championshipSignUpFormTemplateVars struct {
 	LockSteamGUID   bool
 }
 
-func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Request) {
 	championship, championshipOpts, err := ch.championshipManager.BuildChampionshipOpts(r)
 
 	if err != nil {
@@ -722,7 +723,7 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 			}
 
 			opts.FormData = signUpResponse
-			opts.ValidationError = fmt.Sprintf("There are no more available slots for the car: %s. Please pick a different car.", prettifyName(signUpResponse.GetCar(), true))
+			opts.ValidationError = fmt.Sprintf("There are no more available slots for the car: %s. Please pick a different car.", smcontent.PrettifyName(signUpResponse.GetCar(), true))
 		}
 	}
 
@@ -740,7 +741,7 @@ type signedUpEntrantsTemplateVars struct {
 	Championship *smmodel.Championship
 }
 
-func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) SignedUpEntrants(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -764,7 +765,7 @@ func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.
 	})
 }
 
-func (ch *ChampionshipsHandler) signedUpEntrantsCSV(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) SignedUpEntrantsCSV(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -820,7 +821,7 @@ func (ch *ChampionshipsHandler) signedUpEntrantsCSV(w http.ResponseWriter, r *ht
 	_ = wr.WriteAll(out)
 }
 
-func (ch *ChampionshipsHandler) modifyEntrantStatus(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -886,7 +887,7 @@ func (ch *ChampionshipsHandler) modifyEntrantStatus(w http.ResponseWriter, r *ht
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *ChampionshipsHandler) reorderEvents(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ReorderEvents(w http.ResponseWriter, r *http.Request) {
 	var eventIDsInOrder []string
 
 	if err := json.NewDecoder(r.Body).Decode(&eventIDsInOrder); err != nil {
@@ -902,7 +903,7 @@ func (ch *ChampionshipsHandler) reorderEvents(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (ch *ChampionshipsHandler) duplicateEvent(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) DuplicateEvent(w http.ResponseWriter, r *http.Request) {
 	championshipID := chi.URLParam(r, "championshipID")
 	eventID := chi.URLParam(r, "eventID")
 

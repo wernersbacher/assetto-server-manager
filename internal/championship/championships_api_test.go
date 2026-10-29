@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"testing"
@@ -76,7 +76,7 @@ func TestNewAPIChampionship(t *testing.T) {
 
 	championship.Events = []*smmodel.ChampionshipEvent{scheduledEvent, completedEvent, raceWeekendEvent}
 
-	out := api.NewChampionship(ServerInstallPath, championship, "")
+	out := api.NewChampionship(testInstallPath, championship, "")
 
 	if out.Name != "Test Championship" || out.Completed || len(out.Classes) != 1 || len(out.Events) != 3 {
 		t.Fatalf("unexpected championship: %+v", out)

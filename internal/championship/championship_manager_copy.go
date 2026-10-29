@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"encoding/json"
@@ -124,7 +124,7 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 			continue
 		}
 
-		results, err := LoadResult(sessionFile + ".json")
+		results, err := cm.env.Results().Load(sessionFile + ".json")
 
 		if err != nil {
 			return err
@@ -153,7 +153,7 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 
 		championship.EnhanceResults(results)
 
-		if err := saveResults(sessionFile+".json", results); err != nil {
+		if err := cm.env.Results().Save(sessionFile+".json", results); err != nil {
 			return err
 		}
 

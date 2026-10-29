@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
@@ -10,6 +10,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -71,13 +72,11 @@ func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*Cha
 		t.Fatal(err)
 	}
 
-	if err := os.MkdirAll(filepath.Join(dir, ServerConfigPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(dir, serverenv.ConfigPath), 0755); err != nil {
 		t.Fatal(err)
 	}
 
-	oldInstallPath, oldServerID := ServerInstallPath, serverID
-	ServerInstallPath = dir
-	serverID = "test-server"
+	env := testEnv(dir)
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
@@ -89,22 +88,20 @@ func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*Cha
 			config,
 			store,
 			process,
-			smcontent.NewCarManager(ServerInstallPath, false, false),
-			smcontent.NewTrackManager(ServerInstallPath),
+			smcontent.NewCarManager(dir, false, false),
+			smcontent.NewTrackManager(dir),
 			notifications,
-			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, process, store, racecontrol.NewPenaltiesManager(store, globalsEnv()), globalsEnv()),
-			globalsEnv(),
+			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, process, store, racecontrol.NewPenaltiesManager(store, env), env),
+			env,
 		),
 		config,
 		store,
 		process,
-		globalsEnv(),
+		env,
 		notifications,
 	)
 
 	return cm, store, func() {
-		ServerInstallPath, serverID = oldInstallPath, oldServerID
-
 		_ = os.RemoveAll(dir)
 	}
 }
@@ -116,7 +113,7 @@ func newScheduledTestChampionship(t *testing.T, store smstore.Store, scheduled .
 		event := smmodel.NewChampionshipEvent()
 		event.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 		event.Scheduled = scheduledTime
-		event.ScheduledServerID = serverID
+		event.ScheduledServerID = testServerID
 
 		championship.Events = append(championship.Events, event)
 	}

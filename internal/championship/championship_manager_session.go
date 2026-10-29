@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"errors"
@@ -175,7 +175,7 @@ func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, champio
 		filename := filepath.Base(string(a))
 		logrus.Infof("End Session, file outputted at: %s", filename)
 
-		results, err := LoadResult(filename)
+		results, err := cm.env.Results().Load(filename)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not read session results for %s", cm.activeChampionship.SessionType.String())
@@ -184,7 +184,7 @@ func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, champio
 
 		// Update the old results json file with more championship information, required for applying penalties properly
 		championship.EnhanceResults(results)
-		err = saveResults(filename, results)
+		err = cm.env.Results().Save(filename, results)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not update session results for %s", cm.activeChampionship.SessionType.String())
@@ -246,7 +246,7 @@ func (cm *ChampionshipManager) findSessionWithName(event *smmodel.ChampionshipEv
 }
 
 func (cm *ChampionshipManager) findLastWrittenSessionFile() (string, error) {
-	resultsPath := filepath.Join(ServerInstallPath, "results")
+	resultsPath := filepath.Join(cm.env.InstallPath(), "results")
 	resultFiles, err := ioutil.ReadDir(resultsPath)
 
 	if err != nil {
@@ -334,7 +334,7 @@ func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID 
 		return nil, nil, err
 	}
 
-	results, err := ListAllResults()
+	results, err := cm.env.Results().ListAll()
 
 	if err != nil {
 		return nil, nil, err

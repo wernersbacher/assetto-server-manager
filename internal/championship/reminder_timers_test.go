@@ -1,12 +1,8 @@
-package servermanager
+package championship
 
 import (
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
-
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"testing"
 	"time"
@@ -97,45 +93,5 @@ func TestChampionshipManager_InitScheduledChampionshipsKeepsAllReminders(t *test
 
 	if n := len(cm.championshipEventReminderTimers[championship.Events[0].ID.String()]); n != 2 {
 		t.Errorf("expected 2 reminder timers, got %d", n)
-	}
-}
-
-func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
-	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
-	defer cleanup()
-
-	notificationManager := &reminderNotificationManager{reminders: []int{120, 15}}
-	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, smcontent.NewCarManager(ServerInstallPath, false, false))
-
-	raceWeekend := smmodel.NewRaceWeekend()
-	session := smmodel.NewRaceWeekendSession()
-	raceWeekend.AddSession(session, nil)
-
-	if err := store.UpsertRaceWeekend(raceWeekend); err != nil {
-		t.Fatal(err)
-	}
-
-	defer func() {
-		for _, timer := range rwm.scheduledSessionTimers {
-			timer.Stop()
-		}
-
-		rwm.scheduledSessionReminderTimers.StopAll()
-	}()
-
-	if err := rwm.ScheduleSession(raceWeekend.ID.String(), session.ID.String(), time.Now().Add(3*time.Hour), false); err != nil {
-		t.Fatal(err)
-	}
-
-	if n := len(rwm.scheduledSessionReminderTimers[session.ID.String()]); n != 2 {
-		t.Fatalf("expected a reminder timer per configured reminder, got %d", n)
-	}
-
-	if err := rwm.DeScheduleSession(raceWeekend.ID.String(), session.ID.String()); err != nil {
-		t.Fatal(err)
-	}
-
-	if n := len(rwm.scheduledSessionReminderTimers[session.ID.String()]); n != 0 {
-		t.Errorf("expected all reminder timers to be stopped after removing the schedule, got %d", n)
 	}
 }

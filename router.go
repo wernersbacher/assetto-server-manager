@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
@@ -56,7 +57,7 @@ func Router(
 	quickRaceHandler *smrace.QuickRaceHandler,
 	customRaceHandler *smrace.CustomRaceHandler,
 	eventDetailsHandler *EventDetailsHandler,
-	championshipsHandler *ChampionshipsHandler,
+	championshipsHandler *smchampionship.ChampionshipsHandler,
 	accountHandler *smaccounts.AccountHandler,
 	auditLogHandler *smaccounts.AuditLogHandler,
 	carsHandler *CarsHandler,
@@ -141,15 +142,15 @@ func Router(
 		r.Get("/custom", customRaceHandler.List)
 
 		// championships
-		r.Get("/championships", championshipsHandler.list)
-		r.Get("/championship/{championshipID}", championshipsHandler.view)
-		r.Get("/championship/{championshipID}/export", championshipsHandler.export)
-		r.Get("/api/championships", championshipsHandler.listAPI)
-		r.Get("/api/championship/{championshipID}", championshipsHandler.viewAPI)
-		r.HandleFunc("/championship/{championshipID}/export-results", championshipsHandler.exportResults)
-		r.Get("/championship/{championshipID}/ics", championshipsHandler.icalFeed)
-		r.Get("/championship/{championshipID}/sign-up", championshipsHandler.signUpForm)
-		r.Post("/championship/{championshipID}/sign-up", championshipsHandler.signUpForm)
+		r.Get("/championships", championshipsHandler.List)
+		r.Get("/championship/{championshipID}", championshipsHandler.View)
+		r.Get("/championship/{championshipID}/export", championshipsHandler.Export)
+		r.Get("/api/championships", championshipsHandler.ListAPI)
+		r.Get("/api/championship/{championshipID}", championshipsHandler.ViewAPI)
+		r.HandleFunc("/championship/{championshipID}/export-results", championshipsHandler.ExportResults)
+		r.Get("/championship/{championshipID}/ics", championshipsHandler.IcalFeed)
+		r.Get("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
+		r.Post("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
 		r.Get("/championship/{championshipID}/sign-up/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
 			return fmt.Sprintf("/championship/%s/sign-up", chi.URLParam(r, "championshipID"))
 		}))
@@ -240,37 +241,37 @@ func Router(
 		r.Get("/api/log-download/{logFile}", serverAdministrationHandler.logsDownload)
 
 		// championships
-		r.Get("/championships/new", championshipsHandler.createOrEdit)
-		r.Post("/championships/new/submit", championshipsHandler.submit)
-		r.Get("/championship/{championshipID}/edit", championshipsHandler.createOrEdit)
-		r.Get("/championship/{championshipID}/duplicate", championshipsHandler.duplicate)
-		r.Get("/championship/{championshipID}/event", championshipsHandler.eventConfiguration)
-		r.Post("/championship/{championshipID}/event/submit", championshipsHandler.submitEventConfiguration)
-		r.Get("/championship/{championshipID}/event/{eventID}/start", championshipsHandler.startEvent)
-		r.Post("/championship/{championshipID}/event/{eventID}/schedule", championshipsHandler.scheduleEvent)
-		r.Get("/championship/{championshipID}/event/{eventID}/schedule/remove", championshipsHandler.scheduleEventRemove)
-		r.Get("/championship/{championshipID}/event/{eventID}/edit", championshipsHandler.eventConfiguration)
-		r.Get("/championship/{championshipID}/event/{eventID}/practice", championshipsHandler.startPracticeEvent)
-		r.Get("/championship/{championshipID}/event/{eventID}/cancel", championshipsHandler.cancelEvent)
-		r.Get("/championship/{championshipID}/event/{eventID}/restart", championshipsHandler.restartEvent)
-		r.Get("/championship/{championshipID}/event/{eventID}/duplicate", championshipsHandler.duplicateEvent)
+		r.Get("/championships/new", championshipsHandler.CreateOrEdit)
+		r.Post("/championships/new/submit", championshipsHandler.Submit)
+		r.Get("/championship/{championshipID}/edit", championshipsHandler.CreateOrEdit)
+		r.Get("/championship/{championshipID}/duplicate", championshipsHandler.Duplicate)
+		r.Get("/championship/{championshipID}/event", championshipsHandler.EventConfiguration)
+		r.Post("/championship/{championshipID}/event/submit", championshipsHandler.SubmitEventConfiguration)
+		r.Get("/championship/{championshipID}/event/{eventID}/start", championshipsHandler.StartEvent)
+		r.Post("/championship/{championshipID}/event/{eventID}/schedule", championshipsHandler.ScheduleEvent)
+		r.Get("/championship/{championshipID}/event/{eventID}/schedule/remove", championshipsHandler.ScheduleEventRemove)
+		r.Get("/championship/{championshipID}/event/{eventID}/edit", championshipsHandler.EventConfiguration)
+		r.Get("/championship/{championshipID}/event/{eventID}/practice", championshipsHandler.StartPracticeEvent)
+		r.Get("/championship/{championshipID}/event/{eventID}/cancel", championshipsHandler.CancelEvent)
+		r.Get("/championship/{championshipID}/event/{eventID}/restart", championshipsHandler.RestartEvent)
+		r.Get("/championship/{championshipID}/event/{eventID}/duplicate", championshipsHandler.DuplicateEvent)
 
-		r.Post("/championship/{championshipID}/driver-penalty/{classID}/{driverGUID}", championshipsHandler.driverPenalty)
-		r.Post("/championship/{championshipID}/team-penalty/{classID}/{team}", championshipsHandler.teamPenalty)
-		r.Get("/championship/{championshipID}/entrants", championshipsHandler.signedUpEntrants)
-		r.Get("/championship/{championshipID}/entrants.csv", championshipsHandler.signedUpEntrantsCSV)
-		r.Get("/championship/{championshipID}/entrant/{entrantGUID}", championshipsHandler.modifyEntrantStatus)
-		r.Post("/championship/{championshipID}/reorder-events", championshipsHandler.reorderEvents)
+		r.Post("/championship/{championshipID}/driver-penalty/{classID}/{driverGUID}", championshipsHandler.DriverPenalty)
+		r.Post("/championship/{championshipID}/team-penalty/{classID}/{team}", championshipsHandler.TeamPenalty)
+		r.Get("/championship/{championshipID}/entrants", championshipsHandler.SignedUpEntrants)
+		r.Get("/championship/{championshipID}/entrants.csv", championshipsHandler.SignedUpEntrantsCSV)
+		r.Get("/championship/{championshipID}/entrant/{entrantGUID}", championshipsHandler.ModifyEntrantStatus)
+		r.Post("/championship/{championshipID}/reorder-events", championshipsHandler.ReorderEvents)
 
-		r.Get("/championship/import", championshipsHandler.importChampionship)
-		r.Post("/championship/import", championshipsHandler.importChampionship)
-		r.Get("/championship/{championshipID}/event/{eventID}/import", championshipsHandler.eventImport)
-		r.Post("/championship/{championshipID}/event/{eventID}/import", championshipsHandler.eventImport)
+		r.Get("/championship/import", championshipsHandler.ImportChampionship)
+		r.Post("/championship/import", championshipsHandler.ImportChampionship)
+		r.Get("/championship/{championshipID}/event/{eventID}/import", championshipsHandler.EventImport)
+		r.Post("/championship/{championshipID}/event/{eventID}/import", championshipsHandler.EventImport)
 
-		r.Get("/championship/{championshipID}/custom/list", championshipsHandler.listCustomRacesForImport)
-		r.Get("/championship/{championshipID}/custom/{eventID}/import", championshipsHandler.customRaceImport)
-		r.Get("/championship/{championshipID}/race-weekend/list", championshipsHandler.listRaceWeekendsForImport)
-		r.Get("/championship/{championshipID}/race-weekend/{weekendID}/import", championshipsHandler.raceWeekendImport)
+		r.Get("/championship/{championshipID}/custom/list", championshipsHandler.ListCustomRacesForImport)
+		r.Get("/championship/{championshipID}/custom/{eventID}/import", championshipsHandler.CustomRaceImport)
+		r.Get("/championship/{championshipID}/race-weekend/list", championshipsHandler.ListRaceWeekendsForImport)
+		r.Get("/championship/{championshipID}/race-weekend/{weekendID}/import", championshipsHandler.RaceWeekendImport)
 
 		// penalties
 		r.Post("/penalties/{sessionFile}/{driverGUID}", penaltiesHandler.ManagePenalty)
@@ -316,8 +317,8 @@ func Router(
 			r.Use(auditLogHandler.Middleware)
 		}
 
-		r.Post("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.deleteEvent)
-		r.Post("/championship/{championshipID}/delete", championshipsHandler.delete)
+		r.Post("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.DeleteEvent)
+		r.Post("/championship/{championshipID}/delete", championshipsHandler.Delete)
 		r.Post("/custom/delete/{uuid}", customRaceHandler.Delete)
 		r.Post("/results/{fileName}/delete", resultsHandler.delete)
 

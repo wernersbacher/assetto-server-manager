@@ -3,6 +3,7 @@ package servermanager
 import (
 	"fmt"
 
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
@@ -48,7 +49,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 		color, ok := preview.Classes[class.Name]
 
 		if !ok {
-			color = ChampionshipClassColor(len(preview.Classes))
+			color = smchampionship.ChampionshipClassColor(len(preview.Classes))
 			preview.Classes[class.Name] = color
 		}
 
@@ -78,7 +79,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 		color, ok := preview.Classes[class.Name]
 
 		if !ok {
-			color = ChampionshipClassColor(len(preview.Classes))
+			color = smchampionship.ChampionshipClassColor(len(preview.Classes))
 			preview.Classes[class.Name] = color
 		}
 
@@ -146,7 +147,7 @@ func (rwm *RaceWeekendManager) PreviewSessionEntryList(raceWeekendID, sessionID,
 		color, ok := preview.Classes[class.Name]
 
 		if !ok {
-			color = ChampionshipClassColor(len(preview.Classes))
+			color = smchampionship.ChampionshipClassColor(len(preview.Classes))
 			preview.Classes[class.Name] = color
 		}
 

@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
@@ -25,7 +26,7 @@ import (
 type RaceWeekendManager struct {
 	config              *smconfig.Configuration
 	raceManager         *smrace.RaceManager
-	championshipManager *ChampionshipManager
+	championshipManager *smchampionship.ChampionshipManager
 	notificationManager notification.Dispatcher
 	carManager          *smcontent.CarManager
 	store               smstore.Store
@@ -41,7 +42,7 @@ type RaceWeekendManager struct {
 func NewRaceWeekendManager(
 	config *smconfig.Configuration,
 	raceManager *smrace.RaceManager,
-	championshipManager *ChampionshipManager,
+	championshipManager *smchampionship.ChampionshipManager,
 	store smstore.Store,
 	process smserver.ServerProcess,
 	notificationManager notification.Dispatcher,

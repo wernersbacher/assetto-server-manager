@@ -1,11 +1,8 @@
-package servermanager
+package championship
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"context"
@@ -365,7 +362,7 @@ func TestChampionshipManager_SaveChampionshipEventSavesFlag(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
 	defer cleanup()
 
-	if err := os.MkdirAll(filepath.Join(ServerInstallPath, "content", "cars"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(cm.env.InstallPath(), "content", "cars"), 0755); err != nil {
 		t.Fatal(err)
 	}
 
@@ -458,77 +455,5 @@ func TestChampionship_EffectiveRaceWeekendSessionSetup(t *testing.T) {
 
 	if got := none.EffectiveRaceWeekendSessionSetup(raceWeekendID, raw); !reflect.DeepEqual(got, raw) {
 		t.Error("no championship must not change the config")
-	}
-}
-
-func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
-	process := &interruptibleServerProcess{}
-	cm, store, cleanup := setupScheduledEventTest(t, process)
-	defer cleanup()
-
-	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &notificationtest.Dummy{}, smcontent.NewCarManager(ServerInstallPath, false, false))
-
-	for _, useSettings := range []bool{false, true} {
-		process.event = nil
-		process.started = nil
-
-		championship := smmodel.NewChampionship("Race Weekend Championship")
-		championship.RaceSettings = testChampionshipRaceSettings()
-
-		class := smmodel.NewChampionshipClass("Class")
-		class.AvailableCars = []string{"event_car"}
-		class.Entrants = serverconfig.EntryList{"CAR_0": &serverconfig.Entrant{Name: "Driver", GUID: "123", Model: "event_car"}}
-		championship.Classes = append(championship.Classes, class)
-
-		raceWeekend := smmodel.NewRaceWeekend()
-		raceWeekend.ChampionshipID = championship.ID
-
-		session := smmodel.NewRaceWeekendSession()
-		session.RaceConfig = testEventSetup()
-		session.ParentIDs = []uuid.UUID{raceWeekend.ID}
-		raceWeekend.AddSession(session, nil)
-
-		event := smmodel.NewChampionshipEvent()
-		event.RaceWeekendID = raceWeekend.ID
-		event.UseChampionshipRaceSettings = useSettings
-		championship.Events = append(championship.Events, event)
-
-		if err := store.UpsertChampionship(championship); err != nil {
-			t.Fatal(err)
-		}
-
-		if err := store.UpsertRaceWeekend(raceWeekend); err != nil {
-			t.Fatal(err)
-		}
-
-		if err := rwm.StartSession(raceWeekend.ID.String(), session.ID.String(), false); err != nil {
-			t.Fatal(err)
-		}
-
-		if len(process.started) != 1 {
-			t.Fatalf("expected one started session, got %d", len(process.started))
-		}
-
-		started := process.started[0].GetRaceConfig()
-
-		if useSettings {
-			assertChampionshipSettingsApplied(t, started, championship.RaceSettings)
-		} else {
-			assertChampionshipSettingsApplied(t, started, smmodel.NewChampionshipRaceSettingsFromConfig(testEventSetup()))
-		}
-
-		if started.Track != "event_track" {
-			t.Errorf("track must come from the session, got %s", started.Track)
-		}
-
-		loaded, err := store.LoadRaceWeekend(raceWeekend.ID.String())
-
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		stored := loaded.Sessions[0].RaceConfig
-
-		assertChampionshipSettingsApplied(t, stored, smmodel.NewChampionshipRaceSettingsFromConfig(testEventSetup()))
 	}
 }

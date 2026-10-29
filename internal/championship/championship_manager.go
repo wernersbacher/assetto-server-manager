@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"

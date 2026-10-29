@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
@@ -9,6 +9,7 @@ import (
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
@@ -75,7 +76,22 @@ var championshipEventFixtures = []string{
 	// "barbagello-no-end-sessions.db",
 }
 
+// testInstallPath is the fake Assetto Corsa installation of the development setup.
+var testInstallPath = filepath.Join("..", "..", "cmd", "server-manager", "assetto")
+
+const testServerID smmodel.ServerID = "test-server"
+
+func testEnv(installPath string) *serverenv.Env {
+	return &serverenv.Env{
+		ServerID:        func() smmodel.ServerID { return testServerID },
+		InstallPath:     func() string { return installPath },
+		FallBackSorting: func() bool { return false },
+		PanicCapture:    func(fn func()) { fn() },
+	}
+}
+
 func newTestChampionshipManager() *ChampionshipManager {
+	env := testEnv(testInstallPath)
 	config := &smconfig.Configuration{}
 	store := smstore.NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared"))
 	process := servertest.Dummy{}
@@ -86,16 +102,16 @@ func newTestChampionshipManager() *ChampionshipManager {
 			config,
 			store,
 			process,
-			smcontent.NewCarManager(ServerInstallPath, false, false),
-			smcontent.NewTrackManager(ServerInstallPath),
+			smcontent.NewCarManager(env.InstallPath(), false, false),
+			smcontent.NewTrackManager(env.InstallPath()),
 			notifications,
-			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, servertest.Dummy{}, testStore, racecontrol.NewPenaltiesManager(testStore, globalsEnv()), globalsEnv()),
-			globalsEnv(),
+			racecontrol.NewRaceControl(&smconfig.Configuration{}, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, servertest.Dummy{}, testStore, racecontrol.NewPenaltiesManager(testStore, env), env),
+			env,
 		),
 		config,
 		store,
 		process,
-		globalsEnv(),
+		env,
 		notifications,
 	)
 }
@@ -113,7 +129,6 @@ func doReplay(filename string, multiplier int, callbackFunc udp.CallbackFunc, wa
 }
 
 func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
-	ServerInstallPath = filepath.Join("cmd", "server-manager", "assetto")
 
 	championshipManager := newTestChampionshipManager()
 
@@ -144,7 +159,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				err := doReplay(filepath.Join("fixtures", sessionFile), 1000,
+				err := doReplay(filepath.Join("..", "..", "fixtures", sessionFile), 1000,
 					championshipManager.ChampionshipEventCallback, time.Second)
 
 				if err != nil {
@@ -186,7 +201,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				err := doReplay(filepath.Join("fixtures", sessionFile), 1000,
+				err := doReplay(filepath.Join("..", "..", "fixtures", sessionFile), 1000,
 					championshipManager.ChampionshipEventCallback, time.Second)
 
 				if err != nil {
@@ -236,7 +251,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				err := doReplay(filepath.Join("fixtures", sessionFile), 1000,
+				err := doReplay(filepath.Join("..", "..", "fixtures", sessionFile), 1000,
 					championshipManager.ChampionshipEventCallback, time.Second)
 
 				if err != nil {
@@ -286,7 +301,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 					return
 				}
 
-				err := doReplay(filepath.Join("fixtures", sessionFile), 1000,
+				err := doReplay(filepath.Join("..", "..", "fixtures", sessionFile), 1000,
 					championshipManager.ChampionshipEventCallback, time.Second)
 
 				if err != nil {
@@ -371,7 +386,7 @@ func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t 
 
 	var champ *smmodel.Championship
 
-	f, err := os.Open(filepath.Join("fixtures", "open-championship", "championship-setup.json"))
+	f, err := os.Open(filepath.Join("..", "..", "fixtures", "open-championship", "championship-setup.json"))
 
 	if err != nil {
 		t.Error(err)
@@ -395,9 +410,9 @@ func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t 
 	}
 
 	eventIDToJSON := map[string]string{
-		"006e6edd-7e77-4d7e-a2ce-d757adb65d95": filepath.Join("fixtures", "open-championship", "nurburgring_sprint_b.db"),
-		"c412e271-b3c0-4a71-abbe-954c540260de": filepath.Join("fixtures", "open-championship", "rbr_national.db"),
-		"09bddc04-45ed-40f7-bc94-73a3fe42f3fb": filepath.Join("fixtures", "open-championship", "suzuka_east.db"),
+		"006e6edd-7e77-4d7e-a2ce-d757adb65d95": filepath.Join("..", "..", "fixtures", "open-championship", "nurburgring_sprint_b.db"),
+		"c412e271-b3c0-4a71-abbe-954c540260de": filepath.Join("..", "..", "fixtures", "open-championship", "rbr_national.db"),
+		"09bddc04-45ed-40f7-bc94-73a3fe42f3fb": filepath.Join("..", "..", "fixtures", "open-championship", "suzuka_east.db"),
 	}
 
 	eventNum := 1

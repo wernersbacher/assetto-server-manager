@@ -1,4 +1,4 @@
-package servermanager
+package championship
 
 import (
 	"net/http"
@@ -11,7 +11,7 @@ import (
 )
 
 // listAPI returns all championships in the API format.
-func (ch *ChampionshipsHandler) listAPI(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
 	championships, err := ch.championshipManager.ListChampionships()
 
 	if err != nil {
@@ -23,14 +23,14 @@ func (ch *ChampionshipsHandler) listAPI(w http.ResponseWriter, r *http.Request) 
 	out := make([]*api.Championship, 0, len(championships))
 
 	for _, championship := range championships {
-		out = append(out, api.NewChampionship(ServerInstallPath, championship, ch.config.HTTP.BaseURL))
+		out = append(out, api.NewChampionship(ch.championshipManager.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
 	}
 
 	api.WriteJSON(w, out)
 }
 
 // viewAPI returns a single championship in the API format.
-func (ch *ChampionshipsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
+func (ch *ChampionshipsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err == smstore.ErrChampionshipNotFound {
@@ -42,5 +42,5 @@ func (ch *ChampionshipsHandler) viewAPI(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	api.WriteJSON(w, api.NewChampionship(ServerInstallPath, championship, ch.config.HTTP.BaseURL))
+	api.WriteJSON(w, api.NewChampionship(ch.championshipManager.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
 }

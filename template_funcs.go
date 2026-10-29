@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
@@ -70,7 +71,7 @@ func serverTemplateFuncs() template.FuncMap {
 		"carList":                  smcontent.CarList,
 		"varSplit":                 varSplit,
 		"trackInfo":                trackInfo,
-		"classColor":               ChampionshipClassColor,
+		"classColor":               smchampionship.ChampionshipClassColor,
 		"carSkinURL":               carSkinURL,
 		"trackLayoutURL":           trackLayoutURL,
 		"AccountGroup":             func(a smmodel.Account) smmodel.Group { return a.GroupFor(serverID) },

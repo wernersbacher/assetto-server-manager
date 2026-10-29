@@ -1,13 +1,13 @@
-package servermanager
+package championship
 
 import (
 	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
-	"errors"
 	"fmt"
 	"io"
 	"time"
@@ -18,8 +18,6 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
-var ErrScheduledTimeIsZero = errors.New("servermanager: can't schedule race for zero time")
-
 func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID string, date time.Time, action string, recurrence string) error {
 	championship, event, err := cm.GetChampionshipAndEvent(championshipID, eventID)
 
@@ -28,7 +26,7 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 	}
 
 	event.Scheduled = date
-	event.ScheduledServerID = serverID
+	event.ScheduledServerID = cm.env.ServerID()
 
 	// if there is an existing schedule timer for this event stop it
 	if timer := cm.championshipEventStartTimers[event.ID.String()]; timer != nil {
@@ -39,7 +37,7 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 
 	if action == "add" {
 		if date.IsZero() {
-			return ErrScheduledTimeIsZero
+			return smrace.ErrScheduledTimeIsZero
 		}
 
 		// add a scheduled event on date
@@ -264,7 +262,7 @@ func (cm *ChampionshipManager) InitScheduledChampionships() error {
 		for _, event := range championship.Events {
 			event := event
 
-			if event.ScheduledServerID != serverID {
+			if event.ScheduledServerID != cm.env.ServerID() {
 				continue
 			}
 
