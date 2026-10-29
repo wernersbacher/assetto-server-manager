@@ -3,32 +3,27 @@
 {{ define "title" }}Results{{ end }}
 
 {{ define "content" }}
-    <div class="row">
-        <div class="col-md-4">
-            {{ if WriteAccess }}
-                <a href="/results/combine" class="btn btn-primary">Combine Results</a>
-            {{ end }}
+    <div class="page-header">
+        <div>
+            <h1>Results</h1>
+            <p class="text-muted mb-0">Finished sessions recorded by the server.</p>
         </div>
 
-        <div class="col-md-4">
-            <h1 class="text-center">Results</h1>
-        </div>
-
-        <div class="col-md-4">
-            {{ if WriteAccess }}
-                <form class="form-inline" method="post" action="/results/upload" enctype="multipart/form-data">
+        {{ if WriteAccess }}
+            <div class="results-actions">
+                <a href="/results/combine" class="btn btn-outline">Combine Results</a>
+                <form method="post" action="/results/upload" enctype="multipart/form-data">
                     <div class="custom-file">
                         <input onchange="this.form.submit();" type="file" class="custom-file-input" accept=".json, application/json" id="resultsFile" name="resultsFile" required>
                         <label class="custom-file-label justify-content-start" for="resultsFile">Upload Results File</label>
                     </div>
                 </form>
-            {{ end }}
-        </div>
-
+            </div>
+        {{ end }}
     </div>
 
-    <form class="form-inline mb-3" method="get" action="/results">
-        <select name="type" class="form-control mr-2 mb-2" aria-label="Session Type">
+    <form class="results-filter" method="get" action="/results">
+        <select name="type" class="form-control" aria-label="Session Type">
             <option value="" {{ if eq .Filter.Type "" }}selected{{ end }}>Any Session Type</option>
             <option value="practice" {{ if eq .Filter.Type "practice" }}selected{{ end }}>Practice</option>
             <option value="qualify" {{ if eq .Filter.Type "qualify" }}selected{{ end }}>Qualifying</option>
@@ -36,22 +31,22 @@
             <option value="booking" {{ if eq .Filter.Type "booking" }}selected{{ end }}>Booking</option>
         </select>
 
-        <input type="text" name="track" class="form-control mr-2 mb-2" placeholder="Track" aria-label="Track" value="{{ .Filter.Track }}">
-        <input type="text" name="driver" class="form-control mr-2 mb-2" placeholder="Driver name or GUID" aria-label="Driver" value="{{ .Filter.Driver }}">
+        <input type="text" name="track" class="form-control" placeholder="Track" aria-label="Track" value="{{ .Filter.Track }}">
+        <input type="text" name="driver" class="form-control" placeholder="Driver name or GUID" aria-label="Driver" value="{{ .Filter.Driver }}">
 
-        <button type="submit" class="btn btn-primary mr-2 mb-2">Filter</button>
+        <button type="submit" class="btn btn-primary">Filter</button>
 
         {{ if .Filter.IsActive }}
-            <a href="/results" class="btn btn-secondary mb-2">Reset</a>
+            <a href="/results" class="btn btn-secondary">Reset</a>
         {{ end }}
     </form>
 
-    <table class="table table-bordered table-striped">
+    <div class="table-card"><table class="table results-table">
         <tr>
             <th>Date</th>
-            <th>Session Type</th>
+            <th>Session</th>
             <th>Track Name</th>
-            <th style="width: 50%">Entrants</th>
+            <th class="d-none d-md-table-cell">Entrants</th>
             {{ if DeleteAccess }}
                 <th></th>
             {{ end }}
@@ -63,7 +58,7 @@
         {{ end }}
         {{ range $i, $result := .Results }}
             <tr class="row-link" data-href="/results/{{ $result.SessionFile }}">
-                <td>
+                <td class="text-nowrap">
                     {{ $result.GetDate }}
                 </td>
                 <td>
@@ -77,8 +72,8 @@
                     {{ prettify $result.TrackName false }}
                 </td>
 
-                <td>
-                    <small>{{ $result.GetDrivers }}</small>
+                <td class="d-none d-md-table-cell results-entrants">
+                    <div class="results-entrants-text">{{ $result.GetDrivers }}</div>
                 </td>
 
                 {{ if DeleteAccess }}
@@ -92,7 +87,7 @@
                 {{ end }}
             </tr>
         {{ end }}
-    </table>
+    </table></div>
 
     <div class="clearfix"></div>
 

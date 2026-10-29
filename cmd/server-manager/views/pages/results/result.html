@@ -10,27 +10,29 @@
     {{ $account := .Account }}
     {{ $useMPH := .UseMPH }}
 
-    <h1 class="text-center">{{ prettify $sessionResults.TrackName false }} {{ with $sessionResults.TrackConfig }} - {{ prettify . true }} {{ end }}</h1>
-    <div class="text-center">{{ if $sessionResults.IsTimeAttack }}Time Attack - {{ end }}{{ $sessionResults.GetDate }}</div>
+    <div class="page-header">
+        <div>
+            <h1>{{ prettify $sessionResults.TrackName false }} {{ with $sessionResults.TrackConfig }} - {{ prettify . true }} {{ end }}</h1>
+            <p class="text-muted mb-0">{{ if $sessionResults.IsTimeAttack }}Time Attack - {{ end }}{{ $sessionResults.GetDate }}</p>
+        </div>
 
-    <a class="btn btn-primary float-left" href="/results">
-        Back to Results
-    </a>
+        <div class="results-detail-actions">
+            <a class="btn btn-outline" href="/results">Back to Results</a>
 
-    {{ if DeleteAccess }}
-        <form method="post" action="/results/{{ $sessionResults.SessionFile }}.json/delete" class="float-right"
-               data-confirm-delete="Delete results file {{ $sessionResults.SessionFile }}?" data-confirm-detail="The results file is removed permanently." data-confirm-label="Delete results">
-            <button type="submit" class="btn btn-danger">Delete Results</button>
-        </form>
-    {{ end }}
-
-    <div class="clearfix"></div>
+            {{ if DeleteAccess }}
+                <form method="post" action="/results/{{ $sessionResults.SessionFile }}.json/delete"
+                       data-confirm-delete="Delete results file {{ $sessionResults.SessionFile }}?" data-confirm-detail="The results file is removed permanently." data-confirm-label="Delete results">
+                    <button type="submit" class="btn btn-danger">Delete Results</button>
+                </form>
+            {{ end }}
+        </div>
+    </div>
 
     <div class="card mt-3 border-secondary">
         <div class="card-header">
             <strong>Overview</strong>
 
-            <div class="float-right">
+            <div class="results-detail-actions">
                 {{ with $sessionResults.ChampionshipID }}
                     <a class="btn btn-success btn-sm mr-1" href="/championship/{{ . }}">View Championship</a>
                 {{ end }}
