@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"errors"
@@ -37,7 +39,7 @@ type RaceManager struct {
 
 	// scheduled races
 	customRaceStartTimers    map[string]*when.Timer
-	customRaceReminderTimers reminderTimers
+	customRaceReminderTimers reminder.Timers
 }
 
 func NewRaceManager(
@@ -58,7 +60,7 @@ func NewRaceManager(
 		notificationManager:      notificationManager,
 		raceControl:              raceControl,
 		customRaceStartTimers:    make(map[string]*when.Timer),
-		customRaceReminderTimers: make(reminderTimers),
+		customRaceReminderTimers: make(reminder.Timers),
 	}
 }
 

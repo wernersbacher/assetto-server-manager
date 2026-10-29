@@ -1,4 +1,5 @@
-package servermanager
+// Package steam provides the Steam OpenID login redirect handler.
+package steam
 
 import (
 	"fmt"
@@ -9,9 +10,11 @@ import (
 	"github.com/solovev/steam_go"
 )
 
-type SteamLoginHandler struct{}
+// LoginHandler is embedded by handlers that offer a Steam login.
+type LoginHandler struct{}
 
-func (slh *SteamLoginHandler) redirectToSteamLogin(backURLFunc func(r *http.Request) string) http.HandlerFunc {
+// RedirectToSteamLogin redirects to Steam and, once validated, back to backURLFunc with the steamGUID.
+func (slh *LoginHandler) RedirectToSteamLogin(backURLFunc func(r *http.Request) string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		opID := steam_go.NewOpenId(r)
 		switch opID.Mode() {

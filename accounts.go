@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/steam"
+
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"context"
@@ -339,7 +341,7 @@ func AdminAccess(r *http.Request) func() bool {
 
 type AccountHandler struct {
 	*BaseHandler
-	SteamLoginHandler
+	steam.LoginHandler
 
 	config         *smconfig.Configuration
 	store          Store

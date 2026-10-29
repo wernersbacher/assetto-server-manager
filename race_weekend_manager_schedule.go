@@ -44,7 +44,7 @@ func (rwm *RaceWeekendManager) clearScheduledSessionTimer(session *RaceWeekendSe
 		timer.Stop()
 	}
 
-	rwm.scheduledSessionReminderTimers.stop(session.ID.String())
+	rwm.scheduledSessionReminderTimers.Stop(session.ID.String())
 }
 
 func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *RaceWeekend, session *RaceWeekendSession) error {
@@ -97,7 +97,7 @@ func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *RaceWeeke
 					logrus.WithError(err).Error("Could not set up race weekend reminder timer")
 				}
 
-				rwm.scheduledSessionReminderTimers.add(session.ID.String(), reminder)
+				rwm.scheduledSessionReminderTimers.Add(session.ID.String(), reminder)
 			}
 		}
 	}

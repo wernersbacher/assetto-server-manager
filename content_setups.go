@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+
 	"errors"
 	"fmt"
 	"io"
@@ -147,7 +149,7 @@ func getCarNameFromSetup(setupFile interface{}) (string, error) {
 func uploadCarSetup(r *http.Request) (string, error) {
 	track := r.FormValue("Track")
 
-	if !validPlainName(track) {
+	if !plainname.Valid(track) {
 		return "", errors.New("servermanager: invalid setup track name")
 	}
 
@@ -172,7 +174,7 @@ func uploadCarSetup(r *http.Request) (string, error) {
 	}
 
 	// the car name comes from the uploaded file itself, so it needs checking too
-	if !validPlainName(carName) || !validPlainName(header.Filename) {
+	if !plainname.Valid(carName) || !plainname.Valid(header.Filename) {
 		return "", errors.New("servermanager: invalid setup car or file name")
 	}
 
@@ -216,7 +218,7 @@ func carSetupDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	trackName := chi.URLParam(r, "track")
 	setupName := chi.URLParam(r, "setup")
 
-	if !validPlainName(carName) || !validPlainName(trackName) || !validPlainName(setupName) {
+	if !plainname.Valid(carName) || !plainname.Valid(trackName) || !plainname.Valid(setupName) {
 		http.NotFound(w, r)
 		return
 	}

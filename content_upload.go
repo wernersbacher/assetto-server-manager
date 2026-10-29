@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -81,7 +83,7 @@ func validContentFilePath(p string) bool {
 	}
 
 	for _, part := range strings.Split(strings.ReplaceAll(p, "\\", "/"), "/") {
-		if !validPlainName(part) {
+		if !plainname.Valid(part) {
 			return false
 		}
 	}

@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+
 	"errors"
 	"fmt"
 	"html/template"
@@ -23,7 +25,7 @@ type ChampionshipManager struct {
 	mutex              sync.Mutex
 
 	championshipEventStartTimers    map[string]*when.Timer
-	championshipEventReminderTimers reminderTimers
+	championshipEventReminderTimers reminder.Timers
 }
 
 func NewChampionshipManager(raceManager *RaceManager) *ChampionshipManager {

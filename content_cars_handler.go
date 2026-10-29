@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+
 	"encoding/json"
 	"fmt"
 	"math"
@@ -140,7 +142,7 @@ func carSkinURL(car, skin string) string {
 func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 	carName := chi.URLParam(r, "car_id")
 
-	if !validPlainName(carName) {
+	if !plainname.Valid(carName) {
 		http.NotFound(w, r)
 		return
 	}
@@ -162,7 +164,7 @@ func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 
-	if !validPlainName(car) {
+	if !plainname.Valid(car) {
 		http.NotFound(w, r)
 		return
 	}
@@ -193,7 +195,7 @@ func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
 func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 
-	if !validPlainName(car) {
+	if !plainname.Valid(car) {
 		http.NotFound(w, r)
 		return
 	}
@@ -209,7 +211,7 @@ func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ch *CarsHandler) uploadSkin(w http.ResponseWriter, r *http.Request) {
-	if !validPlainName(chi.URLParam(r, "name")) {
+	if !plainname.Valid(chi.URLParam(r, "name")) {
 		http.NotFound(w, r)
 		return
 	}
@@ -239,12 +241,12 @@ func (ch *CarsHandler) deleteSkin(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 	skin := r.FormValue("skin-delete")
 
-	if !validPlainName(car) {
+	if !plainname.Valid(car) {
 		http.NotFound(w, r)
 		return
 	}
 
-	if !validPlainName(skin) {
+	if !plainname.Valid(skin) {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}

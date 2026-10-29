@@ -34,7 +34,7 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 		timer.Stop()
 	}
 
-	rm.customRaceReminderTimers.stop(race.UUID.String())
+	rm.customRaceReminderTimers.Stop(race.UUID.String())
 
 	if action == "add" {
 		if race.Scheduled.IsZero() {
@@ -91,7 +91,7 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 					logrus.WithError(err).Error("Could not set up race reminder timer")
 				}
 
-				rm.customRaceReminderTimers.add(race.UUID.String(), reminder)
+				rm.customRaceReminderTimers.Add(race.UUID.String(), reminder)
 			}
 		}
 
@@ -205,7 +205,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 			newScheduledEvent = true
 		}
 
-		rm.customRaceReminderTimers.stop(race.UUID.String())
+		rm.customRaceReminderTimers.Stop(race.UUID.String())
 
 		if race.Scheduled.After(time.Now()) {
 			if newScheduledEvent {
@@ -239,7 +239,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 							logrus.WithError(err).Error("Could not set up scheduled race reminder timer")
 						}
 
-						rm.customRaceReminderTimers.add(race.UUID.String(), reminder)
+						rm.customRaceReminderTimers.Add(race.UUID.String(), reminder)
 					}
 				}
 			}
@@ -286,7 +286,7 @@ func (rm *RaceManager) RescheduleNotifications(oldServerOpts *GlobalServerConfig
 	}
 
 	// stop all existing timers, then rebuild them
-	rm.customRaceReminderTimers.stopAll()
+	rm.customRaceReminderTimers.StopAll()
 
 	if rm.notificationManager.HasNotificationReminders() {
 		races, err := rm.store.ListCustomRaces()
@@ -311,7 +311,7 @@ func (rm *RaceManager) RescheduleNotifications(oldServerOpts *GlobalServerConfig
 						logrus.WithError(err).Error("Could not set up scheduled race reminder timer")
 					}
 
-					rm.customRaceReminderTimers.add(race.UUID.String(), reminder)
+					rm.customRaceReminderTimers.Add(race.UUID.String(), reminder)
 				}
 			}
 		}

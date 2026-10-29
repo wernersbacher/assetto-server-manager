@@ -1,9 +1,10 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
-	"sync/atomic"
 	"testing"
 	"time"
 
@@ -26,70 +27,13 @@ func (r *reminderNotificationManager) GetNotificationReminders() []int {
 	return r.reminders
 }
 
-func TestReminderTimers(t *testing.T) {
-	rt := make(reminderTimers)
-
-	var fired int32
-
-	for i := 0; i < 2; i++ {
-		timer, err := when.When(time.Now().Add(time.Second), func() {
-			atomic.AddInt32(&fired, 1)
-		})
-
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		rt.add("event", timer)
-	}
-
-	// failed timers (e.g. reminders in the past) are not kept
-	rt.add("event", nil)
-
-	if len(rt["event"]) != 2 {
-		t.Fatalf("expected 2 reminder timers, got %d", len(rt["event"]))
-	}
-
-	rt.stop("event")
-
-	if _, ok := rt["event"]; ok {
-		t.Error("expected stopped timers to be removed")
-	}
-
-	time.Sleep(2500 * time.Millisecond)
-
-	if n := atomic.LoadInt32(&fired); n != 0 {
-		t.Errorf("expected no stopped reminder to fire, %d fired", n)
-	}
-}
-
-func TestReminderTimers_StopAll(t *testing.T) {
-	rt := make(reminderTimers)
-
-	for _, id := range []string{"a", "a", "b"} {
-		timer, err := when.When(time.Now().Add(time.Hour), func() {})
-
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		rt.add(id, timer)
-	}
-
-	rt.stopAll()
-
-	if len(rt) != 0 {
-		t.Errorf("expected all timers to be removed, %d events left", len(rt))
-	}
-}
-
 func TestChampionshipManager_ScheduleEventKeepsAllReminders(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
 	defer cleanup()
 
 	cm.notificationManager = &reminderNotificationManager{reminders: []int{120, 15}}
 	cm.championshipEventStartTimers = make(map[string]*when.Timer)
-	cm.championshipEventReminderTimers = make(reminderTimers)
+	cm.championshipEventReminderTimers = make(reminder.Timers)
 
 	championship := newScheduledTestChampionship(t, store, time.Time{})
 	eventID := championship.Events[0].ID.String()
@@ -99,7 +43,7 @@ func TestChampionshipManager_ScheduleEventKeepsAllReminders(t *testing.T) {
 			timer.Stop()
 		}
 
-		cm.championshipEventReminderTimers.stopAll()
+		cm.championshipEventReminderTimers.StopAll()
 	}()
 
 	if err := cm.ScheduleEvent(championship.ID.String(), eventID, time.Now().Add(3*time.Hour), "add", ""); err != nil {
@@ -146,7 +90,7 @@ func TestChampionshipManager_InitScheduledChampionshipsKeepsAllReminders(t *test
 			timer.Stop()
 		}
 
-		cm.championshipEventReminderTimers.stopAll()
+		cm.championshipEventReminderTimers.StopAll()
 	}()
 
 	if n := len(cm.championshipEventReminderTimers[championship.Events[0].ID.String()]); n != 2 {
@@ -180,7 +124,7 @@ func TestRaceManager_ScheduleRaceKeepsAllReminders(t *testing.T) {
 			timer.Stop()
 		}
 
-		rm.customRaceReminderTimers.stopAll()
+		rm.customRaceReminderTimers.StopAll()
 	}()
 
 	if err := rm.ScheduleRace(id, time.Now().Add(3*time.Hour), "add", ""); err != nil {
@@ -220,7 +164,7 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 			timer.Stop()
 		}
 
-		rwm.scheduledSessionReminderTimers.stopAll()
+		rwm.scheduledSessionReminderTimers.StopAll()
 	}()
 
 	if err := rwm.ScheduleSession(raceWeekend.ID.String(), session.ID.String(), time.Now().Add(3*time.Hour), false); err != nil {

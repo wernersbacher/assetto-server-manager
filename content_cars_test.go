@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+
 	"bytes"
 	"context"
 	"github.com/go-chi/chi"
@@ -285,13 +287,13 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 
 func TestValidPlainName(t *testing.T) {
 	for _, name := range []string{"dev_car", "my skin", "setup.ini", "..a", "a..", "v1.0"} {
-		if !validPlainName(name) {
+		if !plainname.Valid(name) {
 			t.Errorf("%q should be valid", name)
 		}
 	}
 
 	for _, name := range []string{"", ".", "..", "../..", "a/b", `a\b`, "/a", `\a`, "a/", "C:", "a\x00b"} {
-		if validPlainName(name) {
+		if plainname.Valid(name) {
 			t.Errorf("%q should be invalid", name)
 		}
 	}

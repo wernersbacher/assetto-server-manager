@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -290,7 +292,7 @@ func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
 func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
 	trackName := chi.URLParam(r, "track_id")
 
-	if !validPlainName(trackName) {
+	if !plainname.Valid(trackName) {
 		http.NotFound(w, r)
 		return
 	}
@@ -312,7 +314,7 @@ func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
 func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
-	if !validPlainName(name) {
+	if !plainname.Valid(name) {
 		http.NotFound(w, r)
 		return
 	}
@@ -331,7 +333,7 @@ func (th *TracksHandler) trackImage(w http.ResponseWriter, r *http.Request) {
 	track := chi.URLParam(r, "track")
 	layout := chi.URLParam(r, "layout")
 
-	if !validPlainName(track) || (layout != "" && !validPlainName(layout)) {
+	if !plainname.Valid(track) || (layout != "" && !plainname.Valid(layout)) {
 		http.NotFound(w, r)
 		return
 	}
@@ -351,7 +353,7 @@ func (th *TracksHandler) trackInfo(w http.ResponseWriter, r *http.Request) {
 	track := chi.URLParam(r, "track")
 	layout := chi.URLParam(r, "layout")
 
-	if !validPlainName(track) || (layout != "" && !validPlainName(layout)) {
+	if !plainname.Valid(track) || (layout != "" && !plainname.Valid(layout)) {
 		http.NotFound(w, r)
 		return
 	}

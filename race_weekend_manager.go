@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/json"
@@ -25,7 +27,7 @@ type RaceWeekendManager struct {
 	mutex             sync.Mutex
 
 	scheduledSessionTimers         map[string]*when.Timer
-	scheduledSessionReminderTimers reminderTimers
+	scheduledSessionReminderTimers reminder.Timers
 }
 
 func NewRaceWeekendManager(
@@ -47,7 +49,7 @@ func NewRaceWeekendManager(
 		carManager:          carManager,
 
 		scheduledSessionTimers:         make(map[string]*when.Timer),
-		scheduledSessionReminderTimers: make(reminderTimers),
+		scheduledSessionReminderTimers: make(reminder.Timers),
 	}
 }
 

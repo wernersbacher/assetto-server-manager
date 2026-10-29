@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/steam"
+
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
 	"encoding/csv"
@@ -18,7 +20,7 @@ import (
 
 type ChampionshipsHandler struct {
 	*BaseHandler
-	SteamLoginHandler
+	steam.LoginHandler
 
 	config              *smconfig.Configuration
 	championshipManager *ChampionshipManager

@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+
 	"errors"
 	"fmt"
 	"io"
@@ -29,7 +31,7 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 		timer.Stop()
 	}
 
-	cm.championshipEventReminderTimers.stop(event.ID.String())
+	cm.championshipEventReminderTimers.Stop(event.ID.String())
 
 	if action == "add" {
 		if date.IsZero() {
@@ -88,7 +90,7 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 					logrus.WithError(err).Errorf("couldn't send championship reminder message")
 				}
 
-				cm.championshipEventReminderTimers.add(event.ID.String(), reminder)
+				cm.championshipEventReminderTimers.Add(event.ID.String(), reminder)
 			}
 		}
 	} else {
@@ -244,7 +246,7 @@ func (cm *ChampionshipManager) BuildICalFeed(championshipID string, w io.Writer)
 
 func (cm *ChampionshipManager) InitScheduledChampionships() error {
 	cm.championshipEventStartTimers = make(map[string]*when.Timer)
-	cm.championshipEventReminderTimers = make(reminderTimers)
+	cm.championshipEventReminderTimers = make(reminder.Timers)
 	championships, err := cm.ListChampionships()
 
 	if err != nil {
@@ -295,7 +297,7 @@ func (cm *ChampionshipManager) InitScheduledChampionships() error {
 								continue
 							}
 
-							cm.championshipEventReminderTimers.add(event.ID.String(), reminder)
+							cm.championshipEventReminderTimers.Add(event.ID.String(), reminder)
 						}
 					}
 				}
