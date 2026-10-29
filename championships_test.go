@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type lastSessionTest struct {
@@ -202,8 +203,8 @@ func TestChampionship_FindClassForCarModel(t *testing.T) {
 
 func TestChampionship_AddEntrantFromSession(t *testing.T) {
 	t.Run("Added entrant with team name", func(t *testing.T) {
-		potentialEntrant := &SessionCar{
-			Driver: SessionDriver{
+		potentialEntrant := &smresults.SessionCar{
+			Driver: smresults.SessionDriver{
 				GUID:      "78987656782716273",
 				GuidsList: []string{"78987656782716273"},
 				Name:      "Driver 1",
@@ -246,8 +247,8 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 	})
 
 	t.Run("Added entrant with team name, then added them again without. Team name should persist (#386)", func(t *testing.T) {
-		potentialEntrant := &SessionCar{
-			Driver: SessionDriver{
+		potentialEntrant := &smresults.SessionCar{
+			Driver: smresults.SessionDriver{
 				GUID:      "78987656782716273",
 				GuidsList: []string{"78987656782716273"},
 				Name:      "Driver 1",
@@ -320,8 +321,8 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 	})
 
 	t.Run("Added entrant with team name, then added them again with a new team name. New team name should persist (#386)", func(t *testing.T) {
-		potentialEntrant := &SessionCar{
-			Driver: SessionDriver{
+		potentialEntrant := &smresults.SessionCar{
+			Driver: smresults.SessionDriver{
 				GUID:      "78987656782716273",
 				GuidsList: []string{"78987656782716273"},
 				Name:      "Driver 1",
@@ -394,8 +395,8 @@ func TestChampionship_AddEntrantFromSession(t *testing.T) {
 	})
 
 	t.Run("Entrant joined and was placed in a different grid slot. Their extra properties (especially InternalUUID) should persist (#441)", func(t *testing.T) {
-		potentialEntrant := &SessionCar{
-			Driver: SessionDriver{
+		potentialEntrant := &smresults.SessionCar{
+			Driver: smresults.SessionDriver{
 				GUID:      "78987656782716273",
 				GuidsList: []string{"78987656782716273"},
 				Name:      "Driver 1",

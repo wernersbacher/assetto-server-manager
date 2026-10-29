@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func writeResultsFixtures(t *testing.T, resultsDir string, names ...string) {
@@ -58,9 +60,7 @@ func TestListResultsFilter(t *testing.T) {
 	ServerInstallPath = dir
 
 	resetResultSummaryCache := func() {
-		resultSummaryCache.Lock()
-		resultSummaryCache.entries = make(map[string]*resultSummary)
-		resultSummaryCache.Unlock()
+		smresults.ClearSummaryCache()
 	}
 
 	resetResultSummaryCache()
@@ -68,29 +68,29 @@ func TestListResultsFilter(t *testing.T) {
 
 	for _, tc := range []struct {
 		name   string
-		filter ResultsFilter
+		filter smresults.Filter
 		want   []string
 	}{
-		{"no filter", ResultsFilter{}, []string{
+		{"no filter", smresults.Filter{}, []string{
 			"2019_2_15_21_16_RACE", "2019_2_15_21_8_QUALIFY", "2019_2_15_22_10_RACE", "2019_3_2_14_41_PRACTICE",
 			"2019_3_2_21_21_QUALIFY", "2019_3_2_21_36_RACE", "2019_3_2_22_15_QUALIFY",
 		}},
-		{"type race", ResultsFilter{Type: "race"}, []string{"2019_2_15_21_16_RACE", "2019_2_15_22_10_RACE", "2019_3_2_21_36_RACE"}},
-		{"type qualify", ResultsFilter{Type: "qualify"}, []string{"2019_2_15_21_8_QUALIFY", "2019_3_2_21_21_QUALIFY", "2019_3_2_22_15_QUALIFY"}},
-		{"type practice, case insensitive", ResultsFilter{Type: "Practice"}, []string{"2019_3_2_14_41_PRACTICE"}},
-		{"type booking", ResultsFilter{Type: "booking"}, nil},
-		{"track name", ResultsFilter{Track: "barbagallo"}, []string{"2019_2_15_21_16_RACE", "2019_2_15_21_8_QUALIFY"}},
-		{"track readable name, case insensitive", ResultsFilter{Track: "RED BULL"}, []string{"2019_2_15_22_10_RACE"}},
-		{"track layout", ResultsFilter{Track: "sprint_b"}, []string{"2019_3_2_21_21_QUALIFY", "2019_3_2_21_36_RACE"}},
-		{"track name matching several tracks", ResultsFilter{Track: "suzuka"}, []string{"2019_3_2_14_41_PRACTICE", "2019_3_2_22_15_QUALIFY"}},
-		{"driver name, case insensitive", ResultsFilter{Driver: "cheezy"}, []string{"2019_3_2_21_36_RACE", "2019_3_2_22_15_QUALIFY"}},
-		{"driver guid", ResultsFilter{Driver: "76561198437072463"}, []string{"2019_3_2_21_21_QUALIFY", "2019_3_2_22_15_QUALIFY"}},
-		{"driver guid is not a substring match", ResultsFilter{Driver: "7656119843707"}, nil},
-		{"type and driver", ResultsFilter{Type: "race", Driver: "cheezy"}, []string{"2019_3_2_21_36_RACE"}},
-		{"track and driver", ResultsFilter{Track: "suzuka", Driver: "cheezy"}, []string{"2019_3_2_22_15_QUALIFY"}},
-		{"type, track and driver", ResultsFilter{Type: "qualify", Track: "nurburgring", Driver: "76561198437072463"}, []string{"2019_3_2_21_21_QUALIFY"}},
-		{"no matches", ResultsFilter{Driver: "nobody by that name"}, nil},
-		{"no matches because of a combination", ResultsFilter{Type: "practice", Driver: "cheezy"}, nil},
+		{"type race", smresults.Filter{Type: "race"}, []string{"2019_2_15_21_16_RACE", "2019_2_15_22_10_RACE", "2019_3_2_21_36_RACE"}},
+		{"type qualify", smresults.Filter{Type: "qualify"}, []string{"2019_2_15_21_8_QUALIFY", "2019_3_2_21_21_QUALIFY", "2019_3_2_22_15_QUALIFY"}},
+		{"type practice, case insensitive", smresults.Filter{Type: "Practice"}, []string{"2019_3_2_14_41_PRACTICE"}},
+		{"type booking", smresults.Filter{Type: "booking"}, nil},
+		{"track name", smresults.Filter{Track: "barbagallo"}, []string{"2019_2_15_21_16_RACE", "2019_2_15_21_8_QUALIFY"}},
+		{"track readable name, case insensitive", smresults.Filter{Track: "RED BULL"}, []string{"2019_2_15_22_10_RACE"}},
+		{"track layout", smresults.Filter{Track: "sprint_b"}, []string{"2019_3_2_21_21_QUALIFY", "2019_3_2_21_36_RACE"}},
+		{"track name matching several tracks", smresults.Filter{Track: "suzuka"}, []string{"2019_3_2_14_41_PRACTICE", "2019_3_2_22_15_QUALIFY"}},
+		{"driver name, case insensitive", smresults.Filter{Driver: "cheezy"}, []string{"2019_3_2_21_36_RACE", "2019_3_2_22_15_QUALIFY"}},
+		{"driver guid", smresults.Filter{Driver: "76561198437072463"}, []string{"2019_3_2_21_21_QUALIFY", "2019_3_2_22_15_QUALIFY"}},
+		{"driver guid is not a substring match", smresults.Filter{Driver: "7656119843707"}, nil},
+		{"type and driver", smresults.Filter{Type: "race", Driver: "cheezy"}, []string{"2019_3_2_21_36_RACE"}},
+		{"track and driver", smresults.Filter{Track: "suzuka", Driver: "cheezy"}, []string{"2019_3_2_22_15_QUALIFY"}},
+		{"type, track and driver", smresults.Filter{Type: "qualify", Track: "nurburgring", Driver: "76561198437072463"}, []string{"2019_3_2_21_21_QUALIFY"}},
+		{"no matches", smresults.Filter{Driver: "nobody by that name"}, nil},
+		{"no matches because of a combination", smresults.Filter{Type: "practice", Driver: "cheezy"}, nil},
 	} {
 		tc := tc
 
@@ -127,7 +127,7 @@ func TestListResultsFilter(t *testing.T) {
 	}
 
 	t.Run("no matches, page 1 is not found", func(t *testing.T) {
-		if _, _, err := listResults(1, ResultsFilter{Driver: "nobody by that name"}); err != ErrResultsPageNotFound {
+		if _, _, err := listResults(1, smresults.Filter{Driver: "nobody by that name"}); err != ErrResultsPageNotFound {
 			t.Fatalf("expected error %v, got %v", ErrResultsPageNotFound, err)
 		}
 	})
@@ -135,7 +135,7 @@ func TestListResultsFilter(t *testing.T) {
 	t.Run("changed file is reloaded", func(t *testing.T) {
 		name := "2019_3_2_14_41_PRACTICE.json"
 
-		results, _, err := listResults(0, ResultsFilter{Track: "red bull"})
+		results, _, err := listResults(0, smresults.Filter{Track: "red bull"})
 
 		if err != nil || len(results) != 1 {
 			t.Fatalf("expected the red bull ring race only, got %d results, error %v", len(results), err)
@@ -152,7 +152,7 @@ func TestListResultsFilter(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		results, _, err = listResults(0, ResultsFilter{Track: "red bull"})
+		results, _, err = listResults(0, smresults.Filter{Track: "red bull"})
 
 		if err != nil || len(results) != 2 {
 			t.Fatalf("expected 2 results after the file changed, got %d, error %v", len(results), err)
@@ -197,11 +197,9 @@ func TestListResultsFilterPagination(t *testing.T) {
 
 	ServerInstallPath = dir
 
-	resultSummaryCache.Lock()
-	resultSummaryCache.entries = make(map[string]*resultSummary)
-	resultSummaryCache.Unlock()
+	smresults.ClearSummaryCache()
 
-	filter := ResultsFilter{Type: "race", Track: "barbagallo"}
+	filter := smresults.Filter{Type: "race", Track: "barbagallo"}
 
 	for _, tc := range []struct {
 		page    int

@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 // DefaultChampionshipPoints is the Formula 1 points system.
@@ -74,7 +75,7 @@ func (c *ChampionshipClass) HadBetterFinishingPositions(guidA, guidB string, inE
 
 // forEachCompletedRace calls fn with the results of every completed race (and second race) session in the given
 // events. The sessions of race weekends are treated as individual events, like when calculating the standings.
-func forEachCompletedRace(inEvents []*ChampionshipEvent, fn func(results *SessionResults)) {
+func forEachCompletedRace(inEvents []*ChampionshipEvent, fn func(results *smresults.SessionResults)) {
 	for _, event := range ExtractRaceWeekendSessionsIntoIndividualEvents(inEvents) {
 		for sessionType, session := range event.Sessions {
 			if session.Completed() && (sessionType == serverconfig.SessionTypeRace || sessionType == serverconfig.SessionTypeSecondRace) {
@@ -89,7 +90,7 @@ func forEachCompletedRace(inEvents []*ChampionshipEvent, fn func(results *Sessio
 func (c *ChampionshipClass) numFinishingPositions(inEvents []*ChampionshipEvent) int {
 	numPositions := 0
 
-	forEachCompletedRace(inEvents, func(results *SessionResults) {
+	forEachCompletedRace(inEvents, func(results *smresults.SessionResults) {
 		num := 0
 
 		for _, result := range results.Result {
@@ -109,7 +110,7 @@ func (c *ChampionshipClass) numFinishingPositions(inEvents []*ChampionshipEvent)
 func (c *ChampionshipClass) CountPositionsForDriver(i int, guid string, inEvents []*ChampionshipEvent) int {
 	count := 0
 
-	forEachCompletedRace(inEvents, func(results *SessionResults) {
+	forEachCompletedRace(inEvents, func(results *smresults.SessionResults) {
 		pos := 0
 
 		for _, result := range results.Result {
@@ -144,7 +145,7 @@ func (c *ChampionshipClass) TeamHadBetterFinishingPositions(teamA, teamB string,
 func (c *ChampionshipClass) CountPositionsForTeam(i int, team string, inEvents []*ChampionshipEvent) int {
 	count := 0
 
-	forEachCompletedRace(inEvents, func(results *SessionResults) {
+	forEachCompletedRace(inEvents, func(results *smresults.SessionResults) {
 		pos := 0
 
 		for _, result := range results.Result {
@@ -169,7 +170,7 @@ func (c *ChampionshipClass) CountPositionsForTeam(i int, team string, inEvents [
 	return count
 }
 
-func (c *Championship) FindLastResultForDriver(guid string) (out *SessionResult, teamName string) {
+func (c *Championship) FindLastResultForDriver(guid string) (out *smresults.SessionResult, teamName string) {
 	events := make([]*ChampionshipEvent, 0)
 
 	for _, event := range ExtractRaceWeekendSessionsIntoIndividualEvents(c.Events) {
@@ -186,7 +187,7 @@ func (c *Championship) FindLastResultForDriver(guid string) (out *SessionResult,
 	// in the last completed event that the driver took part in.
 	for _, event := range events {
 		var latestSession *ChampionshipSession
-		var latestResult *SessionResult
+		var latestResult *smresults.SessionResult
 
 		for _, session := range event.Sessions {
 			if session.Results == nil || (latestSession != nil && !session.StartedTime.After(latestSession.StartedTime)) {
@@ -292,7 +293,7 @@ func (c *Championship) GetPlayerSummary(guid string) string {
 	return out
 }
 
-func NewChampionshipStanding(car *SessionCar) *ChampionshipStanding {
+func NewChampionshipStanding(car *smresults.SessionCar) *ChampionshipStanding {
 	return &ChampionshipStanding{
 		Car:   car,
 		Teams: make(map[string]int),
@@ -301,7 +302,7 @@ func NewChampionshipStanding(car *SessionCar) *ChampionshipStanding {
 
 // ChampionshipStanding is the current number of Points an Entrant in the Championship has.
 type ChampionshipStanding struct {
-	Car *SessionCar
+	Car *smresults.SessionCar
 
 	// Teams is a map of Team Name to how many Events per team were completed.
 	Teams  map[string]int
@@ -406,7 +407,7 @@ func (cs *ChampionshipStanding) TeamSummary() string {
 	return ""
 }
 
-func (c *ChampionshipClass) ResultsForClass(results []*SessionResult, championship *Championship) (filtered []*SessionResult) {
+func (c *ChampionshipClass) ResultsForClass(results []*smresults.SessionResult, championship *Championship) (filtered []*smresults.SessionResult) {
 	for _, result := range results {
 		if c.DriverInClass(result) && result.TotalTime > 0 && (!championship.SpectatorCarEnabled || result.DriverGUID != championship.SpectatorCar.GUID) {
 			filtered = append(filtered, result)
@@ -576,7 +577,7 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 	eventPoints := make(map[string]map[string]float64)
 
 	c.standings(championship, events, func(event *ChampionshipEvent, driverGUID string, points float64, reason PointsReason) {
-		var car *SessionCar
+		var car *smresults.SessionCar
 
 		for _, sessionType := range championshipStandingSessionOrder {
 			session, ok := event.Sessions[sessionType]

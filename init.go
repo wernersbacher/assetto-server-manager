@@ -8,6 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func init() {
@@ -61,7 +63,7 @@ func InitWithResolver(resolver *Resolver) error {
 		return err
 	}
 
-	UseShortenedDriverNames = opts != nil && opts.UseShortenedDriverNames == 1
+	smresults.UseShortenedDriverNames = opts != nil && opts.UseShortenedDriverNames == 1
 	UseFallBackSorting = opts != nil && opts.FallBackResultsSorting == 1
 
 	process := resolver.resolveServerProcess()

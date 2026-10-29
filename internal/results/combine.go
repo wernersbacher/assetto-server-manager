@@ -1,8 +1,9 @@
-package servermanager
+package results
 
 import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 
-func combineResults(results []*SessionResults) *SessionResults {
+// Combine merges results of the same track and session type into one.
+func Combine(results []*SessionResults) *SessionResults {
 	output := &SessionResults{}
 
 	var trackName, trackConfig, championshipID, raceWeekendID string

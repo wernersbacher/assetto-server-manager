@@ -19,6 +19,8 @@ import (
 	"github.com/blevesearch/bleve"
 	"github.com/cj123/watcher"
 	"github.com/sirupsen/logrus"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type CarManager struct {
@@ -277,14 +279,14 @@ func (cm *CarManager) RandomSkin(model string) string {
 }
 
 // ResultsForCar finds results for a given car.
-func (cm *CarManager) ResultsForCar(car string) ([]SessionResults, error) {
+func (cm *CarManager) ResultsForCar(car string) ([]smresults.SessionResults, error) {
 	results, err := ListAllResults()
 
 	if err != nil {
 		return nil, err
 	}
 
-	var out []SessionResults
+	var out []smresults.SessionResults
 
 	for _, result := range results {
 		hasCar := false
@@ -368,7 +370,7 @@ type carDetailsTemplateVars struct {
 	BaseTemplateVars
 
 	Car       *Car
-	Results   []SessionResults
+	Results   []smresults.SessionResults
 	Setups    map[string][]string
 	TrackOpts []Track
 }

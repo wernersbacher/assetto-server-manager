@@ -12,6 +12,8 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type vec struct {
@@ -28,7 +30,7 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 
 	fileName := chi.URLParam(r, "fileName")
 
-	if !validResultsFileName(fileName + ".json") {
+	if !smresults.ValidFileName(fileName + ".json") {
 		http.NotFound(w, r)
 		return
 	}

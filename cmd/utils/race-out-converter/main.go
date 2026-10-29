@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	servermanager "github.com/wernersbacher/assetto-server-manager"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"github.com/sirupsen/logrus"
 )
@@ -58,7 +58,7 @@ func main() {
 			sessionType = serverconfig.SessionTypeRace
 		}
 
-		results := &servermanager.SessionResults{
+		results := &smresults.SessionResults{
 			TrackName:   raceOut.Track,
 			TrackConfig: "", // no way to know afaik?
 			Type:        sessionType,
@@ -68,10 +68,10 @@ func main() {
 		for carID, player := range raceOut.Players {
 			playerToCarIDMap[player.Name] = carID
 
-			results.Cars = append(results.Cars, &servermanager.SessionCar{
+			results.Cars = append(results.Cars, &smresults.SessionCar{
 				BallastKG: 0,
 				CarID:     carID,
-				Driver: servermanager.SessionDriver{
+				Driver: smresults.SessionDriver{
 					GUID:      nameToGUIDMap[player.Name],
 					GuidsList: []string{nameToGUIDMap[player.Name]},
 					Name:      player.Name,
@@ -93,7 +93,7 @@ func main() {
 
 			lapTimeStamp[lap.Car] += lap.Time
 
-			results.Laps = append(results.Laps, &servermanager.SessionLap{
+			results.Laps = append(results.Laps, &smresults.SessionLap{
 				BallastKG:  0,
 				CarID:      lap.Car,
 				CarModel:   results.Cars[lap.Car].Model,
@@ -129,7 +129,7 @@ func main() {
 				}
 			}
 
-			results.Result = append(results.Result, &servermanager.SessionResult{
+			results.Result = append(results.Result, &smresults.SessionResult{
 				BallastKG:  0,
 				BestLap:    bestLap,
 				CarID:      carID,
@@ -154,7 +154,7 @@ func checkError(what string, err error) {
 	logrus.WithError(err).Fatalf("could not: %s", what)
 }
 
-func saveResults(r *servermanager.SessionResults) error {
+func saveResults(r *smresults.SessionResults) error {
 	f, err := os.Create(fmt.Sprintf("%d_%d_%d_%d_%d_%s.json", r.Date.Year(), r.Date.Month(), r.Date.Day(), r.Date.Hour(), r.Date.Minute(), r.Type.OriginalString()))
 
 	if err != nil {

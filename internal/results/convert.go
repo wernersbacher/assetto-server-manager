@@ -1,9 +1,9 @@
-package servermanager
+package results
 
 import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 
-// assignEntrantFromResult sets the entrant's properties from a session result and car.
-func assignEntrantFromResult(e *serverconfig.Entrant, result *SessionResult, car *SessionCar) {
+// AssignEntrantFromResult sets the entrant's properties from a session result and car.
+func AssignEntrantFromResult(e *serverconfig.Entrant, result *SessionResult, car *SessionCar) {
 	e.Name = result.DriverName
 	e.Team = car.Driver.Team
 	e.GUID = result.DriverGUID
@@ -13,8 +13,8 @@ func assignEntrantFromResult(e *serverconfig.Entrant, result *SessionResult, car
 	e.Ballast = car.BallastKG
 }
 
-// entrantAsSessionCar converts an entrant to a session car.
-func entrantAsSessionCar(e *serverconfig.Entrant) *SessionCar {
+// EntrantAsSessionCar converts an entrant to a session car.
+func EntrantAsSessionCar(e *serverconfig.Entrant) *SessionCar {
 	return &SessionCar{
 		BallastKG: e.Ballast,
 		CarID:     e.PitBox,
@@ -30,8 +30,8 @@ func entrantAsSessionCar(e *serverconfig.Entrant) *SessionCar {
 	}
 }
 
-// entrantAsSessionResult converts an entrant to a session result.
-func entrantAsSessionResult(e *serverconfig.Entrant) *SessionResult {
+// EntrantAsSessionResult converts an entrant to a session result.
+func EntrantAsSessionResult(e *serverconfig.Entrant) *SessionResult {
 	return &SessionResult{
 		BallastKG:  e.Ballast,
 		CarID:      e.PitBox,

@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type PenaltiesHandler struct {
@@ -91,7 +92,7 @@ func NewPenaltiesManager(store Store) *PenaltiesManager {
 }
 
 func (pm *PenaltiesManager) applyPenalty(jsonFileName, guid, carModel string, penalty float64, add bool) error {
-	var results *SessionResults
+	var results *smresults.SessionResults
 
 	var fullFileName string
 

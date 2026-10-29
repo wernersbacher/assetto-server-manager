@@ -1,4 +1,4 @@
-package servermanager
+package results
 
 import (
 	"crypto/md5"
@@ -15,30 +15,30 @@ import (
 )
 
 type SessionResults struct {
-	Cars           []*SessionCar    `json:"Cars"`
-	Events         []*SessionEvent  `json:"Events"`
-	Laps           []*SessionLap    `json:"Laps"`
-	Result         []*SessionResult `json:"Result"`
-	TrackConfig    string           `json:"TrackConfig"`
-	TrackName      string           `json:"TrackName"`
-	Type           serverconfig.SessionType      `json:"Type"`
-	Date           time.Time        `json:"Date"`
-	SessionFile    string           `json:"SessionFile"`
-	ChampionshipID string           `json:"ChampionshipID"`
-	RaceWeekendID  string           `json:"RaceWeekendID"`
+	Cars           []*SessionCar            `json:"Cars"`
+	Events         []*SessionEvent          `json:"Events"`
+	Laps           []*SessionLap            `json:"Laps"`
+	Result         []*SessionResult         `json:"Result"`
+	TrackConfig    string                   `json:"TrackConfig"`
+	TrackName      string                   `json:"TrackName"`
+	Type           serverconfig.SessionType `json:"Type"`
+	Date           time.Time                `json:"Date"`
+	SessionFile    string                   `json:"SessionFile"`
+	ChampionshipID string                   `json:"ChampionshipID"`
+	RaceWeekendID  string                   `json:"RaceWeekendID"`
 }
 
 var ErrSessionCarNotFound = errors.New("servermanager: session car not found")
 
 // Clear Kicked GUIDs removes any instances of the kicked guid from the results
 func (s *SessionResults) ClearKickedGUIDs() {
-	// remove any instances of kickedGUID in result
+	// remove any instances of KickedGUID in result
 	for _, result := range s.Result {
-		if result.DriverGUID == kickedGUID {
+		if result.DriverGUID == KickedGUID {
 			for _, car := range s.Cars {
 				if car.CarID == result.CarID {
-					// check if guid isn't kickedGUID, if not try using guidsList
-					if car.Driver.GUID != kickedGUID {
+					// check if guid isn't KickedGUID, if not try using guidsList
+					if car.Driver.GUID != KickedGUID {
 						result.DriverGUID = car.Driver.GUID
 					} else {
 						if len(car.Driver.GuidsList) >= 1 {
@@ -51,13 +51,13 @@ func (s *SessionResults) ClearKickedGUIDs() {
 		}
 	}
 
-	// remove any instances of kickedGUID in cars
+	// remove any instances of KickedGUID in cars
 	for _, car := range s.Cars {
-		if car.Driver.GUID == kickedGUID {
+		if car.Driver.GUID == KickedGUID {
 			for _, result := range s.Result {
 				if car.CarID == result.CarID {
-					// check if guid isn't kickedGUID, if not try using guidsList
-					if result.DriverGUID != kickedGUID {
+					// check if guid isn't KickedGUID, if not try using guidsList
+					if result.DriverGUID != KickedGUID {
 						car.Driver.GUID = result.DriverGUID
 					} else {
 						if len(car.Driver.GuidsList) >= 1 {
@@ -147,7 +147,7 @@ func (s *SessionResults) FindCarByGUIDAndModel(guid, model string) (*SessionCar,
 func (s *SessionResults) Anonymize() {
 	for _, car := range s.Cars {
 		car.Driver.GUID = AnonymiseDriverGUID(car.Driver.GUID)
-		car.Driver.Name = shortenDriverName(car.Driver.Name)
+		car.Driver.Name = ShortenDriverName(car.Driver.Name)
 
 		for index := range car.Driver.GuidsList {
 			car.Driver.GuidsList[index] = AnonymiseDriverGUID(car.Driver.GuidsList[index])
@@ -158,8 +158,8 @@ func (s *SessionResults) Anonymize() {
 		event.Driver.GUID = AnonymiseDriverGUID(event.Driver.GUID)
 		event.OtherDriver.GUID = AnonymiseDriverGUID(event.OtherDriver.GUID)
 
-		event.Driver.Name = shortenDriverName(event.Driver.Name)
-		event.OtherDriver.Name = shortenDriverName(event.OtherDriver.Name)
+		event.Driver.Name = ShortenDriverName(event.Driver.Name)
+		event.OtherDriver.Name = ShortenDriverName(event.OtherDriver.Name)
 
 		for i, guid := range event.Driver.GuidsList {
 			event.Driver.GuidsList[i] = AnonymiseDriverGUID(guid)
@@ -173,13 +173,13 @@ func (s *SessionResults) Anonymize() {
 	for _, lap := range s.Laps {
 		lap.DriverGUID = AnonymiseDriverGUID(lap.DriverGUID)
 
-		lap.DriverName = shortenDriverName(lap.DriverName)
+		lap.DriverName = ShortenDriverName(lap.DriverName)
 	}
 
 	for _, result := range s.Result {
 		result.DriverGUID = AnonymiseDriverGUID(result.DriverGUID)
 
-		result.DriverName = shortenDriverName(result.DriverName)
+		result.DriverName = ShortenDriverName(result.DriverName)
 	}
 }
 
@@ -201,7 +201,7 @@ func (s *SessionResults) NormaliseDriverSwapGUIDs() {
 }
 
 func (s *SessionResults) IsTimeAttack() bool {
-	return strings.HasSuffix(s.SessionFile, timeAttackSuffix)
+	return strings.HasSuffix(s.SessionFile, TimeAttackSuffix)
 }
 
 func AnonymiseDriverGUID(guid string) string {
@@ -212,20 +212,20 @@ func AnonymiseDriverGUID(guid string) string {
 
 func (s *SessionResults) MaskDriverNames() {
 	for _, car := range s.Cars {
-		car.Driver.Name = driverName(car.Driver.Name)
+		car.Driver.Name = DriverName(car.Driver.Name)
 	}
 
 	for _, event := range s.Events {
-		event.Driver.Name = driverName(event.Driver.Name)
-		event.OtherDriver.Name = driverName(event.OtherDriver.Name)
+		event.Driver.Name = DriverName(event.Driver.Name)
+		event.OtherDriver.Name = DriverName(event.OtherDriver.Name)
 	}
 
 	for _, lap := range s.Laps {
-		lap.DriverName = driverName(lap.DriverName)
+		lap.DriverName = DriverName(lap.DriverName)
 	}
 
 	for _, result := range s.Result {
-		result.DriverName = driverName(result.DriverName)
+		result.DriverName = DriverName(result.DriverName)
 	}
 }
 
@@ -594,4 +594,31 @@ func (s *SessionResults) IsDriversFastestSector(guid, model string, sector, time
 func (s *SessionResults) UpdateDate(date time.Time) {
 	s.Date = date
 	s.SessionFile = fmt.Sprintf("%d_%d_%d_%d_%d_%s.json", date.Year(), date.Month(), date.Day(), date.Hour(), date.Minute(), s.Type.OriginalString())
+}
+
+// KickedGUID is the placeholder GUID the AC server reports for kicked drivers.
+const KickedGUID = "$#@@!$kicked"
+
+// UseShortenedDriverNames is a display option: when true, driver names are shortened ("John Smith" becomes
+// "John S.") wherever results are rendered or exposed. It is set from the server options by the application.
+var UseShortenedDriverNames = true
+
+// ShortenDriverName turns "John Smith" into "John S.".
+func ShortenDriverName(name string) string {
+	nameParts := strings.Split(name, " ")
+
+	if len(nameParts) > 1 && len(nameParts[len(nameParts)-1]) > 1 {
+		nameParts[len(nameParts)-1] = nameParts[len(nameParts)-1][:1] + "."
+	}
+
+	return strings.Join(nameParts, " ")
+}
+
+// DriverName returns the name as it should be displayed, honouring UseShortenedDriverNames.
+func DriverName(name string) string {
+	if UseShortenedDriverNames {
+		return ShortenDriverName(name)
+	}
+
+	return name
 }

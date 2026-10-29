@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func setupResultsDeleteTest(t *testing.T) (store Store, resultsDir string, cleanup func()) {
@@ -140,7 +141,7 @@ func TestDeleteResultsFileReferenced(t *testing.T) {
 		Events: []*ChampionshipEvent{
 			{
 				Sessions: map[serverconfig.SessionType]*ChampionshipSession{
-					serverconfig.SessionTypeRace: {Results: &SessionResults{SessionFile: "2019_2_15_21_16_RACE"}},
+					serverconfig.SessionTypeRace: {Results: &smresults.SessionResults{SessionFile: "2019_2_15_21_16_RACE"}},
 				},
 			},
 		},
@@ -154,7 +155,7 @@ func TestDeleteResultsFileReferenced(t *testing.T) {
 		ID:   uuid.New(),
 		Name: "Test Weekend",
 		Sessions: []*RaceWeekendSession{
-			{Results: &SessionResults{SessionFile: "2019_2_15_22_16_RACE"}},
+			{Results: &smresults.SessionResults{SessionFile: "2019_2_15_22_16_RACE"}},
 		},
 	}
 

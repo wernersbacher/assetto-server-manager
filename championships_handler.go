@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -290,7 +291,7 @@ func (ch *ChampionshipsHandler) delete(w http.ResponseWriter, r *http.Request) {
 type eventImportTemplateVars struct {
 	BaseTemplateVars
 
-	Results        []SessionResults
+	Results        []smresults.SessionResults
 	ChampionshipID string
 	Event          *ChampionshipEvent
 }

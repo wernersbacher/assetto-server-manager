@@ -12,6 +12,7 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func setupResultsAPITest(t *testing.T) func() {
@@ -41,14 +42,14 @@ func setupResultsAPITest(t *testing.T) func() {
 		}
 	}
 
-	oldInstallPath, oldShortened := ServerInstallPath, UseShortenedDriverNames
+	oldInstallPath, oldShortened := ServerInstallPath, smresults.UseShortenedDriverNames
 	ServerInstallPath = dir
-	UseShortenedDriverNames = false
+	smresults.UseShortenedDriverNames = false
 
 	resetResultSummaryCache()
 
 	return func() {
-		ServerInstallPath, UseShortenedDriverNames = oldInstallPath, oldShortened
+		ServerInstallPath, smresults.UseShortenedDriverNames = oldInstallPath, oldShortened
 
 		resetResultSummaryCache()
 
@@ -57,9 +58,7 @@ func setupResultsAPITest(t *testing.T) func() {
 }
 
 func resetResultSummaryCache() {
-	resultSummaryCache.Lock()
-	resultSummaryCache.entries = make(map[string]*resultSummary)
-	resultSummaryCache.Unlock()
+	smresults.ClearSummaryCache()
 }
 
 func getResultsAPI(t *testing.T, target string) *httptest.ResponseRecorder {
@@ -226,8 +225,8 @@ func TestResultsHandlerViewAPI(t *testing.T) {
 	})
 
 	t.Run("shortened driver names", func(t *testing.T) {
-		UseShortenedDriverNames = true
-		defer func() { UseShortenedDriverNames = false }()
+		smresults.UseShortenedDriverNames = true
+		defer func() { smresults.UseShortenedDriverNames = false }()
 
 		out := view(t, "/api/results/2019_2_15_21_16_RACE.json")
 

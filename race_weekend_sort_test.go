@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 const sortTestCarModel = "sort_test_car"
@@ -36,8 +37,8 @@ type sortTestDriver struct {
 
 // buildSortTestResults builds SessionResults for the given drivers. Car IDs start at 1 so that a
 // failed car lookup (which yields car ID 0) can never match a real car.
-func buildSortTestResults(sessionType serverconfig.SessionType, drivers ...sortTestDriver) *SessionResults {
-	results := &SessionResults{Type: sessionType}
+func buildSortTestResults(sessionType serverconfig.SessionType, drivers ...sortTestDriver) *smresults.SessionResults {
+	results := &smresults.SessionResults{Type: sessionType}
 
 	for i, d := range drivers {
 		carID := i + 1
@@ -53,13 +54,13 @@ func buildSortTestResults(sessionType serverconfig.SessionType, drivers ...sortT
 			name = d.guid
 		}
 
-		results.Cars = append(results.Cars, &SessionCar{
+		results.Cars = append(results.Cars, &smresults.SessionCar{
 			CarID:  carID,
 			Model:  model,
-			Driver: SessionDriver{GUID: d.guid, Name: name, ClassID: d.classID},
+			Driver: smresults.SessionDriver{GUID: d.guid, Name: name, ClassID: d.classID},
 		})
 
-		results.Result = append(results.Result, &SessionResult{
+		results.Result = append(results.Result, &smresults.SessionResult{
 			CarID:       carID,
 			CarModel:    model,
 			DriverGUID:  d.guid,
@@ -85,7 +86,7 @@ func buildSortTestResults(sessionType serverconfig.SessionType, drivers ...sortT
 				lapTime = 100000
 			}
 
-			results.Laps = append(results.Laps, &SessionLap{
+			results.Laps = append(results.Laps, &smresults.SessionLap{
 				CarID:      carID,
 				CarModel:   model,
 				DriverGUID: d.guid,
@@ -98,7 +99,7 @@ func buildSortTestResults(sessionType serverconfig.SessionType, drivers ...sortT
 		}
 
 		for crash := 0; crash < d.crashes; crash++ {
-			results.Events = append(results.Events, &SessionEvent{
+			results.Events = append(results.Events, &smresults.SessionEvent{
 				CarID: carID,
 				Type:  "COLLISION_WITH_ENV",
 			})
@@ -509,7 +510,7 @@ func TestRaceWeekendSort_RandomIsPermutation(t *testing.T) {
 
 // writeSortTestResultsFile writes a results file into ServerInstallPath/results and returns the
 // name that is used in RaceWeekendSessionToSessionFilter.AvailableResultsForSorting (without .json).
-func writeSortTestResultsFile(t *testing.T, name string, results *SessionResults) string {
+func writeSortTestResultsFile(t *testing.T, name string, results *smresults.SessionResults) string {
 	t.Helper()
 
 	data, err := json.Marshal(results)

@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func modelTestSlot(model, name, guid, team string) *serverconfig.Entrant {
@@ -465,7 +466,7 @@ func TestChampionshipEvent_InProgress(t *testing.T) {
 			t.Errorf("session %s: expected session without results not to be completed", tc.name)
 		}
 
-		session.Results = &SessionResults{}
+		session.Results = &smresults.SessionResults{}
 
 		if session.Completed() != tc.complete {
 			t.Errorf("session %s: expected completed=%v", tc.name, tc.complete)
@@ -497,9 +498,9 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 	}
 
 	// a later qualifying session in the last event takes precedence
-	qualiResults := &SessionResults{
-		Result: []*SessionResult{{DriverGUID: "C", DriverName: "C"}},
-		Cars:   []*SessionCar{{Driver: SessionDriver{GUID: "C", Team: "Q"}}},
+	qualiResults := &smresults.SessionResults{
+		Result: []*smresults.SessionResult{{DriverGUID: "C", DriverName: "C"}},
+		Cars:   []*smresults.SessionCar{{Driver: smresults.SessionDriver{GUID: "C", Team: "Q"}}},
 	}
 	e4.Sessions[serverconfig.SessionTypeQualifying] = &ChampionshipSession{
 		StartedTime:   e4.Sessions[serverconfig.SessionTypeRace].StartedTime.Add(time.Second),
@@ -556,7 +557,7 @@ func TestChampionship_FindLastResultForDriver(t *testing.T) {
 	}
 }
 
-func modelTestRaceSession(results *SessionResults) *ChampionshipSession {
+func modelTestRaceSession(results *smresults.SessionResults) *ChampionshipSession {
 	return &ChampionshipSession{
 		StartedTime:   time.Now().Add(-time.Hour),
 		CompletedTime: time.Now(),
@@ -819,7 +820,7 @@ func TestChampionshipClass_StandingsForEntrantAtEvent(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		entrant := NewChampionshipStanding(&SessionCar{Driver: SessionDriver{GUID: tc.guid, Name: tc.guid}})
+		entrant := NewChampionshipStanding(&smresults.SessionCar{Driver: smresults.SessionDriver{GUID: tc.guid, Name: tc.guid}})
 		entrant.Points = 99
 
 		info := class.StandingsForEntrantAtEvent(championship, event, entrant)
@@ -979,7 +980,7 @@ func TestChampionship_ImportEvent(t *testing.T) {
 		quali.StartedTime = time.Now()
 		quali.CompletedTime = time.Now()
 		quali.ScheduledTime = time.Now()
-		quali.Results = &SessionResults{}
+		quali.Results = &smresults.SessionResults{}
 
 		race := NewRaceWeekendSession()
 		race.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{}}

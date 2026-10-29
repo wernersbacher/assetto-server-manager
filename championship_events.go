@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func (c *Championship) HasScheduledEvents() bool {
@@ -334,7 +335,7 @@ type ChampionshipSession struct {
 	StartedTime   time.Time
 	CompletedTime time.Time
 
-	Results *SessionResults
+	Results *smresults.SessionResults
 
 	RaceWeekendSession *RaceWeekendSession
 }

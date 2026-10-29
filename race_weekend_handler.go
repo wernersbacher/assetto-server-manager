@@ -10,6 +10,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type RaceWeekendHandler struct {
@@ -237,7 +239,7 @@ func (rwh *RaceWeekendHandler) deleteSession(w http.ResponseWriter, r *http.Requ
 type raceWeekendSessionImportTemplateVars struct {
 	BaseTemplateVars
 
-	Results       []SessionResults
+	Results       []smresults.SessionResults
 	RaceWeekendID string
 	Session       *RaceWeekendSession
 }
@@ -279,7 +281,7 @@ type raceWeekendFilterTemplateVars struct {
 
 	RaceWeekend                 *RaceWeekend
 	ParentSession, ChildSession *RaceWeekendSession
-	ResultsAvailableForSorting  []SessionResults
+	ResultsAvailableForSorting  []smresults.SessionResults
 	Filter                      *RaceWeekendSessionToSessionFilter
 	AvailableSorters            []RaceWeekendEntryListSorterDescription
 	ParentSessionResults        []*RaceWeekendSessionEntrant

@@ -17,6 +17,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type ResultsHandler struct {
@@ -35,22 +36,22 @@ func NewResultsHandler(baseHandler *BaseHandler, store Store) *ResultsHandler {
 type resultsListTemplateVars struct {
 	BaseTemplateVars
 
-	Results     []SessionResults
+	Results     []smresults.SessionResults
 	Pages       []int
 	CurrentPage int
-	Filter      ResultsFilter
+	Filter      smresults.Filter
 }
 
 // resultsListQuery reads the page and filters of a results list request, which is shared by the results list page
 // and the results API.
-func resultsListQuery(r *http.Request) (int, ResultsFilter) {
+func resultsListQuery(r *http.Request) (int, smresults.Filter) {
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 
 	if err != nil {
 		page = 0
 	}
 
-	return page, ResultsFilter{
+	return page, smresults.Filter{
 		Type:   strings.TrimSpace(r.URL.Query().Get("type")),
 		Track:  strings.TrimSpace(r.URL.Query().Get("track")),
 		Driver: strings.TrimSpace(r.URL.Query().Get("driver")),
@@ -97,7 +98,7 @@ func (rh *ResultsHandler) uploadHandler(w http.ResponseWriter, r *http.Request) 
 type combineResultsTemplateVars struct {
 	BaseTemplateVars
 
-	Results []SessionResults
+	Results []smresults.SessionResults
 }
 
 const combinedSuffix = "-combined"
@@ -112,7 +113,7 @@ func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request)
 
 		combineResultsSessionFiles := r.Form["CombineResults"]
 
-		var resultsToCombine []*SessionResults
+		var resultsToCombine []*smresults.SessionResults
 
 		for _, resultSessionFile := range combineResultsSessionFiles {
 			result, err := LoadResult(resultSessionFile + ".json")
@@ -126,7 +127,7 @@ func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request)
 			resultsToCombine = append(resultsToCombine, result)
 		}
 
-		combinedResult := combineResults(resultsToCombine)
+		combinedResult := smresults.Combine(resultsToCombine)
 
 		combinedResult.FallBackSort()
 		combinedResult.UpdateDate(time.Now())
@@ -185,7 +186,7 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 	}
 
 	// make sure what we've been given is actually a results file
-	var resultTest *SessionResults
+	var resultTest *smresults.SessionResults
 
 	err = json.Unmarshal(fileBytes, &resultTest)
 
@@ -199,7 +200,7 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 		return matched, err
 	}
 
-	if !matched || !validResultsFileName(header.Filename) {
+	if !matched || !smresults.ValidFileName(header.Filename) {
 		return false, nil
 	}
 
@@ -217,7 +218,7 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 type resultsViewTemplateVars struct {
 	BaseTemplateVars
 
-	Result           *SessionResults
+	Result           *smresults.SessionResults
 	AutoFillEntrants []*serverconfig.Entrant
 	Account          *Account
 	UseMPH           bool
@@ -226,7 +227,7 @@ type resultsViewTemplateVars struct {
 func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
-	if !validResultsFileName(fileName + ".json") {
+	if !smresults.ValidFileName(fileName + ".json") {
 		http.NotFound(w, r)
 		return
 	}
@@ -271,7 +272,7 @@ func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
-	if !validResultsFileName(fileName) {
+	if !smresults.ValidFileName(fileName) {
 		http.NotFound(w, r)
 		return
 	}
@@ -287,7 +288,7 @@ func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if UseShortenedDriverNames {
+	if smresults.UseShortenedDriverNames {
 		result.MaskDriverNames()
 	}
 
@@ -301,7 +302,7 @@ func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
-	if !validResultsFileName(fileName + ".json") {
+	if !smresults.ValidFileName(fileName + ".json") {
 		http.NotFound(w, r)
 		return
 	}

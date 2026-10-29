@@ -1,4 +1,4 @@
-package servermanager
+package results
 
 import (
 	"fmt"

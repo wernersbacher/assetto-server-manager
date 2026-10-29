@@ -9,6 +9,8 @@ import (
 	"github.com/cj123/ini"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type FilterError string
@@ -185,7 +187,7 @@ func (f RaceWeekendSessionToSessionFilter) Filter(raceWeekend *RaceWeekend, pare
 
 const lockedTyreSetupFolder = "server_manager_locked_tyres"
 
-func (rw *RaceWeekend) buildLockedTyreSetup(session *RaceWeekendSession, entrant *RaceWeekendSessionEntrant, fastestLap *SessionLap) error {
+func (rw *RaceWeekend) buildLockedTyreSetup(session *RaceWeekendSession, entrant *RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
 	tyreIndex, err := findTyreIndex(entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
 
 	if err != nil {

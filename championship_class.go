@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 // ChampionshipClassColors are sequentially selected to indicate different classes within a Championship
@@ -116,7 +117,7 @@ func (c *Championship) AddClass(class *ChampionshipClass) {
 	c.Classes = append(c.Classes, class)
 }
 
-func (c *ChampionshipClass) DriverInClass(result *SessionResult) bool {
+func (c *ChampionshipClass) DriverInClass(result *smresults.SessionResult) bool {
 	return result.ClassID == c.ID
 }
 
@@ -132,7 +133,7 @@ func (c *ChampionshipClass) AssignToFreeEntrantSlot(entrant *serverconfig.Entran
 	}
 }
 
-func (c *ChampionshipClass) AttachEntrantToResult(entrant *serverconfig.Entrant, results *SessionResults) {
+func (c *ChampionshipClass) AttachEntrantToResult(entrant *serverconfig.Entrant, results *smresults.SessionResults) {
 	for _, car := range results.Cars {
 		if car.Driver.GUID == entrant.GUID {
 			car.Driver.AssignEntrant(entrant, c.ID)
@@ -164,7 +165,7 @@ func (c *ChampionshipClass) AttachEntrantToResult(entrant *serverconfig.Entrant,
 	}
 }
 
-func (c *Championship) AttachClassIDToResults(results *SessionResults) {
+func (c *Championship) AttachClassIDToResults(results *smresults.SessionResults) {
 	for _, lap := range results.Laps {
 		class, err := c.FindClassForCarModel(lap.CarModel)
 

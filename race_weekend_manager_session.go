@@ -15,6 +15,7 @@ import (
 	"github.com/mattn/go-zglob"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -599,14 +600,14 @@ func (rwm *RaceWeekendManager) ImportSession(raceWeekendID string, raceWeekendSe
 	return rwm.UpsertRaceWeekend(raceWeekend)
 }
 
-func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *RaceWeekend, session *RaceWeekendSession) ([]SessionResults, error) {
+func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *RaceWeekend, session *RaceWeekendSession) ([]smresults.SessionResults, error) {
 	results, err := ListAllResults()
 
 	if err != nil {
 		return nil, err
 	}
 
-	var filteredResults []SessionResults
+	var filteredResults []smresults.SessionResults
 
 	for _, result := range results {
 
@@ -631,7 +632,7 @@ func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *
 	return filteredResults, nil
 }
 
-func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSession(raceWeekendID string, raceWeekendSessionID string) (*RaceWeekendSession, []SessionResults, error) {
+func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSession(raceWeekendID string, raceWeekendSessionID string) (*RaceWeekendSession, []smresults.SessionResults, error) {
 	raceWeekend, err := rwm.LoadRaceWeekend(raceWeekendID)
 
 	if err != nil {
@@ -650,7 +651,7 @@ func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSession(raceWeekendID
 		return nil, nil, err
 	}
 
-	var filteredResults []SessionResults
+	var filteredResults []smresults.SessionResults
 
 	for _, result := range results {
 		if result.TrackName == session.RaceConfig.Track && result.TrackConfig == session.RaceConfig.TrackLayout {

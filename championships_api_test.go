@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func TestNewAPIChampionship(t *testing.T) {
@@ -42,7 +43,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	completedEvent.Sessions[serverconfig.SessionTypeRace] = &ChampionshipSession{
 		StartedTime:   scheduled.Add(-time.Hour),
 		CompletedTime: scheduled,
-		Results:       &SessionResults{},
+		Results:       &smresults.SessionResults{},
 	}
 
 	// a race weekend event with a completed qualifying and an unscheduled race
@@ -56,7 +57,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	qualifying.ScheduledTime = scheduled
 	qualifying.StartedTime = scheduled
 	qualifying.CompletedTime = scheduled.Add(20 * time.Minute)
-	qualifying.Results = &SessionResults{}
+	qualifying.Results = &smresults.SessionResults{}
 
 	race := NewRaceWeekendSession()
 	race.ParentIDs = []uuid.UUID{qualifying.ID}

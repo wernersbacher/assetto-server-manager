@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 type dropTestDriver struct {
@@ -23,11 +24,11 @@ var (
 	dropDriverD = dropTestDriver{"D", "Z"}
 )
 
-func dropTestResults(class *ChampionshipClass, finishOrder ...dropTestDriver) *SessionResults {
-	results := &SessionResults{}
+func dropTestResults(class *ChampionshipClass, finishOrder ...dropTestDriver) *smresults.SessionResults {
+	results := &smresults.SessionResults{}
 
 	for i, d := range finishOrder {
-		results.Result = append(results.Result, &SessionResult{
+		results.Result = append(results.Result, &smresults.SessionResult{
 			CarID:      i,
 			DriverGUID: d.guid,
 			DriverName: d.guid,
@@ -36,12 +37,12 @@ func dropTestResults(class *ChampionshipClass, finishOrder ...dropTestDriver) *S
 			ClassID:    class.ID,
 		})
 
-		results.Cars = append(results.Cars, &SessionCar{
+		results.Cars = append(results.Cars, &smresults.SessionCar{
 			CarID:  i,
-			Driver: SessionDriver{GUID: d.guid, Name: d.guid, Team: d.team, ClassID: class.ID},
+			Driver: smresults.SessionDriver{GUID: d.guid, Name: d.guid, Team: d.team, ClassID: class.ID},
 		})
 
-		results.Laps = append(results.Laps, &SessionLap{
+		results.Laps = append(results.Laps, &smresults.SessionLap{
 			CarID:      i,
 			DriverGUID: d.guid,
 			ClassID:    class.ID,
@@ -293,7 +294,7 @@ func TestChampionshipClass_Standings_DropWorstResultsPerClass(t *testing.T) {
 		event.StartedTime = time.Now().Add(-time.Hour)
 		event.CompletedTime = time.Now()
 
-		results := &SessionResults{}
+		results := &smresults.SessionResults{}
 
 		for _, d := range order {
 			class := class1

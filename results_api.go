@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 // The results API exposes the information that is publicly visible on the results pages (session, track, drivers,
@@ -90,7 +91,7 @@ type APILap struct {
 	Tyre    string
 }
 
-func newAPIResultSummary(result *SessionResults) *APIResultSummary {
+func newAPIResultSummary(result *smresults.SessionResults) *APIResultSummary {
 	out := &APIResultSummary{
 		FileName:       result.SessionFile + ".json",
 		Date:           result.Date,
@@ -115,7 +116,7 @@ func newAPIResultSummary(result *SessionResults) *APIResultSummary {
 
 // NewAPIResult converts a results file to the API format. The results should be prepared in the same way as for the
 // results page (see ResultsHandler.view).
-func NewAPIResult(result *SessionResults) *APIResult {
+func NewAPIResult(result *smresults.SessionResults) *APIResult {
 	out := &APIResult{
 		APIResultSummary: *newAPIResultSummary(result),
 		Classification:   []*APIResultEntry{},
@@ -210,7 +211,7 @@ func (rh *ResultsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
 		fileName += ".json"
 	}
 
-	if !validResultsFileName(fileName) {
+	if !smresults.ValidFileName(fileName) {
 		http.NotFound(w, r)
 		return
 	}

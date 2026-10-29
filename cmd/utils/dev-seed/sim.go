@@ -12,8 +12,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	servermanager "github.com/wernersbacher/assetto-server-manager"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 const (
@@ -107,17 +108,17 @@ func fileNameFor(start time.Time, t serverconfig.SessionType) string {
 	return fmt.Sprintf("%d_%d_%d_%d_%d_%s", start.Year(), int(start.Month()), start.Day(), start.Hour(), start.Minute(), string(t))
 }
 
-func sessionDriver(d *seedDriver) servermanager.SessionDriver {
-	return servermanager.SessionDriver{GUID: d.GUID, GuidsList: []string{d.GUID}, Name: d.Name, Nation: d.Nation, Team: d.Team}
+func sessionDriver(d *seedDriver) smresults.SessionDriver {
+	return smresults.SessionDriver{GUID: d.GUID, GuidsList: []string{d.GUID}, Name: d.Name, Nation: d.Nation, Team: d.Team}
 }
 
 // simulate creates the SessionResults of a session the way assetto corsa would write them.
-func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
-	res := &servermanager.SessionResults{
-		Cars:        []*servermanager.SessionCar{},
-		Events:      []*servermanager.SessionEvent{},
-		Laps:        []*servermanager.SessionLap{},
-		Result:      []*servermanager.SessionResult{},
+func simulate(rng *rand.Rand, spec sessionSpec) *smresults.SessionResults {
+	res := &smresults.SessionResults{
+		Cars:        []*smresults.SessionCar{},
+		Events:      []*smresults.SessionEvent{},
+		Laps:        []*smresults.SessionLap{},
+		Result:      []*smresults.SessionResult{},
 		TrackConfig: spec.Layout,
 		TrackName:   spec.Track,
 		Type:        spec.Type,
@@ -126,7 +127,7 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 	}
 
 	type outcome struct {
-		result *servermanager.SessionResult
+		result *smresults.SessionResult
 		laps   int
 		total  int
 	}
@@ -134,7 +135,7 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 	var outcomes []*outcome
 
 	for carID, d := range spec.Entries {
-		res.Cars = append(res.Cars, &servermanager.SessionCar{CarID: carID, Driver: sessionDriver(d), Model: d.Model, Skin: d.Skin})
+		res.Cars = append(res.Cars, &smresults.SessionCar{CarID: carID, Driver: sessionDriver(d), Model: d.Model, Skin: d.Skin})
 
 		classFactor := 1.0
 		if d.Model == carMX5 {
@@ -181,7 +182,7 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 			s2 := int(math.Round(float64(lap) * (0.37 + rng.NormFloat64()*0.004)))
 			clock += float64(lap)
 
-			res.Laps = append(res.Laps, &servermanager.SessionLap{
+			res.Laps = append(res.Laps, &smresults.SessionLap{
 				CarID:      carID,
 				CarModel:   d.Model,
 				Cuts:       cuts,
@@ -200,7 +201,7 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 			}
 		}
 
-		r := &servermanager.SessionResult{
+		r := &smresults.SessionResult{
 			BestLap:    bestLap,
 			CarID:      carID,
 			CarModel:   d.Model,
@@ -262,27 +263,27 @@ func simulate(rng *rand.Rand, spec sessionSpec) *servermanager.SessionResults {
 	return res
 }
 
-func collision(rng *rand.Rand, entries []*seedDriver, a, b int, env bool) *servermanager.SessionEvent {
+func collision(rng *rand.Rand, entries []*seedDriver, a, b int, env bool) *smresults.SessionEvent {
 	driver := sessionDriver(entries[a])
 	other := sessionDriver(entries[b])
 	otherID := b
 	kind := "COLLISION_WITH_CAR"
 
 	if env {
-		other = servermanager.SessionDriver{GuidsList: []string{""}}
+		other = smresults.SessionDriver{GuidsList: []string{""}}
 		otherID = -1
 		kind = "COLLISION_WITH_ENV"
 	}
 
-	return &servermanager.SessionEvent{
+	return &smresults.SessionEvent{
 		CarID:       a,
 		Driver:      &driver,
 		ImpactSpeed: 3 + rng.Float64()*42,
 		OtherCarID:  otherID,
 		OtherDriver: &other,
-		RelPosition: &servermanager.SessionPos{X: rng.Float64() - 0.5, Y: rng.Float64() * 0.1, Z: rng.Float64()*4 - 2},
+		RelPosition: &smresults.SessionPos{X: rng.Float64() - 0.5, Y: rng.Float64() * 0.1, Z: rng.Float64()*4 - 2},
 		Type:        kind,
-		WorldPosition: &servermanager.SessionPos{
+		WorldPosition: &smresults.SessionPos{
 			X: rng.Float64()*400 - 200,
 			Y: 50 + rng.Float64()*10,
 			Z: rng.Float64()*400 - 200,
@@ -291,7 +292,7 @@ func collision(rng *rand.Rand, entries []*seedDriver, a, b int, env bool) *serve
 }
 
 // writeResults writes results to the results folder of the AC install and returns the file name.
-func writeResults(res *servermanager.SessionResults) (string, error) {
+func writeResults(res *smresults.SessionResults) (string, error) {
 	dir := filepath.Join(servermanager.ServerInstallPath, "results")
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
@@ -311,7 +312,7 @@ func writeResults(res *servermanager.SessionResults) (string, error) {
 
 // emit simulates a session, optionally lets enhance attach championship/race weekend information to it, writes it
 // to disk and loads it back the same way server manager does, so that the stored object is identical to the file.
-func emit(rng *rand.Rand, spec sessionSpec, files *[]string, enhance func(*servermanager.SessionResults)) (*servermanager.SessionResults, error) {
+func emit(rng *rand.Rand, spec sessionSpec, files *[]string, enhance func(*smresults.SessionResults)) (*smresults.SessionResults, error) {
 	res := simulate(rng, spec)
 
 	if enhance != nil {

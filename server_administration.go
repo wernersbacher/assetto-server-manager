@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"encoding/json"
 	"html/template"
@@ -63,7 +64,7 @@ type homeTemplateVars struct {
 	RaceDetails     *CustomRace
 	PerformanceMode bool
 	UpcomingRaces   []*APIUpcomingRace
-	RecentResults   []*SessionResults
+	RecentResults   []*smresults.SessionResults
 }
 
 // homeHandler serves content to /
@@ -211,7 +212,7 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 			logrus.WithError(err).Errorf("couldn't submit form")
 		}
 
-		UseShortenedDriverNames = serverOpts.UseShortenedDriverNames == 1
+		smresults.UseShortenedDriverNames = serverOpts.UseShortenedDriverNames == 1
 		UseFallBackSorting = serverOpts.FallBackResultsSorting == 1
 
 		// save the config

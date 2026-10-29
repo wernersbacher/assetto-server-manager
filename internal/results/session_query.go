@@ -1,4 +1,4 @@
-package servermanager
+package results
 
 import (
 	"fmt"
@@ -202,7 +202,7 @@ func (s *SessionResults) GetDrivers() string {
 
 	for _, car := range s.Result {
 		if car.DriverName != "" {
-			drivers = append(drivers, driverName(car.DriverName))
+			drivers = append(drivers, DriverName(car.DriverName))
 		}
 	}
 

@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"bytes"
 	"encoding/json"
@@ -97,31 +98,15 @@ func shortenTrackName(name string) string {
 	return out
 }
 
-var UseShortenedDriverNames = true
-
-func shortenDriverName(name string) string {
-	nameParts := strings.Split(name, " ")
-
-	if len(nameParts) > 1 && len(nameParts[len(nameParts)-1]) > 1 {
-		nameParts[len(nameParts)-1] = nameParts[len(nameParts)-1][:1] + "."
-	}
-
-	return strings.Join(nameParts, " ")
-}
-
 func driverName(name string) string {
-	if UseShortenedDriverNames {
-		return shortenDriverName(name)
-	}
-
-	return name
+	return smresults.DriverName(name)
 }
 
 func driverInitials(name string) string {
 
 	name = strings.TrimSpace(name)
 
-	if UseShortenedDriverNames {
+	if smresults.UseShortenedDriverNames {
 		nameParts := strings.Split(name, " ")
 
 		if len(nameParts) == 1 {
@@ -250,7 +235,7 @@ func (tr *Renderer) init() error {
 	}
 	funcs["trackMapURL"] = TrackMapImageURL
 	funcs["sunAngleToTimeOfDay"] = sunAngleToTimeOfDay
-	funcs["anonymiseDriverGUID"] = AnonymiseDriverGUID
+	funcs["anonymiseDriverGUID"] = smresults.AnonymiseDriverGUID
 
 	tr.templates, err = tr.loader.Templates(funcs)
 
@@ -359,7 +344,7 @@ func carList(cars interface{}) string {
 		split = strings.Split(cars, ";")
 	case []string:
 		split = cars
-	case []*SessionCar:
+	case []*smresults.SessionCar:
 		carMap := make(map[string]bool)
 
 		for _, entrant := range cars {

@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func (c *Championship) ClearEntrant(entrantGUID string) {
@@ -208,10 +209,10 @@ func (c *Championship) AddEntrantFromSession(potentialEntrant PotentialChampions
 	return false, nil, classForCar, nil
 }
 
-const kickedGUID = "$#@@!$kicked"
+const kickedGUID = smresults.KickedGUID
 
 // EnhanceResults takes a set of SessionResults and attaches Championship information to them.
-func (c *Championship) EnhanceResults(results *SessionResults) {
+func (c *Championship) EnhanceResults(results *smresults.SessionResults) {
 	if results == nil {
 		return
 	}

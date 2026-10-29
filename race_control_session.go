@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -275,8 +276,6 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 	return nil
 }
 
-const timeAttackSuffix = "-time-attack"
-
 func (rc *RaceControl) addFileToTimeAttackEvent(file string) error {
 	logrus.Info("Time Attack event completed, combining with any previous results")
 
@@ -287,7 +286,7 @@ func (rc *RaceControl) addFileToTimeAttackEvent(file string) error {
 		return err
 	}
 
-	var resultsArray []*SessionResults
+	var resultsArray []*smresults.SessionResults
 
 	resultsArray = append(resultsArray, results)
 
@@ -302,7 +301,7 @@ func (rc *RaceControl) addFileToTimeAttackEvent(file string) error {
 		resultsArray = append(resultsArray, result)
 	}
 
-	results = combineResults(resultsArray)
+	results = smresults.Combine(resultsArray)
 
 	results.FallBackSort()
 	results.ClearKickedGUIDs()

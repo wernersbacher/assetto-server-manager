@@ -1,4 +1,4 @@
-package servermanager
+package results
 
 import (
 	"errors"
@@ -17,34 +17,38 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
-const pageSize = 25
+// PageSize is the number of results per page of Loader.List.
+const PageSize = 25
 
-var ErrResultsPageNotFound = errors.New("servermanager: results page not found")
+// TimeAttackSuffix is appended to the file name of combined time attack results.
+const TimeAttackSuffix = "-time-attack"
 
-// ResultsFilter narrows down the results list. Empty fields do not filter.
-type ResultsFilter struct {
+var ErrPageNotFound = errors.New("servermanager: results page not found")
+
+// Filter narrows down the results list. Empty fields do not filter.
+type Filter struct {
 	Type   string // session type as in the file name, e.g. "race". "booking" matches BOOK files.
 	Track  string // case-insensitive substring of the track name, readable track name or layout
 	Driver string // case-insensitive substring of a driver name, or an exact driver GUID
 }
 
-func (f ResultsFilter) IsActive() bool {
+func (f Filter) IsActive() bool {
 	return f.Type != "" || f.Track != "" || f.Driver != ""
 }
 
 // needsLoading is true if the filter can only be evaluated by looking into the results files.
-func (f ResultsFilter) needsLoading() bool {
+func (f Filter) needsLoading() bool {
 	return f.Track != "" || f.Driver != ""
 }
 
 // matchesFileName applies the session type filter, which can be decided from the file name alone.
-func (f ResultsFilter) matchesFileName(name string) bool {
+func (f Filter) matchesFileName(name string) bool {
 	if f.Type == "" {
 		return true
 	}
 
 	name = strings.TrimSuffix(name, ".json")
-	name = strings.TrimSuffix(name, timeAttackSuffix)
+	name = strings.TrimSuffix(name, TimeAttackSuffix)
 
 	sessionType := strings.ToUpper(name[strings.LastIndex(name, "_")+1:])
 
@@ -68,7 +72,7 @@ type resultSummary struct {
 	guids   map[string]bool
 }
 
-func (s *resultSummary) matches(f ResultsFilter) bool {
+func (s *resultSummary) matches(f Filter) bool {
 	if f.Track != "" && !strings.Contains(s.track, strings.ToLower(f.Track)) {
 		return false
 	}
@@ -92,23 +96,33 @@ func (s *resultSummary) matches(f ResultsFilter) bool {
 	return true
 }
 
-// resultSummaryCache avoids reparsing every results file for each filtered request. Entries are keyed by file
-// name and are only valid while the size and mod time of the file are unchanged.
-var resultSummaryCache = struct {
+// summaryCache avoids reparsing every results file for each filtered request. Entries are keyed by file
+// path and are only valid while the size and mod time of the file are unchanged.
+var summaryCache = struct {
 	sync.Mutex
 	entries map[string]*resultSummary
 }{entries: make(map[string]*resultSummary)}
 
-func getResultSummary(info os.FileInfo) (*resultSummary, error) {
-	resultSummaryCache.Lock()
-	summary, ok := resultSummaryCache.entries[info.Name()]
-	resultSummaryCache.Unlock()
+func (l *Loader) prettify(name string) string {
+	if l.PrettifyName == nil {
+		return name
+	}
+
+	return l.PrettifyName(name)
+}
+
+func (l *Loader) getResultSummary(info os.FileInfo) (*resultSummary, error) {
+	path := filepath.Join(l.Dir, info.Name())
+
+	summaryCache.Lock()
+	summary, ok := summaryCache.entries[path]
+	summaryCache.Unlock()
 
 	if ok && summary.size == info.Size() && summary.modTime.Equal(info.ModTime()) {
 		return summary, nil
 	}
 
-	result, err := LoadResult(info.Name(), LoadResultWithoutPluginFire)
+	result, err := l.Load(info.Name(), WithoutPluginFire)
 
 	if err != nil {
 		return nil, err
@@ -118,7 +132,7 @@ func getResultSummary(info os.FileInfo) (*resultSummary, error) {
 		size:    info.Size(),
 		modTime: info.ModTime(),
 		track: strings.ToLower(strings.Join([]string{
-			result.TrackName, prettifyName(result.TrackName, false), result.TrackConfig, prettifyName(result.TrackConfig, false),
+			result.TrackName, l.prettify(result.TrackName), result.TrackConfig, l.prettify(result.TrackConfig),
 		}, " ")),
 		guids: make(map[string]bool),
 	}
@@ -137,15 +151,16 @@ func getResultSummary(info os.FileInfo) (*resultSummary, error) {
 		summary.guids[driver.DriverGUID] = true
 	}
 
-	resultSummaryCache.Lock()
-	resultSummaryCache.entries[info.Name()] = summary
-	resultSummaryCache.Unlock()
+	summaryCache.Lock()
+	summaryCache.entries[path] = summary
+	summaryCache.Unlock()
 
 	return summary, nil
 }
 
-func listResults(page int, filter ResultsFilter) ([]SessionResults, []int, error) {
-	resultsPath := filepath.Join(ServerInstallPath, "results")
+// List returns one page of the results, newest first, and the available page numbers.
+func (l *Loader) List(page int, filter Filter) ([]SessionResults, []int, error) {
+	resultsPath := l.Dir
 	resultFiles, err := ioutil.ReadDir(resultsPath)
 
 	if err != nil {
@@ -175,7 +190,7 @@ func listResults(page int, filter ResultsFilter) ([]SessionResults, []int, error
 		var matching []os.FileInfo
 
 		for _, resultFile := range resultFiles {
-			summary, err := getResultSummary(resultFile)
+			summary, err := l.getResultSummary(resultFile)
 
 			if err != nil {
 				logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
@@ -190,12 +205,12 @@ func listResults(page int, filter ResultsFilter) ([]SessionResults, []int, error
 		resultFiles = matching
 	}
 
-	pages := float64(len(resultFiles)) / float64(pageSize)
+	pages := float64(len(resultFiles)) / float64(PageSize)
 	pagesRound := math.Ceil(pages)
 
 	// page 0 is always valid, so that an empty results list can still be rendered
 	if page < 0 || (page > 0 && page >= int(pagesRound)) {
-		return nil, nil, ErrResultsPageNotFound
+		return nil, nil, ErrPageNotFound
 	}
 
 	var pagesSlice []int
@@ -205,16 +220,16 @@ func listResults(page int, filter ResultsFilter) ([]SessionResults, []int, error
 	}
 
 	// get result files for selected page probably
-	if len(resultFiles) > page*pageSize+pageSize {
-		resultFiles = resultFiles[page*pageSize : page*pageSize+pageSize]
+	if len(resultFiles) > page*PageSize+PageSize {
+		resultFiles = resultFiles[page*PageSize : page*PageSize+PageSize]
 	} else {
-		resultFiles = resultFiles[page*pageSize:]
+		resultFiles = resultFiles[page*PageSize:]
 	}
 
 	var results []SessionResults
 
 	for _, resultFile := range resultFiles {
-		result, err := LoadResult(resultFile.Name())
+		result, err := l.Load(resultFile.Name())
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
@@ -227,8 +242,9 @@ func listResults(page int, filter ResultsFilter) ([]SessionResults, []int, error
 	return results, pagesSlice, nil
 }
 
-func ListAllResults() ([]SessionResults, error) {
-	resultsPath := filepath.Join(ServerInstallPath, "results")
+// ListAll returns all results without firing the OnLoad hook, newest first.
+func (l *Loader) ListAll() ([]SessionResults, error) {
+	resultsPath := l.Dir
 	resultFiles, err := ioutil.ReadDir(resultsPath)
 
 	if err != nil {
@@ -245,7 +261,7 @@ func ListAllResults() ([]SessionResults, error) {
 	var results []SessionResults
 
 	for _, resultFile := range resultFiles {
-		result, err := LoadResult(resultFile.Name(), LoadResultWithoutPluginFire)
+		result, err := l.Load(resultFile.Name(), WithoutPluginFire)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
@@ -258,9 +274,9 @@ func ListAllResults() ([]SessionResults, error) {
 	return results, nil
 }
 
-// listRecentResults returns the newest n results, newest first. Results that can't be loaded are skipped.
-func listRecentResults(n int) ([]*SessionResults, error) {
-	resultFiles, err := ioutil.ReadDir(filepath.Join(ServerInstallPath, "results"))
+// ListRecent returns the newest n results, newest first. Results that can't be loaded are skipped.
+func (l *Loader) ListRecent(n int) ([]*SessionResults, error) {
+	resultFiles, err := ioutil.ReadDir(l.Dir)
 
 	if err != nil {
 		return nil, err
@@ -284,7 +300,7 @@ func listRecentResults(n int) ([]*SessionResults, error) {
 			continue
 		}
 
-		result, err := LoadResult(resultFile.Name(), LoadResultWithoutPluginFire)
+		result, err := l.Load(resultFile.Name(), WithoutPluginFire)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
@@ -297,6 +313,7 @@ func listRecentResults(n int) ([]*SessionResults, error) {
 	return results, nil
 }
 
+// GetResultDate parses the date of a results file from its file name.
 func GetResultDate(name string) (time.Time, error) {
 	dateSplit := strings.Split(name, "_")
 	dateSplit = dateSplit[0 : len(dateSplit)-1]

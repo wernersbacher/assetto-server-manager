@@ -16,6 +16,7 @@ import (
 	"github.com/teambition/rrule-go"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func init() {
@@ -465,7 +466,7 @@ func (rw *RaceWeekend) FindSessionByID(id string) (*RaceWeekendSession, error) {
 		sess.ID = rw.ID
 		sess.isBase = true
 		sess.CompletedTime = time.Now()
-		sess.Results = &SessionResults{}
+		sess.Results = &smresults.SessionResults{}
 
 		return sess, nil
 	}
@@ -474,7 +475,7 @@ func (rw *RaceWeekend) FindSessionByID(id string) (*RaceWeekendSession, error) {
 }
 
 // EnhanceResults takes a set of SessionResults and attaches Championship information to them.
-func (rw *RaceWeekend) EnhanceResults(results *SessionResults) {
+func (rw *RaceWeekend) EnhanceResults(results *smresults.SessionResults) {
 	if results == nil {
 		return
 	}
@@ -518,13 +519,13 @@ type RaceWeekendSessionEntrant struct {
 	// SessionID is the last session the Entrant participated in
 	SessionID uuid.UUID
 	// EntrantResult is the result of the last session the Entrant participated in
-	EntrantResult *SessionResult
+	EntrantResult *smresults.SessionResult
 	// Car is the car from the EntryList that matches the results of the last session the Entrant participated in
-	Car *SessionCar
+	Car *smresults.SessionCar
 	// PitBox is used to determine the starting pitbox of the Entrant.
 	PitBox int
 	// SessionResults are the whole results for the session the entrant took part in
-	SessionResults *SessionResults `json:"-"`
+	SessionResults *smresults.SessionResults `json:"-"`
 
 	IsPlaceholder bool `json:"-"`
 
@@ -533,7 +534,7 @@ type RaceWeekendSessionEntrant struct {
 }
 
 // NewRaceWeekendSessionEntrant creates a RaceWeekendSessionEntrant
-func NewRaceWeekendSessionEntrant(previousSessionID uuid.UUID, car *SessionCar, entrantResult *SessionResult, sessionResults *SessionResults) *RaceWeekendSessionEntrant {
+func NewRaceWeekendSessionEntrant(previousSessionID uuid.UUID, car *smresults.SessionCar, entrantResult *smresults.SessionResult, sessionResults *smresults.SessionResults) *RaceWeekendSessionEntrant {
 	return &RaceWeekendSessionEntrant{
 		SessionID:      previousSessionID,
 		EntrantResult:  entrantResult,
@@ -546,7 +547,7 @@ func NewRaceWeekendSessionEntrant(previousSessionID uuid.UUID, car *SessionCar, 
 func (se *RaceWeekendSessionEntrant) GetEntrant() *serverconfig.Entrant {
 	e := serverconfig.NewEntrant()
 
-	assignEntrantFromResult(e, se.EntrantResult, se.Car)
+	smresults.AssignEntrantFromResult(e, se.EntrantResult, se.Car)
 	e.IsPlaceHolder = se.IsPlaceholder
 	e.FixedSetup = se.OverrideSetupFile
 
@@ -588,7 +589,7 @@ type RaceWeekendSession struct {
 	CompletedTime              time.Time
 	ScheduledTime              time.Time
 	ScheduledServerID          ServerID
-	Results                    *SessionResults
+	Results                    *smresults.SessionResults
 	StartWhenParentHasFinished bool
 
 	Points map[uuid.UUID]*ChampionshipPoints
@@ -913,7 +914,7 @@ func EntryListToRaceWeekendEntryList(e serverconfig.EntryList, sessionID uuid.UU
 	out := make(RaceWeekendEntryList, 0, len(e))
 
 	for _, entrant := range e.AsSlice() {
-		rwe := NewRaceWeekendSessionEntrant(sessionID, entrantAsSessionCar(entrant), entrantAsSessionResult(entrant), nil)
+		rwe := NewRaceWeekendSessionEntrant(sessionID, smresults.EntrantAsSessionCar(entrant), smresults.EntrantAsSessionResult(entrant), nil)
 		rwe.IsPlaceholder = entrant.IsPlaceHolder
 
 		out.AddInPitBox(rwe, entrant.PitBox)

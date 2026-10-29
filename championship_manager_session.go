@@ -9,6 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -319,7 +320,7 @@ func (cm *ChampionshipManager) StopActiveEvent() error {
 	return cm.CancelEvent(cm.activeChampionship.ChampionshipID.String(), cm.activeChampionship.EventID.String())
 }
 
-func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID string, eventID string) (*ChampionshipEvent, []SessionResults, error) {
+func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID string, eventID string) (*ChampionshipEvent, []smresults.SessionResults, error) {
 	championship, err := cm.LoadChampionship(championshipID)
 
 	if err != nil {
@@ -338,7 +339,7 @@ func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID 
 		return nil, nil, err
 	}
 
-	var filteredResults []SessionResults
+	var filteredResults []smresults.SessionResults
 
 	for _, result := range results {
 		if result.TrackName == event.RaceSetup.Track && result.TrackConfig == event.RaceSetup.TrackLayout {

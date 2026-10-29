@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"encoding/json"
 	"io/ioutil"
@@ -77,10 +78,10 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 }
 
 func TestNewAPIServerStatus(t *testing.T) {
-	oldShortened := UseShortenedDriverNames
-	UseShortenedDriverNames = false
+	oldShortened := smresults.UseShortenedDriverNames
+	smresults.UseShortenedDriverNames = false
 
-	defer func() { UseShortenedDriverNames = oldShortened }()
+	defer func() { smresults.UseShortenedDriverNames = oldShortened }()
 
 	raceControl := NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore))
 
@@ -154,7 +155,6 @@ func TestNewAPIServerStatus(t *testing.T) {
 			t.Errorf("unexpected status: %+v", out)
 		}
 	})
-
 
 	t.Run("not running", func(t *testing.T) {
 		out := NewAPIServerStatus(false, "Configured Name", event, raceControl)

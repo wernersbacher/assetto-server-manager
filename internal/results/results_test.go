@@ -1,4 +1,4 @@
-package servermanager
+package results
 
 import (
 	"reflect"
@@ -43,10 +43,12 @@ func helperLap(carID int, guid, name, model string, lapTime, cuts int, sectors [
 }
 
 // newHelperResults builds a small race:
-//   car 1: Alice (ferrari, team "Red"), 3 clean laps
-//   car 2: Bob (ferrari), 3 laps, the fastest of them cut, 5s time penalty
-//   car 3: driver swap Carl1/Carl2 (porsche), 3 laps: Carl1, Carl2, Carl1
-//   car 4: Dan (ferrari), no laps at all
+//
+//	car 1: Alice (ferrari, team "Red"), 3 clean laps
+//	car 2: Bob (ferrari), 3 laps, the fastest of them cut, 5s time penalty
+//	car 3: driver swap Carl1/Carl2 (porsche), 3 laps: Carl1, Carl2, Carl1
+//	car 4: Dan (ferrari), no laps at all
+//
 // Car IDs start at 1 on purpose, so that a lookup of an unknown driver can't accidentally match car 0
 // (see newHelperResultsWithCarZero for that case).
 func newHelperResults() *SessionResults {

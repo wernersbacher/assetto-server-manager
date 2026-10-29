@@ -1,96 +1,74 @@
 package servermanager
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/sirupsen/logrus"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
+// UseFallBackSorting makes loaded results use SessionResults.FallBackSort. It is set from the server options.
 var UseFallBackSorting = false
 
-type LoadResultOpts int
+// LoadResultOpts are options for LoadResult.
+type LoadResultOpts = smresults.LoadOpts
 
-const LoadResultWithoutPluginFire LoadResultOpts = 0
+// LoadResultWithoutPluginFire skips the results Lua plugin.
+const LoadResultWithoutPluginFire = smresults.WithoutPluginFire
 
-func LoadResult(fileName string, opts ...LoadResultOpts) (*SessionResults, error) {
-	var result *SessionResults
+var (
+	// ErrResultsPageNotFound is returned by listResults for pages that don't exist.
+	ErrResultsPageNotFound = smresults.ErrPageNotFound
 
-	resultsPath := filepath.Join(ServerInstallPath, "results")
+	// ErrInvalidResultsFileName is returned for results file names that point outside of the results directory.
+	ErrInvalidResultsFileName = smresults.ErrInvalidFileName
+)
 
-	data, err := ioutil.ReadFile(filepath.Join(resultsPath, fileName))
+const (
+	pageSize         = smresults.PageSize
+	timeAttackSuffix = smresults.TimeAttackSuffix
+)
 
-	if err != nil {
-		return nil, err
+// resultsLoader builds a smresults.Loader from the current installation path and server options.
+func resultsLoader() *smresults.Loader {
+	loader := &smresults.Loader{
+		Dir:             filepath.Join(ServerInstallPath, "results"),
+		FallBackSorting: UseFallBackSorting,
+		PrettifyName:    func(name string) string { return prettifyName(name, false) },
 	}
 
-	err = json.Unmarshal(data, &result)
-
-	if err != nil {
-		return nil, err
+	if luaInitialised {
+		loader.OnLoad = resultsLoadPlugin
 	}
 
-	date, err := GetResultDate(fileName)
-
-	if err == nil {
-		result.Date = date
-	} else {
-		logrus.WithError(err).Errorf("Could not parse results date from filename: %s. Using mod time.", fileName)
-
-		f, err := os.Stat(filepath.Join(resultsPath, fileName))
-
-		if err != nil {
-			return nil, err
-		}
-
-		result.Date = f.ModTime()
-	}
-
-	result.SessionFile = strings.Trim(fileName, ".json")
-
-	var validResults []*SessionResult
-
-	// filter out invalid results
-	for _, driver := range result.Result {
-		if driver.TotalTime > 0 {
-			validResults = append(validResults, driver)
-		}
-	}
-
-	result.Result = validResults
-
-	if UseFallBackSorting {
-		result.FallBackSort()
-	}
-
-	var skipLua bool
-
-	for _, opt := range opts {
-		if opt == LoadResultWithoutPluginFire {
-			skipLua = true
-		}
-	}
-
-	if !skipLua && luaInitialised {
-		err = resultsLoadPlugin(result)
-
-		if err != nil {
-			logrus.WithError(err).Error("results load plugin script failed")
-		}
-	}
-
-	return result, nil
+	return loader
 }
 
-func resultsLoadPlugin(results *SessionResults) error {
+func LoadResult(fileName string, opts ...LoadResultOpts) (*smresults.SessionResults, error) {
+	return resultsLoader().Load(fileName, opts...)
+}
+
+func listResults(page int, filter smresults.Filter) ([]smresults.SessionResults, []int, error) {
+	return resultsLoader().List(page, filter)
+}
+
+func ListAllResults() ([]smresults.SessionResults, error) {
+	return resultsLoader().ListAll()
+}
+
+func listRecentResults(n int) ([]*smresults.SessionResults, error) {
+	return resultsLoader().ListRecent(n)
+}
+
+func saveResults(jsonFileName string, results *smresults.SessionResults) error {
+	return resultsLoader().Save(jsonFileName, results)
+}
+
+func resultsLoadPlugin(results *smresults.SessionResults) error {
 	p := NewLuaPlugin()
 
-	newSessionResults := &SessionResults{}
+	newSessionResults := &smresults.SessionResults{}
 
 	p.Inputs(results).Outputs(newSessionResults)
 	err := p.Call("./plugins/results.lua", "onResultsLoad")
@@ -104,8 +82,6 @@ func resultsLoadPlugin(results *SessionResults) error {
 	return nil
 }
 
-var ErrInvalidResultsFileName = errors.New("servermanager: invalid results file name")
-
 // ResultsFileReferencedError is returned when a results file can't be deleted because a championship or race weekend uses it.
 type ResultsFileReferencedError struct {
 	Reference string
@@ -113,16 +89,6 @@ type ResultsFileReferencedError struct {
 
 func (e ResultsFileReferencedError) Error() string {
 	return fmt.Sprintf("servermanager: results file is referenced by %s", e.Reference)
-}
-
-// validResultsFileName checks that fileName is a plain base name ending in .json, so that it
-// cannot be used to reach files outside of the results directory.
-func validResultsFileName(fileName string) bool {
-	return fileName != "" &&
-		strings.HasSuffix(fileName, ".json") &&
-		fileName != ".json" &&
-		filepath.Base(fileName) == fileName &&
-		!strings.ContainsAny(fileName, `/\`)
 }
 
 // findResultsReference returns a description of the championship or race weekend which uses the given results file,
@@ -171,57 +137,17 @@ func findResultsReference(store Store, fileName string) (string, error) {
 
 // deleteResultsFile removes a results file from the results directory, unless it is used by a championship or race weekend.
 func deleteResultsFile(store Store, fileName string) error {
-	if !validResultsFileName(fileName) {
-		return ErrInvalidResultsFileName
-	}
+	return resultsLoader().Remove(fileName, func() error {
+		reference, err := findResultsReference(store, fileName)
 
-	path := filepath.Join(ServerInstallPath, "results", fileName)
+		if err != nil {
+			return err
+		}
 
-	info, err := os.Stat(path)
+		if reference != "" {
+			return ResultsFileReferencedError{Reference: reference}
+		}
 
-	if err != nil {
-		return err
-	}
-
-	if !info.Mode().IsRegular() {
-		return ErrInvalidResultsFileName
-	}
-
-	reference, err := findResultsReference(store, fileName)
-
-	if err != nil {
-		return err
-	}
-
-	if reference != "" {
-		return ResultsFileReferencedError{Reference: reference}
-	}
-
-	if err := os.Remove(path); err != nil {
-		return err
-	}
-
-	resultSummaryCache.Lock()
-	delete(resultSummaryCache.entries, fileName)
-	resultSummaryCache.Unlock()
-
-	return nil
-}
-
-// saveResults takes a full json filepath (including the json extension) and saves the results to that file.
-func saveResults(jsonFileName string, results *SessionResults) error {
-	path := filepath.Join(ServerInstallPath, "results", jsonFileName)
-
-	file, err := os.Create(path)
-
-	if err != nil {
-		return err
-	}
-
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "\t")
-
-	return encoder.Encode(results)
+		return nil
+	})
 }

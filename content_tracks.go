@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"bytes"
 	"encoding/json"
@@ -375,12 +376,12 @@ type trackDetailsTemplateVars struct {
 
 	Track     *Track
 	TrackInfo map[string]*TrackInfo
-	Results   map[string][]SessionResults
+	Results   map[string][]smresults.SessionResults
 }
 
 func (tm *TrackManager) loadTrackDetailsForTemplate(trackName string) (*trackDetailsTemplateVars, error) {
 	trackInfoMap := make(map[string]*TrackInfo)
-	resultsMap := make(map[string][]SessionResults)
+	resultsMap := make(map[string][]smresults.SessionResults)
 
 	track, err := tm.GetTrackFromName(trackName)
 
@@ -422,14 +423,14 @@ func (tm *TrackManager) loadTrackDetailsForTemplate(trackName string) (*trackDet
 	}, nil
 }
 
-func (tm *TrackManager) ResultsForLayout(trackName, layout string) ([]SessionResults, error) {
+func (tm *TrackManager) ResultsForLayout(trackName, layout string) ([]smresults.SessionResults, error) {
 	results, err := ListAllResults()
 
 	if err != nil {
 		return nil, err
 	}
 
-	var out []SessionResults
+	var out []smresults.SessionResults
 
 	for _, result := range results {
 		if result.TrackName == trackName && result.TrackConfig == layout {

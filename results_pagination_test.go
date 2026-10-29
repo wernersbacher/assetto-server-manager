@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func TestListResultsPagination(t *testing.T) {
@@ -60,7 +62,7 @@ func TestListResultsPagination(t *testing.T) {
 
 			ServerInstallPath = dir
 
-			results, _, err := listResults(tc.page, ResultsFilter{})
+			results, _, err := listResults(tc.page, smresults.Filter{})
 
 			if err != tc.wantErr {
 				t.Fatalf("expected error %v, got %v", tc.wantErr, err)
