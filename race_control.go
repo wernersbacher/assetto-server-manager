@@ -39,7 +39,7 @@ type RaceControl struct {
 	broadcaster      Broadcaster
 	trackDataGateway TrackDataGateway
 
-	currentTimeAttackEvent *CustomRace
+	currentTimeAttackEvent *smmodel.CustomRace
 
 	lastUpdateMessage      []byte
 	lastUpdateMessageMutex sync.Mutex

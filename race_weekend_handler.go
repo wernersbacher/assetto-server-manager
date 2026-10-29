@@ -31,7 +31,7 @@ func NewRaceWeekendHandler(baseHandler *BaseHandler, raceWeekendManager *RaceWee
 type raceWeekendListTemplateVars struct {
 	BaseTemplateVars
 
-	RaceWeekends []*RaceWeekend
+	RaceWeekends []*smmodel.RaceWeekend
 }
 
 func (rwh *RaceWeekendHandler) list(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +51,7 @@ func (rwh *RaceWeekendHandler) list(w http.ResponseWriter, r *http.Request) {
 type raceWeekendViewTemplateVars struct {
 	BaseTemplateVars
 
-	RaceWeekend *RaceWeekend
+	RaceWeekend *smmodel.RaceWeekend
 	Account     *smmodel.Account
 }
 
@@ -242,7 +242,7 @@ type raceWeekendSessionImportTemplateVars struct {
 
 	Results       []smresults.SessionResults
 	RaceWeekendID string
-	Session       *RaceWeekendSession
+	Session       *smmodel.RaceWeekendSession
 }
 
 func (rwh *RaceWeekendHandler) importSessionResults(w http.ResponseWriter, r *http.Request) {
@@ -280,13 +280,13 @@ func (rwh *RaceWeekendHandler) importSessionResults(w http.ResponseWriter, r *ht
 type raceWeekendFilterTemplateVars struct {
 	BaseTemplateVars
 
-	RaceWeekend                 *RaceWeekend
-	ParentSession, ChildSession *RaceWeekendSession
+	RaceWeekend                 *smmodel.RaceWeekend
+	ParentSession, ChildSession *smmodel.RaceWeekendSession
 	ResultsAvailableForSorting  []smresults.SessionResults
-	Filter                      *RaceWeekendSessionToSessionFilter
+	Filter                      *smmodel.RaceWeekendSessionToSessionFilter
 	AvailableSorters            []RaceWeekendEntryListSorterDescription
-	ParentSessionResults        []*RaceWeekendSessionEntrant
-	ChampionshipClasses         map[uuid.UUID]*ChampionshipClass
+	ParentSessionResults        []*smmodel.RaceWeekendSessionEntrant
+	ChampionshipClasses         map[uuid.UUID]*smmodel.ChampionshipClass
 }
 
 func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Request) {
@@ -324,10 +324,10 @@ func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var championshipClasses map[uuid.UUID]*ChampionshipClass
+	var championshipClasses map[uuid.UUID]*smmodel.ChampionshipClass
 
 	if raceWeekend.HasLinkedChampionship() {
-		championshipClasses = make(map[uuid.UUID]*ChampionshipClass)
+		championshipClasses = make(map[uuid.UUID]*smmodel.ChampionshipClass)
 
 		for _, result := range parentSessionResults {
 			class := result.ChampionshipClass(raceWeekend)
@@ -353,7 +353,7 @@ func (rwh *RaceWeekendHandler) gridPreview(w http.ResponseWriter, r *http.Reques
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
 
-	var filter *RaceWeekendSessionToSessionFilter
+	var filter *smmodel.RaceWeekendSessionToSessionFilter
 
 	if err := json.NewDecoder(r.Body).Decode(&filter); err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -380,7 +380,7 @@ func (rwh *RaceWeekendHandler) updateGrid(w http.ResponseWriter, r *http.Request
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
 
-	var filter *RaceWeekendSessionToSessionFilter
+	var filter *smmodel.RaceWeekendSessionToSessionFilter
 
 	if err := json.NewDecoder(r.Body).Decode(&filter); err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -399,8 +399,8 @@ func (rwh *RaceWeekendHandler) updateGrid(w http.ResponseWriter, r *http.Request
 type raceWeekendManageEntryListTemplateVars struct {
 	BaseTemplateVars
 
-	RaceWeekend      *RaceWeekend
-	Session          *RaceWeekendSession
+	RaceWeekend      *smmodel.RaceWeekend
+	Session          *smmodel.RaceWeekendSession
 	AvailableSorters []RaceWeekendEntryListSorterDescription
 }
 

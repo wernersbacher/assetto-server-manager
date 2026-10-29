@@ -1,8 +1,9 @@
-package servermanager
+package model
 
 import (
 	"bytes"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"math/rand"
@@ -13,14 +14,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/teambition/rrule-go"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func init() {
-	gob.Register(&RaceWeekend{})
+	// The name is the one the type had when it lived in the root package.
+	gob.RegisterName("*servermanager.RaceWeekend", &RaceWeekend{})
 }
 
 // RaceWeekends are a collection of sessions, where one session influences the EntryList of the next.
@@ -554,7 +554,7 @@ type RaceWeekendSession struct {
 	StartedTime                time.Time
 	CompletedTime              time.Time
 	ScheduledTime              time.Time
-	ScheduledServerID          smmodel.ServerID
+	ScheduledServerID          ServerID
 	Results                    *smresults.SessionResults
 	StartWhenParentHasFinished bool
 
@@ -581,7 +581,7 @@ func (rws *RaceWeekendSession) GetID() uuid.UUID {
 	return rws.ID
 }
 
-func (rws *RaceWeekendSession) GetScheduledServerID() smmodel.ServerID {
+func (rws *RaceWeekendSession) GetScheduledServerID() ServerID {
 	return rws.ScheduledServerID
 }
 
@@ -683,7 +683,11 @@ func (rws *RaceWeekendSession) ParentsDataAttr(raceWeekend *RaceWeekend) templat
 		parentIDs = []uuid.UUID{raceWeekend.ID}
 	}
 
-	return template.HTMLAttr(fmt.Sprintf("data-parent-ids='%s'", jsonEncode(parentIDs)))
+	buf := new(bytes.Buffer)
+
+	_ = json.NewEncoder(buf).Encode(parentIDs)
+
+	return template.HTMLAttr(fmt.Sprintf("data-parent-ids='%s'", buf.String()))
 }
 
 // InProgress indicates whether a RaceWeekendSession has been started but not stopped
@@ -711,8 +715,6 @@ func (rws *RaceWeekendSession) HasParent(id string) bool {
 
 	return false
 }
-
-var ErrRaceWeekendSessionDependencyIncomplete = errors.New("servermanager: race weekend session dependency incomplete")
 
 // EntryListToRaceWeekendEntryList converts an EntryList to a RaceWeekendEntryList for a given RaceWeekendSession
 func EntryListToRaceWeekendEntryList(e serverconfig.EntryList, sessionID uuid.UUID) RaceWeekendEntryList {
@@ -788,86 +790,4 @@ func (e RaceWeekendEntryList) AsEntryList() serverconfig.EntryList {
 	}
 
 	return entryList
-}
-
-// ActiveRaceWeekend indicates which RaceWeekend and RaceWeekendSession are currently running on the server.
-type ActiveRaceWeekend struct {
-	Name                                     string
-	RaceWeekendID, SessionID, ChampionshipID uuid.UUID
-	OverridePassword                         bool
-	ReplacementPassword                      string
-	Description                              string
-	IsPracticeSession                        bool
-	RaceConfig                               serverconfig.CurrentRaceConfig
-	EntryList                                serverconfig.EntryList
-}
-
-func (a ActiveRaceWeekend) GetRaceConfig() serverconfig.CurrentRaceConfig {
-	return a.RaceConfig
-}
-
-func (a ActiveRaceWeekend) GetEntryList() serverconfig.EntryList {
-	return a.EntryList
-}
-
-func (a ActiveRaceWeekend) IsLooping(serverID smmodel.ServerID) bool {
-	return false
-}
-
-func (a ActiveRaceWeekend) IsChampionship() bool {
-	return false
-}
-
-func (a ActiveRaceWeekend) IsRaceWeekend() bool {
-	return true
-}
-
-func (a ActiveRaceWeekend) IsPractice() bool {
-	return a.IsPracticeSession
-}
-
-func (a ActiveRaceWeekend) IsTimeAttack() bool {
-	return false
-}
-
-func (a ActiveRaceWeekend) OverrideServerPassword() bool {
-	return a.OverridePassword
-}
-
-func (a ActiveRaceWeekend) ReplacementServerPassword() string {
-	return a.ReplacementPassword
-}
-
-func (a ActiveRaceWeekend) EventName(trackSummary TrackSummaryFunc) string {
-	name := "Race Weekend: " + a.Name
-
-	if a.IsPracticeSession {
-		name += " - Practice Session"
-	}
-
-	return name
-}
-
-func (a ActiveRaceWeekend) EventDescription() string {
-	return a.Description
-}
-
-func (a ActiveRaceWeekend) GetURL(baseURL string) string {
-	if baseURL != "" {
-		if a.ChampionshipID != uuid.Nil {
-			return baseURL + "/championship/" + a.ChampionshipID.String()
-		}
-
-		return baseURL + "/race-weekend/" + a.RaceWeekendID.String()
-	}
-
-	return ""
-}
-
-func (a ActiveRaceWeekend) GetForceStopTime() time.Duration {
-	return 0
-}
-
-func (a ActiveRaceWeekend) GetForceStopWithDrivers() bool {
-	return false
 }

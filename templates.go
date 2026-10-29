@@ -186,7 +186,7 @@ func (tr *Renderer) init() error {
 	funcs["htmlAttr"] = func(s string) template.HTMLAttr {
 		return template.HTMLAttr(s)
 	}
-	funcs["ordinal"] = ordinal
+	funcs["ordinal"] = smmodel.Ordinal
 	funcs["prettify"] = prettifyName
 	funcs["weatherName"] = weatherName
 	funcs["carList"] = carList
@@ -219,8 +219,8 @@ func (tr *Renderer) init() error {
 	funcs["Version"] = func() string { return BuildVersion }
 	funcs["AccountGroup"] = func(a smmodel.Account) smmodel.Group { return a.GroupFor(serverID) }
 	funcs["raceWeekendTrackOverview"] = raceWeekendTrackOverview
-	funcs["EventName"] = func(e RaceEvent) string { return e.EventName(trackSummary) }
-	funcs["EventIsLooping"] = func(e RaceEvent) bool { return e.IsLooping(serverID) }
+	funcs["EventName"] = func(e smmodel.RaceEvent) string { return e.EventName(trackSummary) }
+	funcs["EventIsLooping"] = func(e smmodel.RaceEvent) bool { return e.IsLooping(serverID) }
 	funcs["fullTimeFormat"] = fullTimeFormat
 	funcs["localFormat"] = localFormatHelper
 	funcs["driverName"] = driverName
@@ -477,7 +477,7 @@ type BaseTemplateVars struct {
 	Messages              []interface{}
 	Errors                []interface{}
 	ServerStatus          bool
-	ServerEvent           RaceEvent
+	ServerEvent           smmodel.RaceEvent
 	ServerName            string
 	CustomCSS             template.CSS
 	User                  *smmodel.Account
@@ -638,26 +638,6 @@ func (tr *Renderer) MustLoadPartial(w http.ResponseWriter, r *http.Request, part
 		http.Error(w, "unable to load partial", http.StatusInternalServerError)
 		return
 	}
-}
-
-func ordinal(x int64) string {
-	suffix := "th"
-	switch x % 10 {
-	case 1:
-		if x%100 != 11 {
-			suffix = "st"
-		}
-	case 2:
-		if x%100 != 12 {
-			suffix = "nd"
-		}
-	case 3:
-		if x%100 != 13 {
-			suffix = "rd"
-		}
-	}
-
-	return suffix
 }
 
 type AssetHelper struct {

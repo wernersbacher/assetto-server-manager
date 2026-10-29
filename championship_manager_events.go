@@ -1,20 +1,14 @@
 package servermanager
 
 import (
-	"errors"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-)
-
-var (
-	ErrInvalidChampionshipEvent = errors.New("servermanager: invalid championship event")
-	ErrInvalidChampionshipClass = errors.New("servermanager: invalid championship class")
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*RaceTemplateVars, error) {
@@ -98,7 +92,7 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*Rac
 	return opts, nil
 }
 
-func (cm *ChampionshipManager) SaveChampionshipEvent(r *http.Request) (championship *Championship, event *ChampionshipEvent, edited bool, err error) {
+func (cm *ChampionshipManager) SaveChampionshipEvent(r *http.Request) (championship *smmodel.Championship, event *smmodel.ChampionshipEvent, edited bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, nil, false, err
 	}
@@ -138,7 +132,7 @@ func (cm *ChampionshipManager) SaveChampionshipEvent(r *http.Request) (champions
 		event.UseChampionshipRaceSettings = r.FormValue("UseChampionshipRaceSettings") == "1"
 	} else {
 		// creating a new event
-		event = NewChampionshipEvent()
+		event = smmodel.NewChampionshipEvent()
 		event.RaceSetup = *raceConfig
 		event.EntryList = entryList
 		event.UseChampionshipRaceSettings = r.FormValue("UseChampionshipRaceSettings") == "1"
@@ -179,7 +173,7 @@ func (cm *ChampionshipManager) DeleteEvent(championshipID string, eventID string
 	}
 
 	if toDelete < 0 {
-		return ErrInvalidChampionshipEvent
+		return smmodel.ErrInvalidChampionshipEvent
 	}
 
 	championship.Events = append(championship.Events[:toDelete], championship.Events[toDelete+1:]...)
@@ -192,7 +186,7 @@ func (cm *ChampionshipManager) StartPracticeEvent(championshipID string, eventID
 	return cm.StartEvent(championshipID, eventID, true)
 }
 
-func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *Championship, event *ChampionshipEvent, isPreChampionshipPracticeEvent bool) (serverconfig.CurrentRaceConfig, serverconfig.EntryList) {
+func (cm *ChampionshipManager) FinalEventConfigurationFiles(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, isPreChampionshipPracticeEvent bool) (serverconfig.CurrentRaceConfig, serverconfig.EntryList) {
 	// the event's stored config is never modified: championship wide settings are only applied to this copy.
 	raceSetup := championship.EffectiveRaceSetup(event)
 
@@ -264,7 +258,7 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 		logrus.Infof("Starting Championship Event: %s at %s (%s) with %d entrants", raceSetup.Cars, raceSetup.Track, raceSetup.TrackLayout, raceSetup.MaxClients)
 
 		// track that this is the current event
-		return cm.applyConfigAndStart(&ActiveChampionship{
+		return cm.applyConfigAndStart(&smmodel.ActiveChampionship{
 			ChampionshipID:      championship.ID,
 			EventID:             event.ID,
 			Name:                championship.Name,
@@ -294,7 +288,7 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 
 	raceSetup.ResultScreenTime = 30
 
-	return cm.RaceManager.applyConfigAndStart(&ActiveChampionship{
+	return cm.RaceManager.applyConfigAndStart(&smmodel.ActiveChampionship{
 		ChampionshipID:      championship.ID,
 		EventID:             event.ID,
 		Name:                championship.Name,
@@ -307,8 +301,8 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 	})
 }
 
-func championshipEventStartPlugin(event *ChampionshipEvent, championship *Championship, entryList *serverconfig.EntryList) error {
-	var standings [][]*ChampionshipStanding
+func championshipEventStartPlugin(event *smmodel.ChampionshipEvent, championship *smmodel.Championship, entryList *serverconfig.EntryList) error {
+	var standings [][]*smmodel.ChampionshipStanding
 
 	for _, class := range championship.Classes {
 		standings = append(standings, class.Standings(championship, championship.Events))
@@ -316,7 +310,7 @@ func championshipEventStartPlugin(event *ChampionshipEvent, championship *Champi
 
 	p := NewLuaPlugin()
 
-	newEvent, newChampionship, newEntryList := NewChampionshipEvent(), NewChampionship(championship.Name), &serverconfig.EntryList{}
+	newEvent, newChampionship, newEntryList := smmodel.NewChampionshipEvent(), smmodel.NewChampionship(championship.Name), &serverconfig.EntryList{}
 
 	p.Inputs(event, championship, standings, entryList).Outputs(&newEntryList, newEvent, newChampionship)
 	err := p.Call("./plugins/championship.lua", "onChampionshipEventStart")
@@ -330,7 +324,7 @@ func championshipEventStartPlugin(event *ChampionshipEvent, championship *Champi
 	return nil
 }
 
-func (cm *ChampionshipManager) GetChampionshipAndEvent(championshipID string, eventID string) (*Championship, *ChampionshipEvent, error) {
+func (cm *ChampionshipManager) GetChampionshipAndEvent(championshipID string, eventID string) (*smmodel.Championship, *smmodel.ChampionshipEvent, error) {
 	championship, err := cm.LoadChampionship(championshipID)
 
 	if err != nil {
@@ -353,7 +347,7 @@ func (cm *ChampionshipManager) ReorderChampionshipEvents(championshipID string, 
 		return err
 	}
 
-	var orderedEvents []*ChampionshipEvent
+	var orderedEvents []*smmodel.ChampionshipEvent
 
 	for _, championshipEventID := range championshipEventIDsInOrder {
 		event, _, err := championship.EventByID(championshipEventID)

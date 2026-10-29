@@ -39,7 +39,7 @@ func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *BaseHa
 type championshipListTemplateVars struct {
 	BaseTemplateVars
 
-	ActiveChampionships, CompletedChampionships []*Championship
+	ActiveChampionships, CompletedChampionships []*smmodel.Championship
 }
 
 // lists all available Championships known to Server Manager
@@ -52,7 +52,7 @@ func (ch *ChampionshipsHandler) list(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var activeChampionships, completedChampionships []*Championship
+	var activeChampionships, completedChampionships []*smmodel.Championship
 
 	for _, championship := range championships {
 		if championship.Progress() == 100 {
@@ -124,10 +124,10 @@ func (ch *ChampionshipsHandler) duplicate(w http.ResponseWriter, r *http.Request
 type championshipViewTemplateVars struct {
 	BaseTemplateVars
 
-	Championship    *Championship
+	Championship    *smmodel.Championship
 	EventInProgress bool
 	Account         *smmodel.Account
-	RaceWeekends    map[uuid.UUID]*RaceWeekend
+	RaceWeekends    map[uuid.UUID]*smmodel.RaceWeekend
 }
 
 // view shows details of a given Championship
@@ -149,7 +149,7 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	raceWeekends := make(map[uuid.UUID]*RaceWeekend)
+	raceWeekends := make(map[uuid.UUID]*smmodel.RaceWeekend)
 
 	for _, event := range championship.Events {
 		if event.IsRaceWeekend() {
@@ -294,7 +294,7 @@ type eventImportTemplateVars struct {
 
 	Results        []smresults.SessionResults
 	ChampionshipID string
-	Event          *ChampionshipEvent
+	Event          *smmodel.ChampionshipEvent
 }
 
 func (ch *ChampionshipsHandler) eventImport(w http.ResponseWriter, r *http.Request) {
@@ -515,15 +515,15 @@ func (ch *ChampionshipsHandler) restartEvent(w http.ResponseWriter, r *http.Requ
 type championshipCustomRaceImportTemplateVars struct {
 	BaseTemplateVars
 
-	Recent, Starred, Loop, Scheduled []*CustomRace
-	Championship                     *Championship
+	Recent, Starred, Loop, Scheduled []*smmodel.CustomRace
+	Championship                     *smmodel.Championship
 }
 
 type championshipRaceWeekendImportTemplateVars struct {
 	BaseTemplateVars
 
-	RaceWeekends []*RaceWeekend
-	Championship *Championship
+	RaceWeekends []*smmodel.RaceWeekend
+	Championship *smmodel.Championship
 }
 
 func (ch *ChampionshipsHandler) listCustomRacesForImport(w http.ResponseWriter, r *http.Request) {
@@ -659,7 +659,7 @@ func (ch *ChampionshipsHandler) teamPenalty(w http.ResponseWriter, r *http.Reque
 type championshipSignUpFormTemplateVars struct {
 	*ChampionshipTemplateVars
 
-	FormData        *ChampionshipSignUpResponse
+	FormData        *smmodel.ChampionshipSignUpResponse
 	ValidationError string
 	LockSteamGUID   bool
 }
@@ -685,13 +685,13 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 	account := AccountFromRequest(r)
 
 	if account != requestScopeFromRequest(r).openAccount {
-		opts.FormData = &ChampionshipSignUpResponse{
+		opts.FormData = &smmodel.ChampionshipSignUpResponse{
 			Name: account.DriverName,
 			GUID: account.GUID,
 			Team: account.Team,
 		}
 	} else {
-		opts.FormData = &ChampionshipSignUpResponse{}
+		opts.FormData = &smmodel.ChampionshipSignUpResponse{}
 	}
 
 	if r.Method == http.MethodPost {
@@ -736,7 +736,7 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 type signedUpEntrantsTemplateVars struct {
 	BaseTemplateVars
 
-	Championship *Championship
+	Championship *smmodel.Championship
 }
 
 func (ch *ChampionshipsHandler) signedUpEntrants(w http.ResponseWriter, r *http.Request) {
@@ -842,7 +842,7 @@ func (ch *ChampionshipsHandler) modifyEntrantStatus(w http.ResponseWriter, r *ht
 
 		switch r.URL.Query().Get("action") {
 		case "accept":
-			if entrant.Status == ChampionshipEntrantAccepted {
+			if entrant.Status == smmodel.ChampionshipEntrantAccepted {
 				AddFlash(w, r, "This entrant has already been accepted.")
 				break
 			}
@@ -857,14 +857,14 @@ func (ch *ChampionshipsHandler) modifyEntrantStatus(w http.ResponseWriter, r *ht
 			}
 
 			if foundSlot {
-				entrant.Status = ChampionshipEntrantAccepted
+				entrant.Status = smmodel.ChampionshipEntrantAccepted
 
 				AddFlash(w, r, "The entrant was successfully accepted!")
 			} else {
 				AddErrorFlash(w, r, "There are no more slots available for the given entrant and car. Please check the Championship configuration.")
 			}
 		case "reject":
-			entrant.Status = ChampionshipEntrantRejected
+			entrant.Status = smmodel.ChampionshipEntrantRejected
 			championship.ClearEntrant(entrantGUID)
 		case "delete":
 			championship.SignUpForm.Responses = append(championship.SignUpForm.Responses[:index], championship.SignUpForm.Responses[index+1:]...)

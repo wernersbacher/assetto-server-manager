@@ -15,7 +15,7 @@ import (
 
 const maxRecentRaces = 40
 
-func (rm *RaceManager) ListCustomRaces() (recent, starred, looped, scheduled []*CustomRace, err error) {
+func (rm *RaceManager) ListCustomRaces() (recent, starred, looped, scheduled []*smmodel.CustomRace, err error) {
 	recent, err = rm.store.ListCustomRaces()
 
 	if err == bbolt.ErrBucketNotFound {
@@ -76,7 +76,7 @@ func (rm *RaceManager) SaveCustomRace(
 	starred bool,
 	forceStopTime int,
 	forceStopWithDrivers bool,
-) (*CustomRace, error) {
+) (*smmodel.CustomRace, error) {
 	hasCustomRaceName := true
 
 	if name == "" {
@@ -96,7 +96,7 @@ func (rm *RaceManager) SaveCustomRace(
 		hasCustomRaceName = false
 	}
 
-	race := &CustomRace{
+	race := &smmodel.CustomRace{
 		Name:                name,
 		HasCustomName:       hasCustomRaceName,
 		OverridePassword:    overridePassword,
@@ -121,7 +121,7 @@ func (rm *RaceManager) SaveCustomRace(
 	return race, nil
 }
 
-func (rm *RaceManager) StartCustomRace(uuid string, forceRestart bool) (*CustomRace, error) {
+func (rm *RaceManager) StartCustomRace(uuid string, forceRestart bool) (*smmodel.CustomRace, error) {
 	race, err := rm.store.FindCustomRaceByID(uuid)
 
 	if err != nil {

@@ -2,6 +2,8 @@ package servermanager
 
 import (
 	"fmt"
+
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type RaceWeekendGridPreview struct {
@@ -25,7 +27,7 @@ func NewRaceWeekendGridPreview() *RaceWeekendGridPreview {
 	}
 }
 
-func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, childSessionID string, filter *RaceWeekendSessionToSessionFilter) (*RaceWeekendGridPreview, error) {
+func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, childSessionID string, filter *smmodel.RaceWeekendSessionToSessionFilter) (*RaceWeekendGridPreview, error) {
 	raceWeekend, parentSession, childSession, err := rwm.FindConnectedSessions(raceWeekendID, parentSessionID, childSessionID)
 
 	if err != nil {
@@ -91,7 +93,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 	return preview, nil
 }
 
-func (rwm *RaceWeekendManager) UpdateGrid(raceWeekendID, parentSessionID, childSessionID string, filter *RaceWeekendSessionToSessionFilter) error {
+func (rwm *RaceWeekendManager) UpdateGrid(raceWeekendID, parentSessionID, childSessionID string, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
 	raceWeekend, err := rwm.LoadRaceWeekend(raceWeekendID)
 
 	if err != nil {
@@ -133,7 +135,7 @@ func (rwm *RaceWeekendManager) PreviewSessionEntryList(raceWeekendID, sessionID,
 		if entrantSession.Completed() {
 			for i, result := range entrantSession.Results.Result {
 				if result.DriverGUID == entrant.Car.Driver.GUID {
-					entrantPositionText = fmt.Sprintf("%d%s", i+1, ordinal(int64(i+1)))
+					entrantPositionText = fmt.Sprintf("%d%s", i+1, smmodel.Ordinal(int64(i+1)))
 					break
 				}
 			}

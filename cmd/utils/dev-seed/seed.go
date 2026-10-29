@@ -179,7 +179,7 @@ func seedAll(store servermanager.Store, serverID smmodel.ServerID, now time.Time
 		return nil, nil, err
 	}
 
-	for _, c := range []*servermanager.Championship{devCup, devSprint} {
+	for _, c := range []*smmodel.Championship{devCup, devSprint} {
 		if err := store.UpsertChampionship(c); err != nil {
 			return nil, nil, err
 		}
@@ -264,8 +264,8 @@ type cupEvent struct {
 
 // completedEvent builds a completed championship event with a qualifying and a race session, which are written to
 // the results folder and attached the way ChampionshipManager does at the end of a session.
-func completedEvent(rng *rand.Rand, now time.Time, c *servermanager.Championship, entries []*seedDriver, cars []string, spec cupEvent, manifest *seedManifest) (*servermanager.ChampionshipEvent, error) {
-	event := servermanager.NewChampionshipEvent()
+func completedEvent(rng *rand.Rand, now time.Time, c *smmodel.Championship, entries []*seedDriver, cars []string, spec cupEvent, manifest *seedManifest) (*smmodel.ChampionshipEvent, error) {
+	event := smmodel.NewChampionshipEvent()
 	event.ID = seedID(fmt.Sprintf("event/%s/%s/%d", c.Name, spec.track+spec.layout, spec.daysFromNow))
 	event.RaceSetup = eventSetup(cars, spec.track, spec.layout, 6)
 	event.UseChampionshipRaceSettings = spec.useSettings
@@ -305,18 +305,18 @@ func completedEvent(rng *rand.Rand, now time.Time, c *servermanager.Championship
 
 	event.StartedTime = qualyStart.Add(-2 * time.Minute)
 	event.CompletedTime = raceStart.Add(15 * time.Minute)
-	event.Sessions[serverconfig.SessionTypeQualifying] = &servermanager.ChampionshipSession{
+	event.Sessions[serverconfig.SessionTypeQualifying] = &smmodel.ChampionshipSession{
 		StartedTime: event.StartedTime, CompletedTime: qualyStart.Add(10 * time.Minute), Results: qualy,
 	}
-	event.Sessions[serverconfig.SessionTypeRace] = &servermanager.ChampionshipSession{
+	event.Sessions[serverconfig.SessionTypeRace] = &smmodel.ChampionshipSession{
 		StartedTime: raceStart.Add(-time.Minute), CompletedTime: event.CompletedTime, Results: race,
 	}
 
 	return event, nil
 }
 
-func scheduledEvent(c *servermanager.Championship, serverID smmodel.ServerID, cars []string, track, layout string, start time.Time, useSettings bool, rule string) (*servermanager.ChampionshipEvent, error) {
-	event := servermanager.NewChampionshipEvent()
+func scheduledEvent(c *smmodel.Championship, serverID smmodel.ServerID, cars []string, track, layout string, start time.Time, useSettings bool, rule string) (*smmodel.ChampionshipEvent, error) {
+	event := smmodel.NewChampionshipEvent()
 	event.ID = seedID(fmt.Sprintf("event/%s/%s/%d", c.Name, track+layout, start.Unix()/86400))
 	event.RaceSetup = eventSetup(cars, track, layout, 6)
 	event.UseChampionshipRaceSettings = useSettings
@@ -333,8 +333,8 @@ func scheduledEvent(c *servermanager.Championship, serverID smmodel.ServerID, ca
 	return event, nil
 }
 
-func newClass(name string, drivers []*seedDriver, cars []string, points servermanager.ChampionshipPoints) *servermanager.ChampionshipClass {
-	class := servermanager.NewChampionshipClass(name)
+func newClass(name string, drivers []*seedDriver, cars []string, points smmodel.ChampionshipPoints) *smmodel.ChampionshipClass {
+	class := smmodel.NewChampionshipClass(name)
 	class.ID = seedID("class/" + name)
 	class.Points = points
 	class.AvailableCars = cars
@@ -348,13 +348,13 @@ func newClass(name string, drivers []*seedDriver, cars []string, points serverma
 	return class
 }
 
-func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manifest *seedManifest) (*servermanager.Championship, error) {
-	c := servermanager.NewChampionship(devCupName)
+func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manifest *seedManifest) (*smmodel.Championship, error) {
+	c := smmodel.NewChampionship(devCupName)
 	c.ID = devCupID
 	c.Created = now.AddDate(0, 0, -30)
 	c.Info = template.HTML("Seeded by <code>cmd/utils/dev-seed</code>: two classes, drop worst result, championship wide race settings.")
 	c.DropWorstResults = 1
-	c.RaceSettings = &servermanager.ChampionshipRaceSettings{
+	c.RaceSettings = &smmodel.ChampionshipRaceSettings{
 		FuelRate:                150,
 		DamageMultiplier:        50,
 		TyreWearRate:            200,
@@ -368,7 +368,7 @@ func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manife
 		DynamicTrack:            serverconfig.DynamicTrackConfig{SessionStart: 95, Randomness: 2, SessionTransfer: 80, LapGain: 12},
 	}
 
-	points := servermanager.DefaultChampionshipPoints
+	points := smmodel.DefaultChampionshipPoints
 	points.BestLap = 1
 	points.PolePosition = 1
 
@@ -409,8 +409,8 @@ func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manife
 	return c, nil
 }
 
-func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manifest *seedManifest) (*servermanager.Championship, error) {
-	c := servermanager.NewChampionship(devSprintName)
+func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manifest *seedManifest) (*smmodel.Championship, error) {
+	c := smmodel.NewChampionship(devSprintName)
 	c.ID = devSprintID
 	c.Created = now.AddDate(0, 0, -12)
 	c.Info = template.HTML("Seeded by <code>cmd/utils/dev-seed</code>: single class, no drops, no race settings.")
@@ -423,7 +423,7 @@ func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, man
 
 	cars := []string{carMX5}
 
-	c.AddClass(newClass("Sprint", drivers, cars, servermanager.DefaultChampionshipPoints))
+	c.AddClass(newClass("Sprint", drivers, cars, smmodel.DefaultChampionshipPoints))
 
 	first, err := completedEvent(rng, now, c, drivers, cars, cupEvent{track: trackRing, layout: layoutShort, daysFromNow: -9, collisions: 3}, manifest)
 
@@ -450,18 +450,18 @@ func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, man
 	return c, nil
 }
 
-func seedCustomRaces(now time.Time, serverID smmodel.ServerID) ([]*servermanager.CustomRace, error) {
+func seedCustomRaces(now time.Time, serverID smmodel.ServerID) ([]*smmodel.CustomRace, error) {
 	gt3 := driversOfClass("GT3")
 	mx5 := driversOfClass("MX5")
 
-	newRace := func(name string, cars []string, track, layout string, drivers []*seedDriver) *servermanager.CustomRace {
+	newRace := func(name string, cars []string, track, layout string, drivers []*seedDriver) *smmodel.CustomRace {
 		setup := serverconfig.ConfigIniDefault().CurrentRaceConfig
 		setup.Cars = joinCars(cars)
 		setup.Track = track
 		setup.TrackLayout = layout
 		setup.LegalTyres = "SM"
 
-		return &servermanager.CustomRace{
+		return &smmodel.CustomRace{
 			Name:          name,
 			HasCustomName: true,
 			Created:       now.AddDate(0, 0, -5),
@@ -479,7 +479,7 @@ func seedCustomRaces(now time.Time, serverID smmodel.ServerID) ([]*servermanager
 	weekly := newRace(customRaceName[2], []string{carMX5}, trackRing, layoutShort, mx5)
 
 	for _, s := range []struct {
-		race *servermanager.CustomRace
+		race *smmodel.CustomRace
 		when time.Time
 		rule string
 	}{
@@ -496,7 +496,7 @@ func seedCustomRaces(now time.Time, serverID smmodel.ServerID) ([]*servermanager
 			}
 		}
 
-		s.race.ScheduledEvents = map[smmodel.ServerID]*servermanager.ScheduledEventBase{
+		s.race.ScheduledEvents = map[smmodel.ServerID]*smmodel.ScheduledEventBase{
 			serverID: {
 				Scheduled:         s.race.Scheduled,
 				ScheduledInitial:  s.race.ScheduledInitial,
@@ -506,11 +506,11 @@ func seedCustomRaces(now time.Time, serverID smmodel.ServerID) ([]*servermanager
 		}
 	}
 
-	return []*servermanager.CustomRace{starred, tomorrow, weekly}, nil
+	return []*smmodel.CustomRace{starred, tomorrow, weekly}, nil
 }
 
-func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*servermanager.RaceWeekend, error) {
-	rw := servermanager.NewRaceWeekend()
+func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*smmodel.RaceWeekend, error) {
+	rw := smmodel.NewRaceWeekend()
 	rw.ID = weekendID
 	rw.Name = weekendName
 	rw.Created = now.AddDate(0, 0, -2)
@@ -518,8 +518,8 @@ func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*se
 
 	cars := []string{carGT3, carMX5}
 
-	newSession := func(name string, sessionType serverconfig.SessionType, laps, minutes int, parent uuid.UUID, sortType string) *servermanager.RaceWeekendSession {
-		s := servermanager.NewRaceWeekendSession()
+	newSession := func(name string, sessionType serverconfig.SessionType, laps, minutes int, parent uuid.UUID, sortType string) *smmodel.RaceWeekendSession {
+		s := smmodel.NewRaceWeekendSession()
 		s.ID = seedID("raceweekend/session/" + name)
 		s.Created = rw.Created
 		s.ParentIDs = []uuid.UUID{parent}

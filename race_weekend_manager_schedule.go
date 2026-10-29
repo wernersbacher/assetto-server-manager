@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
@@ -39,7 +40,7 @@ func (rwm *RaceWeekendManager) WatchForScheduledSessions() error {
 	return nil
 }
 
-func (rwm *RaceWeekendManager) clearScheduledSessionTimer(session *RaceWeekendSession) {
+func (rwm *RaceWeekendManager) clearScheduledSessionTimer(session *smmodel.RaceWeekendSession) {
 	if timer := rwm.scheduledSessionTimers[session.ID.String()]; timer != nil {
 		timer.Stop()
 	}
@@ -47,7 +48,7 @@ func (rwm *RaceWeekendManager) clearScheduledSessionTimer(session *RaceWeekendSe
 	rwm.scheduledSessionReminderTimers.Stop(session.ID.String())
 }
 
-func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *RaceWeekend, session *RaceWeekendSession) error {
+func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession) error {
 	rwm.clearScheduledSessionTimer(session)
 
 	var err error
@@ -135,10 +136,10 @@ func (rwm *RaceWeekendManager) ScheduleSession(raceWeekendID, sessionID string, 
 	return rwm.UpsertRaceWeekend(raceWeekend)
 }
 
-func raceWeekendEventSchedulePlugin(raceWeekend *RaceWeekend, raceWeekendSession *RaceWeekendSession) error {
+func raceWeekendEventSchedulePlugin(raceWeekend *smmodel.RaceWeekend, raceWeekendSession *smmodel.RaceWeekendSession) error {
 	p := NewLuaPlugin()
 
-	newRaceWeekendSession, newRaceWeekend := NewRaceWeekendSession(), NewRaceWeekend()
+	newRaceWeekendSession, newRaceWeekend := smmodel.NewRaceWeekendSession(), smmodel.NewRaceWeekend()
 
 	p.Inputs(raceWeekendSession, raceWeekend).Outputs(newRaceWeekendSession, newRaceWeekend)
 	err := p.Call("./plugins/events.lua", "onRaceWeekendEventSchedule")

@@ -9,6 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -67,7 +68,7 @@ func (s sessionEntrantWrapper) GetTeam() string {
 	return ""
 }
 
-func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, championship *Championship, currentEventIndex int) {
+func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, championship *smmodel.Championship, currentEventIndex int) {
 	if championship.Events[currentEventIndex].Completed() {
 		logrus.Infof("Event is complete. Ignoring messages")
 		return
@@ -122,7 +123,7 @@ func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, champio
 			}
 
 			if championship.Events[currentEventIndex].Sessions == nil {
-				championship.Events[currentEventIndex].Sessions = make(map[serverconfig.SessionType]*ChampionshipSession)
+				championship.Events[currentEventIndex].Sessions = make(map[serverconfig.SessionType]*smmodel.ChampionshipSession)
 			}
 
 			// new session created
@@ -137,7 +138,7 @@ func (cm *ChampionshipManager) handleSessionChanges(message udp.Message, champio
 			_, ok := championship.Events[currentEventIndex].Sessions[sessionType]
 
 			if !ok {
-				championship.Events[currentEventIndex].Sessions[sessionType] = &ChampionshipSession{
+				championship.Events[currentEventIndex].Sessions[sessionType] = &smmodel.ChampionshipSession{
 					StartedTime: time.Now(),
 				}
 			}
@@ -227,7 +228,7 @@ var (
 	ErrResultFileNotFound = errors.New("servermanager: results files not found")
 )
 
-func (cm *ChampionshipManager) findSessionWithName(event *ChampionshipEvent, name string) (serverconfig.SessionType, error) {
+func (cm *ChampionshipManager) findSessionWithName(event *smmodel.ChampionshipEvent, name string) (serverconfig.SessionType, error) {
 	for t, sess := range event.RaceSetup.Sessions {
 		if sess.Name == name {
 			savedRace, hasSavedRace := event.Sessions[serverconfig.SessionTypeRace]
@@ -279,7 +280,7 @@ func (cm *ChampionshipManager) CancelEvent(championshipID string, eventID string
 	event.StartedTime = time.Time{}
 	event.CompletedTime = time.Time{}
 
-	event.Sessions = make(map[serverconfig.SessionType]*ChampionshipSession)
+	event.Sessions = make(map[serverconfig.SessionType]*smmodel.ChampionshipSession)
 
 	if err := cm.process.Stop(); err != nil {
 		return err
@@ -320,7 +321,7 @@ func (cm *ChampionshipManager) StopActiveEvent() error {
 	return cm.CancelEvent(cm.activeChampionship.ChampionshipID.String(), cm.activeChampionship.EventID.String())
 }
 
-func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID string, eventID string) (*ChampionshipEvent, []smresults.SessionResults, error) {
+func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID string, eventID string) (*smmodel.ChampionshipEvent, []smresults.SessionResults, error) {
 	championship, err := cm.LoadChampionship(championshipID)
 
 	if err != nil {

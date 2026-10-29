@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"encoding/json"
@@ -61,7 +62,7 @@ const (
 type homeTemplateVars struct {
 	BaseTemplateVars
 
-	RaceDetails     *CustomRace
+	RaceDetails     *smmodel.CustomRace
 	PerformanceMode bool
 	UpcomingRaces   []*APIUpcomingRace
 	RecentResults   []*smresults.SessionResults
@@ -71,10 +72,10 @@ type homeTemplateVars struct {
 func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Request) {
 	currentRace, entryList := sah.raceManager.CurrentRace()
 
-	var customRace *CustomRace
+	var customRace *smmodel.CustomRace
 
 	if currentRace != nil {
-		customRace = &CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
+		customRace = &smmodel.CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
 	}
 
 	// the overview still renders if the calendar or the results can't be loaded, they are just left out

@@ -8,10 +8,10 @@ import (
 
 type Store interface {
 	// Custom Races
-	UpsertCustomRace(race *CustomRace) error
-	FindCustomRaceByID(uuid string) (*CustomRace, error)
-	ListCustomRaces() ([]*CustomRace, error)
-	DeleteCustomRace(race *CustomRace) error
+	UpsertCustomRace(race *smmodel.CustomRace) error
+	FindCustomRaceByID(uuid string) (*smmodel.CustomRace, error)
+	ListCustomRaces() ([]*smmodel.CustomRace, error)
+	DeleteCustomRace(race *smmodel.CustomRace) error
 
 	// Entrants
 	UpsertEntrant(entrant serverconfig.Entrant) error
@@ -23,16 +23,16 @@ type Store interface {
 	LoadServerOptions() (*serverconfig.GlobalServerConfig, error)
 
 	// Championships
-	UpsertChampionship(c *Championship) error
-	ListChampionships() ([]*Championship, error)
-	LoadChampionship(id string) (*Championship, error)
+	UpsertChampionship(c *smmodel.Championship) error
+	ListChampionships() ([]*smmodel.Championship, error)
+	LoadChampionship(id string) (*smmodel.Championship, error)
 	DeleteChampionship(id string) error
 
 	// Live Timings
 	UpsertLiveTimingsData(*smmodel.LiveTimingsPersistedData) error
 	LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, error)
-	UpsertLastRaceEvent(r RaceEvent) error
-	LoadLastRaceEvent() (RaceEvent, error)
+	UpsertLastRaceEvent(r smmodel.RaceEvent) error
+	LoadLastRaceEvent() (smmodel.RaceEvent, error)
 	ClearLastRaceEvent() error
 
 	UpsertLiveFrames([]string) error
@@ -54,9 +54,9 @@ type Store interface {
 	AddAuditEntry(entry *smmodel.AuditEntry) error
 
 	// Race Weekend
-	ListRaceWeekends() ([]*RaceWeekend, error)
-	UpsertRaceWeekend(rw *RaceWeekend) error
-	LoadRaceWeekend(id string) (*RaceWeekend, error)
+	ListRaceWeekends() ([]*smmodel.RaceWeekend, error)
+	UpsertRaceWeekend(rw *smmodel.RaceWeekend) error
+	LoadRaceWeekend(id string) (*smmodel.RaceWeekend, error)
 	DeleteRaceWeekend(id string) error
 
 	// Stracker Options
@@ -83,7 +83,7 @@ func autoFillEntrant(entrant serverconfig.Entrant) serverconfig.Entrant {
 	return entrant
 }
 
-func loadChampionshipRaceWeekends(championship *Championship, store Store) error {
+func loadChampionshipRaceWeekends(championship *smmodel.Championship, store Store) error {
 	var err error
 
 	for _, event := range championship.Events {

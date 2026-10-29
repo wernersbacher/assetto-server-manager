@@ -60,7 +60,7 @@ func (rs *BoltStore) decode(data []byte, out interface{}) error {
 	return json.Unmarshal(data, out)
 }
 
-func (rs *BoltStore) UpsertCustomRace(race *CustomRace) error {
+func (rs *BoltStore) UpsertCustomRace(race *smmodel.CustomRace) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.customRaceBucket(tx)
 
@@ -80,8 +80,8 @@ func (rs *BoltStore) UpsertCustomRace(race *CustomRace) error {
 	})
 }
 
-func (rs *BoltStore) FindCustomRaceByID(uuid string) (*CustomRace, error) {
-	var customRace *CustomRace
+func (rs *BoltStore) FindCustomRaceByID(uuid string) (*smmodel.CustomRace, error) {
+	var customRace *smmodel.CustomRace
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.customRaceBucket(tx)
@@ -104,8 +104,8 @@ func (rs *BoltStore) FindCustomRaceByID(uuid string) (*CustomRace, error) {
 	return customRace, err
 }
 
-func (rs *BoltStore) ListCustomRaces() ([]*CustomRace, error) {
-	var customRaces []*CustomRace
+func (rs *BoltStore) ListCustomRaces() ([]*smmodel.CustomRace, error) {
+	var customRaces []*smmodel.CustomRace
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.customRaceBucket(tx)
@@ -117,7 +117,7 @@ func (rs *BoltStore) ListCustomRaces() ([]*CustomRace, error) {
 		}
 
 		return bkt.ForEach(func(k, v []byte) error {
-			var race *CustomRace
+			var race *smmodel.CustomRace
 
 			err := rs.decode(v, &race)
 
@@ -139,7 +139,7 @@ func (rs *BoltStore) ListCustomRaces() ([]*CustomRace, error) {
 	return customRaces, err
 }
 
-func (rs *BoltStore) DeleteCustomRace(race *CustomRace) error {
+func (rs *BoltStore) DeleteCustomRace(race *smmodel.CustomRace) error {
 	race.Deleted = time.Now()
 
 	return rs.UpsertCustomRace(race)
@@ -355,7 +355,7 @@ func (rs *BoltStore) championshipsBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(championshipsBucketName)
 }
 
-func (rs *BoltStore) UpsertChampionship(c *Championship) error {
+func (rs *BoltStore) UpsertChampionship(c *smmodel.Championship) error {
 	c.Updated = time.Now()
 
 	return rs.db.Update(func(tx *bbolt.Tx) error {
@@ -375,8 +375,8 @@ func (rs *BoltStore) UpsertChampionship(c *Championship) error {
 	})
 }
 
-func (rs *BoltStore) ListChampionships() ([]*Championship, error) {
-	var championships []*Championship
+func (rs *BoltStore) ListChampionships() ([]*smmodel.Championship, error) {
+	var championships []*smmodel.Championship
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.championshipsBucket(tx)
@@ -388,7 +388,7 @@ func (rs *BoltStore) ListChampionships() ([]*Championship, error) {
 		}
 
 		return b.ForEach(func(k, v []byte) error {
-			var championship *Championship
+			var championship *smmodel.Championship
 
 			err := rs.decode(v, &championship)
 
@@ -412,8 +412,8 @@ func (rs *BoltStore) ListChampionships() ([]*Championship, error) {
 
 var ErrChampionshipNotFound = errors.New("servermanager: championship not found")
 
-func (rs *BoltStore) LoadChampionship(id string) (*Championship, error) {
-	var championship *Championship
+func (rs *BoltStore) LoadChampionship(id string) (*smmodel.Championship, error) {
+	var championship *smmodel.Championship
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.championshipsBucket(tx)
@@ -730,7 +730,7 @@ func (rs *BoltStore) raceWeekendsBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(raceWeekendsBucketName)
 }
 
-func (rs *BoltStore) UpsertRaceWeekend(rw *RaceWeekend) error {
+func (rs *BoltStore) UpsertRaceWeekend(rw *smmodel.RaceWeekend) error {
 	rw.Updated = time.Now()
 
 	return rs.db.Update(func(tx *bbolt.Tx) error {
@@ -750,8 +750,8 @@ func (rs *BoltStore) UpsertRaceWeekend(rw *RaceWeekend) error {
 	})
 }
 
-func (rs *BoltStore) ListRaceWeekends() ([]*RaceWeekend, error) {
-	var raceWeekends []*RaceWeekend
+func (rs *BoltStore) ListRaceWeekends() ([]*smmodel.RaceWeekend, error) {
+	var raceWeekends []*smmodel.RaceWeekend
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.raceWeekendsBucket(tx)
@@ -763,7 +763,7 @@ func (rs *BoltStore) ListRaceWeekends() ([]*RaceWeekend, error) {
 		}
 
 		return b.ForEach(func(k, v []byte) error {
-			var raceWeekend *RaceWeekend
+			var raceWeekend *smmodel.RaceWeekend
 
 			err := rs.decode(v, &raceWeekend)
 
@@ -785,14 +785,14 @@ func (rs *BoltStore) ListRaceWeekends() ([]*RaceWeekend, error) {
 	return raceWeekends, err
 }
 
-func (rs *BoltStore) LoadRaceWeekend(id string) (*RaceWeekend, error) {
-	var raceWeekend *RaceWeekend
+func (rs *BoltStore) LoadRaceWeekend(id string) (*smmodel.RaceWeekend, error) {
+	var raceWeekend *smmodel.RaceWeekend
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		b, err := rs.raceWeekendsBucket(tx)
 
 		if err == bbolt.ErrBucketNotFound {
-			return ErrRaceWeekendNotFound
+			return smmodel.ErrRaceWeekendNotFound
 		} else if err != nil {
 			return err
 		}
@@ -800,7 +800,7 @@ func (rs *BoltStore) LoadRaceWeekend(id string) (*RaceWeekend, error) {
 		data := b.Get([]byte(id))
 
 		if data == nil {
-			return ErrRaceWeekendNotFound
+			return smmodel.ErrRaceWeekendNotFound
 		}
 
 		return rs.decode(data, &raceWeekend)
@@ -1014,7 +1014,7 @@ func (rs *BoltStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, e
 	return lt, err
 }
 
-func (rs *BoltStore) UpsertLastRaceEvent(r RaceEvent) error {
+func (rs *BoltStore) UpsertLastRaceEvent(r smmodel.RaceEvent) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
@@ -1022,7 +1022,7 @@ func (rs *BoltStore) UpsertLastRaceEvent(r RaceEvent) error {
 			return err
 		}
 
-		encoded, err := marshalRaceEvent(r)
+		encoded, err := smmodel.MarshalRaceEvent(r)
 
 		if err != nil {
 			return err
@@ -1032,8 +1032,8 @@ func (rs *BoltStore) UpsertLastRaceEvent(r RaceEvent) error {
 	})
 }
 
-func (rs *BoltStore) LoadLastRaceEvent() (RaceEvent, error) {
-	var re RaceEvent
+func (rs *BoltStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
+	var re smmodel.RaceEvent
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
@@ -1051,7 +1051,7 @@ func (rs *BoltStore) LoadLastRaceEvent() (RaceEvent, error) {
 			return nil
 		}
 
-		re, err = unmarshalRaceEvent(data)
+		re, err = smmodel.UnmarshalRaceEvent(data)
 
 		return err
 	})

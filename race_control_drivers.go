@@ -248,9 +248,9 @@ func (rc *RaceControl) OnClientLoaded(loadedCar udp.ClientLoaded) error {
 func (rc *RaceControl) sendChampionshipPlayerSummaryMessage(driver *smmodel.RaceControlDriver) error {
 	var championshipID uuid.UUID
 
-	if championship, ok := rc.process.Event().(*ActiveChampionship); ok {
+	if championship, ok := rc.process.Event().(*smmodel.ActiveChampionship); ok {
 		championshipID = championship.ChampionshipID
-	} else if raceWeekend, ok := rc.process.Event().(*ActiveRaceWeekend); ok {
+	} else if raceWeekend, ok := rc.process.Event().(*smmodel.ActiveRaceWeekend); ok {
 		championshipID = raceWeekend.ChampionshipID
 	} else {
 		return nil

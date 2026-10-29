@@ -4,6 +4,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"context"
 	"net/http"
@@ -19,8 +20,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func testChampionshipRaceSettings() *ChampionshipRaceSettings {
-	return &ChampionshipRaceSettings{
+func testChampionshipRaceSettings() *smmodel.ChampionshipRaceSettings {
+	return &smmodel.ChampionshipRaceSettings{
 		FuelRate:                150,
 		DamageMultiplier:        25,
 		TyreWearRate:            200,
@@ -67,11 +68,11 @@ func testEventSetup() serverconfig.CurrentRaceConfig {
 	return setup
 }
 
-func assertChampionshipSettingsApplied(t *testing.T, got serverconfig.CurrentRaceConfig, settings *ChampionshipRaceSettings) {
+func assertChampionshipSettingsApplied(t *testing.T, got serverconfig.CurrentRaceConfig, settings *smmodel.ChampionshipRaceSettings) {
 	t.Helper()
 
-	if !reflect.DeepEqual(NewChampionshipRaceSettingsFromConfig(got), settings) {
-		t.Errorf("expected championship race settings to be applied, got %+v want %+v", NewChampionshipRaceSettingsFromConfig(got), settings)
+	if !reflect.DeepEqual(smmodel.NewChampionshipRaceSettingsFromConfig(got), settings) {
+		t.Errorf("expected championship race settings to be applied, got %+v want %+v", smmodel.NewChampionshipRaceSettingsFromConfig(got), settings)
 	}
 }
 
@@ -90,8 +91,8 @@ func TestChampionship_EffectiveRaceSetup(t *testing.T) {
 	settings := testChampionshipRaceSettings()
 
 	t.Run("nil settings", func(t *testing.T) {
-		championship := NewChampionship("c")
-		event := NewChampionshipEvent()
+		championship := smmodel.NewChampionship("c")
+		event := smmodel.NewChampionshipEvent()
 		event.RaceSetup = raw
 		event.UseChampionshipRaceSettings = true // has no effect without championship settings
 
@@ -101,9 +102,9 @@ func TestChampionship_EffectiveRaceSetup(t *testing.T) {
 	})
 
 	t.Run("event does not use settings", func(t *testing.T) {
-		championship := NewChampionship("c")
+		championship := smmodel.NewChampionship("c")
 		championship.RaceSettings = settings
-		event := NewChampionshipEvent()
+		event := smmodel.NewChampionshipEvent()
 		event.RaceSetup = raw
 
 		if got := championship.EffectiveRaceSetup(event); !reflect.DeepEqual(got, raw) {
@@ -112,9 +113,9 @@ func TestChampionship_EffectiveRaceSetup(t *testing.T) {
 	})
 
 	t.Run("event uses settings", func(t *testing.T) {
-		championship := NewChampionship("c")
+		championship := smmodel.NewChampionship("c")
 		championship.RaceSettings = settings
-		event := NewChampionshipEvent()
+		event := smmodel.NewChampionshipEvent()
 		event.RaceSetup = raw
 		event.UseChampionshipRaceSettings = true
 
@@ -129,9 +130,9 @@ func TestChampionship_EffectiveRaceSetup(t *testing.T) {
 	})
 
 	t.Run("event GetRaceSetup", func(t *testing.T) {
-		championship := NewChampionship("c")
+		championship := smmodel.NewChampionship("c")
 		championship.RaceSettings = settings
-		event := NewChampionshipEvent()
+		event := smmodel.NewChampionshipEvent()
 		event.RaceSetup = raw
 		event.UseChampionshipRaceSettings = true
 
@@ -139,7 +140,7 @@ func TestChampionship_EffectiveRaceSetup(t *testing.T) {
 			t.Error("without a championship the raw setup is returned")
 		}
 
-		event.championship = championship
+		event.SetChampionship(championship)
 
 		assertChampionshipSettingsApplied(t, event.GetRaceSetup(), settings)
 	})
@@ -147,15 +148,15 @@ func TestChampionship_EffectiveRaceSetup(t *testing.T) {
 
 func TestChampionshipRaceSettings_ZeroValueMeansUnchanged(t *testing.T) {
 	// existing stored championships have no settings and events no flag: nothing may change for them.
-	championship := NewChampionship("c")
-	event := NewChampionshipEvent()
+	championship := smmodel.NewChampionship("c")
+	event := smmodel.NewChampionshipEvent()
 	event.RaceSetup = testEventSetup()
 
 	if championship.HasRaceSettings() || event.UseChampionshipRaceSettings {
 		t.Fatal("new championships and events must not use race settings")
 	}
 
-	var settings *ChampionshipRaceSettings
+	var settings *smmodel.ChampionshipRaceSettings
 
 	if got := settings.ApplyTo(event.RaceSetup); !reflect.DeepEqual(got, event.RaceSetup) {
 		t.Error("nil settings must not change a config")
@@ -166,10 +167,10 @@ func TestChampionshipRaceSettings_StoreRoundTrip(t *testing.T) {
 	_, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
 	defer cleanup()
 
-	championship := NewChampionship("Round Trip")
+	championship := smmodel.NewChampionship("Round Trip")
 	championship.RaceSettings = testChampionshipRaceSettings()
 
-	event := NewChampionshipEvent()
+	event := smmodel.NewChampionshipEvent()
 	event.RaceSetup = testEventSetup()
 	event.UseChampionshipRaceSettings = true
 	championship.Events = append(championship.Events, event)
@@ -234,23 +235,23 @@ func TestParseChampionshipRaceSettings(t *testing.T) {
 	// unchecked checkboxes are not submitted
 	got = ParseChampionshipRaceSettings(newRequest(url.Values{"ChampionshipRaceSettings.Enabled": {"1"}}))
 
-	if got == nil || !reflect.DeepEqual(*got, ChampionshipRaceSettings{}) {
+	if got == nil || !reflect.DeepEqual(*got, smmodel.ChampionshipRaceSettings{}) {
 		t.Errorf("expected enabled, empty settings, got %+v", got)
 	}
 }
 
 func TestChampionship_RaceSettingsForForm(t *testing.T) {
-	championship := NewChampionship("c")
+	championship := smmodel.NewChampionship("c")
 
-	if got := championship.RaceSettingsForForm(); !reflect.DeepEqual(got, *NewChampionshipRaceSettingsFromConfig(serverconfig.ConfigIniDefault().CurrentRaceConfig)) {
+	if got := championship.RaceSettingsForForm(); !reflect.DeepEqual(got, *smmodel.NewChampionshipRaceSettingsFromConfig(serverconfig.ConfigIniDefault().CurrentRaceConfig)) {
 		t.Errorf("expected defaults, got %+v", got)
 	}
 
-	event := NewChampionshipEvent()
+	event := smmodel.NewChampionshipEvent()
 	event.RaceSetup = testEventSetup()
 	championship.Events = append(championship.Events, event)
 
-	if got := championship.RaceSettingsForForm(); !reflect.DeepEqual(got, *NewChampionshipRaceSettingsFromConfig(event.RaceSetup)) {
+	if got := championship.RaceSettingsForForm(); !reflect.DeepEqual(got, *smmodel.NewChampionshipRaceSettingsFromConfig(event.RaceSetup)) {
 		t.Errorf("expected values of the latest event, got %+v", got)
 	}
 
@@ -261,11 +262,11 @@ func TestChampionship_RaceSettingsForForm(t *testing.T) {
 	}
 }
 
-func newRaceSettingsTestChampionship(t *testing.T, store Store, useSettings bool) *Championship {
-	championship := NewChampionship("Race Settings")
+func newRaceSettingsTestChampionship(t *testing.T, store Store, useSettings bool) *smmodel.Championship {
+	championship := smmodel.NewChampionship("Race Settings")
 	championship.RaceSettings = testChampionshipRaceSettings()
 
-	event := NewChampionshipEvent()
+	event := smmodel.NewChampionshipEvent()
 	event.RaceSetup = testEventSetup()
 	event.UseChampionshipRaceSettings = useSettings
 
@@ -303,7 +304,7 @@ func TestChampionshipManager_StartEventUsesEffectiveRaceSetup(t *testing.T) {
 			if useSettings {
 				assertChampionshipSettingsApplied(t, started, championship.RaceSettings)
 			} else {
-				assertChampionshipSettingsApplied(t, started, NewChampionshipRaceSettingsFromConfig(raw))
+				assertChampionshipSettingsApplied(t, started, smmodel.NewChampionshipRaceSettingsFromConfig(raw))
 			}
 
 			if started.Track != raw.Track || started.TrackLayout != raw.TrackLayout {
@@ -366,14 +367,14 @@ func TestChampionshipManager_SaveChampionshipEventSavesFlag(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	championship := NewChampionship("Flag")
+	championship := smmodel.NewChampionship("Flag")
 	championship.RaceSettings = testChampionshipRaceSettings()
 
 	if err := store.UpsertChampionship(championship); err != nil {
 		t.Fatal(err)
 	}
 
-	submit := func(values url.Values) *ChampionshipEvent {
+	submit := func(values url.Values) *smmodel.ChampionshipEvent {
 		values.Set("Track", "some_track")
 		values.Set("Race.Enabled", "1")
 		values.Set("Race.Laps", "3")
@@ -429,10 +430,10 @@ func TestChampionship_EffectiveRaceWeekendSessionSetup(t *testing.T) {
 	raw := testEventSetup()
 	raceWeekendID := uuid.New()
 
-	championship := NewChampionship("c")
+	championship := smmodel.NewChampionship("c")
 	championship.RaceSettings = testChampionshipRaceSettings()
 
-	event := NewChampionshipEvent()
+	event := smmodel.NewChampionshipEvent()
 	event.RaceWeekendID = raceWeekendID
 	championship.Events = append(championship.Events, event)
 
@@ -451,7 +452,7 @@ func TestChampionship_EffectiveRaceWeekendSessionSetup(t *testing.T) {
 		t.Error("other race weekends must not change")
 	}
 
-	var none *Championship
+	var none *smmodel.Championship
 
 	if got := none.EffectiveRaceWeekendSessionSetup(raceWeekendID, raw); !reflect.DeepEqual(got, raw) {
 		t.Error("no championship must not change the config")
@@ -469,23 +470,23 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 		process.event = nil
 		process.started = nil
 
-		championship := NewChampionship("Race Weekend Championship")
+		championship := smmodel.NewChampionship("Race Weekend Championship")
 		championship.RaceSettings = testChampionshipRaceSettings()
 
-		class := NewChampionshipClass("Class")
+		class := smmodel.NewChampionshipClass("Class")
 		class.AvailableCars = []string{"event_car"}
 		class.Entrants = serverconfig.EntryList{"CAR_0": &serverconfig.Entrant{Name: "Driver", GUID: "123", Model: "event_car"}}
 		championship.Classes = append(championship.Classes, class)
 
-		raceWeekend := NewRaceWeekend()
+		raceWeekend := smmodel.NewRaceWeekend()
 		raceWeekend.ChampionshipID = championship.ID
 
-		session := NewRaceWeekendSession()
+		session := smmodel.NewRaceWeekendSession()
 		session.RaceConfig = testEventSetup()
 		session.ParentIDs = []uuid.UUID{raceWeekend.ID}
 		raceWeekend.AddSession(session, nil)
 
-		event := NewChampionshipEvent()
+		event := smmodel.NewChampionshipEvent()
 		event.RaceWeekendID = raceWeekend.ID
 		event.UseChampionshipRaceSettings = useSettings
 		championship.Events = append(championship.Events, event)
@@ -511,7 +512,7 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 		if useSettings {
 			assertChampionshipSettingsApplied(t, started, championship.RaceSettings)
 		} else {
-			assertChampionshipSettingsApplied(t, started, NewChampionshipRaceSettingsFromConfig(testEventSetup()))
+			assertChampionshipSettingsApplied(t, started, smmodel.NewChampionshipRaceSettingsFromConfig(testEventSetup()))
 		}
 
 		if started.Track != "event_track" {
@@ -526,6 +527,6 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 
 		stored := loaded.Sessions[0].RaceConfig
 
-		assertChampionshipSettingsApplied(t, stored, NewChampionshipRaceSettingsFromConfig(testEventSetup()))
+		assertChampionshipSettingsApplied(t, stored, smmodel.NewChampionshipRaceSettingsFromConfig(testEventSetup()))
 	}
 }

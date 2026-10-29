@@ -15,6 +15,7 @@ import (
 	"github.com/mattn/go-zglob"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -33,7 +34,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*Ra
 		return nil, err
 	}
 
-	var raceWeekendSession *RaceWeekendSession
+	var raceWeekendSession *smmodel.RaceWeekendSession
 
 	if editSessionID := chi.URLParam(r, "sessionID"); editSessionID != "" {
 		// editing a race weekend session
@@ -75,7 +76,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*Ra
 			opts.RaceWeekendHasAtLeastOneSession = false
 		}
 
-		raceWeekendSession = NewRaceWeekendSession()
+		raceWeekendSession = smmodel.NewRaceWeekendSession()
 	}
 
 	if raceWeekend.HasLinkedChampionship() {
@@ -106,7 +107,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*Ra
 	return opts, nil
 }
 
-func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeekend *RaceWeekend, session *RaceWeekendSession, edited bool, err error) {
+func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, edited bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, nil, edited, err
 	}
@@ -147,7 +148,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeek
 		session.RaceConfig = *raceConfig
 	} else {
 		// creating a new event
-		session = NewRaceWeekendSession()
+		session = smmodel.NewRaceWeekendSession()
 		session.RaceConfig = *raceConfig
 
 		raceWeekend.AddSession(session, nil)
@@ -193,7 +194,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeek
 
 			numPointsForClass := formValueAsInt(r.Form["NumPointsForClass"][i])
 
-			pts := &ChampionshipPoints{}
+			pts := &smmodel.ChampionshipPoints{}
 
 			pts.Places = make([]int, 0)
 
@@ -214,7 +215,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeek
 	return raceWeekend, session, edited, rwm.UpsertRaceWeekend(raceWeekend)
 }
 
-func (rwm *RaceWeekendManager) applyConfigAndStart(raceWeekend *ActiveRaceWeekend) error {
+func (rwm *RaceWeekendManager) applyConfigAndStart(raceWeekend *smmodel.ActiveRaceWeekend) error {
 	rwm.activeRaceWeekend = raceWeekend
 
 	err := rwm.raceManager.applyConfigAndStart(raceWeekend)
@@ -324,7 +325,7 @@ func (rwm *RaceWeekendManager) StartSession(raceWeekendID string, raceWeekendSes
 		championshipID = raceWeekend.ChampionshipID
 	}
 
-	raceWeekendRaceEvent := &ActiveRaceWeekend{
+	raceWeekendRaceEvent := &smmodel.ActiveRaceWeekend{
 		Name:                raceWeekend.Name,
 		RaceWeekendID:       raceWeekend.ID,
 		SessionID:           session.ID,
@@ -453,7 +454,7 @@ func (rwm *RaceWeekendManager) UDPCallback(message udp.Message) {
 	}
 }
 
-func (rwm *RaceWeekendManager) ClearLockedTyreSetups(raceWeekend *RaceWeekend, session *RaceWeekendSession) error {
+func (rwm *RaceWeekendManager) ClearLockedTyreSetups(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession) error {
 	matches, err := zglob.Glob(filepath.Join(ServerInstallPath, "setups", "**", lockedTyreSetupFolder, "race_weekend_session_*.ini"))
 
 	if err != nil {
@@ -600,7 +601,7 @@ func (rwm *RaceWeekendManager) ImportSession(raceWeekendID string, raceWeekendSe
 	return rwm.UpsertRaceWeekend(raceWeekend)
 }
 
-func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *RaceWeekend, session *RaceWeekendSession) ([]smresults.SessionResults, error) {
+func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession) ([]smresults.SessionResults, error) {
 	results, err := ListAllResults()
 
 	if err != nil {
@@ -632,7 +633,7 @@ func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *
 	return filteredResults, nil
 }
 
-func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSession(raceWeekendID string, raceWeekendSessionID string) (*RaceWeekendSession, []smresults.SessionResults, error) {
+func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSession(raceWeekendID string, raceWeekendSessionID string) (*smmodel.RaceWeekendSession, []smresults.SessionResults, error) {
 	raceWeekend, err := rwm.LoadRaceWeekend(raceWeekendID)
 
 	if err != nil {

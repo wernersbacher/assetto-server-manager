@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 
 	"bytes"
@@ -21,18 +22,18 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 const MaxLogSizeBytes = 1e6
 
 type ServerProcess interface {
-	Start(event RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error
+	Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error
 	Stop() error
 	Restart() error
 	IsRunning() bool
-	Event() RaceEvent
+	Event() smmodel.RaceEvent
 	UDPCallback(message udp.Message)
 	SendUDPMessage(message udp.Message) error
 	NotifyDone(chan struct{})
@@ -45,7 +46,7 @@ type AssettoServerProcess struct {
 	store                 Store
 	contentManagerWrapper *ContentManagerWrapper
 
-	start                 chan RaceEvent
+	start                 chan smmodel.RaceEvent
 	startMutex            sync.Mutex
 	started, stopped, run chan error
 	notifyDoneChs         []chan struct{}
@@ -55,7 +56,7 @@ type AssettoServerProcess struct {
 
 	logBuffer *logBuffer
 
-	raceEvent      RaceEvent
+	raceEvent      smmodel.RaceEvent
 	cmd            *exec.Cmd
 	mutex          sync.Mutex
 	extraProcesses []*pluginProcess
@@ -81,7 +82,7 @@ type pluginProcess struct {
 func NewAssettoServerProcess(config *smconfig.Configuration, callbackFunc udp.CallbackFunc, store Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
 	sp := &AssettoServerProcess{
 		config:                config,
-		start:                 make(chan RaceEvent),
+		start:                 make(chan smmodel.RaceEvent),
 		started:               make(chan error),
 		stopped:               make(chan error),
 		run:                   make(chan error),
@@ -112,7 +113,7 @@ func (sp *AssettoServerProcess) UDPCallback(message udp.Message) {
 	})
 }
 
-func (sp *AssettoServerProcess) Start(event RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
+func (sp *AssettoServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
 	sp.startMutex.Lock()
 	defer sp.startMutex.Unlock()
 
@@ -227,7 +228,7 @@ func (sp *AssettoServerProcess) loop() {
 	}
 }
 
-func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
+func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) error {
 	sp.mutex.Lock()
 	defer sp.mutex.Unlock()
 
@@ -635,12 +636,12 @@ func (sp *AssettoServerProcess) Logs() string {
 	return sp.logBuffer.String()
 }
 
-func (sp *AssettoServerProcess) Event() RaceEvent {
+func (sp *AssettoServerProcess) Event() smmodel.RaceEvent {
 	sp.mutex.Lock()
 	defer sp.mutex.Unlock()
 
 	if sp.raceEvent == nil {
-		return QuickRace{}
+		return smmodel.QuickRace{}
 	}
 
 	return sp.raceEvent

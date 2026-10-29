@@ -8,11 +8,12 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 // RaceWeekendEntryListSorter is a function which takes a race weekend, session and entrylist and sorts the entrylist based on some criteria.
 type RaceWeekendEntryListSorter interface {
-	Sort(*RaceWeekend, *RaceWeekendSession, []*RaceWeekendSessionEntrant, *RaceWeekendSessionToSessionFilter) error
+	Sort(*smmodel.RaceWeekend, *smmodel.RaceWeekendSession, []*smmodel.RaceWeekendSessionEntrant, *smmodel.RaceWeekendSessionToSessionFilter) error
 }
 
 type RaceWeekendEntryListSorterDescription struct {
@@ -24,9 +25,9 @@ type RaceWeekendEntryListSorterDescription struct {
 	ShowInManageEntryList bool
 }
 
-type RaceWeekendEntryListSortFunc func(*RaceWeekend, *RaceWeekendSession, []*RaceWeekendSessionEntrant, *RaceWeekendSessionToSessionFilter) error
+type RaceWeekendEntryListSortFunc func(*smmodel.RaceWeekend, *smmodel.RaceWeekendSession, []*smmodel.RaceWeekendSessionEntrant, *smmodel.RaceWeekendSessionToSessionFilter) error
 
-func (rwelsf RaceWeekendEntryListSortFunc) Sort(rw *RaceWeekend, rws *RaceWeekendSession, rwes []*RaceWeekendSessionEntrant, rwsf *RaceWeekendSessionToSessionFilter) error {
+func (rwelsf RaceWeekendEntryListSortFunc) Sort(rw *smmodel.RaceWeekend, rws *smmodel.RaceWeekendSession, rwes []*smmodel.RaceWeekendSessionEntrant, rwsf *smmodel.RaceWeekendSessionToSessionFilter) error {
 	return rwelsf(rw, rws, rwes, rwsf)
 }
 
@@ -140,7 +141,7 @@ func GetRaceWeekendEntryListSort(key string) RaceWeekendEntryListSorter {
 }
 
 func PerClassSort(sorter RaceWeekendEntryListSorter) RaceWeekendEntryListSorter {
-	return RaceWeekendEntryListSortFunc(func(rw *RaceWeekend, session *RaceWeekendSession, allEntrants []*RaceWeekendSessionEntrant, filter *RaceWeekendSessionToSessionFilter) error {
+	return RaceWeekendEntryListSortFunc(func(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, allEntrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
 		if _, isChampionshipClassSort := sorter.(*ChampionshipClassSort); isChampionshipClassSort && rw.HasLinkedChampionship() && rw.Championship != nil {
 			// per championship class sort is a stable non-results based sort. If that has been selected, don't run this sorting function at all.
 			return sorter.Sort(rw, session, allEntrants, filter)
@@ -148,7 +149,7 @@ func PerClassSort(sorter RaceWeekendEntryListSorter) RaceWeekendEntryListSorter 
 
 		classMap := make(map[uuid.UUID]bool)
 		fastestLapForClass := make(map[uuid.UUID]int)
-		entrantsForClass := make(map[uuid.UUID][]*RaceWeekendSessionEntrant)
+		entrantsForClass := make(map[uuid.UUID][]*smmodel.RaceWeekendSessionEntrant)
 
 		for _, entrant := range allEntrants {
 			classMap[entrant.EntrantResult.ClassID] = true
@@ -218,7 +219,7 @@ func PerClassSort(sorter RaceWeekendEntryListSorter) RaceWeekendEntryListSorter 
 	})
 }
 
-func sortDriversWithNoTimeToBackOfGrid(entrants []*RaceWeekendSessionEntrant) {
+func sortDriversWithNoTimeToBackOfGrid(entrants []*smmodel.RaceWeekendSessionEntrant) {
 	sort.SliceStable(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 
@@ -234,11 +235,11 @@ func sortDriversWithNoTimeToBackOfGrid(entrants []*RaceWeekendSessionEntrant) {
 	})
 }
 
-func UnchangedRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession, _ []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func UnchangedRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, _ []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	return nil // do nothing
 }
 
-func FastestLapRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func FastestLapRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	sort.Slice(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 
@@ -248,7 +249,7 @@ func FastestLapRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSes
 	return nil
 }
 
-func FastestResultsFileRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, filter *RaceWeekendSessionToSessionFilter) error {
+func FastestResultsFileRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
 
 	if filter == nil {
 		return nil
@@ -279,7 +280,7 @@ func FastestResultsFileRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSe
 	return nil
 }
 
-func NumberResultsFileRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, filter *RaceWeekendSessionToSessionFilter) error {
+func NumberResultsFileRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
 
 	if filter == nil {
 		return nil
@@ -306,7 +307,7 @@ func NumberResultsFileRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSes
 	return nil
 }
 
-func TotalRaceTimeRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func TotalRaceTimeRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	sort.Slice(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 
@@ -316,7 +317,7 @@ func TotalRaceTimeRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekend
 	return nil
 }
 
-func lessTotalEntrantTime(_ *RaceWeekend, _ *RaceWeekendSession, entrantI, entrantJ *RaceWeekendSessionEntrant) bool {
+func lessTotalEntrantTime(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrantI, entrantJ *smmodel.RaceWeekendSessionEntrant) bool {
 	if entrantI.SessionResults.GetNumLaps(entrantI.Car.Driver.GUID, entrantI.Car.Model) == entrantJ.SessionResults.GetNumLaps(entrantJ.Car.Driver.GUID, entrantJ.Car.Model) {
 		// drivers have completed the same number of laps, so compare their total time
 		entrantITime := entrantI.SessionResults.GetTime(entrantI.EntrantResult.TotalTime, entrantI.Car.Driver.GUID, entrantI.Car.Model, true)
@@ -338,7 +339,7 @@ func lessTotalEntrantTime(_ *RaceWeekend, _ *RaceWeekendSession, entrantI, entra
 	return entrantI.SessionResults.GetNumLaps(entrantI.Car.Driver.GUID, entrantI.Car.Model) > entrantJ.SessionResults.GetNumLaps(entrantJ.Car.Driver.GUID, entrantJ.Car.Model)
 }
 
-func lessBestLapTime(_ *RaceWeekend, _ *RaceWeekendSession, entrantI, entrantJ *RaceWeekendSessionEntrant) bool {
+func lessBestLapTime(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrantI, entrantJ *smmodel.RaceWeekendSessionEntrant) bool {
 	if entrantI.EntrantResult.BestLap == 0 {
 		// entrantI has a zero best lap. they must be not-less than J
 		return false
@@ -364,7 +365,7 @@ func lessBestLapTime(_ *RaceWeekend, _ *RaceWeekendSession, entrantI, entrantJ *
 	return entrantI.EntrantResult.BestLap < entrantJ.EntrantResult.BestLap
 }
 
-func lessBestLapTimeInResults(bestDriverLaps map[string]int, entrantI, entrantJ *RaceWeekendSessionEntrant) bool {
+func lessBestLapTimeInResults(bestDriverLaps map[string]int, entrantI, entrantJ *smmodel.RaceWeekendSessionEntrant) bool {
 	if bestDriverLaps[entrantI.Car.Driver.GUID] == 0 {
 		return false
 	}
@@ -376,7 +377,7 @@ func lessBestLapTimeInResults(bestDriverLaps map[string]int, entrantI, entrantJ 
 	return bestDriverLaps[entrantI.Car.Driver.GUID] < bestDriverLaps[entrantJ.Car.Driver.GUID]
 }
 
-func FewestCollisionsRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func FewestCollisionsRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	sort.Slice(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 		entrantICrashes := entrantI.SessionResults.GetCrashes(entrantI.Car.Driver.GUID, entrantI.Car.Model)
@@ -396,7 +397,7 @@ func FewestCollisionsRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeek
 	return nil
 }
 
-func FewestCutsRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func FewestCutsRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	sort.Slice(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 		entrantICuts := entrantI.SessionResults.GetCuts(entrantI.Car.Driver.GUID, entrantI.Car.Model)
@@ -416,7 +417,7 @@ func FewestCutsRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSes
 	return nil
 }
 
-func SafetyRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func SafetyRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	sort.Slice(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 		entrantICrashes := entrantI.SessionResults.GetCrashes(entrantI.Car.Driver.GUID, entrantI.Car.Model)
@@ -442,7 +443,7 @@ func SafetyRaceWeekendEntryListSort(rw *RaceWeekend, session *RaceWeekendSession
 	return nil
 }
 
-func RandomRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func RandomRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	r.Shuffle(len(entrants), func(i, j int) {
@@ -452,7 +453,7 @@ func RandomRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession, entra
 	return nil
 }
 
-func AlphabeticalRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func AlphabeticalRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	sort.Slice(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 
@@ -464,7 +465,7 @@ func AlphabeticalRaceWeekendEntryListSort(_ *RaceWeekend, _ *RaceWeekendSession,
 
 type ChampionshipStandingsOrderEntryListSort struct{}
 
-func (ChampionshipStandingsOrderEntryListSort) Sort(rw *RaceWeekend, _ *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func (ChampionshipStandingsOrderEntryListSort) Sort(rw *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	if !rw.HasLinkedChampionship() || rw.Championship == nil {
 		return nil
 	}
@@ -500,7 +501,7 @@ func (ChampionshipStandingsOrderEntryListSort) Sort(rw *RaceWeekend, _ *RaceWeek
 
 type ChampionshipClassSort struct{}
 
-func (ChampionshipClassSort) Sort(rw *RaceWeekend, _ *RaceWeekendSession, entrants []*RaceWeekendSessionEntrant, _ *RaceWeekendSessionToSessionFilter) error {
+func (ChampionshipClassSort) Sort(rw *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {
 	if !rw.HasLinkedChampionship() || rw.Championship == nil {
 		return nil
 	}
@@ -516,7 +517,7 @@ func (ChampionshipClassSort) Sort(rw *RaceWeekend, _ *RaceWeekendSession, entran
 	return nil
 }
 
-func sortDriversWithNoChampionshipRacesToBackOfGrid(championship *Championship, entrants []*RaceWeekendSessionEntrant) {
+func sortDriversWithNoChampionshipRacesToBackOfGrid(championship *smmodel.Championship, entrants []*smmodel.RaceWeekendSessionEntrant) {
 	sort.SliceStable(entrants, func(i, j int) bool {
 		entrantI, entrantJ := entrants[i], entrants[j]
 

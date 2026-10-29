@@ -176,14 +176,14 @@ func (rs *JSONStore) decodeFile(path, filename string, out interface{}) error {
 	return enc.Decode(out)
 }
 
-func (rs *JSONStore) UpsertCustomRace(race *CustomRace) error {
+func (rs *JSONStore) UpsertCustomRace(race *smmodel.CustomRace) error {
 	race.Updated = time.Now()
 
 	return rs.encodeFile(rs.shared, filepath.Join(customRacesDir, race.UUID.String()+".json"), race)
 }
 
-func (rs *JSONStore) FindCustomRaceByID(uuid string) (*CustomRace, error) {
-	var customRace *CustomRace
+func (rs *JSONStore) FindCustomRaceByID(uuid string) (*smmodel.CustomRace, error) {
+	var customRace *smmodel.CustomRace
 
 	err := rs.decodeFile(rs.shared, filepath.Join(customRacesDir, uuid+".json"), &customRace)
 
@@ -196,14 +196,14 @@ func (rs *JSONStore) FindCustomRaceByID(uuid string) (*CustomRace, error) {
 	return customRace, nil
 }
 
-func (rs *JSONStore) ListCustomRaces() ([]*CustomRace, error) {
+func (rs *JSONStore) ListCustomRaces() ([]*smmodel.CustomRace, error) {
 	files, err := rs.listFiles(filepath.Join(rs.shared, customRacesDir))
 
 	if err != nil {
 		return nil, err
 	}
 
-	var customRaces []*CustomRace
+	var customRaces []*smmodel.CustomRace
 
 	for _, file := range files {
 		race, err := rs.FindCustomRaceByID(file)
@@ -222,7 +222,7 @@ func (rs *JSONStore) ListCustomRaces() ([]*CustomRace, error) {
 	return customRaces, nil
 }
 
-func (rs *JSONStore) DeleteCustomRace(race *CustomRace) error {
+func (rs *JSONStore) DeleteCustomRace(race *smmodel.CustomRace) error {
 	race.Deleted = time.Now()
 
 	return rs.UpsertCustomRace(race)
@@ -313,20 +313,20 @@ func (rs *JSONStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, erro
 	return out, err
 }
 
-func (rs *JSONStore) UpsertChampionship(c *Championship) error {
+func (rs *JSONStore) UpsertChampionship(c *smmodel.Championship) error {
 	c.Updated = time.Now()
 
 	return rs.encodeFile(rs.shared, filepath.Join(championshipsDir, c.ID.String()+".json"), c)
 }
 
-func (rs *JSONStore) ListChampionships() ([]*Championship, error) {
+func (rs *JSONStore) ListChampionships() ([]*smmodel.Championship, error) {
 	files, err := rs.listFiles(filepath.Join(rs.shared, championshipsDir))
 
 	if err != nil {
 		return nil, err
 	}
 
-	var championships []*Championship
+	var championships []*smmodel.Championship
 
 	for _, file := range files {
 		c, err := rs.LoadChampionship(file)
@@ -345,8 +345,8 @@ func (rs *JSONStore) ListChampionships() ([]*Championship, error) {
 	return championships, nil
 }
 
-func (rs *JSONStore) LoadChampionship(id string) (*Championship, error) {
-	var championship *Championship
+func (rs *JSONStore) LoadChampionship(id string) (*smmodel.Championship, error) {
+	var championship *smmodel.Championship
 
 	err := rs.decodeFile(rs.shared, filepath.Join(championshipsDir, id+".json"), &championship)
 
@@ -508,14 +508,14 @@ func (rs *JSONStore) AddAuditEntry(entry *smmodel.AuditEntry) error {
 	return rs.encodeFile(rs.base, auditFile, entries)
 }
 
-func (rs *JSONStore) ListRaceWeekends() ([]*RaceWeekend, error) {
+func (rs *JSONStore) ListRaceWeekends() ([]*smmodel.RaceWeekend, error) {
 	files, err := rs.listFiles(filepath.Join(rs.shared, raceWeekendsDir))
 
 	if err != nil {
 		return nil, err
 	}
 
-	var raceWeekends []*RaceWeekend
+	var raceWeekends []*smmodel.RaceWeekend
 
 	for _, file := range files {
 		rw, err := rs.LoadRaceWeekend(file)
@@ -534,19 +534,19 @@ func (rs *JSONStore) ListRaceWeekends() ([]*RaceWeekend, error) {
 	return raceWeekends, nil
 }
 
-func (rs *JSONStore) UpsertRaceWeekend(rw *RaceWeekend) error {
+func (rs *JSONStore) UpsertRaceWeekend(rw *smmodel.RaceWeekend) error {
 	rw.Updated = time.Now()
 
 	return rs.encodeFile(rs.shared, filepath.Join(raceWeekendsDir, rw.ID.String()+".json"), rw)
 }
 
-func (rs *JSONStore) LoadRaceWeekend(id string) (*RaceWeekend, error) {
-	var raceWeekend *RaceWeekend
+func (rs *JSONStore) LoadRaceWeekend(id string) (*smmodel.RaceWeekend, error) {
+	var raceWeekend *smmodel.RaceWeekend
 
 	err := rs.decodeFile(rs.shared, filepath.Join(raceWeekendsDir, id+".json"), &raceWeekend)
 
 	if os.IsNotExist(err) {
-		return nil, ErrRaceWeekendNotFound
+		return nil, smmodel.ErrRaceWeekendNotFound
 	} else if err != nil {
 		return nil, err
 	}
@@ -645,8 +645,8 @@ func (rs *JSONStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, e
 	return lt, err
 }
 
-func (rs *JSONStore) UpsertLastRaceEvent(r RaceEvent) error {
-	raceEvent, err := marshalRaceEvent(r)
+func (rs *JSONStore) UpsertLastRaceEvent(r smmodel.RaceEvent) error {
+	raceEvent, err := smmodel.MarshalRaceEvent(r)
 
 	if err != nil {
 		return err
@@ -655,7 +655,7 @@ func (rs *JSONStore) UpsertLastRaceEvent(r RaceEvent) error {
 	return rs.writeFile(rs.base, lastRaceEventFile, raceEvent)
 }
 
-func (rs *JSONStore) LoadLastRaceEvent() (RaceEvent, error) {
+func (rs *JSONStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
 	data, err := rs.readFile(rs.base, lastRaceEventFile)
 
 	if os.IsNotExist(err) {
@@ -665,7 +665,7 @@ func (rs *JSONStore) LoadLastRaceEvent() (RaceEvent, error) {
 		return nil, err
 	}
 
-	return unmarshalRaceEvent(data)
+	return smmodel.UnmarshalRaceEvent(data)
 }
 
 func (rs *JSONStore) ClearLastRaceEvent() error {

@@ -1,8 +1,9 @@
 package servermanager
 
 import (
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"bytes"
 	"context"
@@ -66,15 +67,15 @@ type ContentManagerWrapperData struct {
 
 type CMAssists struct {
 	ABSState             serverconfig.FactoryAssist `json:"absState"`
-	AllowedTyresOut      int           `json:"allowedTyresOut"`
-	AutoClutchAllowed    bool          `json:"autoclutchAllowed"`
-	DamageMultiplier     int           `json:"damageMultiplier"`
-	ForceVirtualMirror   bool          `json:"forceVirtualMirror"`
-	FuelRate             int           `json:"fuelRate"`
-	StabilityAllowed     bool          `json:"stabilityAllowed"`
+	AllowedTyresOut      int                        `json:"allowedTyresOut"`
+	AutoClutchAllowed    bool                       `json:"autoclutchAllowed"`
+	DamageMultiplier     int                        `json:"damageMultiplier"`
+	ForceVirtualMirror   bool                       `json:"forceVirtualMirror"`
+	FuelRate             int                        `json:"fuelRate"`
+	StabilityAllowed     bool                       `json:"stabilityAllowed"`
 	TractionControlState serverconfig.FactoryAssist `json:"tcState"`
-	TyreBlanketsAllowed  bool          `json:"tyreBlanketsAllowed"`
-	TyreWearRate         int           `json:"tyreWearRate"`
+	TyreBlanketsAllowed  bool                       `json:"tyreBlanketsAllowed"`
+	TyreWearRate         int                        `json:"tyreWearRate"`
 }
 
 type CMContent struct {
@@ -117,7 +118,7 @@ type ContentManagerWrapper struct {
 	reverseProxy *httputil.ReverseProxy
 	serverConfig serverconfig.ServerConfig
 	entryList    serverconfig.EntryList
-	event        RaceEvent
+	event        smmodel.RaceEvent
 
 	srv         *http.Server
 	description string
@@ -177,7 +178,7 @@ func (cmw *ContentManagerWrapper) UDPCallback(message udp.Message) {
 type contentManagerDescriptionTemplateOpts struct {
 	serverconfig.GlobalServerConfig
 	serverconfig.CurrentRaceConfig
-	RaceEvent
+	smmodel.RaceEvent
 
 	EventDescription   string
 	ChampionshipPoints string
@@ -186,7 +187,7 @@ type contentManagerDescriptionTemplateOpts struct {
 	ServerName         string
 }
 
-func (cmw *ContentManagerWrapper) setDescriptionText(event RaceEvent) error {
+func (cmw *ContentManagerWrapper) setDescriptionText(event smmodel.RaceEvent) error {
 	text, err := html2text.FromString(cmw.serverConfig.GlobalServerConfig.ContentManagerWelcomeMessage)
 
 	if err != nil {
@@ -201,13 +202,13 @@ func (cmw *ContentManagerWrapper) setDescriptionText(event RaceEvent) error {
 
 	var champPoints string
 
-	if champ, ok := cmw.event.(*ActiveChampionship); ok {
+	if champ, ok := cmw.event.(*smmodel.ActiveChampionship); ok {
 		if u := champ.GetURL(cmw.config.HTTP.BaseURL); u != "" {
 			champPoints = fmt.Sprintf("\n\nView the Championship points here: %s", u)
 		}
 	}
 
-	if raceWeekend, ok := cmw.event.(*ActiveRaceWeekend); ok {
+	if raceWeekend, ok := cmw.event.(*smmodel.ActiveRaceWeekend); ok {
 		if u := raceWeekend.GetURL(cmw.config.HTTP.BaseURL); u != "" && raceWeekend.ChampionshipID != uuid.Nil {
 			champPoints = fmt.Sprintf("\n\nView the Championship points here: %s", u)
 		}
@@ -280,7 +281,7 @@ type cmwSessionLogger interface {
 	Logs() string
 }
 
-func (cmw *ContentManagerWrapper) Start(servePort int, event RaceEvent, logger cmwSessionLogger) error {
+func (cmw *ContentManagerWrapper) Start(servePort int, event smmodel.RaceEvent, logger cmwSessionLogger) error {
 	cmw.mutex.Lock()
 	cmw.logger = logger
 
@@ -492,11 +493,11 @@ func (cmw *ContentManagerWrapper) buildContentManagerDetails(guid string) (*Cont
 	var description string
 	var championshipID uuid.UUID
 
-	if champ, ok := cmw.event.(*ActiveChampionship); ok {
+	if champ, ok := cmw.event.(*smmodel.ActiveChampionship); ok {
 		championshipID = champ.ChampionshipID
 	}
 
-	if raceWeekend, ok := cmw.event.(*ActiveRaceWeekend); ok {
+	if raceWeekend, ok := cmw.event.(*smmodel.ActiveRaceWeekend); ok {
 		championshipID = raceWeekend.ChampionshipID
 	}
 

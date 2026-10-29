@@ -21,10 +21,10 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 	race.ScheduledServerID = serverID
 
 	if race.ScheduledEvents == nil {
-		race.ScheduledEvents = make(map[smmodel.ServerID]*ScheduledEventBase)
+		race.ScheduledEvents = make(map[smmodel.ServerID]*smmodel.ScheduledEventBase)
 	}
 
-	race.ScheduledEvents[serverID] = &ScheduledEventBase{
+	race.ScheduledEvents[serverID] = &smmodel.ScheduledEventBase{
 		Scheduled:         race.Scheduled,
 		ScheduledInitial:  race.ScheduledInitial,
 		Recurrence:        race.Recurrence,
@@ -105,10 +105,10 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 	return rm.store.UpsertCustomRace(race)
 }
 
-func eventSchedulePlugin(race *CustomRace) error {
+func eventSchedulePlugin(race *smmodel.CustomRace) error {
 	p := NewLuaPlugin()
 
-	newRace := &CustomRace{}
+	newRace := &smmodel.CustomRace{}
 
 	p.Inputs(race).Outputs(newRace)
 	err := p.Call("./plugins/events.lua", "onEventSchedule")
@@ -122,7 +122,7 @@ func eventSchedulePlugin(race *CustomRace) error {
 	return nil
 }
 
-func (rm *RaceManager) StartScheduledRace(race *CustomRace) error {
+func (rm *RaceManager) StartScheduledRace(race *smmodel.CustomRace) error {
 	startedRace, err := rm.StartCustomRace(race.UUID.String(), false)
 
 	if err != nil {
@@ -139,7 +139,7 @@ func (rm *RaceManager) StartScheduledRace(race *CustomRace) error {
 	return rm.store.UpsertCustomRace(startedRace)
 }
 
-func (rm *RaceManager) ScheduleNextFromRecurrence(race *CustomRace) error {
+func (rm *RaceManager) ScheduleNextFromRecurrence(race *smmodel.CustomRace) error {
 	// set the scheduled time to the next iteration of the recurrence rule
 	nextRecurrence := rm.FindNextRecurrence(race, race.Scheduled)
 
@@ -152,7 +152,7 @@ func (rm *RaceManager) ScheduleNextFromRecurrence(race *CustomRace) error {
 	return rm.ScheduleRace(race.UUID.String(), nextRecurrence, "add", "already-set")
 }
 
-func (rm *RaceManager) FindNextRecurrence(race *CustomRace, start time.Time) time.Time {
+func (rm *RaceManager) FindNextRecurrence(race *smmodel.CustomRace, start time.Time) time.Time {
 	rule, err := race.GetRecurrenceRule()
 
 	if err != nil {
@@ -266,7 +266,7 @@ func (rm *RaceManager) InitScheduledRaces() error {
 						" Start time: %s. The schedule has been cleared. Start the event manually if you wish to run it.", race.Scheduled.String())
 
 					race.Scheduled = emptyTime
-					race.ScheduledEvents = make(map[smmodel.ServerID]*ScheduledEventBase)
+					race.ScheduledEvents = make(map[smmodel.ServerID]*smmodel.ScheduledEventBase)
 
 					err := rm.store.UpsertCustomRace(race)
 

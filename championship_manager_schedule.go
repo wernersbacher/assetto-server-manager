@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	"errors"
@@ -100,16 +101,16 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 	return cm.UpsertChampionship(championship)
 }
 
-func championshipEventSchedulePlugin(championship *Championship, event *ChampionshipEvent) error {
+func championshipEventSchedulePlugin(championship *smmodel.Championship, event *smmodel.ChampionshipEvent) error {
 	p := NewLuaPlugin()
 
-	var standings [][]*ChampionshipStanding
+	var standings [][]*smmodel.ChampionshipStanding
 
 	for _, class := range championship.Classes {
 		standings = append(standings, class.Standings(championship, championship.Events))
 	}
 
-	newEvent, newChampionship := NewChampionshipEvent(), NewChampionship(championship.Name)
+	newEvent, newChampionship := smmodel.NewChampionshipEvent(), smmodel.NewChampionship(championship.Name)
 
 	p.Inputs(event, championship, standings).Outputs(newEvent, newChampionship)
 	err := p.Call("./plugins/championship.lua", "onChampionshipEventSchedule")
@@ -127,7 +128,7 @@ func championshipEventSchedulePlugin(championship *Championship, event *Champion
 // captured when the timer was created, so they may be outdated (results, entrants, edits or sign-ups could have been
 // saved in the meantime). Only their IDs and scheduled time are used: everything else is reloaded from the store.
 // If the championship or event was deleted, or the event's schedule was changed or removed, nothing is started.
-func (cm *ChampionshipManager) StartScheduledEvent(championship *Championship, event *ChampionshipEvent) error {
+func (cm *ChampionshipManager) StartScheduledEvent(championship *smmodel.Championship, event *smmodel.ChampionshipEvent) error {
 	championshipID, eventID, scheduled := championship.ID.String(), event.ID.String(), event.Scheduled
 
 	championship, err := cm.store.LoadChampionship(championshipID)
@@ -178,12 +179,12 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *Championship, e
 	return cm.StartEvent(championshipID, eventID, false)
 }
 
-func (cm *ChampionshipManager) ScheduleNextEventFromRecurrence(championship *Championship, event *ChampionshipEvent) error {
+func (cm *ChampionshipManager) ScheduleNextEventFromRecurrence(championship *smmodel.Championship, event *smmodel.ChampionshipEvent) error {
 	// make sure the championship is on the event
 	event.SetChampionship(championship)
 
 	// duplicate the event with new ID and no schedule/completed time
-	eventCopy := DuplicateChampionshipEvent(event)
+	eventCopy := smmodel.DuplicateChampionshipEvent(event)
 	championship.Events = append(championship.Events, eventCopy)
 
 	err := cm.UpsertChampionship(championship)
@@ -195,7 +196,7 @@ func (cm *ChampionshipManager) ScheduleNextEventFromRecurrence(championship *Cha
 	return cm.ScheduleEvent(championship.ID.String(), eventCopy.ID.String(), cm.FindNextEventRecurrence(event, event.Scheduled), "add", "already-set")
 }
 
-func (cm *ChampionshipManager) FindNextEventRecurrence(event *ChampionshipEvent, start time.Time) time.Time {
+func (cm *ChampionshipManager) FindNextEventRecurrence(event *smmodel.ChampionshipEvent, start time.Time) time.Time {
 	rule, err := event.GetRecurrenceRule()
 
 	if err != nil {

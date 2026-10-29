@@ -107,12 +107,12 @@ func TestRaceManager_ScheduleRaceKeepsAllReminders(t *testing.T) {
 	rm := cm.RaceManager
 	rm.notificationManager = &reminderNotificationManager{reminders: []int{120, 15}}
 
-	race := &CustomRace{
+	race := &smmodel.CustomRace{
 		Name:            "Scheduled Race",
 		UUID:            uuid.New(),
 		RaceConfig:      serverconfig.ConfigIniDefault().CurrentRaceConfig,
 		EntryList:       serverconfig.EntryList{},
-		ScheduledEvents: make(map[smmodel.ServerID]*ScheduledEventBase),
+		ScheduledEvents: make(map[smmodel.ServerID]*smmodel.ScheduledEventBase),
 	}
 
 	if err := store.UpsertCustomRace(race); err != nil {
@@ -153,8 +153,8 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 	notificationManager := &reminderNotificationManager{reminders: []int{120, 15}}
 	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, cm.carManager)
 
-	raceWeekend := NewRaceWeekend()
-	session := NewRaceWeekendSession()
+	raceWeekend := smmodel.NewRaceWeekend()
+	session := smmodel.NewRaceWeekendSession()
 	raceWeekend.AddSession(session, nil)
 
 	if err := store.UpsertRaceWeekend(raceWeekend); err != nil {

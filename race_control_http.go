@@ -160,7 +160,7 @@ func NewRaceControlHandler(baseHandler *BaseHandler, store Store, raceManager *R
 type liveTimingTemplateVars struct {
 	BaseTemplateVars
 
-	RaceDetails                 *CustomRace
+	RaceDetails                 *smmodel.CustomRace
 	FrameLinks                  []string
 	CSSDotSmoothing             int
 	CMJoinLink                  string
@@ -174,10 +174,10 @@ type liveTimingTemplateVars struct {
 func (rch *RaceControlHandler) liveTiming(w http.ResponseWriter, r *http.Request) {
 	currentRace, entryList := rch.raceManager.CurrentRace()
 
-	var customRace *CustomRace
+	var customRace *smmodel.CustomRace
 
 	if currentRace != nil {
-		customRace = &CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
+		customRace = &smmodel.CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
 	}
 
 	frameLinks, err := rch.store.ListPrevFrames()

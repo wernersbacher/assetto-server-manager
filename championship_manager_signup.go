@@ -11,6 +11,7 @@ import (
 	"github.com/haisum/recaptcha"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type ValidationError string
@@ -21,7 +22,7 @@ func (e ValidationError) Error() string {
 
 var steamGUIDRegex = regexp.MustCompile("^[0-9]{17}(;[0-9]{17})*$")
 
-func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (response *ChampionshipSignUpResponse, foundSlot bool, err error) {
+func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (response *smmodel.ChampionshipSignUpResponse, foundSlot bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, false, err
 	}
@@ -32,7 +33,7 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		return nil, false, err
 	}
 
-	signUpResponse := &ChampionshipSignUpResponse{
+	signUpResponse := &smmodel.ChampionshipSignUpResponse{
 		Created: time.Now(),
 		Name:    strings.TrimSpace(r.FormValue("Name")),
 		GUID:    serverconfig.NormaliseEntrantGUID(r.FormValue("GUID")),
@@ -43,7 +44,7 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		Skin: r.FormValue("Skin"),
 
 		Questions: make(map[string]string),
-		Status:    ChampionshipEntrantPending,
+		Status:    smmodel.ChampionshipEntrantPending,
 	}
 
 	for index, question := range championship.SignUpForm.ExtraFields {
@@ -79,9 +80,9 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		}
 
 		if foundSlot {
-			signUpResponse.Status = ChampionshipEntrantAccepted
+			signUpResponse.Status = smmodel.ChampionshipEntrantAccepted
 		} else {
-			signUpResponse.Status = ChampionshipEntrantRejected
+			signUpResponse.Status = smmodel.ChampionshipEntrantRejected
 		}
 	}
 

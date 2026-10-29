@@ -151,13 +151,13 @@ func InitWithResolver(resolver *Resolver) error {
 			var err error
 
 			switch a := lastEvent.(type) {
-			case *ActiveChampionship:
+			case *smmodel.ActiveChampionship:
 				if !a.IsPractice() {
 					err = championshipManager.applyConfigAndStart(a)
 				} else {
 					err = raceManager.applyConfigAndStart(a)
 				}
-			case *ActiveRaceWeekend:
+			case *smmodel.ActiveRaceWeekend:
 				if !a.IsPractice() {
 					err = raceWeekendManager.applyConfigAndStart(a)
 				} else {

@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -21,12 +22,12 @@ import (
 type interruptibleServerProcess struct {
 	dummyServerProcess
 
-	event   RaceEvent
-	started []RaceEvent
+	event   smmodel.RaceEvent
+	started []smmodel.RaceEvent
 	stopped int
 }
 
-func (p *interruptibleServerProcess) Start(event RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
+func (p *interruptibleServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
 	if p.IsRunning() {
 		_ = p.Stop()
 	}
@@ -48,9 +49,9 @@ func (p *interruptibleServerProcess) IsRunning() bool {
 	return p.event != nil
 }
 
-func (p *interruptibleServerProcess) Event() RaceEvent {
+func (p *interruptibleServerProcess) Event() smmodel.RaceEvent {
 	if p.event == nil {
-		return QuickRace{}
+		return smmodel.QuickRace{}
 	}
 
 	return p.event
@@ -93,11 +94,11 @@ func setupScheduledEventTest(t *testing.T, process ServerProcess) (*Championship
 	}
 }
 
-func newScheduledTestChampionship(t *testing.T, store Store, scheduled ...time.Time) *Championship {
-	championship := NewChampionship("Scheduled Championship")
+func newScheduledTestChampionship(t *testing.T, store Store, scheduled ...time.Time) *smmodel.Championship {
+	championship := smmodel.NewChampionship("Scheduled Championship")
 
 	for _, scheduledTime := range scheduled {
-		event := NewChampionshipEvent()
+		event := smmodel.NewChampionshipEvent()
 		event.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 		event.Scheduled = scheduledTime
 		event.ScheduledServerID = serverID
@@ -143,7 +144,7 @@ func TestChampionshipManager_StartScheduledEventInterruptsPractice(t *testing.T)
 		t.Fatalf("expected practice and scheduled event to have been started, got %d starts", len(process.started))
 	}
 
-	running, ok := process.Event().(*ActiveChampionship)
+	running, ok := process.Event().(*smmodel.ActiveChampionship)
 
 	if !ok || running.IsPractice() || running.EventID != event.ID || running.ChampionshipID != championship.ID {
 		t.Fatalf("expected the scheduled championship event to be running, got: %#v", process.Event())
@@ -186,7 +187,7 @@ func TestChampionshipManager_InitScheduledChampionships(t *testing.T) {
 		}
 	}()
 
-	for _, c := range []*Championship{championship, other} {
+	for _, c := range []*smmodel.Championship{championship, other} {
 		for _, event := range c.Events {
 			timer, ok := cm.championshipEventStartTimers[event.ID.String()]
 
@@ -220,7 +221,7 @@ func TestChampionshipManager_InitScheduledChampionships(t *testing.T) {
 }
 
 // newRecurringTestChampionship creates a championship with one recurring event that is due at the given time.
-func newRecurringTestChampionship(t *testing.T, store Store, due time.Time) *Championship {
+func newRecurringTestChampionship(t *testing.T, store Store, due time.Time) *smmodel.Championship {
 	championship := newScheduledTestChampionship(t, store, due)
 
 	if err := championship.Events[0].SetRecurrenceRule("FREQ=DAILY"); err != nil {
@@ -264,7 +265,7 @@ func TestChampionshipManager_StartScheduledEventRecurrenceKeepsNewerChanges(t *t
 
 	fresh.Name = "Renamed Since"
 	fresh.Events[0].CompletedTime = time.Now()
-	fresh.Classes = append(fresh.Classes, NewChampionshipClass("Added Since"))
+	fresh.Classes = append(fresh.Classes, smmodel.NewChampionshipClass("Added Since"))
 
 	if err := store.UpsertChampionship(fresh); err != nil {
 		t.Fatal(err)

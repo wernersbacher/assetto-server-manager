@@ -15,6 +15,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 var ErrMustSubmitCar = errors.New("servermanager: you must set a car")
@@ -145,7 +146,7 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 
 	quickRace.MaxClients = numPitboxes
 
-	return rm.applyConfigAndStart(&QuickRace{
+	return rm.applyConfigAndStart(&smmodel.QuickRace{
 		RaceConfig: quickRace,
 		EntryList:  entryList,
 	})

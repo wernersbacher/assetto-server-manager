@@ -1,4 +1,4 @@
-package servermanager
+package model
 
 import (
 	"bytes"
@@ -884,14 +884,14 @@ func TestActiveChampionship_Password(t *testing.T) {
 		t.Errorf("expected override password secret, got %v %q", a.OverrideServerPassword(), a.ReplacementServerPassword())
 	}
 
-	if a.EventName(trackSummary) != "Champ" {
-		t.Errorf("unexpected event name %q", a.EventName(trackSummary))
+	if a.EventName(nil) != "Champ" {
+		t.Errorf("unexpected event name %q", a.EventName(nil))
 	}
 
 	a.IsPracticeSession = true
 
-	if a.EventName(trackSummary) != "Champ - Looping Practice" {
-		t.Errorf("unexpected practice event name %q", a.EventName(trackSummary))
+	if a.EventName(nil) != "Champ - Looping Practice" {
+		t.Errorf("unexpected practice event name %q", a.EventName(nil))
 	}
 
 	if (&ActiveChampionship{}).OverrideServerPassword() {

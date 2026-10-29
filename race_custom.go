@@ -1,134 +1,17 @@
 package servermanager
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-
 	"fmt"
 	"net/http"
 	"time"
 
 	"4d63.com/tz"
 	"github.com/go-chi/chi"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
-
-type CustomRace struct {
-	ScheduledEventBase
-
-	Name                            string
-	HasCustomName, OverridePassword bool
-	ReplacementPassword             string
-
-	Created time.Time
-	Updated time.Time
-	Deleted time.Time
-	UUID    uuid.UUID
-	Starred bool
-	// Deprecated: Replaced by LoopServer
-	Loop       bool
-	LoopServer map[smmodel.ServerID]bool
-
-	TimeAttackCombinedResultFile string
-
-	ForceStopTime        int
-	ForceStopWithDrivers bool
-
-	RaceConfig serverconfig.CurrentRaceConfig
-	EntryList  serverconfig.EntryList
-
-	ScheduledEvents map[smmodel.ServerID]*ScheduledEventBase
-}
-
-func (cr *CustomRace) GetRaceConfig() serverconfig.CurrentRaceConfig {
-	return cr.RaceConfig
-}
-
-func (cr *CustomRace) GetEntryList() serverconfig.EntryList {
-	return cr.EntryList
-}
-
-func (cr *CustomRace) IsLooping(serverID smmodel.ServerID) bool {
-	if cr.LoopServer == nil {
-		return false
-	}
-
-	return cr.LoopServer[serverID]
-}
-
-func (cr *CustomRace) EventName(trackSummary TrackSummaryFunc) string {
-	if cr.HasCustomName {
-		return cr.Name
-	}
-
-	return trackSummary(cr.RaceConfig.Track, cr.RaceConfig.TrackLayout)
-}
-
-func (cr *CustomRace) OverrideServerPassword() bool {
-	return cr.OverridePassword
-}
-
-func (cr *CustomRace) ReplacementServerPassword() string {
-	return cr.ReplacementPassword
-}
-
-func (cr *CustomRace) IsChampionship() bool {
-	return false
-}
-
-func (cr *CustomRace) IsPractice() bool {
-	return false
-}
-
-func (cr *CustomRace) IsRaceWeekend() bool {
-	return false
-}
-
-func (cr *CustomRace) IsTimeAttack() bool {
-	return cr.RaceConfig.TimeAttack
-}
-
-func (cr *CustomRace) HasSignUpForm() bool {
-	return false
-}
-
-func (cr *CustomRace) GetID() uuid.UUID {
-	return cr.UUID
-}
-
-func (cr *CustomRace) GetScheduledServerID() smmodel.ServerID {
-	return cr.ScheduledServerID
-}
-
-func (cr *CustomRace) GetRaceSetup() serverconfig.CurrentRaceConfig {
-	return cr.RaceConfig
-}
-
-func (cr *CustomRace) GetSummary() string {
-	return ""
-}
-
-func (cr *CustomRace) GetURL() string {
-	return ""
-}
-
-func (cr *CustomRace) EventDescription() string {
-	return ""
-}
-
-func (cr *CustomRace) ReadOnlyEntryList() serverconfig.EntryList {
-	return cr.EntryList
-}
-
-func (cr *CustomRace) GetForceStopTime() time.Duration {
-	return time.Minute * time.Duration(cr.ForceStopTime)
-}
-
-func (cr *CustomRace) GetForceStopWithDrivers() bool {
-	return cr.ForceStopWithDrivers
-}
 
 type CustomRaceHandler struct {
 	*BaseHandler
@@ -154,7 +37,7 @@ func NewCustomRaceHandler(config *smconfig.Configuration, base *BaseHandler, rac
 type customRaceListTemplateVars struct {
 	BaseTemplateVars
 
-	Recent, Starred, Loop, Scheduled []*CustomRace
+	Recent, Starred, Loop, Scheduled []*smmodel.CustomRace
 }
 
 func (crh *CustomRaceHandler) list(w http.ResponseWriter, r *http.Request) {

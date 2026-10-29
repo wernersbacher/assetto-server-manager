@@ -1,4 +1,4 @@
-package servermanager
+package model
 
 type ChampionshipTab string
 

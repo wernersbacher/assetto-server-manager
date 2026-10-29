@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 // The upcoming races API exposes what the calendar shows (the scheduled custom races, championship events and race
@@ -118,11 +119,11 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 	}
 
 	switch e := event.(type) {
-	case *CustomRace:
+	case *smmodel.CustomRace:
 		out.Kind = APIUpcomingKindCustomRace
 		out.Name = e.EventName(trackSummary)
 		out.Recurrence = e.Recurrence
-	case *ChampionshipEvent:
+	case *smmodel.ChampionshipEvent:
 		out.Kind = APIUpcomingKindChampionshipEvent
 		out.Name = trackSummary(setup.Track, setup.TrackLayout)
 		out.Recurrence = e.Recurrence

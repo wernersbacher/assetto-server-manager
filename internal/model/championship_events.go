@@ -1,4 +1,4 @@
-package servermanager
+package model
 
 import (
 	"errors"
@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -255,7 +253,7 @@ func (cr *ChampionshipEvent) GetID() uuid.UUID {
 	return cr.ID
 }
 
-func (cr *ChampionshipEvent) GetScheduledServerID() smmodel.ServerID {
+func (cr *ChampionshipEvent) GetScheduledServerID() ServerID {
 	return cr.ScheduledServerID
 }
 

@@ -85,11 +85,11 @@ func TestStoreContract_CustomRaces(t *testing.T) {
 			t.Errorf("expected ErrCustomRaceNotFound on fresh store, got: %v", err)
 		}
 
-		raceA := &CustomRace{Name: "Race A", UUID: uuid.New(), Starred: true}
-		raceB := &CustomRace{Name: "Race B", UUID: uuid.New()}
+		raceA := &smmodel.CustomRace{Name: "Race A", UUID: uuid.New(), Starred: true}
+		raceB := &smmodel.CustomRace{Name: "Race B", UUID: uuid.New()}
 		raceB.RaceConfig.Track = "ks_vallelunga"
 
-		for _, race := range []*CustomRace{raceA, raceB} {
+		for _, race := range []*smmodel.CustomRace{raceA, raceB} {
 			if err := store.UpsertCustomRace(race); err != nil {
 				t.Fatalf("upsert custom race: %s", err)
 			}
@@ -470,13 +470,13 @@ func TestStoreContract_Championships(t *testing.T) {
 			t.Errorf("expected ErrChampionshipNotFound on fresh store, got: %v", err)
 		}
 
-		champA := NewChampionship("Champ A")
+		champA := smmodel.NewChampionship("Champ A")
 		champA.OpenEntrants = true
-		champA.Events = append(champA.Events, NewChampionshipEvent())
+		champA.Events = append(champA.Events, smmodel.NewChampionshipEvent())
 
-		champB := NewChampionship("Champ B")
+		champB := smmodel.NewChampionship("Champ B")
 
-		for _, c := range []*Championship{champA, champB} {
+		for _, c := range []*smmodel.Championship{champA, champB} {
 			if err := store.UpsertChampionship(c); err != nil {
 				t.Fatalf("upsert championship: %s", err)
 			}
@@ -539,15 +539,15 @@ func TestStoreContract_Championships(t *testing.T) {
 
 func TestStoreContract_ChampionshipLoadsRaceWeekends(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
-		rw := NewRaceWeekend()
+		rw := smmodel.NewRaceWeekend()
 		rw.Name = "Linked Weekend"
 
 		if err := store.UpsertRaceWeekend(rw); err != nil {
 			t.Fatal(err)
 		}
 
-		champ := NewChampionship("Champ with weekend")
-		event := NewChampionshipEvent()
+		champ := smmodel.NewChampionship("Champ with weekend")
+		event := smmodel.NewChampionshipEvent()
 		event.RaceWeekendID = rw.ID
 		champ.Events = append(champ.Events, event)
 
@@ -583,18 +583,18 @@ func TestStoreContract_RaceWeekends(t *testing.T) {
 			t.Fatalf("expected no race weekends in empty store, got %d", len(raceWeekends))
 		}
 
-		if _, err := store.LoadRaceWeekend(uuid.New().String()); err != ErrRaceWeekendNotFound {
+		if _, err := store.LoadRaceWeekend(uuid.New().String()); err != smmodel.ErrRaceWeekendNotFound {
 			t.Errorf("expected ErrRaceWeekendNotFound on fresh store, got: %v", err)
 		}
 
-		rwA := NewRaceWeekend()
+		rwA := smmodel.NewRaceWeekend()
 		rwA.Name = "Weekend A"
 		rwA.SpectatorCarEnabled = true
 
-		rwB := NewRaceWeekend()
+		rwB := smmodel.NewRaceWeekend()
 		rwB.Name = "Weekend B"
 
-		for _, rw := range []*RaceWeekend{rwA, rwB} {
+		for _, rw := range []*smmodel.RaceWeekend{rwA, rwB} {
 			if err := store.UpsertRaceWeekend(rw); err != nil {
 				t.Fatalf("upsert race weekend: %s", err)
 			}
@@ -614,7 +614,7 @@ func TestStoreContract_RaceWeekends(t *testing.T) {
 			t.Errorf("race weekend did not round-trip: %+v", loaded)
 		}
 
-		if _, err := store.LoadRaceWeekend(uuid.New().String()); err != ErrRaceWeekendNotFound {
+		if _, err := store.LoadRaceWeekend(uuid.New().String()); err != smmodel.ErrRaceWeekendNotFound {
 			t.Errorf("expected ErrRaceWeekendNotFound, got: %v", err)
 		}
 
@@ -649,7 +649,7 @@ func TestStoreContract_RaceWeekends(t *testing.T) {
 			t.Errorf("expected soft-deleted race weekend to have Deleted set")
 		}
 
-		if err := store.DeleteRaceWeekend(uuid.New().String()); err != ErrRaceWeekendNotFound {
+		if err := store.DeleteRaceWeekend(uuid.New().String()); err != smmodel.ErrRaceWeekendNotFound {
 			t.Errorf("expected ErrRaceWeekendNotFound deleting a missing race weekend, got: %v", err)
 		}
 	})
@@ -715,7 +715,7 @@ func TestStoreContract_LastRaceEvent(t *testing.T) {
 			t.Errorf("expected (nil, nil) on fresh store, got (%T, %v)", loaded, err)
 		}
 
-		race := &CustomRace{Name: "Last Race", UUID: uuid.New()}
+		race := &smmodel.CustomRace{Name: "Last Race", UUID: uuid.New()}
 		race.RaceConfig.Track = "spa"
 
 		if err := store.UpsertLastRaceEvent(race); err != nil {
@@ -728,7 +728,7 @@ func TestStoreContract_LastRaceEvent(t *testing.T) {
 			t.Fatalf("load last race event: %s", err)
 		}
 
-		loadedRace, ok := loaded.(*CustomRace)
+		loadedRace, ok := loaded.(*smmodel.CustomRace)
 
 		if !ok {
 			t.Fatalf("expected *CustomRace, got %T", loaded)
@@ -739,7 +739,7 @@ func TestStoreContract_LastRaceEvent(t *testing.T) {
 		}
 
 		// overwrite with a different event type
-		quick := &QuickRace{}
+		quick := &smmodel.QuickRace{}
 		quick.RaceConfig.Track = "monza"
 
 		if err := store.UpsertLastRaceEvent(quick); err != nil {
@@ -752,7 +752,7 @@ func TestStoreContract_LastRaceEvent(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if q, ok := loaded.(*QuickRace); !ok || q.RaceConfig.Track != "monza" {
+		if q, ok := loaded.(*smmodel.QuickRace); !ok || q.RaceConfig.Track != "monza" {
 			t.Errorf("expected overwritten *QuickRace on monza, got %T %+v", loaded, loaded)
 		}
 
@@ -984,7 +984,7 @@ func assertStringSet(t *testing.T, what string, got []string, expected ...string
 	}
 }
 
-func customRaceNames(races []*CustomRace) []string {
+func customRaceNames(races []*smmodel.CustomRace) []string {
 	var out []string
 
 	for _, r := range races {
@@ -1014,7 +1014,7 @@ func accountNames(accounts []*smmodel.Account) []string {
 	return out
 }
 
-func championshipNames(championships []*Championship) []string {
+func championshipNames(championships []*smmodel.Championship) []string {
 	var out []string
 
 	for _, c := range championships {
@@ -1024,7 +1024,7 @@ func championshipNames(championships []*Championship) []string {
 	return out
 }
 
-func raceWeekendNames(raceWeekends []*RaceWeekend) []string {
+func raceWeekendNames(raceWeekends []*smmodel.RaceWeekend) []string {
 	var out []string
 
 	for _, rw := range raceWeekends {

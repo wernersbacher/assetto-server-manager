@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -25,7 +26,7 @@ type RaceWeekendManager struct {
 	store               Store
 	process             ServerProcess
 
-	activeRaceWeekend *ActiveRaceWeekend
+	activeRaceWeekend *smmodel.ActiveRaceWeekend
 	mutex             sync.Mutex
 
 	scheduledSessionTimers         map[string]*when.Timer
@@ -55,11 +56,11 @@ func NewRaceWeekendManager(
 	}
 }
 
-func (rwm *RaceWeekendManager) ListRaceWeekends() ([]*RaceWeekend, error) {
+func (rwm *RaceWeekendManager) ListRaceWeekends() ([]*smmodel.RaceWeekend, error) {
 	return rwm.store.ListRaceWeekends()
 }
 
-func (rwm *RaceWeekendManager) LoadRaceWeekend(id string) (*RaceWeekend, error) {
+func (rwm *RaceWeekendManager) LoadRaceWeekend(id string) (*smmodel.RaceWeekend, error) {
 	raceWeekend, err := rwm.store.LoadRaceWeekend(id)
 
 	if err != nil {
@@ -115,7 +116,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendTemplateOpts(r *http.Request) (*R
 		return nil, err
 	}
 
-	var raceWeekend *RaceWeekend
+	var raceWeekend *smmodel.RaceWeekend
 	var isEditing bool
 
 	if existingID := chi.URLParam(r, "raceWeekendID"); existingID != "" {
@@ -129,7 +130,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendTemplateOpts(r *http.Request) (*R
 		raceWeekend = currentRaceWeekend
 	} else {
 		isEditing = false
-		raceWeekend = NewRaceWeekend()
+		raceWeekend = smmodel.NewRaceWeekend()
 	}
 
 	var championshipID string
@@ -158,7 +159,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendTemplateOpts(r *http.Request) (*R
 	return opts, nil
 }
 
-func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *RaceWeekend, edited bool, err error) {
+func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *smmodel.RaceWeekend, edited bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, false, err
 	}
@@ -172,7 +173,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *Ra
 
 		edited = true
 	} else {
-		raceWeekend = NewRaceWeekend()
+		raceWeekend = smmodel.NewRaceWeekend()
 	}
 
 	raceWeekend.Name = r.FormValue("RaceWeekendName")
@@ -190,7 +191,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *Ra
 
 		if !edited {
 			// add a championship event for this race weekend
-			event := NewChampionshipEvent()
+			event := smmodel.NewChampionshipEvent()
 			event.RaceWeekendID = raceWeekend.ID
 			event.UseChampionshipRaceSettings = useChampionshipRaceSettings
 
@@ -271,7 +272,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *Ra
 	return raceWeekend, edited, rwm.UpsertRaceWeekend(raceWeekend)
 }
 
-func (rwm *RaceWeekendManager) UpsertRaceWeekend(raceWeekend *RaceWeekend) error {
+func (rwm *RaceWeekendManager) UpsertRaceWeekend(raceWeekend *smmodel.RaceWeekend) error {
 	err := rwm.store.UpsertRaceWeekend(raceWeekend)
 
 	if err != nil {
@@ -285,7 +286,7 @@ func (rwm *RaceWeekendManager) DeleteRaceWeekend(id string) error {
 	return rwm.store.DeleteRaceWeekend(id)
 }
 
-func (rwm *RaceWeekendManager) FindSession(raceWeekendID, sessionID string) (*RaceWeekend, *RaceWeekendSession, error) {
+func (rwm *RaceWeekendManager) FindSession(raceWeekendID, sessionID string) (*smmodel.RaceWeekend, *smmodel.RaceWeekendSession, error) {
 	raceWeekend, err := rwm.LoadRaceWeekend(raceWeekendID)
 
 	if err != nil {
@@ -301,7 +302,7 @@ func (rwm *RaceWeekendManager) FindSession(raceWeekendID, sessionID string) (*Ra
 	return raceWeekend, session, nil
 }
 
-func (rwm *RaceWeekendManager) FindConnectedSessions(raceWeekendID, parentSessionID, childSessionID string) (*RaceWeekend, *RaceWeekendSession, *RaceWeekendSession, error) {
+func (rwm *RaceWeekendManager) FindConnectedSessions(raceWeekendID, parentSessionID, childSessionID string) (*smmodel.RaceWeekend, *smmodel.RaceWeekendSession, *smmodel.RaceWeekendSession, error) {
 	raceWeekend, err := rwm.LoadRaceWeekend(raceWeekendID)
 
 	if err != nil {
@@ -324,7 +325,7 @@ func (rwm *RaceWeekendManager) FindConnectedSessions(raceWeekendID, parentSessio
 }
 
 func (rwm *RaceWeekendManager) ImportRaceWeekend(data string) (string, error) {
-	var raceWeekend *RaceWeekend
+	var raceWeekend *smmodel.RaceWeekend
 
 	err := json.Unmarshal([]byte(data), &raceWeekend)
 

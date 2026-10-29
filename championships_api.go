@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 // The championship API exposes the information that is publicly visible on the championship pages (events,
@@ -91,7 +92,7 @@ type APISession struct {
 	TrackName   string `json:",omitempty"`
 }
 
-func NewAPIChampionship(championship *Championship, baseURL string) *APIChampionship {
+func NewAPIChampionship(championship *smmodel.Championship, baseURL string) *APIChampionship {
 	out := &APIChampionship{
 		ID:               championship.ID,
 		Name:             championship.Name,
@@ -134,7 +135,7 @@ func NewAPIChampionship(championship *Championship, baseURL string) *APIChampion
 	return out
 }
 
-func newAPIChampionshipEvent(event *ChampionshipEvent) *APIChampionshipEvent {
+func newAPIChampionshipEvent(event *smmodel.ChampionshipEvent) *APIChampionshipEvent {
 	setup := event.RaceSetup
 
 	out := &APIChampionshipEvent{
@@ -196,7 +197,7 @@ func newAPIChampionshipEvent(event *ChampionshipEvent) *APIChampionshipEvent {
 	return out
 }
 
-func apiChampionshipSessionStatus(event *ChampionshipEvent, sessionType serverconfig.SessionType, eventStatus APIEventStatus) APIEventStatus {
+func apiChampionshipSessionStatus(event *smmodel.ChampionshipEvent, sessionType serverconfig.SessionType, eventStatus APIEventStatus) APIEventStatus {
 	if session, ok := event.Sessions[sessionType]; ok {
 		if session.Completed() {
 			return APIEventStatusCompleted
@@ -216,7 +217,7 @@ func apiChampionshipSessionStatus(event *ChampionshipEvent, sessionType serverco
 	}
 }
 
-func newAPIRaceWeekendEvent(event *ChampionshipEvent) *APIChampionshipEvent {
+func newAPIRaceWeekendEvent(event *smmodel.ChampionshipEvent) *APIChampionshipEvent {
 	raceWeekend := event.RaceWeekend
 
 	out := &APIChampionshipEvent{

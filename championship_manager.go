@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	"errors"
@@ -22,7 +23,7 @@ import (
 type ChampionshipManager struct {
 	*RaceManager
 
-	activeChampionship *ActiveChampionship
+	activeChampionship *smmodel.ActiveChampionship
 	mutex              sync.Mutex
 
 	championshipEventStartTimers    map[string]*when.Timer
@@ -35,7 +36,7 @@ func NewChampionshipManager(raceManager *RaceManager) *ChampionshipManager {
 	}
 }
 
-func (cm *ChampionshipManager) applyConfigAndStart(championship *ActiveChampionship) error {
+func (cm *ChampionshipManager) applyConfigAndStart(championship *smmodel.ActiveChampionship) error {
 	cm.activeChampionship = championship
 	err := cm.RaceManager.applyConfigAndStart(championship)
 
@@ -46,11 +47,11 @@ func (cm *ChampionshipManager) applyConfigAndStart(championship *ActiveChampions
 	return nil
 }
 
-func (cm *ChampionshipManager) LoadChampionship(id string) (*Championship, error) {
+func (cm *ChampionshipManager) LoadChampionship(id string) (*smmodel.Championship, error) {
 	return cm.store.LoadChampionship(id)
 }
 
-func (cm *ChampionshipManager) UpsertChampionship(c *Championship) error {
+func (cm *ChampionshipManager) UpsertChampionship(c *smmodel.Championship) error {
 	err := cm.store.UpsertChampionship(c)
 
 	if err != nil {
@@ -64,7 +65,7 @@ func (cm *ChampionshipManager) DeleteChampionship(id string) error {
 	return cm.store.DeleteChampionship(id)
 }
 
-func (cm *ChampionshipManager) ListChampionships() ([]*Championship, error) {
+func (cm *ChampionshipManager) ListChampionships() ([]*smmodel.Championship, error) {
 	championships, err := cm.store.ListChampionships()
 
 	if err != nil {
@@ -80,7 +81,7 @@ func (cm *ChampionshipManager) ListChampionships() ([]*Championship, error) {
 			if event.IsRaceWeekend() {
 				event.RaceWeekend, err = cm.store.LoadRaceWeekend(event.RaceWeekendID.String())
 
-				if err == ErrRaceWeekendNotFound {
+				if err == smmodel.ErrRaceWeekendNotFound {
 					continue
 				} else if err != nil {
 					return nil, err
@@ -95,26 +96,26 @@ func (cm *ChampionshipManager) ListChampionships() ([]*Championship, error) {
 type ChampionshipTemplateVars struct {
 	*RaceTemplateVars
 
-	DefaultPoints             ChampionshipPoints
-	DefaultClass              *ChampionshipClass
-	AvailableChampionshipTabs []ChampionshipTab
+	DefaultPoints             smmodel.ChampionshipPoints
+	DefaultClass              *smmodel.ChampionshipClass
+	AvailableChampionshipTabs []smmodel.ChampionshipTab
 }
 
-func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (championship *Championship, opts *ChampionshipTemplateVars, err error) {
+func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (championship *smmodel.Championship, opts *ChampionshipTemplateVars, err error) {
 	raceOpts, err := cm.BuildRaceOpts(r)
 
 	if err != nil {
 		return nil, nil, err
 	}
 
-	defaultClass := NewChampionshipClass("")
+	defaultClass := smmodel.NewChampionshipClass("")
 	defaultClass.ID = uuid.Nil
 
 	opts = &ChampionshipTemplateVars{
 		RaceTemplateVars:          raceOpts,
-		DefaultPoints:             DefaultChampionshipPoints,
+		DefaultPoints:             smmodel.DefaultChampionshipPoints,
 		DefaultClass:              defaultClass,
-		AvailableChampionshipTabs: AvailableChampionshipTabs,
+		AvailableChampionshipTabs: smmodel.AvailableChampionshipTabs,
 	}
 
 	championshipID := chi.URLParam(r, "championshipID")
@@ -129,7 +130,7 @@ func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (champions
 			return nil, nil, err
 		}
 	} else {
-		championship = NewChampionship("")
+		championship = smmodel.NewChampionship("")
 	}
 
 	opts.Championship = championship
@@ -137,12 +138,12 @@ func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (champions
 	return championship, opts, nil
 }
 
-func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (championship *Championship, edited bool, err error) {
+func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (championship *smmodel.Championship, edited bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, false, err
 	}
 
-	previousClasses := make(map[uuid.UUID]ChampionshipClass)
+	previousClasses := make(map[uuid.UUID]smmodel.ChampionshipClass)
 
 	if championshipID := r.FormValue("Editing"); championshipID != "" {
 		// championship is being edited. find the current version
@@ -160,10 +161,10 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 			previousClasses[class.ID] = *class
 		}
 
-		championship.Classes = []*ChampionshipClass{}
+		championship.Classes = []*smmodel.ChampionshipClass{}
 	} else {
 		// new championship
-		championship = NewChampionship("")
+		championship = smmodel.NewChampionship("")
 	}
 
 	championship.Name = r.FormValue("ChampionshipName")
@@ -194,7 +195,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	}
 
 	championship.Info = template.HTML(r.FormValue("ChampionshipInfo"))
-	championship.DefaultTab = ChampionshipTab(r.FormValue("ChampionshipDefaultTab"))
+	championship.DefaultTab = smmodel.ChampionshipTab(r.FormValue("ChampionshipDefaultTab"))
 	championship.OverridePassword = r.FormValue("OverridePassword") == "on" || r.FormValue("OverridePassword") == "1"
 
 	championship.OGImage = r.FormValue("ChampionshipOGImage")
@@ -221,7 +222,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	}
 
 	for i := 0; i < len(r.Form["ClassName"]); i++ {
-		class := NewChampionshipClass(r.Form["ClassName"][i])
+		class := smmodel.NewChampionshipClass(r.Form["ClassName"][i])
 
 		if classID := r.Form["ClassID"][i]; classID != "" && classID != uuid.Nil.String() {
 			class.ID = uuid.MustParse(classID)
@@ -276,7 +277,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 				if session.SessionType() == serverconfig.SessionTypeRace {
 					session.Points[class.ID] = &class.Points
 				} else {
-					session.Points[class.ID] = &ChampionshipPoints{Places: make([]int, len(class.Points.Places))}
+					session.Points[class.ID] = &smmodel.ChampionshipPoints{Places: make([]int, len(class.Points.Places))}
 				}
 
 				updatedRaceWeekend = true

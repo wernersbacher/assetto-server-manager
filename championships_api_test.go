@@ -7,20 +7,21 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
 func TestNewAPIChampionship(t *testing.T) {
 	scheduled := time.Date(2026, 11, 7, 19, 0, 0, 0, time.UTC)
 
-	championship := NewChampionship("Test Championship")
+	championship := smmodel.NewChampionship("Test Championship")
 
-	class := NewChampionshipClass("GT3")
+	class := smmodel.NewChampionshipClass("GT3")
 	class.AvailableCars = []string{"dev_car_gt3"}
 	championship.AddClass(class)
 
 	// a scheduled event with timed practice and qualifying, a race with laps and a second race
-	scheduledEvent := NewChampionshipEvent()
+	scheduledEvent := smmodel.NewChampionshipEvent()
 	scheduledEvent.Scheduled = scheduled
 	scheduledEvent.RaceSetup.Track = "api_test_track"
 	scheduledEvent.RaceSetup.ReversedGridRacePositions = -1
@@ -31,7 +32,7 @@ func TestNewAPIChampionship(t *testing.T) {
 	}
 
 	// a completed event with a timed race
-	completedEvent := NewChampionshipEvent()
+	completedEvent := smmodel.NewChampionshipEvent()
 	completedEvent.RaceSetup.Track = "api_test_ring"
 	completedEvent.RaceSetup.TrackLayout = "gp"
 	completedEvent.RaceSetup.RaceExtraLap = 1
@@ -40,17 +41,17 @@ func TestNewAPIChampionship(t *testing.T) {
 	}
 	completedEvent.StartedTime = scheduled.Add(-time.Hour)
 	completedEvent.CompletedTime = scheduled
-	completedEvent.Sessions[serverconfig.SessionTypeRace] = &ChampionshipSession{
+	completedEvent.Sessions[serverconfig.SessionTypeRace] = &smmodel.ChampionshipSession{
 		StartedTime:   scheduled.Add(-time.Hour),
 		CompletedTime: scheduled,
 		Results:       &smresults.SessionResults{},
 	}
 
 	// a race weekend event with a completed qualifying and an unscheduled race
-	raceWeekend := NewRaceWeekend()
+	raceWeekend := smmodel.NewRaceWeekend()
 	raceWeekend.Name = "Endurance"
 
-	qualifying := NewRaceWeekendSession()
+	qualifying := smmodel.NewRaceWeekendSession()
 	qualifying.RaceConfig.Track = "api_test_ring"
 	qualifying.RaceConfig.TrackLayout = "short"
 	qualifying.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeQualifying: &serverconfig.SessionConfig{Name: "Qualy", Time: 20}}
@@ -59,20 +60,20 @@ func TestNewAPIChampionship(t *testing.T) {
 	qualifying.CompletedTime = scheduled.Add(20 * time.Minute)
 	qualifying.Results = &smresults.SessionResults{}
 
-	race := NewRaceWeekendSession()
+	race := smmodel.NewRaceWeekendSession()
 	race.ParentIDs = []uuid.UUID{qualifying.ID}
 	race.RaceConfig.Track = "api_test_ring"
 	race.RaceConfig.TrackLayout = "short"
 	race.RaceConfig.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: &serverconfig.SessionConfig{Name: "Main Race", Laps: 50}}
 
 	// added in reverse order, sessions must be sorted by their dependencies
-	raceWeekend.Sessions = []*RaceWeekendSession{race, qualifying}
+	raceWeekend.Sessions = []*smmodel.RaceWeekendSession{race, qualifying}
 
-	raceWeekendEvent := NewChampionshipEvent()
+	raceWeekendEvent := smmodel.NewChampionshipEvent()
 	raceWeekendEvent.RaceWeekendID = raceWeekend.ID
 	raceWeekendEvent.RaceWeekend = raceWeekend
 
-	championship.Events = []*ChampionshipEvent{scheduledEvent, completedEvent, raceWeekendEvent}
+	championship.Events = []*smmodel.ChampionshipEvent{scheduledEvent, completedEvent, raceWeekendEvent}
 
 	out := NewAPIChampionship(championship, "")
 

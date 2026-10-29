@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
@@ -80,7 +81,7 @@ func (rm *RaceManager) CurrentRace() (*serverconfig.ServerConfig, serverconfig.E
 
 var ErrEntryListTooBig = errors.New("servermanager: EntryList exceeds MaxClients setting")
 
-func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
+func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 	rm.mutex.Lock()
 	defer rm.mutex.Unlock()
 

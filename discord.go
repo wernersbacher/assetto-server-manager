@@ -13,6 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type DiscordManager struct {
@@ -149,7 +150,7 @@ func (dm *DiscordManager) CommandSchedule() (string, error) {
 
 	for _, scheduledEvent := range scheduled {
 		if scheduledEvent.HasRecurrenceRule() {
-			customRace, ok := scheduledEvent.(*CustomRace)
+			customRace, ok := scheduledEvent.(*smmodel.CustomRace)
 
 			if !ok {
 				continue

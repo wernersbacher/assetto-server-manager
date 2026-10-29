@@ -1,4 +1,4 @@
-package servermanager
+package model
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
@@ -268,7 +267,7 @@ func (c *Championship) GetPlayerSummary(guid string) string {
 		classText = fmt.Sprintf("in the class '%s' ", class.Name)
 	}
 
-	out := fmt.Sprintf("You are currently %d%s %swith %.2f points. ", driverPos, ordinal(int64(driverPos)), classText, driverPoints)
+	out := fmt.Sprintf("You are currently %d%s %swith %.2f points. ", driverPos, Ordinal(int64(driverPos)), classText, driverPoints)
 
 	if driverAhead != "" {
 		out += fmt.Sprintf("The driver ahead of you is %s with %.2f points. ", driverAhead, driverAheadPoints)
@@ -810,4 +809,25 @@ func (c *ChampionshipClass) TeamStandings(championship *Championship, inEvents [
 	})
 
 	return out
+}
+
+// Ordinal returns the ordinal suffix of x (st, nd, rd or th).
+func Ordinal(x int64) string {
+	suffix := "th"
+	switch x % 10 {
+	case 1:
+		if x%100 != 11 {
+			suffix = "st"
+		}
+	case 2:
+		if x%100 != 12 {
+			suffix = "nd"
+		}
+	case 3:
+		if x%100 != 13 {
+			suffix = "rd"
+		}
+	}
+
+	return suffix
 }

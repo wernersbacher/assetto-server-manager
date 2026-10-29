@@ -1,11 +1,10 @@
-package servermanager
+package model
 
 import (
 	"html/template"
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 

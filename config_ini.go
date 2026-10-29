@@ -7,17 +7,18 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type serverNameTemplateOpts struct {
 	serverconfig.GlobalServerConfig
 	serverconfig.CurrentRaceConfig
-	RaceEvent
+	smmodel.RaceEvent
 
 	ServerName string
 }
 
-func buildFinalServerName(userTemplate string, event RaceEvent, config serverconfig.ServerConfig) string {
+func buildFinalServerName(userTemplate string, event smmodel.RaceEvent, config serverconfig.ServerConfig) string {
 	t, err := template.New("serverName").Parse(userTemplate)
 
 	if err != nil {

@@ -13,6 +13,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type NotificationDispatcher interface {
@@ -20,12 +21,12 @@ type NotificationDispatcher interface {
 	GetNotificationReminders() []int
 	SendMessage(title string, msg string) error
 	SendMessageWithLink(title string, msg string, linkText string, link *url.URL) error
-	SendRaceStartMessage(config serverconfig.ServerConfig, event RaceEvent) error
-	SendRaceScheduledMessage(event *CustomRace, date time.Time) error
-	SendRaceCancelledMessage(event *CustomRace, date time.Time) error
-	SendRaceReminderMessage(event *CustomRace, timer int) error
-	SendChampionshipReminderMessage(championship *Championship, event *ChampionshipEvent, timer int) error
-	SendRaceWeekendReminderMessage(raceWeekend *RaceWeekend, session *RaceWeekendSession, timer int) error
+	SendRaceStartMessage(config serverconfig.ServerConfig, event smmodel.RaceEvent) error
+	SendRaceScheduledMessage(event *smmodel.CustomRace, date time.Time) error
+	SendRaceCancelledMessage(event *smmodel.CustomRace, date time.Time) error
+	SendRaceReminderMessage(event *smmodel.CustomRace, timer int) error
+	SendChampionshipReminderMessage(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, timer int) error
+	SendRaceWeekendReminderMessage(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, timer int) error
 	SaveServerOptions(oldServerOpts *serverconfig.GlobalServerConfig, newServerOpts *serverconfig.GlobalServerConfig) error
 }
 
@@ -124,7 +125,7 @@ func (nm *NotificationManager) SendMessageWithLink(title string, msg string, lin
 }
 
 // SendRaceStartMessage sends a message as a race session is started
-func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event RaceEvent) error {
+func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event smmodel.RaceEvent) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {
@@ -221,7 +222,7 @@ func (nm *NotificationManager) GetTrackInfo(track string, layout string, downloa
 }
 
 // SendRaceScheduledMessage sends a notification when a race is scheduled
-func (nm *NotificationManager) SendRaceScheduledMessage(event *CustomRace, date time.Time) error {
+func (nm *NotificationManager) SendRaceScheduledMessage(event *smmodel.CustomRace, date time.Time) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {
@@ -252,7 +253,7 @@ func (nm *NotificationManager) SendRaceScheduledMessage(event *CustomRace, date 
 }
 
 // SendRaceCancelledMessage sends a notification when a race is cancelled
-func (nm *NotificationManager) SendRaceCancelledMessage(event *CustomRace, date time.Time) error {
+func (nm *NotificationManager) SendRaceCancelledMessage(event *smmodel.CustomRace, date time.Time) error {
 	serverOpts, err := nm.store.LoadServerOptions()
 
 	if err != nil {
@@ -283,7 +284,7 @@ func (nm *NotificationManager) SendRaceCancelledMessage(event *CustomRace, date 
 }
 
 // SendRaceReminderMessage sends a reminder a configurable number of minutes prior to a race starting
-func (nm *NotificationManager) SendRaceReminderMessage(event *CustomRace, timer int) error {
+func (nm *NotificationManager) SendRaceReminderMessage(event *smmodel.CustomRace, timer int) error {
 	msg := ""
 	trackInfo := nm.GetTrackInfo(event.RaceConfig.Track, event.RaceConfig.TrackLayout, true)
 	eventName := event.EventName(trackSummary)
@@ -301,7 +302,7 @@ func (nm *NotificationManager) SendRaceReminderMessage(event *CustomRace, timer 
 }
 
 // SendChampionshipReminderMessage sends a reminder a configurable number of minutes prior to a championship race starting
-func (nm *NotificationManager) SendChampionshipReminderMessage(championship *Championship, event *ChampionshipEvent, timer int) error {
+func (nm *NotificationManager) SendChampionshipReminderMessage(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, timer int) error {
 	reminder := durafmt.Parse(time.Duration(timer) * time.Minute).String()
 	title := fmt.Sprintf("Event reminder - %s", reminder)
 	trackInfo := nm.GetTrackInfo(event.RaceSetup.Track, event.RaceSetup.TrackLayout, true)
@@ -310,7 +311,7 @@ func (nm *NotificationManager) SendChampionshipReminderMessage(championship *Cha
 }
 
 // SendRaceWeekendReminderMessage sends a reminder a configurable number of minutes prior to a RaceWeekendSession starting
-func (nm *NotificationManager) SendRaceWeekendReminderMessage(raceWeekend *RaceWeekend, session *RaceWeekendSession, timer int) error {
+func (nm *NotificationManager) SendRaceWeekendReminderMessage(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, timer int) error {
 	reminder := durafmt.Parse(time.Duration(timer) * time.Minute).String()
 	title := fmt.Sprintf("Event reminder - %s", reminder)
 	trackInfo := nm.GetTrackInfo(session.RaceConfig.Track, session.RaceConfig.TrackLayout, true)

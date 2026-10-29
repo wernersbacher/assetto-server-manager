@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"fmt"
 	"io/ioutil"
@@ -79,7 +80,7 @@ func TestAssettoServerProcess_StopRightAfterStart(t *testing.T) {
 	sp, udpAddress, cleanup := setupServerProcessTest(t, executable)
 	defer cleanup()
 
-	if err := sp.Start(QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err != nil {
+	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err != nil {
 		t.Fatal(err)
 	}
 
@@ -101,7 +102,7 @@ func TestAssettoServerProcess_StartMissingExecutable(t *testing.T) {
 	sp, udpAddress, cleanup := setupServerProcessTest(t, "does-not-exist-acServer")
 	defer cleanup()
 
-	if err := sp.Start(QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err == nil {
+	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err == nil {
 		t.Fatal("expected an error starting a missing executable")
 	}
 
@@ -114,7 +115,7 @@ func TestAssettoServerProcess_StartMissingExecutable(t *testing.T) {
 	}
 
 	// the UDP listener has been released, so the server can be started again
-	if err := sp.Start(QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err == nil {
+	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err == nil {
 		t.Fatal("expected an error starting a missing executable")
 	}
 }

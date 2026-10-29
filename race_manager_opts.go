@@ -10,6 +10,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 func (rm *RaceManager) ListAutoFillEntrants() ([]*serverconfig.Entrant, error) {
@@ -72,7 +73,7 @@ type RaceTemplateVars struct {
 	ForceStopWithDrivers bool
 
 	IsChampionship                 bool
-	Championship                   *Championship
+	Championship                   *smmodel.Championship
 	ChampionshipHasAtLeastOnceRace bool
 	ChampionshipEventIndex         int
 
@@ -80,8 +81,8 @@ type RaceTemplateVars struct {
 	UseChampionshipRaceSettings bool
 
 	IsRaceWeekend                   bool
-	RaceWeekend                     *RaceWeekend
-	RaceWeekendSession              *RaceWeekendSession
+	RaceWeekend                     *smmodel.RaceWeekend
+	RaceWeekendSession              *smmodel.RaceWeekendSession
 	RaceWeekendHasAtLeastOneSession bool
 
 	ShowOverridePasswordCard bool

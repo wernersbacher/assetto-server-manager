@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"encoding/json"
@@ -26,8 +27,8 @@ func (stoppedServerProcess) IsRunning() bool {
 	return false
 }
 
-func (stoppedServerProcess) Event() RaceEvent {
-	return QuickRace{}
+func (stoppedServerProcess) Event() smmodel.RaceEvent {
+	return smmodel.QuickRace{}
 }
 
 func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
@@ -107,7 +108,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	event := &ActiveChampionship{
+	event := &smmodel.ActiveChampionship{
 		Name:        "Test Championship",
 		RaceConfig:  serverconfig.CurrentRaceConfig{Track: "other_track", MaxClients: 18},
 		SessionType: serverconfig.SessionTypeQualifying,
@@ -149,7 +150,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 	})
 
 	t.Run("race weekend", func(t *testing.T) {
-		out := NewAPIServerStatus(true, "", ActiveRaceWeekend{Name: "Endurance"}, raceControl)
+		out := NewAPIServerStatus(true, "", smmodel.ActiveRaceWeekend{Name: "Endurance"}, raceControl)
 
 		if !out.IsRaceWeekend || out.RaceWeekendName != "Endurance" || out.IsChampionship {
 			t.Errorf("unexpected status: %+v", out)

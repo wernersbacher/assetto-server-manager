@@ -59,7 +59,7 @@ type APIConnectedDriver struct {
 
 // NewAPIServerStatus converts the state of the server process and race control to the API format. serverName is the
 // configured server name, used when the running server has not reported its own yet.
-func NewAPIServerStatus(running bool, serverName string, event RaceEvent, raceControl *RaceControl) *APIServerStatus {
+func NewAPIServerStatus(running bool, serverName string, event smmodel.RaceEvent, raceControl *RaceControl) *APIServerStatus {
 	out := &APIServerStatus{
 		Running:          running,
 		ServerName:       serverName,
@@ -81,11 +81,11 @@ func NewAPIServerStatus(running bool, serverName string, event RaceEvent, raceCo
 	out.IsTimeAttack = event.IsTimeAttack()
 
 	switch e := event.(type) {
-	case *ActiveChampionship:
+	case *smmodel.ActiveChampionship:
 		out.ChampionshipName = e.Name
-	case ActiveRaceWeekend:
+	case smmodel.ActiveRaceWeekend:
 		out.RaceWeekendName = e.Name
-	case *ActiveRaceWeekend:
+	case *smmodel.ActiveRaceWeekend:
 		out.RaceWeekendName = e.Name
 	}
 

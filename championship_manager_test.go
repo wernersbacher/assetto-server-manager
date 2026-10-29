@@ -1,9 +1,10 @@
 package servermanager
 
 import (
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 
 	"encoding/json"
 	"net/url"
@@ -67,7 +68,7 @@ type dummyServerProcess struct {
 	doneCh chan struct{}
 }
 
-func (dummyServerProcess) Start(event RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
+func (dummyServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
 	return nil
 }
 
@@ -90,8 +91,8 @@ func (dummyServerProcess) IsRunning() bool {
 	return true
 }
 
-func (dummyServerProcess) Event() RaceEvent {
-	return &ActiveChampionship{}
+func (dummyServerProcess) Event() smmodel.RaceEvent {
+	return &smmodel.ActiveChampionship{}
 }
 
 func (dummyServerProcess) UDPCallback(message udp.Message) {
@@ -116,8 +117,6 @@ var championshipEventFixtures = []string{
 	// "barbagello-no-end-sessions.db",
 }
 
-
-
 type dummyNotificationManager struct{}
 
 func (d *dummyNotificationManager) HasNotificationReminders() bool {
@@ -130,7 +129,7 @@ func (d *dummyNotificationManager) GetNotificationReminders() []int {
 	return reminders
 }
 
-func (d dummyNotificationManager) SendRaceWeekendReminderMessage(raceWeekend *RaceWeekend, session *RaceWeekendSession, timer int) error {
+func (d dummyNotificationManager) SendRaceWeekendReminderMessage(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, timer int) error {
 	return nil
 }
 
@@ -142,7 +141,7 @@ func (d dummyNotificationManager) SendMessageWithLink(title string, msg string, 
 	return nil
 }
 
-func (d dummyNotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event RaceEvent) error {
+func (d dummyNotificationManager) SendRaceStartMessage(config serverconfig.ServerConfig, event smmodel.RaceEvent) error {
 	return nil
 }
 
@@ -154,19 +153,19 @@ func (d dummyNotificationManager) GetTrackInfo(track string, layout string, down
 	return "nil"
 }
 
-func (d dummyNotificationManager) SendRaceScheduledMessage(event *CustomRace, date time.Time) error {
+func (d dummyNotificationManager) SendRaceScheduledMessage(event *smmodel.CustomRace, date time.Time) error {
 	return nil
 }
 
-func (d dummyNotificationManager) SendRaceCancelledMessage(event *CustomRace, date time.Time) error {
+func (d dummyNotificationManager) SendRaceCancelledMessage(event *smmodel.CustomRace, date time.Time) error {
 	return nil
 }
 
-func (d dummyNotificationManager) SendRaceReminderMessage(event *CustomRace, timer int) error {
+func (d dummyNotificationManager) SendRaceReminderMessage(event *smmodel.CustomRace, timer int) error {
 	return nil
 }
 
-func (d dummyNotificationManager) SendChampionshipReminderMessage(championship *Championship, event *ChampionshipEvent, timer int) error {
+func (d dummyNotificationManager) SendChampionshipReminderMessage(championship *smmodel.Championship, event *smmodel.ChampionshipEvent, timer int) error {
 	return nil
 }
 
@@ -207,14 +206,14 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 	t.Run("Basic championship flow, closed entrylist", func(t *testing.T) {
 		// make a championship
-		champ := NewChampionship("Test Championship")
+		champ := smmodel.NewChampionship("Test Championship")
 		champ.OpenEntrants = false
-		cl := NewChampionshipClass("Default")
+		cl := smmodel.NewChampionshipClass("Default")
 		cl.Entrants = TestEntryList
 		champ.AddClass(cl)
 
 		for range championshipEventFixtures {
-			e := NewChampionshipEvent()
+			e := smmodel.NewChampionshipEvent()
 			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
@@ -249,14 +248,14 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 	t.Run("Basic championship flow, open entrylist", func(t *testing.T) {
 		// make a championship
-		champ := NewChampionship("Test Championship")
+		champ := smmodel.NewChampionship("Test Championship")
 		champ.OpenEntrants = true
-		cl := NewChampionshipClass("Default")
+		cl := smmodel.NewChampionshipClass("Default")
 		cl.Entrants = TestEntryList
 		champ.AddClass(cl)
 
 		for range championshipEventFixtures {
-			e := NewChampionshipEvent()
+			e := smmodel.NewChampionshipEvent()
 			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
@@ -291,9 +290,9 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 	t.Run("Basic championship flow, open entrylist with only one free slot", func(t *testing.T) {
 		// make a championship
-		champ := NewChampionship("Test Championship")
+		champ := smmodel.NewChampionship("Test Championship")
 		champ.OpenEntrants = true
-		cl := NewChampionshipClass("Default")
+		cl := smmodel.NewChampionshipClass("Default")
 		cl.Entrants = serverconfig.EntryList{
 			"CAR_0": {
 				Name:  "",
@@ -306,7 +305,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 		champ.AddClass(cl)
 
 		for range championshipEventFixtures {
-			e := NewChampionshipEvent()
+			e := smmodel.NewChampionshipEvent()
 			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
@@ -341,9 +340,9 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 
 	t.Run("Basic championship flow, open entrylist with one free slot for a non-matching car", func(t *testing.T) {
 		// make a championship
-		champ := NewChampionship("Test Championship")
+		champ := smmodel.NewChampionship("Test Championship")
 		champ.OpenEntrants = true
-		cl := NewChampionshipClass("Default")
+		cl := smmodel.NewChampionshipClass("Default")
 		cl.Entrants = serverconfig.EntryList{
 			"CAR_0": {
 				Name:  "",
@@ -356,7 +355,7 @@ func TestChampionshipManager_ChampionshipEventCallback(t *testing.T) {
 		champ.AddClass(cl)
 
 		for range championshipEventFixtures {
-			e := NewChampionshipEvent()
+			e := smmodel.NewChampionshipEvent()
 			e.RaceSetup = serverconfig.ConfigIniDefault().CurrentRaceConfig
 
 			champ.Events = append(champ.Events, e)
@@ -457,7 +456,7 @@ func checkChampionshipEventCompletion(t *testing.T, championshipManager *Champio
 func TestChampionshipManager_ChampionshipEventCallbackOpenChampionshipExample(t *testing.T) {
 	championshipManager := newTestChampionshipManager()
 
-	var champ *Championship
+	var champ *smmodel.Championship
 
 	f, err := os.Open(filepath.Join("fixtures", "open-championship", "championship-setup.json"))
 

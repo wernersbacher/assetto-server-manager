@@ -9,11 +9,10 @@ import (
 	"strings"
 
 	"github.com/cj123/ini"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -23,57 +22,7 @@ func (f FilterError) Error() string {
 	return string(f)
 }
 
-type RaceWeekendFilterSplitType string
-
-func (fst RaceWeekendFilterSplitType) String() string {
-	return string(fst)
-}
-
-const (
-	SplitTypeNumeric               RaceWeekendFilterSplitType = "Numeric"
-	SplitTypeManualDriverSelection RaceWeekendFilterSplitType = "Manual Driver Selection"
-	SplitTypeChampionshipClass     RaceWeekendFilterSplitType = "Championship Class"
-)
-
-type RaceWeekendSessionToSessionFilter struct {
-	// IsPreview indicates that the Filter is for preview only, and will not actually affect a starting grid.
-	IsPreview bool
-
-	// ResultStart is the beginning of the split from the previous session's result
-	ResultStart int
-	// ResultEnd is the end of the split from the previous session's result
-	ResultEnd int
-
-	// NumEntrantsToReverse defines how many entrants to reverse. -1 indicates all, 0 indicates none, or N entrants.
-	NumEntrantsToReverse int
-
-	// EntryListStart is where to place the entrants in the starting grid of the next session
-	EntryListStart int
-
-	// SortType defines how the entrants are sorted
-	SortType string
-
-	// ForceUseTyreFromFastestLap forces drivers to start on the same tyre compound as the tyre compound that
-	// they achieved their fastest lap on in the previous session
-	ForceUseTyreFromFastestLap bool
-
-	// AvailableResultsForSorting are the results files to be used for sorting the entrants.
-	AvailableResultsForSorting []string
-
-	// SplitType defines the kind of splitting that we want to do.
-	SplitType RaceWeekendFilterSplitType
-
-	// SelectedDriverGUIDs is a list of the currently selected driver GUIDs. This is only populated if SplitType == SplitTypeManualDriverSelection
-	SelectedDriverGUIDs []string
-
-	// SelectedChampionshipClassIDs is a list of the currently selected ChampionshipClass IDs. This is only populated if SplitType == SplitTypeChampionshipClass
-	SelectedChampionshipClassIDs map[uuid.UUID]bool
-
-	// Deprecated: ManualDriverSelection indicates that drivers are picked manually from the above results file.
-	ManualDriverSelection bool
-}
-
-func reverseEntrants(numToReverse int, entrants []*RaceWeekendSessionEntrant) {
+func reverseEntrants(numToReverse int, entrants []*smmodel.RaceWeekendSessionEntrant) {
 	if numToReverse == 0 {
 		return
 	}
@@ -82,7 +31,7 @@ func reverseEntrants(numToReverse int, entrants []*RaceWeekendSessionEntrant) {
 		numToReverse = len(entrants)
 	}
 
-	var toReverse []*RaceWeekendSessionEntrant
+	var toReverse []*smmodel.RaceWeekendSessionEntrant
 
 	if numToReverse > 0 {
 		toReverse = entrants[:numToReverse]
@@ -103,7 +52,7 @@ func reverseEntrants(numToReverse int, entrants []*RaceWeekendSessionEntrant) {
 var ErrRaceWeekendUnknownSplitType = errors.New("servermanager: unknown split type")
 
 // filterRaceWeekendEntryList takes a set of RaceWeekendSessionEntrants formed by the results of the parent session and filters them into a child session entry list.
-func filterRaceWeekendEntryList(f RaceWeekendSessionToSessionFilter, raceWeekend *RaceWeekend, parentSession, childSession *RaceWeekendSession, parentSessionResults []*RaceWeekendSessionEntrant, childSessionEntryList *RaceWeekendEntryList) error {
+func filterRaceWeekendEntryList(f smmodel.RaceWeekendSessionToSessionFilter, raceWeekend *smmodel.RaceWeekend, parentSession, childSession *smmodel.RaceWeekendSession, parentSessionResults []*smmodel.RaceWeekendSessionEntrant, childSessionEntryList *smmodel.RaceWeekendEntryList) error {
 	if parentSession.Completed() || childSession.IsBase() {
 		sorter := GetRaceWeekendEntryListSort(f.SortType)
 
@@ -117,10 +66,10 @@ func filterRaceWeekendEntryList(f RaceWeekendSessionToSessionFilter, raceWeekend
 
 	entryListStart := f.EntryListStart - 1
 
-	var split []*RaceWeekendSessionEntrant
+	var split []*smmodel.RaceWeekendSessionEntrant
 
 	switch f.SplitType {
-	case SplitTypeNumeric:
+	case smmodel.SplitTypeNumeric:
 		resultStart, resultEnd := f.ResultStart, f.ResultEnd
 
 		resultStart--
@@ -134,7 +83,7 @@ func filterRaceWeekendEntryList(f RaceWeekendSessionToSessionFilter, raceWeekend
 		}
 
 		split = parentSessionResults[resultStart:resultEnd]
-	case SplitTypeManualDriverSelection:
+	case smmodel.SplitTypeManualDriverSelection:
 		for _, driverGUID := range f.SelectedDriverGUIDs {
 			for _, entrant := range parentSessionResults {
 				if entrant.Car.GetGUID() == driverGUID {
@@ -143,7 +92,7 @@ func filterRaceWeekendEntryList(f RaceWeekendSessionToSessionFilter, raceWeekend
 				}
 			}
 		}
-	case SplitTypeChampionshipClass:
+	case smmodel.SplitTypeChampionshipClass:
 		for _, entrant := range parentSessionResults {
 			class := entrant.ChampionshipClass(raceWeekend)
 
@@ -191,7 +140,7 @@ func filterRaceWeekendEntryList(f RaceWeekendSessionToSessionFilter, raceWeekend
 
 const lockedTyreSetupFolder = smcontent.LockedTyreSetupFolder
 
-func buildLockedTyreSetup(rw *RaceWeekend, session *RaceWeekendSession, entrant *RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
+func buildLockedTyreSetup(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrant *smmodel.RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
 	tyreIndex, err := smcontent.FindTyreIndex(ServerInstallPath, entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
 
 	if err != nil {
@@ -288,11 +237,11 @@ func buildLockedTyreSetup(rw *RaceWeekend, session *RaceWeekendSession, entrant 
 }
 
 // getRaceWeekendEntryList returns the RaceWeekendEntryList for the given session, built from the parent session(s) results and applied filters.
-func getRaceWeekendEntryList(rws *RaceWeekendSession, rw *RaceWeekend, overrideFilter *RaceWeekendSessionToSessionFilter, overrideFilterSessionID string) (RaceWeekendEntryList, error) {
-	var entryList RaceWeekendEntryList
+func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWeekend, overrideFilter *smmodel.RaceWeekendSessionToSessionFilter, overrideFilterSessionID string) (smmodel.RaceWeekendEntryList, error) {
+	var entryList smmodel.RaceWeekendEntryList
 
 	if rws.IsBase() {
-		entryList = EntryListToRaceWeekendEntryList(rw.GetEntryList(), rws.ID)
+		entryList = smmodel.EntryListToRaceWeekendEntryList(rw.GetEntryList(), rws.ID)
 
 		if overrideFilter == nil {
 			var err error
@@ -310,7 +259,7 @@ func getRaceWeekendEntryList(rws *RaceWeekendSession, rw *RaceWeekend, overrideF
 			return nil, err
 		}
 	} else {
-		entryList = make(RaceWeekendEntryList, 0)
+		entryList = make(smmodel.RaceWeekendEntryList, 0)
 
 		for _, parentSessionID := range rws.ParentIDs {
 			parentSession, err := rw.FindSessionByID(parentSessionID.String())
@@ -361,7 +310,7 @@ func getRaceWeekendEntryList(rws *RaceWeekendSession, rw *RaceWeekend, overrideF
 			return nil, err
 		}
 
-		var finalEntryList RaceWeekendEntryList
+		var finalEntryList smmodel.RaceWeekendEntryList
 		existingGUIDs := make(map[string]bool)
 
 		// filter out duplicate entrants, keeping their highest ranking in the entry list
@@ -386,8 +335,8 @@ func getRaceWeekendEntryList(rws *RaceWeekendSession, rw *RaceWeekend, overrideF
 }
 
 // raceWeekendFinishingGrid returns the finishing grid of the session, if complete. Otherwise, it returns the EntryList of that session
-func raceWeekendFinishingGrid(rws *RaceWeekendSession, raceWeekend *RaceWeekend) ([]*RaceWeekendSessionEntrant, error) {
-	var out []*RaceWeekendSessionEntrant
+func raceWeekendFinishingGrid(rws *smmodel.RaceWeekendSession, raceWeekend *smmodel.RaceWeekend) ([]*smmodel.RaceWeekendSessionEntrant, error) {
+	var out []*smmodel.RaceWeekendSessionEntrant
 
 	entryList, err := getRaceWeekendEntryList(rws, raceWeekend, nil, "")
 
@@ -408,7 +357,7 @@ func raceWeekendFinishingGrid(rws *RaceWeekendSession, raceWeekend *RaceWeekend)
 				continue
 			}
 
-			out = append(out, NewRaceWeekendSessionEntrant(rws.ID, car, result, rws.Results))
+			out = append(out, smmodel.NewRaceWeekendSessionEntrant(rws.ID, car, result, rws.Results))
 		}
 
 		// look for entrants not in our session results who started the session.
@@ -434,7 +383,7 @@ func raceWeekendFinishingGrid(rws *RaceWeekendSession, raceWeekend *RaceWeekend)
 					}
 				}
 
-				e := NewRaceWeekendSessionEntrant(rws.ID, entrant.Car, entrant.EntrantResult, rws.Results)
+				e := smmodel.NewRaceWeekendSessionEntrant(rws.ID, entrant.Car, entrant.EntrantResult, rws.Results)
 				e.IsPlaceholder = entrant.IsPlaceholder
 
 				out = append(out, e)
@@ -451,7 +400,7 @@ func raceWeekendFinishingGrid(rws *RaceWeekendSession, raceWeekend *RaceWeekend)
 // scheduledRaceWeekendSession makes a RaceWeekendSession usable as a ScheduledEvent, which needs the entry list that
 // the session will be run with.
 type scheduledRaceWeekendSession struct {
-	*RaceWeekendSession
+	*smmodel.RaceWeekendSession
 }
 
 func (s scheduledRaceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList {
@@ -466,7 +415,7 @@ func (s scheduledRaceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList 
 }
 
 // raceWeekendTrackOverview describes the tracks of all sessions of a race weekend.
-func raceWeekendTrackOverview(rw *RaceWeekend) string {
+func raceWeekendTrackOverview(rw *smmodel.RaceWeekend) string {
 	trackInfoMap := make(map[string]bool)
 
 	for _, session := range rw.Sessions {
@@ -499,3 +448,5 @@ func raceWeekendTrackOverview(rw *RaceWeekend) string {
 
 	return strings.Join(trackInfo, ", ")
 }
+
+var ErrRaceWeekendSessionDependencyIncomplete = errors.New("servermanager: race weekend session dependency incomplete")

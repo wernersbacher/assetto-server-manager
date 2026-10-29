@@ -464,7 +464,7 @@ func addThemeChoiceToAccounts(s Store) error {
 func addRaceWeekendExamples(s Store) error {
 	logrus.Infof("Running migration: Add Race Weekend examples")
 
-	var raceWeekend *RaceWeekend
+	var raceWeekend *smmodel.RaceWeekend
 
 	err := json.Unmarshal(defaultcontent.RaceWeekendF12004spa, &raceWeekend)
 
@@ -565,7 +565,7 @@ func addContentExamples(s Store) error {
 	}
 
 	if len(championships) == 0 {
-		var mx5Championship *Championship
+		var mx5Championship *smmodel.Championship
 
 		if err := json.Unmarshal(defaultcontent.ChampionshipMX5CrashCourse, &mx5Championship); err != nil {
 			return err
@@ -575,7 +575,7 @@ func addContentExamples(s Store) error {
 			return err
 		}
 
-		var multiclassChampionship *Championship
+		var multiclassChampionship *smmodel.Championship
 
 		if err := json.Unmarshal(defaultcontent.ChampionshipMulticlassEndurance, &multiclassChampionship); err != nil {
 			return err
@@ -593,7 +593,7 @@ func addContentExamples(s Store) error {
 	}
 
 	if len(customRaces) == 0 {
-		var f2004RaceSpa *CustomRace
+		var f2004RaceSpa *smmodel.CustomRace
 
 		if err := json.Unmarshal(defaultcontent.CustomRaceF2004Spa, &f2004RaceSpa); err != nil {
 			return err
@@ -603,7 +603,7 @@ func addContentExamples(s Store) error {
 			return err
 		}
 
-		var bmw235iRace *CustomRace
+		var bmw235iRace *smmodel.CustomRace
 
 		if err := json.Unmarshal(defaultcontent.CustomRaceBMWZandvoort, &bmw235iRace); err != nil {
 			return err
@@ -774,7 +774,7 @@ func amendChampionshipClassIDIncorrectValues(s Store) error {
 									points = append(points, 0)
 								}
 
-								session.Points[class.ID] = &ChampionshipPoints{
+								session.Points[class.ID] = &smmodel.ChampionshipPoints{
 									Places:               points,
 									BestLap:              0,
 									PolePosition:         0,
@@ -1005,9 +1005,9 @@ func addSplitTypeToRaceWeekends(s Store) error {
 		for _, childSessionFilters := range raceWeekend.Filters {
 			for _, filter := range childSessionFilters {
 				if filter.ManualDriverSelection {
-					filter.SplitType = SplitTypeManualDriverSelection
+					filter.SplitType = smmodel.SplitTypeManualDriverSelection
 				} else {
-					filter.SplitType = SplitTypeNumeric
+					filter.SplitType = smmodel.SplitTypeNumeric
 				}
 			}
 		}
@@ -1035,9 +1035,9 @@ func addSplitTypeToRaceWeekends(s Store) error {
 				for _, childSessionFilters := range raceWeekend.Filters {
 					for _, filter := range childSessionFilters {
 						if filter.ManualDriverSelection {
-							filter.SplitType = SplitTypeManualDriverSelection
+							filter.SplitType = smmodel.SplitTypeManualDriverSelection
 						} else {
-							filter.SplitType = SplitTypeNumeric
+							filter.SplitType = smmodel.SplitTypeNumeric
 						}
 					}
 				}

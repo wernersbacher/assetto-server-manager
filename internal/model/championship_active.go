@@ -1,12 +1,10 @@
-package servermanager
+package model
 
 import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type ActiveChampionship struct {
@@ -32,7 +30,7 @@ func (a *ActiveChampionship) GetEntryList() serverconfig.EntryList {
 	return a.EntryList
 }
 
-func (a *ActiveChampionship) IsLooping(serverID smmodel.ServerID) bool {
+func (a *ActiveChampionship) IsLooping(serverID ServerID) bool {
 	return false
 }
 

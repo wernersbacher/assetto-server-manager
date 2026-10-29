@@ -1,10 +1,6 @@
 package servermanager
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-
 	"encoding/json"
 	"fmt"
 	"io"
@@ -18,6 +14,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/teambition/rrule-go"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 type ScheduledEvent interface {
@@ -199,7 +198,7 @@ func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]Sched
 	}
 
 	for _, championship := range championships {
-		for _, event := range ExtractRaceWeekendSessionsIntoIndividualEvents(championship.Events) {
+		for _, event := range smmodel.ExtractRaceWeekendSessionsIntoIndividualEvents(championship.Events) {
 			if event.Scheduled.IsZero() || (!forAllServers && event.ScheduledServerID != serverID) {
 				continue
 			}
@@ -320,7 +319,7 @@ func (srm *ScheduledRacesManager) buildCalendar(start time.Time, end time.Time) 
 
 	for _, scheduledEvent := range scheduled {
 		if scheduledEvent.HasRecurrenceRule() {
-			customRace, ok := scheduledEvent.(*CustomRace)
+			customRace, ok := scheduledEvent.(*smmodel.CustomRace)
 
 			if !ok {
 				continue
@@ -490,49 +489,4 @@ func GenerateSummary(raceSetup serverconfig.CurrentRaceConfig, eventType string)
 	}
 
 	return summary
-}
-
-type ScheduledEventBase struct {
-	Scheduled         time.Time
-	ScheduledInitial  time.Time
-	Recurrence        string
-	ScheduledServerID smmodel.ServerID
-}
-
-func (seb *ScheduledEventBase) SetRecurrenceRule(input string) error {
-	rule, err := rrule.StrToRRule(input)
-	if err != nil {
-		return err
-	}
-
-	rule.DTStart(seb.ScheduledInitial)
-
-	seb.Recurrence = rule.String()
-
-	return nil
-}
-
-func (seb *ScheduledEventBase) GetRecurrenceRule() (*rrule.RRule, error) {
-	rule, err := rrule.StrToRRule(seb.Recurrence)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// dtstart is not saved in the string and must be reinitiated
-	rule.DTStart(seb.ScheduledInitial)
-
-	return rule, nil
-}
-
-func (seb *ScheduledEventBase) HasRecurrenceRule() bool {
-	return seb.Recurrence != ""
-}
-
-func (seb *ScheduledEventBase) ClearRecurrenceRule() {
-	seb.Recurrence = ""
-}
-
-func (seb *ScheduledEventBase) GetScheduledTime() time.Time {
-	return seb.Scheduled
 }

@@ -9,10 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
 func (cm *ChampionshipManager) ImportChampionship(jsonData string) (string, error) {
-	var championship *Championship
+	var championship *smmodel.Championship
 
 	err := json.Unmarshal([]byte(jsonData), &championship)
 
@@ -100,7 +101,7 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 		return err
 	}
 
-	event.Sessions = make(map[serverconfig.SessionType]*ChampionshipSession)
+	event.Sessions = make(map[serverconfig.SessionType]*smmodel.ChampionshipSession)
 
 	sessions := map[serverconfig.SessionType]string{
 		serverconfig.SessionTypePractice:   r.FormValue("PracticeResult"),
@@ -156,7 +157,7 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 			return err
 		}
 
-		event.Sessions[sessionType] = &ChampionshipSession{
+		event.Sessions[sessionType] = &smmodel.ChampionshipSession{
 			StartedTime:   results.Date.Add(-time.Minute * 30),
 			CompletedTime: results.Date,
 			Results:       results,
@@ -168,7 +169,7 @@ func (cm *ChampionshipManager) ImportEvent(championshipID string, eventID string
 	return cm.UpsertChampionship(championship)
 }
 
-func (cm *ChampionshipManager) AddEntrantFromSessionData(championship *Championship, potentialEntrant PotentialChampionshipEntrant, overwriteSkinForAllEvents bool, takeFirstFreeSlot bool) (foundFreeEntrantSlot bool, entrantClass *ChampionshipClass, err error) {
+func (cm *ChampionshipManager) AddEntrantFromSessionData(championship *smmodel.Championship, potentialEntrant smmodel.PotentialChampionshipEntrant, overwriteSkinForAllEvents bool, takeFirstFreeSlot bool) (foundFreeEntrantSlot bool, entrantClass *smmodel.ChampionshipClass, err error) {
 	var entrant *serverconfig.Entrant
 
 	if takeFirstFreeSlot {
@@ -211,14 +212,14 @@ func (cm *ChampionshipManager) AddEntrantFromSessionData(championship *Champions
 	return foundFreeEntrantSlot, entrantClass, nil
 }
 
-func (cm *ChampionshipManager) DuplicateChampionship(championshipID string) (*Championship, error) {
+func (cm *ChampionshipManager) DuplicateChampionship(championshipID string) (*smmodel.Championship, error) {
 	championship, err := cm.LoadChampionship(championshipID)
 
 	if err != nil {
 		return nil, err
 	}
 
-	var events []ChampionshipEvent
+	var events []smmodel.ChampionshipEvent
 
 	for _, event := range championship.Events {
 		events = append(events, *event)
@@ -261,7 +262,7 @@ func (cm *ChampionshipManager) DuplicateChampionship(championshipID string) (*Ch
 	return duplicateChampionship, cm.UpsertChampionship(duplicateChampionship)
 }
 
-func (cm *ChampionshipManager) DuplicateEventInChampionship(championshipID, eventID string) (*ChampionshipEvent, error) {
+func (cm *ChampionshipManager) DuplicateEventInChampionship(championshipID, eventID string) (*smmodel.ChampionshipEvent, error) {
 	championship, err := cm.LoadChampionship(championshipID)
 
 	if err != nil {
@@ -287,8 +288,8 @@ func (cm *ChampionshipManager) DuplicateEventInChampionship(championshipID, even
 	return newEvent, nil
 }
 
-func (cm *ChampionshipManager) DuplicateEvent(event *ChampionshipEvent, championship *Championship) (*ChampionshipEvent, error) {
-	var newEvent *ChampionshipEvent
+func (cm *ChampionshipManager) DuplicateEvent(event *smmodel.ChampionshipEvent, championship *smmodel.Championship) (*smmodel.ChampionshipEvent, error) {
+	var newEvent *smmodel.ChampionshipEvent
 	var err error
 
 	if !event.IsRaceWeekend() {
