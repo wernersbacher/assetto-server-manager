@@ -39,15 +39,14 @@ func setupResultsAPITest(t *testing.T) func() {
 		}
 	}
 
-	oldInstallPath, oldShortened, oldConfig := ServerInstallPath, UseShortenedDriverNames, config
+	oldInstallPath, oldShortened := ServerInstallPath, UseShortenedDriverNames
 	ServerInstallPath = dir
 	UseShortenedDriverNames = false
-	config = &Configuration{}
 
 	resetResultSummaryCache()
 
 	return func() {
-		ServerInstallPath, UseShortenedDriverNames, config = oldInstallPath, oldShortened, oldConfig
+		ServerInstallPath, UseShortenedDriverNames = oldInstallPath, oldShortened
 
 		resetResultSummaryCache()
 

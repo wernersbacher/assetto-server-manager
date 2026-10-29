@@ -108,8 +108,8 @@ func (a Account) HasSeenCurrentVersion() bool {
 	return a.HasSeenVersion(BuildVersion)
 }
 
-func (a Account) ShouldSeeUpgradePopup() bool {
-	return !a.HasSeenCurrentVersion() && !a.NeedsPasswordReset()
+func (a Account) ShouldSeeUpgradePopup(adminPasswordOverride string) bool {
+	return !a.HasSeenCurrentVersion() && !a.NeedsPasswordReset(adminPasswordOverride)
 }
 
 func (a Account) HasSeenVersion(version string) bool {
@@ -132,8 +132,8 @@ func (a Account) HasSeenVersion(version string) bool {
 	return newVersion.Equal(currentVersion) || newVersion.LessThan(currentVersion)
 }
 
-func (a Account) NeedsPasswordReset() bool {
-	return a.DefaultPassword != "" || (a.Name == adminUserName && config.Accounts.AdminPasswordOverride != "")
+func (a Account) NeedsPasswordReset(adminPasswordOverride string) bool {
+	return a.DefaultPassword != "" || (a.Name == adminUserName && adminPasswordOverride != "")
 }
 
 func (a Account) HasGroupPrivilege(g Group) bool {
@@ -313,12 +313,14 @@ type AccountHandler struct {
 	*BaseHandler
 	SteamLoginHandler
 
+	config         *Configuration
 	store          Store
 	accountManager *AccountManager
 }
 
-func NewAccountHandler(baseHandler *BaseHandler, store Store, accountManager *AccountManager) *AccountHandler {
+func NewAccountHandler(config *Configuration, baseHandler *BaseHandler, store Store, accountManager *AccountManager) *AccountHandler {
 	return &AccountHandler{
+		config:         config,
 		BaseHandler:    baseHandler,
 		store:          store,
 		accountManager: accountManager,
@@ -387,7 +389,7 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 
 		password, repeatPassword, currentPassword := r.FormValue("Password"), r.FormValue("RepeatPassword"), r.FormValue("CurrentPassword")
 
-		if !account.NeedsPasswordReset() {
+		if !account.NeedsPasswordReset(ah.config.Accounts.AdminPasswordOverride) {
 			currentPasswordHash, err := hashPassword([]byte(currentPassword), []byte(account.PasswordSalt))
 
 			if err != nil {
@@ -403,7 +405,7 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 
 		if set {
 			if password == repeatPassword {
-				updateDetails := account.NeedsPasswordReset()
+				updateDetails := account.NeedsPasswordReset(ah.config.Accounts.AdminPasswordOverride)
 				err := ah.accountManager.ChangePassword(account, password)
 
 				if err == nil {
@@ -425,7 +427,7 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ah.viewRenderer.MustLoadTemplate(w, r, "accounts/new-password.html", &newPasswordTemplateVars{
-		NewAccount: account.NeedsPasswordReset(),
+		NewAccount: account.NeedsPasswordReset(ah.config.Accounts.AdminPasswordOverride),
 	})
 }
 
@@ -517,11 +519,13 @@ var ErrAccountNeedsPassword = errors.New("servermanager: account needs to set a 
 var ErrInvalidUsernameOrPassword = errors.New("servermanager: invalid username or password")
 
 type AccountManager struct {
+	config *Configuration
 	store Store
 }
 
-func NewAccountManager(store Store) *AccountManager {
+func NewAccountManager(config *Configuration, store Store) *AccountManager {
 	return &AccountManager{
+		config: config,
 		store: store,
 	}
 }
@@ -541,8 +545,8 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 
 	for _, account := range accounts {
 		if username == account.Name {
-			if (account.NeedsPasswordReset() && password == account.DefaultPassword && account.DefaultPassword != "") ||
-				(account.Name == adminUserName && config.Accounts.AdminPasswordOverride != "" && password == config.Accounts.AdminPasswordOverride) {
+			if (account.NeedsPasswordReset(am.config.Accounts.AdminPasswordOverride) && password == account.DefaultPassword && account.DefaultPassword != "") ||
+				(account.Name == adminUserName && am.config.Accounts.AdminPasswordOverride != "" && password == am.config.Accounts.AdminPasswordOverride) {
 				// first log in of the account, direct them to a reset password form
 				sess := getSession(r)
 				sess.Values[sessionAccountID] = account.ID.String()

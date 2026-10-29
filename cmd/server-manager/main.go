@@ -74,7 +74,7 @@ func main() {
 		filesystem = static.FS(false)
 	}
 
-	resolver, err := servermanager.NewResolver(templateLoader, os.Getenv("FILESYSTEM_HTML") == "true", store)
+	resolver, err := servermanager.NewResolver(config, templateLoader, os.Getenv("FILESYSTEM_HTML") == "true", store)
 
 	if err != nil {
 		ServeHTTPWithError(config.HTTP.Hostname, "Initialise resolver (internal error)", err)

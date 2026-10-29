@@ -1044,13 +1044,13 @@ func (a ActiveRaceWeekend) EventDescription() string {
 	return a.Description
 }
 
-func (a ActiveRaceWeekend) GetURL() string {
-	if config.HTTP.BaseURL != "" {
+func (a ActiveRaceWeekend) GetURL(baseURL string) string {
+	if baseURL != "" {
 		if a.ChampionshipID != uuid.Nil {
-			return config.HTTP.BaseURL + "/championship/" + a.ChampionshipID.String()
+			return baseURL + "/championship/" + a.ChampionshipID.String()
 		}
 
-		return config.HTTP.BaseURL + "/race-weekend/" + a.RaceWeekendID.String()
+		return baseURL + "/race-weekend/" + a.RaceWeekendID.String()
 	}
 
 	return ""

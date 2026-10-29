@@ -30,9 +30,9 @@ func setupServerProcessTest(t *testing.T, executablePath string) (*AssettoServer
 		t.Fatal(err)
 	}
 
-	oldInstallPath, oldConfig := ServerInstallPath, config
+	oldInstallPath := ServerInstallPath
 	ServerInstallPath = dir
-	config = &Configuration{}
+	config := &Configuration{}
 	config.Steam.ExecutablePath = executablePath
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
@@ -47,11 +47,11 @@ func setupServerProcessTest(t *testing.T, executablePath string) (*AssettoServer
 		t.Fatal(err)
 	}
 
-	sp := NewAssettoServerProcess(func(udp.Message) {}, store, NewContentManagerWrapper(store, nil, nil))
+	sp := NewAssettoServerProcess(config, func(udp.Message) {}, store, NewContentManagerWrapper(config, store, nil, nil))
 
 	return sp, fmt.Sprintf("127.0.0.1:%d", udpPort), func() {
 		_ = os.Unsetenv(fakeACServerEnv)
-		ServerInstallPath, config = oldInstallPath, oldConfig
+		ServerInstallPath = oldInstallPath
 		_ = os.RemoveAll(dir)
 	}
 }

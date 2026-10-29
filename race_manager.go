@@ -26,6 +26,7 @@ import (
 var ErrCustomRaceNotFound = errors.New("servermanager: custom race not found")
 
 type RaceManager struct {
+	config              *Configuration
 	process             ServerProcess
 	store               Store
 	carManager          *CarManager
@@ -50,6 +51,7 @@ type RaceManager struct {
 }
 
 func NewRaceManager(
+	config *Configuration,
 	store Store,
 	process ServerProcess,
 	carManager *CarManager,
@@ -58,6 +60,7 @@ func NewRaceManager(
 	raceControl *RaceControl,
 ) *RaceManager {
 	return &RaceManager{
+		config:                   config,
 		store:                    store,
 		process:                  process,
 		carManager:               carManager,
@@ -112,7 +115,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	raceConfig := event.GetRaceConfig()
 	entryList := event.GetEntryList()
 
-	if config.Lua.Enabled {
+	if rm.config.Lua.Enabled {
 		err = eventStartPlugin(&raceConfig, serverOpts, &entryList)
 
 		if err != nil {
@@ -1292,7 +1295,7 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 			}
 		}
 
-		if config.Lua.Enabled {
+		if rm.config.Lua.Enabled {
 			err = eventSchedulePlugin(race)
 
 			if err != nil {

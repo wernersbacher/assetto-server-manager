@@ -62,26 +62,26 @@ func setupScheduledEventTest(t *testing.T, process ServerProcess) (*Championship
 		t.Fatal(err)
 	}
 
-	oldInstallPath, oldConfig, oldServerID := ServerInstallPath, config, serverID
+	oldInstallPath, oldServerID := ServerInstallPath, serverID
 	ServerInstallPath = dir
-	config = &Configuration{}
 	serverID = "test-server"
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	cm := NewChampionshipManager(
 		NewRaceManager(
+			&Configuration{},
 			store,
 			process,
 			NewCarManager(NewTrackManager(), false, false),
 			NewTrackManager(),
 			&dummyNotificationManager{},
-			NewRaceControl(NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+			NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
 		),
 	)
 
 	return cm, store, func() {
-		ServerInstallPath, config, serverID = oldInstallPath, oldConfig, oldServerID
+		ServerInstallPath, serverID = oldInstallPath, oldServerID
 
 		_ = os.RemoveAll(dir)
 	}

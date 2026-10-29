@@ -145,6 +145,7 @@ func driverInitials(name string) string {
 
 // Renderer is the template engine.
 type Renderer struct {
+	config  *Configuration
 	store   Store
 	process ServerProcess
 	loader  TemplateLoader
@@ -155,8 +156,9 @@ type Renderer struct {
 	mutex  sync.Mutex
 }
 
-func NewRenderer(loader TemplateLoader, store Store, process ServerProcess, reload bool) (*Renderer, error) {
+func NewRenderer(config *Configuration, loader TemplateLoader, store Store, process ServerProcess, reload bool) (*Renderer, error) {
 	tr := &Renderer{
+		config:  config,
 		store:   store,
 		process: process,
 		loader:  loader,
@@ -223,7 +225,7 @@ func (tr *Renderer) init() error {
 	funcs["dict"] = templateDict
 	funcs["asset"] = NewAssetHelper("/", "", "", map[string]string{"cb": BuildVersion}).GetURL
 	funcs["SessionType"] = func(s string) SessionType { return SessionType(s) }
-	funcs["Config"] = func() *Configuration { return config }
+	funcs["Config"] = func() *Configuration { return tr.config }
 	funcs["Version"] = func() string { return BuildVersion }
 	funcs["fullTimeFormat"] = fullTimeFormat
 	funcs["localFormat"] = localFormatHelper
@@ -539,6 +541,7 @@ type BaseTemplateVars struct {
 	OGImage               string
 	ServerID              ServerID
 	ShowEventDetailsPopup bool
+	ShowUpgradePopup      bool
 }
 
 func (b *BaseTemplateVars) Get() *BaseTemplateVars {
@@ -577,9 +580,10 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.IsDarkTheme = opts.DarkTheme == 1
 	data.Request = r
 	data.Debug = Debug
-	data.RecaptchaSiteKey = config.Championships.RecaptchaConfig.SiteKey
+	data.RecaptchaSiteKey = tr.config.Championships.RecaptchaConfig.SiteKey
 	data.ServerID = serverID
 	data.ShowEventDetailsPopup = opts.ShowEventDetailsPopup
+	data.ShowUpgradePopup = data.User.ShouldSeeUpgradePopup(tr.config.Accounts.AdminPasswordOverride)
 
 	data.OGImage = opts.OGImage
 

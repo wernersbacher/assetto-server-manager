@@ -71,7 +71,7 @@ func TestNewAPIChampionship(t *testing.T) {
 
 	championship.Events = []*ChampionshipEvent{scheduledEvent, completedEvent, raceWeekendEvent}
 
-	out := NewAPIChampionship(championship)
+	out := NewAPIChampionship(championship, "")
 
 	if out.Name != "Test Championship" || out.Completed || len(out.Classes) != 1 || len(out.Events) != 3 {
 		t.Fatalf("unexpected championship: %+v", out)

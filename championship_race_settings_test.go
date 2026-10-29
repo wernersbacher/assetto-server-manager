@@ -459,7 +459,7 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
-	rwm := NewRaceWeekendManager(cm.RaceManager, cm, store, process, &dummyNotificationManager{}, NewCarManager(NewTrackManager(), false, false))
+	rwm := NewRaceWeekendManager(&Configuration{}, cm.RaceManager, cm, store, process, &dummyNotificationManager{}, NewCarManager(NewTrackManager(), false, false))
 
 	for _, useSettings := range []bool{false, true} {
 		process.event = nil

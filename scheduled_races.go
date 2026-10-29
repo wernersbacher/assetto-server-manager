@@ -31,7 +31,7 @@ type ScheduledEvent interface {
 	ClearRecurrenceRule()
 }
 
-func BuildICalEvent(event ScheduledEvent) *components.Event {
+func BuildICalEvent(event ScheduledEvent, baseURL string) *components.Event {
 	icalEvent := components.NewEvent(event.GetID().String(), event.GetScheduledTime().UTC())
 
 	raceSetup := event.GetRaceSetup()
@@ -51,8 +51,8 @@ func BuildICalEvent(event ScheduledEvent) *components.Event {
 
 	icalEvent.Summary += " " + event.GetSummary()
 
-	if config.HTTP.BaseURL != "" {
-		u, err := url.Parse(config.HTTP.BaseURL + event.GetURL())
+	if baseURL != "" {
+		u, err := url.Parse(baseURL + event.GetURL())
 
 		if err == nil {
 			icalEvent.Url = values.NewUrl(*u)
@@ -146,11 +146,13 @@ func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) erro
 }
 
 type ScheduledRacesManager struct {
+	config *Configuration
 	store Store
 }
 
-func NewScheduledRacesManager(store Store) *ScheduledRacesManager {
+func NewScheduledRacesManager(config *Configuration, store Store) *ScheduledRacesManager {
 	return &ScheduledRacesManager{
+		config: config,
 		store: store,
 	}
 }
@@ -237,7 +239,7 @@ func (srm *ScheduledRacesManager) buildScheduledRaces(w io.Writer) error {
 	cal := components.NewCalendar()
 
 	for _, event := range scheduled {
-		icalEvent := BuildICalEvent(event)
+		icalEvent := BuildICalEvent(event, srm.config.HTTP.BaseURL)
 
 		cal.Events = append(cal.Events, icalEvent)
 	}

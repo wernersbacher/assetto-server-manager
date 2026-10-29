@@ -7,6 +7,7 @@ import (
 )
 
 type Resolver struct {
+	config          *Configuration
 	store           Store
 	templateLoader  TemplateLoader
 	reloadTemplates bool
@@ -51,8 +52,9 @@ type Resolver struct {
 	realPenaltyHandler          *RealPenaltyHandler
 }
 
-func NewResolver(templateLoader TemplateLoader, reloadTemplates bool, store Store) (*Resolver, error) {
+func NewResolver(config *Configuration, templateLoader TemplateLoader, reloadTemplates bool, store Store) (*Resolver, error) {
 	r := &Resolver{
+		config:          config,
 		templateLoader:  templateLoader,
 		reloadTemplates: reloadTemplates,
 		store:           store,
@@ -66,7 +68,7 @@ func NewResolver(templateLoader TemplateLoader, reloadTemplates bool, store Stor
 }
 
 func (r *Resolver) UDPCallback(message udp.Message) {
-	if !config.Server.PerformanceMode {
+	if !r.config.Server.PerformanceMode {
 		r.ResolveRaceControl().UDPCallback(message)
 	}
 
@@ -83,7 +85,7 @@ func (r *Resolver) initViewRenderer() error {
 		return nil
 	}
 
-	viewRenderer, err := NewRenderer(r.templateLoader, r.store, r.resolveServerProcess(), r.reloadTemplates)
+	viewRenderer, err := NewRenderer(r.config, r.templateLoader, r.store, r.resolveServerProcess(), r.reloadTemplates)
 
 	if err != nil {
 		return err
@@ -103,7 +105,7 @@ func (r *Resolver) resolveServerProcess() ServerProcess {
 		return r.serverProcess
 	}
 
-	r.serverProcess = NewAssettoServerProcess(r.UDPCallback, r.ResolveStore(), r.resolveContentManagerWrapper())
+	r.serverProcess = NewAssettoServerProcess(r.config, r.UDPCallback, r.ResolveStore(), r.resolveContentManagerWrapper())
 
 	return r.serverProcess
 }
@@ -114,6 +116,7 @@ func (r *Resolver) resolveContentManagerWrapper() *ContentManagerWrapper {
 	}
 
 	r.contentManagerWrapper = NewContentManagerWrapper(
+		r.config,
 		r.ResolveStore(),
 		r.resolveCarManager(),
 		r.resolveTrackManager(),
@@ -128,6 +131,7 @@ func (r *Resolver) resolveRaceManager() *RaceManager {
 	}
 
 	r.raceManager = NewRaceManager(
+		r.config,
 		r.store,
 		r.resolveServerProcess(),
 		r.resolveCarManager(),
@@ -155,6 +159,7 @@ func (r *Resolver) resolveCustomRaceHandler() *CustomRaceHandler {
 	}
 
 	r.customRaceHandler = NewCustomRaceHandler(
+		r.config,
 		r.resolveBaseHandler(),
 		r.resolveRaceManager(),
 		r.ResolveStore(),
@@ -170,7 +175,7 @@ func (r *Resolver) resolveAccountManager() *AccountManager {
 		return r.accountManager
 	}
 
-	r.accountManager = NewAccountManager(r.store)
+	r.accountManager = NewAccountManager(r.config, r.store)
 
 	return r.accountManager
 }
@@ -180,7 +185,7 @@ func (r *Resolver) resolveAccountHandler() *AccountHandler {
 		return r.accountHandler
 	}
 
-	r.accountHandler = NewAccountHandler(r.resolveBaseHandler(), r.store, r.resolveAccountManager())
+	r.accountHandler = NewAccountHandler(r.config, r.resolveBaseHandler(), r.store, r.resolveAccountManager())
 
 	return r.accountHandler
 }
@@ -190,7 +195,7 @@ func (r *Resolver) resolveQuickRaceHandler() *QuickRaceHandler {
 		return r.quickRaceHandler
 	}
 
-	r.quickRaceHandler = NewQuickRaceHandler(r.resolveBaseHandler(), r.resolveRaceManager())
+	r.quickRaceHandler = NewQuickRaceHandler(r.config, r.resolveBaseHandler(), r.resolveRaceManager())
 
 	return r.quickRaceHandler
 }
@@ -212,8 +217,8 @@ func (r *Resolver) resolveCarManager() *CarManager {
 
 	r.carManager = NewCarManager(
 		r.resolveTrackManager(),
-		config.Server.ScanContentFolderForChanges,
-		config.Server.UseCarNameCache,
+		r.config.Server.ScanContentFolderForChanges,
+		r.config.Server.UseCarNameCache,
 	)
 
 	return r.carManager
@@ -246,7 +251,7 @@ func (r *Resolver) resolveChampionshipsHandler() *ChampionshipsHandler {
 		return r.championshipsHandler
 	}
 
-	r.championshipsHandler = NewChampionshipsHandler(r.resolveBaseHandler(), r.resolveChampionshipManager())
+	r.championshipsHandler = NewChampionshipsHandler(r.config, r.resolveBaseHandler(), r.resolveChampionshipManager())
 
 	return r.championshipsHandler
 }
@@ -316,7 +321,7 @@ func (r *Resolver) resolveScheduledRacesManager() *ScheduledRacesManager {
 		return r.scheduledRacesManager
 	}
 
-	r.scheduledRacesManager = NewScheduledRacesManager(r.ResolveStore())
+	r.scheduledRacesManager = NewScheduledRacesManager(r.config, r.ResolveStore())
 
 	return r.scheduledRacesManager
 }
@@ -337,6 +342,7 @@ func (r *Resolver) resolveServerAdministrationHandler() *ServerAdministrationHan
 	}
 
 	r.serverAdministrationHandler = NewServerAdministrationHandler(
+		r.config,
 		r.resolveBaseHandler(),
 		r.ResolveStore(),
 		r.resolveRaceManager(),
@@ -376,6 +382,7 @@ func (r *Resolver) ResolveRaceControl() *RaceControl {
 	}
 
 	r.raceControl = NewRaceControl(
+		r.config,
 		r.resolveRaceControlHub(),
 		filesystemTrackData{},
 		r.resolveServerProcess(),
@@ -387,7 +394,7 @@ func (r *Resolver) ResolveRaceControl() *RaceControl {
 }
 
 func (r *Resolver) resolveRaceControlHandler() *RaceControlHandler {
-	if config.Server.PerformanceMode {
+	if r.config.Server.PerformanceMode {
 		return nil
 	}
 
@@ -413,6 +420,7 @@ func (r *Resolver) resolveRaceWeekendManager() *RaceWeekendManager {
 	}
 
 	r.raceWeekendManager = NewRaceWeekendManager(
+		r.config,
 		r.resolveRaceManager(),
 		r.resolveChampionshipManager(),
 		r.ResolveStore(),
@@ -503,6 +511,7 @@ func (r *Resolver) resolveRealPenaltyHandler() *RealPenaltyHandler {
 
 func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 	return Router(
+		r.config,
 		fs,
 		r.resolveQuickRaceHandler(),
 		r.resolveCustomRaceHandler(),

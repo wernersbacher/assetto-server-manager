@@ -48,7 +48,7 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 	rch := &RaceControlHandler{
 		store:         store,
 		serverProcess: process,
-		raceControl:   NewRaceControl(NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+		raceControl:   NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
 	}
 
 	rec := httptest.NewRecorder()
@@ -79,7 +79,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 
 	defer func() { UseShortenedDriverNames = oldShortened }()
 
-	raceControl := NewRaceControl(NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore))
+	raceControl := NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore))
 
 	if err := raceControl.OnNewSession(udp.SessionInfo{
 		ServerName:  "Lobby Name",

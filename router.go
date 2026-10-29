@@ -45,6 +45,7 @@ func InitLogging() {
 }
 
 func Router(
+	config *Configuration,
 	fs http.FileSystem,
 	quickRaceHandler *QuickRaceHandler,
 	customRaceHandler *CustomRaceHandler,

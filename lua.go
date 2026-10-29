@@ -13,7 +13,11 @@ import (
 
 var luaFunctions = make(map[string]lua.LGFunction)
 
+// luaInitialised is set by InitLua, which is only called when Lua is enabled in the configuration.
+var luaInitialised bool
+
 func InitLua(raceControl *RaceControl) {
+	luaInitialised = true
 	luaFunctions["httpRequest"] = LuaHTTPRequest
 	luaFunctions["broadcastChat"] = raceControl.LuaBroadcastChat
 	luaFunctions["sendChat"] = raceControl.LuaSendChat

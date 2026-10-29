@@ -18,11 +18,13 @@ type ChampionshipsHandler struct {
 	*BaseHandler
 	SteamLoginHandler
 
+	config *Configuration
 	championshipManager *ChampionshipManager
 }
 
-func NewChampionshipsHandler(baseHandler *BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
+func NewChampionshipsHandler(config *Configuration, baseHandler *BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
 	return &ChampionshipsHandler{
+		config: config,
 		BaseHandler:         baseHandler,
 		championshipManager: championshipManager,
 	}
@@ -248,7 +250,7 @@ func (ch *ChampionshipsHandler) exportResults(w http.ResponseWriter, r *http.Req
 				continue
 			}
 
-			sessionFiles = append(sessionFiles, session.Results.GetURL())
+			sessionFiles = append(sessionFiles, session.Results.GetURL(ch.config.HTTP.BaseURL))
 		}
 
 		results = append(results, championshipResults{

@@ -25,7 +25,6 @@ type RaceEvent interface {
 
 	EventName() string
 	EventDescription() string
-	GetURL() string
 }
 
 type marshalledRaceEvent struct {

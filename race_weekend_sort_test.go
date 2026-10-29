@@ -538,13 +538,10 @@ func withSortTestResultsDir(t *testing.T) func() {
 	}
 
 	oldInstallPath := ServerInstallPath
-	oldConfig := config
 	ServerInstallPath = dir
-	config = &Configuration{}
 
 	return func() {
 		ServerInstallPath = oldInstallPath
-		config = oldConfig
 		_ = os.RemoveAll(dir)
 	}
 }

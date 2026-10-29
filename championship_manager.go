@@ -606,7 +606,7 @@ func (cm *ChampionshipManager) StartEvent(championshipID string, eventID string,
 
 	raceSetup, entryList := cm.FinalEventConfigurationFiles(championship, event, isPreChampionshipPracticeEvent)
 
-	if config.Lua.Enabled {
+	if cm.config.Lua.Enabled {
 		err := championshipEventStartPlugin(event, championship, &entryList)
 
 		if err != nil {
@@ -740,7 +740,7 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 			}
 		}
 
-		if config.Lua.Enabled {
+		if cm.config.Lua.Enabled {
 			err = championshipEventSchedulePlugin(championship, event)
 
 			if err != nil {
@@ -1451,7 +1451,7 @@ func (cm *ChampionshipManager) BuildICalFeed(championshipID string, w io.Writer)
 
 		event.championship = championship
 
-		icalEvent := BuildICalEvent(event)
+		icalEvent := BuildICalEvent(event, cm.config.HTTP.BaseURL)
 
 		cal.Events = append(cal.Events, icalEvent)
 	}
@@ -1593,9 +1593,9 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		signUpResponse.Questions[question] = r.FormValue(fmt.Sprintf("Question.%d", index))
 	}
 
-	if config.Championships.RecaptchaConfig.SecretKey != "" {
+	if cm.config.Championships.RecaptchaConfig.SecretKey != "" {
 		captcha := recaptcha.R{
-			Secret: config.Championships.RecaptchaConfig.SecretKey,
+			Secret: cm.config.Championships.RecaptchaConfig.SecretKey,
 		}
 
 		if !captcha.Verify(*r) {

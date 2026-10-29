@@ -10,11 +10,13 @@ import (
 type QuickRaceHandler struct {
 	*BaseHandler
 
+	config      *Configuration
 	raceManager *RaceManager
 }
 
-func NewQuickRaceHandler(baseHandler *BaseHandler, raceManager *RaceManager) *QuickRaceHandler {
+func NewQuickRaceHandler(config *Configuration, baseHandler *BaseHandler, raceManager *RaceManager) *QuickRaceHandler {
 	return &QuickRaceHandler{
+		config:      config,
 		BaseHandler: baseHandler,
 		raceManager: raceManager,
 	}
@@ -47,7 +49,7 @@ func (qrh *QuickRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
 
 	AddFlash(w, r, "Quick race successfully started!")
 
-	if config.Server.PerformanceMode {
+	if qrh.config.Server.PerformanceMode {
 		http.Redirect(w, r, "/", http.StatusFound)
 	} else {
 		http.Redirect(w, r, "/live-timing", http.StatusFound)

@@ -37,6 +37,7 @@ type ServerProcess interface {
 
 // AssettoServerProcess manages the Assetto Corsa Server process.
 type AssettoServerProcess struct {
+	config                *Configuration
 	store                 Store
 	contentManagerWrapper *ContentManagerWrapper
 
@@ -73,8 +74,9 @@ type pluginProcess struct {
 	stdin io.WriteCloser
 }
 
-func NewAssettoServerProcess(callbackFunc udp.CallbackFunc, store Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
+func NewAssettoServerProcess(config *Configuration, callbackFunc udp.CallbackFunc, store Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
 	sp := &AssettoServerProcess{
+		config:                config,
 		start:                 make(chan RaceEvent),
 		started:               make(chan error),
 		stopped:               make(chan error),
@@ -95,7 +97,7 @@ func (sp *AssettoServerProcess) UDPCallback(message udp.Message) {
 	panicCapture(func() {
 		sp.callbackFunc(message)
 
-		if config.Server.PersistMidSessionResults && message.Event() == udp.EventNewSession {
+		if sp.config.Server.PersistMidSessionResults && message.Event() == udp.EventNewSession {
 			// on new session, push down the sessionStartedChan so that if server stop is waiting to hear about
 			// a new session (so results files have been persisted correctly), it can then stop the server.
 			select {
@@ -144,7 +146,7 @@ func (sp *AssettoServerProcess) Stop() error {
 		return nil
 	}
 
-	if config.Server.PersistMidSessionResults {
+	if sp.config.Server.PersistMidSessionResults {
 		nextSessionTimeout := time.After(time.Second * 2)
 
 		go func() {
@@ -228,10 +230,10 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 	logrus.Infof("Starting Server Process with event: %s", describeRaceEvent(raceEvent))
 	var executablePath string
 
-	if filepath.IsAbs(config.Steam.ExecutablePath) {
-		executablePath = config.Steam.ExecutablePath
+	if filepath.IsAbs(sp.config.Steam.ExecutablePath) {
+		executablePath = sp.config.Steam.ExecutablePath
 	} else {
-		executablePath = filepath.Join(ServerInstallPath, config.Steam.ExecutablePath)
+		executablePath = filepath.Join(ServerInstallPath, sp.config.Steam.ExecutablePath)
 	}
 
 	serverOptions, err := sp.store.LoadServerOptions()
@@ -472,7 +474,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 
 		kissMyRankOptions.ACServerIP = "127.0.0.1"
 		kissMyRankOptions.ACServerHTTPPort = serverOptions.HTTPPort
-		kissMyRankOptions.UpdateInterval = config.LiveMap.IntervalMs
+		kissMyRankOptions.UpdateInterval = sp.config.LiveMap.IntervalMs
 		kissMyRankOptions.ACServerResultsBasePath = ServerInstallPath
 
 		raceConfig := sp.raceEvent.GetRaceConfig()
@@ -516,7 +518,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 		logrus.Infof("Started KissMyRank")
 	}
 
-	for _, plugin := range config.Server.Plugins {
+	for _, plugin := range sp.config.Server.Plugins {
 		err = sp.startPlugin(wd, plugin)
 
 		if err != nil {
@@ -524,10 +526,10 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 		}
 	}
 
-	if len(config.Server.RunOnStart) > 0 {
+	if len(sp.config.Server.RunOnStart) > 0 {
 		logrus.Warnf("Use of run_on_start in config.yml is deprecated. Please use 'plugins' instead")
 
-		for _, command := range config.Server.RunOnStart {
+		for _, command := range sp.config.Server.RunOnStart {
 			err = sp.startChildProcess(wd, command)
 
 			if err != nil {

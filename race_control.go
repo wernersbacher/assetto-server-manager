@@ -18,6 +18,7 @@ import (
 )
 
 type RaceControl struct {
+	config           *Configuration
 	process          ServerProcess
 	store            Store
 	penaltiesManager *PenaltiesManager
@@ -77,8 +78,9 @@ type Collision struct {
 	Speed           float64        `json:"Speed"`
 }
 
-func NewRaceControl(broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store Store, penaltiesManager *PenaltiesManager) *RaceControl {
+func NewRaceControl(config *Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store Store, penaltiesManager *PenaltiesManager) *RaceControl {
 	rc := &RaceControl{
+		config:               config,
 		broadcaster:          broadcaster,
 		trackDataGateway:     trackDataGateway,
 		process:              process,
@@ -963,8 +965,8 @@ func (rc *RaceControl) OnClientLoaded(loadedCar udp.ClientLoaded) error {
 		solWarning = "This server is running Sol. For the best experience please install Sol, and remember the other drivers may be driving in night conditions."
 	}
 
-	if config != nil && config.HTTP.BaseURL != "" {
-		liveLink = fmt.Sprintf("You can view live timings for this event at %s", config.HTTP.BaseURL+"/live-timing")
+	if rc.config != nil && rc.config.HTTP.BaseURL != "" {
+		liveLink = fmt.Sprintf("You can view live timings for this event at %s", rc.config.HTTP.BaseURL+"/live-timing")
 	}
 
 	wrapped := strings.Split(wordwrap.WrapString(
@@ -1035,8 +1037,8 @@ func (rc *RaceControl) sendChampionshipPlayerSummaryMessage(driver *RaceControlD
 
 	visitServer := ""
 
-	if config != nil && config.HTTP.BaseURL != "" {
-		visitServer = fmt.Sprintf(" You can check out the results of this championship in detail at %s.", config.HTTP.BaseURL+"/championship/"+championship.ID.String())
+	if rc.config != nil && rc.config.HTTP.BaseURL != "" {
+		visitServer = fmt.Sprintf(" You can check out the results of this championship in detail at %s.", rc.config.HTTP.BaseURL+"/championship/"+championship.ID.String())
 	}
 
 	wrapped := strings.Split(wordwrap.WrapString(
@@ -1179,7 +1181,7 @@ func (rc *RaceControl) OnChatMessage(chat udp.Chat) error {
 
 	rc.ChatMessagesMutex.Unlock()
 
-	if config.Lua.Enabled {
+	if rc.config.Lua.Enabled {
 		go func() {
 			err := chatMessagePlugin(chat)
 

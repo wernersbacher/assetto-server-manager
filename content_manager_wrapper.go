@@ -101,6 +101,7 @@ type CMCar struct {
 }
 
 type ContentManagerWrapper struct {
+	config       *Configuration
 	store        Store
 	carManager   *CarManager
 	trackManager *TrackManager
@@ -118,8 +119,9 @@ type ContentManagerWrapper struct {
 	mutex       sync.Mutex
 }
 
-func NewContentManagerWrapper(store Store, carManager *CarManager, trackManager *TrackManager) *ContentManagerWrapper {
+func NewContentManagerWrapper(config *Configuration, store Store, carManager *CarManager, trackManager *TrackManager) *ContentManagerWrapper {
 	return &ContentManagerWrapper{
+		config:       config,
 		store:        store,
 		carManager:   carManager,
 		trackManager: trackManager,
@@ -195,13 +197,13 @@ func (cmw *ContentManagerWrapper) setDescriptionText(event RaceEvent) error {
 	var champPoints string
 
 	if champ, ok := cmw.event.(*ActiveChampionship); ok {
-		if u := champ.GetURL(); u != "" {
+		if u := champ.GetURL(cmw.config.HTTP.BaseURL); u != "" {
 			champPoints = fmt.Sprintf("\n\nView the Championship points here: %s", u)
 		}
 	}
 
 	if raceWeekend, ok := cmw.event.(*ActiveRaceWeekend); ok {
-		if u := raceWeekend.GetURL(); u != "" && raceWeekend.ChampionshipID != uuid.Nil {
+		if u := raceWeekend.GetURL(cmw.config.HTTP.BaseURL); u != "" && raceWeekend.ChampionshipID != uuid.Nil {
 			champPoints = fmt.Sprintf("\n\nView the Championship points here: %s", u)
 		}
 	}

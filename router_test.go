@@ -14,7 +14,6 @@ import (
 // destructive routes must not be reachable via GET, otherwise link prefetching or a
 // cross-site <img src="..."> can delete content
 func TestRouterDeleteRoutesArePostOnly(t *testing.T) {
-	config = &Configuration{}
 
 	dir, err := ioutil.TempDir("", "router-test")
 
@@ -26,7 +25,7 @@ func TestRouterDeleteRoutesArePostOnly(t *testing.T) {
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
-	resolver, err := NewResolver(NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store)
+	resolver, err := NewResolver(&Configuration{}, NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store)
 
 	if err != nil {
 		t.Fatal(err)

@@ -14,8 +14,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var config *Configuration
-
 type Configuration struct {
 	HTTP          HTTPConfig          `yaml:"http"`
 	Steam         SteamConfig         `yaml:"steam"`
@@ -187,19 +185,18 @@ func ReadConfig(location string) (conf *Configuration, err error) {
 		return nil, err
 	}
 
-	config = conf
 	sessionsStore, err = conf.HTTP.createSessionStore()
 
 	if err != nil {
 		return nil, err
 	}
 
-	if config.Accounts.AdminPasswordOverride != "" {
+	if conf.Accounts.AdminPasswordOverride != "" {
 		logrus.Infof("WARNING! Admin Password Override is set. Please only have this set if you are resetting your admin account password!")
 	}
 
-	if config.Steam.ExecutablePath == "" {
-		config.Steam.ExecutablePath = ServerExecutablePath
+	if conf.Steam.ExecutablePath == "" {
+		conf.Steam.ExecutablePath = ServerExecutablePath
 	}
 
 	return conf, err

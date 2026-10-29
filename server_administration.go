@@ -18,6 +18,7 @@ import (
 type ServerAdministrationHandler struct {
 	*BaseHandler
 
+	config              *Configuration
 	store               Store
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
@@ -27,6 +28,7 @@ type ServerAdministrationHandler struct {
 }
 
 func NewServerAdministrationHandler(
+	config *Configuration,
 	baseHandler *BaseHandler,
 	store Store,
 	raceManager *RaceManager,
@@ -36,6 +38,7 @@ func NewServerAdministrationHandler(
 	scheduledRaces *ScheduledRacesManager,
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
+		config:              config,
 		BaseHandler:         baseHandler,
 		store:               store,
 		raceManager:         raceManager,
@@ -85,7 +88,7 @@ func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Requ
 
 	sah.viewRenderer.MustLoadTemplate(w, r, "home.html", &homeTemplateVars{
 		RaceDetails:     customRace,
-		PerformanceMode: config.Server.PerformanceMode,
+		PerformanceMode: sah.config.Server.PerformanceMode,
 		UpcomingRaces:   upcoming,
 		RecentResults:   recentResults,
 	})

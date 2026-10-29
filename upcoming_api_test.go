@@ -26,7 +26,7 @@ func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, Store, func()) 
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
-	handler := NewScheduledRacesHandler(&BaseHandler{}, NewScheduledRacesManager(store))
+	handler := NewScheduledRacesHandler(&BaseHandler{}, NewScheduledRacesManager(&Configuration{}, store))
 
 	return handler, store, func() {
 		serverID = oldServerID

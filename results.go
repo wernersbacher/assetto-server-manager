@@ -290,8 +290,8 @@ func (s *SessionResults) DriversHaveTeams() bool {
 	return false
 }
 
-func (s *SessionResults) GetURL() string {
-	return config.HTTP.BaseURL + "/results/download/" + s.SessionFile + ".json"
+func (s *SessionResults) GetURL(baseURL string) string {
+	return baseURL + "/results/download/" + s.SessionFile + ".json"
 }
 
 func (s *SessionResults) GetCrashes(guid, model string) int {
@@ -1545,7 +1545,7 @@ func LoadResult(fileName string, opts ...LoadResultOpts) (*SessionResults, error
 		}
 	}
 
-	if !skipLua && config.Lua.Enabled {
+	if !skipLua && luaInitialised {
 		err = resultsLoadPlugin(result)
 
 		if err != nil {

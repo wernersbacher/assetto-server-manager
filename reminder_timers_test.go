@@ -203,7 +203,7 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 	defer cleanup()
 
 	notificationManager := &reminderNotificationManager{reminders: []int{120, 15}}
-	rwm := NewRaceWeekendManager(cm.RaceManager, cm, store, cm.process, notificationManager, cm.carManager)
+	rwm := NewRaceWeekendManager(&Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, cm.carManager)
 
 	raceWeekend := NewRaceWeekend()
 	session := NewRaceWeekendSession()

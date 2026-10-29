@@ -21,6 +21,7 @@ import (
 )
 
 type RaceWeekendManager struct {
+	config              *Configuration
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	notificationManager NotificationDispatcher
@@ -36,6 +37,7 @@ type RaceWeekendManager struct {
 }
 
 func NewRaceWeekendManager(
+	config *Configuration,
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
 	store Store,
@@ -44,6 +46,7 @@ func NewRaceWeekendManager(
 	carManager *CarManager,
 ) *RaceWeekendManager {
 	return &RaceWeekendManager{
+		config:              config,
 		raceManager:         raceManager,
 		championshipManager: championshipManager,
 		notificationManager: notificationManager,
@@ -1256,7 +1259,7 @@ func (rwm *RaceWeekendManager) ScheduleSession(raceWeekendID, sessionID string, 
 	session.StartWhenParentHasFinished = startWhenParentFinishes
 	session.ScheduledServerID = serverID
 
-	if config.Lua.Enabled {
+	if rwm.config.Lua.Enabled {
 		err = raceWeekendEventSchedulePlugin(raceWeekend, session)
 
 		if err != nil {

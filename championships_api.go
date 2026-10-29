@@ -89,11 +89,11 @@ type APISession struct {
 	TrackName   string `json:",omitempty"`
 }
 
-func NewAPIChampionship(championship *Championship) *APIChampionship {
+func NewAPIChampionship(championship *Championship, baseURL string) *APIChampionship {
 	out := &APIChampionship{
 		ID:               championship.ID,
 		Name:             championship.Name,
-		URL:              championship.GetURL(),
+		URL:              championship.GetURL(baseURL),
 		Info:             championship.Info,
 		Completed:        championship.Progress() == 100,
 		Progress:         championship.Progress(),
@@ -336,7 +336,7 @@ func (ch *ChampionshipsHandler) listAPI(w http.ResponseWriter, r *http.Request) 
 	out := make([]*APIChampionship, 0, len(championships))
 
 	for _, championship := range championships {
-		out = append(out, NewAPIChampionship(championship))
+		out = append(out, NewAPIChampionship(championship, ch.config.HTTP.BaseURL))
 	}
 
 	writeAPIJSON(w, out)
@@ -355,7 +355,7 @@ func (ch *ChampionshipsHandler) viewAPI(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	writeAPIJSON(w, NewAPIChampionship(championship))
+	writeAPIJSON(w, NewAPIChampionship(championship, ch.config.HTTP.BaseURL))
 }
 
 func writeAPIJSON(w http.ResponseWriter, data interface{}) {

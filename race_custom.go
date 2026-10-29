@@ -129,14 +129,16 @@ func (cr *CustomRace) GetForceStopWithDrivers() bool {
 type CustomRaceHandler struct {
 	*BaseHandler
 
+	config              *Configuration
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
 	store               Store
 }
 
-func NewCustomRaceHandler(base *BaseHandler, raceManager *RaceManager, store Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
+func NewCustomRaceHandler(config *Configuration, base *BaseHandler, raceManager *RaceManager, store Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
 	return &CustomRaceHandler{
+		config:              config,
 		BaseHandler:         base,
 		raceManager:         raceManager,
 		store:               store,
@@ -296,7 +298,7 @@ func (crh *CustomRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/custom", http.StatusFound)
 	} else {
 		AddFlash(w, r, "Custom race started!")
-		if config.Server.PerformanceMode {
+		if crh.config.Server.PerformanceMode {
 			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
 			http.Redirect(w, r, "/live-timing", http.StatusFound)
@@ -367,7 +369,7 @@ func (crh *CustomRaceHandler) start(w http.ResponseWriter, r *http.Request) {
 
 	AddFlash(w, r, "Custom race started!")
 
-	if config.Server.PerformanceMode {
+	if crh.config.Server.PerformanceMode {
 		http.Redirect(w, r, "/", http.StatusFound)
 	} else {
 		http.Redirect(w, r, "/live-timing", http.StatusFound)

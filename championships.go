@@ -375,9 +375,9 @@ func (c *Championship) GetPlayerSummary(guid string) string {
 	return out
 }
 
-func (c *Championship) GetURL() string {
-	if config.HTTP.BaseURL != "" {
-		return config.HTTP.BaseURL + "/championship/" + c.ID.String()
+func (c *Championship) GetURL(baseURL string) string {
+	if baseURL != "" {
+		return baseURL + "/championship/" + c.ID.String()
 	}
 
 	return ""
@@ -1851,9 +1851,9 @@ func (a *ActiveChampionship) IsPractice() bool {
 	return a.IsPracticeSession
 }
 
-func (a *ActiveChampionship) GetURL() string {
-	if config.HTTP.BaseURL != "" {
-		return config.HTTP.BaseURL + "/championship/" + a.ChampionshipID.String()
+func (a *ActiveChampionship) GetURL(baseURL string) string {
+	if baseURL != "" {
+		return baseURL + "/championship/" + a.ChampionshipID.String()
 	}
 
 	return ""
