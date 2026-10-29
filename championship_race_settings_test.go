@@ -455,11 +455,6 @@ func TestChampionship_EffectiveRaceWeekendSessionSetup(t *testing.T) {
 }
 
 func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
-	oldPremium := IsPremium
-	IsPremium = "true"
-
-	defer func() { IsPremium = oldPremium }()
-
 	process := &interruptibleServerProcess{}
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()

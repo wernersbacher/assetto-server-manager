@@ -83,9 +83,7 @@
                             <input type="checkbox"
                                    id="ACSR"
                                    name="ACSR"
-                                {{ if not $.RaceTemplateVars.BaseTemplateVars.IsPremium }}
-                                    disabled="disabled"
-                                {{ end }}
+                                                                    disabled="disabled"
                                 {{ if $f.ACSR }}
                                     checked="checked"
                                 {{ end }}
@@ -492,7 +490,6 @@
 
                 </div>
 
-                {{ if $.RaceTemplateVars.BaseTemplateVars.IsPremium }}
                     <div class="form-group row">
                         <label for="ChampionshipOGImage" class="col-sm-3 col-form-label">Championship Open Graph Image</label>
 
@@ -503,7 +500,6 @@
                             <small>The URL of an image to be shown in any link to this championship.</small>
                         </div>
                     </div>
-                {{ end }}
 
                 <div class="form-group row">
                     <label for="ChampionshipDefaultTab" class="col-sm-3 col-form-label">Default Tab</label>
@@ -521,7 +517,6 @@
             </div>
         </div>
 
-        {{ if $.IsPremium }}
             <div class="card mt-3 border-secondary race-setup hidden-open-championship">
                 <div class="card-header">
                     <strong>Spectator Car</strong>
@@ -566,7 +561,6 @@
                     </div>
                 </div>
             </div>
-        {{ end }}
 
         <div class="card mt-3 border-secondary">
             <div class="card-header">

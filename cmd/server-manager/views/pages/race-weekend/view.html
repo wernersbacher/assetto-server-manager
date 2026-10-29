@@ -192,7 +192,6 @@
 
                         {{ if WriteAccess }}
                             {{ if not (or $session.InProgress $session.Completed) }}
-                                {{ if $.IsPremium }}
                                     {{ if $.RaceWeekend.SessionCanBeRun $session }}
                                         <div class="btn-group btn-group-sm">
                                             <a class="btn btn-success btn-sm"
@@ -231,7 +230,6 @@
                                     >
                                         Schedule Session
                                     </button>
-                                {{ end }}
 
                                 <div id="popover-content-schedule-{{ $session.ID.String }}" style="display: none;">
                                     <form action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/schedule" method="POST">
@@ -286,11 +284,9 @@
                                         Edit
                                     </a>
 
-                                    {{ if $.IsPremium }}
                                         <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/import">
                                             Import Results
                                         </a>
-                                    {{ end }}
 
                                     {{ if $.ShowEventDetailsPopup }}
                                         <a class="dropdown-item race-weekend-session-details"

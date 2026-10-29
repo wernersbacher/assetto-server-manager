@@ -379,7 +379,7 @@ class RaceSetup {
         let $timeAttack = $("#TimeAttack");
 
         if (!$timeAttack.length > 0) {
-            // don't init time attack at all on non-premium builds
+            // the Time Attack switch only exists on custom race forms
             return;
         }
 

@@ -318,7 +318,6 @@
 
             <div class="card-body">
 
-                {{ if $.IsPremium }}
                     <div class="form-group row" {{ if or $.IsRaceWeekend .IsChampionship }} style="display: none" {{ end }}>
                         <label class="col-sm-3 col-form-label">Time Attack</label>
 
@@ -340,7 +339,6 @@
                             that you run a locked entry list for a stable experience with Time Attack events.</strong></small>
                         </div>
                     </div>
-                {{ end }}
 
                 {{ if $.IsRaceWeekend }}
                     <div class="form-group row">
@@ -851,12 +849,11 @@
                         </div>
                     {{ end }}
 
-                    {{ if and $.IsPremium (not $.IsChampionship) }}
+                    {{ if not $.IsChampionship }}
                         <hr>
                     {{ end }}
                 {{ end }}
 
-                {{ if $.IsPremium }}
                     <div class="form-group row">
                         <label for="DriverSwapEnabled" class="col-sm-3 col-form-label">Driver Swaps</label>
 
@@ -985,7 +982,6 @@
                     </div>
 
                     <br>
-                {{ end }}
 
                 {{ if not $.IsRaceWeekend }}
                     <div class="hidden-booking-enabled">

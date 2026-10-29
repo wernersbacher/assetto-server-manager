@@ -20,7 +20,6 @@ func EncodeFormData(data interface{}, r *http.Request) (template.HTML, error) {
 
 	enc := formulate.NewEncoder(buf, &decorator{})
 	enc.SetFormat(true)
-	enc.AddShowCondition("premium", Premium)
 	enc.AddShowCondition("open", func() bool {
 		if !IsHosted {
 			return true

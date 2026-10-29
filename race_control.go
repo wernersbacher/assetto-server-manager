@@ -541,7 +541,7 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 		}
 	}
 
-	if rc.currentTimeAttackEvent != nil && Premium() {
+	if rc.currentTimeAttackEvent != nil {
 		filename := filepath.Base(string(sessionFile))
 
 		err := rc.addFileToTimeAttackEvent(filename)
@@ -1179,7 +1179,7 @@ func (rc *RaceControl) OnChatMessage(chat udp.Chat) error {
 
 	rc.ChatMessagesMutex.Unlock()
 
-	if config.Lua.Enabled && Premium() {
+	if config.Lua.Enabled {
 		go func() {
 			err := chatMessagePlugin(chat)
 

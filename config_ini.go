@@ -181,10 +181,10 @@ type GlobalServerConfig struct {
 	FreeUDPPluginAddress   string `ini:"-" show:"-"`
 
 	// ACSR
-	AssettoCorsaSkillRating FormHeading `ini:"-" json:"-" show:"premium"`
-	EnableACSR              bool        `ini:"-" show:"premium" help:"Enable ACSR integration. <a href='https://acsr.assettocorsaservers.com'>You can read more about ACSR here</a>."`
-	ACSRAccountID           string      `ini:"-" show:"premium" help:"Your ACSR account ID. You can <a href='https://acsr.assettocorsaservers.com/account'>request an ACSR key here</a>."`
-	ACSRAPIKey              string      `ini:"-" show:"premium" name:"ACSR API Key" help:"Your ACSR API Key. You can <a href='https://acsr.assettocorsaservers.com/account'>request an ACSR key here</a>."`
+	AssettoCorsaSkillRating FormHeading `ini:"-" json:"-" show:"-"`
+	EnableACSR              bool        `ini:"-" show:"-" help:"Enable ACSR integration. <a href='https://acsr.assettocorsaservers.com'>You can read more about ACSR here</a>."`
+	ACSRAccountID           string      `ini:"-" show:"-" help:"Your ACSR account ID. You can <a href='https://acsr.assettocorsaservers.com/account'>request an ACSR key here</a>."`
+	ACSRAPIKey              string      `ini:"-" show:"-" name:"ACSR API Key" help:"Your ACSR API Key. You can <a href='https://acsr.assettocorsaservers.com/account'>request an ACSR key here</a>."`
 
 	ServerName                FormHeading          `ini:"-" json:"-"`
 	ShowRaceNameInServerLobby formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager append the Custom Race or Championship name to the Server name in the lobby."`
@@ -193,7 +193,7 @@ type GlobalServerConfig struct {
 	Theme     FormHeading          `ini:"-" json:"-"`
 	DarkTheme formulate.BoolNumber `ini:"-" help:"Enable Server Manager's Dark Theme by default"`
 	CustomCSS string               `ini:"-" elem:"textarea" help:"Customise the style of Server Manager! You can <a href='https://github.com/JustaPenguin/assetto-server-manager/wiki/Custom-CSS-Examples'>view some examples</a> on the Server Manager Wiki!"`
-	OGImage   string               `ini:"-" show:"premium" help:"Link to an image on the web here to set it as your default Open Graph image (will show in links)"`
+	OGImage   string               `ini:"-" help:"Link to an image on the web here to set it as your default Open Graph image (will show in links)"`
 
 	ContentManagerIntegration   FormHeading          `ini:"-" json:"-"`
 	EnableContentManagerWrapper formulate.BoolNumber `ini:"-" help:"When on, this option makes Server Manager provide extra information to Content Manager. This includes more detail about connected clients, event descriptions and download links. A side-effect of this is that your server name will contain a new piece of information (an 'i' character followed by a port - which Content Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality provided by <a href='https://freegeoip.app''>freegeoip.app</a>."`

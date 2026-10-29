@@ -125,7 +125,6 @@
                                     <li>Locked Entry List: {{ yn (eq $.EventConfig.LockedEntryList 1) }}</li>
                                     <li>Pickup Mode: {{ yn (eq $.EventConfig.PickupModeEnabled 1) }}</li>
 
-                                    {{ if $.IsPremium }}
                                         <li>
                                             Driver Swaps: {{ yn (eq $.EventConfig.DriverSwapEnabled 1) }}
 
@@ -136,7 +135,6 @@
                                                 </ul>
                                             {{ end }}
                                         </li>
-                                    {{ end }}
                                 </ul>
                             </div>
                         </div>

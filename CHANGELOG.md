@@ -19,6 +19,7 @@ Added:
 * The Championship pages are reworked: a header with progress and organizer actions grouped in menus, standings tables that scroll inside a container with the driver column pinned (also on phones), cleaner event cards with the practice, edit and delete actions in one menu, and a registration form with larger inputs and a full-width button on phones.
 * Championships can now drop the worst N event results of each driver and team from the standings ("Drop Worst Results" in the Championship settings). Dropped results are struck through in the standings, missed events count as 0 points and are dropped first, and points penalties are never dropped.
 * Championships can now define race settings (fuel rate, tyre wear, damage, assists, tyres out and dynamic track) once for the whole Championship. Each event can choose to use the Championship race settings or its own.
+* Features that were only available in the paid upstream "premium" build are now unlocked for everyone: Race Weekends (starting and importing sessions), Time Attack events, Driver Swaps, Lua plugins, the Championship and Race Weekend spectator car and Open Graph images for the manager and Championships.
 
 Fixed:
 

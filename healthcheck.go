@@ -29,10 +29,9 @@ func NewHealthCheck(raceControl *RaceControl, store Store, process ServerProcess
 }
 
 type HealthCheckResponse struct {
-	OK        bool
-	Version   string
-	IsPremium bool
-	IsHosted  bool
+	OK       bool
+	Version  string
+	IsHosted bool
 
 	OS            string
 	NumCPU        int
@@ -75,7 +74,6 @@ func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		OK:                 true,
 		OS:                 runtime.GOOS + "/" + runtime.GOARCH,
 		Version:            BuildVersion,
-		IsPremium:          Premium(),
 		IsHosted:           IsHosted,
 		MaxClientsOverride: MaxClientsOverride,
 		NumCPU:             runtime.NumCPU(),
