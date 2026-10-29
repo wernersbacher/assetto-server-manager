@@ -364,6 +364,20 @@ td .dot-inactive {
   margin-bottom: 16px;
 }
 
+// Standings and map side by side only when the full standings table fits next to the map, otherwise the map goes
+// below the table (between the phone/tablet breakpoint and this one).
+@media screen and (min-width: 1900px) {
+  .live-pane-standings {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+  }
+
+  .live-pane-map {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+  }
+}
+
 .live-table {
   .lap-fastest {
     color: var(--tertiary);
