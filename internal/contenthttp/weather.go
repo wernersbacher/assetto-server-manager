@@ -1,4 +1,4 @@
-package servermanager
+package contenthttp
 
 import (
 	"net/http"
@@ -9,16 +9,21 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
+// WeatherHandler serves the weather presets.
 type WeatherHandler struct {
 	*smweb.BaseHandler
+
+	env *serverenv.Env
 }
 
-func NewWeatherHandler(baseHandler *smweb.BaseHandler) *WeatherHandler {
+func NewWeatherHandler(baseHandler *smweb.BaseHandler, env *serverenv.Env) *WeatherHandler {
 	return &WeatherHandler{
 		BaseHandler: baseHandler,
+		env:         env,
 	}
 }
 
@@ -28,8 +33,8 @@ type weatherListTemplateVars struct {
 	Weathers smcontent.Weather
 }
 
-func (wh *WeatherHandler) list(w http.ResponseWriter, r *http.Request) {
-	weather, err := smcontent.ListWeather(ServerInstallPath)
+func (wh *WeatherHandler) List(w http.ResponseWriter, r *http.Request) {
+	weather, err := smcontent.ListWeather(wh.env.InstallPath())
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not get weather list")
@@ -42,11 +47,11 @@ func (wh *WeatherHandler) list(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (wh *WeatherHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (wh *WeatherHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	weatherKey := chi.URLParam(r, "key")
-	weatherPath := filepath.Join(ServerInstallPath, "content", "weather")
+	weatherPath := filepath.Join(wh.env.InstallPath(), "content", "weather")
 
-	existingWeather, err := smcontent.ListWeather(ServerInstallPath)
+	existingWeather, err := smcontent.ListWeather(wh.env.InstallPath())
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not get weather list")

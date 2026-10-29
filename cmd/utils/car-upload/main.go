@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	servermanager "github.com/wernersbacher/assetto-server-manager"
+	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 
 	"golang.org/x/net/publicsuffix"
 )
@@ -37,7 +37,7 @@ func init() {
 }
 
 func main() {
-	var files []servermanager.ContentFile
+	var files []contenthttp.ContentFile
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -71,7 +71,7 @@ func main() {
 			return err
 		}
 
-		files = append(files, servermanager.ContentFile{
+		files = append(files, contenthttp.ContentFile{
 			Name:     info.Name(),
 			FilePath: rel,
 			Data:     base64.StdEncoding.EncodeToString(data),
@@ -87,7 +87,7 @@ func main() {
 
 			log.Printf("Successfully uploaded %d files", len(files))
 
-			files = []servermanager.ContentFile{}
+			files = []contenthttp.ContentFile{}
 		}
 
 		return nil
@@ -107,11 +107,11 @@ func main() {
 
 		log.Printf("Successfully uploaded %d files", len(files))
 
-		files = []servermanager.ContentFile{}
+		files = []contenthttp.ContentFile{}
 	}
 }
 
-func uploadCars(files []servermanager.ContentFile) error {
+func uploadCars(files []contenthttp.ContentFile) error {
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	if err != nil {
 		return err

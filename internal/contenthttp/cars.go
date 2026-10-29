@@ -1,7 +1,8 @@
-package servermanager
+package contenthttp
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/json"
@@ -20,18 +21,21 @@ import (
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
+// CarsHandler serves the car list, the car details, the car metadata and the skins.
 type CarsHandler struct {
 	*smweb.BaseHandler
 
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
+	env          *serverenv.Env
 }
 
-func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *CarsHandler {
+func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env) *CarsHandler {
 	return &CarsHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,
 		trackManager: trackManager,
+		env:          env,
 	}
 }
 
@@ -46,7 +50,7 @@ type carListTemplateVars struct {
 	PageSize    int
 }
 
-func (ch *CarsHandler) list(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) List(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("q")
 	page := smweb.FormValueAsInt(r.URL.Query().Get("page"))
 	results, cars, err := ch.carManager.Search(r.Context(), searchTerm, page*smcontent.SearchPageSize, smcontent.SearchPageSize)
@@ -76,7 +80,7 @@ type carSearchResult struct {
 	// Tags    []string `json:"Tags"`
 }
 
-func (ch *CarsHandler) searchJSON(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) SearchJSON(w http.ResponseWriter, r *http.Request) {
 	searchTerm := r.URL.Query().Get("q")
 
 	_, cars, err := ch.carManager.Search(r.Context(), searchTerm, 0, 100000)
@@ -109,13 +113,13 @@ func (ch *CarsHandler) searchJSON(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc := json.NewEncoder(w)
-	if Debug {
+	if ch.env.Debug {
 		enc.SetIndent("", "    ")
 	}
 	_ = enc.Encode(searchResults)
 }
 
-func (ch *CarsHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	carName := chi.URLParam(r, "name")
 	err := ch.carManager.DeleteCar(carName)
 
@@ -132,11 +136,12 @@ func (ch *CarsHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 const defaultSkinURL = "/static/img/no-preview-car.png"
 
-func carSkinURL(car, skin string) string {
+// CarSkinURL returns the URL of the preview of a car skin, or of a placeholder if the skin has no preview.
+func CarSkinURL(installPath, car, skin string) string {
 	skinPath := filepath.Join("content", "cars", car, "skins", url.PathEscape(skin), "preview.jpg")
 
 	// look to see if the car preview image exists
-	_, err := os.Stat(filepath.Join(ServerInstallPath, filepath.Join("content", "cars", car, "skins", skin, "preview.jpg")))
+	_, err := os.Stat(filepath.Join(installPath, "content", "cars", car, "skins", skin, "preview.jpg"))
 
 	if err != nil {
 		return defaultSkinURL
@@ -145,7 +150,7 @@ func carSkinURL(car, skin string) string {
 	return "/" + filepath.ToSlash(skinPath)
 }
 
-func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) View(w http.ResponseWriter, r *http.Request) {
 	carName := chi.URLParam(r, "car_id")
 
 	if !plainname.Valid(carName) {
@@ -167,7 +172,7 @@ func (ch *CarsHandler) view(w http.ResponseWriter, r *http.Request) {
 	ch.ViewRenderer.MustLoadTemplate(w, r, "content/car-details.html", templateParams)
 }
 
-func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) Tags(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 
 	if !plainname.Valid(car) {
@@ -198,7 +203,7 @@ func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) SaveMetadata(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 
 	if !plainname.Valid(car) {
@@ -216,7 +221,7 @@ func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *CarsHandler) uploadSkin(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) UploadSkin(w http.ResponseWriter, r *http.Request) {
 	if !plainname.Valid(chi.URLParam(r, "name")) {
 		http.NotFound(w, r)
 		return
@@ -243,7 +248,7 @@ func (ch *CarsHandler) uploadSkin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *CarsHandler) deleteSkin(w http.ResponseWriter, r *http.Request) {
+func (ch *CarsHandler) DeleteSkin(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 	skin := r.FormValue("skin-delete")
 
@@ -258,7 +263,7 @@ func (ch *CarsHandler) deleteSkin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// only existing skin directories of this car may be deleted
-	if info, err := os.Lstat(filepath.Join(ServerInstallPath, "content", "cars", car, "skins", skin)); err != nil || !info.IsDir() {
+	if info, err := os.Lstat(filepath.Join(ch.env.InstallPath(), "content", "cars", car, "skins", skin)); err != nil || !info.IsDir() {
 		http.NotFound(w, r)
 		return
 	}
@@ -273,8 +278,8 @@ func (ch *CarsHandler) deleteSkin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *CarsHandler) rebuildSearchIndex(w http.ResponseWriter, r *http.Request) {
-	go panicCapture(func() {
+func (ch *CarsHandler) RebuildSearchIndex(w http.ResponseWriter, r *http.Request) {
+	go ch.env.PanicCapture(func() {
 		err := ch.carManager.IndexAllCars()
 
 		if err != nil {
@@ -297,7 +302,7 @@ type carDetailsTemplateVars struct {
 
 // loadCarDetailsForTemplate loads all necessary items to generate the car details template.
 func (ch *CarsHandler) loadCarDetailsForTemplate(carName string) (*carDetailsTemplateVars, error) {
-	tyres, err := smcontent.ListTyres(ServerInstallPath)
+	tyres, err := smcontent.ListTyres(ch.env.InstallPath())
 
 	if err != nil {
 		return nil, err
@@ -309,13 +314,13 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string) (*carDetailsTem
 		return nil, err
 	}
 
-	results, err := resultsForCar(carName)
+	results, err := ch.resultsForCar(carName)
 
 	if err != nil {
 		return nil, err
 	}
 
-	setups, err := smcontent.ListSetupsForCar(ServerInstallPath, carName)
+	setups, err := smcontent.ListSetupsForCar(ch.env.InstallPath(), carName)
 
 	if err != nil {
 		return nil, err
@@ -336,8 +341,8 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string) (*carDetailsTem
 }
 
 // resultsForCar finds results for a given car.
-func resultsForCar(car string) ([]smresults.SessionResults, error) {
-	results, err := ListAllResults()
+func (ch *CarsHandler) resultsForCar(car string) ([]smresults.SessionResults, error) {
+	results, err := ch.env.Results().ListAll()
 
 	if err != nil {
 		return nil, err

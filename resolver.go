@@ -6,6 +6,7 @@ import (
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
@@ -18,6 +19,8 @@ import (
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"net/http"
+
+	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/static"
 
 	"github.com/cj123/sessions"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
@@ -55,14 +58,15 @@ type Resolver struct {
 	championshipsHandler        *smchampionship.ChampionshipsHandler
 	accountHandler              *smaccounts.AccountHandler
 	auditLogHandler             *smaccounts.AuditLogHandler
-	carsHandler                 *CarsHandler
-	tracksHandler               *TracksHandler
-	weatherHandler              *WeatherHandler
+	carsHandler                 *contenthttp.CarsHandler
+	tracksHandler               *contenthttp.TracksHandler
+	weatherHandler              *contenthttp.WeatherHandler
+	setupsHandler               *contenthttp.SetupsHandler
 	penaltiesHandler            *racecontrol.PenaltiesHandler
 	penaltiesManager            *racecontrol.PenaltiesManager
 	resultsHandler              *ResultsHandler
 	scheduledRacesHandler       *schedule.Handler
-	contentUploadHandler        *ContentUploadHandler
+	contentUploadHandler        *contenthttp.ContentUploadHandler
 	raceControlHandler          *racecontrol.RaceControlHandler
 	serverAdministrationHandler *ServerAdministrationHandler
 	raceWeekendHandler          *smraceweekend.RaceWeekendHandler
@@ -121,7 +125,7 @@ func (r *Resolver) initViewRenderer() error {
 		BuildVersion: BuildVersion,
 		Debug:        Debug,
 		Reload:       r.reloadTemplates,
-		Funcs:        serverTemplateFuncs(),
+		Funcs:        serverTemplateFuncs(r.resolveEnv()),
 	})
 
 	if err != nil {
@@ -284,12 +288,12 @@ func (r *Resolver) resolveCarManager() *smcontent.CarManager {
 	return r.carManager
 }
 
-func (r *Resolver) resolveCarsHandler() *CarsHandler {
+func (r *Resolver) resolveCarsHandler() *contenthttp.CarsHandler {
 	if r.carsHandler != nil {
 		return r.carsHandler
 	}
 
-	r.carsHandler = NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager())
+	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv())
 
 	return r.carsHandler
 }
@@ -331,24 +335,36 @@ func (r *Resolver) resolveTrackManager() *smcontent.TrackManager {
 	return r.trackManager
 }
 
-func (r *Resolver) resolveTracksHandler() *TracksHandler {
+func (r *Resolver) resolveTracksHandler() *contenthttp.TracksHandler {
 	if r.tracksHandler != nil {
 		return r.tracksHandler
 	}
 
-	r.tracksHandler = NewTracksHandler(r.resolveBaseHandler(), r.resolveTrackManager())
+	r.tracksHandler = contenthttp.NewTracksHandler(r.resolveBaseHandler(), r.resolveTrackManager(), r.resolveEnv(), func() []byte {
+		return static.FSMustByte(false, "/img/no-preview-general.png")
+	})
 
 	return r.tracksHandler
 }
 
-func (r *Resolver) resolveWeatherHandler() *WeatherHandler {
+func (r *Resolver) resolveWeatherHandler() *contenthttp.WeatherHandler {
 	if r.weatherHandler != nil {
 		return r.weatherHandler
 	}
 
-	r.weatherHandler = NewWeatherHandler(r.resolveBaseHandler())
+	r.weatherHandler = contenthttp.NewWeatherHandler(r.resolveBaseHandler(), r.resolveEnv())
 
 	return r.weatherHandler
+}
+
+func (r *Resolver) resolveSetupsHandler() *contenthttp.SetupsHandler {
+	if r.setupsHandler != nil {
+		return r.setupsHandler
+	}
+
+	r.setupsHandler = contenthttp.NewSetupsHandler(r.resolveEnv())
+
+	return r.setupsHandler
 }
 
 func (r *Resolver) resolvePenaltiesHandler() *racecontrol.PenaltiesHandler {
@@ -423,12 +439,12 @@ func (r *Resolver) resolveServerAdministrationHandler() *ServerAdministrationHan
 	return r.serverAdministrationHandler
 }
 
-func (r *Resolver) resolveContentUploadHandler() *ContentUploadHandler {
+func (r *Resolver) resolveContentUploadHandler() *contenthttp.ContentUploadHandler {
 	if r.contentUploadHandler != nil {
 		return r.contentUploadHandler
 	}
 
-	r.contentUploadHandler = NewContentUploadHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager())
+	r.contentUploadHandler = contenthttp.NewContentUploadHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv())
 
 	return r.contentUploadHandler
 }
@@ -593,6 +609,7 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveCarsHandler(),
 		r.resolveTracksHandler(),
 		r.resolveWeatherHandler(),
+		r.resolveSetupsHandler(),
 		r.resolvePenaltiesHandler(),
 		r.resolveResultsHandler(),
 		r.resolveContentUploadHandler(),

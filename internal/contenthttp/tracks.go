@@ -1,4 +1,4 @@
-package servermanager
+package contenthttp
 
 import (
 	"encoding/json"
@@ -10,23 +10,30 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/static"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
+// TracksHandler serves the track list, the track details, the track metadata and the track previews.
 type TracksHandler struct {
 	*smweb.BaseHandler
 
 	trackManager *smcontent.TrackManager
+	env          *serverenv.Env
+
+	// noPreview returns the image which is served for tracks without a preview.
+	noPreview func() []byte
 }
 
-func NewTracksHandler(baseHandler *smweb.BaseHandler, trackManager *smcontent.TrackManager) *TracksHandler {
+func NewTracksHandler(baseHandler *smweb.BaseHandler, trackManager *smcontent.TrackManager, env *serverenv.Env, noPreview func() []byte) *TracksHandler {
 	return &TracksHandler{
 		BaseHandler:  baseHandler,
 		trackManager: trackManager,
+		env:          env,
+		noPreview:    noPreview,
 	}
 }
 
@@ -36,7 +43,7 @@ type trackListTemplateVars struct {
 	Tracks []smcontent.Track
 }
 
-func (th *TracksHandler) list(w http.ResponseWriter, r *http.Request) {
+func (th *TracksHandler) List(w http.ResponseWriter, r *http.Request) {
 	tracks, err := th.trackManager.ListTracks()
 
 	if err != nil {
@@ -48,9 +55,9 @@ func (th *TracksHandler) list(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (th *TracksHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	trackName := chi.URLParam(r, "name")
-	tracksPath := filepath.Join(ServerInstallPath, "content", "tracks")
+	tracksPath := filepath.Join(th.env.InstallPath(), "content", "tracks")
 
 	existingTracks, err := th.trackManager.ListTracks()
 
@@ -76,7 +83,7 @@ func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
 			}
 
 			for _, layout := range track.Layouts {
-				clearFromTrackInfoCache(track.Name, layout)
+				smcontent.ClearTrackInfoCache(track.Name, layout)
 			}
 
 			break
@@ -94,7 +101,7 @@ func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/tracks", http.StatusFound)
 }
 
-func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
+func (th *TracksHandler) View(w http.ResponseWriter, r *http.Request) {
 	trackName := chi.URLParam(r, "track_id")
 
 	if !plainname.Valid(trackName) {
@@ -116,7 +123,7 @@ func (th *TracksHandler) view(w http.ResponseWriter, r *http.Request) {
 	th.ViewRenderer.MustLoadTemplate(w, r, "content/track-details.html", templateParams)
 }
 
-func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
+func (th *TracksHandler) SaveMetadata(w http.ResponseWriter, r *http.Request) {
 	name := chi.URLParam(r, "name")
 
 	if !plainname.Valid(name) {
@@ -134,7 +141,7 @@ func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (th *TracksHandler) trackImage(w http.ResponseWriter, r *http.Request) {
+func (th *TracksHandler) TrackImage(w http.ResponseWriter, r *http.Request) {
 	track := chi.URLParam(r, "track")
 	layout := chi.URLParam(r, "layout")
 
@@ -147,14 +154,14 @@ func (th *TracksHandler) trackImage(w http.ResponseWriter, r *http.Request) {
 	n, err := th.trackManager.GetTrackImage(w, track, layout)
 
 	if err != nil {
-		image := static.FSMustByte(false, "/img/no-preview-general.png")
+		image := th.noPreview()
 		_, _ = w.Write(image)
 	} else {
 		w.Header().Add("Content-Length", strconv.Itoa(int(n)))
 	}
 }
 
-func (th *TracksHandler) trackInfo(w http.ResponseWriter, r *http.Request) {
+func (th *TracksHandler) TrackInfo(w http.ResponseWriter, r *http.Request) {
 	track := chi.URLParam(r, "track")
 	layout := chi.URLParam(r, "layout")
 
@@ -165,7 +172,7 @@ func (th *TracksHandler) trackInfo(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 
-	_ = json.NewEncoder(w).Encode(trackInfo(track, layout))
+	_ = json.NewEncoder(w).Encode(th.env.TrackInfo(track, layout))
 }
 
 type trackDetailsTemplateVars struct {
@@ -186,14 +193,14 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDe
 		return nil, err
 	}
 
-	err = track.LoadMetaData(ServerInstallPath)
+	err = track.LoadMetaData(th.env.InstallPath())
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load meta data for track: %s", trackName)
 	}
 
 	for _, layout := range track.Layouts {
-		trackInfo, err := smcontent.GetTrackInfo(ServerInstallPath, track.Name, layout)
+		trackInfo, err := smcontent.GetTrackInfo(th.env.InstallPath(), track.Name, layout)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Couldn't load track info for layout: %s, track: %s", layout, track.Name)
@@ -202,7 +209,7 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDe
 
 		trackInfoMap[layout] = trackInfo
 
-		results, err := resultsForLayout(track.Name, layout)
+		results, err := th.resultsForLayout(track.Name, layout)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Couldn't load results for layout: %s, track: %s", layout, track.Name)
@@ -220,8 +227,8 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDe
 	}, nil
 }
 
-func resultsForLayout(trackName, layout string) ([]smresults.SessionResults, error) {
-	results, err := ListAllResults()
+func (th *TracksHandler) resultsForLayout(trackName, layout string) ([]smresults.SessionResults, error) {
+	results, err := th.env.Results().ListAll()
 
 	if err != nil {
 		return nil, err
@@ -236,39 +243,4 @@ func resultsForLayout(trackName, layout string) ([]smresults.SessionResults, err
 	}
 
 	return out, nil
-}
-
-type TrackDataGateway interface {
-	TrackInfo(name, layout string) (*smcontent.TrackInfo, error)
-	TrackMap(name, layout string) (*smcontent.TrackMapData, error)
-}
-
-type filesystemTrackData struct{}
-
-func (filesystemTrackData) TrackMap(name, layout string) (*smcontent.TrackMapData, error) {
-	return smcontent.LoadTrackMapData(ServerInstallPath, name, layout)
-}
-
-func (filesystemTrackData) TrackInfo(name, layout string) (*smcontent.TrackInfo, error) {
-	trackInfo, err := smcontent.GetTrackInfo(ServerInstallPath, name, layout)
-
-	if err != nil {
-		logrus.WithError(err).Errorf("Could not load track info")
-
-		return &smcontent.TrackInfo{
-			Name:    trackSummary(name, layout),
-			City:    "Unknown",
-			Country: "Unknown",
-		}, nil
-	}
-
-	return trackInfo, err
-}
-
-func trackSummary(track, layout string) string {
-	return smcontent.TrackSummary(ServerInstallPath, track, layout)
-}
-
-func trackDownloadLink(track string) string {
-	return smcontent.TrackDownloadLink(ServerInstallPath, track)
 }

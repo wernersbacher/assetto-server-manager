@@ -1,9 +1,11 @@
-package servermanager
+package contenthttp
 
 import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
 
 	"bytes"
 	"context"
@@ -20,9 +22,6 @@ import (
 )
 
 func TestCarsHandlerUploadSkin(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
-
 	root, err := ioutil.TempDir("", "skin-upload")
 
 	if err != nil {
@@ -31,15 +30,15 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 
 	defer os.RemoveAll(root)
 
-	ServerInstallPath = filepath.Join(root, "install")
-	skinsDir := filepath.Join(ServerInstallPath, "content", "cars", "dev_car", "skins")
+	installPath := filepath.Join(root, "install")
+	skinsDir := filepath.Join(installPath, "content", "cars", "dev_car", "skins")
 
 	if err := os.MkdirAll(skinsDir, 0755); err != nil {
 		t.Fatal(err)
 	}
 
 	// a file that a traversal attempt would overwrite
-	if err := ioutil.WriteFile(filepath.Join(ServerInstallPath, "content", "cars", "dev_car", "keep.txt"), []byte("keep"), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(installPath, "content", "cars", "dev_car", "keep.txt"), []byte("keep"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -75,7 +74,7 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 		}
 
 		req := httptest.NewRequest(http.MethodPost, "/car/dev_car/skin", body)
-		req = smweb.WithScope(req, testRequestScope())
+		req = smweb.WithScope(req, webtest.RequestScope())
 		req.Header.Set("Content-Type", mw.FormDataContentType())
 
 		rctx := chi.NewRouteContext()
@@ -83,7 +82,7 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 		rec := httptest.NewRecorder()
-		(&CarsHandler{carManager: smcontent.NewCarManager(ServerInstallPath, false, false)}).uploadSkin(rec, req)
+		(&CarsHandler{carManager: smcontent.NewCarManager(installPath, false, false), env: envtest.New(installPath)}).UploadSkin(rec, req)
 
 		if rec.Code != http.StatusFound && rec.Code != http.StatusSeeOther {
 			t.Fatalf("unexpected status %d: %s", rec.Code, rec.Body.String())
@@ -114,7 +113,7 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 	}
 
 	// nothing may be written outside of the skins directory
-	b, err := ioutil.ReadFile(filepath.Join(ServerInstallPath, "content", "cars", "dev_car", "keep.txt"))
+	b, err := ioutil.ReadFile(filepath.Join(installPath, "content", "cars", "dev_car", "keep.txt"))
 
 	if err != nil || string(b) != "keep" {
 		t.Errorf("file outside of the skins directory was modified: %q, %v", b, err)
@@ -140,9 +139,6 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 }
 
 func TestCarsHandlerDeleteSkin(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
-
 	root, err := ioutil.TempDir("", "skin-delete")
 
 	if err != nil {
@@ -151,14 +147,14 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 
 	defer os.RemoveAll(root)
 
-	ServerInstallPath = filepath.Join(root, "install")
-	carDir := filepath.Join(ServerInstallPath, "content", "cars", "dev_car")
+	installPath := filepath.Join(root, "install")
+	carDir := filepath.Join(installPath, "content", "cars", "dev_car")
 	skinsDir := filepath.Join(carDir, "skins")
 
 	for _, dir := range []string{
 		filepath.Join(skinsDir, "my_skin"),
 		filepath.Join(skinsDir, "other_skin"),
-		filepath.Join(ServerInstallPath, "content", "tracks", "keep_track"),
+		filepath.Join(installPath, "content", "tracks", "keep_track"),
 	} {
 		if err := os.MkdirAll(dir, 0755); err != nil {
 			t.Fatal(err)
@@ -177,7 +173,7 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 	deleteSkin := func(car, skin string) int {
 		form := url.Values{"skin-delete": {skin}}
 		req := httptest.NewRequest(http.MethodPost, "/car/"+car+"/skin/delete", strings.NewReader(form.Encode()))
-		req = smweb.WithScope(req, testRequestScope())
+		req = smweb.WithScope(req, webtest.RequestScope())
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		rctx := chi.NewRouteContext()
@@ -185,7 +181,7 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 		rec := httptest.NewRecorder()
-		(&CarsHandler{carManager: smcontent.NewCarManager(ServerInstallPath, false, false)}).deleteSkin(rec, req)
+		(&CarsHandler{carManager: smcontent.NewCarManager(installPath, false, false), env: envtest.New(installPath)}).DeleteSkin(rec, req)
 
 		return rec.Code
 	}
@@ -267,9 +263,6 @@ func TestValidContentFilePath(t *testing.T) {
 }
 
 func TestContentUploadRejectsPathTraversal(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
-
 	root, err := ioutil.TempDir("", "content-upload")
 
 	if err != nil {
@@ -278,9 +271,9 @@ func TestContentUploadRejectsPathTraversal(t *testing.T) {
 
 	defer os.RemoveAll(root)
 
-	ServerInstallPath = filepath.Join(root, "install")
+	installPath := filepath.Join(root, "install")
 
-	cuh := &ContentUploadHandler{}
+	cuh := &ContentUploadHandler{env: envtest.New(installPath)}
 	err = cuh.addFiles([]ContentFile{{Name: "x", FilePath: "../../../escaped.txt", Data: "", Size: 0}}, ContentTypeWeather)
 
 	if err == nil {
@@ -293,9 +286,6 @@ func TestContentUploadRejectsPathTraversal(t *testing.T) {
 }
 
 func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
-
 	root, err := ioutil.TempDir("", "setup-delete")
 
 	if err != nil {
@@ -304,8 +294,8 @@ func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
 
 	defer os.RemoveAll(root)
 
-	ServerInstallPath = filepath.Join(root, "install")
-	setupDir := filepath.Join(ServerInstallPath, "setups", "car", "track")
+	installPath := filepath.Join(root, "install")
+	setupDir := filepath.Join(installPath, "setups", "car", "track")
 
 	if err := os.MkdirAll(setupDir, 0755); err != nil {
 		t.Fatal(err)
@@ -317,7 +307,7 @@ func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
 
 	for _, params := range [][3]string{{"..", "..", ".."}, {"car", "..", ".."}, {"car", "track", ".."}, {`car\..`, "track", "a.ini"}} {
 		req := httptest.NewRequest(http.MethodGet, "/setups/delete/x/y/z", nil)
-		req = smweb.WithScope(req, testRequestScope())
+		req = smweb.WithScope(req, webtest.RequestScope())
 		rctx := chi.NewRouteContext()
 		rctx.URLParams.Add("car", params[0])
 		rctx.URLParams.Add("track", params[1])
@@ -325,7 +315,7 @@ func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 		rec := httptest.NewRecorder()
-		carSetupDeleteHandler(rec, req)
+		NewSetupsHandler(envtest.New(installPath)).Delete(rec, req)
 
 		if rec.Code != http.StatusNotFound {
 			t.Errorf("%v: expected 404, got %d", params, rec.Code)

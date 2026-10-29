@@ -4,6 +4,7 @@ import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
@@ -61,12 +62,13 @@ func Router(
 	championshipsHandler *smchampionship.ChampionshipsHandler,
 	accountHandler *smaccounts.AccountHandler,
 	auditLogHandler *smaccounts.AuditLogHandler,
-	carsHandler *CarsHandler,
-	tracksHandler *TracksHandler,
-	weatherHandler *WeatherHandler,
+	carsHandler *contenthttp.CarsHandler,
+	tracksHandler *contenthttp.TracksHandler,
+	weatherHandler *contenthttp.WeatherHandler,
+	setupsHandler *contenthttp.SetupsHandler,
 	penaltiesHandler *racecontrol.PenaltiesHandler,
 	resultsHandler *ResultsHandler,
-	contentUploadHandler *ContentUploadHandler,
+	contentUploadHandler *contenthttp.ContentUploadHandler,
 	serverAdministrationHandler *ServerAdministrationHandler,
 	raceControlHandler *racecontrol.RaceControlHandler,
 	scheduledRacesHandler *schedule.Handler,
@@ -122,12 +124,12 @@ func Router(
 		r.Mount("/stracker/", http.HandlerFunc(strackerHandler.proxy))
 
 		// content
-		r.Get("/cars", carsHandler.list)
-		r.Get("/cars/search.json", carsHandler.searchJSON)
-		r.Get("/car/{car_id}", carsHandler.view)
-		r.Get("/tracks", tracksHandler.list)
-		r.Get("/track/{track_id}", tracksHandler.view)
-		r.Get("/weather", weatherHandler.list)
+		r.Get("/cars", carsHandler.List)
+		r.Get("/cars/search.json", carsHandler.SearchJSON)
+		r.Get("/car/{car_id}", carsHandler.View)
+		r.Get("/tracks", tracksHandler.List)
+		r.Get("/track/{track_id}", tracksHandler.View)
+		r.Get("/weather", weatherHandler.List)
 
 		r.Get("/events.ics", scheduledRacesHandler.AllScheduledRacesICalHandler)
 		r.Get("/event-details", eventDetailsHandler.view)
@@ -191,11 +193,11 @@ func Router(
 		FileServer(r, "/content", http.Dir(filepath.Join(ServerInstallPath, "content")), true)
 		FileServer(r, "/setups/download", http.Dir(filepath.Join(ServerInstallPath, "setups")), true)
 
-		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.trackImage), true))
-		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.trackImage), true))
+		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
+		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
 
-		r.Get("/content/tracks/{track}/ui/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.trackInfo), true))
-		r.Get("/content/tracks/{track}/ui/{layout}/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.trackInfo), true))
+		r.Get("/content/tracks/{track}/ui/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackInfo), true))
+		r.Get("/content/tracks/{track}/ui/{layout}/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackInfo), true))
 
 		// race weekends
 		r.Get("/race-weekends", raceWeekendHandler.List)
@@ -215,11 +217,11 @@ func Router(
 		}
 
 		// content
-		r.Post("/setups/upload", carSetupsUploadHandler)
-		r.HandleFunc("/car/{name}/tags", carsHandler.tags)
-		r.Post("/car/{name}/metadata", carsHandler.saveMetadata)
-		r.Post("/car/{name}/skin", carsHandler.uploadSkin)
-		r.Post("/track/{name}/metadata", tracksHandler.saveMetadata)
+		r.Post("/setups/upload", setupsHandler.Upload)
+		r.HandleFunc("/car/{name}/tags", carsHandler.Tags)
+		r.Post("/car/{name}/metadata", carsHandler.SaveMetadata)
+		r.Post("/car/{name}/skin", carsHandler.UploadSkin)
+		r.Post("/track/{name}/metadata", tracksHandler.SaveMetadata)
 		r.Post("/results/upload", resultsHandler.uploadHandler)
 		r.HandleFunc("/results/combine", resultsHandler.combineResults)
 
@@ -284,10 +286,10 @@ func Router(
 		r.Post("/live-timing/save-frames", raceControlHandler.SaveIFrames)
 
 		// endpoints
-		r.Post("/api/track/upload", contentUploadHandler.upload(ContentTypeTrack))
-		r.Post("/api/car/upload", contentUploadHandler.upload(ContentTypeCar))
-		r.Post("/api/weather/upload", contentUploadHandler.upload(ContentTypeWeather))
-		r.Post("/api/image-upload", contentUploadHandler.imageUpload)
+		r.Post("/api/track/upload", contentUploadHandler.Upload(contenthttp.ContentTypeTrack))
+		r.Post("/api/car/upload", contentUploadHandler.Upload(contenthttp.ContentTypeCar))
+		r.Post("/api/weather/upload", contentUploadHandler.Upload(contenthttp.ContentTypeWeather))
+		r.Post("/api/image-upload", contentUploadHandler.ImageUpload)
 
 		// race weekend
 		r.Get("/race-weekends/new", raceWeekendHandler.CreateOrEdit)
@@ -323,11 +325,11 @@ func Router(
 		r.Post("/custom/delete/{uuid}", customRaceHandler.Delete)
 		r.Post("/results/{fileName}/delete", resultsHandler.delete)
 
-		r.Post("/track/{name}/delete", tracksHandler.delete)
-		r.Post("/car/{name}/delete", carsHandler.delete)
-		r.Post("/car/{name}/skin/delete", carsHandler.deleteSkin)
-		r.Post("/weather/delete/{key}", weatherHandler.delete)
-		r.Post("/setups/delete/{car}/{track}/{setup}", carSetupDeleteHandler)
+		r.Post("/track/{name}/delete", tracksHandler.Delete)
+		r.Post("/car/{name}/delete", carsHandler.Delete)
+		r.Post("/car/{name}/skin/delete", carsHandler.DeleteSkin)
+		r.Post("/weather/delete/{key}", weatherHandler.Delete)
+		r.Post("/setups/delete/{car}/{track}/{setup}", setupsHandler.Delete)
 
 		r.Get("/autofill-entrants", serverAdministrationHandler.autoFillEntrantList)
 		r.Post("/autofill-entrants/delete/{entrantID}", serverAdministrationHandler.autoFillEntrantDelete)
@@ -354,7 +356,7 @@ func Router(
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
 		r.HandleFunc("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
-		r.HandleFunc("/search-index", carsHandler.rebuildSearchIndex)
+		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
 
 		r.HandleFunc("/restart-session", raceControlHandler.RestartSession)
 		r.HandleFunc("/next-session", raceControlHandler.NextSession)

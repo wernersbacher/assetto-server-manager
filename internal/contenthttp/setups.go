@@ -1,4 +1,4 @@
-package servermanager
+package contenthttp
 
 import (
 	"fmt"
@@ -11,11 +11,21 @@ import (
 
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
-func carSetupsUploadHandler(w http.ResponseWriter, r *http.Request) {
-	if carName, err := smcontent.UploadCarSetup(ServerInstallPath, r); err != nil {
+// SetupsHandler uploads and deletes car setups.
+type SetupsHandler struct {
+	env *serverenv.Env
+}
+
+func NewSetupsHandler(env *serverenv.Env) *SetupsHandler {
+	return &SetupsHandler{env: env}
+}
+
+func (sh *SetupsHandler) Upload(w http.ResponseWriter, r *http.Request) {
+	if carName, err := smcontent.UploadCarSetup(sh.env.InstallPath(), r); err != nil {
 		logrus.WithError(err).Errorf("Could not upload setup file")
 
 		if carName != "" {
@@ -30,7 +40,7 @@ func carSetupsUploadHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func carSetupDeleteHandler(w http.ResponseWriter, r *http.Request) {
+func (sh *SetupsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	carName := chi.URLParam(r, "car")
 	trackName := chi.URLParam(r, "track")
 	setupName := chi.URLParam(r, "setup")
@@ -40,7 +50,7 @@ func carSetupDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := os.RemoveAll(filepath.Join(ServerInstallPath, "setups", carName, trackName, setupName))
+	err := os.RemoveAll(filepath.Join(sh.env.InstallPath(), "setups", carName, trackName, setupName))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not remove setup %s/%s/%s", carName, trackName, setupName)

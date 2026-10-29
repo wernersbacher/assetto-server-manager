@@ -3,9 +3,11 @@ package servermanager
 import (
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 
 	"html/template"
 	"strings"
@@ -32,20 +34,12 @@ func varSplit(str string) []string {
 	return strings.Split(str, ";")
 }
 
-func trackInfo(track, layout string) *smcontent.TrackInfo {
-	return smcontent.CachedTrackInfo(ServerInstallPath, track, layout)
-}
-
-func clearFromTrackInfoCache(track, layout string) {
-	smcontent.ClearTrackInfoCache(track, layout)
-}
-
 func prettifyName(s string, acronyms bool) string {
 	return smcontent.PrettifyName(s, acronyms)
 }
 
-func weatherName(key string) string {
-	weathers, err := smcontent.ListWeather(ServerInstallPath)
+func weatherName(installPath, key string) string {
+	weathers, err := smcontent.ListWeather(installPath)
 
 	if err != nil {
 		return key
@@ -60,27 +54,21 @@ func weatherName(key string) string {
 	return prettifyName(key, false)
 }
 
-func trackLayoutURL(track, layout string) string {
-	return smcontent.TrackLayoutURL(ServerInstallPath, track, layout)
-}
-
 // serverTemplateFuncs returns the template functions which depend on the server manager's own state and domain code.
 // They are added to the functions which the web renderer provides itself.
-func serverTemplateFuncs() template.FuncMap {
-	env := globalsEnv()
-
+func serverTemplateFuncs(env *serverenv.Env) template.FuncMap {
 	return template.FuncMap{
-		"weatherName":              weatherName,
+		"weatherName":              func(key string) string { return weatherName(env.InstallPath(), key) },
 		"carList":                  smcontent.CarList,
 		"varSplit":                 varSplit,
-		"trackInfo":                trackInfo,
+		"trackInfo":                env.TrackInfo,
 		"classColor":               smchampionship.ChampionshipClassColor,
-		"carSkinURL":               carSkinURL,
-		"trackLayoutURL":           trackLayoutURL,
-		"AccountGroup":             func(a smmodel.Account) smmodel.Group { return a.GroupFor(serverID) },
+		"carSkinURL":               func(car, skin string) string { return contenthttp.CarSkinURL(env.InstallPath(), car, skin) },
+		"trackLayoutURL":           func(track, layout string) string { return smcontent.TrackLayoutURL(env.InstallPath(), track, layout) },
+		"AccountGroup":             func(a smmodel.Account) smmodel.Group { return a.GroupFor(env.ServerID()) },
 		"raceWeekendTrackOverview": func(rw *smmodel.RaceWeekend) string { return smraceweekend.TrackOverview(env, rw) },
-		"EventName":                func(e smmodel.RaceEvent) string { return e.EventName(trackSummary) },
-		"EventIsLooping":           func(e smmodel.RaceEvent) bool { return e.IsLooping(serverID) },
+		"EventName":                func(e smmodel.RaceEvent) string { return e.EventName(env.TrackSummary) },
+		"EventIsLooping":           func(e smmodel.RaceEvent) bool { return e.IsLooping(env.ServerID()) },
 		"driverInitials":           driverInitials,
 		"ChangelogHTML":            changelogHTML,
 	}

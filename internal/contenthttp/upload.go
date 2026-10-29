@@ -1,8 +1,9 @@
-package servermanager
+package contenthttp
 
 import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/base64"
@@ -38,23 +39,26 @@ type ContentFile struct {
 
 var base64HeaderRegex = regexp.MustCompile("^(data:.+;base64,)")
 
+// ContentUploadHandler stores uploaded cars, tracks, weather presets and images.
 type ContentUploadHandler struct {
 	*smweb.BaseHandler
 
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
+	env          *serverenv.Env
 }
 
-func NewContentUploadHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager) *ContentUploadHandler {
+func NewContentUploadHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env) *ContentUploadHandler {
 	return &ContentUploadHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,
 		trackManager: trackManager,
+		env:          env,
 	}
 }
 
 // Stores Files encoded into r.Body
-func (cuh *ContentUploadHandler) upload(contentType ContentType) http.HandlerFunc {
+func (cuh *ContentUploadHandler) Upload(contentType ContentType) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var files []ContentFile
 
@@ -99,11 +103,11 @@ func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType Conte
 
 	switch contentType {
 	case ContentTypeTrack:
-		contentPath = filepath.Join(ServerInstallPath, "content", "tracks")
+		contentPath = filepath.Join(cuh.env.InstallPath(), "content", "tracks")
 	case ContentTypeCar:
-		contentPath = filepath.Join(ServerInstallPath, "content", "cars")
+		contentPath = filepath.Join(cuh.env.InstallPath(), "content", "cars")
 	case ContentTypeWeather:
-		contentPath = filepath.Join(ServerInstallPath, "content", "weather")
+		contentPath = filepath.Join(cuh.env.InstallPath(), "content", "weather")
 	}
 
 	uploadedCars := make(map[string]bool)
@@ -204,7 +208,7 @@ func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType Conte
 
 			if err == nil {
 				for _, layout := range track.Layouts {
-					clearFromTrackInfoCache(track.Name, layout)
+					smcontent.ClearTrackInfoCache(track.Name, layout)
 				}
 			}
 		}
@@ -213,7 +217,7 @@ func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType Conte
 	return nil
 }
 
-func (cuh *ContentUploadHandler) imageUpload(w http.ResponseWriter, r *http.Request) {
+func (cuh *ContentUploadHandler) ImageUpload(w http.ResponseWriter, r *http.Request) {
 	file, header, err := r.FormFile("image")
 
 	onError := func(err error, what string) {
@@ -233,7 +237,7 @@ func (cuh *ContentUploadHandler) imageUpload(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	uploadDirectory := filepath.Join(ServerInstallPath, "content", "server-manager", "images")
+	uploadDirectory := filepath.Join(cuh.env.InstallPath(), "content", "server-manager", "images")
 
 	if _, err := os.Stat(uploadDirectory); os.IsNotExist(err) {
 		if err := os.MkdirAll(uploadDirectory, 0755); err != nil {
