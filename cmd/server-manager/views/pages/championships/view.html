@@ -13,16 +13,64 @@
 
         {{ $meetsACSRGates := $championship.DriverMeetsACSRGates $.AccountRating }}
 
-        <h1 class="text-center">{{ $championship.Name }}</h1>
-
-        {{ if $championship.ACSR }}
-            <div class="text-center">
-                <em>
-                    An <a href="https://acsr.assettocorsaservers.com">Assetto Corsa Skill Rating</a> Championship
-                </em>
+        <div class="page-header championship-header">
+            <div>
+                <h1>{{ $championship.Name }}</h1>
+                <p class="championship-meta">
+                    {{ if $championship.ACSR }}<span><a href="https://acsr.assettocorsaservers.com">ACSR</a> Championship</span>{{ end }}
+                    <span>{{ len $championship.Events }} event{{ if ne (len $championship.Events) 1 }}s{{ end }}</span>
+                    <span>{{ len $championship.Classes }} class{{ if ne (len $championship.Classes) 1 }}es{{ end }}</span>
+                    <span>{{ $championship.NumEntrants }} entrants</span>
+                </p>
+                {{ if gt $championship.Progress 0.0 }}
+                    <div class="progress championship-progress" title="{{ int $championship.Progress }}% complete">
+                        <div class="progress-bar bg-success" id="progress-bar" role="progressbar" style="width: {{ int $championship.Progress }}%;" aria-valuenow="{{ int $championship.Progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small class="text-muted">{{ int $championship.Progress }}% complete</small>
+                {{ end }}
             </div>
-        {{ end }}
 
+            <div class="championship-header-actions">
+                {{ if $writeAccess }}
+                    <div class="btn-group">
+                        <a class="btn btn-primary" href="/championship/{{ $championship.ID.String }}/event">Add Events</a>
+                        <a href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="importCustomDropdown" class="btn btn-primary dropdown-toggle dropdown-toggle-split" aria-label="More ways to add events"></a>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="importCustomDropdown">
+                            <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/custom/list">Import Custom Race</a>
+                            <a class="dropdown-item" href="/race-weekends/new?championshipID={{ $championship.ID.String }}">Add a Race Weekend</a>
+                            <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/race-weekend/list">Import Race Weekend</a>
+                        </div>
+                    </div>
+                {{ end }}
+
+                <div class="dropdown">
+                    <a class="btn btn-outline dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {{ if $writeAccess }}Manage{{ else }}More{{ end }}
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                        {{ if $writeAccess }}
+                            <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/edit">Edit</a>
+                        {{ end }}
+
+                        {{ if and $writeAccess $championship.SignUpForm.Enabled }}
+                            <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/entrants">Manage Registration Requests</a>
+                        {{ end }}
+
+                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/export">Export</a>
+                        {{ if $writeAccess }}<a href="/championship/{{ $championship.ID }}/duplicate" class="dropdown-item">Duplicate</a>{{ end }}
+
+                        {{ if gt $championship.Progress 0.0 }}
+                            <a class="dropdown-item" id="simres-group" target="_blank" href="/championship/{{ $championship.ID.String }}/export-results">View in Simresults</a>
+                        {{ end }}
+
+                        {{ if $championship.HasScheduledEvents }}
+                            <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/ics">Subscribe to Calendar Feed</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </div>
         {{ if $championship.SignUpAvailable }}
             <div class="card border-primary mb-3 mt-3">
                 <div class="card-header bg-primary text-white"><strong>Register to this Championship</strong></div>
@@ -97,11 +145,6 @@
         {{ end }}
 
 
-        {{ if gt $championship.Progress 0.0 }}
-            <div class="progress mb-5 mt-5">
-                <div class="progress-bar bg-success progress-bar-striped" id="progress-bar" role="progressbar" style="width: {{ int $championship.Progress }}%;" aria-valuenow="{{ int $championship.Progress }}" aria-valuemin="0" aria-valuemax="100">{{ int $championship.Progress }}%</div>
-            </div>
-        {{ end }}
 
         <ul class="nav nav-tabs" role="tablist">
             {{ if gt $championship.Progress 0.0 }}
@@ -177,12 +220,12 @@
                     {{ if gt $championship.DropWorstResults 0 }}
                         <p class="text-muted mb-2"><small>Worst {{ $championship.DropWorstResults }} result{{ if gt $championship.DropWorstResults 1 }}s{{ end }} dropped.</small></p>
                     {{ end }}
-                    <div class="table-responsive entrant-table-max-height">
-                        <table class="table table-bordered table-striped">
+                    <div class="table-responsive entrant-table-max-height standings-scroll">
+<table class="table table-striped table-standings">
                             <tr>
                                 {{ if $championship.IsMultiClass }}<th>Class</th>{{ end }}
                                 <th>#</th>
-                                <th>Driver</th>
+                                <th class="sticky-col">Driver</th>
                                 {{ with $.DriverRatings }}
                                     <th>
                                         Rating
@@ -214,7 +257,7 @@
                                             {{ end }}
                                         {{ end }}
                                         <td>{{ add $i 1 }}</td>
-                                        <td>
+                                        <td class="sticky-col">
                                             {{ driverName $entrant.Car.Driver.Name }}
 
                                             {{ $driverPenalty := $class.PenaltyForGUID $entrant.Car.Driver.GUID }}
@@ -282,8 +325,8 @@
                     {{ if gt $championship.DropWorstResults 0 }}
                         <p class="text-muted mb-2"><small>Worst {{ $championship.DropWorstResults }} result{{ if gt $championship.DropWorstResults 1 }}s{{ end }} dropped.</small></p>
                     {{ end }}
-                    <div class="table-responsive entrant-table-max-height">
-                        <table class="table table-bordered table-striped">
+                    <div class="table-responsive entrant-table-max-height standings-scroll">
+<table class="table table-striped table-standings">
                             <tr>
                                 {{ if $championship.IsMultiClass }}<th>Class</th>{{ end }}
                                 <th>#</th>
@@ -366,12 +409,12 @@
             {{ end }}
 
             <div class="tab-pane fade {{ if or (eq $championship.Progress 0.0) (eq $championship.DefaultTab "Entrants") }}show active{{ end }}" id="entrants" role="tabpanel" aria-labelledby="entrants-tab">
-                <div class="table-responsive entrant-table-max-height">
-                    <table class="table table-bordered table-striped">
+                <div class="table-responsive entrant-table-max-height standings-scroll">
+<table class="table table-striped table-standings">
                         <tr>
                             {{ if $championship.IsMultiClass }}<th>Class</th>{{ end }}
                             <th>#</th>
-                            <th>Driver</th>
+                            <th class="sticky-col">Driver</th>
                             {{ with $.DriverRatings }}
                                 <th>Rating</th>
                             {{ end }}
@@ -399,7 +442,7 @@
                                             {{ end }}
                                         {{ end }}
                                         <td><span data-toggle="tooltip" title="Pit Box: {{ $entrant.PitBox }}">{{ add $i 1 }}</span></td>
-                                        <td>{{ driverName $entrant.Name }}</td>
+                                        <td class="sticky-col">{{ driverName $entrant.Name }}</td>
                                         {{ with $.DriverRatings }}
                                             <td>
                                                 {{ template "acsr-rating" dict "DriverRatings" $.DriverRatings "GUID" $entrant.GUID }}
@@ -430,8 +473,8 @@
             </div>
 
             <div class="tab-pane fade {{ if eq $championship.DefaultTab "Points Reference" }}show active{{ end }}" id="points" role="tabpanel" aria-labelledby="points-tab">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped">
+                <div class="table-responsive standings-scroll">
+<table class="table table-striped table-standings">
                         <tr>
                             {{ if $championship.IsMultiClass }}<th>Class</th>{{ end }}
                             <th>Place</th>
@@ -546,96 +589,31 @@
         {{ end }}
 
 
-        <div class="float-right">
-            {{ if $writeAccess }}
-                <div class="btn-group">
-
-                    <a class="btn btn-success" href="/championship/{{ $championship.ID.String }}/event">Add Events</a>
-
-                    <a href="#" style="min-width: 38px !important;" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="importCustomDropdown" class="btn btn-success btn-sm custom-race-actions-btn-small dropdown-toggle dropdown-toggle-split"
-                    ></a>
-
-                    <div class="dropdown-menu" aria-labelledby="importCustomDropdown">
-                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/custom/list">Import Custom Race</a>
-                    </div>
-                </div>
-
-                <div class="btn-group" style="min-width: 180px">
-
-                    <a class="btn btn-info" href="/race-weekends/new?championshipID={{ $championship.ID.String }}">Add a Race Weekend</a>
-
-                    <a href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="importWeekendDropdown" class="btn btn-info btn-sm custom-race-actions-btn-small dropdown-toggle dropdown-toggle-split"
-                    ></a>
-
-                    <div class="dropdown-menu" aria-labelledby="importWeekendDropdown">
-                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/race-weekend/list">Import Race Weekend</a>
-                    </div>
-                </div>
-            {{ end }}
-
-            <div class="dropdown show" style="display: inline-block">
-                <a class="btn btn-warning dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Manage Championship
-                </a>
-
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-
-                    {{ if $writeAccess }}
-                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/edit">
-                            Edit
-                        </a>
-                    {{ end }}
-
-                    {{ if and $writeAccess $championship.SignUpForm.Enabled }}
-                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/entrants">
-                            Manage Registration Requests
-                        </a>
-                    {{ end }}
-
-                    <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/export">
-                        Export
-                    </a>
-
-
-                    <a href="/championship/{{ $championship.ID }}/duplicate" class="dropdown-item">Duplicate</a>
-
-                    {{ if gt $championship.Progress 0.0 }}
-                        <a class="dropdown-item" id="simres-group" target="_blank" href="/championship/{{ $championship.ID.String }}/export-results">
-                            View in Simresults
-                        </a>
-                    {{ end }}
-
-                    {{ if $championship.HasScheduledEvents }}
-                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/ics">
-                            Subscribe to Calendar Feed
-                        </a>
-                    {{ end }}
-                </div>
+        <div class="section-heading">
+            <div>
+                <h2>Events</h2>
+                <p class="text-muted mb-0">{{ len $championship.Events }} event{{ if ne (len $championship.Events) 1 }}s{{ end }} in this championship.</p>
             </div>
 
-            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+            <div class="btn-group" role="group" aria-label="Filter and sort events">
                 <div class="btn-group" role="group">
-                    <button id="btnGroupDrop1" type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-outline dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Hide/Show
                     </button>
-                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
                         <a class="dropdown-item text-success" href="#" id="hide-completed">Completed</a>
                         <a class="dropdown-item text-success" href="#" id="hide-not-completed">Not Completed</a>
                     </div>
                 </div>
 
-                <button type="button" class="btn btn-secondary" id="switch-order">
-                <span class="fa-stack-override fa-1x">
-                  <i class="fas fa-sort-up fa-stack-1x text-dark"></i>
-                  <i class="fas fa-sort-down fa-stack-1x text-success"></i>
-                </span>
+                <button type="button" class="btn btn-outline" id="switch-order" aria-label="Reverse event order">
+                    <span class="fa-stack-override fa-1x">
+                        <i class="fas fa-sort-up fa-stack-1x"></i>
+                        <i class="fas fa-sort-down fa-stack-1x text-success"></i>
+                    </span>
                 </button>
             </div>
         </div>
-
-        <h2>Events</h2>
-
-        <p>This Championship currently has {{ len $championship.Events }} events configured.</p>
 
         <div class="clearfix"></div>
 

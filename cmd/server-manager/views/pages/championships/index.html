@@ -4,13 +4,13 @@
 
 {{ define "championships-list" }}
     <div class="table-responsive">
-        <table class="table table-bordered table-striped table-championship">
+        <table class="table table-striped table-championship">
             <tr>
                 <th>Name</th>
                 <th>Progress</th>
-                <th>Number of Events</th>
-                <th>Number of Classes</th>
-                <th>Number of Entrants</th>
+                <th>Events</th>
+                <th>Classes</th>
+                <th>Entrants</th>
                 <th>Actions</th>
             </tr>
 
@@ -32,14 +32,14 @@
                         {{ $championship.NumEntrants }}
                     </td>
                     <td class="align-middle custom-race-actions">
-                        <a class="btn btn-sm btn-success" href="/championship/{{ $championship.ID }}">View</a>
-                        <a class="btn btn-sm btn-primary" href="/championship/{{ $championship.ID }}/export">Export</a>
+                        <a class="btn btn-sm btn-primary" href="/championship/{{ $championship.ID }}">View</a>
+                        <a class="btn btn-sm btn-outline" href="/championship/{{ $championship.ID }}/export">Export</a>
 
                         {{ if WriteAccess }}
                             <div class="btn-group custom-race-actions-btn-group" role="group" aria-label="Edit Championship">
-                                <a class="btn btn-sm btn-warning custom-race-actions-btn-big championship-edit-button" href="/championship/{{ $championship.ID }}/edit">Edit</a>
+                                <a class="btn btn-sm btn-outline championship-edit-button" href="/championship/{{ $championship.ID }}/edit">Edit</a>
 
-                                <button id="btn-group-drop-{{ $championship.ID }}" type="button" class="btn btn-warning btn-sm custom-race-actions-btn-small dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button id="btn-group-drop-{{ $championship.ID }}" type="button" class="btn btn-outline btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 </button>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btn-group-drop-{{ $championship.ID }}">
@@ -61,39 +61,31 @@
 {{ end }}
 
 {{ define "content" }}
-    <div class="row">
-        <div class="col-sm-4"></div>
-        <div class="col-sm-4"><h1 class="text-center">Championships</h1></div>
-        <div class="col-sm-4">
-            {{ if WriteAccess }}
+    <div class="page-header">
+        <div>
+            <h1>Championships</h1>
+            <p>{{ len $.ActiveChampionships }} active, {{ len $.CompletedChampionships }} completed.</p>
+        </div>
 
-                <div class="btn-group float-right" role="group" aria-label="New Championship">
-                    <a href="/championships/new" class="btn btn-success">Create a new Championship</a>
+        {{ if WriteAccess }}
+            <div class="btn-group" role="group" aria-label="New Championship">
+                <a href="/championships/new" class="btn btn-primary">Create a new Championship</a>
 
-                    <div class="btn-group" role="group">
-                        <button id="btnGroupDrop1" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
-                            <a href="/championship/import" class="dropdown-item">Import Championship</a>
-                        </div>
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="More options"></button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+                        <a href="/championship/import" class="dropdown-item">Import Championship</a>
                     </div>
                 </div>
-
-                <div class="clearfix mb-5"></div>
-            {{ end }}
-        </div>
+            </div>
+        {{ end }}
     </div>
 
-    <h2>Active</h2>
+    <h2 class="section-title">Active</h2>
 
     {{ template "championships-list" dict "Championships" $.ActiveChampionships }}
 
-    <hr>
-
-    <h2>Completed</h2>
+    <h2 class="section-title mt-5">Completed</h2>
 
     {{ template "championships-list" dict "Championships" $.CompletedChampionships }}
-
-    <div class="clearfix"></div>
 {{ end }}

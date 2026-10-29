@@ -4,20 +4,19 @@
 
 {{ define "content" }}
     {{ $championship := $.Championship }}
-    <h1 class="text-center">
-        {{ $championship.Name }}
-    </h1>
-
-    {{ if $championship.ACSR }}
-        <div class="text-center">
-            <em>
-                An <a href="https://acsr.assettocorsaservers.com">Assetto Corsa Skill Rating</a> Championship
-            </em>
+    <div class="page-header">
+        <div>
+            <h1>Register for {{ $championship.Name }}</h1>
+            <p>
+                {{ if $championship.ACSR }}An <a href="https://acsr.assettocorsaservers.com">Assetto Corsa Skill Rating</a> Championship. {{ end }}
+                {{ if $championship.SignUpForm.RequiresApproval }}Registrations are checked by the organisers before you are added to the grid.{{ else }}Fill in your details to take a place on the grid.{{ end }}
+            </p>
         </div>
-    {{ end }}
+        <a class="btn btn-outline" href="/championship/{{ $championship.ID.String }}">Back to championship</a>
+    </div>
 
     {{ with $championship.Info }}
-        <div class="card mt-3 border-secondary">
+        <div class="card mt-3">
             <div class="card-header">
                 <strong>About Championship</strong>
             </div>
@@ -30,9 +29,9 @@
         </div>
     {{ end }}
 
-    <form action="/championship/{{ $championship.ID.String }}/sign-up" method="post" id="championship-signup-form" data-safe-submit>
+    <form action="/championship/{{ $championship.ID.String }}/sign-up" method="post" id="championship-signup-form" class="signup-form" data-safe-submit>
 
-        <div class="card mt-3 border-secondary">
+        <div class="card mt-3">
             <div class="card-header">
                 <strong>Your Details</strong>
             </div>
@@ -105,7 +104,7 @@
         </div>
 
         {{ if not $championship.SignUpForm.HideCarChoice }}
-            <div class="card mt-3 border-secondary" id="entrants">
+            <div class="card mt-3" id="entrants">
                 <div class="card-header">
                     <strong>Your Car</strong>
                 </div>
@@ -149,7 +148,7 @@
         {{ end }}
 
         {{ if gt (len $championship.SignUpForm.ExtraFields) 0 }}
-            <div class="card mt-3 border-secondary" id="entrants">
+            <div class="card mt-3" id="entrants">
                 <div class="card-header">
                     <strong>Extra Information</strong>
                 </div>
@@ -211,12 +210,12 @@
             </div>
         {{ end }}
 
-        <div class="mt-5">
+        <div class="mt-4 text-right">
             <button type="submit"
                     {{ if and ($championship.ACSR) (or $championship.EnableACSRSkillGate $championship.EnableACSRSafetyGate) }}
                         disabled id="register-for-championship"
                     {{ end }}
-                    class="btn btn-success float-right">Register</button>
+                    class="btn btn-primary btn-lg signup-submit">Register</button>
         </div>
     </form>
 
