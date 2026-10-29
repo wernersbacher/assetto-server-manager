@@ -3,6 +3,8 @@ Unreleased
 
 Added:
 
+* New look: a top bar that always shows the server status (with Stop and Restart for organizers), a sidebar navigation grouped by Racing, Organize, Content, Server and Plugins that only shows what you are allowed to use, and a menu button on phones.
+* Light and dark theme with a toggle in the top bar. The choice is remembered in your browser; the server and account theme settings are still used as the default.
 * Results files can now be deleted from the Results list and the Results page (requires delete access). Results that are used by a Championship or Race Weekend can't be deleted.
 * The Results list can now be filtered by session type, track and driver (name or GUID).
 * Added read-only JSON APIs for results (/api/results, /api/results/{fileName}) and the current server status (/api/server-status). See the API section of the README.

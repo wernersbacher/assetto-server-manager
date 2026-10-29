@@ -23,8 +23,10 @@ import {Results} from "./Results";
 import {RaceList} from "./RaceList";
 import {SpectatorCar} from "./SpectatorCar";
 import {Form} from "./Form";
+import {Shell} from "./Shell";
 
 $(() => {
+    new Shell();
     new Form();
     EntryPoint();
     new RaceControl();

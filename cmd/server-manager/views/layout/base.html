@@ -1,20 +1,25 @@
-{{ define "ServerEventBadge" }}
-    {{ if .IsChampionship }}
-        <span class="badge badge-warning">Championship {{ if .IsPractice }}Practice{{ end }} in Progress</span>
-    {{ else if .IsRaceWeekend }}
-        <span class="badge badge-info">Race Weekend {{ if .IsPractice }}Practice{{ end }} in Progress</span>
-    {{ else if .IsLooping }}
-        <span class="badge badge-secondary">Auto Loop Event in Progress</span>
-    {{ else if .IsTimeAttack }}
-        <span class="badge badge-dark">Time Attack Event in Progress</span>
-    {{ else }}
-        <span class="badge badge-success">Assetto Server Running</span>
-    {{ end }}
+{{ define "ServerEventType" }}
+    {{- if .IsChampionship }}Championship{{ if .IsPractice }} practice{{ end -}}
+    {{ else if .IsRaceWeekend }}Race Weekend{{ if .IsPractice }} practice{{ end -}}
+    {{ else if .IsLooping }}Looping event
+    {{- else if .IsTimeAttack }}Time attack
+    {{- else }}Running{{ end -}}
+{{ end }}
+
+{{ define "ServerStopConfirm" }}
+    {{- if not .IsPractice -}}
+        {{- if .IsChampionship -}}
+            return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');
+        {{- else if .IsRaceWeekend -}}
+            return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');
+        {{- end -}}
+    {{- end -}}
 {{ end }}
 
 {{ define "base" }}
+    {{ $path := $.Request.URL.Path }}
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="en" data-theme="{{ if $.User.ShowDarkTheme $.IsDarkTheme }}dark{{ else }}light{{ end }}">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -24,12 +29,19 @@
         <meta charset="UTF-8">
         <title>{{ block "title" . }}{{ end }} / {{ $.ServerName }}</title>
 
+        <script type="text/javascript">
+            // apply the theme picked with the theme toggle before the page renders, to avoid a flash of the other theme
+            try {
+                var theme = localStorage.getItem("theme");
+
+                if (theme === "dark" || theme === "light") {
+                    document.documentElement.setAttribute("data-theme", theme);
+                }
+            } catch (e) {}
+        </script>
+
         {{ block "stylesheets" . }}
-            {{ if $.User.ShowDarkTheme $.IsDarkTheme }}
-                <link rel="stylesheet" type="text/css" href="{{ asset "/static/css/server-manager-dark.css" }}">
-            {{ else }}
-                <link rel="stylesheet" type="text/css" href="{{ asset "/static/css/server-manager.css" }}">
-            {{ end }}
+            <link rel="stylesheet" type="text/css" href="{{ asset "/static/css/server-manager.css" }}">
 
             <style type="text/css">
                 {{ .CustomCSS }}
@@ -62,247 +74,177 @@
     </head>
     <body {{ with $.User }}class="user-group-{{ $.User.Group }}"{{ end }}>
 
-    <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-primary">
-        <div class="{{ with $.WideContainer }}container-fluid{{ else }}container{{ end }}">
-            <a class="navbar-brand d-none d-sm-block" href="/" data-toggle="tooltip" title="{{ $.ServerName }}">{{ $.ServerName }}</a>
-            <a class="navbar-brand d-sm-none" href="/">{{ $.ServerName }}</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
+    <header class="app-topbar">
+        <button type="button" class="btn-icon app-sidebar-toggle" data-sidebar-toggle aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false">
+            {{ template "icon" "menu" }}
+        </button>
+
+        <a class="app-brand" href="/" title="{{ $.ServerName }}">
+            <span class="app-brand-mark">{{ template "icon" "flag" }}</span>
+            <span class="app-brand-text">
+                <span class="app-brand-name">{{ $.ServerName }}</span>
+                <span class="app-brand-sub">Assetto Corsa Server Manager</span>
+            </span>
+        </a>
+
+        <div class="app-topbar-actions">
+            {{ if $.ServerStatus }}
+                <a class="server-status is-running" href="/live-timing" role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}">
+                    <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}</span>
+                </a>
+
+                {{ if WriteAccess }}
+                    <a href="/process/stop" class="btn-outline is-danger" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
+                        {{ template "icon" "stop" }}<span class="d-none d-md-inline">Stop</span>
+                    </a>
+                    <a href="/process/restart" class="btn-outline btn-outline-icon" aria-label="Restart server" title="Restart server" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
+                        {{ template "icon" "restart" }}
+                    </a>
+                {{ end }}
+            {{ else }}
+                <span class="server-status" role="status"><span class="server-status-text">Stopped</span></span>
+            {{ end }}
+
+            <button type="button" class="btn-icon" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+                <span class="theme-icon-dark">{{ template "icon" "moon" }}</span>
+                <span class="theme-icon-light">{{ template "icon" "sun" }}</span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto">
+            {{ if not LoggedIn }}
+                <a href="/login" class="btn-outline">Sign in</a>
+            {{ else }}
+                <div class="dropdown">
+                    <button type="button" class="btn-ghost app-account-toggle dropdown-toggle" id="account-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                        <span class="avatar" aria-hidden="true">{{ substr 0 2 .User.Name }}</span>
+                        <span class="app-account-role text-capitalize">{{ .User.Group }}</span>
+                    </button>
 
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Races
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            {{ if WriteAccess }}
-                                <a class="dropdown-item" href="/quick">Quick</a>
-                                <div class="dropdown-divider"></div>
-                            {{ end }}
-
-                            <h4 class="dropdown-header font-italic">Custom</h4>
-                            <a class="dropdown-item pl-4-5" href="/custom">View Existing</a>
-
-                            {{ if WriteAccess }}
-                                <a class="dropdown-item pl-4-5" href="/custom/new">Create New</a>
-                            {{ end }}
-
-                            <div class="dropdown-divider"></div>
-
-                            <h4 class="dropdown-header font-italic">Race Weekends</h4>
-                            <a class="dropdown-item pl-4-5" href="/race-weekends">View Existing</a>
-
-                            {{ if WriteAccess }}
-                                <a class="dropdown-item pl-4-5" href="/race-weekends/new">Create New</a>
-                            {{ end }}
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/results">Results</a>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navBarContentDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Content
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navBarContentDropdown">
-                            <a class="dropdown-item" href="/tracks">Tracks</a>
-                            <a class="dropdown-item" href="/cars">Cars &amp; Setups</a>
-                            <a class="dropdown-item" href="/weather">Weather</a>
-                        </div>
-                    </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navBarChampionshipsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Championships
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navBarChampionshipsDropdown">
-                            <a class="dropdown-item" href="/championships">View Existing</a>
-
-                            {{ if WriteAccess }}
-                                <a class="dropdown-item" href="/championships/new">Create New</a>
-                            {{ end }}
-                        </div>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="/calendar">Calendar</a>
-                    </li>
-
-
-                    {{ if WriteAccess }}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navBarServerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Server
-                            </a>
-                            <div class="dropdown-menu" aria-labelledby="navBarServerDropdown">
-                                {{ if AdminAccess }}
-                                    <a class="dropdown-item" href="/server-options">Options</a>
-                                    <a class="dropdown-item" href="/accounts">Accounts</a>
-                                    <a class="dropdown-item" href="/blacklist">Blacklist</a>
-                                    <a class="dropdown-item" href="/motd">Messages</a>
-                                    <a class="dropdown-item" href="/audit-logs">Audit Logs</a>
-                                    <a class="dropdown-item" href="/stracker/options">STracker</a>
-                                    <a class="dropdown-item" href="/kissmyrank/options">KissMyRank</a>
-                                    <a class="dropdown-item" href="/realpenalty/options">Real Penalty</a>
-                                    <a class="dropdown-item" href="/current-config">Current Config</a>
-                                {{ end }}
-                                {{ if DeleteAccess }}
-                                    <a class="dropdown-item" href="/autofill-entrants">AutoFill Entrants</a>
-                                {{ end }}
-
-                                <a class="dropdown-item" href="/logs">Logs</a>
-                            </div>
-                        </li>
-                    {{ end }}
-                </ul>
-
-                <ul class="navbar-nav">
-                    {{ if .ServerStatus  }}
-                        <li class="nav-item dropdown mr-2 {{ if not WriteAccess }} mt-2 {{ end }}">
-                            {{ if WriteAccess }}
-                                <a class="nav-link dropdown-toggle" href="#" id="navBarStatusDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    {{ template "ServerEventBadge" $.ServerEvent }}
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navBarStatusDropdown">
-                                    <a
-                                        class="dropdown-item"
-                                        href="/process/restart"
-
-                                        {{ if not $.ServerEvent.IsPractice }}
-                                            {{ if $.ServerEvent.IsChampionship }}
-                                                onClick="return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');"
-                                            {{ else if $.ServerEvent.IsRaceWeekend }}
-                                                onClick="return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');"
-                                            {{ end }}
-                                        {{ end }}
-                                    >
-                                        Restart
-                                    </a>
-                                    <a
-                                        class="dropdown-item"
-                                        href="/process/stop"
-
-                                        {{ if not $.ServerEvent.IsPractice }}
-                                            {{ if $.ServerEvent.IsChampionship }}
-                                                onClick="return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');"
-                                            {{ else if $.ServerEvent.IsRaceWeekend }}
-                                                onClick="return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');"
-                                            {{ end }}
-                                        {{ end }}
-                                    >
-                                        Stop
-                                    </a>
-                                </div>
-                            {{ else }}
-                                {{ template "ServerEventBadge" $.ServerEvent }}
-                            {{ end }}
-                        </li>
-                    {{ else }}
-                        <li class="nav-item mr-2 mt-2">
-                            <span class="badge badge-danger">Assetto Server Offline</span>
-                        </li>
-                    {{ end }}
-
-                    <li class="nav-item dropdown" id="user-account-dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navBarAccountDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-user"></i>
-                        </a>
-
-                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navBarAccountDropdown">
-                            {{ if not LoggedIn }}
-                                <a class="dropdown-item" href="/login">Login</a>
-                            {{ else }}
-                                <h6 class="dropdown-header">Logged in as {{ .User.Name }} ({{ .User.Group }})</h6>
-                                <a class="dropdown-item" href="/accounts/update">Update Details</a>
-                                <a class="dropdown-item" href="/accounts/new-password">Update Password</a>
-                                <a class="dropdown-item" href="/logout">Logout</a>
-                            {{ end }}
-                        </div>
-                    </li>
-                </ul>
-            </div>
-
-
-        </div>
-    </nav>
-
-    <div class="{{ with $.WideContainer }}container-fluid{{ else }}container{{ end }}">
-
-        {{ if WriteAccess }}
-            {{ if and $.ACSREnabled (or (not $.BaseURLIsSet) (not $.BaseURLIsValid)) }}
-                <div class="card border-danger mb-5">
-                    <div class="card-header bg-danger text-white">
-                        ACSR Configuration Issue
-                    </div>
-
-                    <div class="card-body">
-                        <p>
-                            You have enabled ACSR in the Server Options, but your server config.yml does not have
-                            {{ if not $.BaseURLIsSet }}a BaseURL set{{ else if not $.BaseURLIsValid}}a valid BaseURL{{ end }}.
-                            <strong>Server Manager will not be able to connect to ACSR.</strong>
-                            Please ensure that Server Manager is accessible from the web and that you set the BaseURL parameter to
-                            a valid web address.
-                        </p>
-
-                        <p>
-                            <a href="https://github.com/JustaPenguin/assetto-server-manager/wiki/ACSR-Configuration">
-                                View a more detailed configuration guide for ACSR
-                            </a>
-                        </p>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="account-menu">
+                        <h6 class="dropdown-header">Signed in as {{ .User.Name }}</h6>
+                        <a class="dropdown-item" href="/accounts/update">Update details</a>
+                        <a class="dropdown-item" href="/accounts/new-password">Change password</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/logout">Sign out</a>
                     </div>
                 </div>
             {{ end }}
-        {{ end }}
+        </div>
+    </header>
 
-        {{ block "content" . }}{{ end }}
-
-        <footer class="pt-4 my-md-5 pt-md-5 border-top">
-            <div class="row">
-                <div class="col-sm-7">
-                    <a href="https://github.com/JustaPenguin/assetto-server-manager" class="mr-3"><i class="fab fa-github"></i> GitHub</a>
-                    <a href="https://github.com/JustaPenguin/assetto-server-manager/issues" class="mr-3"><i class="fas fa-bug"></i> Submit a Bug Report</a>
-                    <a href="/changelog" class="mr-3"><i class="fas fa-pencil-alt"></i> Changelog</a>
-                    <a href="https://github.com/JustaPenguin/assetto-server-manager/wiki"><i class="fas fa-book"></i> Wiki</a>
-                </div>
-                <div class="col-sm-5 text-right">
-                    Assetto Corsa Server Manager {{ Version }}
-                </div>
+    <div class="app-body">
+        <nav class="app-sidebar" id="app-sidebar" aria-label="Main">
+            <div class="nav-group">
+                <div class="nav-group-title">Racing</div>
+                <a class="nav-item-link {{ if eq $path "/" }}active{{ end }}" href="/">{{ template "icon" "overview" }}Overview</a>
+                <a class="nav-item-link {{ if hasPrefix "/live-timing" $path }}active{{ end }}" href="/live-timing">
+                    {{ template "icon" "live" }}Live Timing
+                    {{ if $.ServerStatus }}<span class="nav-badge">LIVE</span>{{ end }}
+                </a>
+                <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}Results</a>
+                <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}Championships</a>
+                <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}Race Weekends</a>
+                <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="/custom">{{ template "icon" "flag" }}Custom Races</a>
+                <a class="nav-item-link {{ if hasPrefix "/calendar" $path }}active{{ end }}" href="/calendar">{{ template "icon" "calendar" }}Calendar</a>
             </div>
 
-        </footer>
+            {{ if WriteAccess }}
+                <div class="nav-group">
+                    <div class="nav-group-title">Organize</div>
+                    <a class="nav-item-link {{ if hasPrefix "/quick" $path }}active{{ end }}" href="/quick">{{ template "icon" "quick" }}Quick Race</a>
+                    <a class="nav-item-link {{ if eq $path "/custom/new" }}active{{ end }}" href="/custom/new">{{ template "icon" "plus" }}New Custom Race</a>
+                    <a class="nav-item-link" href="/championships/new">{{ template "icon" "plus" }}New Championship</a>
+                    <a class="nav-item-link" href="/race-weekends/new">{{ template "icon" "plus" }}New Race Weekend</a>
+                </div>
+            {{ end }}
+
+            <div class="nav-group">
+                <div class="nav-group-title">Content</div>
+                <a class="nav-item-link {{ if hasPrefix "/track" $path }}active{{ end }}" href="/tracks">{{ template "icon" "track" }}Tracks</a>
+                <a class="nav-item-link {{ if hasPrefix "/car" $path }}active{{ end }}" href="/cars">{{ template "icon" "car" }}Cars &amp; Setups</a>
+                <a class="nav-item-link {{ if hasPrefix "/weather" $path }}active{{ end }}" href="/weather">{{ template "icon" "weather" }}Weather</a>
+            </div>
+
+            {{ if WriteAccess }}
+                <div class="nav-group">
+                    <div class="nav-group-title">Server</div>
+                    {{ if AdminAccess }}
+                        <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="/server-options">{{ template "icon" "options" }}Options</a>
+                        <a class="nav-item-link {{ if hasPrefix "/accounts" $path }}active{{ end }}" href="/accounts">{{ template "icon" "accounts" }}Accounts</a>
+                        <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="/blacklist">{{ template "icon" "blacklist" }}Blacklist</a>
+                        <a class="nav-item-link {{ if hasPrefix "/motd" $path }}active{{ end }}" href="/motd">{{ template "icon" "message" }}Messages</a>
+                    {{ end }}
+                    {{ if DeleteAccess }}
+                        <a class="nav-item-link {{ if hasPrefix "/autofill-entrants" $path }}active{{ end }}" href="/autofill-entrants">{{ template "icon" "autofill" }}AutoFill Entrants</a>
+                    {{ end }}
+                    <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="/logs">{{ template "icon" "logs" }}Logs</a>
+                    {{ if AdminAccess }}
+                        <a class="nav-item-link {{ if hasPrefix "/audit-logs" $path }}active{{ end }}" href="/audit-logs">{{ template "icon" "audit" }}Audit Logs</a>
+                        <a class="nav-item-link {{ if hasPrefix "/current-config" $path }}active{{ end }}" href="/current-config">{{ template "icon" "config" }}Current Config</a>
+                    {{ end }}
+                </div>
+
+                {{ if AdminAccess }}
+                    <div class="nav-group">
+                        <div class="nav-group-title">Plugins</div>
+                        <a class="nav-item-link {{ if hasPrefix "/stracker" $path }}active{{ end }}" href="/stracker/options">{{ template "icon" "plugin" }}sTracker</a>
+                        <a class="nav-item-link {{ if hasPrefix "/kissmyrank" $path }}active{{ end }}" href="/kissmyrank/options">{{ template "icon" "plugin" }}KissMyRank</a>
+                        <a class="nav-item-link {{ if hasPrefix "/realpenalty" $path }}active{{ end }}" href="/realpenalty/options">{{ template "icon" "plugin" }}Real Penalty</a>
+                    </div>
+                {{ end }}
+            {{ end }}
+
+            <div class="app-sidebar-footer">
+                <a href="/changelog">Changelog</a>
+                <span>Version {{ Version }}</span>
+            </div>
+        </nav>
+
+        <div class="app-sidebar-backdrop" data-sidebar-toggle></div>
+
+        <main class="app-main">
+            <div class="app-content {{ with $.WideContainer }}is-wide{{ end }}">
+                {{ if WriteAccess }}
+                    {{ if and $.ACSREnabled (or (not $.BaseURLIsSet) (not $.BaseURLIsValid)) }}
+                        <div class="alert alert-danger mb-4">
+                            <strong>ACSR Configuration Issue:</strong>
+                            You have enabled ACSR in the Server Options, but your server config.yml does not have
+                            {{ if not $.BaseURLIsSet }}a BaseURL set{{ else if not $.BaseURLIsValid}}a valid BaseURL{{ end }}.
+                            Server Manager will not be able to connect to ACSR.
+                        </div>
+                    {{ end }}
+                {{ end }}
+
+                {{ block "content" . }}{{ end }}
+
+                <footer class="app-footer">
+                    <span>Assetto Corsa Server Manager {{ Version }}</span>
+                    <a href="/changelog">Changelog</a>
+                    <a href="https://github.com/wernersbacher/assetto-server-manager">GitHub</a>
+                    <a href="https://github.com/wernersbacher/assetto-server-manager/issues">Report a bug</a>
+                    <a href="https://github.com/JustaPenguin/assetto-server-manager/wiki">Wiki</a>
+                </footer>
+            </div>
+        </main>
     </div>
 
     <div class="messages">
-        <div class="container">
-            <div class="col-md-10 mx-auto">
-                {{ range $i, $message := .Messages }}
-
-                    <div class="alert alert-success alert-dismissible" role="alert">
-                        {{ $message }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                {{ end }}
-
-                {{ range $i, $error := .Errors }}
-
-                    <div class="alert alert-danger alert-dismissible mx-auto" role="alert">
-                        {{ $error }}
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                {{ end }}
+        {{ range $i, $message := .Messages }}
+            <div class="alert alert-success alert-dismissible" role="alert">
+                {{ $message }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-        </div>
+        {{ end }}
+
+        {{ range $i, $error := .Errors }}
+            <div class="alert alert-danger alert-dismissible" role="alert">
+                {{ $error }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {{ end }}
     </div>
 
     {{ if $.User.ShouldSeeIntroPopup }}

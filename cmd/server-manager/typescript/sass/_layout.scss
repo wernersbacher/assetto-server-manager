@@ -1,20 +1,5 @@
-
 body {
-  padding-top: 100px;
-  font-size: 1rem !important;
   overflow-y: scroll;
-}
-
-.navbar-brand {
-  max-width: 250px;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  display: block;
-  overflow: hidden;
-}
-
-footer {
-  margin-top: 20px;
 }
 
 .ms-container {
@@ -25,10 +10,6 @@ footer {
   position: absolute;
   bottom: 0;
   width: 100%
-}
-
-.nav-tabs .nav-link {
-  color: #495057;
 }
 
 abbr[title] {
@@ -42,45 +23,6 @@ abbr[title] {
 
 .d-contents {
   display: contents;
-}
-
-.img-footer {
-  width: 60px;
-  height: 60px;
-  position: relative;
-  margin-top: -10px;
-  margin-left: 10px;
-  float: right;
-}
-
-footer {
-  padding-bottom: 20px;
-}
-
-footer a {
-  display: inline-block;
-}
-
-@media screen and (max-width: 550px) {
-  .img-footer {
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-
-  footer .col-sm-4 {
-    text-align: center !important;
-  }
-}
-
-@media screen and (max-width: 1200px) and (min-width: 991px) {
-  .navbar .container {
-    width: 100%;
-    padding-right: 15px !important;
-    padding-left: 15px !important;
-    margin-right: auto !important;
-    margin-left: auto !important;
-    max-width: 100% !important;
-  }
 }
 
 .fa-stack-override {
@@ -105,14 +47,14 @@ footer a {
     padding: 10px;
     margin: 2px;
     display: block;
-    border: 1px solid $gray-400;
+    border: 1px solid var(--border);
     border-radius: 2px;
-    color: $body-color;
+    color: var(--foreground);
     text-decoration: none;
     height: 80px;
 
     &:hover {
-      border-color: $primary;
+      border-color: var(--foreground);
     }
 
     .meta {
@@ -135,7 +77,7 @@ footer a {
       .players, .status {
         display: block;
         font-size: $font-size-sm;
-        color: $gray-600;
+        color: var(--muted-foreground);
 
         position: relative;
       }
@@ -147,14 +89,6 @@ footer a {
       text-align: center;
       margin-top: 3px;
     }
-  }
-}
-
-.navbar {
-  @media (max-width: breakpoint-max(md)) {
-    overflow: auto;
-    max-height: 85vh;
-    align-items: start;
   }
 }
 
@@ -172,4 +106,15 @@ footer a {
 
 .select2-dropdown {
   z-index: 999;
+}
+
+a.card h3 {
+  color: var(--foreground);
+  margin-top: 20px;
+  font-size: 1.50rem;
+}
+
+
+a.card:hover {
+  text-decoration: none;
 }

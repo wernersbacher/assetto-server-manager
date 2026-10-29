@@ -1,6 +1,5 @@
 
 @import "bootstrap/scss/bootstrap";
-@import "bootswatch/dist/lumen/bootswatch";
 
 // ui elements
 @import "bootstrap-switch/dist/css/bootstrap3/bootstrap-switch";
@@ -27,3 +26,7 @@
 @import "@fullcalendar/list/main";
 @import "@fullcalendar/bootstrap/main";
 @import "dragula/dist/dragula";
+
+// theme overrides last, so they also apply to the third party styles above
+@import "theme";
+@import "shell";

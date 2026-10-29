@@ -1,0 +1,72 @@
+// Compile-time Bootstrap variables. Colours that differ between the light and dark theme are overridden at runtime
+// with the CSS custom properties from _theme.scss, so these are only the light defaults Bootstrap derives from.
+
+$white:    #fff;
+$gray-100: #fafafa;
+$gray-200: #f4f4f5;
+$gray-300: #e4e4e7;
+$gray-400: #d4d4d8;
+$gray-500: #a1a1aa;
+$gray-600: #71717a;
+$gray-700: #52525b;
+$gray-800: #27272a;
+$gray-900: #18181b;
+$black:    #000;
+
+$blue:    #2563eb;
+$indigo:  #4f46e5;
+$purple:  #7c3aed;
+$pink:    #db2777;
+$red:     #dc2626;
+$orange:  #ea580c;
+$yellow:  #d97706;
+$green:   #16a34a;
+$teal:    #0d9488;
+$cyan:    #0284c7;
+
+$primary:   $gray-900;
+$secondary: $gray-200;
+$success:   $green;
+$info:      $cyan;
+$warning:   $yellow;
+$danger:    $red;
+$light:     $gray-100;
+$dark:      $gray-800;
+
+$enable-shadows: false;
+$enable-gradients: false;
+
+$font-family-sans-serif: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+$font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+$font-size-base: 0.875rem;
+$line-height-base: 1.45;
+
+$headings-font-weight: 600;
+$h1-font-size: 1.5rem;
+$h2-font-size: 1.25rem;
+$h3-font-size: 1.125rem;
+$h4-font-size: 1rem;
+$h5-font-size: 1rem;
+$h6-font-size: 0.875rem;
+
+$border-radius:    6px;
+$border-radius-lg: 8px;
+$border-radius-sm: 4px;
+
+$input-btn-padding-y: 0.5rem;
+$input-btn-padding-x: 0.875rem;
+$input-height: 2.5rem;
+$btn-font-weight: 600;
+
+$card-spacer-x: 1.25rem;
+$card-spacer-y: 1rem;
+$card-border-radius: $border-radius-lg;
+
+$table-cell-padding: 0.625rem 0.875rem;
+$table-cell-padding-sm: 0.375rem 0.625rem;
+
+$link-color: $blue;
+$link-decoration: none;
+$link-hover-decoration: underline;
+
+$navbar-padding-y: 0.5rem;

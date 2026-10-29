@@ -59,23 +59,7 @@ function buildJS() {
 }
 
 function buildSass() {
-    gulp.src("./sass/server-manager.scss")
-        .pipe(sourcemaps.init())
-        .pipe(sass({
-            outputStyle: 'compressed',
-            quietDeps: true,
-            loadPaths: [
-                "./node_modules"
-            ]
-        }))
-        .pipe(autoPrefixer({
-            cascade: false
-        }))
-        .pipe(sourcemaps.write())
-        .pipe(gulp.dest("../static/css/"))
-    ;
-
-    return gulp.src("./sass/server-manager-dark.scss")
+    return gulp.src("./sass/server-manager.scss")
         .pipe(sourcemaps.init())
         .pipe(sass({
             outputStyle: 'compressed',
