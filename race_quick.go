@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type QuickRaceHandler struct {
@@ -38,7 +39,7 @@ func (qrh *QuickRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
 	err := qrh.raceManager.SetupQuickRace(r)
 
 	if err == ErrMustSubmitCar {
-		AddErrorFlash(w, r, "You must choose at least one car!")
+		smweb.AddErrorFlash(w, r, "You must choose at least one car!")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	} else if err != nil {
@@ -47,7 +48,7 @@ func (qrh *QuickRaceHandler) submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Quick race successfully started!")
+	smweb.AddFlash(w, r, "Quick race successfully started!")
 
 	if qrh.config.Server.PerformanceMode {
 		http.Redirect(w, r, "/", http.StatusFound)

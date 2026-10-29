@@ -9,6 +9,7 @@ import (
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 var ignoredURLs = [5]string{
@@ -41,7 +42,7 @@ func (alh *AuditLogHandler) Middleware(next http.Handler) http.Handler {
 			}
 		}
 
-		account := AccountFromRequest(r)
+		account := smweb.AccountFromRequest(r)
 
 		if account == nil {
 			next.ServeHTTP(w, r)
@@ -78,7 +79,7 @@ func (alh *AuditLogHandler) viewLogs(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't find audit logs")
-		AddErrorFlash(w, r, "Couldn't open audit logs")
+		smweb.AddErrorFlash(w, r, "Couldn't open audit logs")
 	}
 
 	// sort to newest first

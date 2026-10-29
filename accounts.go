@@ -1,7 +1,6 @@
 package servermanager
 
 import (
-	"context"
 	"crypto/rand"
 	"crypto/subtle"
 	"encoding/hex"
@@ -20,54 +19,23 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"golang.org/x/crypto/scrypt"
 )
 
 const (
-	sessionAccountID                              = "account_id"
-	requestContextKeyAccount    accountContextKey = iota
-	serverAccountOptionsMetaKey                   = "server-account-options"
+	sessionAccountID            = "account_id"
+	serverAccountOptionsMetaKey = "server-account-options"
 )
-
-type accountContextKey int
 
 type ServerAccountOptions struct {
 	IsOpen bool
 }
 
-// requestScope carries the server wide state which request helpers (sessions, access checks) need. It is attached to
-// every request by AccountManager.RequestScopeMiddleware, so that the helpers do not depend on package variables.
-type requestScope struct {
-	sessionStore   sessions.Store
-	accountOptions *ServerAccountOptions
-	openAccount    *smmodel.Account
-}
-
-type requestScopeContextKey struct{}
-
-func requestScopeFromRequest(r *http.Request) *requestScope {
-	scope, _ := r.Context().Value(requestScopeContextKey{}).(*requestScope)
-
-	if scope == nil {
-		return &requestScope{}
-	}
-
-	return scope
-}
-
-func (s *requestScope) isOpen() bool {
-	return s.accountOptions != nil && s.accountOptions.IsOpen
-}
-
-// withRequestScope returns a copy of r which carries the given scope.
-func withRequestScope(r *http.Request, scope *requestScope) *http.Request {
-	return r.WithContext(context.WithValue(r.Context(), requestScopeContextKey{}, scope))
-}
-
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
 func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		sess := getSession(r)
+		sess := smweb.Session(r)
 
 		accountID, ok := sess.Values[sessionAccountID].(string)
 
@@ -79,7 +47,7 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next 
 				delete(sess.Values, sessionAccountID)
 				_ = sessions.Save(r, w)
 
-				AddFlash(w, r, "You have been logged out")
+				smweb.AddFlash(w, r, "You have been logged out")
 
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
@@ -87,28 +55,28 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next 
 
 			if !account.HasGroupPrivilege(serverID, requiredGroup) {
 				if account.GroupFor(serverID) == smmodel.GroupNoAccess {
-					AddErrorFlash(w, r, "You do not have permission to access this Server Manager instance.")
+					smweb.AddErrorFlash(w, r, "You do not have permission to access this Server Manager instance.")
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
 				}
 
-				AddErrorFlash(w, r, "You do not have permission to view this page.")
+				smweb.AddErrorFlash(w, r, "You do not have permission to view this page.")
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
 			}
 
-			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), requestContextKeyAccount, account)))
+			next.ServeHTTP(w, smweb.WithAccount(r, account))
 			return
 		}
 
 		if requiredGroup == smmodel.GroupRead && ah.accountManager.options.IsOpen {
 			// if read is open, allow access and use a dummy account so the UI doesn't break
-			next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), requestContextKeyAccount, ah.accountManager.openAccount)))
+			next.ServeHTTP(w, smweb.WithAccount(r, ah.accountManager.openAccount))
 			return
 		}
 
 		if !ok {
-			AddErrorFlash(w, r, "You do not have permission to view this page. Please login first.")
+			smweb.AddErrorFlash(w, r, "You do not have permission to view this page. Please login first.")
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
@@ -132,7 +100,7 @@ func (ah *AccountHandler) AdminAccessMiddleware(next http.Handler) http.Handler 
 }
 
 func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Request) {
-	account := AccountFromRequest(r)
+	account := smweb.AccountFromRequest(r)
 
 	if account.Name == smmodel.OpenAccountName {
 		// don't save the open account
@@ -145,61 +113,6 @@ func (ah *AccountHandler) dismissChangelog(w http.ResponseWriter, r *http.Reques
 		logrus.WithError(err).Error("could not save current account version")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
-	}
-}
-
-func AccountFromRequest(r *http.Request) *smmodel.Account {
-	u, ok := r.Context().Value(requestContextKeyAccount).(*smmodel.Account)
-
-	if !ok {
-		return &smmodel.Account{}
-	}
-
-	return u
-}
-
-func ReadAccess(r *http.Request) func() bool {
-	account := AccountFromRequest(r)
-
-	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
-	ok := account.HasGroupPrivilege(serverID, smmodel.GroupRead) || (account.Name == "" && requestScopeFromRequest(r).isOpen())
-
-	return func() bool {
-		return ok
-	}
-}
-
-func LoggedIn(r *http.Request) func() bool {
-	account := AccountFromRequest(r)
-
-	ok := account.Name != "" && account != requestScopeFromRequest(r).openAccount
-
-	return func() bool {
-		return ok
-	}
-}
-
-func WriteAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupWrite)
-
-	return func() bool {
-		return ok
-	}
-}
-
-func DeleteAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupDelete)
-
-	return func() bool {
-		return ok
-	}
-}
-
-func AdminAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupAdmin)
-
-	return func() bool {
-		return ok
 	}
 }
 
@@ -227,9 +140,9 @@ func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
 
 		switch {
 		case err == ErrInvalidUsernameOrPassword:
-			AddErrorFlash(w, r, "Invalid username or password. Check your details and try again.")
+			smweb.AddErrorFlash(w, r, "Invalid username or password. Check your details and try again.")
 		case err == ErrAccountNeedsPassword:
-			AddFlash(w, r, "Thanks for logging in. We need you to set up a permanent password for your account.")
+			smweb.AddFlash(w, r, "Thanks for logging in. We need you to set up a permanent password for your account.")
 			http.Redirect(w, r, "/accounts/new-password", http.StatusFound)
 			return
 		case err != nil:
@@ -237,7 +150,7 @@ func (ah *AccountHandler) login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		default: // err == nil, successful auth
-			AddFlash(w, r, "Thanks for logging in!")
+			smweb.AddFlash(w, r, "Thanks for logging in!")
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
@@ -265,7 +178,7 @@ func (ah *AccountHandler) toggleServerOpenStatus(w http.ResponseWriter, r *http.
 		return
 	}
 
-	AddFlash(w, r, "Server openness successfully changed")
+	smweb.AddFlash(w, r, "Server openness successfully changed")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -276,7 +189,7 @@ type newPasswordTemplateVars struct {
 }
 
 func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
-	account := AccountFromRequest(r)
+	account := smweb.AccountFromRequest(r)
 
 	if r.Method == http.MethodPost {
 		set := true
@@ -287,12 +200,12 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 			currentPasswordHash, err := hashPassword([]byte(currentPassword), []byte(account.PasswordSalt))
 
 			if err != nil {
-				AddErrorFlash(w, r, "Unable to change your password")
+				smweb.AddErrorFlash(w, r, "Unable to change your password")
 				set = false
 			}
 
 			if !(subtle.ConstantTimeCompare([]byte(currentPasswordHash), []byte(account.PasswordHash)) == 1) {
-				AddErrorFlash(w, r, "Unable to change your password")
+				smweb.AddErrorFlash(w, r, "Unable to change your password")
 				set = false
 			}
 		}
@@ -303,7 +216,7 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 				err := ah.accountManager.ChangePassword(account, password)
 
 				if err == nil {
-					AddFlash(w, r, "Your password was successfully changed!")
+					smweb.AddFlash(w, r, "Your password was successfully changed!")
 					if updateDetails {
 						http.Redirect(w, r, "/accounts/update", http.StatusFound)
 					} else {
@@ -312,10 +225,10 @@ func (ah *AccountHandler) newPassword(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				AddErrorFlash(w, r, "Unable to change your password")
+				smweb.AddErrorFlash(w, r, "Unable to change your password")
 				logrus.WithError(err).Errorf("Could not change password for account id: %s", account.ID.String())
 			} else {
-				AddErrorFlash(w, r, "Your passwords must match")
+				smweb.AddErrorFlash(w, r, "Your passwords must match")
 			}
 		}
 	}
@@ -334,7 +247,7 @@ type updateAccountTemplateVars struct {
 }
 
 func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
-	account := AccountFromRequest(r)
+	account := smweb.AccountFromRequest(r)
 
 	if r.Method == http.MethodPost {
 		driverName, guid, team := r.FormValue("DriverName"), r.FormValue("DriverGUID"), r.FormValue("DriverTeam")
@@ -344,7 +257,7 @@ func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
 			err := ah.accountManager.updateDetails(account, driverName, guid, team, theme)
 
 			if err != nil {
-				AddErrorFlash(w, r, "Unable to update account details")
+				smweb.AddErrorFlash(w, r, "Unable to update account details")
 				logrus.WithError(err).Errorf("Could not update details for account id: %s", account.ID.String())
 			} else {
 				if account.GUID != "" {
@@ -359,7 +272,7 @@ func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 
-				AddFlash(w, r, "Your details were successfully changed!")
+				smweb.AddFlash(w, r, "Your details were successfully changed!")
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
 			}
@@ -374,21 +287,21 @@ func (ah *AccountHandler) update(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah *AccountHandler) deleteAccount(w http.ResponseWriter, r *http.Request) {
-	requestAccount := AccountFromRequest(r)
+	requestAccount := smweb.AccountFromRequest(r)
 
 	accountID := chi.URLParam(r, "id")
 
 	if requestAccount.ID.String() == accountID {
-		AddErrorFlash(w, r, "You can't delete your own account!")
+		smweb.AddErrorFlash(w, r, "You can't delete your own account!")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
 
 	if err := ah.store.DeleteAccount(accountID); err != nil {
 		logrus.WithError(err).Errorf("Could not delete account")
-		AddErrorFlash(w, r, "Could not delete account")
+		smweb.AddErrorFlash(w, r, "Could not delete account")
 	} else {
-		AddFlash(w, r, "Account successfully deleted")
+		smweb.AddFlash(w, r, "Account successfully deleted")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -400,10 +313,10 @@ func (ah *AccountHandler) resetPassword(w http.ResponseWriter, r *http.Request) 
 	account, err := ah.accountManager.resetPassword(accountID)
 
 	if err != nil {
-		AddErrorFlash(w, r, "Unable to reset account password")
+		smweb.AddErrorFlash(w, r, "Unable to reset account password")
 		logrus.WithError(err).Errorf("Could not reset password for account id: %s", accountID)
 	} else {
-		AddFlash(w, r, fmt.Sprintf("We have autogenerated a new password for %s, it is: %s", account.Name, account.DefaultPassword))
+		smweb.AddFlash(w, r, fmt.Sprintf("We have autogenerated a new password for %s, it is: %s", account.Name, account.DefaultPassword))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -460,10 +373,11 @@ func (am *AccountManager) InitOpenAccount() {
 // RequestScopeMiddleware attaches the session store and account state to each request.
 func (am *AccountManager) RequestScopeMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, withRequestScope(r, &requestScope{
-			sessionStore:   am.sessionStore,
-			accountOptions: am.options,
-			openAccount:    am.openAccount,
+		next.ServeHTTP(w, smweb.WithScope(r, &smweb.Scope{
+			SessionStore: am.sessionStore,
+			ServerID:     serverID,
+			ReadIsOpen:   am.options.IsOpen,
+			OpenAccount:  am.openAccount,
 		}))
 	})
 }
@@ -486,7 +400,7 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 			if (account.NeedsPasswordReset(am.config.Accounts.AdminPasswordOverride) && password == account.DefaultPassword && account.DefaultPassword != "") ||
 				(account.Name == smmodel.AdminUserName && am.config.Accounts.AdminPasswordOverride != "" && password == am.config.Accounts.AdminPasswordOverride) {
 				// first log in of the account, direct them to a reset password form
-				sess := getSession(r)
+				sess := smweb.Session(r)
 				sess.Values[sessionAccountID] = account.ID.String()
 
 				err := sess.Save(r, w)
@@ -505,7 +419,7 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 			}
 
 			if subtle.ConstantTimeCompare([]byte(account.PasswordHash), []byte(passwordHash)) == 1 {
-				sess := getSession(r)
+				sess := smweb.Session(r)
 				sess.Values[sessionAccountID] = account.ID.String()
 
 				return sess.Save(r, w)
@@ -574,7 +488,7 @@ func (am *AccountManager) updateDetails(account *smmodel.Account, name, guid, te
 }
 
 func (ah *AccountHandler) logout(w http.ResponseWriter, r *http.Request) {
-	sess := getSession(r)
+	sess := smweb.Session(r)
 	delete(sess.Values, sessionAccountID)
 
 	_ = sess.Save(r, w)
@@ -645,9 +559,9 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 		}
 
 		if isEditing {
-			AddFlash(w, r, "Account successfully edited")
+			smweb.AddFlash(w, r, "Account successfully edited")
 		} else {
-			AddFlash(w, r, "Account successfully created")
+			smweb.AddFlash(w, r, "Account successfully created")
 		}
 
 		http.Redirect(w, r, "/accounts", http.StatusFound)

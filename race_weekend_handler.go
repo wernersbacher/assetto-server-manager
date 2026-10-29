@@ -13,6 +13,7 @@ import (
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type RaceWeekendHandler struct {
@@ -69,7 +70,7 @@ func (rwh *RaceWeekendHandler) view(w http.ResponseWriter, r *http.Request) {
 			WideContainer: true,
 		},
 		RaceWeekend: raceWeekend,
-		Account:     AccountFromRequest(r),
+		Account:     smweb.AccountFromRequest(r),
 	})
 }
 
@@ -94,7 +95,7 @@ func (rwh *RaceWeekendHandler) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Race Weekend successfully deleted!")
+	smweb.AddFlash(w, r, "Race Weekend successfully deleted!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -108,10 +109,10 @@ func (rwh *RaceWeekendHandler) submit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if edited {
-		AddFlash(w, r, "Race Weekend successfully edited!")
+		smweb.AddFlash(w, r, "Race Weekend successfully edited!")
 		http.Redirect(w, r, "/race-weekend/"+raceWeekend.ID.String(), http.StatusFound)
 	} else {
-		AddFlash(w, r, "We've created the Race Weekend. Now you need to add some sessions!")
+		smweb.AddFlash(w, r, "We've created the Race Weekend. Now you need to add some sessions!")
 		http.Redirect(w, r, "/race-weekend/"+raceWeekend.ID.String()+"/session", http.StatusFound)
 	}
 }
@@ -138,14 +139,14 @@ func (rwh *RaceWeekendHandler) submitSessionConfiguration(w http.ResponseWriter,
 	}
 
 	if edited {
-		AddFlash(w, r,
+		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Race Weekend session at %s was successfully edited!",
 				prettifyName(session.RaceConfig.Track, false),
 			),
 		)
 	} else {
-		AddFlash(w, r,
+		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Race Weekend session at %s was successfully added!",
 				prettifyName(session.RaceConfig.Track, false),
@@ -169,9 +170,9 @@ func (rwh *RaceWeekendHandler) startSession(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start Race Weekend session")
 
-		AddErrorFlash(w, r, "Couldn't start the Session")
+		smweb.AddErrorFlash(w, r, "Couldn't start the Session")
 	} else {
-		AddFlash(w, r, "Session started successfully!")
+		smweb.AddFlash(w, r, "Session started successfully!")
 		time.Sleep(time.Second * 1)
 	}
 
@@ -184,9 +185,9 @@ func (rwh *RaceWeekendHandler) startPracticeSession(w http.ResponseWriter, r *ht
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start Race Weekend practice session")
 
-		AddErrorFlash(w, r, "Couldn't start the Session")
+		smweb.AddErrorFlash(w, r, "Couldn't start the Session")
 	} else {
-		AddFlash(w, r, "Session started successfully!")
+		smweb.AddFlash(w, r, "Session started successfully!")
 		time.Sleep(time.Second * 1)
 	}
 
@@ -199,9 +200,9 @@ func (rwh *RaceWeekendHandler) restartSession(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not restart Race Weekend session")
 
-		AddErrorFlash(w, r, "Couldn't restart the Session")
+		smweb.AddErrorFlash(w, r, "Couldn't restart the Session")
 	} else {
-		AddFlash(w, r, "Session restarted successfully!")
+		smweb.AddFlash(w, r, "Session restarted successfully!")
 		time.Sleep(time.Second * 1)
 	}
 
@@ -214,9 +215,9 @@ func (rwh *RaceWeekendHandler) cancelSession(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not cancel Race Weekend session")
 
-		AddErrorFlash(w, r, "Couldn't cancel the Session")
+		smweb.AddErrorFlash(w, r, "Couldn't cancel the Session")
 	} else {
-		AddFlash(w, r, "Session canceled successfully!")
+		smweb.AddFlash(w, r, "Session canceled successfully!")
 		time.Sleep(time.Second * 1)
 	}
 
@@ -229,9 +230,9 @@ func (rwh *RaceWeekendHandler) deleteSession(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete Race Weekend session")
 
-		AddErrorFlash(w, r, "Couldn't delete the Session")
+		smweb.AddErrorFlash(w, r, "Couldn't delete the Session")
 	} else {
-		AddFlash(w, r, "Session deleted successfully!")
+		smweb.AddFlash(w, r, "Session deleted successfully!")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -254,9 +255,9 @@ func (rwh *RaceWeekendHandler) importSessionResults(w http.ResponseWriter, r *ht
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not import race weekend session")
-			AddErrorFlash(w, r, "Could not import race weekend session files")
+			smweb.AddErrorFlash(w, r, "Could not import race weekend session files")
 		} else {
-			AddFlash(w, r, "Successfully imported session files!")
+			smweb.AddFlash(w, r, "Successfully imported session files!")
 			http.Redirect(w, r, "/race-weekend/"+raceWeekendID, http.StatusFound)
 			return
 		}
@@ -466,7 +467,7 @@ func (rwh *RaceWeekendHandler) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupWrite) {
+	if !smweb.AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		for _, session := range raceWeekend.Sessions {
 			session.ReplacementPassword = ""
@@ -486,9 +487,9 @@ func (rwh *RaceWeekendHandler) importRaceWeekend(w http.ResponseWriter, r *http.
 
 		if err != nil {
 			logrus.WithError(err).Error("could not import race weekend")
-			AddErrorFlash(w, r, "Sorry, we couldn't import that Race Weekend! Check your JSON formatting.")
+			smweb.AddErrorFlash(w, r, "Sorry, we couldn't import that Race Weekend! Check your JSON formatting.")
 		} else {
-			AddFlash(w, r, "Race Weekend successfully imported!")
+			smweb.AddFlash(w, r, "Race Weekend successfully imported!")
 			http.Redirect(w, r, "/race-weekend/"+raceWeekendID, http.StatusFound)
 		}
 	}
@@ -546,7 +547,7 @@ func (rwh *RaceWeekendHandler) scheduleSession(w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	AddFlash(w, r, message)
+	smweb.AddFlash(w, r, message)
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 

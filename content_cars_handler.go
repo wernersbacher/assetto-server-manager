@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/json"
 	"fmt"
@@ -120,12 +121,12 @@ func (ch *CarsHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete car: %s", carName)
-		AddErrorFlash(w, r, "couldn't get car list")
+		smweb.AddErrorFlash(w, r, "couldn't get car list")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
 
-	AddFlash(w, r, fmt.Sprintf("Car %s successfully deleted!", carName))
+	smweb.AddFlash(w, r, fmt.Sprintf("Car %s successfully deleted!", carName))
 	http.Redirect(w, r, "/cars", http.StatusFound)
 }
 
@@ -179,18 +180,18 @@ func (ch *CarsHandler) tags(w http.ResponseWriter, r *http.Request) {
 		err := ch.carManager.AddTag(car, tag)
 
 		if err == nil {
-			AddFlash(w, r, fmt.Sprintf("Successfully added the tag: %s", tag))
+			smweb.AddFlash(w, r, fmt.Sprintf("Successfully added the tag: %s", tag))
 		} else {
-			AddFlash(w, r, "Could not add tag")
+			smweb.AddFlash(w, r, "Could not add tag")
 		}
 	} else {
 		tag := r.URL.Query().Get("delete")
 		err := ch.carManager.DelTag(car, tag)
 
 		if err == nil {
-			AddFlash(w, r, fmt.Sprintf("Successfully deleted the tag: %s", tag))
+			smweb.AddFlash(w, r, fmt.Sprintf("Successfully deleted the tag: %s", tag))
 		} else {
-			AddFlash(w, r, "Could not delete tag")
+			smweb.AddFlash(w, r, "Could not delete tag")
 		}
 	}
 
@@ -211,7 +212,7 @@ func (ch *CarsHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Car metadata updated successfully!")
+	smweb.AddFlash(w, r, "Car metadata updated successfully!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -238,7 +239,7 @@ func (ch *CarsHandler) uploadSkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Car skin uploaded successfully!")
+	smweb.AddFlash(w, r, "Car skin uploaded successfully!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -268,7 +269,7 @@ func (ch *CarsHandler) deleteSkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Car skin deleted successfully!")
+	smweb.AddFlash(w, r, "Car skin deleted successfully!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -281,7 +282,7 @@ func (ch *CarsHandler) rebuildSearchIndex(w http.ResponseWriter, r *http.Request
 		}
 	})
 
-	AddFlash(w, r, "Started re-indexing cars!")
+	smweb.AddFlash(w, r, "Started re-indexing cars!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 

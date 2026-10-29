@@ -20,6 +20,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type ResultsHandler struct {
@@ -87,11 +88,11 @@ func (rh *ResultsHandler) uploadHandler(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not parse results form")
-		AddErrorFlash(w, r, "Sorry, we couldn't parse that results file! Please make sure the format is correct.")
+		smweb.AddErrorFlash(w, r, "Sorry, we couldn't parse that results file! Please make sure the format is correct.")
 	}
 
 	if !matched {
-		AddErrorFlash(w, r, "Your results file content was correct, but the file name is incorrect! Please make sure the file name matches the AC standard then try again.")
+		smweb.AddErrorFlash(w, r, "Your results file content was correct, but the file name is incorrect! Please make sure the file name matches the AC standard then try again.")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -266,7 +267,7 @@ func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 		},
 		Result:           result,
 		AutoFillEntrants: autoFillEntrants,
-		Account:          AccountFromRequest(r),
+		Account:          smweb.AccountFromRequest(r),
 		UseMPH:           serverOpts.UseMPH == 1,
 	})
 }
@@ -342,7 +343,7 @@ func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Drivers successfully edited")
+	smweb.AddFlash(w, r, "Drivers successfully edited")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -359,12 +360,12 @@ func (rh *ResultsHandler) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	case errors.As(err, &referencedErr):
 		logrus.WithError(err).Warnf("refusing to delete results file: %s", fileName)
-		AddErrorFlash(w, r, fmt.Sprintf("Results file could not be deleted, it is used by %s", referencedErr.Reference))
+		smweb.AddErrorFlash(w, r, fmt.Sprintf("Results file could not be deleted, it is used by %s", referencedErr.Reference))
 	case err != nil:
 		logrus.WithError(err).Errorf("could not delete results file: %s", fileName)
-		AddErrorFlash(w, r, "Unable to delete the results file")
+		smweb.AddErrorFlash(w, r, "Unable to delete the results file")
 	default:
-		AddFlash(w, r, "Results file successfully deleted")
+		smweb.AddFlash(w, r, "Results file successfully deleted")
 	}
 
 	http.Redirect(w, r, "/results", http.StatusFound)

@@ -14,6 +14,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type PenaltiesHandler struct {
@@ -37,7 +38,7 @@ func (ph *PenaltiesHandler) managePenalty(w http.ResponseWriter, r *http.Request
 	err := r.ParseForm()
 
 	if err != nil {
-		AddErrorFlash(w, r, "Could not parse penalty form")
+		smweb.AddErrorFlash(w, r, "Could not parse penalty form")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
@@ -56,7 +57,7 @@ func (ph *PenaltiesHandler) managePenalty(w http.ResponseWriter, r *http.Request
 
 			if err != nil {
 				logrus.WithError(err).Errorf("could not parse penalty time")
-				AddErrorFlash(w, r, "Could not parse penalty time")
+				smweb.AddErrorFlash(w, r, "Could not parse penalty time")
 				http.Redirect(w, r, r.Referer(), http.StatusFound)
 				return
 			}
@@ -68,15 +69,15 @@ func (ph *PenaltiesHandler) managePenalty(w http.ResponseWriter, r *http.Request
 	err = ph.penaltiesManager.applyPenalty(jsonFileName, guid, carModel, penalty, add)
 
 	if err != nil {
-		AddErrorFlash(w, r, "Could not add/remove penalty")
+		smweb.AddErrorFlash(w, r, "Could not add/remove penalty")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
 
 	if !add {
-		AddFlash(w, r, "Penalty Removed!")
+		smweb.AddFlash(w, r, "Penalty Removed!")
 	} else {
-		AddFlash(w, r, "Penalty Added!")
+		smweb.AddFlash(w, r, "Penalty Added!")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

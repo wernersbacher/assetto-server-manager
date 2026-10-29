@@ -13,6 +13,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -315,7 +316,7 @@ func (rch *RaceControlHandler) broadcastChat(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	err := rch.raceControl.splitAndBroadcastChat(r.FormValue("broadcast-chat"), AccountFromRequest(r))
+	err := rch.raceControl.splitAndBroadcastChat(r.FormValue("broadcast-chat"), smweb.AccountFromRequest(r))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to broadcast chat message")
@@ -394,7 +395,7 @@ func (rch *RaceControlHandler) restartSession(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to restart session")
 
-		AddErrorFlash(w, r, "The server was unable to restart the session!")
+		smweb.AddErrorFlash(w, r, "The server was unable to restart the session!")
 	}
 
 	http.Redirect(w, r, "/live-timing", http.StatusFound)
@@ -406,7 +407,7 @@ func (rch *RaceControlHandler) nextSession(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to move to next session")
 
-		AddErrorFlash(w, r, "The server was unable to move to the next session!")
+		smweb.AddErrorFlash(w, r, "The server was unable to move to the next session!")
 	}
 
 	http.Redirect(w, r, "/live-timing", http.StatusFound)

@@ -1,7 +1,6 @@
-package servermanager
+package web
 
 import (
-	"context"
 	"net/http/httptest"
 	"testing"
 
@@ -10,30 +9,19 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
-// testRequestScope returns a request scope with a cookie session store and a closed server.
-func testRequestScope() *requestScope {
-	return &requestScope{
-		sessionStore:   sessions.NewCookieStore([]byte("test")),
-		accountOptions: &ServerAccountOptions{},
-	}
-}
-
 func TestReadAccess(t *testing.T) {
-	oldServerID := serverID
-	serverID = "test-server"
-	defer func() {
-		serverID = oldServerID
-	}()
+	const serverID smmodel.ServerID = "test-server"
 
 	withAccount := func(account *smmodel.Account, open bool) func() bool {
 		r := httptest.NewRequest("GET", "/login", nil)
-
-		scope := testRequestScope()
-		scope.accountOptions.IsOpen = open
-		r = withRequestScope(r, scope)
+		r = WithScope(r, &Scope{
+			SessionStore: sessions.NewCookieStore([]byte("test")),
+			ServerID:     serverID,
+			ReadIsOpen:   open,
+		})
 
 		if account != nil {
-			r = r.WithContext(context.WithValue(r.Context(), requestContextKeyAccount, account))
+			r = WithAccount(r, account)
 		}
 
 		return ReadAccess(r)

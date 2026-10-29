@@ -3,6 +3,7 @@ package servermanager
 import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"bytes"
 	"context"
@@ -74,7 +75,7 @@ func TestCarsHandlerUploadSkin(t *testing.T) {
 		}
 
 		req := httptest.NewRequest(http.MethodPost, "/car/dev_car/skin", body)
-		req = withRequestScope(req, testRequestScope())
+		req = smweb.WithScope(req, testRequestScope())
 		req.Header.Set("Content-Type", mw.FormDataContentType())
 
 		rctx := chi.NewRouteContext()
@@ -176,7 +177,7 @@ func TestCarsHandlerDeleteSkin(t *testing.T) {
 	deleteSkin := func(car, skin string) int {
 		form := url.Values{"skin-delete": {skin}}
 		req := httptest.NewRequest(http.MethodPost, "/car/"+car+"/skin/delete", strings.NewReader(form.Encode()))
-		req = withRequestScope(req, testRequestScope())
+		req = smweb.WithScope(req, testRequestScope())
 		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		rctx := chi.NewRouteContext()
@@ -316,7 +317,7 @@ func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
 
 	for _, params := range [][3]string{{"..", "..", ".."}, {"car", "..", ".."}, {"car", "track", ".."}, {`car\..`, "track", "a.ini"}} {
 		req := httptest.NewRequest(http.MethodGet, "/setups/delete/x/y/z", nil)
-		req = withRequestScope(req, testRequestScope())
+		req = smweb.WithScope(req, testRequestScope())
 		rctx := chi.NewRouteContext()
 		rctx.URLParams.Add("car", params[0])
 		rctx.URLParams.Add("track", params[1])

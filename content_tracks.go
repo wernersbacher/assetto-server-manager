@@ -15,6 +15,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type TracksHandler struct {
@@ -56,7 +57,7 @@ func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not get track list")
-		AddErrorFlash(w, r, "couldn't get track list")
+		smweb.AddErrorFlash(w, r, "couldn't get track list")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
@@ -85,10 +86,10 @@ func (th *TracksHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if found {
 		// confirm deletion
-		AddFlash(w, r, "Track successfully deleted!")
+		smweb.AddFlash(w, r, "Track successfully deleted!")
 	} else {
 		// inform track wasn't found
-		AddErrorFlash(w, r, "Sorry, track could not be deleted.")
+		smweb.AddErrorFlash(w, r, "Sorry, track could not be deleted.")
 	}
 
 	http.Redirect(w, r, "/tracks", http.StatusFound)
@@ -130,7 +131,7 @@ func (th *TracksHandler) saveMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Track metadata updated successfully!")
+	smweb.AddFlash(w, r, "Track metadata updated successfully!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 

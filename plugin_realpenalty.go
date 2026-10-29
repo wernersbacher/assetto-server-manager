@@ -15,6 +15,7 @@ import (
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type RealPenaltyHandler struct {
@@ -57,9 +58,9 @@ func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save Real Penalty options")
-			AddErrorFlash(w, r, "Failed to save Real Penalty options")
+			smweb.AddErrorFlash(w, r, "Failed to save Real Penalty options")
 		} else {
-			AddFlash(w, r, "Real Penalty options successfully saved!")
+			smweb.AddFlash(w, r, "Real Penalty options successfully saved!")
 		}
 	}
 

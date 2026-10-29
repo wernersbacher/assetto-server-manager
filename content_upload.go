@@ -3,6 +3,7 @@ package servermanager
 import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/base64"
 	"encoding/json"
@@ -68,11 +69,11 @@ func (cuh *ContentUploadHandler) upload(contentType ContentType) http.HandlerFun
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't upload file")
-			AddErrorFlash(w, r, string(contentType)+"(s) could not be added")
+			smweb.AddErrorFlash(w, r, string(contentType)+"(s) could not be added")
 			return
 		}
 
-		AddFlash(w, r, string(contentType)+"(s) added successfully!")
+		smweb.AddFlash(w, r, string(contentType)+"(s) added successfully!")
 	}
 }
 

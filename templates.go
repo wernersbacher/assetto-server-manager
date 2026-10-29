@@ -7,6 +7,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"bytes"
 	"encoding/json"
@@ -498,7 +499,7 @@ func (b *BaseTemplateVars) Get() *BaseTemplateVars {
 }
 
 func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars TemplateVars) error {
-	session := getSession(r)
+	session := smweb.Session(r)
 
 	data := vars.Get()
 
@@ -506,7 +507,7 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 		data.Messages = flashes
 	}
 
-	errSession := getErrSession(r)
+	errSession := smweb.ErrorSession(r)
 
 	if flashes := errSession.Flashes(); len(flashes) > 0 {
 		data.Errors = flashes
@@ -525,7 +526,7 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.ServerEvent = tr.process.Event()
 	data.ServerName = opts.Name
 	data.CustomCSS = template.CSS(opts.CustomCSS)
-	data.User = AccountFromRequest(r)
+	data.User = smweb.AccountFromRequest(r)
 	data.IsDarkTheme = opts.DarkTheme == 1
 	data.Request = r
 	data.Debug = Debug
@@ -574,11 +575,11 @@ func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view st
 	}
 
 	t.Funcs(map[string]interface{}{
-		"ReadAccess":   ReadAccess(r),
-		"WriteAccess":  WriteAccess(r),
-		"DeleteAccess": DeleteAccess(r),
-		"AdminAccess":  AdminAccess(r),
-		"LoggedIn":     LoggedIn(r),
+		"ReadAccess":   smweb.ReadAccess(r),
+		"WriteAccess":  smweb.WriteAccess(r),
+		"DeleteAccess": smweb.DeleteAccess(r),
+		"AdminAccess":  smweb.AdminAccess(r),
+		"LoggedIn":     smweb.LoggedIn(r),
 	})
 
 	return t.ExecuteTemplate(w, "base", vars)
@@ -621,11 +622,11 @@ func (tr *Renderer) LoadPartial(w http.ResponseWriter, r *http.Request, partial 
 	}
 
 	t.Funcs(map[string]interface{}{
-		"ReadAccess":   ReadAccess(r),
-		"WriteAccess":  WriteAccess(r),
-		"DeleteAccess": DeleteAccess(r),
-		"AdminAccess":  AdminAccess(r),
-		"LoggedIn":     LoggedIn(r),
+		"ReadAccess":   smweb.ReadAccess(r),
+		"WriteAccess":  smweb.WriteAccess(r),
+		"DeleteAccess": smweb.DeleteAccess(r),
+		"AdminAccess":  smweb.AdminAccess(r),
+		"LoggedIn":     smweb.LoggedIn(r),
 	})
 
 	return t.ExecuteTemplate(w, "partial", vars)

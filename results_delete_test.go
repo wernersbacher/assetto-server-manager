@@ -16,6 +16,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 func setupResultsDeleteTest(t *testing.T) (store smstore.Store, resultsDir string, cleanup func()) {
@@ -68,7 +69,7 @@ func postResultsDelete(t *testing.T, rh *ResultsHandler, fileName string) *httpt
 	r.Post("/results/{fileName}/delete", rh.delete)
 
 	req := httptest.NewRequest(http.MethodPost, "/results/"+fileName+"/delete", nil)
-	req = withRequestScope(req, testRequestScope())
+	req = smweb.WithScope(req, testRequestScope())
 	rec := httptest.NewRecorder()
 
 	r.ServeHTTP(rec, req)

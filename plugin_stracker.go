@@ -16,6 +16,7 @@ import (
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type StrackerHandler struct {
@@ -194,9 +195,9 @@ func (sth *StrackerHandler) options(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save stracker options")
-			AddErrorFlash(w, r, "Failed to save stracker options")
+			smweb.AddErrorFlash(w, r, "Failed to save stracker options")
 		} else {
-			AddFlash(w, r, "Stracker options successfully saved!")
+			smweb.AddFlash(w, r, "Stracker options successfully saved!")
 		}
 
 		err = sth.initReverseProxy()

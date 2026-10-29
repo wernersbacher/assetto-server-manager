@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-http-utils/etag"
@@ -397,35 +396,4 @@ func AssetCacheHeaders(next http.Handler, useRevalidation bool) http.HandlerFunc
 			next.ServeHTTP(w, r)
 		}
 	}
-}
-
-func getSession(r *http.Request) *sessions.Session {
-	session, _ := requestScopeFromRequest(r).sessionStore.Get(r, "messages")
-
-	return session
-}
-
-func getErrSession(r *http.Request) *sessions.Session {
-	session, _ := requestScopeFromRequest(r).sessionStore.Get(r, "errors")
-
-	return session
-}
-
-// Helper function to get message session and add a flash
-func AddFlash(w http.ResponseWriter, r *http.Request, message string) {
-	session := getSession(r)
-
-	session.AddFlash(message)
-
-	// gorilla sessions is dumb and errors weirdly
-	_ = session.Save(r, w)
-}
-
-func AddErrorFlash(w http.ResponseWriter, r *http.Request, message string) {
-	session := getErrSession(r)
-
-	session.AddFlash(message)
-
-	// gorilla sessions is dumb and errors weirdly
-	_ = session.Save(r, w)
 }

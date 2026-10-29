@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type WeatherHandler struct {
@@ -49,7 +50,7 @@ func (wh *WeatherHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not get weather list")
-		AddErrorFlash(w, r, "Couldn't get weather list")
+		smweb.AddErrorFlash(w, r, "Couldn't get weather list")
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
@@ -75,10 +76,10 @@ func (wh *WeatherHandler) delete(w http.ResponseWriter, r *http.Request) {
 
 	if found {
 		// confirm deletion
-		AddFlash(w, r, "Weather preset successfully deleted!")
+		smweb.AddFlash(w, r, "Weather preset successfully deleted!")
 	} else {
 		// inform weather wasn't found
-		AddErrorFlash(w, r, "Sorry, weather preset could not be deleted. Are you sure it was installed?")
+		smweb.AddErrorFlash(w, r, "Sorry, weather preset could not be deleted. Are you sure it was installed?")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

@@ -11,6 +11,7 @@ import (
 	"golang.org/x/net/html"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/formfields"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 // EncodeFormData uses formulate to build template.HTML from a struct
@@ -20,16 +21,16 @@ func EncodeFormData(data interface{}, r *http.Request) (template.HTML, error) {
 	enc := formulate.NewEncoder(buf, &decorator{})
 	enc.SetFormat(true)
 	enc.AddShowCondition("read", func() bool {
-		return ReadAccess(r)()
+		return smweb.ReadAccess(r)()
 	})
 	enc.AddShowCondition("write", func() bool {
-		return WriteAccess(r)()
+		return smweb.WriteAccess(r)()
 	})
 	enc.AddShowCondition("delete", func() bool {
-		return DeleteAccess(r)()
+		return smweb.DeleteAccess(r)()
 	})
 	enc.AddShowCondition("admin", func() bool {
-		return AdminAccess(r)()
+		return smweb.AdminAccess(r)()
 	})
 
 	if err := enc.Encode(data); err != nil {

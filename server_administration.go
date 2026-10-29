@@ -6,6 +6,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/json"
 	"html/template"
@@ -127,7 +128,7 @@ func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Requ
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save message of the day")
-			AddErrorFlash(w, r, "Failed to save message changes")
+			smweb.AddErrorFlash(w, r, "Failed to save message changes")
 			success = false
 		}
 
@@ -136,12 +137,12 @@ func (sah *ServerAdministrationHandler) motd(w http.ResponseWriter, r *http.Requ
 
 		if err := sah.store.UpsertServerOptions(opts); err != nil {
 			logrus.WithError(err).Error("couldn't save messages")
-			AddErrorFlash(w, r, "Failed to save message changes")
+			smweb.AddErrorFlash(w, r, "Failed to save message changes")
 			success = false
 		}
 
 		if success {
-			AddFlash(w, r, "Messages successfully saved!")
+			smweb.AddFlash(w, r, "Messages successfully saved!")
 		}
 	}
 
@@ -222,9 +223,9 @@ func (sah *ServerAdministrationHandler) options(w http.ResponseWriter, r *http.R
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save config")
-			AddErrorFlash(w, r, "Failed to save server options")
+			smweb.AddErrorFlash(w, r, "Failed to save server options")
 		} else {
-			AddFlash(w, r, "Server options successfully saved!")
+			smweb.AddFlash(w, r, "Server options successfully saved!")
 		}
 
 	}
@@ -273,9 +274,9 @@ func (sah *ServerAdministrationHandler) blacklist(w http.ResponseWriter, r *http
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save blacklist")
-			AddErrorFlash(w, r, "Failed to save Server blacklist changes")
+			smweb.AddErrorFlash(w, r, "Failed to save Server blacklist changes")
 		} else {
-			AddFlash(w, r, "Server blacklist successfully changed!")
+			smweb.AddFlash(w, r, "Server blacklist successfully changed!")
 		}
 	}
 
@@ -316,9 +317,9 @@ func (sah *ServerAdministrationHandler) autoFillEntrantDelete(w http.ResponseWri
 
 	if err != nil {
 		logrus.WithError(err).Error("could not delete entrant")
-		AddErrorFlash(w, r, "Could not delete entrant")
+		smweb.AddErrorFlash(w, r, "Could not delete entrant")
 	} else {
-		AddFlash(w, r, "Successfully deleted entrant")
+		smweb.AddFlash(w, r, "Successfully deleted entrant")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -414,9 +415,9 @@ func (sah *ServerAdministrationHandler) serverProcess(w http.ResponseWriter, r *
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not change " + noun + " status")
-		AddErrorFlash(w, r, "Unable to change "+noun+" status")
+		smweb.AddErrorFlash(w, r, "Unable to change "+noun+" status")
 	} else {
-		AddFlash(w, r, noun+" successfully "+txt)
+		smweb.AddFlash(w, r, noun+" successfully "+txt)
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

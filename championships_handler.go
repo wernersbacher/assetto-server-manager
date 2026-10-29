@@ -4,6 +4,7 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 
@@ -93,11 +94,11 @@ func (ch *ChampionshipsHandler) submit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if edited {
-		AddFlash(w, r, "Championship successfully edited!")
+		smweb.AddFlash(w, r, "Championship successfully edited!")
 		http.Redirect(w, r, "/championship/"+championship.ID.String(), http.StatusFound)
 	} else {
 
-		AddFlash(w, r, "We've created the Championship. Now you need to add some Events!")
+		smweb.AddFlash(w, r, "We've created the Championship. Now you need to add some Events!")
 
 		if r.FormValue("action") == "addRaceWeekend" {
 			http.Redirect(w, r, "/race-weekends/new?championshipID="+championship.ID.String(), http.StatusFound)
@@ -117,7 +118,7 @@ func (ch *ChampionshipsHandler) duplicate(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	AddFlash(w, r, "Championship successfully duplicated!")
+	smweb.AddFlash(w, r, "Championship successfully duplicated!")
 	http.Redirect(w, r, "/championship/"+championship.ID.String(), http.StatusFound)
 }
 
@@ -163,7 +164,7 @@ func (ch *ChampionshipsHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	account := AccountFromRequest(r)
+	account := smweb.AccountFromRequest(r)
 	ch.viewRenderer.MustLoadTemplate(w, r, "championships/view.html", &championshipViewTemplateVars{
 		Championship:    championship,
 		EventInProgress: eventInProgress,
@@ -182,7 +183,7 @@ func (ch *ChampionshipsHandler) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account := AccountFromRequest(r)
+	account := smweb.AccountFromRequest(r)
 
 	if !account.HasGroupPrivilege(serverID, smmodel.GroupAdmin) {
 		// sign up responses are hidden for data protection reasons
@@ -209,9 +210,9 @@ func (ch *ChampionshipsHandler) importChampionship(w http.ResponseWriter, r *htt
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't import championship")
-			AddErrorFlash(w, r, "Sorry, we couldn't import that championship! Check your JSON formatting.")
+			smweb.AddErrorFlash(w, r, "Sorry, we couldn't import that championship! Check your JSON formatting.")
 		} else {
-			AddFlash(w, r, "Championship successfully imported!")
+			smweb.AddFlash(w, r, "Championship successfully imported!")
 			http.Redirect(w, r, "/championship/"+championshipID, http.StatusFound)
 		}
 	}
@@ -285,7 +286,7 @@ func (ch *ChampionshipsHandler) delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	AddFlash(w, r, "Championship deleted!")
+	smweb.AddFlash(w, r, "Championship deleted!")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -306,9 +307,9 @@ func (ch *ChampionshipsHandler) eventImport(w http.ResponseWriter, r *http.Reque
 
 		if err != nil {
 			logrus.Errorf("Could not import championship event, error: %s", err)
-			AddErrorFlash(w, r, "Could not import session files")
+			smweb.AddErrorFlash(w, r, "Could not import session files")
 		} else {
-			AddFlash(w, r, "Successfully imported session files!")
+			smweb.AddFlash(w, r, "Successfully imported session files!")
 			http.Redirect(w, r, "/championship/"+championshipID, http.StatusFound)
 			return
 		}
@@ -355,14 +356,14 @@ func (ch *ChampionshipsHandler) submitEventConfiguration(w http.ResponseWriter, 
 	}
 
 	if edited {
-		AddFlash(w, r,
+		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Championship race at %s was successfully edited!",
 				prettifyName(event.RaceSetup.Track, false),
 			),
 		)
 	} else {
-		AddFlash(w, r,
+		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Championship race at %s was successfully added!",
 				prettifyName(event.RaceSetup.Track, false),
@@ -387,9 +388,9 @@ func (ch *ChampionshipsHandler) startEvent(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start championship event")
 
-		AddErrorFlash(w, r, "Couldn't start the Event")
+		smweb.AddErrorFlash(w, r, "Couldn't start the Event")
 	} else {
-		AddFlash(w, r, "Event started successfully!")
+		smweb.AddFlash(w, r, "Event started successfully!")
 		time.Sleep(time.Second * 1)
 	}
 
@@ -433,7 +434,7 @@ func (ch *ChampionshipsHandler) scheduleEvent(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	AddFlash(w, r, fmt.Sprintf("We have scheduled the Championship Event to begin at %s", date.Format(time.RFC1123)))
+	smweb.AddFlash(w, r, fmt.Sprintf("We have scheduled the Championship Event to begin at %s", date.Format(time.RFC1123)))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -457,9 +458,9 @@ func (ch *ChampionshipsHandler) deleteEvent(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete championship event")
 
-		AddErrorFlash(w, r, "Couldn't delete the Event")
+		smweb.AddErrorFlash(w, r, "Couldn't delete the Event")
 	} else {
-		AddFlash(w, r, "Event deleted successfully!")
+		smweb.AddFlash(w, r, "Event deleted successfully!")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -472,9 +473,9 @@ func (ch *ChampionshipsHandler) startPracticeEvent(w http.ResponseWriter, r *htt
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start practice championship event")
 
-		AddErrorFlash(w, r, "Couldn't start the Practice Event")
+		smweb.AddErrorFlash(w, r, "Couldn't start the Practice Event")
 	} else {
-		AddFlash(w, r, "Practice Event started successfully!")
+		smweb.AddFlash(w, r, "Practice Event started successfully!")
 		time.Sleep(time.Second * 1)
 	}
 
@@ -488,9 +489,9 @@ func (ch *ChampionshipsHandler) cancelEvent(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not cancel championship event")
 
-		AddErrorFlash(w, r, "Couldn't cancel the Championship Event")
+		smweb.AddErrorFlash(w, r, "Couldn't cancel the Championship Event")
 	} else {
-		AddFlash(w, r, "Event cancelled successfully!")
+		smweb.AddFlash(w, r, "Event cancelled successfully!")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -504,9 +505,9 @@ func (ch *ChampionshipsHandler) restartEvent(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not restart championship event")
 
-		AddErrorFlash(w, r, "Couldn't restart the Championship Event")
+		smweb.AddErrorFlash(w, r, "Couldn't restart the Championship Event")
 	} else {
-		AddFlash(w, r, "Event restarted successfully!")
+		smweb.AddFlash(w, r, "Event restarted successfully!")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -628,9 +629,9 @@ func (ch *ChampionshipsHandler) driverPenalty(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not modify championship driver penalty")
 
-		AddErrorFlash(w, r, "Couldn't modify driver penalty")
+		smweb.AddErrorFlash(w, r, "Couldn't modify driver penalty")
 	} else {
-		AddFlash(w, r, "Driver penalty successfully modified")
+		smweb.AddFlash(w, r, "Driver penalty successfully modified")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -648,9 +649,9 @@ func (ch *ChampionshipsHandler) teamPenalty(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not modify championship penalty")
 
-		AddErrorFlash(w, r, "Couldn't modify team penalty")
+		smweb.AddErrorFlash(w, r, "Couldn't modify team penalty")
 	} else {
-		AddFlash(w, r, "Team penalty successfully modified")
+		smweb.AddFlash(w, r, "Team penalty successfully modified")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -682,9 +683,9 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	account := AccountFromRequest(r)
+	account := smweb.AccountFromRequest(r)
 
-	if account != requestScopeFromRequest(r).openAccount {
+	if account != smweb.ScopeFromRequest(r).OpenAccount {
 		opts.FormData = &smmodel.ChampionshipSignUpResponse{
 			Name: account.DriverName,
 			GUID: account.GUID,
@@ -709,13 +710,13 @@ func (ch *ChampionshipsHandler) signUpForm(w http.ResponseWriter, r *http.Reques
 			}
 		} else {
 			if championship.SignUpForm.RequiresApproval {
-				AddFlash(w, r, "Thanks for registering for the championship! Your registration is pending approval by an administrator.")
+				smweb.AddFlash(w, r, "Thanks for registering for the championship! Your registration is pending approval by an administrator.")
 				http.Redirect(w, r, "/championship/"+championship.ID.String(), http.StatusFound)
 				return
 			}
 
 			if foundSlot {
-				AddFlash(w, r, "Thanks for registering for the championship!")
+				smweb.AddFlash(w, r, "Thanks for registering for the championship!")
 				http.Redirect(w, r, "/championship/"+championship.ID.String(), http.StatusFound)
 				return
 			}
@@ -843,7 +844,7 @@ func (ch *ChampionshipsHandler) modifyEntrantStatus(w http.ResponseWriter, r *ht
 		switch r.URL.Query().Get("action") {
 		case "accept":
 			if entrant.Status == smmodel.ChampionshipEntrantAccepted {
-				AddFlash(w, r, "This entrant has already been accepted.")
+				smweb.AddFlash(w, r, "This entrant has already been accepted.")
 				break
 			}
 
@@ -859,9 +860,9 @@ func (ch *ChampionshipsHandler) modifyEntrantStatus(w http.ResponseWriter, r *ht
 			if foundSlot {
 				entrant.Status = smmodel.ChampionshipEntrantAccepted
 
-				AddFlash(w, r, "The entrant was successfully accepted!")
+				smweb.AddFlash(w, r, "The entrant was successfully accepted!")
 			} else {
-				AddErrorFlash(w, r, "There are no more slots available for the given entrant and car. Please check the Championship configuration.")
+				smweb.AddErrorFlash(w, r, "There are no more slots available for the given entrant and car. Please check the Championship configuration.")
 			}
 		case "reject":
 			entrant.Status = smmodel.ChampionshipEntrantRejected
@@ -914,10 +915,10 @@ func (ch *ChampionshipsHandler) duplicateEvent(w http.ResponseWriter, r *http.Re
 	}
 
 	if newEvent.IsRaceWeekend() {
-		AddFlash(w, r, "Championship Race Weekend was successfully duplicated!")
+		smweb.AddFlash(w, r, "Championship Race Weekend was successfully duplicated!")
 		http.Redirect(w, r, "/race-weekend/"+newEvent.RaceWeekendID.String(), http.StatusFound)
 	} else {
-		AddFlash(w, r, "Championship Event was successfully duplicated!")
+		smweb.AddFlash(w, r, "Championship Event was successfully duplicated!")
 		http.Redirect(w, r, "/championship/"+championshipID+"/event/"+newEvent.ID.String()+"/edit", http.StatusFound)
 	}
 }

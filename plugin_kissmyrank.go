@@ -8,6 +8,7 @@ import (
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type kissMyRankConfigurationTemplateVars struct {
@@ -51,9 +52,9 @@ func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save KissMyRank options")
-			AddErrorFlash(w, r, "Failed to save KissMyRank options")
+			smweb.AddErrorFlash(w, r, "Failed to save KissMyRank options")
 		} else {
-			AddFlash(w, r, "KissMyRank options successfully saved!")
+			smweb.AddFlash(w, r, "KissMyRank options successfully saved!")
 		}
 	}
 
