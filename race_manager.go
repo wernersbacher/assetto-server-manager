@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -312,7 +313,7 @@ func (rm *RaceManager) applyConfigAndStart(event smmodel.RaceEvent) error {
 }
 
 func eventStartPlugin(raceConfig *serverconfig.CurrentRaceConfig, serverOpts *serverconfig.GlobalServerConfig, entryList *serverconfig.EntryList) error {
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	newRaceConfig, newServerOpts, newEntryList := &serverconfig.CurrentRaceConfig{}, &serverconfig.GlobalServerConfig{}, &serverconfig.EntryList{}
 

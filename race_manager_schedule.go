@@ -5,6 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
@@ -106,7 +107,7 @@ func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, 
 }
 
 func eventSchedulePlugin(race *smmodel.CustomRace) error {
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	newRace := &smmodel.CustomRace{}
 

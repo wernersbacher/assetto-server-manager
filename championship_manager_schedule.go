@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -103,7 +104,7 @@ func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID stri
 }
 
 func championshipEventSchedulePlugin(championship *smmodel.Championship, event *smmodel.ChampionshipEvent) error {
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	var standings [][]*smmodel.ChampionshipStanding
 

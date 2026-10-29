@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
@@ -137,7 +138,7 @@ func (rwm *RaceWeekendManager) ScheduleSession(raceWeekendID, sessionID string, 
 }
 
 func raceWeekendEventSchedulePlugin(raceWeekend *smmodel.RaceWeekend, raceWeekendSession *smmodel.RaceWeekendSession) error {
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	newRaceWeekendSession, newRaceWeekend := smmodel.NewRaceWeekendSession(), smmodel.NewRaceWeekend()
 

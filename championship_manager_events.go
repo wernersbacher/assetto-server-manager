@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 )
 
@@ -308,7 +309,7 @@ func championshipEventStartPlugin(event *smmodel.ChampionshipEvent, championship
 		standings = append(standings, class.Standings(championship, championship.Events))
 	}
 
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	newEvent, newChampionship, newEntryList := smmodel.NewChampionshipEvent(), smmodel.NewChampionship(championship.Name), &serverconfig.EntryList{}
 

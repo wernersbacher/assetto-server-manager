@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
@@ -39,7 +40,7 @@ func resultsLoader() *smresults.Loader {
 		PrettifyName:    func(name string) string { return prettifyName(name, false) },
 	}
 
-	if luaInitialised {
+	if smlua.Initialised() {
 		loader.OnLoad = resultsLoadPlugin
 	}
 
@@ -67,7 +68,7 @@ func saveResults(jsonFileName string, results *smresults.SessionResults) error {
 }
 
 func resultsLoadPlugin(results *smresults.SessionResults) error {
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	newSessionResults := &smresults.SessionResults{}
 

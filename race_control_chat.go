@@ -5,6 +5,7 @@ import (
 
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sirupsen/logrus"
+	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 	lua "github.com/yuin/gopher-lua"
@@ -50,7 +51,7 @@ func (rc *RaceControl) OnChatMessage(chat udp.Chat) error {
 }
 
 func chatMessagePlugin(chat udp.Chat) error {
-	p := NewLuaPlugin()
+	p := smlua.NewPlugin()
 
 	p.Inputs(chat)
 
