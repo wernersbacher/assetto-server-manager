@@ -3,6 +3,7 @@ package championship
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
 	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 
 	"testing"
 	"time"
@@ -26,7 +27,7 @@ func (r *reminderNotificationManager) GetNotificationReminders() []int {
 }
 
 func TestChampionshipManager_ScheduleEventKeepsAllReminders(t *testing.T) {
-	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
+	cm, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
 	defer cleanup()
 
 	cm.notificationManager = &reminderNotificationManager{reminders: []int{120, 15}}
@@ -71,7 +72,7 @@ func TestChampionshipManager_ScheduleEventKeepsAllReminders(t *testing.T) {
 }
 
 func TestChampionshipManager_InitScheduledChampionshipsKeepsAllReminders(t *testing.T) {
-	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
+	cm, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
 	defer cleanup()
 
 	// the 300 minute reminder is already in the past

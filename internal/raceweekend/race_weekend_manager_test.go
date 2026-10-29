@@ -21,6 +21,7 @@ import (
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
@@ -40,46 +41,6 @@ func (r *reminderNotificationManager) HasNotificationReminders() bool {
 
 func (r *reminderNotificationManager) GetNotificationReminders() []int {
 	return r.reminders
-}
-
-// interruptibleServerProcess behaves like AssettoServerProcess when it comes to starting events: starting an event
-// while another one is running stops the running one first.
-type interruptibleServerProcess struct {
-	servertest.Dummy
-
-	event   smmodel.RaceEvent
-	started []smmodel.RaceEvent
-	stopped int
-}
-
-func (p *interruptibleServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
-	if p.IsRunning() {
-		_ = p.Stop()
-	}
-
-	p.event = event
-	p.started = append(p.started, event)
-
-	return nil
-}
-
-func (p *interruptibleServerProcess) Stop() error {
-	p.stopped++
-	p.event = nil
-
-	return nil
-}
-
-func (p *interruptibleServerProcess) IsRunning() bool {
-	return p.event != nil
-}
-
-func (p *interruptibleServerProcess) Event() smmodel.RaceEvent {
-	if p.event == nil {
-		return smmodel.QuickRace{}
-	}
-
-	return p.event
 }
 
 // setupChampionshipManagerTest builds a ChampionshipManager on top of a temporary store and fake server install.
@@ -180,15 +141,15 @@ func assertRaceWeekendSettingsApplied(t *testing.T, got serverconfig.CurrentRace
 }
 
 func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
-	process := &interruptibleServerProcess{}
+	process := &servertest.Interruptible{}
 	cm, store, env, cleanup := setupChampionshipManagerTest(t, process)
 	defer cleanup()
 
 	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &notificationtest.Dummy{}, smcontent.NewCarManager(env.InstallPath(), false, false), env)
 
 	for _, useSettings := range []bool{false, true} {
-		process.event = nil
-		process.started = nil
+		process.ClearEvent()
+		process.Started = nil
 
 		championship := smmodel.NewChampionship("Race Weekend Championship")
 		championship.RaceSettings = testRaceWeekendChampionshipSettings()
@@ -223,11 +184,11 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(process.started) != 1 {
-			t.Fatalf("expected one started session, got %d", len(process.started))
+		if len(process.Started) != 1 {
+			t.Fatalf("expected one started session, got %d", len(process.Started))
 		}
 
-		started := process.started[0].GetRaceConfig()
+		started := process.Started[0].GetRaceConfig()
 
 		if useSettings {
 			assertRaceWeekendSettingsApplied(t, started, championship.RaceSettings)
@@ -252,7 +213,7 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 }
 
 func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
-	process := &interruptibleServerProcess{}
+	process := &servertest.Interruptible{}
 	cm, store, env, cleanup := setupChampionshipManagerTest(t, process)
 	defer cleanup()
 
@@ -293,10 +254,5 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 }
 
 func testEnv(installPath string) *serverenv.Env {
-	return &serverenv.Env{
-		ServerID:        func() smmodel.ServerID { return "test-server" },
-		InstallPath:     func() string { return installPath },
-		FallBackSorting: func() bool { return false },
-		PanicCapture:    func(fn func()) { fn() },
-	}
+	return envtest.New(installPath)
 }

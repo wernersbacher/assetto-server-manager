@@ -3,6 +3,7 @@ package championship
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"context"
@@ -163,7 +164,7 @@ func TestChampionshipRaceSettings_ZeroValueMeansUnchanged(t *testing.T) {
 }
 
 func TestChampionshipRaceSettings_StoreRoundTrip(t *testing.T) {
-	_, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
+	_, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
 	defer cleanup()
 
 	championship := smmodel.NewChampionship("Round Trip")
@@ -281,7 +282,7 @@ func newRaceSettingsTestChampionship(t *testing.T, store smstore.Store, useSetti
 func TestChampionshipManager_StartEventUsesEffectiveRaceSetup(t *testing.T) {
 	for _, practice := range []bool{false, true} {
 		for _, useSettings := range []bool{false, true} {
-			process := &interruptibleServerProcess{}
+			process := &servertest.Interruptible{}
 			cm, store, cleanup := setupScheduledEventTest(t, process)
 
 			championship := newRaceSettingsTestChampionship(t, store, useSettings)
@@ -293,12 +294,12 @@ func TestChampionshipManager_StartEventUsesEffectiveRaceSetup(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if len(process.started) != 1 {
+			if len(process.Started) != 1 {
 				cleanup()
-				t.Fatalf("expected one started event, got %d", len(process.started))
+				t.Fatalf("expected one started event, got %d", len(process.Started))
 			}
 
-			started := process.started[0].GetRaceConfig()
+			started := process.Started[0].GetRaceConfig()
 
 			if useSettings {
 				assertChampionshipSettingsApplied(t, started, championship.RaceSettings)
@@ -336,7 +337,7 @@ func TestChampionshipManager_StartEventUsesEffectiveRaceSetup(t *testing.T) {
 }
 
 func TestChampionshipManager_ChangingSettingsAffectsEvents(t *testing.T) {
-	process := &interruptibleServerProcess{}
+	process := &servertest.Interruptible{}
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
@@ -353,13 +354,13 @@ func TestChampionshipManager_ChangingSettingsAffectsEvents(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if got := process.started[0].GetRaceConfig().FuelRate; got != 333 {
+	if got := process.Started[0].GetRaceConfig().FuelRate; got != 333 {
 		t.Errorf("expected the changed championship fuel rate, got %d", got)
 	}
 }
 
 func TestChampionshipManager_SaveChampionshipEventSavesFlag(t *testing.T) {
-	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
+	cm, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
 	defer cleanup()
 
 	if err := os.MkdirAll(filepath.Join(cm.env.InstallPath(), "content", "cars"), 0755); err != nil {

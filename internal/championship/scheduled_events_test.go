@@ -24,46 +24,6 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/pkg/when"
 )
 
-// interruptibleServerProcess behaves like AssettoServerProcess when it comes to starting events: starting an event
-// while another one is running stops the running one first.
-type interruptibleServerProcess struct {
-	servertest.Dummy
-
-	event   smmodel.RaceEvent
-	started []smmodel.RaceEvent
-	stopped int
-}
-
-func (p *interruptibleServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
-	if p.IsRunning() {
-		_ = p.Stop()
-	}
-
-	p.event = event
-	p.started = append(p.started, event)
-
-	return nil
-}
-
-func (p *interruptibleServerProcess) Stop() error {
-	p.stopped++
-	p.event = nil
-
-	return nil
-}
-
-func (p *interruptibleServerProcess) IsRunning() bool {
-	return p.event != nil
-}
-
-func (p *interruptibleServerProcess) Event() smmodel.RaceEvent {
-	if p.event == nil {
-		return smmodel.QuickRace{}
-	}
-
-	return p.event
-}
-
 // setupScheduledEventTest builds a ChampionshipManager on top of a temporary store and fake server install.
 func setupScheduledEventTest(t *testing.T, process smserver.ServerProcess) (*ChampionshipManager, smstore.Store, func()) {
 	dir, err := ioutil.TempDir("", "scheduled-events")
@@ -128,7 +88,7 @@ func newScheduledTestChampionship(t *testing.T, store smstore.Store, scheduled .
 // A scheduled championship event that is due while a championship practice session is running must stop the practice
 // session and start the event.
 func TestChampionshipManager_StartScheduledEventInterruptsPractice(t *testing.T) {
-	process := &interruptibleServerProcess{}
+	process := &servertest.Interruptible{}
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
@@ -148,12 +108,12 @@ func TestChampionshipManager_StartScheduledEventInterruptsPractice(t *testing.T)
 		t.Fatalf("scheduled event could not be started whilst practice was running: %s", err)
 	}
 
-	if process.stopped != 1 {
-		t.Errorf("expected the practice session to be stopped once, was stopped %d times", process.stopped)
+	if process.Stopped != 1 {
+		t.Errorf("expected the practice session to be stopped once, was stopped %d times", process.Stopped)
 	}
 
-	if len(process.started) != 2 {
-		t.Fatalf("expected practice and scheduled event to have been started, got %d starts", len(process.started))
+	if len(process.Started) != 2 {
+		t.Fatalf("expected practice and scheduled event to have been started, got %d starts", len(process.Started))
 	}
 
 	running, ok := process.Event().(*smmodel.ActiveChampionship)
@@ -179,7 +139,7 @@ func TestChampionshipManager_StartScheduledEventInterruptsPractice(t *testing.T)
 
 // Every scheduled championship event needs a start timer after a server manager restart, not only the first one.
 func TestChampionshipManager_InitScheduledChampionships(t *testing.T) {
-	cm, store, cleanup := setupScheduledEventTest(t, &interruptibleServerProcess{})
+	cm, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
 	defer cleanup()
 
 	// the first event was missed whilst the server was offline, the others are in the future
@@ -250,7 +210,7 @@ func newRecurringTestChampionship(t *testing.T, store smstore.Store, due time.Ti
 // The timer captures the championship as it was when the event was scheduled. Changes saved after that (results, name,
 // entrants) must survive the recurrence handling when the timer fires.
 func TestChampionshipManager_StartScheduledEventRecurrenceKeepsNewerChanges(t *testing.T) {
-	process := &interruptibleServerProcess{}
+	process := &servertest.Interruptible{}
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
@@ -327,15 +287,15 @@ func TestChampionshipManager_StartScheduledEventRecurrenceKeepsNewerChanges(t *t
 		t.Errorf("unexpected next recurrence: %#v", next)
 	}
 
-	if len(process.started) != 1 {
-		t.Errorf("expected the due event to be started once, got %d starts", len(process.started))
+	if len(process.Started) != 1 {
+		t.Errorf("expected the due event to be started once, got %d starts", len(process.Started))
 	}
 }
 
 // A timer for an event that no longer exists, whose championship was deleted or whose schedule changed must neither
 // panic, resurrect the championship nor start anything.
 func TestChampionshipManager_StartScheduledEventOutdated(t *testing.T) {
-	process := &interruptibleServerProcess{}
+	process := &servertest.Interruptible{}
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
@@ -388,7 +348,7 @@ func TestChampionshipManager_StartScheduledEventOutdated(t *testing.T) {
 		t.Errorf("descheduled event must not be recurred, got %d events", len(loaded.Events))
 	}
 
-	if len(process.started) != 0 {
-		t.Errorf("nothing should have been started, got %d starts", len(process.started))
+	if len(process.Started) != 0 {
+		t.Errorf("nothing should have been started, got %d starts", len(process.Started))
 	}
 }

@@ -10,6 +10,7 @@ import (
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 
 	"encoding/json"
@@ -82,12 +83,7 @@ var testInstallPath = filepath.Join("..", "..", "cmd", "server-manager", "assett
 const testServerID smmodel.ServerID = "test-server"
 
 func testEnv(installPath string) *serverenv.Env {
-	return &serverenv.Env{
-		ServerID:        func() smmodel.ServerID { return testServerID },
-		InstallPath:     func() string { return installPath },
-		FallBackSorting: func() bool { return false },
-		PanicCapture:    func(fn func()) { fn() },
-	}
+	return envtest.New(installPath)
 }
 
 func newTestChampionshipManager() *ChampionshipManager {

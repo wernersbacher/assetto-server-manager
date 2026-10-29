@@ -17,6 +17,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
@@ -36,12 +37,7 @@ func (r *reminderNotificationManager) GetNotificationReminders() []int {
 }
 
 func testEnv(dir string) *serverenv.Env {
-	return &serverenv.Env{
-		ServerID:        func() smmodel.ServerID { return "test-server" },
-		InstallPath:     func() string { return dir },
-		FallBackSorting: func() bool { return false },
-		PanicCapture:    func(fn func()) { fn() },
-	}
+	return envtest.New(dir)
 }
 
 // setupTestRaceManager builds a RaceManager on top of a temporary store and fake server install.
