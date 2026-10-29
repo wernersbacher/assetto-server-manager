@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -18,11 +20,11 @@ type ChampionshipsHandler struct {
 	*BaseHandler
 	SteamLoginHandler
 
-	config              *Configuration
+	config              *smconfig.Configuration
 	championshipManager *ChampionshipManager
 }
 
-func NewChampionshipsHandler(config *Configuration, baseHandler *BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
+func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
 	return &ChampionshipsHandler{
 		config:              config,
 		BaseHandler:         baseHandler,

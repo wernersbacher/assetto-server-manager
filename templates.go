@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -145,7 +147,7 @@ func driverInitials(name string) string {
 
 // Renderer is the template engine.
 type Renderer struct {
-	config  *Configuration
+	config  *smconfig.Configuration
 	store   Store
 	process ServerProcess
 	loader  TemplateLoader
@@ -156,7 +158,7 @@ type Renderer struct {
 	mutex  sync.Mutex
 }
 
-func NewRenderer(config *Configuration, loader TemplateLoader, store Store, process ServerProcess, reload bool) (*Renderer, error) {
+func NewRenderer(config *smconfig.Configuration, loader TemplateLoader, store Store, process ServerProcess, reload bool) (*Renderer, error) {
 	tr := &Renderer{
 		config:  config,
 		store:   store,
@@ -225,7 +227,7 @@ func (tr *Renderer) init() error {
 	funcs["dict"] = templateDict
 	funcs["asset"] = NewAssetHelper("/", "", "", map[string]string{"cb": BuildVersion}).GetURL
 	funcs["SessionType"] = func(s string) SessionType { return SessionType(s) }
-	funcs["Config"] = func() *Configuration { return tr.config }
+	funcs["Config"] = func() *smconfig.Configuration { return tr.config }
 	funcs["Version"] = func() string { return BuildVersion }
 	funcs["fullTimeFormat"] = fullTimeFormat
 	funcs["localFormat"] = localFormatHelper

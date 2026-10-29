@@ -11,7 +11,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const ServerExecutablePath = "acServer"
 
 func getProcess(cmd *exec.Cmd) *os.Process {
 	if pgid, err := syscall.Getpgid(cmd.Process.Pid); err != nil {

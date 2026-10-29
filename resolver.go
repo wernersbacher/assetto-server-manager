@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"net/http"
 
 	"github.com/cj123/sessions"
@@ -8,7 +10,7 @@ import (
 )
 
 type Resolver struct {
-	config          *Configuration
+	config          *smconfig.Configuration
 	store           Store
 	sessionStore    sessions.Store
 	templateLoader  TemplateLoader
@@ -54,7 +56,7 @@ type Resolver struct {
 	realPenaltyHandler          *RealPenaltyHandler
 }
 
-func NewResolver(config *Configuration, templateLoader TemplateLoader, reloadTemplates bool, store Store) (*Resolver, error) {
+func NewResolver(config *smconfig.Configuration, templateLoader TemplateLoader, reloadTemplates bool, store Store) (*Resolver, error) {
 	r := &Resolver{
 		config:          config,
 		templateLoader:  templateLoader,
@@ -62,7 +64,7 @@ func NewResolver(config *Configuration, templateLoader TemplateLoader, reloadTem
 		store:           store,
 	}
 
-	sessionStore, err := config.HTTP.createSessionStore()
+	sessionStore, err := config.HTTP.CreateSessionStore()
 
 	if err != nil {
 		return nil, err

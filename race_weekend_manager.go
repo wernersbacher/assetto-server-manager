@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/json"
 	"net/http"
 	"sync"
@@ -11,7 +13,7 @@ import (
 )
 
 type RaceWeekendManager struct {
-	config              *Configuration
+	config              *smconfig.Configuration
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	notificationManager NotificationDispatcher
@@ -27,7 +29,7 @@ type RaceWeekendManager struct {
 }
 
 func NewRaceWeekendManager(
-	config *Configuration,
+	config *smconfig.Configuration,
 	raceManager *RaceManager,
 	championshipManager *ChampionshipManager,
 	store Store,

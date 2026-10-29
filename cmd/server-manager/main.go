@@ -1,6 +1,8 @@
 package main
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"crypto/tls"
 	"net"
 	"net/http"
@@ -36,7 +38,7 @@ func init() {
 }
 
 func main() {
-	config, err := servermanager.ReadConfig("config.yml")
+	config, err := smconfig.ReadConfig("config.yml")
 
 	if err != nil {
 		ServeHTTPWithError(defaultAddress, "Read configuration file (config.yml)", err)
@@ -47,7 +49,7 @@ func main() {
 		servermanager.InitMonitoring()
 	}
 
-	store, err := config.Store.BuildStore()
+	store, err := servermanager.BuildStore(&config.Store)
 
 	if err != nil {
 		ServeHTTPWithError(config.HTTP.Hostname, "Open server manager storage (bolt or json)", err)

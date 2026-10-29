@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -32,7 +34,7 @@ func setupServerProcessTest(t *testing.T, executablePath string) (*AssettoServer
 
 	oldInstallPath := ServerInstallPath
 	ServerInstallPath = dir
-	config := &Configuration{}
+	config := &smconfig.Configuration{}
 	config.Steam.ExecutablePath = executablePath
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))

@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -26,7 +28,7 @@ func setupUpcomingAPITest(t *testing.T) (*ScheduledRacesHandler, Store, func()) 
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
-	handler := NewScheduledRacesHandler(&BaseHandler{}, NewScheduledRacesManager(&Configuration{}, store))
+	handler := NewScheduledRacesHandler(&BaseHandler{}, NewScheduledRacesManager(&smconfig.Configuration{}, store))
 
 	return handler, store, func() {
 		serverID = oldServerID

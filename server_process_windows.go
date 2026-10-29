@@ -9,7 +9,6 @@ import (
 	"os/exec"
 )
 
-const ServerExecutablePath = "acServer.exe"
 
 func getProcess(cmd *exec.Cmd) *os.Process {
 	return cmd.Process

@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"fmt"
 	"sync"
 	"time"
@@ -10,7 +12,7 @@ import (
 )
 
 type RaceControl struct {
-	config           *Configuration
+	config           *smconfig.Configuration
 	process          ServerProcess
 	store            Store
 	penaltiesManager *PenaltiesManager
@@ -70,7 +72,7 @@ type Collision struct {
 	Speed           float64        `json:"Speed"`
 }
 
-func NewRaceControl(config *Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store Store, penaltiesManager *PenaltiesManager) *RaceControl {
+func NewRaceControl(config *smconfig.Configuration, broadcaster Broadcaster, trackDataGateway TrackDataGateway, process ServerProcess, store Store, penaltiesManager *PenaltiesManager) *RaceControl {
 	rc := &RaceControl{
 		config:               config,
 		broadcaster:          broadcaster,

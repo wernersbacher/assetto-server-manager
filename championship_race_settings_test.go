@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"context"
 	"net/http"
 	"net/http/httptest"
@@ -459,7 +461,7 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, process)
 	defer cleanup()
 
-	rwm := NewRaceWeekendManager(&Configuration{}, cm.RaceManager, cm, store, process, &dummyNotificationManager{}, NewCarManager(NewTrackManager(), false, false))
+	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &dummyNotificationManager{}, NewCarManager(NewTrackManager(), false, false))
 
 	for _, useSettings := range []bool{false, true} {
 		process.event = nil

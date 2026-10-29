@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"bytes"
 	"context"
 	"crypto/sha1"
@@ -101,7 +103,7 @@ type CMCar struct {
 }
 
 type ContentManagerWrapper struct {
-	config       *Configuration
+	config       *smconfig.Configuration
 	store        Store
 	carManager   *CarManager
 	trackManager *TrackManager
@@ -119,7 +121,7 @@ type ContentManagerWrapper struct {
 	mutex       sync.Mutex
 }
 
-func NewContentManagerWrapper(config *Configuration, store Store, carManager *CarManager, trackManager *TrackManager) *ContentManagerWrapper {
+func NewContentManagerWrapper(config *smconfig.Configuration, store Store, carManager *CarManager, trackManager *TrackManager) *ContentManagerWrapper {
 	return &ContentManagerWrapper{
 		config:       config,
 		store:        store,

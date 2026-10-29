@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -25,7 +27,7 @@ func TestRouterDeleteRoutesArePostOnly(t *testing.T) {
 
 	store := NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
-	resolver, err := NewResolver(&Configuration{}, NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store)
+	resolver, err := NewResolver(&smconfig.Configuration{}, NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store)
 
 	if err != nil {
 		t.Fatal(err)

@@ -1,6 +1,8 @@
 package main
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"bytes"
 	"io/ioutil"
 	"os"
@@ -48,7 +50,7 @@ func TestSeedIsIdempotentAndStandingsWork(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	conf, err := servermanager.ReadConfig("config.yml")
+	conf, err := smconfig.ReadConfig("config.yml")
 
 	if err != nil {
 		t.Fatal(err)

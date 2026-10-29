@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/json"
 	"fmt"
 	"io"
@@ -146,11 +148,11 @@ func (rs *ScheduledRacesHandler) generateJSON(w io.Writer, r *http.Request) erro
 }
 
 type ScheduledRacesManager struct {
-	config *Configuration
+	config *smconfig.Configuration
 	store Store
 }
 
-func NewScheduledRacesManager(config *Configuration, store Store) *ScheduledRacesManager {
+func NewScheduledRacesManager(config *smconfig.Configuration, store Store) *ScheduledRacesManager {
 	return &ScheduledRacesManager{
 		config: config,
 		store: store,

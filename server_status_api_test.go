@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -48,7 +50,7 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 	rch := &RaceControlHandler{
 		store:         store,
 		serverProcess: process,
-		raceControl:   NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+		raceControl:   NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
 	}
 
 	rec := httptest.NewRecorder()
@@ -79,7 +81,7 @@ func TestNewAPIServerStatus(t *testing.T) {
 
 	defer func() { UseShortenedDriverNames = oldShortened }()
 
-	raceControl := NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore))
+	raceControl := NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore))
 
 	if err := raceControl.OnNewSession(udp.SessionInfo{
 		ServerName:  "Lobby Name",

@@ -6,6 +6,8 @@
 package main
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"flag"
 	"fmt"
 	"io"
@@ -68,7 +70,7 @@ func run(dir string, reset bool, out io.Writer) error {
 		return err
 	}
 
-	conf, err := servermanager.ReadConfig("config.yml")
+	conf, err := smconfig.ReadConfig("config.yml")
 
 	if err != nil {
 		return fmt.Errorf("read config.yml: %v", err)
@@ -93,9 +95,9 @@ func run(dir string, reset bool, out io.Writer) error {
 
 // openStore opens the store of the config. BoltDB is opened with a timeout, so a running server is reported
 // instead of waiting for the database lock forever.
-func openStore(conf *servermanager.Configuration) (servermanager.Store, func(), error) {
+func openStore(conf *smconfig.Configuration) (servermanager.Store, func(), error) {
 	if conf.Store.Type != "boltdb" {
-		store, err := conf.Store.BuildStore()
+		store, err := servermanager.BuildStore(&conf.Store)
 
 		return store, func() {}, err
 	}

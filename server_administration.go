@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/json"
 	"html/template"
 	"io/ioutil"
@@ -18,7 +20,7 @@ import (
 type ServerAdministrationHandler struct {
 	*BaseHandler
 
-	config              *Configuration
+	config              *smconfig.Configuration
 	store               Store
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
@@ -28,7 +30,7 @@ type ServerAdministrationHandler struct {
 }
 
 func NewServerAdministrationHandler(
-	config *Configuration,
+	config *smconfig.Configuration,
 	baseHandler *BaseHandler,
 	store Store,
 	raceManager *RaceManager,

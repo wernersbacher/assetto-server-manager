@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"errors"
 	"fmt"
 	"strings"
@@ -14,7 +16,7 @@ import (
 var ErrCustomRaceNotFound = errors.New("servermanager: custom race not found")
 
 type RaceManager struct {
-	config              *Configuration
+	config              *smconfig.Configuration
 	process             ServerProcess
 	store               Store
 	carManager          *CarManager
@@ -39,7 +41,7 @@ type RaceManager struct {
 }
 
 func NewRaceManager(
-	config *Configuration,
+	config *smconfig.Configuration,
 	store Store,
 	process ServerProcess,
 	carManager *CarManager,

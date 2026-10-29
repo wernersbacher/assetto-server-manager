@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -70,13 +72,13 @@ func setupScheduledEventTest(t *testing.T, process ServerProcess) (*Championship
 
 	cm := NewChampionshipManager(
 		NewRaceManager(
-			&Configuration{},
+			&smconfig.Configuration{},
 			store,
 			process,
 			NewCarManager(NewTrackManager(), false, false),
 			NewTrackManager(),
 			&dummyNotificationManager{},
-			NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
+			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, process, store, NewPenaltiesManager(store)),
 		),
 	)
 

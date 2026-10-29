@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"bytes"
 	"context"
 	"errors"
@@ -37,7 +39,7 @@ type ServerProcess interface {
 
 // AssettoServerProcess manages the Assetto Corsa Server process.
 type AssettoServerProcess struct {
-	config                *Configuration
+	config                *smconfig.Configuration
 	store                 Store
 	contentManagerWrapper *ContentManagerWrapper
 
@@ -74,7 +76,7 @@ type pluginProcess struct {
 	stdin io.WriteCloser
 }
 
-func NewAssettoServerProcess(config *Configuration, callbackFunc udp.CallbackFunc, store Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
+func NewAssettoServerProcess(config *smconfig.Configuration, callbackFunc udp.CallbackFunc, store Store, contentManagerWrapper *ContentManagerWrapper) *AssettoServerProcess {
 	sp := &AssettoServerProcess{
 		config:                config,
 		start:                 make(chan RaceEvent),
@@ -377,7 +379,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 			return err
 		}
 
-		err = sp.startPlugin(wd, &CommandPlugin{
+		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
 			Executable: StrackerExecutablePath(),
 			Arguments: []string{
 				"--stracker_ini",
@@ -453,7 +455,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 			return err
 		}
 
-		err = sp.startPlugin(wd, &CommandPlugin{
+		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
 			Executable: RealPenaltyExecutablePath(),
 			Arguments: []string{
 				"--print_on",
@@ -507,7 +509,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 			return err
 		}
 
-		err = sp.startPlugin(wd, &CommandPlugin{
+		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
 			Executable: KissMyRankExecutablePath(),
 		})
 
@@ -662,7 +664,7 @@ func (sp *AssettoServerProcess) NotifyDone(ch chan struct{}) {
 	sp.notifyDoneChs = append(sp.notifyDoneChs, ch)
 }
 
-func (sp *AssettoServerProcess) startPlugin(wd string, plugin *CommandPlugin) error {
+func (sp *AssettoServerProcess) startPlugin(wd string, plugin *smconfig.CommandPlugin) error {
 	commandFullPath, err := filepath.Abs(plugin.Executable)
 
 	if err != nil {

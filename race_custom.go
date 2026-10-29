@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"fmt"
 	"net/http"
 	"time"
@@ -129,14 +131,14 @@ func (cr *CustomRace) GetForceStopWithDrivers() bool {
 type CustomRaceHandler struct {
 	*BaseHandler
 
-	config              *Configuration
+	config              *smconfig.Configuration
 	raceManager         *RaceManager
 	championshipManager *ChampionshipManager
 	raceWeekendManager  *RaceWeekendManager
 	store               Store
 }
 
-func NewCustomRaceHandler(config *Configuration, base *BaseHandler, raceManager *RaceManager, store Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
+func NewCustomRaceHandler(config *smconfig.Configuration, base *BaseHandler, raceManager *RaceManager, store Store, championshipManager *ChampionshipManager, raceWeekendManager *RaceWeekendManager) *CustomRaceHandler {
 	return &CustomRaceHandler{
 		config:              config,
 		BaseHandler:         base,

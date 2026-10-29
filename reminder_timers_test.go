@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"sync/atomic"
 	"testing"
 	"time"
@@ -203,7 +205,7 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 	defer cleanup()
 
 	notificationManager := &reminderNotificationManager{reminders: []int{120, 15}}
-	rwm := NewRaceWeekendManager(&Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, cm.carManager)
+	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, cm.process, notificationManager, cm.carManager)
 
 	raceWeekend := NewRaceWeekend()
 	session := NewRaceWeekendSession()

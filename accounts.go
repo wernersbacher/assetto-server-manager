@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"context"
 	"crypto/rand"
 	"crypto/subtle"
@@ -339,12 +341,12 @@ type AccountHandler struct {
 	*BaseHandler
 	SteamLoginHandler
 
-	config         *Configuration
+	config         *smconfig.Configuration
 	store          Store
 	accountManager *AccountManager
 }
 
-func NewAccountHandler(config *Configuration, baseHandler *BaseHandler, store Store, accountManager *AccountManager) *AccountHandler {
+func NewAccountHandler(config *smconfig.Configuration, baseHandler *BaseHandler, store Store, accountManager *AccountManager) *AccountHandler {
 	return &AccountHandler{
 		config:         config,
 		BaseHandler:    baseHandler,
@@ -545,7 +547,7 @@ var ErrAccountNeedsPassword = errors.New("servermanager: account needs to set a 
 var ErrInvalidUsernameOrPassword = errors.New("servermanager: invalid username or password")
 
 type AccountManager struct {
-	config *Configuration
+	config *smconfig.Configuration
 
 	// sessionStore keeps the login sessions and flash messages.
 	sessionStore sessions.Store
@@ -558,7 +560,7 @@ type AccountManager struct {
 	store       Store
 }
 
-func NewAccountManager(config *Configuration, store Store, sessionStore sessions.Store) *AccountManager {
+func NewAccountManager(config *smconfig.Configuration, store Store, sessionStore sessions.Store) *AccountManager {
 	return &AccountManager{
 		config:       config,
 		sessionStore: sessionStore,

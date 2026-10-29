@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"net/http"
 	"time"
 
@@ -10,11 +12,11 @@ import (
 type QuickRaceHandler struct {
 	*BaseHandler
 
-	config      *Configuration
+	config      *smconfig.Configuration
 	raceManager *RaceManager
 }
 
-func NewQuickRaceHandler(config *Configuration, baseHandler *BaseHandler, raceManager *RaceManager) *QuickRaceHandler {
+func NewQuickRaceHandler(config *smconfig.Configuration, baseHandler *BaseHandler, raceManager *RaceManager) *QuickRaceHandler {
 	return &QuickRaceHandler{
 		config:      config,
 		BaseHandler: baseHandler,

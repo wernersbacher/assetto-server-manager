@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"encoding/json"
 	"net/url"
 	"os"
@@ -173,13 +175,13 @@ func (d dummyNotificationManager) SaveServerOptions(oldServerOpts *GlobalServerC
 func newTestChampionshipManager() *ChampionshipManager {
 	return NewChampionshipManager(
 		NewRaceManager(
-			&Configuration{},
+			&smconfig.Configuration{},
 			NewJSONStore(filepath.Join(os.TempDir(), "asm-race-store"), filepath.Join(os.TempDir(), "asm-race-store-shared")),
 			dummyServerProcess{},
 			NewCarManager(NewTrackManager(), false, false),
 			NewTrackManager(),
 			&dummyNotificationManager{},
-			NewRaceControl(&Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore)),
+			NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, nilTrackData{}, dummyServerProcess{}, testStore, NewPenaltiesManager(testStore)),
 		),
 	)
 }

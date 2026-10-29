@@ -1,6 +1,8 @@
 package servermanager
 
 import (
+	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+
 	"fmt"
 	"io"
 	"net/http"
@@ -45,7 +47,7 @@ func InitLogging() {
 }
 
 func Router(
-	config *Configuration,
+	config *smconfig.Configuration,
 	fs http.FileSystem,
 	quickRaceHandler *QuickRaceHandler,
 	customRaceHandler *CustomRaceHandler,
