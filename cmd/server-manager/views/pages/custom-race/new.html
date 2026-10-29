@@ -27,21 +27,36 @@
     {{ $f := .Current }}
     {{ $trackInfo := trackInfo $f.Track $f.TrackLayout }}
 
-    <h1 class="text-center">
-        {{ if .IsChampionship }}
-            Championship Event
-        {{ else if .IsRaceWeekend }}
-            Race Weekend Session
-        {{ else }}
-            Custom Race
-        {{ end }}
-    </h1>
+    <div class="page-header">
+        <div>
+            <nav class="form-breadcrumb" aria-label="Breadcrumb">
+                {{ if .IsChampionship }}
+                    <a href="/championships">Championships</a><a href="/championship/{{ .Championship.ID.String }}">{{ .Championship.Name }}</a><span>Event</span>
+                {{ else if .IsRaceWeekend }}
+                    <a href="/race-weekends">Race Weekends</a><a href="/race-weekend/{{ .RaceWeekend.ID.String }}">{{ .RaceWeekend.Name }}</a><span>Session</span>
+                {{ else }}
+                    <a href="/custom">Custom Races</a><span>{{ if .IsEditing }}Edit{{ else }}New{{ end }}</span>
+                {{ end }}
+            </nav>
+            <h1>
+                {{ if .IsChampionship }}
+                    Championship Event
+                {{ else if .IsRaceWeekend }}
+                    Race Weekend Session
+                {{ else }}
+                    Custom Race
+                {{ end }}
+            </h1>
 
-    {{ if .IsChampionship }}
-        <p>Configure an Event for the <strong>{{ .Championship.Name }}</strong> Championship.</p>
-    {{ else if .IsRaceWeekend }}
-        <p>Configure a Session for the <strong>{{ .RaceWeekend.Name }}</strong> Race Weekend.</p>
-    {{ end }}
+            {{ if .IsChampionship }}
+                <p>Configure an Event for the <strong>{{ .Championship.Name }}</strong> Championship.</p>
+            {{ else if .IsRaceWeekend }}
+                <p>Configure a Session for the <strong>{{ .RaceWeekend.Name }}</strong> Race Weekend.</p>
+            {{ else }}
+                <p>Track, cars, sessions, entry list and rules for this race.</p>
+            {{ end }}
+        </div>
+    </div>
 
     <form class="race-setup"
           method="post"

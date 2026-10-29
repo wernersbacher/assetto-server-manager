@@ -13,13 +13,20 @@
     {{ $f := .Championship }}
     {{ $ACSREnabled := .ACSREnabled }}
 
-    <h1 class="text-center">
-        {{ if .IsEditing }}
-            Edit the {{ .Championship.Name }} Championship
-        {{ else }}
-            Create a new Championship
-        {{ end }}
-    </h1>
+    <div class="page-header">
+        <div>
+            <nav class="form-breadcrumb" aria-label="Breadcrumb">
+                <a href="/championships">Championships</a><span>{{ if .IsEditing }}Edit{{ else }}New{{ end }}</span>
+            </nav>
+            <h1>
+                {{ if .IsEditing }}
+                    Edit the {{ .Championship.Name }} Championship
+                {{ else }}
+                    Create a new Championship
+                {{ end }}
+            </h1>
+        </div>
+    </div>
 
     <form action="/championships/new/submit" method="post" id="championship-form" data-safe-submit>
 

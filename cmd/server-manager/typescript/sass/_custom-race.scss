@@ -129,3 +129,119 @@
 .weather {
   font-size: 14px;
 }
+
+// Race setup forms: section cards, section index and sticky save bar (RaceForm.ts)
+.form-section {
+  border-radius: 8px;
+  overflow: hidden;
+
+  > .card-header {
+    padding: 14px 20px;
+
+    strong {
+      font-size: 16px;
+      font-weight: 600;
+    }
+  }
+}
+
+.form-section-anchor {
+  display: block;
+  height: 0;
+  scroll-margin-top: 130px;
+}
+
+.form-index {
+  position: sticky;
+  top: 56px;
+  z-index: 20;
+  margin: 0 -8px 8px;
+  padding: 8px 8px;
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+
+  ul {
+    display: flex;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  a {
+    display: block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--muted-foreground);
+    font-size: 14px;
+
+    &:hover {
+      text-decoration: none;
+      background-color: var(--accent);
+      color: var(--foreground);
+    }
+
+    &.active {
+      background-color: var(--accent);
+      color: var(--foreground);
+      font-weight: 600;
+    }
+  }
+}
+
+.race-save-bar {
+  .save-bar-text.is-dirty {
+    color: var(--warning-solid, var(--foreground));
+    font-weight: 600;
+  }
+
+  .btn {
+    margin: 0;
+  }
+}
+
+.form-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+
+  a {
+    color: var(--muted-foreground);
+  }
+
+  span + span::before, a + span::before {
+    content: "/";
+    margin-right: 6px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .race-setup {
+    .table-responsive-wrapper, .entrants-block {
+      max-width: 100%;
+    }
+
+    .card-body {
+      padding: 14px;
+    }
+
+    .form-control, .custom-select, .select2-container {
+      max-width: 100%;
+    }
+
+    table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+
+  .form-section > .card-header {
+    padding: 12px 14px;
+  }
+}

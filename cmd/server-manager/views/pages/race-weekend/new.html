@@ -3,17 +3,24 @@
 {{ define "title" }}Create a Race Weekend{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">
-        {{ if not $.IsEditing }}
-            Create a new Race Weekend
-        {{ else }}
-            Edit the {{ $.RaceWeekend.Name }} Race Weekend
-        {{ end }}
-    </h1>
+    <div class="page-header">
+        <div>
+            <nav class="form-breadcrumb" aria-label="Breadcrumb">
+                <a href="/race-weekends">Race Weekends</a><span>{{ if $.IsEditing }}Edit{{ else }}New{{ end }}</span>
+            </nav>
+            <h1>
+                {{ if not $.IsEditing }}
+                    Create a new Race Weekend
+                {{ else }}
+                    Edit the {{ $.RaceWeekend.Name }} Race Weekend
+                {{ end }}
+            </h1>
 
-    {{ if $.RaceWeekend.HasLinkedChampionship }}
-        <h4 class="text-center">in the {{ $.Championship.Name }} Championship</h4>
-    {{ end }}
+            {{ if $.RaceWeekend.HasLinkedChampionship }}
+                <p>in the {{ $.Championship.Name }} Championship</p>
+            {{ end }}
+        </div>
+    </div>
 
 
     <form action="/race-weekends/new/submit" method="post" id="raceweekend-form" data-safe-submit>

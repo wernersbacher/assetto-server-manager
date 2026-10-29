@@ -3,6 +3,7 @@ Unreleased
 
 Added:
 
+* The race setup forms (custom race, quick race, championship event, race weekend session, championship and race weekend settings) get a page header with breadcrumb, section cards with a sticky section index (a scrolling strip that also works on phones) and a sticky save bar that repeats the Save / Start buttons and shows when there are unsaved changes.
 * The Cars, Tracks and Weather pages are reworked: a page header with an upload button (write access), card grids with DLC/Mod/Default badges, a search bar that wraps on phones, and an upload area with drag and drop, an overall progress bar with transferred size, and clear success and error messages (a failed upload no longer reloads the page).
 * The admin pages are restyled: server and plugin options as section cards with an on-page section index and a sticky save bar, an accounts table with group badges and a matrix of what each group can do, tabbed server logs, an audit log table, and a centered login card that works on phones.
 * New look: a top bar that always shows the server status (with Stop and Restart for organizers), a sidebar navigation grouped by Racing, Organize, Content, Server and Plugins that only shows what you are allowed to use, and a menu button on phones.

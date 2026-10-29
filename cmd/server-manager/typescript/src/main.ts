@@ -26,6 +26,7 @@ import {Form} from "./Form";
 import {Shell} from "./Shell";
 import {DeleteConfirm} from "./DeleteConfirm";
 import {AdminForm} from "./AdminForm";
+import {RaceForm} from "./RaceForm";
 
 $(() => {
     new Shell();
@@ -33,6 +34,7 @@ $(() => {
     new AdminForm();
     new Form();
     EntryPoint();
+    new RaceForm();
     new RaceControl();
     new CarDetail();
     new TrackDetail();
