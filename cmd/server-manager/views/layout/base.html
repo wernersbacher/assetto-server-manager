@@ -1,7 +1,7 @@
 {{ define "ServerEventType" }}
     {{- if .IsChampionship }}Championship{{ if .IsPractice }} practice{{ end -}}
     {{ else if .IsRaceWeekend }}Race Weekend{{ if .IsPractice }} practice{{ end -}}
-    {{ else if .IsLooping }}Looping event
+    {{ else if EventIsLooping . }}Looping event
     {{- else if .IsTimeAttack }}Time attack
     {{- else }}Running{{ end -}}
 {{ end }}
@@ -57,7 +57,7 @@
         </script>
 
     </head>
-    <body {{ with $.User }}class="user-group-{{ $.User.Group }}"{{ end }}>
+    <body {{ with $.User }}class="user-group-{{ AccountGroup $.User }}"{{ end }}>
 
     <header class="app-topbar">
         {{ if ReadAccess }}
@@ -76,8 +76,8 @@
 
         <div class="app-topbar-actions">
             {{ if $.ServerStatus }}
-                <a class="server-status is-running" {{ if ReadAccess }}href="/live-timing"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}">
-                    <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ $.ServerEvent.EventName }}</span>
+                <a class="server-status is-running" {{ if ReadAccess }}href="/live-timing"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}">
+                    <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}</span>
                 </a>
 
                 {{ if WriteAccess }}
@@ -103,7 +103,7 @@
                 <div class="dropdown">
                     <button type="button" class="btn-ghost app-account-toggle dropdown-toggle" id="account-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
                         <span class="avatar" aria-hidden="true">{{ substr 0 2 .User.Name }}</span>
-                        <span class="app-account-role text-capitalize">{{ .User.Group }}</span>
+                        <span class="app-account-role text-capitalize">{{ AccountGroup .User }}</span>
                     </button>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="account-menu">
@@ -243,7 +243,7 @@
         </div>
 
 
-    {{ if not $.User.HasSeenCurrentVersion }}
+    {{ if not ($.User.HasSeenVersion Version) }}
         <div class="modal" tabindex="-1" role="dialog" id="changelog-modal">
             <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
                 <div class="modal-content">

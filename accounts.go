@@ -77,11 +77,11 @@ func init() {
 	gob.Register(Account{})
 }
 
-func NewAccount() *Account {
+func NewAccount(serverID ServerID, version string) *Account {
 	return &Account{
 		ID:              uuid.New(),
 		Created:         time.Now(),
-		LastSeenVersion: BuildVersion,
+		LastSeenVersion: version,
 		Theme:           ThemeDefault,
 		Groups:          map[ServerID]Group{serverID: GroupRead},
 	}
@@ -111,7 +111,7 @@ type Account struct {
 	DeprecatedGroup Group `json:"Group"`
 }
 
-func (a Account) Group() Group {
+func (a Account) GroupFor(serverID ServerID) Group {
 	if a.Groups == nil {
 		return GroupNoAccess
 	}
@@ -137,12 +137,8 @@ func (a Account) ShowDarkTheme(serverManagerDarkThemeEnabled bool) bool {
 	return a.Theme == ThemeDark
 }
 
-func (a Account) HasSeenCurrentVersion() bool {
-	return a.HasSeenVersion(BuildVersion)
-}
-
-func (a Account) ShouldSeeUpgradePopup(adminPasswordOverride string) bool {
-	return !a.HasSeenCurrentVersion() && !a.NeedsPasswordReset(adminPasswordOverride)
+func (a Account) ShouldSeeUpgradePopup(currentVersion, adminPasswordOverride string) bool {
+	return !a.HasSeenVersion(currentVersion) && !a.NeedsPasswordReset(adminPasswordOverride)
 }
 
 func (a Account) HasSeenVersion(version string) bool {
@@ -169,8 +165,8 @@ func (a Account) NeedsPasswordReset(adminPasswordOverride string) bool {
 	return a.DefaultPassword != "" || (a.Name == adminUserName && adminPasswordOverride != "")
 }
 
-func (a Account) HasGroupPrivilege(g Group) bool {
-	userGroup := a.Group()
+func (a Account) HasGroupPrivilege(serverID ServerID, g Group) bool {
+	userGroup := a.GroupFor(serverID)
 
 	if g == userGroup {
 		return true
@@ -222,8 +218,8 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup Group, next http.Han
 				return
 			}
 
-			if !account.HasGroupPrivilege(requiredGroup) {
-				if account.Group() == GroupNoAccess {
+			if !account.HasGroupPrivilege(serverID, requiredGroup) {
+				if account.GroupFor(serverID) == GroupNoAccess {
 					AddErrorFlash(w, r, "You do not have permission to access this Server Manager instance.")
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
@@ -299,7 +295,7 @@ func ReadAccess(r *http.Request) func() bool {
 	account := AccountFromRequest(r)
 
 	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
-	ok := account.HasGroupPrivilege(GroupRead) || (account.Name == "" && requestScopeFromRequest(r).isOpen())
+	ok := account.HasGroupPrivilege(serverID, GroupRead) || (account.Name == "" && requestScopeFromRequest(r).isOpen())
 
 	return func() bool {
 		return ok
@@ -317,7 +313,7 @@ func LoggedIn(r *http.Request) func() bool {
 }
 
 func WriteAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(GroupWrite)
+	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, GroupWrite)
 
 	return func() bool {
 		return ok
@@ -325,7 +321,7 @@ func WriteAccess(r *http.Request) func() bool {
 }
 
 func DeleteAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(GroupDelete)
+	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, GroupDelete)
 
 	return func() bool {
 		return ok
@@ -333,7 +329,7 @@ func DeleteAccess(r *http.Request) func() bool {
 }
 
 func AdminAccess(r *http.Request) func() bool {
-	ok := AccountFromRequest(r).HasGroupPrivilege(GroupAdmin)
+	ok := AccountFromRequest(r).HasGroupPrivilege(serverID, GroupAdmin)
 
 	return func() bool {
 		return ok
@@ -749,7 +745,7 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 			return
 		}
 
-		account = NewAccount()
+		account = NewAccount(serverID, BuildVersion)
 		account.DefaultPassword = strings.Join(defaultPass, "-")
 	}
 
@@ -759,7 +755,7 @@ func (ah *AccountHandler) createOrEditAccount(w http.ResponseWriter, r *http.Req
 
 		if !isEditing {
 			// creating new account
-			account = NewAccount()
+			account = NewAccount(serverID, BuildVersion)
 			account.DefaultPassword = r.FormValue("DefaultPassword")
 		}
 

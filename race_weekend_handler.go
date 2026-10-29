@@ -315,7 +315,7 @@ func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("Couldn't list results files for sorting")
 	}
 
-	parentSessionResults, err := parentSession.FinishingGrid(raceWeekend)
+	parentSessionResults, err := raceWeekendFinishingGrid(parentSession, raceWeekend)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load previous session results")
@@ -465,7 +465,7 @@ func (rwh *RaceWeekendHandler) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !AccountFromRequest(r).HasGroupPrivilege(GroupWrite) {
+	if !AccountFromRequest(r).HasGroupPrivilege(serverID, GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		for _, session := range raceWeekend.Sessions {
 			session.ReplacementPassword = ""

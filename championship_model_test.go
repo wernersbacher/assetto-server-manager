@@ -884,14 +884,14 @@ func TestActiveChampionship_Password(t *testing.T) {
 		t.Errorf("expected override password secret, got %v %q", a.OverrideServerPassword(), a.ReplacementServerPassword())
 	}
 
-	if a.EventName() != "Champ" {
-		t.Errorf("unexpected event name %q", a.EventName())
+	if a.EventName(trackSummary) != "Champ" {
+		t.Errorf("unexpected event name %q", a.EventName(trackSummary))
 	}
 
 	a.IsPracticeSession = true
 
-	if a.EventName() != "Champ - Looping Practice" {
-		t.Errorf("unexpected practice event name %q", a.EventName())
+	if a.EventName(trackSummary) != "Champ - Looping Practice" {
+		t.Errorf("unexpected practice event name %q", a.EventName(trackSummary))
 	}
 
 	if (&ActiveChampionship{}).OverrideServerPassword() {

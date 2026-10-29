@@ -203,7 +203,7 @@ func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]Sched
 				continue
 			}
 
-			event.championship = championship
+			event.SetChampionship(championship)
 			scheduled = append(scheduled, event)
 		}
 	}
@@ -224,8 +224,8 @@ func (srm *ScheduledRacesManager) getScheduledRaces(forAllServers bool) ([]Sched
 				continue
 			}
 
-			session.raceWeekend = raceWeekend
-			scheduled = append(scheduled, session)
+			session.SetRaceWeekend(raceWeekend)
+			scheduled = append(scheduled, scheduledRaceWeekendSession{session})
 		}
 	}
 

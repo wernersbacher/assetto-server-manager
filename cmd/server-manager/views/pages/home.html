@@ -45,7 +45,7 @@
                             {{ end }}
                         </div>
                         <div class="text-muted">
-                            {{ $.ServerEvent.EventName }}{{ with $trackInfo }} · {{ .City }}, {{ .Country }}{{ end }}
+                            {{ EventName $.ServerEvent }}{{ with $trackInfo }} · {{ .City }}, {{ .Country }}{{ end }}
                         </div>
                     </div>
                 </div>

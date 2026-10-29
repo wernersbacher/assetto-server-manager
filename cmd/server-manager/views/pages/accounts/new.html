@@ -36,11 +36,11 @@
 
                     <div class="col-sm-9">
                         <select class="form-control" id="Group" name="Group">
-                            <option value="read" {{ if eq .Account.Group "read" }}selected="selected"{{ end }}>Read - Read races, content, and championships</option>
-                            <option value="write" {{ if eq .Account.Group "write" }}selected="selected"{{ end }}>Write - Read and Write races, content and championships</option>
-                            <option value="delete" {{ if eq .Account.Group "delete" }}selected="selected"{{ end }}>Delete - Read, Write, Delete races, content and championships</option>
-                            <option value="admin" {{ if eq .Account.Group "admin" }}selected="selected"{{ end }}>Admin - Full access</option>
-                            <option value="no_access" {{ if eq .Account.Group "no_access" }}selected="selected"{{ end }}>No Access - user cannot access anything.</option>
+                            <option value="read" {{ if eq (AccountGroup .Account) "read" }}selected="selected"{{ end }}>Read - Read races, content, and championships</option>
+                            <option value="write" {{ if eq (AccountGroup .Account) "write" }}selected="selected"{{ end }}>Write - Read and Write races, content and championships</option>
+                            <option value="delete" {{ if eq (AccountGroup .Account) "delete" }}selected="selected"{{ end }}>Delete - Read, Write, Delete races, content and championships</option>
+                            <option value="admin" {{ if eq (AccountGroup .Account) "admin" }}selected="selected"{{ end }}>Admin - Full access</option>
+                            <option value="no_access" {{ if eq (AccountGroup .Account) "no_access" }}selected="selected"{{ end }}>No Access - user cannot access anything.</option>
                         </select>
 
                         <small>Please note that Groups are per Server Manager instance. In a Multi-Server environment, you can set different groups for users per server.</small>

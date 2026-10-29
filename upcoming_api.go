@@ -120,24 +120,24 @@ func newAPIUpcomingRace(event ScheduledEvent, start time.Time) *APIUpcomingRace 
 	switch e := event.(type) {
 	case *CustomRace:
 		out.Kind = APIUpcomingKindCustomRace
-		out.Name = e.EventName()
+		out.Name = e.EventName(trackSummary)
 		out.Recurrence = e.Recurrence
 	case *ChampionshipEvent:
 		out.Kind = APIUpcomingKindChampionshipEvent
 		out.Name = trackSummary(setup.Track, setup.TrackLayout)
 		out.Recurrence = e.Recurrence
 
-		if e.championship != nil {
-			out.ChampionshipID = &e.championship.ID
-			out.ChampionshipName = e.championship.Name
+		if e.Championship() != nil {
+			out.ChampionshipID = &e.Championship().ID
+			out.ChampionshipName = e.Championship().Name
 		}
-	case *RaceWeekendSession:
+	case scheduledRaceWeekendSession:
 		out.Kind = APIUpcomingKindRaceWeekendSession
 		out.Name = e.Name()
 
-		if e.raceWeekend != nil {
-			out.RaceWeekendID = &e.raceWeekend.ID
-			out.RaceWeekendName = e.raceWeekend.Name
+		if e.RaceWeekend() != nil {
+			out.RaceWeekendID = &e.RaceWeekend().ID
+			out.RaceWeekendName = e.RaceWeekend().Name
 		}
 	default:
 		return nil

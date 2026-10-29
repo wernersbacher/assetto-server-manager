@@ -142,7 +142,7 @@ func addAdminAccount(rs Store) error {
 
 	logrus.Infof("Running migration: Add Admin Account")
 
-	account := NewAccount()
+	account := NewAccount(serverID, BuildVersion)
 	account.Name = adminUserName
 	account.DefaultPassword = "servermanager"
 	// DeprecatedGroup must be assigned to here, since a following migration will just re-set-up Groups.
@@ -317,7 +317,7 @@ func addPitBoxDefinitionToEntrants(rs Store) error {
 
 	for _, championship := range championships {
 		for _, event := range championship.Events {
-			event.championship = championship
+			event.SetChampionship(championship)
 
 			for i, entrant := range event.EntryList.AsSlice() {
 				entrant.PitBox = i

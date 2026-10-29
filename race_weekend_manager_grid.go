@@ -34,7 +34,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 
 	preview := NewRaceWeekendGridPreview()
 
-	finishingGrid, err := parentSession.FinishingGrid(raceWeekend)
+	finishingGrid, err := raceWeekendFinishingGrid(parentSession, raceWeekend)
 
 	if err != nil {
 		return nil, err
@@ -58,7 +58,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 		}
 	}
 
-	entryList, err := childSession.GetRaceWeekendEntryList(raceWeekend, filter, parentSessionID)
+	entryList, err := getRaceWeekendEntryList(childSession, raceWeekend, filter, parentSessionID)
 
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (rwm *RaceWeekendManager) PreviewSessionEntryList(raceWeekendID, sessionID,
 	session.SortType = sortType
 	session.NumEntrantsToReverse = reverseGrid
 
-	entryList, err := session.GetRaceWeekendEntryList(raceWeekend, nil, "")
+	entryList, err := getRaceWeekendEntryList(session, raceWeekend, nil, "")
 
 	if err != nil {
 		return nil, err

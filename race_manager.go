@@ -85,7 +85,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 	defer rm.mutex.Unlock()
 
 	// Reset the stored session types if this isn't a looped race
-	if !event.IsLooping() {
+	if !event.IsLooping(serverID) {
 		rm.clearLoopedRaceSessionTypes()
 	}
 
@@ -220,7 +220,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 
 	if config.GlobalServerConfig.ShowRaceNameInServerLobby == 1 {
 		// append the race name to the server name
-		if name := event.EventName(); name != "" {
+		if name := event.EventName(trackSummary); name != "" {
 			config.GlobalServerConfig.Name = buildFinalServerName(config.GlobalServerConfig.ServerNameTemplate, event, config)
 		}
 	}
@@ -262,7 +262,7 @@ func (rm *RaceManager) applyConfigAndStart(event RaceEvent) error {
 		return err
 	}
 
-	if !event.IsLooping() {
+	if !event.IsLooping(serverID) {
 		_ = rm.notificationManager.SendRaceStartMessage(config, event)
 	}
 

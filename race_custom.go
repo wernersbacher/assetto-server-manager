@@ -49,7 +49,7 @@ func (cr *CustomRace) GetEntryList() serverconfig.EntryList {
 	return cr.EntryList
 }
 
-func (cr *CustomRace) IsLooping() bool {
+func (cr *CustomRace) IsLooping(serverID ServerID) bool {
 	if cr.LoopServer == nil {
 		return false
 	}
@@ -57,7 +57,7 @@ func (cr *CustomRace) IsLooping() bool {
 	return cr.LoopServer[serverID]
 }
 
-func (cr *CustomRace) EventName() string {
+func (cr *CustomRace) EventName(trackSummary TrackSummaryFunc) string {
 	if cr.HasCustomName {
 		return cr.Name
 	}
@@ -246,7 +246,7 @@ func (crh *CustomRaceHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 
 		eventName = fmt.Sprintf("%s (%s)", session.Name(), raceWeekend.Name)
-		rwe, err := session.GetRaceWeekendEntryList(raceWeekend, nil, "")
+		rwe, err := getRaceWeekendEntryList(session, raceWeekend, nil, "")
 
 		if err != nil {
 			http.NotFound(w, r)

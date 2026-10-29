@@ -74,7 +74,7 @@ func (q QuickRace) GetEntryList() serverconfig.EntryList {
 	return q.EntryList
 }
 
-func (q QuickRace) IsLooping() bool {
+func (q QuickRace) IsLooping(serverID ServerID) bool {
 	return false
 }
 
@@ -94,7 +94,7 @@ func (q QuickRace) IsTimeAttack() bool {
 	return q.RaceConfig.TimeAttack
 }
 
-func (q QuickRace) EventName() string {
+func (q QuickRace) EventName(trackSummary TrackSummaryFunc) string {
 	return trackSummary(q.RaceConfig.Track, q.RaceConfig.TrackLayout)
 }
 

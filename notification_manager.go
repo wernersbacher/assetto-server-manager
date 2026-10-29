@@ -133,7 +133,7 @@ func (nm *NotificationManager) SendRaceStartMessage(config serverconfig.ServerCo
 	}
 
 	msg := ""
-	eventName := event.EventName()
+	eventName := event.EventName(trackSummary)
 	trackInfo := trackSummary(config.CurrentRaceConfig.Track, config.CurrentRaceConfig.TrackLayout)
 
 	if eventName != "" {
@@ -235,7 +235,7 @@ func (nm *NotificationManager) SendRaceScheduledMessage(event *CustomRace, date 
 
 	msg := "A new event has been scheduled\n"
 	msg += fmt.Sprintf("Server: %s\n", serverOpts.Name)
-	eventName := event.EventName()
+	eventName := event.EventName(trackSummary)
 
 	if eventName != "" {
 		msg += fmt.Sprintf("Event name: %s\n", eventName)
@@ -268,7 +268,7 @@ func (nm *NotificationManager) SendRaceCancelledMessage(event *CustomRace, date 
 
 	msg := "The following scheduled Event has been cancelled\n"
 	msg += fmt.Sprintf("Server: %s\n", serverOpts.Name)
-	eventName := event.EventName()
+	eventName := event.EventName(trackSummary)
 	trackInfo := trackSummary(event.RaceConfig.Track, event.RaceConfig.TrackLayout)
 
 	if eventName != "" {
@@ -286,7 +286,7 @@ func (nm *NotificationManager) SendRaceCancelledMessage(event *CustomRace, date 
 func (nm *NotificationManager) SendRaceReminderMessage(event *CustomRace, timer int) error {
 	msg := ""
 	trackInfo := nm.GetTrackInfo(event.RaceConfig.Track, event.RaceConfig.TrackLayout, true)
-	eventName := event.EventName()
+	eventName := event.EventName(trackSummary)
 	carList := nm.GetCarList(event.RaceConfig.Cars)
 	reminder := durafmt.Parse(time.Duration(timer) * time.Minute).String()
 

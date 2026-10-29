@@ -304,12 +304,12 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Errorf("expected ErrAccountNotFound on fresh store, got: %v", err)
 		}
 
-		admin := NewAccount()
+		admin := NewAccount(serverID, BuildVersion)
 		admin.Name = "admin"
 		admin.DriverName = "Admin Driver"
 		admin.Groups = map[ServerID]Group{serverID: GroupAdmin}
 
-		user := NewAccount()
+		user := NewAccount(serverID, BuildVersion)
 		user.Name = "user"
 
 		for _, a := range []*Account{admin, user} {

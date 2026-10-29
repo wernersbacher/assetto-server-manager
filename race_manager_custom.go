@@ -28,7 +28,7 @@ func (rm *RaceManager) ListCustomRaces() (recent, starred, looped, scheduled []*
 	})
 
 	for _, race := range recent {
-		if race.IsLooping() {
+		if race.IsLooping(serverID) {
 			looped = append(looped, race)
 		}
 

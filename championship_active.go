@@ -31,7 +31,7 @@ func (a *ActiveChampionship) GetEntryList() serverconfig.EntryList {
 	return a.EntryList
 }
 
-func (a *ActiveChampionship) IsLooping() bool {
+func (a *ActiveChampionship) IsLooping(serverID ServerID) bool {
 	return false
 }
 
@@ -67,7 +67,7 @@ func (a *ActiveChampionship) ReplacementServerPassword() string {
 	return a.ReplacementPassword
 }
 
-func (a *ActiveChampionship) EventName() string {
+func (a *ActiveChampionship) EventName(trackSummary TrackSummaryFunc) string {
 	if a.IsPracticeSession {
 		return a.Name + " - Looping Practice"
 	}

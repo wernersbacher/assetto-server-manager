@@ -9,11 +9,14 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 )
 
+// TrackSummaryFunc returns the display name of a track and layout.
+type TrackSummaryFunc func(track, layout string) string
+
 type RaceEvent interface {
 	GetRaceConfig() serverconfig.CurrentRaceConfig
 	GetEntryList() serverconfig.EntryList
 
-	IsLooping() bool
+	IsLooping(serverID ServerID) bool
 	IsChampionship() bool
 	IsRaceWeekend() bool
 	IsPractice() bool
@@ -25,7 +28,7 @@ type RaceEvent interface {
 	GetForceStopTime() time.Duration
 	GetForceStopWithDrivers() bool
 
-	EventName() string
+	EventName(trackSummary TrackSummaryFunc) string
 	EventDescription() string
 }
 

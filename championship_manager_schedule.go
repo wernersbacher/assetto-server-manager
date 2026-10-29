@@ -180,7 +180,7 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *Championship, e
 
 func (cm *ChampionshipManager) ScheduleNextEventFromRecurrence(championship *Championship, event *ChampionshipEvent) error {
 	// make sure the championship is on the event
-	event.championship = championship
+	event.SetChampionship(championship)
 
 	// duplicate the event with new ID and no schedule/completed time
 	eventCopy := DuplicateChampionshipEvent(event)
@@ -226,7 +226,7 @@ func (cm *ChampionshipManager) BuildICalFeed(championshipID string, w io.Writer)
 			continue
 		}
 
-		event.championship = championship
+		event.SetChampionship(championship)
 
 		icalEvent := BuildICalEvent(event, cm.config.HTTP.BaseURL)
 

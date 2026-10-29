@@ -219,6 +219,17 @@ type ChampionshipEvent struct {
 	championship *Championship
 }
 
+// SetChampionship attaches the Championship that the event belongs to. It is runtime only information (it is not
+// persisted) which the event needs when it is used as a ScheduledEvent.
+func (cr *ChampionshipEvent) SetChampionship(championship *Championship) {
+	cr.championship = championship
+}
+
+// Championship returns the Championship attached with SetChampionship, if any.
+func (cr *ChampionshipEvent) Championship() *Championship {
+	return cr.championship
+}
+
 func (cr *ChampionshipEvent) IsRaceWeekend() bool {
 	return cr.RaceWeekendID != uuid.Nil
 }

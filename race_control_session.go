@@ -270,7 +270,7 @@ func (rc *RaceControl) OnEndSession(sessionFile udp.EndSession) error {
 			return err
 		}
 
-		logrus.Infof("Time Attack Event (%s) Finished, results files have been combined and saved as %s", rc.currentTimeAttackEvent.EventName(), filename)
+		logrus.Infof("Time Attack Event (%s) Finished, results files have been combined and saved as %s", rc.currentTimeAttackEvent.EventName(trackSummary), filename)
 	}
 
 	return nil

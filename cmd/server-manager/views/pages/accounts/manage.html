@@ -31,7 +31,7 @@
                             <span>{{ $account.Name }}</span>
                         </span>
                     </td>
-                    <td>{{ template "roleBadge" (print $account.Group) }}</td>
+                    <td>{{ template "roleBadge" (print (AccountGroup $account)) }}</td>
                     <td class="text-right text-nowrap">
                         {{ if ne $account.Name "admin" }}
                             <a class="btn btn-warning" href="/accounts/edit/{{ $account.ID.String }}">

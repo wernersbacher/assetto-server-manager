@@ -73,7 +73,7 @@ func NewAPIServerStatus(running bool, serverName string, event RaceEvent, raceCo
 		out.ServerName = raceControl.SessionInfo.ServerName
 	}
 
-	out.EventName = event.EventName()
+	out.EventName = event.EventName(trackSummary)
 	out.IsChampionship = event.IsChampionship()
 	out.IsRaceWeekend = event.IsRaceWeekend()
 	out.IsPractice = event.IsPractice()

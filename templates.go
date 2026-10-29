@@ -216,6 +216,10 @@ func (tr *Renderer) init() error {
 	funcs["SessionType"] = func(s string) serverconfig.SessionType { return serverconfig.SessionType(s) }
 	funcs["Config"] = func() *smconfig.Configuration { return tr.config }
 	funcs["Version"] = func() string { return BuildVersion }
+	funcs["AccountGroup"] = func(a Account) Group { return a.GroupFor(serverID) }
+	funcs["raceWeekendTrackOverview"] = raceWeekendTrackOverview
+	funcs["EventName"] = func(e RaceEvent) string { return e.EventName(trackSummary) }
+	funcs["EventIsLooping"] = func(e RaceEvent) bool { return e.IsLooping(serverID) }
 	funcs["fullTimeFormat"] = fullTimeFormat
 	funcs["localFormat"] = localFormatHelper
 	funcs["driverName"] = driverName
@@ -526,7 +530,7 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.RecaptchaSiteKey = tr.config.Championships.RecaptchaConfig.SiteKey
 	data.ServerID = serverID
 	data.ShowEventDetailsPopup = opts.ShowEventDetailsPopup
-	data.ShowUpgradePopup = data.User.ShouldSeeUpgradePopup(tr.config.Accounts.AdminPasswordOverride)
+	data.ShowUpgradePopup = data.User.ShouldSeeUpgradePopup(BuildVersion, tr.config.Accounts.AdminPasswordOverride)
 
 	data.OGImage = opts.OGImage
 

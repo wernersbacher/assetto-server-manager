@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/cj123/ini"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
@@ -99,8 +102,8 @@ func reverseEntrants(numToReverse int, entrants []*RaceWeekendSessionEntrant) {
 
 var ErrRaceWeekendUnknownSplitType = errors.New("servermanager: unknown split type")
 
-// Filter takes a set of RaceWeekendSessionEntrants formed by the results of the parent session and filters them into a child session entry list.
-func (f RaceWeekendSessionToSessionFilter) Filter(raceWeekend *RaceWeekend, parentSession, childSession *RaceWeekendSession, parentSessionResults []*RaceWeekendSessionEntrant, childSessionEntryList *RaceWeekendEntryList) error {
+// filterRaceWeekendEntryList takes a set of RaceWeekendSessionEntrants formed by the results of the parent session and filters them into a child session entry list.
+func filterRaceWeekendEntryList(f RaceWeekendSessionToSessionFilter, raceWeekend *RaceWeekend, parentSession, childSession *RaceWeekendSession, parentSessionResults []*RaceWeekendSessionEntrant, childSessionEntryList *RaceWeekendEntryList) error {
 	if parentSession.Completed() || childSession.IsBase() {
 		sorter := GetRaceWeekendEntryListSort(f.SortType)
 
@@ -170,7 +173,7 @@ func (f RaceWeekendSessionToSessionFilter) Filter(raceWeekend *RaceWeekend, pare
 			if fastestLap == nil {
 				logrus.Warnf("could not find fastest lap for entrant %s (%s). will not lock their tyre choice.", entrant.Car.GetName(), entrant.Car.GetGUID())
 			} else {
-				err := raceWeekend.buildLockedTyreSetup(childSession, entrant, fastestLap)
+				err := buildLockedTyreSetup(raceWeekend, childSession, entrant, fastestLap)
 
 				if err != nil {
 					logrus.WithError(err).Errorf("could not build locked tyre setup for entrant %s (%s)", entrant.Car.GetName(), entrant.Car.GetGUID())
@@ -188,7 +191,7 @@ func (f RaceWeekendSessionToSessionFilter) Filter(raceWeekend *RaceWeekend, pare
 
 const lockedTyreSetupFolder = smcontent.LockedTyreSetupFolder
 
-func (rw *RaceWeekend) buildLockedTyreSetup(session *RaceWeekendSession, entrant *RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
+func buildLockedTyreSetup(rw *RaceWeekend, session *RaceWeekendSession, entrant *RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
 	tyreIndex, err := smcontent.FindTyreIndex(ServerInstallPath, entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
 
 	if err != nil {
@@ -282,4 +285,217 @@ func (rw *RaceWeekend) buildLockedTyreSetup(session *RaceWeekendSession, entrant
 	entrant.OverrideSetupFile = setupFilePath
 
 	return nil
+}
+
+// getRaceWeekendEntryList returns the RaceWeekendEntryList for the given session, built from the parent session(s) results and applied filters.
+func getRaceWeekendEntryList(rws *RaceWeekendSession, rw *RaceWeekend, overrideFilter *RaceWeekendSessionToSessionFilter, overrideFilterSessionID string) (RaceWeekendEntryList, error) {
+	var entryList RaceWeekendEntryList
+
+	if rws.IsBase() {
+		entryList = EntryListToRaceWeekendEntryList(rw.GetEntryList(), rws.ID)
+
+		if overrideFilter == nil {
+			var err error
+
+			overrideFilter, err = rw.GetFilterOrUseDefault(rw.ID.String(), rws.ID.String())
+
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		err := filterRaceWeekendEntryList(*overrideFilter, rw, rws, rws, entryList, &entryList)
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		entryList = make(RaceWeekendEntryList, 0)
+
+		for _, parentSessionID := range rws.ParentIDs {
+			parentSession, err := rw.FindSessionByID(parentSessionID.String())
+
+			if err != nil {
+				return nil, err
+			}
+
+			finishingGrid, err := raceWeekendFinishingGrid(parentSession, rw)
+
+			if err != nil {
+				return nil, err
+			}
+
+			if overrideFilter != nil && parentSessionID.String() == overrideFilterSessionID {
+				// override filters are provided when users are modifying filters for their race weekend setups
+				err = filterRaceWeekendEntryList(*overrideFilter, rw, parentSession, rws, finishingGrid, &entryList)
+
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				sessionToSessionFilter, err := rw.GetFilterOrUseDefault(parentSessionID.String(), rws.ID.String())
+
+				if err != nil {
+					return nil, err
+				}
+
+				err = filterRaceWeekendEntryList(*sessionToSessionFilter, rw, parentSession, rws, finishingGrid, &entryList)
+
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+
+	// do an initial sort of the entrylist by pitboxes, as sessions may add drivers out of order.
+	sort.Slice(entryList, func(i, j int) bool {
+		return entryList[i].PitBox < entryList[j].PitBox
+	})
+
+	if rw.SessionCanBeRun(rws) {
+		// sorting can only be run if a session is ready to be run.
+		sorter := GetRaceWeekendEntryListSort(rws.SortType)
+
+		if err := sorter.Sort(rw, rws, entryList, nil); err != nil {
+			return nil, err
+		}
+
+		var finalEntryList RaceWeekendEntryList
+		existingGUIDs := make(map[string]bool)
+
+		// filter out duplicate entrants, keeping their highest ranking in the entry list
+		for _, entrant := range entryList {
+			if _, guidAlreadyInEntryList := existingGUIDs[entrant.Car.GetGUID()]; guidAlreadyInEntryList {
+				continue
+			}
+
+			finalEntryList = append(finalEntryList, entrant)
+			existingGUIDs[entrant.Car.GetGUID()] = true
+		}
+
+		// amend pitboxes post-sort
+		for i, entrant := range finalEntryList {
+			entrant.PitBox = i
+		}
+
+		entryList = finalEntryList
+	}
+
+	return entryList, nil
+}
+
+// raceWeekendFinishingGrid returns the finishing grid of the session, if complete. Otherwise, it returns the EntryList of that session
+func raceWeekendFinishingGrid(rws *RaceWeekendSession, raceWeekend *RaceWeekend) ([]*RaceWeekendSessionEntrant, error) {
+	var out []*RaceWeekendSessionEntrant
+
+	entryList, err := getRaceWeekendEntryList(rws, raceWeekend, nil, "")
+
+	if err != nil {
+		return nil, err
+	}
+
+	if rws.Completed() {
+		for _, result := range rws.Results.Result {
+			if result.DriverGUID == "" || result.Disqualified || (raceWeekend.HasSpectatorCar() && result.DriverGUID == raceWeekend.GetSpectatorCar().GUID) {
+				// filter out invalid results
+				continue
+			}
+
+			car, err := rws.Results.FindCarByGUIDAndModel(result.DriverGUID, result.CarModel)
+
+			if err != nil {
+				continue
+			}
+
+			out = append(out, NewRaceWeekendSessionEntrant(rws.ID, car, result, rws.Results))
+		}
+
+		// look for entrants not in our session results who started the session.
+		for _, entrant := range entryList {
+			foundEntrant := false
+
+			for _, driver := range out {
+				if driver.Car.GetGUID() == entrant.Car.GetGUID() || serverconfig.NormaliseEntrantGUIDs(driver.Car.Driver.GuidsList) == entrant.Car.GetGUID() {
+					foundEntrant = true
+					break
+				}
+			}
+
+			if !foundEntrant && entrant.Car.GetGUID() != "" && (rws.IsBase() || !entrant.IsPlaceholder) {
+				if raceWeekend.HasLinkedChampionship() {
+					// find the class ID for the car
+					class, err := raceWeekend.Championship.FindClassForCarModel(entrant.Car.GetCar())
+
+					if err != nil {
+						logrus.WithError(err).Warnf("Could not find class for car model: %s for entrant %s", entrant.Car.GetCar(), entrant.Car.GetGUID())
+					} else {
+						entrant.EntrantResult.ClassID = class.ID
+					}
+				}
+
+				e := NewRaceWeekendSessionEntrant(rws.ID, entrant.Car, entrant.EntrantResult, rws.Results)
+				e.IsPlaceholder = entrant.IsPlaceholder
+
+				out = append(out, e)
+			}
+		}
+	} else {
+		// if a session is not completed, we work on the assumption that the finishing grid is equal to the entrylist
+		out = entryList.Sorted()
+	}
+
+	return out, nil
+}
+
+// scheduledRaceWeekendSession makes a RaceWeekendSession usable as a ScheduledEvent, which needs the entry list that
+// the session will be run with.
+type scheduledRaceWeekendSession struct {
+	*RaceWeekendSession
+}
+
+func (s scheduledRaceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList {
+	rwe, err := getRaceWeekendEntryList(s.RaceWeekendSession, s.RaceWeekend(), nil, "")
+
+	if err != nil {
+		logrus.WithError(err).Error("Could not get race weekend entry list")
+		return make(serverconfig.EntryList)
+	}
+
+	return rwe.AsEntryList()
+}
+
+// raceWeekendTrackOverview describes the tracks of all sessions of a race weekend.
+func raceWeekendTrackOverview(rw *RaceWeekend) string {
+	trackInfoMap := make(map[string]bool)
+
+	for _, session := range rw.Sessions {
+		trackInfo := trackInfo(session.RaceConfig.Track, session.RaceConfig.TrackLayout)
+
+		var trackDescription string
+
+		if trackInfo != nil {
+			trackDescription = trackInfo.Name
+
+			if trackInfo.Country != "" {
+				trackDescription += " - " + trackInfo.Country
+			}
+		} else {
+			trackDescription = prettifyName(session.RaceConfig.Track, false)
+
+			if session.RaceConfig.TrackLayout != "" {
+				trackDescription += " (" + prettifyName(session.RaceConfig.TrackLayout, true) + ")"
+			}
+		}
+
+		trackInfoMap[trackDescription] = true
+	}
+
+	var trackInfo []string
+
+	for info := range trackInfoMap {
+		trackInfo = append(trackInfo, info)
+	}
+
+	return strings.Join(trackInfo, ", ")
 }
