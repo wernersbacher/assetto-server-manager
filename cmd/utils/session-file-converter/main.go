@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp/replay"
 	"github.com/etcd-io/bbolt"
 	"github.com/google/uuid"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp/replay"
 )
 
 var filename string

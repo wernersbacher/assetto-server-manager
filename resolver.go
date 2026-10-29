@@ -383,7 +383,7 @@ func (r *Resolver) resolvePenaltiesHandler() *racecontrol.PenaltiesHandler {
 }
 
 func (r *Resolver) resolvePenaltiesManager() *racecontrol.PenaltiesManager {
-	if r.penaltiesHandler != nil {
+	if r.penaltiesManager != nil {
 		return r.penaltiesManager
 	}
 

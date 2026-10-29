@@ -166,4 +166,3 @@ func ReadConfig(location string) (conf *Configuration, err error) {
 
 	return conf, err
 }
-

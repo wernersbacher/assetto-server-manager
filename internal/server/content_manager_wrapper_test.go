@@ -38,8 +38,8 @@ func TestContentManagerWrapper_setDescriptionTextEventMethods(t *testing.T) {
 	}
 
 	env := &serverenv.Env{
-		InstallPath:  func() string { return dir },
-		ServerID:     func() smmodel.ServerID { return "srv" },
+		InstallPath: func() string { return dir },
+		ServerID:    func() smmodel.ServerID { return "srv" },
 	}
 
 	cmw := NewContentManagerWrapper(nil, nil, smcontent.NewCarManager(dir, false, false), smcontent.NewTrackManager(dir), env)

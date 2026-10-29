@@ -184,38 +184,38 @@ type GlobalServerConfig struct {
 	FreeUDPPluginLocalPort int    `ini:"-" show:"-"`
 	FreeUDPPluginAddress   string `ini:"-" show:"-"`
 
-	ServerName                formfields.FormHeading          `ini:"-" json:"-"`
-	ShowRaceNameInServerLobby formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager append the Custom Race or Championship name to the Server name in the lobby."`
-	ServerNameTemplate        string               `ini:"-" help:"You can enter anything you like in here. If you put <code>{{ .ServerName }}</code> in, the Server Name will replace it. If you put <code>{{ .EventName }}</code>, then the Event Name will replace it. Note this only works if 'Show Race Name In Server Lobby' (above) is enabled."`
+	ServerName                formfields.FormHeading `ini:"-" json:"-"`
+	ShowRaceNameInServerLobby formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager append the Custom Race or Championship name to the Server name in the lobby."`
+	ServerNameTemplate        string                 `ini:"-" help:"You can enter anything you like in here. If you put <code>{{ .ServerName }}</code> in, the Server Name will replace it. If you put <code>{{ .EventName }}</code>, then the Event Name will replace it. Note this only works if 'Show Race Name In Server Lobby' (above) is enabled."`
 
-	Theme     formfields.FormHeading          `ini:"-" json:"-"`
-	DarkTheme formulate.BoolNumber `ini:"-" help:"Enable Server Manager's Dark Theme by default"`
-	CustomCSS string               `ini:"-" elem:"textarea" help:"Customise the style of Server Manager!"`
-	OGImage   string               `ini:"-" help:"Link to an image on the web here to set it as your default Open Graph image (will show in links)"`
+	Theme     formfields.FormHeading `ini:"-" json:"-"`
+	DarkTheme formulate.BoolNumber   `ini:"-" help:"Enable Server Manager's Dark Theme by default"`
+	CustomCSS string                 `ini:"-" elem:"textarea" help:"Customise the style of Server Manager!"`
+	OGImage   string                 `ini:"-" help:"Link to an image on the web here to set it as your default Open Graph image (will show in links)"`
 
-	ContentManagerIntegration   formfields.FormHeading          `ini:"-" json:"-"`
-	EnableContentManagerWrapper formulate.BoolNumber `ini:"-" help:"When on, this option makes Server Manager provide extra information to Content Manager. This includes more detail about connected clients, event descriptions and download links. A side-effect of this is that your server name will contain a new piece of information (an 'i' character followed by a port - which Content Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality provided by <a href='https://freegeoip.app''>freegeoip.app</a>."`
-	ContentManagerWrapperPort   int                  `ini:"-" min:"0" max:"65535" help:"The port on which to serve Content Manager with the above information. Please make sure this port is open on your firewall."`
-	ShowContentManagerJoinLink  formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager display Content Manager join links on the Live Timing page and (if enabled) in Discord race start notifications."`
-	ContentManagerIPOverride    string               `ini:"-" help:"When set, this overrides the IP address detected by the GeoIP service used for the Content Manager join link. This must be an IPv4 address."`
+	ContentManagerIntegration   formfields.FormHeading `ini:"-" json:"-"`
+	EnableContentManagerWrapper formulate.BoolNumber   `ini:"-" help:"When on, this option makes Server Manager provide extra information to Content Manager. This includes more detail about connected clients, event descriptions and download links. A side-effect of this is that your server name will contain a new piece of information (an 'i' character followed by a port - which Content Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality provided by <a href='https://freegeoip.app''>freegeoip.app</a>."`
+	ContentManagerWrapperPort   int                    `ini:"-" min:"0" max:"65535" help:"The port on which to serve Content Manager with the above information. Please make sure this port is open on your firewall."`
+	ShowContentManagerJoinLink  formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager display Content Manager join links on the Live Timing page and (if enabled) in Discord race start notifications."`
+	ContentManagerIPOverride    string                 `ini:"-" help:"When set, this overrides the IP address detected by the GeoIP service used for the Content Manager join link. This must be an IPv4 address."`
 	//ContentManagerWrapperContentRequiresPassword formulate.BoolNumber `ini:"-" help:"When on a user will require the server password in order to download linked content through the Content Manager Wrapper."`
 
-	Miscellaneous                     formfields.FormHeading          `ini:"-" json:"-"`
-	UseShortenedDriverNames           formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager hide driver's last names, for example 'John Smith' becomes 'John S.'"`
-	FallBackResultsSorting            formulate.BoolNumber `ini:"-" help:"When on results will use a fallback method of sorting. Only enable this if you are experiencing results that are in the wrong order in the json file."`
-	UseMPH                            formulate.BoolNumber `ini:"-" help:"When on, this option will make Server Manager use MPH instead of Km/h for all speed values."`
-	PreventWebCrawlers                formulate.BoolNumber `ini:"-" help:"When on, robots will be prohibited from indexing this manager by the robots.txt. Please note this will only deter well behaved bots, and not malware/spam bots etc."`
-	RestartEventOnServerManagerLaunch formulate.BoolNumber `ini:"-" help:"When on, if Server Manager is stopped while there is an event in progress, Server Manager will try to restart the event when Server Manager is restarted."`
-	LogACServerOutputToFile           bool                 `ini:"-" help:"When on, Server Manager will output each Assetto Corsa session into a log file in the logs folder."`
-	NumberOfACServerLogsToKeep        int                  `ini:"-" help:"The number of AC Server logs to keep in the logs folder. (Oldest files will be deleted first. 0 = keep all files)"`
-	ShowEventDetailsPopup             bool                 `ini:"-" help:"Allows all users to view a popup that describes in detail the setup of Custom Races, Championship Events and Race Weekend Sessions."`
+	Miscellaneous                     formfields.FormHeading `ini:"-" json:"-"`
+	UseShortenedDriverNames           formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager hide driver's last names, for example 'John Smith' becomes 'John S.'"`
+	FallBackResultsSorting            formulate.BoolNumber   `ini:"-" help:"When on results will use a fallback method of sorting. Only enable this if you are experiencing results that are in the wrong order in the json file."`
+	UseMPH                            formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager use MPH instead of Km/h for all speed values."`
+	PreventWebCrawlers                formulate.BoolNumber   `ini:"-" help:"When on, robots will be prohibited from indexing this manager by the robots.txt. Please note this will only deter well behaved bots, and not malware/spam bots etc."`
+	RestartEventOnServerManagerLaunch formulate.BoolNumber   `ini:"-" help:"When on, if Server Manager is stopped while there is an event in progress, Server Manager will try to restart the event when Server Manager is restarted."`
+	LogACServerOutputToFile           bool                   `ini:"-" help:"When on, Server Manager will output each Assetto Corsa session into a log file in the logs folder."`
+	NumberOfACServerLogsToKeep        int                    `ini:"-" help:"The number of AC Server logs to keep in the logs folder. (Oldest files will be deleted first. 0 = keep all files)"`
+	ShowEventDetailsPopup             bool                   `ini:"-" help:"Allows all users to view a popup that describes in detail the setup of Custom Races, Championship Events and Race Weekend Sessions."`
 
 	// Discord Integration
 	DiscordIntegration formfields.FormHeading `ini:"-" json:"-"`
-	DiscordAPIToken    string      `ini:"-" help:"If set, will enable race start and scheduled reminder messages to the Discord channel ID specified below.  Use your bot's user token, not the OAuth token."`
-	DiscordChannelID   string      `ini:"-" help:"If Discord is enabled, this is the channel ID it will send messages to.  To find the channel ID, enable Developer mode in Discord (user settings, Appearance), then Server Settings, Roles, and right click on the channel and Copy ID."`
-	DiscordRoleID      string      `ini:"-" help:"If set, this role will be mentioned in all Discord notifications.  Any users with this role and access to the channel will be pinged.  To find the role ID, enable Developer mode (see above)), then Server Settings, Roles, right click on the role and Copy ID."`
-	DiscordRoleCommand string      `ini:"-" help:"If the Discord Role ID is set, you can optionally specify a command string here, like \"notify\" (no ! prefix), which if run as a ! command by a user (on a line by itself) in Discord will cause this server to attempt to add the configured role to the user.  If you run multiple servers with Discord enabled, only set this on one of them.  In order for this to work your bot must have the \"Manage Roles\" permission."`
+	DiscordAPIToken    string                 `ini:"-" help:"If set, will enable race start and scheduled reminder messages to the Discord channel ID specified below.  Use your bot's user token, not the OAuth token."`
+	DiscordChannelID   string                 `ini:"-" help:"If Discord is enabled, this is the channel ID it will send messages to.  To find the channel ID, enable Developer mode in Discord (user settings, Appearance), then Server Settings, Roles, and right click on the channel and Copy ID."`
+	DiscordRoleID      string                 `ini:"-" help:"If set, this role will be mentioned in all Discord notifications.  Any users with this role and access to the channel will be pinged.  To find the role ID, enable Developer mode (see above)), then Server Settings, Roles, right click on the role and Copy ID."`
+	DiscordRoleCommand string                 `ini:"-" help:"If the Discord Role ID is set, you can optionally specify a command string here, like \"notify\" (no ! prefix), which if run as a ! command by a user (on a line by itself) in Discord will cause this server to attempt to add the configured role to the user.  If you run multiple servers with Discord enabled, only set this on one of them.  In order for this to work your bot must have the \"Manage Roles\" permission."`
 
 	NotificationReminderTimer   int                  `ini:"-"  show:"-" min:"0" max:"65535" help:"This setting has been deprecated and will be removed in the next release. Use Notification Reminder Timers instead."`
 	NotificationReminderTimers  string               `ini:"-" help:"If Discord is enabled, a reminder will be sent this many minutes prior to race start.  If 0 or empty, only race start messages will be sent.  You may schedule multiple reminders by using a comma separated list like 120,15."`

@@ -32,7 +32,7 @@ go install github.com/mjibson/esc@v0.2.0   # once
 go generate ./...
 
 go test ./...                               # all tests
-go test -run TestNewAPIChampionship ./internal/championship   # single test in its package       # single test (root package is `servermanager`)
+go test -run TestNewAPIChampionship ./internal/championship   # single test in its package
 go vet ./...
 ```
 
@@ -83,7 +83,8 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   healthcheck, event details; they need several managers).
 - **Process state**: `serverenv.State` holds the install path, server id and the fallback-sorting option and builds the
   `serverenv.Env` which managers and handlers get injected (`env.InstallPath()`, `env.Results()`, ...). The values are
-  functions on purpose: migrations run (in `BuildStore`) before the install path is set from the config, which `main` does before `NewResolver` because the car and track managers are given the path at creation. Remaining globals:
+  functions on purpose: migrations run (in `BuildStore`) before the install path is set from the config. `main` sets it
+  before `NewResolver`, because the car and track managers are given the path when they are created. Remaining globals:
   `BuildVersion` (ldflags target), `Debug` (from `$DEBUG`), the log buffers / `panicCapture` and the Prometheus metrics
   in `router.go` / `monitoring.go` (process-wide singletons), `smresults.UseShortenedDriverNames`.
 - **Where new code goes**: a new manager/handler goes into the domain package it belongs to (a handler-only package if

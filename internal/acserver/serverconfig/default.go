@@ -118,6 +118,7 @@ func ConfigIniDefault() ServerConfig {
 
 // DefaultServerNameTemplate is the default template for the server name shown in the lobby.
 const DefaultServerNameTemplate = "{{ .ServerName }} - {{ .EventName }}"
+
 // DefaultContentManagerDescription is the default Content Manager welcome message template.
 const DefaultContentManagerDescription = "{{ .Track }} {{ with .TrackLayout }}({{ . }}){{ end }} " +
 	"- an event hosted by {{ .ServerName }}<br><br>{{ .EventDescription }}<br>{{ .ChampionshipPoints }}<br>{{ .CarDownloads }}<br>{{ .TrackDownload }}"
