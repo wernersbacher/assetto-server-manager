@@ -327,5 +327,5 @@ func emit(rng *rand.Rand, spec sessionSpec, files *[]string, enhance func(*smres
 
 	*files = append(*files, name)
 
-	return servermanager.LoadResult(name, servermanager.LoadResultWithoutPluginFire)
+	return (&smresults.Loader{Dir: filepath.Join(servermanager.ServerInstallPath, "results")}).Load(name, smresults.WithoutPluginFire)
 }

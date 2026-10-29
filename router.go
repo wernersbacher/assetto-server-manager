@@ -8,6 +8,7 @@ import (
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
+	"github.com/wernersbacher/assetto-server-manager/internal/resultshttp"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 
@@ -67,7 +68,7 @@ func Router(
 	weatherHandler *contenthttp.WeatherHandler,
 	setupsHandler *contenthttp.SetupsHandler,
 	penaltiesHandler *racecontrol.PenaltiesHandler,
-	resultsHandler *ResultsHandler,
+	resultsHandler *resultshttp.ResultsHandler,
 	contentUploadHandler *contenthttp.ContentUploadHandler,
 	serverAdministrationHandler *ServerAdministrationHandler,
 	raceControlHandler *racecontrol.RaceControlHandler,
@@ -135,12 +136,12 @@ func Router(
 		r.Get("/event-details", eventDetailsHandler.view)
 
 		// results
-		r.Get("/results", resultsHandler.list)
-		r.Get("/results/{fileName}", resultsHandler.view)
-		r.HandleFunc("/results/{fileName}/collisions", resultsHandler.renderCollisions)
-		r.HandleFunc("/results/download/{fileName}", resultsHandler.file)
-		r.Get("/api/results", resultsHandler.listAPI)
-		r.Get("/api/results/{fileName}", resultsHandler.viewAPI)
+		r.Get("/results", resultsHandler.List)
+		r.Get("/results/{fileName}", resultsHandler.View)
+		r.HandleFunc("/results/{fileName}/collisions", resultsHandler.RenderCollisions)
+		r.HandleFunc("/results/download/{fileName}", resultsHandler.File)
+		r.Get("/api/results", resultsHandler.ListAPI)
+		r.Get("/api/results/{fileName}", resultsHandler.ViewAPI)
 
 		r.Get("/custom", customRaceHandler.List)
 
@@ -222,8 +223,8 @@ func Router(
 		r.Post("/car/{name}/metadata", carsHandler.SaveMetadata)
 		r.Post("/car/{name}/skin", carsHandler.UploadSkin)
 		r.Post("/track/{name}/metadata", tracksHandler.SaveMetadata)
-		r.Post("/results/upload", resultsHandler.uploadHandler)
-		r.HandleFunc("/results/combine", resultsHandler.combineResults)
+		r.Post("/results/upload", resultsHandler.UploadHandler)
+		r.HandleFunc("/results/combine", resultsHandler.CombineResults)
 
 		// races
 		r.Get("/quick", quickRaceHandler.Create)
@@ -280,7 +281,7 @@ func Router(
 		r.Post("/penalties/{sessionFile}/{driverGUID}", penaltiesHandler.ManagePenalty)
 
 		// results
-		r.Post("/results/{fileName}/edit", resultsHandler.edit)
+		r.Post("/results/{fileName}/edit", resultsHandler.Edit)
 
 		// live timings
 		r.Post("/live-timing/save-frames", raceControlHandler.SaveIFrames)
@@ -323,7 +324,7 @@ func Router(
 		r.Post("/championship/{championshipID}/event/{eventID}/delete", championshipsHandler.DeleteEvent)
 		r.Post("/championship/{championshipID}/delete", championshipsHandler.Delete)
 		r.Post("/custom/delete/{uuid}", customRaceHandler.Delete)
-		r.Post("/results/{fileName}/delete", resultsHandler.delete)
+		r.Post("/results/{fileName}/delete", resultsHandler.Delete)
 
 		r.Post("/track/{name}/delete", tracksHandler.Delete)
 		r.Post("/car/{name}/delete", carsHandler.Delete)

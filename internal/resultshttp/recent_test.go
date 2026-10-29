@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"io/ioutil"
@@ -11,16 +11,16 @@ func TestListRecentResults(t *testing.T) {
 	defer setupResultsAPITest(t)()
 
 	// files that aren't results are ignored
-	if err := os.Mkdir(filepath.Join(ServerInstallPath, "results", "backup"), 0755); err != nil {
+	if err := os.Mkdir(filepath.Join(testInstallPath, "results", "backup"), 0755); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(ServerInstallPath, "results", "readme.txt"), []byte("hi"), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(testInstallPath, "results", "readme.txt"), []byte("hi"), 0644); err != nil {
 		t.Fatal(err)
 	}
 
 	t.Run("newest first, limited", func(t *testing.T) {
-		results, err := listRecentResults(2)
+		results, err := testEnv().Results().ListRecent(2)
 
 		if err != nil {
 			t.Fatal(err)
@@ -36,7 +36,7 @@ func TestListRecentResults(t *testing.T) {
 	})
 
 	t.Run("fewer results than requested", func(t *testing.T) {
-		results, err := listRecentResults(10)
+		results, err := testEnv().Results().ListRecent(10)
 
 		if err != nil {
 			t.Fatal(err)

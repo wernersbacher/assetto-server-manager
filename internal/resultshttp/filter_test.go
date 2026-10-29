@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ func writeResultsFixtures(t *testing.T, resultsDir string, names ...string) {
 	t.Helper()
 
 	for _, name := range names {
-		data, err := ioutil.ReadFile(filepath.Join("fixtures", "results", name))
+		data, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", name))
 
 		if err != nil {
 			t.Fatal(err)
@@ -29,8 +29,6 @@ func writeResultsFixtures(t *testing.T, resultsDir string, names ...string) {
 }
 
 func TestListResultsFilter(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
 
 	dir, err := ioutil.TempDir("", "results-filter")
 
@@ -57,7 +55,7 @@ func TestListResultsFilter(t *testing.T) {
 		"2019_3_2_22_15_QUALIFY.json",
 	)
 
-	ServerInstallPath = dir
+	testInstallPath = dir
 
 	resetResultSummaryCache := func() {
 		smresults.ClearSummaryCache()
@@ -97,7 +95,7 @@ func TestListResultsFilter(t *testing.T) {
 		// run twice, the second run is served from the cache
 		for _, run := range []string{"cold cache", "warm cache"} {
 			t.Run(tc.name+", "+run, func(t *testing.T) {
-				results, pages, err := listResults(0, tc.filter)
+				results, pages, err := testEnv().Results().List(0, tc.filter)
 
 				if err != nil {
 					t.Fatal(err)
@@ -127,22 +125,22 @@ func TestListResultsFilter(t *testing.T) {
 	}
 
 	t.Run("no matches, page 1 is not found", func(t *testing.T) {
-		if _, _, err := listResults(1, smresults.Filter{Driver: "nobody by that name"}); err != ErrResultsPageNotFound {
-			t.Fatalf("expected error %v, got %v", ErrResultsPageNotFound, err)
+		if _, _, err := testEnv().Results().List(1, smresults.Filter{Driver: "nobody by that name"}); err != smresults.ErrPageNotFound {
+			t.Fatalf("expected error %v, got %v", smresults.ErrPageNotFound, err)
 		}
 	})
 
 	t.Run("changed file is reloaded", func(t *testing.T) {
 		name := "2019_3_2_14_41_PRACTICE.json"
 
-		results, _, err := listResults(0, smresults.Filter{Track: "red bull"})
+		results, _, err := testEnv().Results().List(0, smresults.Filter{Track: "red bull"})
 
 		if err != nil || len(results) != 1 {
 			t.Fatalf("expected the red bull ring race only, got %d results, error %v", len(results), err)
 		}
 
 		// replace the practice with a file with another size, that is at the red bull ring
-		data, err := ioutil.ReadFile(filepath.Join("fixtures", "results", "2019_3_2_21_49_QUALIFY.json"))
+		data, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", "2019_3_2_21_49_QUALIFY.json"))
 
 		if err != nil {
 			t.Fatal(err)
@@ -152,7 +150,7 @@ func TestListResultsFilter(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		results, _, err = listResults(0, smresults.Filter{Track: "red bull"})
+		results, _, err = testEnv().Results().List(0, smresults.Filter{Track: "red bull"})
 
 		if err != nil || len(results) != 2 {
 			t.Fatalf("expected 2 results after the file changed, got %d, error %v", len(results), err)
@@ -161,8 +159,6 @@ func TestListResultsFilter(t *testing.T) {
 }
 
 func TestListResultsFilterPagination(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
 
 	dir, err := ioutil.TempDir("", "results-filter-pagination")
 
@@ -179,13 +175,13 @@ func TestListResultsFilterPagination(t *testing.T) {
 	}
 
 	// barbagallo races (more than a page of them) and a few results at other tracks
-	fixture, err := ioutil.ReadFile(filepath.Join("fixtures", "results", "2019_2_15_21_16_RACE.json"))
+	fixture, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", "2019_2_15_21_16_RACE.json"))
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	for i := 0; i < pageSize+3; i++ {
+	for i := 0; i < smresults.PageSize+3; i++ {
 		name := fmt.Sprintf("2019_1_1_%d_%d_RACE.json", i/60, i%60)
 
 		if err := ioutil.WriteFile(filepath.Join(resultsDir, name), fixture, 0644); err != nil {
@@ -195,7 +191,7 @@ func TestListResultsFilterPagination(t *testing.T) {
 
 	writeResultsFixtures(t, resultsDir, "2019_3_2_14_41_PRACTICE.json", "2019_3_2_21_36_RACE.json")
 
-	ServerInstallPath = dir
+	testInstallPath = dir
 
 	smresults.ClearSummaryCache()
 
@@ -206,11 +202,11 @@ func TestListResultsFilterPagination(t *testing.T) {
 		wantErr error
 		wantLen int
 	}{
-		{0, nil, pageSize},
+		{0, nil, smresults.PageSize},
 		{1, nil, 3},
-		{2, ErrResultsPageNotFound, 0},
+		{2, smresults.ErrPageNotFound, 0},
 	} {
-		results, pages, err := listResults(tc.page, filter)
+		results, pages, err := testEnv().Results().List(tc.page, filter)
 
 		if err != tc.wantErr {
 			t.Fatalf("page %d: expected error %v, got %v", tc.page, tc.wantErr, err)

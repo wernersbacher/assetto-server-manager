@@ -18,6 +18,9 @@ func init() {
 
 var serverID smmodel.ServerID
 
+// UseFallBackSorting makes loaded results use SessionResults.FallBackSort. It is set from the server options.
+var UseFallBackSorting = false
+
 func InitWithResolver(resolver *Resolver) error {
 	store := resolver.ResolveStore()
 

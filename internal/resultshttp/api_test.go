@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"encoding/json"
@@ -13,6 +13,8 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 )
 
 func setupResultsAPITest(t *testing.T) func() {
@@ -31,7 +33,7 @@ func setupResultsAPITest(t *testing.T) func() {
 	}
 
 	for _, name := range []string{"2019_2_15_21_16_RACE.json", "2019_2_15_21_8_QUALIFY.json", "2019_3_2_14_41_PRACTICE.json"} {
-		fixture, err := ioutil.ReadFile(filepath.Join("fixtures", "results", name))
+		fixture, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", name))
 
 		if err != nil {
 			t.Fatal(err)
@@ -42,14 +44,14 @@ func setupResultsAPITest(t *testing.T) func() {
 		}
 	}
 
-	oldInstallPath, oldShortened := ServerInstallPath, smresults.UseShortenedDriverNames
-	ServerInstallPath = dir
+	oldShortened := smresults.UseShortenedDriverNames
+	testInstallPath = dir
 	smresults.UseShortenedDriverNames = false
 
 	resetResultSummaryCache()
 
 	return func() {
-		ServerInstallPath, smresults.UseShortenedDriverNames = oldInstallPath, oldShortened
+		smresults.UseShortenedDriverNames = oldShortened
 
 		resetResultSummaryCache()
 
@@ -64,11 +66,11 @@ func resetResultSummaryCache() {
 func getResultsAPI(t *testing.T, target string) *httptest.ResponseRecorder {
 	t.Helper()
 
-	rh := &ResultsHandler{}
+	rh := &ResultsHandler{env: testEnv()}
 
 	r := chi.NewRouter()
-	r.Get("/api/results", rh.listAPI)
-	r.Get("/api/results/{fileName}", rh.viewAPI)
+	r.Get("/api/results", rh.ListAPI)
+	r.Get("/api/results/{fileName}", rh.ViewAPI)
 
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, target, nil))
@@ -250,4 +252,11 @@ func TestResultsHandlerViewAPI(t *testing.T) {
 			}
 		}
 	})
+}
+
+// testInstallPath is the install path of the Env which testEnv returns. The tests which need files set it to a temporary directory.
+var testInstallPath string
+
+func testEnv() *serverenv.Env {
+	return envtest.New(testInstallPath)
 }

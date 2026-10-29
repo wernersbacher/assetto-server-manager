@@ -1,59 +1,12 @@
-package servermanager
+package resultshttp
 
 import (
 	"fmt"
 	"strings"
 
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
-
-// UseFallBackSorting makes loaded results use SessionResults.FallBackSort. It is set from the server options.
-var UseFallBackSorting = false
-
-// LoadResultOpts are options for LoadResult.
-type LoadResultOpts = smresults.LoadOpts
-
-// LoadResultWithoutPluginFire skips the results Lua plugin.
-const LoadResultWithoutPluginFire = smresults.WithoutPluginFire
-
-var (
-	// ErrResultsPageNotFound is returned by listResults for pages that don't exist.
-	ErrResultsPageNotFound = smresults.ErrPageNotFound
-
-	// ErrInvalidResultsFileName is returned for results file names that point outside of the results directory.
-	ErrInvalidResultsFileName = smresults.ErrInvalidFileName
-)
-
-const (
-	pageSize         = smresults.PageSize
-	timeAttackSuffix = smresults.TimeAttackSuffix
-)
-
-// resultsLoader builds a smresults.Loader from the current installation path and server options.
-func resultsLoader() *smresults.Loader {
-	return globalsEnv().Results()
-}
-
-func LoadResult(fileName string, opts ...LoadResultOpts) (*smresults.SessionResults, error) {
-	return resultsLoader().Load(fileName, opts...)
-}
-
-func listResults(page int, filter smresults.Filter) ([]smresults.SessionResults, []int, error) {
-	return resultsLoader().List(page, filter)
-}
-
-func ListAllResults() ([]smresults.SessionResults, error) {
-	return resultsLoader().ListAll()
-}
-
-func listRecentResults(n int) ([]*smresults.SessionResults, error) {
-	return resultsLoader().ListRecent(n)
-}
-
-func saveResults(jsonFileName string, results *smresults.SessionResults) error {
-	return resultsLoader().Save(jsonFileName, results)
-}
 
 // ResultsFileReferencedError is returned when a results file can't be deleted because a championship or race weekend uses it.
 type ResultsFileReferencedError struct {
@@ -109,8 +62,8 @@ func findResultsReference(store smstore.Store, fileName string) (string, error) 
 }
 
 // deleteResultsFile removes a results file from the results directory, unless it is used by a championship or race weekend.
-func deleteResultsFile(store smstore.Store, fileName string) error {
-	return resultsLoader().Remove(fileName, func() error {
+func deleteResultsFile(env *serverenv.Env, store smstore.Store, fileName string) error {
+	return env.Results().Remove(fileName, func() error {
 		reference, err := findResultsReference(store, fileName)
 
 		if err != nil {

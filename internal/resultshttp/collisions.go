@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"image"
@@ -26,7 +26,7 @@ type vec struct {
 	color color.RGBA
 }
 
-func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) RenderCollisions(w http.ResponseWriter, r *http.Request) {
 	var collisionsToLoad []int
 
 	fileName := chi.URLParam(r, "fileName")
@@ -36,7 +36,7 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	result, err := LoadResult(fileName + ".json")
+	result, err := rh.env.Results().Load(fileName + ".json")
 
 	if os.IsNotExist(err) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -68,7 +68,7 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	trackMapData, err := smcontent.LoadTrackMapData(ServerInstallPath, result.TrackName, result.TrackConfig)
+	trackMapData, err := smcontent.LoadTrackMapData(rh.env.InstallPath(), result.TrackName, result.TrackConfig)
 
 	if err != nil {
 		logrus.WithError(err).Error("could not load track map data")
@@ -76,7 +76,7 @@ func (rh *ResultsHandler) renderCollisions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	trackMapImage, err := smcontent.LoadTrackMapImage(ServerInstallPath, result.TrackName, result.TrackConfig)
+	trackMapImage, err := smcontent.LoadTrackMapImage(rh.env.InstallPath(), result.TrackName, result.TrackConfig)
 
 	if err != nil {
 		logrus.WithError(err).Error("could not load track map image")

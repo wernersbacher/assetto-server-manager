@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"encoding/json"
@@ -19,20 +19,25 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
+// ResultsHandler serves the results list, the results of a session, the results API and the collision maps, and
+// uploads, combines, edits and deletes results.
 type ResultsHandler struct {
 	*smweb.BaseHandler
 
 	store smstore.Store
+	env   *serverenv.Env
 }
 
-func NewResultsHandler(baseHandler *smweb.BaseHandler, store smstore.Store) *ResultsHandler {
+func NewResultsHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *ResultsHandler {
 	return &ResultsHandler{
 		BaseHandler: baseHandler,
 		store:       store,
+		env:         env,
 	}
 }
 
@@ -61,12 +66,12 @@ func resultsListQuery(r *http.Request) (int, smresults.Filter) {
 	}
 }
 
-func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) List(w http.ResponseWriter, r *http.Request) {
 	page, filter := resultsListQuery(r)
 
-	results, pages, err := listResults(page, filter)
+	results, pages, err := rh.env.Results().List(page, filter)
 
-	if err == ErrResultsPageNotFound {
+	if err == smresults.ErrPageNotFound {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	} else if err != nil {
@@ -83,7 +88,7 @@ func (rh *ResultsHandler) list(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (rh *ResultsHandler) uploadHandler(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) UploadHandler(w http.ResponseWriter, r *http.Request) {
 	matched, err := rh.upload(r)
 
 	if err != nil {
@@ -106,7 +111,7 @@ type combineResultsTemplateVars struct {
 
 const combinedSuffix = "-combined"
 
-func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) CombineResults(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
 			logrus.WithError(err).Error("Combine Results: Couldn't parse form")
@@ -119,7 +124,7 @@ func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request)
 		var resultsToCombine []*smresults.SessionResults
 
 		for _, resultSessionFile := range combineResultsSessionFiles {
-			result, err := LoadResult(resultSessionFile + ".json")
+			result, err := rh.env.Results().Load(resultSessionFile + ".json")
 
 			if err != nil {
 				logrus.WithError(err).Error("Combine Results: Couldn't load result")
@@ -139,7 +144,7 @@ func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request)
 			combinedResult.SessionFile = combinedResult.SessionFile + combinedSuffix
 		}
 
-		err := saveResults(combinedResult.SessionFile+".json", combinedResult)
+		err := rh.env.Results().Save(combinedResult.SessionFile+".json", combinedResult)
 
 		if err != nil {
 			logrus.WithError(err).Error("Combine Results: Couldn't save result")
@@ -151,7 +156,7 @@ func (rh *ResultsHandler) combineResults(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	results, err := ListAllResults()
+	results, err := rh.env.Results().ListAll()
 
 	if err != nil {
 		logrus.WithError(err).Error("Combine Results: Couldn't list results")
@@ -207,7 +212,7 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 		return false, nil
 	}
 
-	path := filepath.Join(ServerInstallPath, "results", header.Filename)
+	path := filepath.Join(rh.env.InstallPath(), "results", header.Filename)
 
 	err = ioutil.WriteFile(path, fileBytes, 0644)
 
@@ -227,7 +232,7 @@ type resultsViewTemplateVars struct {
 	UseMPH           bool
 }
 
-func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) View(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
 	if !smresults.ValidFileName(fileName + ".json") {
@@ -235,7 +240,7 @@ func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := LoadResult(fileName + ".json")
+	result, err := rh.env.Results().Load(fileName + ".json")
 
 	if os.IsNotExist(err) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -272,7 +277,7 @@ func (rh *ResultsHandler) view(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) File(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
 	if !smresults.ValidFileName(fileName) {
@@ -280,7 +285,7 @@ func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := LoadResult(fileName)
+	result, err := rh.env.Results().Load(fileName)
 
 	if os.IsNotExist(err) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -302,7 +307,7 @@ func (rh *ResultsHandler) file(w http.ResponseWriter, r *http.Request) {
 	_ = enc.Encode(result)
 }
 
-func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) Edit(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
 	if !smresults.ValidFileName(fileName + ".json") {
@@ -310,7 +315,7 @@ func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	results, err := LoadResult(fileName + ".json")
+	results, err := rh.env.Results().Load(fileName + ".json")
 
 	if os.IsNotExist(err) {
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -335,7 +340,7 @@ func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = saveResults(results.SessionFile+".json", results)
+	err = rh.env.Results().Save(results.SessionFile+".json", results)
 
 	if err != nil {
 		logrus.WithError(err).Error("could not load results")
@@ -347,15 +352,15 @@ func (rh *ResultsHandler) edit(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rh *ResultsHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
-	err := deleteResultsFile(rh.store, fileName)
+	err := deleteResultsFile(rh.env, rh.store, fileName)
 
 	var referencedErr ResultsFileReferencedError
 
 	switch {
-	case err == ErrInvalidResultsFileName || os.IsNotExist(err):
+	case err == smresults.ErrInvalidFileName || os.IsNotExist(err):
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	case errors.As(err, &referencedErr):

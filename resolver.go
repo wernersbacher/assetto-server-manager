@@ -12,6 +12,7 @@ import (
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
+	"github.com/wernersbacher/assetto-server-manager/internal/resultshttp"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
@@ -64,7 +65,7 @@ type Resolver struct {
 	setupsHandler               *contenthttp.SetupsHandler
 	penaltiesHandler            *racecontrol.PenaltiesHandler
 	penaltiesManager            *racecontrol.PenaltiesManager
-	resultsHandler              *ResultsHandler
+	resultsHandler              *resultshttp.ResultsHandler
 	scheduledRacesHandler       *schedule.Handler
 	contentUploadHandler        *contenthttp.ContentUploadHandler
 	raceControlHandler          *racecontrol.RaceControlHandler
@@ -387,12 +388,12 @@ func (r *Resolver) resolvePenaltiesManager() *racecontrol.PenaltiesManager {
 	return r.penaltiesManager
 }
 
-func (r *Resolver) resolveResultsHandler() *ResultsHandler {
+func (r *Resolver) resolveResultsHandler() *resultshttp.ResultsHandler {
 	if r.resultsHandler != nil {
 		return r.resultsHandler
 	}
 
-	r.resultsHandler = NewResultsHandler(r.resolveBaseHandler(), r.ResolveStore())
+	r.resultsHandler = resultshttp.NewResultsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv())
 
 	return r.resultsHandler
 }
@@ -434,6 +435,7 @@ func (r *Resolver) resolveServerAdministrationHandler() *ServerAdministrationHan
 		r.resolveRaceWeekendManager(),
 		r.resolveServerProcess(),
 		r.resolveScheduledRacesManager(),
+		r.resolveEnv(),
 	)
 
 	return r.serverAdministrationHandler

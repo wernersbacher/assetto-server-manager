@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"io/ioutil"
@@ -17,6 +17,7 @@ import (
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
 )
 
 func setupResultsDeleteTest(t *testing.T) (store smstore.Store, resultsDir string, cleanup func()) {
@@ -34,7 +35,7 @@ func setupResultsDeleteTest(t *testing.T) (store smstore.Store, resultsDir strin
 		t.Fatal(err)
 	}
 
-	fixture, err := ioutil.ReadFile(filepath.Join("fixtures", "results", "2019_2_15_21_16_RACE.json"))
+	fixture, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", "2019_2_15_21_16_RACE.json"))
 
 	if err != nil {
 		t.Fatal(err)
@@ -51,13 +52,11 @@ func setupResultsDeleteTest(t *testing.T) (store smstore.Store, resultsDir strin
 		t.Fatal(err)
 	}
 
-	oldInstallPath := ServerInstallPath
-	ServerInstallPath = dir
+	testInstallPath = dir
 
 	store = smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
 	return store, resultsDir, func() {
-		ServerInstallPath = oldInstallPath
 		_ = os.RemoveAll(dir)
 	}
 }
@@ -66,10 +65,10 @@ func postResultsDelete(t *testing.T, rh *ResultsHandler, fileName string) *httpt
 	t.Helper()
 
 	r := chi.NewRouter()
-	r.Post("/results/{fileName}/delete", rh.delete)
+	r.Post("/results/{fileName}/delete", rh.Delete)
 
 	req := httptest.NewRequest(http.MethodPost, "/results/"+fileName+"/delete", nil)
-	req = smweb.WithScope(req, testRequestScope())
+	req = smweb.WithScope(req, webtest.RequestScope())
 	rec := httptest.NewRecorder()
 
 	r.ServeHTTP(rec, req)
@@ -87,7 +86,7 @@ func TestResultsHandlerDelete(t *testing.T) {
 	store, resultsDir, cleanup := setupResultsDeleteTest(t)
 	defer cleanup()
 
-	rh := &ResultsHandler{store: store}
+	rh := &ResultsHandler{store: store, env: testEnv()}
 
 	t.Run("successful delete", func(t *testing.T) {
 		rec := postResultsDelete(t, rh, "2019_2_15_22_16_RACE.json")
@@ -127,8 +126,8 @@ func TestResultsHandlerDelete(t *testing.T) {
 		}
 
 		for _, name := range []string{"../outside.json", `..\outside.json`, "a/b.json", ""} {
-			if err := deleteResultsFile(store, name); err != ErrInvalidResultsFileName {
-				t.Errorf("%q: expected ErrInvalidResultsFileName, got %v", name, err)
+			if err := deleteResultsFile(testEnv(), store, name); err != smresults.ErrInvalidFileName {
+				t.Errorf("%q: expected smresults.ErrInvalidFileName, got %v", name, err)
 			}
 		}
 	})
@@ -170,7 +169,7 @@ func TestDeleteResultsFileReferenced(t *testing.T) {
 		"2019_2_15_21_16_RACE.json": "Test Championship",
 		"2019_2_15_22_16_RACE.json": "Test Weekend",
 	} {
-		err := deleteResultsFile(store, name)
+		err := deleteResultsFile(testEnv(), store, name)
 
 		if err == nil || !strings.Contains(err.Error(), wantReference) {
 			t.Fatalf("%s: expected refusal mentioning %q, got %v", name, wantReference, err)
@@ -181,7 +180,7 @@ func TestDeleteResultsFileReferenced(t *testing.T) {
 		}
 	}
 
-	rec := postResultsDelete(t, &ResultsHandler{store: store}, "2019_2_15_21_16_RACE.json")
+	rec := postResultsDelete(t, &ResultsHandler{store: store, env: testEnv()}, "2019_2_15_21_16_RACE.json")
 
 	if rec.Code != http.StatusFound || !fileExists(filepath.Join(resultsDir, "2019_2_15_21_16_RACE.json")) {
 		t.Fatal("handler should redirect and keep the referenced file")

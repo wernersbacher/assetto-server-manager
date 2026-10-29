@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"net/http"
@@ -11,6 +11,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/api"
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
@@ -92,7 +93,7 @@ type APILap struct {
 	Tyre    string
 }
 
-func newAPIResultSummary(result *smresults.SessionResults) *APIResultSummary {
+func newAPIResultSummary(installPath string, result *smresults.SessionResults) *APIResultSummary {
 	out := &APIResultSummary{
 		FileName:       result.SessionFile + ".json",
 		Date:           result.Date,
@@ -100,7 +101,7 @@ func newAPIResultSummary(result *smresults.SessionResults) *APIResultSummary {
 		TimeAttack:     result.IsTimeAttack(),
 		Track:          result.TrackName,
 		TrackLayout:    result.TrackConfig,
-		TrackName:      api.TrackName(ServerInstallPath, result.TrackName, result.TrackConfig),
+		TrackName:      api.TrackName(installPath, result.TrackName, result.TrackConfig),
 		Drivers:        []string{},
 		ChampionshipID: result.ChampionshipID,
 		RaceWeekendID:  result.RaceWeekendID,
@@ -108,7 +109,7 @@ func newAPIResultSummary(result *smresults.SessionResults) *APIResultSummary {
 
 	for _, driver := range result.Result {
 		if driver.DriverName != "" {
-			out.Drivers = append(out.Drivers, driverName(driver.DriverName))
+			out.Drivers = append(out.Drivers, smresults.DriverName(driver.DriverName))
 		}
 	}
 
@@ -117,9 +118,9 @@ func newAPIResultSummary(result *smresults.SessionResults) *APIResultSummary {
 
 // NewAPIResult converts a results file to the API format. The results should be prepared in the same way as for the
 // results page (see ResultsHandler.view).
-func NewAPIResult(result *smresults.SessionResults) *APIResult {
+func NewAPIResult(installPath string, result *smresults.SessionResults) *APIResult {
 	out := &APIResult{
-		APIResultSummary: *newAPIResultSummary(result),
+		APIResultSummary: *newAPIResultSummary(installPath, result),
 		Classification:   []*APIResultEntry{},
 		Laps:             []*APILap{},
 	}
@@ -127,11 +128,11 @@ func NewAPIResult(result *smresults.SessionResults) *APIResult {
 	for i, entry := range result.Result {
 		apiEntry := &APIResultEntry{
 			Position:     i + 1,
-			DriverName:   driverName(entry.DriverName),
+			DriverName:   smresults.DriverName(entry.DriverName),
 			DriverGUID:   entry.DriverGUID,
 			Team:         result.GetTeamName(entry.DriverGUID),
 			CarModel:     entry.CarModel,
-			CarName:      prettifyName(entry.CarModel, true),
+			CarName:      smcontent.PrettifyName(entry.CarModel, true),
 			BestLap:      entry.BestLap,
 			TotalTime:    entry.TotalTime,
 			Laps:         result.GetNumLaps(entry.DriverGUID, entry.CarModel),
@@ -162,7 +163,7 @@ func NewAPIResult(result *smresults.SessionResults) *APIResult {
 
 		out.Laps = append(out.Laps, &APILap{
 			Number:     lapNumbers[lap.CarID],
-			DriverName: driverName(lap.DriverName),
+			DriverName: smresults.DriverName(lap.DriverName),
 			DriverGUID: lap.DriverGUID,
 			CarModel:   lap.CarModel,
 			LapTime:    lap.LapTime,
@@ -177,12 +178,12 @@ func NewAPIResult(result *smresults.SessionResults) *APIResult {
 
 // listAPI returns a page of results in the API format. It takes the same page and filter query parameters as the
 // results list page.
-func (rh *ResultsHandler) listAPI(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
 	page, filter := resultsListQuery(r)
 
-	results, pages, err := listResults(page, filter)
+	results, pages, err := rh.env.Results().List(page, filter)
 
-	if err == ErrResultsPageNotFound {
+	if err == smresults.ErrPageNotFound {
 		http.NotFound(w, r)
 		return
 	} else if err != nil {
@@ -198,14 +199,14 @@ func (rh *ResultsHandler) listAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range results {
-		out.Results = append(out.Results, newAPIResultSummary(&results[i]))
+		out.Results = append(out.Results, newAPIResultSummary(rh.env.InstallPath(), &results[i]))
 	}
 
 	api.WriteJSON(w, out)
 }
 
 // viewAPI returns a single results file in the API format. The file name can be given with or without extension.
-func (rh *ResultsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
+func (rh *ResultsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 	fileName := chi.URLParam(r, "fileName")
 
 	if !strings.HasSuffix(fileName, ".json") {
@@ -217,7 +218,7 @@ func (rh *ResultsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := LoadResult(fileName)
+	result, err := rh.env.Results().Load(fileName)
 
 	if os.IsNotExist(err) {
 		http.NotFound(w, r)
@@ -231,5 +232,5 @@ func (rh *ResultsHandler) viewAPI(w http.ResponseWriter, r *http.Request) {
 	result.ClearKickedGUIDs()
 	result.NormaliseCarIDs()
 
-	api.WriteJSON(w, NewAPIResult(result))
+	api.WriteJSON(w, NewAPIResult(rh.env.InstallPath(), result))
 }

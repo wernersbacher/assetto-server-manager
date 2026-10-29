@@ -1,4 +1,4 @@
-package servermanager
+package resultshttp
 
 import (
 	"fmt"
@@ -11,10 +11,8 @@ import (
 )
 
 func TestListResultsPagination(t *testing.T) {
-	oldInstallPath := ServerInstallPath
-	defer func() { ServerInstallPath = oldInstallPath }()
 
-	fixture, err := ioutil.ReadFile(filepath.Join("fixtures", "results", "2019_2_15_21_16_RACE.json"))
+	fixture, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", "2019_2_15_21_16_RACE.json"))
 
 	if err != nil {
 		t.Fatal(err)
@@ -28,12 +26,12 @@ func TestListResultsPagination(t *testing.T) {
 		wantLen int
 	}{
 		{"no results, page 0", 0, 0, nil, 0},
-		{"no results, page 1", 0, 1, ErrResultsPageNotFound, 0},
-		{"exactly one full page, page 0", pageSize, 0, nil, pageSize},
-		{"exactly one full page, page 1", pageSize, 1, ErrResultsPageNotFound, 0},
-		{"one result more than a page, page 1", pageSize + 1, 1, nil, 1},
-		{"one result more than a page, page 2", pageSize + 1, 2, ErrResultsPageNotFound, 0},
-		{"negative page", 3, -1, ErrResultsPageNotFound, 0},
+		{"no results, page 1", 0, 1, smresults.ErrPageNotFound, 0},
+		{"exactly one full page, page 0", smresults.PageSize, 0, nil, smresults.PageSize},
+		{"exactly one full page, page 1", smresults.PageSize, 1, smresults.ErrPageNotFound, 0},
+		{"one result more than a page, page 1", smresults.PageSize + 1, 1, nil, 1},
+		{"one result more than a page, page 2", smresults.PageSize + 1, 2, smresults.ErrPageNotFound, 0},
+		{"negative page", 3, -1, smresults.ErrPageNotFound, 0},
 	} {
 		tc := tc
 
@@ -60,9 +58,9 @@ func TestListResultsPagination(t *testing.T) {
 				}
 			}
 
-			ServerInstallPath = dir
+			testInstallPath = dir
 
-			results, _, err := listResults(tc.page, smresults.Filter{})
+			results, _, err := testEnv().Results().List(tc.page, smresults.Filter{})
 
 			if err != tc.wantErr {
 				t.Fatalf("expected error %v, got %v", tc.wantErr, err)

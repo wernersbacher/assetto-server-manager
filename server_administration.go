@@ -11,6 +11,7 @@ import (
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -38,6 +39,7 @@ type ServerAdministrationHandler struct {
 	raceWeekendManager  *smraceweekend.RaceWeekendManager
 	process             smserver.ServerProcess
 	scheduledRaces      *schedule.Manager
+	env                 *serverenv.Env
 }
 
 func NewServerAdministrationHandler(
@@ -49,6 +51,7 @@ func NewServerAdministrationHandler(
 	raceWeekendManager *smraceweekend.RaceWeekendManager,
 	process smserver.ServerProcess,
 	scheduledRaces *schedule.Manager,
+	env *serverenv.Env,
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
 		config:              config,
@@ -59,6 +62,7 @@ func NewServerAdministrationHandler(
 		raceWeekendManager:  raceWeekendManager,
 		process:             process,
 		scheduledRaces:      scheduledRaces,
+		env:                 env,
 	}
 }
 
@@ -93,7 +97,7 @@ func (sah *ServerAdministrationHandler) home(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("couldn't load upcoming races for the overview")
 	}
 
-	recentResults, err := listRecentResults(homeRecentResults)
+	recentResults, err := sah.env.Results().ListRecent(homeRecentResults)
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load recent results for the overview")
