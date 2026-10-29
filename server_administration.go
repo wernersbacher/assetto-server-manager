@@ -7,6 +7,7 @@ import (
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
+	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
@@ -34,7 +35,7 @@ type ServerAdministrationHandler struct {
 	store               smstore.Store
 	raceManager         *smrace.RaceManager
 	championshipManager *smchampionship.ChampionshipManager
-	raceWeekendManager  *RaceWeekendManager
+	raceWeekendManager  *smraceweekend.RaceWeekendManager
 	process             smserver.ServerProcess
 	scheduledRaces      *schedule.Manager
 }
@@ -45,7 +46,7 @@ func NewServerAdministrationHandler(
 	store smstore.Store,
 	raceManager *smrace.RaceManager,
 	championshipManager *smchampionship.ChampionshipManager,
-	raceWeekendManager *RaceWeekendManager,
+	raceWeekendManager *smraceweekend.RaceWeekendManager,
 	process smserver.ServerProcess,
 	scheduledRaces *schedule.Manager,
 ) *ServerAdministrationHandler {

@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"encoding/json"
@@ -16,6 +16,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 )
 
 const sortTestCarModel = "sort_test_car"
@@ -509,9 +510,9 @@ func TestRaceWeekendSort_RandomIsPermutation(t *testing.T) {
 	}
 }
 
-// writeSortTestResultsFile writes a results file into ServerInstallPath/results and returns the
+// writeSortTestResultsFile writes a results file into the results folder of the env and returns the
 // name that is used in RaceWeekendSessionToSessionFilter.AvailableResultsForSorting (without .json).
-func writeSortTestResultsFile(t *testing.T, name string, results *smresults.SessionResults) string {
+func writeSortTestResultsFile(t *testing.T, env *serverenv.Env, name string, results *smresults.SessionResults) string {
 	t.Helper()
 
 	data, err := json.Marshal(results)
@@ -520,15 +521,15 @@ func writeSortTestResultsFile(t *testing.T, name string, results *smresults.Sess
 		t.Fatal(err)
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(ServerInstallPath, "results", name+".json"), data, 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(env.InstallPath(), "results", name+".json"), data, 0644); err != nil {
 		t.Fatal(err)
 	}
 
 	return name
 }
 
-// withSortTestResultsDir points ServerInstallPath at a temporary directory with an empty results folder.
-func withSortTestResultsDir(t *testing.T) func() {
+// withSortTestResultsDir returns an environment whose install path is a temporary directory with an empty results folder.
+func withSortTestResultsDir(t *testing.T) (*serverenv.Env, func()) {
 	t.Helper()
 
 	dir, err := ioutil.TempDir("", "race-weekend-sort")
@@ -541,26 +542,23 @@ func withSortTestResultsDir(t *testing.T) func() {
 		t.Fatal(err)
 	}
 
-	oldInstallPath := ServerInstallPath
-	ServerInstallPath = dir
-
-	return func() {
-		ServerInstallPath = oldInstallPath
+	return testEnv(dir), func() {
 		_ = os.RemoveAll(dir)
 	}
 }
 
 func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
-	defer withSortTestResultsDir(t)()
+	env, cleanup := withSortTestResultsDir(t)
+	defer cleanup()
 
-	file1 := writeSortTestResultsFile(t, "2020_1_2_10_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
+	file1 := writeSortTestResultsFile(t, env, "2020_1_2_10_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "A", bestLap: 95000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "B", bestLap: 91000, laps: 3, totalTime: 300000},
 		// zero best lap must not override anything
 		sortTestDriver{guid: "C", bestLap: 0, laps: 0, totalTime: 1},
 	))
 
-	file2 := writeSortTestResultsFile(t, "2020_1_2_11_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
+	file2 := writeSortTestResultsFile(t, env, "2020_1_2_11_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "A", bestLap: 89000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "B", bestLap: 93000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "C", bestLap: 92000, laps: 3, totalTime: 300000},
@@ -574,7 +572,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	)
 
 	t.Run("nil filter keeps order", func(t *testing.T) {
-		if err := FastestResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -584,7 +582,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	t.Run("best lap across all files, drivers without laps last", func(t *testing.T) {
 		filter := &smmodel.RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{file1, file2}}
 
-		if err := FastestResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
 			t.Fatal(err)
 		}
 
@@ -595,7 +593,7 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	t.Run("single file", func(t *testing.T) {
 		filter := &smmodel.RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{file1}}
 
-		if err := FastestResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
 			t.Fatal(err)
 		}
 
@@ -609,22 +607,23 @@ func TestRaceWeekendSort_FastestResultsFile(t *testing.T) {
 	t.Run("missing results file returns an error", func(t *testing.T) {
 		filter := &smmodel.RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{"2020_1_2_12_00_RACE"}}
 
-		if err := FastestResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err == nil {
+		if err := FastestResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err == nil {
 			t.Error("expected an error for a missing results file")
 		}
 	})
 }
 
 func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
-	defer withSortTestResultsDir(t)()
+	env, cleanup := withSortTestResultsDir(t)
+	defer cleanup()
 
-	file1 := writeSortTestResultsFile(t, "2020_1_2_10_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
+	file1 := writeSortTestResultsFile(t, env, "2020_1_2_10_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "A", bestLap: 90000, laps: 2, totalTime: 200000},
 		sortTestDriver{guid: "B", bestLap: 90000, laps: 5, totalTime: 500000},
 		sortTestDriver{guid: "C", bestLap: 90000, laps: 1, totalTime: 100000},
 	))
 
-	file2 := writeSortTestResultsFile(t, "2020_1_2_11_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
+	file2 := writeSortTestResultsFile(t, env, "2020_1_2_11_00_PRACTICE", buildSortTestResults(serverconfig.SessionTypePractice,
 		sortTestDriver{guid: "C", bestLap: 90000, laps: 3, totalTime: 300000},
 		sortTestDriver{guid: "A", bestLap: 90000, laps: 5, totalTime: 500000},
 	))
@@ -637,7 +636,7 @@ func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	)
 
 	t.Run("nil filter keeps order", func(t *testing.T) {
-		if err := NumberResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
+		if err := NumberResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -647,7 +646,7 @@ func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	t.Run("most laps across all files first", func(t *testing.T) {
 		filter := &smmodel.RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{file1, file2}}
 
-		if err := NumberResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
+		if err := NumberResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err != nil {
 			t.Fatal(err)
 		}
 
@@ -658,7 +657,7 @@ func TestRaceWeekendSort_NumberResultsFile(t *testing.T) {
 	t.Run("missing results file returns an error", func(t *testing.T) {
 		filter := &smmodel.RaceWeekendSessionToSessionFilter{AvailableResultsForSorting: []string{"2020_1_2_12_00_RACE"}}
 
-		if err := NumberResultsFileRaceWeekendEntryListSort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err == nil {
+		if err := NumberResultsFileRaceWeekendEntryListSort(env)(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeRace), entrants, filter); err == nil {
 			t.Error("expected an error for a missing results file")
 		}
 	})
@@ -799,7 +798,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 		entrants := newEntrants()
 		session := sortTestSession(serverconfig.SessionTypeQualifying)
 
-		if err := GetRaceWeekendEntryListSort("championship_standings_order").Sort(sortTestRaceWeekendWithChampionship(championship), session, entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort(testEnv(""), "championship_standings_order").Sort(sortTestRaceWeekendWithChampionship(championship), session, entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -811,7 +810,7 @@ func TestRaceWeekendSort_ChampionshipStandingsOrder(t *testing.T) {
 		session := sortTestSession(serverconfig.SessionTypeQualifying)
 		session.NumEntrantsToReverse = -1
 
-		if err := GetRaceWeekendEntryListSort("championship_standings_order").Sort(sortTestRaceWeekendWithChampionship(championship), session, entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort(testEnv(""), "championship_standings_order").Sort(sortTestRaceWeekendWithChampionship(championship), session, entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -874,7 +873,7 @@ func TestRaceWeekendSort_ChampionshipClass(t *testing.T) {
 	t.Run("via GetRaceWeekendEntryListSort it is not split per results class", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := GetRaceWeekendEntryListSort("championship_class").Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort(testEnv(""), "championship_class").Sort(sortTestRaceWeekendWithChampionship(championship), sortTestSession(serverconfig.SessionTypeRace), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -958,7 +957,7 @@ func TestGetRaceWeekendEntryListSort(t *testing.T) {
 			session := sortTestSession(serverconfig.SessionTypeQualifying)
 			session.NumEntrantsToReverse = tc.reverse
 
-			if err := GetRaceWeekendEntryListSort(tc.key).Sort(&smmodel.RaceWeekend{}, session, entrants, nil); err != nil {
+			if err := GetRaceWeekendEntryListSort(testEnv(""), tc.key).Sort(&smmodel.RaceWeekend{}, session, entrants, nil); err != nil {
 				t.Fatal(err)
 			}
 
@@ -983,7 +982,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 	t.Run("classes ordered by their fastest lap, sorted within class", func(t *testing.T) {
 		entrants := newEntrants()
 
-		if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort(testEnv(""), "fastest_lap").Sort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -995,7 +994,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 		session := sortTestSession(serverconfig.SessionTypeQualifying)
 		session.NumEntrantsToReverse = 2
 
-		if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&smmodel.RaceWeekend{}, session, entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort(testEnv(""), "fastest_lap").Sort(&smmodel.RaceWeekend{}, session, entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -1026,7 +1025,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 
 		session.RaceConfig = sortTestSession(serverconfig.SessionTypeQualifying).RaceConfig
 
-		if err := GetRaceWeekendEntryListSort("").Sort(&smmodel.RaceWeekend{}, session, entrants, nil); err != nil {
+		if err := GetRaceWeekendEntryListSort(testEnv(""), "").Sort(&smmodel.RaceWeekend{}, session, entrants, nil); err != nil {
 			t.Fatal(err)
 		}
 
@@ -1049,7 +1048,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 				sortTestDriver{guid: "L1", classID: withLap, bestLap: 90000, laps: 1, totalTime: 90000},
 			)
 
-			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
+			if err := GetRaceWeekendEntryListSort(testEnv(""), "fastest_lap").Sort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 				t.Fatal(err)
 			}
 
@@ -1072,7 +1071,7 @@ func TestPerClassSort_MultipleClasses(t *testing.T) {
 				sortTestDriver{guid: "A1", classID: classA, bestLap: 90000, laps: 1, totalTime: 90000},
 			)
 
-			if err := GetRaceWeekendEntryListSort("fastest_lap").Sort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
+			if err := GetRaceWeekendEntryListSort(testEnv(""), "fastest_lap").Sort(&smmodel.RaceWeekend{}, sortTestSession(serverconfig.SessionTypeQualifying), entrants, nil); err != nil {
 				t.Fatal(err)
 			}
 

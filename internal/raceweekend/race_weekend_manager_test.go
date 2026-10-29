@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"io/ioutil"
@@ -20,6 +20,7 @@ import (
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 )
 
@@ -82,20 +83,18 @@ func (p *interruptibleServerProcess) Event() smmodel.RaceEvent {
 }
 
 // setupChampionshipManagerTest builds a ChampionshipManager on top of a temporary store and fake server install.
-func setupChampionshipManagerTest(t *testing.T, process smserver.ServerProcess) (*smchampionship.ChampionshipManager, smstore.Store, func()) {
+func setupChampionshipManagerTest(t *testing.T, process smserver.ServerProcess) (*smchampionship.ChampionshipManager, smstore.Store, *serverenv.Env, func()) {
 	dir, err := ioutil.TempDir("", "race-weekend-manager")
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := os.MkdirAll(filepath.Join(dir, ServerConfigPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(dir, serverenv.ConfigPath), 0755); err != nil {
 		t.Fatal(err)
 	}
 
-	oldInstallPath, oldServerID := ServerInstallPath, serverID
-	ServerInstallPath = dir
-	serverID = "test-server"
+	env := testEnv(dir)
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
 
@@ -107,22 +106,20 @@ func setupChampionshipManagerTest(t *testing.T, process smserver.ServerProcess) 
 			config,
 			store,
 			process,
-			smcontent.NewCarManager(ServerInstallPath, false, false),
-			smcontent.NewTrackManager(ServerInstallPath),
+			smcontent.NewCarManager(dir, false, false),
+			smcontent.NewTrackManager(dir),
 			notifications,
-			racecontrol.NewRaceControl(config, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, process, store, racecontrol.NewPenaltiesManager(store, globalsEnv()), globalsEnv()),
-			globalsEnv(),
+			racecontrol.NewRaceControl(config, racecontrol.NilBroadcaster{}, racecontrol.NilTrackData{}, process, store, racecontrol.NewPenaltiesManager(store, env), env),
+			env,
 		),
 		config,
 		store,
 		process,
-		globalsEnv(),
+		env,
 		notifications,
 	)
 
-	return cm, store, func() {
-		ServerInstallPath, serverID = oldInstallPath, oldServerID
-
+	return cm, store, env, func() {
 		_ = os.RemoveAll(dir)
 	}
 }
@@ -184,10 +181,10 @@ func assertRaceWeekendSettingsApplied(t *testing.T, got serverconfig.CurrentRace
 
 func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 	process := &interruptibleServerProcess{}
-	cm, store, cleanup := setupChampionshipManagerTest(t, process)
+	cm, store, env, cleanup := setupChampionshipManagerTest(t, process)
 	defer cleanup()
 
-	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &notificationtest.Dummy{}, smcontent.NewCarManager(ServerInstallPath, false, false))
+	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, &notificationtest.Dummy{}, smcontent.NewCarManager(env.InstallPath(), false, false), env)
 
 	for _, useSettings := range []bool{false, true} {
 		process.event = nil
@@ -256,11 +253,11 @@ func TestRaceWeekendManager_StartSessionUsesEffectiveRaceSetup(t *testing.T) {
 
 func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 	process := &interruptibleServerProcess{}
-	cm, store, cleanup := setupChampionshipManagerTest(t, process)
+	cm, store, env, cleanup := setupChampionshipManagerTest(t, process)
 	defer cleanup()
 
 	notificationManager := &reminderNotificationManager{reminders: []int{120, 15}}
-	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, notificationManager, smcontent.NewCarManager(ServerInstallPath, false, false))
+	rwm := NewRaceWeekendManager(&smconfig.Configuration{}, cm.RaceManager, cm, store, process, notificationManager, smcontent.NewCarManager(env.InstallPath(), false, false), env)
 
 	raceWeekend := smmodel.NewRaceWeekend()
 	session := smmodel.NewRaceWeekendSession()
@@ -292,5 +289,14 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 
 	if n := len(rwm.scheduledSessionReminderTimers[session.ID.String()]); n != 0 {
 		t.Errorf("expected all reminder timers to be stopped after removing the schedule, got %d", n)
+	}
+}
+
+func testEnv(installPath string) *serverenv.Env {
+	return &serverenv.Env{
+		ServerID:        func() smmodel.ServerID { return "test-server" },
+		InstallPath:     func() string { return installPath },
+		FallBackSorting: func() bool { return false },
+		PanicCapture:    func(fn func()) { fn() },
 	}
 }

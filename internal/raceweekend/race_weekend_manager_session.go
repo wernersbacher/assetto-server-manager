@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"errors"
@@ -49,7 +49,7 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*sm
 		opts.Current = raceWeekendSession.RaceConfig
 		opts.IsEditing = true
 		opts.EditingID = editSessionID
-		entryList, err := getRaceWeekendEntryList(raceWeekendSession, raceWeekend, nil, "")
+		entryList, err := getRaceWeekendEntryList(rwm.env, raceWeekendSession, raceWeekend, nil, "")
 
 		if err == ErrRaceWeekendSessionDependencyIncomplete {
 			opts.CurrentEntrants = raceWeekend.GetEntryList()
@@ -258,7 +258,7 @@ func (rwm *RaceWeekendManager) StartSession(raceWeekendID string, raceWeekendSes
 		}
 	}
 
-	raceWeekendEntryList, err := getRaceWeekendEntryList(session, raceWeekend, nil, "")
+	raceWeekendEntryList, err := getRaceWeekendEntryList(rwm.env, session, raceWeekend, nil, "")
 
 	if err != nil {
 		return err
@@ -375,7 +375,7 @@ func (rwm *RaceWeekendManager) UDPCallback(message udp.Message) {
 		filename := filepath.Base(string(m))
 		logrus.Infof("Race Weekend: End session found, result file: %s", filename)
 
-		results, err := LoadResult(filename)
+		results, err := rwm.env.Results().Load(filename)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not read session results for race weekend: %s, session: %s", rwm.activeRaceWeekend.RaceWeekendID.String(), rwm.activeRaceWeekend.SessionID.String())
@@ -400,7 +400,7 @@ func (rwm *RaceWeekendManager) UDPCallback(message udp.Message) {
 
 		raceWeekend.EnhanceResults(results)
 
-		err = saveResults(filename, results)
+		err = rwm.env.Results().Save(filename, results)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not update session results %s", filename)
@@ -457,7 +457,7 @@ func (rwm *RaceWeekendManager) UDPCallback(message udp.Message) {
 }
 
 func (rwm *RaceWeekendManager) ClearLockedTyreSetups(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession) error {
-	matches, err := zglob.Glob(filepath.Join(ServerInstallPath, "setups", "**", lockedTyreSetupFolder, "race_weekend_session_*.ini"))
+	matches, err := zglob.Glob(filepath.Join(rwm.env.InstallPath(), "setups", "**", lockedTyreSetupFolder, "race_weekend_session_*.ini"))
 
 	if err != nil {
 		return err
@@ -584,7 +584,7 @@ func (rwm *RaceWeekendManager) ImportSession(raceWeekendID string, raceWeekendSe
 
 	filename := r.FormValue("ResultFile") + ".json"
 
-	session.Results, err = LoadResult(filename)
+	session.Results, err = rwm.env.Results().Load(filename)
 
 	if err != nil {
 		return err
@@ -592,7 +592,7 @@ func (rwm *RaceWeekendManager) ImportSession(raceWeekendID string, raceWeekendSe
 
 	raceWeekend.EnhanceResults(session.Results)
 
-	err = saveResults(filename, session.Results)
+	err = rwm.env.Results().Save(filename, session.Results)
 
 	if err != nil {
 		return err
@@ -604,7 +604,7 @@ func (rwm *RaceWeekendManager) ImportSession(raceWeekendID string, raceWeekendSe
 }
 
 func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSorting(raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession) ([]smresults.SessionResults, error) {
-	results, err := ListAllResults()
+	results, err := rwm.env.Results().ListAll()
 
 	if err != nil {
 		return nil, err
@@ -648,7 +648,7 @@ func (rwm *RaceWeekendManager) ListAvailableResultsFilesForSession(raceWeekendID
 		return nil, nil, err
 	}
 
-	results, err := ListAllResults()
+	results, err := rwm.env.Results().ListAll()
 
 	if err != nil {
 		return nil, nil, err

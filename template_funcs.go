@@ -4,6 +4,7 @@ import (
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 
 	"html/template"
@@ -66,6 +67,8 @@ func trackLayoutURL(track, layout string) string {
 // serverTemplateFuncs returns the template functions which depend on the server manager's own state and domain code.
 // They are added to the functions which the web renderer provides itself.
 func serverTemplateFuncs() template.FuncMap {
+	env := globalsEnv()
+
 	return template.FuncMap{
 		"weatherName":              weatherName,
 		"carList":                  smcontent.CarList,
@@ -75,7 +78,7 @@ func serverTemplateFuncs() template.FuncMap {
 		"carSkinURL":               carSkinURL,
 		"trackLayoutURL":           trackLayoutURL,
 		"AccountGroup":             func(a smmodel.Account) smmodel.Group { return a.GroupFor(serverID) },
-		"raceWeekendTrackOverview": raceWeekendTrackOverview,
+		"raceWeekendTrackOverview": func(rw *smmodel.RaceWeekend) string { return smraceweekend.TrackOverview(env, rw) },
 		"EventName":                func(e smmodel.RaceEvent) string { return e.EventName(trackSummary) },
 		"EventIsLooping":           func(e smmodel.RaceEvent) bool { return e.IsLooping(serverID) },
 		"driverInitials":           driverInitials,

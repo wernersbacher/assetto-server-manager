@@ -6,6 +6,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
+	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -17,10 +18,10 @@ type EventDetailsHandler struct {
 
 	store               smstore.Store
 	championshipManager *smchampionship.ChampionshipManager
-	raceWeekendManager  *RaceWeekendManager
+	raceWeekendManager  *smraceweekend.RaceWeekendManager
 }
 
-func NewEventDetailsHandler(base *smweb.BaseHandler, store smstore.Store, championshipManager *smchampionship.ChampionshipManager, raceWeekendManager *RaceWeekendManager) *EventDetailsHandler {
+func NewEventDetailsHandler(base *smweb.BaseHandler, store smstore.Store, championshipManager *smchampionship.ChampionshipManager, raceWeekendManager *smraceweekend.RaceWeekendManager) *EventDetailsHandler {
 	return &EventDetailsHandler{
 		BaseHandler:         base,
 		store:               store,
@@ -102,14 +103,13 @@ func (edh *EventDetailsHandler) view(w http.ResponseWriter, r *http.Request) {
 		}
 
 		eventName = fmt.Sprintf("%s (%s)", session.Name(), raceWeekend.Name)
-		rwe, err := getRaceWeekendEntryList(session, raceWeekend, nil, "")
+		entryList, err = edh.raceWeekendManager.SessionEntryList(session, raceWeekend)
 
 		if err != nil {
 			http.NotFound(w, r)
 			return
 		}
 
-		entryList = rwe.AsEntryList()
 		isChampionship = raceWeekend.HasLinkedChampionship()
 	}
 

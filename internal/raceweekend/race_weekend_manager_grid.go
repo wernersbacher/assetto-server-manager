@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"fmt"
@@ -37,7 +37,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 
 	preview := NewRaceWeekendGridPreview()
 
-	finishingGrid, err := raceWeekendFinishingGrid(parentSession, raceWeekend)
+	finishingGrid, err := raceWeekendFinishingGrid(rwm.env, parentSession, raceWeekend)
 
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (rwm *RaceWeekendManager) PreviewGrid(raceWeekendID, parentSessionID, child
 		}
 	}
 
-	entryList, err := getRaceWeekendEntryList(childSession, raceWeekend, filter, parentSessionID)
+	entryList, err := getRaceWeekendEntryList(rwm.env, childSession, raceWeekend, filter, parentSessionID)
 
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (rwm *RaceWeekendManager) PreviewSessionEntryList(raceWeekendID, sessionID,
 	session.SortType = sortType
 	session.NumEntrantsToReverse = reverseGrid
 
-	entryList, err := getRaceWeekendEntryList(session, raceWeekend, nil, "")
+	entryList, err := getRaceWeekendEntryList(rwm.env, session, raceWeekend, nil, "")
 
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"time"
@@ -22,7 +22,7 @@ func (rwm *RaceWeekendManager) WatchForScheduledSessions() error {
 		for _, session := range raceWeekend.Sessions {
 			session := session
 
-			if session.ScheduledServerID != serverID {
+			if session.ScheduledServerID != rwm.env.ServerID() {
 				continue
 			}
 
@@ -116,7 +116,7 @@ func (rwm *RaceWeekendManager) ScheduleSession(raceWeekendID, sessionID string, 
 
 	session.ScheduledTime = date
 	session.StartWhenParentHasFinished = startWhenParentFinishes
-	session.ScheduledServerID = serverID
+	session.ScheduledServerID = rwm.env.ServerID()
 
 	if rwm.config.Lua.Enabled {
 		err = raceWeekendEventSchedulePlugin(raceWeekend, session)

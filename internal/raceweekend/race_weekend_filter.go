@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"errors"
@@ -14,6 +14,7 @@ import (
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 )
 
 type FilterError string
@@ -52,9 +53,9 @@ func reverseEntrants(numToReverse int, entrants []*smmodel.RaceWeekendSessionEnt
 var ErrRaceWeekendUnknownSplitType = errors.New("servermanager: unknown split type")
 
 // filterRaceWeekendEntryList takes a set of RaceWeekendSessionEntrants formed by the results of the parent session and filters them into a child session entry list.
-func filterRaceWeekendEntryList(f smmodel.RaceWeekendSessionToSessionFilter, raceWeekend *smmodel.RaceWeekend, parentSession, childSession *smmodel.RaceWeekendSession, parentSessionResults []*smmodel.RaceWeekendSessionEntrant, childSessionEntryList *smmodel.RaceWeekendEntryList) error {
+func filterRaceWeekendEntryList(env *serverenv.Env, f smmodel.RaceWeekendSessionToSessionFilter, raceWeekend *smmodel.RaceWeekend, parentSession, childSession *smmodel.RaceWeekendSession, parentSessionResults []*smmodel.RaceWeekendSessionEntrant, childSessionEntryList *smmodel.RaceWeekendEntryList) error {
 	if parentSession.Completed() || childSession.IsBase() {
-		sorter := GetRaceWeekendEntryListSort(f.SortType)
+		sorter := GetRaceWeekendEntryListSort(env, f.SortType)
 
 		parentSession.NumEntrantsToReverse = f.NumEntrantsToReverse
 
@@ -122,7 +123,7 @@ func filterRaceWeekendEntryList(f smmodel.RaceWeekendSessionToSessionFilter, rac
 			if fastestLap == nil {
 				logrus.Warnf("could not find fastest lap for entrant %s (%s). will not lock their tyre choice.", entrant.Car.GetName(), entrant.Car.GetGUID())
 			} else {
-				err := buildLockedTyreSetup(raceWeekend, childSession, entrant, fastestLap)
+				err := buildLockedTyreSetup(env, raceWeekend, childSession, entrant, fastestLap)
 
 				if err != nil {
 					logrus.WithError(err).Errorf("could not build locked tyre setup for entrant %s (%s)", entrant.Car.GetName(), entrant.Car.GetGUID())
@@ -140,8 +141,8 @@ func filterRaceWeekendEntryList(f smmodel.RaceWeekendSessionToSessionFilter, rac
 
 const lockedTyreSetupFolder = smcontent.LockedTyreSetupFolder
 
-func buildLockedTyreSetup(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrant *smmodel.RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
-	tyreIndex, err := smcontent.FindTyreIndex(ServerInstallPath, entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
+func buildLockedTyreSetup(env *serverenv.Env, rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrant *smmodel.RaceWeekendSessionEntrant, fastestLap *smresults.SessionLap) error {
+	tyreIndex, err := smcontent.FindTyreIndex(env.InstallPath(), entrant.Car.Model, fastestLap.Tyre, session.RaceConfig)
 
 	if err != nil {
 		return err
@@ -153,7 +154,7 @@ func buildLockedTyreSetup(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendS
 
 	for _, raceWeekendEntrant := range entryList {
 		if raceWeekendEntrant.GUID == entrant.Car.GetGUID() && raceWeekendEntrant.FixedSetup != "" {
-			setup, err = ini.Load(filepath.Join(ServerInstallPath, "setups", raceWeekendEntrant.FixedSetup))
+			setup, err = ini.Load(filepath.Join(env.InstallPath(), "setups", raceWeekendEntrant.FixedSetup))
 
 			if err != nil {
 				return err
@@ -221,7 +222,7 @@ func buildLockedTyreSetup(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendS
 
 	setupFilePath := filepath.Join(entrant.Car.Model, lockedTyreSetupFolder, fmt.Sprintf("race_weekend_session_%s_%s.ini", entrant.Car.GetGUID(), entrant.SessionID.String()))
 
-	fullSaveFilepath := filepath.Join(ServerInstallPath, "setups", setupFilePath)
+	fullSaveFilepath := filepath.Join(env.InstallPath(), "setups", setupFilePath)
 
 	if err := os.MkdirAll(filepath.Dir(fullSaveFilepath), 0755); err != nil {
 		return err
@@ -237,7 +238,7 @@ func buildLockedTyreSetup(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendS
 }
 
 // getRaceWeekendEntryList returns the RaceWeekendEntryList for the given session, built from the parent session(s) results and applied filters.
-func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWeekend, overrideFilter *smmodel.RaceWeekendSessionToSessionFilter, overrideFilterSessionID string) (smmodel.RaceWeekendEntryList, error) {
+func getRaceWeekendEntryList(env *serverenv.Env, rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWeekend, overrideFilter *smmodel.RaceWeekendSessionToSessionFilter, overrideFilterSessionID string) (smmodel.RaceWeekendEntryList, error) {
 	var entryList smmodel.RaceWeekendEntryList
 
 	if rws.IsBase() {
@@ -253,7 +254,7 @@ func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWe
 			}
 		}
 
-		err := filterRaceWeekendEntryList(*overrideFilter, rw, rws, rws, entryList, &entryList)
+		err := filterRaceWeekendEntryList(env, *overrideFilter, rw, rws, rws, entryList, &entryList)
 
 		if err != nil {
 			return nil, err
@@ -268,7 +269,7 @@ func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWe
 				return nil, err
 			}
 
-			finishingGrid, err := raceWeekendFinishingGrid(parentSession, rw)
+			finishingGrid, err := raceWeekendFinishingGrid(env, parentSession, rw)
 
 			if err != nil {
 				return nil, err
@@ -276,7 +277,7 @@ func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWe
 
 			if overrideFilter != nil && parentSessionID.String() == overrideFilterSessionID {
 				// override filters are provided when users are modifying filters for their race weekend setups
-				err = filterRaceWeekendEntryList(*overrideFilter, rw, parentSession, rws, finishingGrid, &entryList)
+				err = filterRaceWeekendEntryList(env, *overrideFilter, rw, parentSession, rws, finishingGrid, &entryList)
 
 				if err != nil {
 					return nil, err
@@ -288,7 +289,7 @@ func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWe
 					return nil, err
 				}
 
-				err = filterRaceWeekendEntryList(*sessionToSessionFilter, rw, parentSession, rws, finishingGrid, &entryList)
+				err = filterRaceWeekendEntryList(env, *sessionToSessionFilter, rw, parentSession, rws, finishingGrid, &entryList)
 
 				if err != nil {
 					return nil, err
@@ -304,7 +305,7 @@ func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWe
 
 	if rw.SessionCanBeRun(rws) {
 		// sorting can only be run if a session is ready to be run.
-		sorter := GetRaceWeekendEntryListSort(rws.SortType)
+		sorter := GetRaceWeekendEntryListSort(env, rws.SortType)
 
 		if err := sorter.Sort(rw, rws, entryList, nil); err != nil {
 			return nil, err
@@ -335,10 +336,10 @@ func getRaceWeekendEntryList(rws *smmodel.RaceWeekendSession, rw *smmodel.RaceWe
 }
 
 // raceWeekendFinishingGrid returns the finishing grid of the session, if complete. Otherwise, it returns the EntryList of that session
-func raceWeekendFinishingGrid(rws *smmodel.RaceWeekendSession, raceWeekend *smmodel.RaceWeekend) ([]*smmodel.RaceWeekendSessionEntrant, error) {
+func raceWeekendFinishingGrid(env *serverenv.Env, rws *smmodel.RaceWeekendSession, raceWeekend *smmodel.RaceWeekend) ([]*smmodel.RaceWeekendSessionEntrant, error) {
 	var out []*smmodel.RaceWeekendSessionEntrant
 
-	entryList, err := getRaceWeekendEntryList(rws, raceWeekend, nil, "")
+	entryList, err := getRaceWeekendEntryList(env, rws, raceWeekend, nil, "")
 
 	if err != nil {
 		return nil, err
@@ -397,9 +398,9 @@ func raceWeekendFinishingGrid(rws *smmodel.RaceWeekendSession, raceWeekend *smmo
 	return out, nil
 }
 
-// raceWeekendEntryList returns the entry list which a race weekend session will be run with.
-func raceWeekendEntryList(session *smmodel.RaceWeekendSession) (serverconfig.EntryList, error) {
-	rwe, err := getRaceWeekendEntryList(session, session.RaceWeekend(), nil, "")
+// SessionEntryList returns the entry list which a race weekend session will be run with.
+func (rwm *RaceWeekendManager) SessionEntryList(session *smmodel.RaceWeekendSession, raceWeekend *smmodel.RaceWeekend) (serverconfig.EntryList, error) {
+	rwe, err := getRaceWeekendEntryList(rwm.env, session, raceWeekend, nil, "")
 
 	if err != nil {
 		return nil, err
@@ -408,12 +409,12 @@ func raceWeekendEntryList(session *smmodel.RaceWeekendSession) (serverconfig.Ent
 	return rwe.AsEntryList(), nil
 }
 
-// raceWeekendTrackOverview describes the tracks of all sessions of a race weekend.
-func raceWeekendTrackOverview(rw *smmodel.RaceWeekend) string {
+// TrackOverview describes the tracks of all sessions of a race weekend.
+func TrackOverview(env *serverenv.Env, rw *smmodel.RaceWeekend) string {
 	trackInfoMap := make(map[string]bool)
 
 	for _, session := range rw.Sessions {
-		trackInfo := trackInfo(session.RaceConfig.Track, session.RaceConfig.TrackLayout)
+		trackInfo := env.TrackInfo(session.RaceConfig.Track, session.RaceConfig.TrackLayout)
 
 		var trackDescription string
 
@@ -424,10 +425,10 @@ func raceWeekendTrackOverview(rw *smmodel.RaceWeekend) string {
 				trackDescription += " - " + trackInfo.Country
 			}
 		} else {
-			trackDescription = prettifyName(session.RaceConfig.Track, false)
+			trackDescription = smcontent.PrettifyName(session.RaceConfig.Track, false)
 
 			if session.RaceConfig.TrackLayout != "" {
-				trackDescription += " (" + prettifyName(session.RaceConfig.TrackLayout, true) + ")"
+				trackDescription += " (" + smcontent.PrettifyName(session.RaceConfig.TrackLayout, true) + ")"
 			}
 		}
 

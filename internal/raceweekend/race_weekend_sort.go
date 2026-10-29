@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"math/rand"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 )
 
 // RaceWeekendEntryListSorter is a function which takes a race weekend, session and entrylist and sorts the entrylist based on some criteria.
@@ -31,107 +32,111 @@ func (rwelsf RaceWeekendEntryListSortFunc) Sort(rw *smmodel.RaceWeekend, rws *sm
 	return rwelsf(rw, rws, rwes, rwsf)
 }
 
-var RaceWeekendEntryListSorters = []RaceWeekendEntryListSorterDescription{
-	{
-		Name:                  "No Sort (Use Finishing Grid)",
-		Key:                   "", // key intentionally left blank
-		Sorter:                RaceWeekendEntryListSortFunc(UnchangedRaceWeekendEntryListSort),
-		NeedsParentSession:    false,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Fastest Lap",
-		Key:                   "fastest_lap",
-		Sorter:                RaceWeekendEntryListSortFunc(FastestLapRaceWeekendEntryListSort),
-		NeedsParentSession:    true,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Total Race Time",
-		Key:                   "total_race_time",
-		Sorter:                RaceWeekendEntryListSortFunc(TotalRaceTimeRaceWeekendEntryListSort),
-		NeedsParentSession:    true,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Fastest Lap Across Multiple Results Files",
-		Key:                   "fastest_multi_results_lap",
-		Sorter:                RaceWeekendEntryListSortFunc(FastestResultsFileRaceWeekendEntryListSort),
-		NeedsParentSession:    false,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: false,
-	},
-	{
-		Name:                  "Number of Laps Across Multiple Results Files",
-		Key:                   "number_multi_results_lap",
-		Sorter:                RaceWeekendEntryListSortFunc(NumberResultsFileRaceWeekendEntryListSort),
-		NeedsParentSession:    false,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: false,
-	},
-	{
-		Name:                  "Fewest Collisions",
-		Key:                   "fewest_collisions",
-		Sorter:                RaceWeekendEntryListSortFunc(FewestCollisionsRaceWeekendEntryListSort),
-		NeedsParentSession:    true,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Fewest Cuts",
-		Key:                   "fewest_cuts",
-		Sorter:                RaceWeekendEntryListSortFunc(FewestCutsRaceWeekendEntryListSort),
-		NeedsParentSession:    true,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Safety (Collisions then Cuts)",
-		Key:                   "safety",
-		Sorter:                RaceWeekendEntryListSortFunc(SafetyRaceWeekendEntryListSort),
-		NeedsParentSession:    true,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Championship Standings Order",
-		Key:                   "championship_standings_order",
-		Sorter:                &ChampionshipStandingsOrderEntryListSort{},
-		NeedsParentSession:    false,
-		NeedsChampionship:     true,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Championship Class",
-		Key:                   "championship_class",
-		Sorter:                &ChampionshipClassSort{},
-		NeedsParentSession:    false,
-		NeedsChampionship:     true,
-		ShowInManageEntryList: false,
-	},
-	{
-		Name:                  "Random",
-		Key:                   "random",
-		Sorter:                RaceWeekendEntryListSortFunc(RandomRaceWeekendEntryListSort),
-		NeedsParentSession:    false,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
-	{
-		Name:                  "Alphabetical (Using Driver Name)",
-		Key:                   "alphabetical",
-		Sorter:                RaceWeekendEntryListSortFunc(AlphabeticalRaceWeekendEntryListSort),
-		NeedsParentSession:    false,
-		NeedsChampionship:     false,
-		ShowInManageEntryList: true,
-	},
+// RaceWeekendEntryListSorters returns all available sorters. The env is needed by the sorters which read results files.
+func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorterDescription {
+	return []RaceWeekendEntryListSorterDescription{
+		{
+			Name:                  "No Sort (Use Finishing Grid)",
+			Key:                   "", // key intentionally left blank
+			Sorter:                RaceWeekendEntryListSortFunc(UnchangedRaceWeekendEntryListSort),
+			NeedsParentSession:    false,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Fastest Lap",
+			Key:                   "fastest_lap",
+			Sorter:                RaceWeekendEntryListSortFunc(FastestLapRaceWeekendEntryListSort),
+			NeedsParentSession:    true,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Total Race Time",
+			Key:                   "total_race_time",
+			Sorter:                RaceWeekendEntryListSortFunc(TotalRaceTimeRaceWeekendEntryListSort),
+			NeedsParentSession:    true,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Fastest Lap Across Multiple Results Files",
+			Key:                   "fastest_multi_results_lap",
+			Sorter:                FastestResultsFileRaceWeekendEntryListSort(env),
+			NeedsParentSession:    false,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: false,
+		},
+		{
+			Name:                  "Number of Laps Across Multiple Results Files",
+			Key:                   "number_multi_results_lap",
+			Sorter:                NumberResultsFileRaceWeekendEntryListSort(env),
+			NeedsParentSession:    false,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: false,
+		},
+		{
+			Name:                  "Fewest Collisions",
+			Key:                   "fewest_collisions",
+			Sorter:                RaceWeekendEntryListSortFunc(FewestCollisionsRaceWeekendEntryListSort),
+			NeedsParentSession:    true,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Fewest Cuts",
+			Key:                   "fewest_cuts",
+			Sorter:                RaceWeekendEntryListSortFunc(FewestCutsRaceWeekendEntryListSort),
+			NeedsParentSession:    true,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Safety (Collisions then Cuts)",
+			Key:                   "safety",
+			Sorter:                RaceWeekendEntryListSortFunc(SafetyRaceWeekendEntryListSort),
+			NeedsParentSession:    true,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Championship Standings Order",
+			Key:                   "championship_standings_order",
+			Sorter:                &ChampionshipStandingsOrderEntryListSort{},
+			NeedsParentSession:    false,
+			NeedsChampionship:     true,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Championship Class",
+			Key:                   "championship_class",
+			Sorter:                &ChampionshipClassSort{},
+			NeedsParentSession:    false,
+			NeedsChampionship:     true,
+			ShowInManageEntryList: false,
+		},
+		{
+			Name:                  "Random",
+			Key:                   "random",
+			Sorter:                RaceWeekendEntryListSortFunc(RandomRaceWeekendEntryListSort),
+			NeedsParentSession:    false,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+		{
+			Name:                  "Alphabetical (Using Driver Name)",
+			Key:                   "alphabetical",
+			Sorter:                RaceWeekendEntryListSortFunc(AlphabeticalRaceWeekendEntryListSort),
+			NeedsParentSession:    false,
+			NeedsChampionship:     false,
+			ShowInManageEntryList: true,
+		},
+	}
 }
 
-func GetRaceWeekendEntryListSort(key string) RaceWeekendEntryListSorter {
-	for _, sorter := range RaceWeekendEntryListSorters {
+// GetRaceWeekendEntryListSort returns the sorter for a key, which sorts each class on its own.
+func GetRaceWeekendEntryListSort(env *serverenv.Env, key string) RaceWeekendEntryListSorter {
+	for _, sorter := range RaceWeekendEntryListSorters(env) {
 		if sorter.Key == key {
 			return PerClassSort(sorter.Sorter)
 		}
@@ -249,62 +254,68 @@ func FastestLapRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmode
 	return nil
 }
 
-func FastestResultsFileRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
+// FastestResultsFileRaceWeekendEntryListSort sorts by the fastest lap across the results files which are selected in the filter.
+func FastestResultsFileRaceWeekendEntryListSort(env *serverenv.Env) RaceWeekendEntryListSortFunc {
+	return func(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
 
-	if filter == nil {
-		return nil
-	}
-
-	bestDriverLaps := make(map[string]int)
-
-	for _, resultFile := range filter.AvailableResultsForSorting {
-		result, err := LoadResult(resultFile + ".json")
-
-		if err != nil {
-			return err
+		if filter == nil {
+			return nil
 		}
 
-		for _, driverResult := range result.Result {
-			if driverResult.BestLap != 0 && (driverResult.BestLap < bestDriverLaps[driverResult.DriverGUID] || bestDriverLaps[driverResult.DriverGUID] == 0) {
-				bestDriverLaps[driverResult.DriverGUID] = driverResult.BestLap
+		bestDriverLaps := make(map[string]int)
+
+		for _, resultFile := range filter.AvailableResultsForSorting {
+			result, err := env.Results().Load(resultFile + ".json")
+
+			if err != nil {
+				return err
+			}
+
+			for _, driverResult := range result.Result {
+				if driverResult.BestLap != 0 && (driverResult.BestLap < bestDriverLaps[driverResult.DriverGUID] || bestDriverLaps[driverResult.DriverGUID] == 0) {
+					bestDriverLaps[driverResult.DriverGUID] = driverResult.BestLap
+				}
 			}
 		}
-	}
 
-	sort.Slice(entrants, func(i, j int) bool {
-		entrantI, entrantJ := entrants[i], entrants[j]
+		sort.Slice(entrants, func(i, j int) bool {
+			entrantI, entrantJ := entrants[i], entrants[j]
 
-		return lessBestLapTimeInResults(bestDriverLaps, entrantI, entrantJ)
-	})
+			return lessBestLapTimeInResults(bestDriverLaps, entrantI, entrantJ)
+		})
 
-	return nil
-}
-
-func NumberResultsFileRaceWeekendEntryListSort(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
-
-	if filter == nil {
 		return nil
 	}
+}
 
-	numDriverLaps := make(map[string]int)
+// NumberResultsFileRaceWeekendEntryListSort sorts by the number of laps across the results files which are selected in the filter.
+func NumberResultsFileRaceWeekendEntryListSort(env *serverenv.Env) RaceWeekendEntryListSortFunc {
+	return func(_ *smmodel.RaceWeekend, _ *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, filter *smmodel.RaceWeekendSessionToSessionFilter) error {
 
-	for _, resultFile := range filter.AvailableResultsForSorting {
-		result, err := LoadResult(resultFile + ".json")
-
-		if err != nil {
-			return err
+		if filter == nil {
+			return nil
 		}
 
-		for _, sessionResult := range result.Result {
-			numDriverLaps[sessionResult.DriverGUID] += result.GetNumLaps(sessionResult.DriverGUID, sessionResult.CarModel)
+		numDriverLaps := make(map[string]int)
+
+		for _, resultFile := range filter.AvailableResultsForSorting {
+			result, err := env.Results().Load(resultFile + ".json")
+
+			if err != nil {
+				return err
+			}
+
+			for _, sessionResult := range result.Result {
+				numDriverLaps[sessionResult.DriverGUID] += result.GetNumLaps(sessionResult.DriverGUID, sessionResult.CarModel)
+			}
 		}
+
+		sort.Slice(entrants, func(i, j int) bool {
+			return numDriverLaps[entrants[i].Car.Driver.GUID] > numDriverLaps[entrants[j].Car.Driver.GUID]
+		})
+
+		return nil
 	}
-
-	sort.Slice(entrants, func(i, j int) bool {
-		return numDriverLaps[entrants[i].Car.Driver.GUID] > numDriverLaps[entrants[j].Car.Driver.GUID]
-	})
-
-	return nil
 }
 
 func TotalRaceTimeRaceWeekendEntryListSort(rw *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, entrants []*smmodel.RaceWeekendSessionEntrant, _ *smmodel.RaceWeekendSessionToSessionFilter) error {

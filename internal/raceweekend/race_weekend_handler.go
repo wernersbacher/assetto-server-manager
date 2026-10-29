@@ -1,4 +1,4 @@
-package servermanager
+package raceweekend
 
 import (
 	"encoding/json"
@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
@@ -35,7 +36,7 @@ type raceWeekendListTemplateVars struct {
 	RaceWeekends []*smmodel.RaceWeekend
 }
 
-func (rwh *RaceWeekendHandler) list(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) List(w http.ResponseWriter, r *http.Request) {
 	raceWeekends, err := rwh.raceWeekendManager.ListRaceWeekends()
 
 	if err != nil {
@@ -56,7 +57,7 @@ type raceWeekendViewTemplateVars struct {
 	Account     *smmodel.Account
 }
 
-func (rwh *RaceWeekendHandler) view(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) View(w http.ResponseWriter, r *http.Request) {
 	raceWeekend, err := rwh.raceWeekendManager.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
 	if err != nil {
@@ -74,7 +75,7 @@ func (rwh *RaceWeekendHandler) view(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (rwh *RaceWeekendHandler) createOrEdit(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) CreateOrEdit(w http.ResponseWriter, r *http.Request) {
 	raceWeekendOpts, err := rwh.raceWeekendManager.BuildRaceWeekendTemplateOpts(r)
 
 	if err != nil {
@@ -86,7 +87,7 @@ func (rwh *RaceWeekendHandler) createOrEdit(w http.ResponseWriter, r *http.Reque
 	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/new.html", raceWeekendOpts)
 }
 
-func (rwh *RaceWeekendHandler) delete(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.DeleteRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
 	if err != nil {
@@ -99,7 +100,7 @@ func (rwh *RaceWeekendHandler) delete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) submit(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	raceWeekend, edited, err := rwh.raceWeekendManager.SaveRaceWeekend(r)
 
 	if err != nil {
@@ -117,7 +118,7 @@ func (rwh *RaceWeekendHandler) submit(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (rwh *RaceWeekendHandler) sessionConfiguration(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) SessionConfiguration(w http.ResponseWriter, r *http.Request) {
 	raceWeekendSessionOpts, err := rwh.raceWeekendManager.BuildRaceWeekendSessionOpts(r)
 
 	if err != nil {
@@ -129,7 +130,7 @@ func (rwh *RaceWeekendHandler) sessionConfiguration(w http.ResponseWriter, r *ht
 	rwh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", raceWeekendSessionOpts)
 }
 
-func (rwh *RaceWeekendHandler) submitSessionConfiguration(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) SubmitSessionConfiguration(w http.ResponseWriter, r *http.Request) {
 	raceWeekend, session, edited, err := rwh.raceWeekendManager.SaveRaceWeekendSession(r)
 
 	if err != nil {
@@ -142,14 +143,14 @@ func (rwh *RaceWeekendHandler) submitSessionConfiguration(w http.ResponseWriter,
 		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Race Weekend session at %s was successfully edited!",
-				prettifyName(session.RaceConfig.Track, false),
+				smcontent.PrettifyName(session.RaceConfig.Track, false),
 			),
 		)
 	} else {
 		smweb.AddFlash(w, r,
 			fmt.Sprintf(
 				"Race Weekend session at %s was successfully added!",
-				prettifyName(session.RaceConfig.Track, false),
+				smcontent.PrettifyName(session.RaceConfig.Track, false),
 			),
 		)
 	}
@@ -164,7 +165,7 @@ func (rwh *RaceWeekendHandler) submitSessionConfiguration(w http.ResponseWriter,
 	http.Redirect(w, r, "/race-weekend/"+raceWeekend.ID.String()+"/session", http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) startSession(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) StartSession(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.StartSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"), false)
 
 	if err != nil {
@@ -179,7 +180,7 @@ func (rwh *RaceWeekendHandler) startSession(w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) startPracticeSession(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) StartPracticeSession(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.StartPracticeSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {
@@ -194,7 +195,7 @@ func (rwh *RaceWeekendHandler) startPracticeSession(w http.ResponseWriter, r *ht
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) restartSession(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) RestartSession(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.RestartSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {
@@ -209,7 +210,7 @@ func (rwh *RaceWeekendHandler) restartSession(w http.ResponseWriter, r *http.Req
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) cancelSession(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) CancelSession(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.CancelSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {
@@ -224,7 +225,7 @@ func (rwh *RaceWeekendHandler) cancelSession(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) deleteSession(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.DeleteSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {
@@ -246,7 +247,7 @@ type raceWeekendSessionImportTemplateVars struct {
 	Session       *smmodel.RaceWeekendSession
 }
 
-func (rwh *RaceWeekendHandler) importSessionResults(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) ImportSessionResults(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := chi.URLParam(r, "sessionID")
 
@@ -290,7 +291,7 @@ type raceWeekendFilterTemplateVars struct {
 	ChampionshipClasses         map[uuid.UUID]*smmodel.ChampionshipClass
 }
 
-func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) ManageFilters(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
@@ -317,7 +318,7 @@ func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("Couldn't list results files for sorting")
 	}
 
-	parentSessionResults, err := raceWeekendFinishingGrid(parentSession, raceWeekend)
+	parentSessionResults, err := raceWeekendFinishingGrid(rwh.raceWeekendManager.env, parentSession, raceWeekend)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load previous session results")
@@ -343,13 +344,13 @@ func (rwh *RaceWeekendHandler) manageFilters(w http.ResponseWriter, r *http.Requ
 		ChildSession:               childSession,
 		ResultsAvailableForSorting: sessionResults,
 		Filter:                     filter,
-		AvailableSorters:           RaceWeekendEntryListSorters,
+		AvailableSorters:           RaceWeekendEntryListSorters(rwh.raceWeekendManager.env),
 		ParentSessionResults:       parentSessionResults,
 		ChampionshipClasses:        championshipClasses,
 	})
 }
 
-func (rwh *RaceWeekendHandler) gridPreview(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) GridPreview(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
@@ -376,7 +377,7 @@ func (rwh *RaceWeekendHandler) gridPreview(w http.ResponseWriter, r *http.Reques
 	_ = json.NewEncoder(w).Encode(previewResponse)
 }
 
-func (rwh *RaceWeekendHandler) updateGrid(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) UpdateGrid(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
@@ -405,7 +406,7 @@ type raceWeekendManageEntryListTemplateVars struct {
 	AvailableSorters []RaceWeekendEntryListSorterDescription
 }
 
-func (rwh *RaceWeekendHandler) manageEntryList(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) ManageEntryList(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := r.URL.Query().Get("sessionID")
 
@@ -420,11 +421,11 @@ func (rwh *RaceWeekendHandler) manageEntryList(w http.ResponseWriter, r *http.Re
 	rwh.ViewRenderer.MustLoadPartial(w, r, "race-weekend/popups/manage-entrylist.html", &raceWeekendManageEntryListTemplateVars{
 		RaceWeekend:      raceWeekend,
 		Session:          session,
-		AvailableSorters: RaceWeekendEntryListSorters,
+		AvailableSorters: RaceWeekendEntryListSorters(rwh.raceWeekendManager.env),
 	})
 }
 
-func (rwh *RaceWeekendHandler) entryListPreview(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) EntryListPreview(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := r.URL.Query().Get("sessionID")
 	sortType := r.URL.Query().Get("sortType")
@@ -443,7 +444,7 @@ func (rwh *RaceWeekendHandler) entryListPreview(w http.ResponseWriter, r *http.R
 	_ = json.NewEncoder(w).Encode(previewResponse)
 }
 
-func (rwh *RaceWeekendHandler) updateEntryList(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) UpdateEntryList(w http.ResponseWriter, r *http.Request) {
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("sessionID")
 	sortType := r.URL.Query().Get("sortType")
@@ -458,7 +459,7 @@ func (rwh *RaceWeekendHandler) updateEntryList(w http.ResponseWriter, r *http.Re
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (rwh *RaceWeekendHandler) export(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) Export(w http.ResponseWriter, r *http.Request) {
 	raceWeekend, err := rwh.raceWeekendManager.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
 	if err != nil {
@@ -467,7 +468,7 @@ func (rwh *RaceWeekendHandler) export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !smweb.AccountFromRequest(r).HasGroupPrivilege(serverID, smmodel.GroupWrite) {
+	if !smweb.AccountFromRequest(r).HasGroupPrivilege(rwh.raceWeekendManager.env.ServerID(), smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		for _, session := range raceWeekend.Sessions {
 			session.ReplacementPassword = ""
@@ -481,7 +482,7 @@ func (rwh *RaceWeekendHandler) export(w http.ResponseWriter, r *http.Request) {
 	_ = enc.Encode(raceWeekend)
 }
 
-func (rwh *RaceWeekendHandler) importRaceWeekend(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) ImportRaceWeekend(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		raceWeekendID, err := rwh.raceWeekendManager.ImportRaceWeekend(r.FormValue("import"))
 
@@ -497,7 +498,7 @@ func (rwh *RaceWeekendHandler) importRaceWeekend(w http.ResponseWriter, r *http.
 	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/import-raceweekend.html", nil)
 }
 
-func (rwh *RaceWeekendHandler) scheduleSession(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) ScheduleSession(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -551,7 +552,7 @@ func (rwh *RaceWeekendHandler) scheduleSession(w http.ResponseWriter, r *http.Re
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (rwh *RaceWeekendHandler) removeSessionSchedule(w http.ResponseWriter, r *http.Request) {
+func (rwh *RaceWeekendHandler) RemoveSessionSchedule(w http.ResponseWriter, r *http.Request) {
 	err := rwh.raceWeekendManager.DeScheduleSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {

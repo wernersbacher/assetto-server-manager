@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smaccounts "github.com/wernersbacher/assetto-server-manager/internal/accounts"
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
@@ -9,6 +10,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/notification"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
+	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
@@ -36,7 +38,7 @@ type Resolver struct {
 	discordManager        *notification.DiscordManager
 	notificationManager   *notification.Manager
 	scheduledRacesManager *schedule.Manager
-	raceWeekendManager    *RaceWeekendManager
+	raceWeekendManager    *smraceweekend.RaceWeekendManager
 
 	env                   *serverenv.Env
 	viewRenderer          *smweb.Renderer
@@ -63,7 +65,7 @@ type Resolver struct {
 	contentUploadHandler        *ContentUploadHandler
 	raceControlHandler          *racecontrol.RaceControlHandler
 	serverAdministrationHandler *ServerAdministrationHandler
-	raceWeekendHandler          *RaceWeekendHandler
+	raceWeekendHandler          *smraceweekend.RaceWeekendHandler
 	strackerHandler             *StrackerHandler
 	healthCheck                 *HealthCheck
 	kissMyRankHandler           *KissMyRankHandler
@@ -384,7 +386,10 @@ func (r *Resolver) resolveScheduledRacesManager() *schedule.Manager {
 		return r.scheduledRacesManager
 	}
 
-	r.scheduledRacesManager = schedule.NewManager(r.config, r.ResolveStore(), r.resolveEnv(), raceWeekendEntryList)
+	r.scheduledRacesManager = schedule.NewManager(r.config, r.ResolveStore(), r.resolveEnv(), func(session *smmodel.RaceWeekendSession) (serverconfig.EntryList, error) {
+		// resolved when called, because the race weekend manager needs the notification manager, which needs this manager
+		return r.resolveRaceWeekendManager().SessionEntryList(session, session.RaceWeekend())
+	})
 
 	return r.scheduledRacesManager
 }
@@ -479,12 +484,12 @@ func (r *Resolver) resolveRaceControlHandler() *racecontrol.RaceControlHandler {
 	return r.raceControlHandler
 }
 
-func (r *Resolver) resolveRaceWeekendManager() *RaceWeekendManager {
+func (r *Resolver) resolveRaceWeekendManager() *smraceweekend.RaceWeekendManager {
 	if r.raceWeekendManager != nil {
 		return r.raceWeekendManager
 	}
 
-	r.raceWeekendManager = NewRaceWeekendManager(
+	r.raceWeekendManager = smraceweekend.NewRaceWeekendManager(
 		r.config,
 		r.resolveRaceManager(),
 		r.resolveChampionshipManager(),
@@ -492,17 +497,18 @@ func (r *Resolver) resolveRaceWeekendManager() *RaceWeekendManager {
 		r.resolveServerProcess(),
 		r.resolveNotificationManager(),
 		r.resolveCarManager(),
+		r.resolveEnv(),
 	)
 
 	return r.raceWeekendManager
 }
 
-func (r *Resolver) resolveRaceWeekendHandler() *RaceWeekendHandler {
+func (r *Resolver) resolveRaceWeekendHandler() *smraceweekend.RaceWeekendHandler {
 	if r.raceWeekendHandler != nil {
 		return r.raceWeekendHandler
 	}
 
-	r.raceWeekendHandler = NewRaceWeekendHandler(r.resolveBaseHandler(), r.resolveRaceWeekendManager())
+	r.raceWeekendHandler = smraceweekend.NewRaceWeekendHandler(r.resolveBaseHandler(), r.resolveRaceWeekendManager())
 
 	return r.raceWeekendHandler
 }
