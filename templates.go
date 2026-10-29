@@ -219,6 +219,7 @@ func (tr *Renderer) init() error {
 	funcs["fullTimeFormat"] = fullTimeFormat
 	funcs["localFormat"] = localFormatHelper
 	funcs["driverName"] = driverName
+	funcs["entrantNames"] = func(e serverconfig.EntryList) string { return e.Entrants(driverName) }
 	funcs["driverInitials"] = driverInitials
 	funcs["shortenTrackName"] = shortenTrackName
 	funcs["trustHTML"] = func(s string) template.HTML {
