@@ -5,16 +5,10 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi/middleware"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	sentryDSN   = "https://d8325490c2fa49b58cd9b557aed9ce8a@sentry.justapengu.in/4"
-	sentryJSDSN = "https://9153aa91818949c7a70708d0f0566faf@sentry.justapengu.in/5"
 )
 
 var (
@@ -41,19 +35,6 @@ var (
 )
 
 func InitMonitoring() {
-	logrus.Infof("initialising Raven monitoring")
-	err := raven.SetDSN(sentryDSN)
-
-	if err != nil {
-		logrus.WithError(err).Error("could not initialise raven monitoring")
-	}
-
-	raven.SetRelease(BuildVersion)
-
-	panicHandler = raven.Recoverer
-	panicCapture = func(fn func()) {
-		raven.CapturePanic(fn, nil)
-	}
 
 	http.DefaultTransport = RoundTripper(http.DefaultTransport)
 	http.DefaultClient.Transport = http.DefaultTransport

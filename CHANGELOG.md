@@ -48,6 +48,10 @@ Fixed:
 * Fixes potential lap, consistency and race position of driver swap cars, which showed 0 or values above 100%.
 * A cut lap is no longer treated as the fastest lap (including Championship fastest lap points) when all laps of a class were cut.
 
+Removed:
+
+* Sentry error reporting and the Google Analytics tracking script, which sent data to the upstream project's servers when monitoring was enabled. The monitoring option now only exposes Prometheus metrics at /metrics.
+
 ---
 
 v1.7.10

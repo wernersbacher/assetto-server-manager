@@ -13,7 +13,6 @@ require (
 	github.com/blevesearch/go-porterstemmer v1.0.2 // indirect
 	github.com/blevesearch/segment v0.0.0-20160915185041-762005e7a34f // indirect
 	github.com/bwmarrin/discordgo v0.20.2
-	github.com/certifi/gocertifi v0.0.0-20200104152315-a6d78f326758 // indirect
 	github.com/cj123/caldav-go v0.0.0-20191202141705-5d30c27975e9
 	github.com/cj123/formulate v0.0.0-20200906120731-1cd9cd8fdf1d
 	github.com/cj123/ini v1.44.0
@@ -30,7 +29,6 @@ require (
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
 	github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 // indirect
 	github.com/fatih/color v1.7.0
-	github.com/getsentry/raven-go v0.2.0
 	github.com/glycerine/go-unsnap-stream v0.0.0-20190901134440-81cf024a9e0a // indirect
 	github.com/go-chi/chi v4.0.3+incompatible
 	github.com/go-http-utils/etag v0.0.0-20161124023236-513ea8f21eb1

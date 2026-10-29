@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
-	"net"
 	"net/http"
 	"net/url"
 	"path"
@@ -19,7 +18,6 @@ import (
 	"time"
 
 	"github.com/Masterminds/sprig"
-	"github.com/getsentry/raven-go"
 	"github.com/go-chi/chi"
 	"github.com/mattn/go-zglob"
 	"github.com/sirupsen/logrus"
@@ -538,8 +536,6 @@ type BaseTemplateVars struct {
 	IsDarkTheme           bool
 	Request               *http.Request
 	Debug                 bool
-	MonitoringEnabled     bool
-	SentryDSN             template.JSStr
 	RecaptchaSiteKey      string
 	WideContainer         bool
 	OGImage               string
@@ -588,8 +584,6 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.IsDarkTheme = opts.DarkTheme == 1
 	data.Request = r
 	data.Debug = Debug
-	data.MonitoringEnabled = config.Monitoring.Enabled
-	data.SentryDSN = sentryJSDSN
 	data.RecaptchaSiteKey = config.Championships.RecaptchaConfig.SiteKey
 	data.BaseURLIsSet = baseURLIsSet()
 	data.BaseURLIsValid = baseURLIsValid()
@@ -652,10 +646,6 @@ func (tr *Renderer) MustLoadTemplate(w http.ResponseWriter, r *http.Request, vie
 	err := tr.LoadTemplate(w, r, view, vars)
 
 	if err != nil {
-		if _, ok := err.(*net.OpError); !ok {
-			// don't capture OpErrors, they flood sentry with non-errors
-			raven.CaptureError(err, nil)
-		}
 		logrus.WithError(err).Errorf("Unable to load template: %s", view)
 		http.Error(w, "unable to load template", http.StatusInternalServerError)
 		return
