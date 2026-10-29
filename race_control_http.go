@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -237,8 +238,8 @@ func (rch *RaceControlHandler) liveTiming(w http.ResponseWriter, r *http.Request
 		CSSDotSmoothing:             udp.RealtimePosIntervalMs,
 		CMJoinLink:                  linkString,
 		UseMPH:                      serverOpts.UseMPH == 1,
-		IsStrackerEnabled:           IsStrackerInstalled() && strackerOptions.EnableStracker,
-		IsKissMyRankEnabled:         IsKissMyRankInstalled() && kissMyRankOptions.EnableKissMyRank,
+		IsStrackerEnabled:           smplugins.IsStrackerInstalled(ServerInstallPath) && strackerOptions.EnableStracker,
+		IsKissMyRankEnabled:         smplugins.IsKissMyRankInstalled(ServerInstallPath) && kissMyRankOptions.EnableKissMyRank,
 		KissMyRankWebStatsPublicURL: kissMyRankOptions.WebStatsPublicURL,
 		STrackerInterfacePublicURL:  sTrackerPublicURL,
 	})

@@ -3,6 +3,7 @@ package servermanager
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 
 	"bytes"
 	"context"
@@ -334,16 +335,16 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 	}
 
 	strackerOptions, err := sp.store.LoadStrackerOptions()
-	strackerEnabled := err == nil && strackerOptions.EnableStracker && IsStrackerInstalled()
+	strackerEnabled := err == nil && strackerOptions.EnableStracker && smplugins.IsStrackerInstalled(ServerInstallPath)
 
 	// if stracker is enabled we need to let it set the interval
 	udp.PosIntervalModifierEnabled = !strackerEnabled
 
 	kissMyRankOptions, err := sp.store.LoadKissMyRankOptions()
-	kissMyRankEnabled := err == nil && kissMyRankOptions.EnableKissMyRank && IsKissMyRankInstalled()
+	kissMyRankEnabled := err == nil && kissMyRankOptions.EnableKissMyRank && smplugins.IsKissMyRankInstalled(ServerInstallPath)
 
 	realPenaltyOptions, err := sp.store.LoadRealPenaltyOptions()
-	realPenaltyEnabled := err == nil && realPenaltyOptions.RealPenaltyAppConfig.General.EnableRealPenalty && IsRealPenaltyInstalled()
+	realPenaltyEnabled := err == nil && realPenaltyOptions.RealPenaltyAppConfig.General.EnableRealPenalty && smplugins.IsRealPenaltyInstalled(ServerInstallPath)
 
 	udpPluginPortsSetup := sp.forwardListenPort >= 0 && sp.forwardingAddress != "" || strings.Contains(sp.forwardingAddress, ":")
 
@@ -376,15 +377,15 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 			}
 		}
 
-		if err := strackerOptions.Write(); err != nil {
+		if err := strackerOptions.Write(ServerInstallPath); err != nil {
 			return err
 		}
 
 		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
-			Executable: StrackerExecutablePath(),
+			Executable: smplugins.StrackerExecutablePath(ServerInstallPath),
 			Arguments: []string{
 				"--stracker_ini",
-				filepath.Join(StrackerFolderPath(), strackerConfigIniFilename),
+				filepath.Join(smplugins.StrackerFolderPath(ServerInstallPath), smplugins.StrackerConfigIniFilename),
 			},
 		})
 
@@ -396,7 +397,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 	}
 
 	if realPenaltyEnabled && realPenaltyOptions != nil && udpPluginPortsSetup {
-		if err := fixRealPenaltyExecutablePermissions(); err != nil {
+		if err := smplugins.FixRealPenaltyExecutablePermissions(ServerInstallPath); err != nil {
 			return err
 		}
 
@@ -447,17 +448,17 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 		realPenaltyOptions.RealPenaltyAppConfig.General.ACCFGFile = filepath.Join(ServerInstallPath, "cfg", "server_cfg.ini")
 		realPenaltyOptions.RealPenaltyAppConfig.General.ACTracksFolder = filepath.Join(ServerInstallPath, "content", "tracks")
 		realPenaltyOptions.RealPenaltyAppConfig.General.ACWeatherFolder = filepath.Join(ServerInstallPath, "content", "weather")
-		realPenaltyOptions.RealPenaltyAppConfig.General.AppFile = filepath.Join(RealPenaltyFolderPath(), "files", "app")
-		realPenaltyOptions.RealPenaltyAppConfig.General.ImagesFile = filepath.Join(RealPenaltyFolderPath(), "files", "images")
-		realPenaltyOptions.RealPenaltyAppConfig.General.SoundsFile = filepath.Join(RealPenaltyFolderPath(), "files", "sounds")
-		realPenaltyOptions.RealPenaltyAppConfig.General.TracksFolder = filepath.Join(RealPenaltyFolderPath(), "tracks")
+		realPenaltyOptions.RealPenaltyAppConfig.General.AppFile = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "files", "app")
+		realPenaltyOptions.RealPenaltyAppConfig.General.ImagesFile = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "files", "images")
+		realPenaltyOptions.RealPenaltyAppConfig.General.SoundsFile = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "files", "sounds")
+		realPenaltyOptions.RealPenaltyAppConfig.General.TracksFolder = filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "tracks")
 
-		if err := realPenaltyOptions.Write(); err != nil {
+		if err := realPenaltyOptions.Write(ServerInstallPath); err != nil {
 			return err
 		}
 
 		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
-			Executable: RealPenaltyExecutablePath(),
+			Executable: smplugins.RealPenaltyExecutablePath(ServerInstallPath),
 			Arguments: []string{
 				"--print_on",
 			},
@@ -471,7 +472,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 	}
 
 	if kissMyRankEnabled && kissMyRankOptions != nil && udpPluginPortsSetup {
-		if err := fixKissMyRankExecutablePermissions(); err != nil {
+		if err := smplugins.FixKissMyRankExecutablePermissions(ServerInstallPath); err != nil {
 			return err
 		}
 
@@ -506,12 +507,12 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent RaceEvent) error {
 			kissMyRankOptions.ACServerPluginAddressPort = formValueAsInt(strings.Split(sp.forwardingAddress, ":")[1])
 		}
 
-		if err := kissMyRankOptions.Write(); err != nil {
+		if err := kissMyRankOptions.Write(ServerInstallPath); err != nil {
 			return err
 		}
 
 		err = sp.startPlugin(wd, &smconfig.CommandPlugin{
-			Executable: KissMyRankExecutablePath(),
+			Executable: smplugins.KissMyRankExecutablePath(ServerInstallPath),
 		})
 
 		if err != nil {

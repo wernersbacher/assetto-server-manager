@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
 // The tests in this file form a contract test suite for the Store interface. Every test runs identically against
@@ -874,7 +875,7 @@ func TestStoreContract_PluginOptions(t *testing.T) {
 			t.Fatalf("load stracker defaults: %s", err)
 		}
 
-		if sto.InstanceConfiguration.ACServerAddress != DefaultStrackerIni().InstanceConfiguration.ACServerAddress {
+		if sto.InstanceConfiguration.ACServerAddress != smplugins.DefaultStrackerIni(ServerInstallPath).InstanceConfiguration.ACServerAddress {
 			t.Errorf("expected default stracker options, got %+v", sto.InstanceConfiguration)
 		}
 
@@ -884,8 +885,8 @@ func TestStoreContract_PluginOptions(t *testing.T) {
 			t.Fatalf("load kissmyrank defaults: %s", err)
 		}
 
-		if kmr.MaxPing != DefaultKissMyRankConfig().MaxPing {
-			t.Errorf("expected default kissmyrank max ping %d, got %d", DefaultKissMyRankConfig().MaxPing, kmr.MaxPing)
+		if kmr.MaxPing != smplugins.DefaultKissMyRankConfig().MaxPing {
+			t.Errorf("expected default kissmyrank max ping %d, got %d", smplugins.DefaultKissMyRankConfig().MaxPing, kmr.MaxPing)
 		}
 
 		rpc, err := store.LoadRealPenaltyOptions()

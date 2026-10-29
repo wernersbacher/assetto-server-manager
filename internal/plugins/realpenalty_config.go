@@ -1,9 +1,11 @@
-package servermanager
+package plugins
 
 import (
 	"path/filepath"
 
 	"github.com/cj123/ini"
+
+	"github.com/wernersbacher/assetto-server-manager/internal/formfields"
 )
 
 const (
@@ -29,14 +31,14 @@ type RealPenaltyConfig struct {
 	RealPenaltyACSettings RealPenaltyACSettings `show:"contents"`
 }
 
-func (rpc *RealPenaltyConfig) Write() error {
-	if err := rpc.RealPenaltyAppConfig.write(); err != nil {
+func (rpc *RealPenaltyConfig) Write(installPath string) error {
+	if err := rpc.RealPenaltyAppConfig.write(installPath); err != nil {
 		return err
 	}
-	if err := rpc.RealPenaltySettings.write(); err != nil {
+	if err := rpc.RealPenaltySettings.write(installPath); err != nil {
 		return err
 	}
-	return rpc.RealPenaltyACSettings.write()
+	return rpc.RealPenaltyACSettings.write(installPath)
 }
 
 func DefaultRealPenaltyAppConfig() RealPenaltyAppConfig {
@@ -60,7 +62,7 @@ type RealPenaltyAppConfig struct {
 	PluginsRelay RealPenaltyPluginsRelay  `ini:"Plugins_Relay"`
 }
 
-func (rpa *RealPenaltyAppConfig) write() error {
+func (rpa *RealPenaltyAppConfig) write(installPath string) error {
 	f := ini.NewFile([]ini.DataSource{nil}, ini.LoadOptions{
 		IgnoreInlineComment: true,
 	})
@@ -96,7 +98,7 @@ func (rpa *RealPenaltyAppConfig) write() error {
 		return err
 	}
 
-	return f.SaveTo(filepath.Join(RealPenaltyFolderPath(), realPenaltyAppConfigIniPath))
+	return f.SaveTo(filepath.Join(RealPenaltyFolderPath(installPath), realPenaltyAppConfigIniPath))
 }
 
 type RealPenaltyConfigGeneral struct {
@@ -133,7 +135,7 @@ type RealPenaltySettings struct {
 	BlueFlag  RealPenaltySettingsBlueFlag  `ini:"Blue_Flag"`
 }
 
-func (rps *RealPenaltySettings) write() error {
+func (rps *RealPenaltySettings) write(installPath string) error {
 	f := ini.NewFile([]ini.DataSource{nil}, ini.LoadOptions{
 		IgnoreInlineComment: true,
 	})
@@ -229,7 +231,7 @@ func (rps *RealPenaltySettings) write() error {
 		return err
 	}
 
-	return f.SaveTo(filepath.Join(RealPenaltyFolderPath(), realPenaltySettingsIniPath))
+	return f.SaveTo(filepath.Join(RealPenaltyFolderPath(installPath), realPenaltySettingsIniPath))
 }
 
 func DefaultRealPenaltySettings() RealPenaltySettings {
@@ -381,7 +383,7 @@ type RealPenaltyACSettings struct {
 	Helicorsa          RealPenaltyACSettingsHelicorsa          `ini:"Helicorsa" help:""`
 }
 
-func (rpac *RealPenaltyACSettings) write() error {
+func (rpac *RealPenaltyACSettings) write(installPath string) error {
 	f := ini.NewFile([]ini.DataSource{nil}, ini.LoadOptions{
 		IgnoreInlineComment: true,
 	})
@@ -477,7 +479,7 @@ func (rpac *RealPenaltyACSettings) write() error {
 		return err
 	}
 
-	return f.SaveTo(filepath.Join(RealPenaltyFolderPath(), realPenaltyACSettingsIniPath))
+	return f.SaveTo(filepath.Join(RealPenaltyFolderPath(installPath), realPenaltyACSettingsIniPath))
 }
 
 func DefaultRealPenaltyACSettings() RealPenaltyACSettings {
@@ -539,8 +541,8 @@ type RealPenaltyACSettingsGeneral struct {
 }
 
 type RealPenaltyACSettingsApp struct {
-	Mandatory      boolString `ini:"MANDATORY" help:"on = Real Penalty app is mandatory, off = Real Penalty app is not mandatory"`
-	CheckFrequency int        `ini:"CHECK_FREQUENCY" help:"Frequency (seconds) for app check"`
+	Mandatory      formfields.BoolString `ini:"MANDATORY" help:"on = Real Penalty app is mandatory, off = Real Penalty app is not mandatory"`
+	CheckFrequency int                   `ini:"CHECK_FREQUENCY" help:"Frequency (seconds) for app check"`
 }
 
 type RealPenaltyACSettingsSol struct {

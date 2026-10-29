@@ -2,11 +2,8 @@ package servermanager
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"net/http"
-	"net/url"
-	"reflect"
 	"strings"
 
 	"github.com/cj123/formulate"
@@ -150,50 +147,4 @@ func (d *decorator) Fieldset(n *html.Node, field formulate.StructField) {
 	}
 
 	d.numFieldSets++
-}
-
-type boolString string
-
-func (b boolString) BuildFormElement(key string, parent *html.Node, field formulate.StructField, decorator formulate.Decorator) error {
-	n := &html.Node{
-		Type: html.ElementNode,
-		Data: "input",
-		Attr: []html.Attribute{
-			{
-				Key: "type",
-				Val: "checkbox",
-			},
-			{
-				Key: "name",
-				Val: key,
-			},
-			{
-				Key: "id",
-				Val: key,
-			},
-		},
-	}
-
-	checked := b == "true"
-
-	if checked {
-		n.Attr = append(n.Attr, html.Attribute{Key: "checked", Val: "checked"})
-	}
-
-	parent.AppendChild(n)
-	decorator.CheckboxField(n, field)
-
-	return nil
-}
-
-func (b boolString) DecodeFormValue(form url.Values, name string, values []string) (reflect.Value, error) {
-	if len(values) == 0 {
-		return reflect.Value{}, fmt.Errorf("servermanager: invalid value length, expected 1, got: %d", len(values))
-	}
-
-	if formValueAsInt(values[0]) == 1 {
-		return reflect.ValueOf(boolString("true")), nil
-	}
-
-	return reflect.ValueOf(boolString("false")), nil
 }

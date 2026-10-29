@@ -1,6 +1,9 @@
 package servermanager
 
-import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+import (
+	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+)
 
 type Store interface {
 	// Custom Races
@@ -56,16 +59,16 @@ type Store interface {
 	DeleteRaceWeekend(id string) error
 
 	// Stracker Options
-	UpsertStrackerOptions(sto *StrackerConfiguration) error
-	LoadStrackerOptions() (*StrackerConfiguration, error)
+	UpsertStrackerOptions(sto *smplugins.StrackerConfiguration) error
+	LoadStrackerOptions() (*smplugins.StrackerConfiguration, error)
 
 	// KissMyRank Options
-	UpsertKissMyRankOptions(kmr *KissMyRankConfig) error
-	LoadKissMyRankOptions() (*KissMyRankConfig, error)
+	UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) error
+	LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error)
 
 	// RealPenalty options
-	UpsertRealPenaltyOptions(rpc *RealPenaltyConfig) error
-	LoadRealPenaltyOptions() (*RealPenaltyConfig, error)
+	UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) error
+	LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, error)
 }
 
 // autoFillEntrant prepares an entrant for storage in the AutoFill entrant list. The list is used to fill in

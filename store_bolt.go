@@ -8,6 +8,7 @@ import (
 	"github.com/etcd-io/bbolt"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
 type BoltStore struct {
@@ -823,7 +824,7 @@ func (rs *BoltStore) DeleteRaceWeekend(id string) error {
 	return rs.UpsertRaceWeekend(raceWeekend)
 }
 
-func (rs *BoltStore) UpsertStrackerOptions(sto *StrackerConfiguration) error {
+func (rs *BoltStore) UpsertStrackerOptions(sto *smplugins.StrackerConfiguration) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -841,9 +842,9 @@ func (rs *BoltStore) UpsertStrackerOptions(sto *StrackerConfiguration) error {
 	})
 }
 
-func (rs *BoltStore) LoadStrackerOptions() (*StrackerConfiguration, error) {
+func (rs *BoltStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, error) {
 	// start with defaults
-	sto := DefaultStrackerIni()
+	sto := smplugins.DefaultStrackerIni(ServerInstallPath)
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
@@ -867,7 +868,7 @@ func (rs *BoltStore) LoadStrackerOptions() (*StrackerConfiguration, error) {
 	return sto, err
 }
 
-func (rs *BoltStore) UpsertKissMyRankOptions(kmr *KissMyRankConfig) error {
+func (rs *BoltStore) UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -885,9 +886,9 @@ func (rs *BoltStore) UpsertKissMyRankOptions(kmr *KissMyRankConfig) error {
 	})
 }
 
-func (rs *BoltStore) LoadKissMyRankOptions() (*KissMyRankConfig, error) {
+func (rs *BoltStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error) {
 	// start with defaults
-	kmr := DefaultKissMyRankConfig()
+	kmr := smplugins.DefaultKissMyRankConfig()
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
@@ -911,7 +912,7 @@ func (rs *BoltStore) LoadKissMyRankOptions() (*KissMyRankConfig, error) {
 	return kmr, err
 }
 
-func (rs *BoltStore) UpsertRealPenaltyOptions(rpc *RealPenaltyConfig) error {
+func (rs *BoltStore) UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -929,9 +930,9 @@ func (rs *BoltStore) UpsertRealPenaltyOptions(rpc *RealPenaltyConfig) error {
 	})
 }
 
-func (rs *BoltStore) LoadRealPenaltyOptions() (*RealPenaltyConfig, error) {
+func (rs *BoltStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, error) {
 	// start with defaults
-	rpc := DefaultRealPenaltyConfig()
+	rpc := smplugins.DefaultRealPenaltyConfig()
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)

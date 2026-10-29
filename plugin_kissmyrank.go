@@ -3,56 +3,11 @@ package servermanager
 import (
 	"html/template"
 	"net/http"
-	"os"
-	"path/filepath"
-	"runtime"
 
 	"github.com/sirupsen/logrus"
+
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
-
-// kissmyrank handles configuration of the kissmyrank plugin
-// https://www.racedepartment.com/downloads/kissmyrank-local-assetto-corsa-server-plugin.17667/
-
-const (
-	kissMyRankBaseFolderName     = "kissmyrank"
-	kissMyRankConfigJSONFileName = "config.json"
-)
-
-func KissMyRankExecutablePath() string {
-	if runtime.GOOS == "windows" {
-		return filepath.Join(KissMyRankFolderPath(), "ac_kissmyrank-win.exe")
-	}
-
-	return filepath.Join(KissMyRankFolderPath(), "ac_kissmyrank-linux")
-}
-
-func fixKissMyRankExecutablePermissions() error {
-	if runtime.GOOS == "linux" {
-		return os.Chmod(KissMyRankExecutablePath(), 0755)
-	}
-
-	return nil
-}
-
-func KissMyRankFolderPath() string {
-	return filepath.Join(ServerInstallPath, kissMyRankBaseFolderName)
-}
-
-func KissMyRankConfigPath() string {
-	return filepath.Join(KissMyRankFolderPath(), kissMyRankConfigJSONFileName)
-}
-
-// IsKissMyRankInstalled looks in the ServerInstallPath for a "kissmyrank" directory with the correct kissmyrank executable for the given platform
-func IsKissMyRankInstalled() bool {
-	if _, err := os.Stat(KissMyRankExecutablePath()); os.IsNotExist(err) {
-		return false
-	} else if err != nil {
-		logrus.WithError(err).Error("Could not determine if kissmyrank is enabled")
-		return false
-	} else {
-		return true
-	}
-}
 
 type kissMyRankConfigurationTemplateVars struct {
 	BaseTemplateVars
@@ -111,6 +66,6 @@ func (kmrh *KissMyRankHandler) options(w http.ResponseWriter, r *http.Request) {
 
 	kmrh.viewRenderer.MustLoadTemplate(w, r, "server/kissmyrank-options.html", &kissMyRankConfigurationTemplateVars{
 		Form:           form,
-		IsKMRInstalled: IsKissMyRankInstalled(),
+		IsKMRInstalled: smplugins.IsKissMyRankInstalled(ServerInstallPath),
 	})
 }

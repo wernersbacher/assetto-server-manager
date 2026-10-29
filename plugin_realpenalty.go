@@ -9,49 +9,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/sirupsen/logrus"
+
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
-
-// handles configuration of the realpenalty plugin
-// https://www.racedepartment.com/downloads/real-penalty-tool.29591/
-
-const (
-	realPenaltyBaseFolderName = "realpenalty"
-)
-
-func RealPenaltyExecutablePath() string {
-	if runtime.GOOS == "windows" {
-		return filepath.Join(RealPenaltyFolderPath(), "ac_penalty.exe")
-	}
-
-	return filepath.Join(RealPenaltyFolderPath(), "ac_penalty")
-}
-
-func fixRealPenaltyExecutablePermissions() error {
-	if runtime.GOOS == "linux" {
-		return os.Chmod(RealPenaltyExecutablePath(), 0755)
-	}
-
-	return nil
-}
-
-func RealPenaltyFolderPath() string {
-	return filepath.Join(ServerInstallPath, realPenaltyBaseFolderName)
-}
-
-func IsRealPenaltyInstalled() bool {
-	if _, err := os.Stat(RealPenaltyExecutablePath()); os.IsNotExist(err) {
-		return false
-	} else if err != nil {
-		logrus.WithError(err).Error("Could not determine if realpenalty is enabled")
-		return false
-	} else {
-		return true
-	}
-}
 
 type RealPenaltyHandler struct {
 	*BaseHandler
@@ -109,8 +72,8 @@ func (rph *RealPenaltyHandler) options(w http.ResponseWriter, r *http.Request) {
 
 	rph.viewRenderer.MustLoadTemplate(w, r, "server/realpenalty-options.html", &realPenaltyConfigurationTemplateVars{
 		Form:                        form,
-		IsRealPenaltyInstalled:      IsRealPenaltyInstalled(),
-		RealPenaltySupportedVersion: RealPenaltySupportedVersion,
+		IsRealPenaltyInstalled:      smplugins.IsRealPenaltyInstalled(ServerInstallPath),
+		RealPenaltySupportedVersion: smplugins.RealPenaltySupportedVersion,
 	})
 }
 
@@ -129,7 +92,7 @@ func (rph *RealPenaltyHandler) buildLogZip(w io.Writer) error {
 	z := zip.NewWriter(w)
 	defer z.Close()
 
-	logFiles, err := ioutil.ReadDir(filepath.Join(RealPenaltyFolderPath(), "logs"))
+	logFiles, err := ioutil.ReadDir(filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "logs"))
 
 	if err != nil {
 		return err
@@ -151,7 +114,7 @@ func (rph *RealPenaltyHandler) writeRealPenaltyLogFileToZip(z *zip.Writer, info 
 		return err
 	}
 
-	f, err := os.Open(filepath.Join(filepath.Join(RealPenaltyFolderPath(), "logs"), info.Name()))
+	f, err := os.Open(filepath.Join(filepath.Join(smplugins.RealPenaltyFolderPath(ServerInstallPath), "logs"), info.Name()))
 
 	if err != nil {
 		return err

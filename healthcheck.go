@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"time"
 
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -86,7 +87,7 @@ func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		EventIsPractice:     event.IsPractice(),
 		NumConnectedDrivers: h.raceControl.ConnectedDrivers.Len(),
 		AssettoIsInstalled:  IsAssettoInstalled(),
-		StrackerIsInstalled: IsStrackerInstalled(),
+		StrackerIsInstalled: smplugins.IsStrackerInstalled(ServerInstallPath),
 
 		ConfigDirectoryIsWritable:  IsDirWriteable(filepath.Join(ServerInstallPath, "cfg")) == nil,
 		CarDirectoryIsWritable:     IsDirWriteable(filepath.Join(ServerInstallPath, "content", "cars")) == nil,

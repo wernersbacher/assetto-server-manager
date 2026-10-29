@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 )
 
 const (
@@ -564,17 +565,17 @@ func (rs *JSONStore) DeleteRaceWeekend(id string) error {
 	return rs.UpsertRaceWeekend(rw)
 }
 
-func (rs *JSONStore) UpsertStrackerOptions(sto *StrackerConfiguration) error {
+func (rs *JSONStore) UpsertStrackerOptions(sto *smplugins.StrackerConfiguration) error {
 	return rs.encodeFile(rs.base, strackerOptionsFile, sto)
 }
 
-func (rs *JSONStore) LoadStrackerOptions() (*StrackerConfiguration, error) {
-	var out *StrackerConfiguration
+func (rs *JSONStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, error) {
+	var out *smplugins.StrackerConfiguration
 
 	err := rs.decodeFile(rs.base, strackerOptionsFile, &out)
 
 	if os.IsNotExist(err) {
-		strackerConfig := DefaultStrackerIni()
+		strackerConfig := smplugins.DefaultStrackerIni(ServerInstallPath)
 
 		return strackerConfig, rs.UpsertStrackerOptions(strackerConfig)
 	} else if err != nil {
@@ -584,17 +585,17 @@ func (rs *JSONStore) LoadStrackerOptions() (*StrackerConfiguration, error) {
 	return out, err
 }
 
-func (rs *JSONStore) UpsertKissMyRankOptions(kmr *KissMyRankConfig) error {
+func (rs *JSONStore) UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) error {
 	return rs.encodeFile(rs.base, kissMyRankOptionsFile, kmr)
 }
 
-func (rs *JSONStore) LoadKissMyRankOptions() (*KissMyRankConfig, error) {
-	var out *KissMyRankConfig
+func (rs *JSONStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error) {
+	var out *smplugins.KissMyRankConfig
 
 	err := rs.decodeFile(rs.base, kissMyRankOptionsFile, &out)
 
 	if os.IsNotExist(err) {
-		kmrConfig := DefaultKissMyRankConfig()
+		kmrConfig := smplugins.DefaultKissMyRankConfig()
 
 		return kmrConfig, rs.UpsertKissMyRankOptions(kmrConfig)
 	} else if err != nil {
@@ -604,17 +605,17 @@ func (rs *JSONStore) LoadKissMyRankOptions() (*KissMyRankConfig, error) {
 	return out, err
 }
 
-func (rs *JSONStore) UpsertRealPenaltyOptions(rpc *RealPenaltyConfig) error {
+func (rs *JSONStore) UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) error {
 	return rs.encodeFile(rs.base, realPenaltyOptionsFile, rpc)
 }
 
-func (rs *JSONStore) LoadRealPenaltyOptions() (*RealPenaltyConfig, error) {
-	var out *RealPenaltyConfig
+func (rs *JSONStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, error) {
+	var out *smplugins.RealPenaltyConfig
 
 	err := rs.decodeFile(rs.base, realPenaltyOptionsFile, &out)
 
 	if os.IsNotExist(err) {
-		rpcConfig := DefaultRealPenaltyConfig()
+		rpcConfig := smplugins.DefaultRealPenaltyConfig()
 
 		return rpcConfig, rs.UpsertRealPenaltyOptions(rpcConfig)
 	} else if err != nil {
