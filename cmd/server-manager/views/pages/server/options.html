@@ -3,26 +3,40 @@
 {{ define "title" }}Options{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">Options</h1>
+    <div class="page-header">
+        <div>
+            <h1>Options</h1>
+            <p>These configuration options are applied globally - they are applied to each race setup started by Server Manager.</p>
+        </div>
+    </div>
 
-    <p>These configuration options are applied globally - they are applied to each race setup started by Server Manager.</p>
+    <form method="post" action="/server-options" class="admin-form">
+        <div class="options-layout">
+            <nav class="options-index" id="options-index" aria-label="Sections" hidden>
+                <div class="options-index-title">Sections</div>
+                <ul></ul>
+            </nav>
 
-    <form method="post" action="/server-options">
-        {{ $.Form }}
+            <div class="options-main">
+                {{ $.Form }}
+            </div>
+        </div>
 
-        <button class="btn btn-success float-right" type="submit">Save</button>
-
-        <div class="clearfix"></div>
+        <div class="save-bar">
+            <span class="save-bar-text">Changes apply to the next race that is started.</span>
+            <button class="btn btn-success" type="submit">Save</button>
+        </div>
     </form>
 
-    <hr>
-
-    <h3>Maintenance</h3>
-
-    <p>
-        You can use the button below to rebuild the Search Index. You shouldn't need to do this often - if at all - but
-        if you have manually added content to your content folder (i.e. not uploaded the content through Server Manager),
-        you will need to use this so that the content shows up in the Search. Note that this process can take a long time.
-    </p>
-    <a class="btn btn-primary" href="/search-index">Rebuild Search Index</a>
+    <div class="card admin-card mt-4">
+        <div class="card-header"><h2>Maintenance</h2></div>
+        <div class="card-body d-flex flex-wrap align-items-center justify-content-between" style="gap: 16px">
+            <p class="mb-0" style="flex: 1 1 400px">
+                Rebuild the Search Index. You shouldn't need to do this often - if at all - but
+                if you have manually added content to your content folder (i.e. not uploaded the content through Server Manager),
+                you will need to use this so that the content shows up in the Search. Note that this process can take a long time.
+            </p>
+            <a class="btn btn-primary" href="/search-index">Rebuild Search Index</a>
+        </div>
+    </div>
 {{ end }}

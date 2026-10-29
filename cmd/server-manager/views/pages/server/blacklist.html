@@ -3,16 +3,28 @@
 {{ define "title" }}Blacklist{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">Blacklist</h1>
+    <div class="page-header">
+        <div>
+            <h1>Blacklist</h1>
+            <p>Banned user GUIDs, one per line.</p>
+        </div>
+    </div>
 
-    <form method="post" action="/blacklist">
-        <label for="blacklist"></label>
-        <textarea id="blacklist" name="blacklist" class="form-control md-textarea text-area">{{ .Text }}</textarea>
+    <form method="post" action="/blacklist" class="admin-form">
+        <div class="card admin-card">
+            <div class="card-body">
+                <label for="blacklist" class="sr-only">Blacklist</label>
+                <textarea id="blacklist" name="blacklist" class="form-control md-textarea text-area mono-area">{{ .Text }}</textarea>
 
-        <button class="btn btn-success float-right mt-2" type="submit">Save</button>
+                <p class="text-muted small mt-3 mb-0">This file is where banned user GUIDs are stored. If blacklist mode is set to "2" users will automatically
+                    be added to this list when kicked. You can edit this list manually regardless of blacklist mode, but you must
+                    restart the server for manual changes to take affect.</p>
+            </div>
+        </div>
+
+        <div class="save-bar">
+            <span class="save-bar-text">Restart the server for manual changes to take effect.</span>
+            <button class="btn btn-success" type="submit">Save</button>
+        </div>
     </form>
-
-    <p><small>This file is where banned user GUIDs are stored. If blacklist mode is set to "2" users will automatically
-            be added to this list when kicked. You can edit this list manually regardless of blacklist mode, but you must
-            restart the server for manual changes to take affect.</small></p>
 {{ end }}

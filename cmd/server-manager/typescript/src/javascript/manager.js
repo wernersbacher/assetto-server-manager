@@ -1336,6 +1336,11 @@ let serverLogs = {
             disableManagerLogRefresh = false;
         });
 
+        // logs live in hidden tabs: jump to the newest line when a tab is shown
+        $document.on("shown.bs.tab", "#log-tabs a[data-toggle=pill]", function () {
+            $document.find(".log-box pre:visible").scrollTop(1E10);
+        });
+
         function isAtBottom($elem) {
             let node = $elem[0];
             return node.scrollTop + node.offsetHeight >= node.scrollHeight - 40;

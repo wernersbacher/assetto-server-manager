@@ -3,27 +3,36 @@
 {{ define "title" }}Audit Logs{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">Audit Logs</h1>
+    <div class="page-header">
+        <div>
+            <h1>Audit Logs</h1>
+            <p>Changes made through Server Manager by users with write access or higher.</p>
+        </div>
+    </div>
 
-    <table class="table table-bordered table-striped">
-        <thead>
-        <tr>
-            <th scope="col">Time</th>
-            <th scope="col">User</th>
-            <th scope="col">Permission Group</th>
-            <th scope="col">URL</th>
-            <th scope="col">Method</th>
-        </tr>
-        </thead>
-
-        {{ range $i, $entry := .AuditLogs }}
+    <div class="table-card">
+        <table class="table audit-table">
+            <thead>
             <tr>
-                <td>{{ fullTimeFormat $entry.Time }}</td>
-                <td>{{ $entry.User }}</td>
-                <td>{{ $entry.UserGroup }}</td>
-                <td>{{ $entry.URL }}</td>
-                <td>{{ $entry.Method }}</td>
+                <th scope="col">Time</th>
+                <th scope="col">User</th>
+                <th scope="col">Permission Group</th>
+                <th scope="col">URL</th>
+                <th scope="col">Method</th>
             </tr>
-        {{ end }}
-    </table>
+            </thead>
+
+            {{ range $i, $entry := .AuditLogs }}
+                <tr>
+                    <td class="text-nowrap">{{ fullTimeFormat $entry.Time }}</td>
+                    <td>{{ $entry.User }}</td>
+                    <td><span class="role-badge role-{{ $entry.UserGroup }}">{{ $entry.UserGroup }}</span></td>
+                    <td><code>{{ $entry.URL }}</code></td>
+                    <td><span class="method-badge">{{ $entry.Method }}</span></td>
+                </tr>
+            {{ else }}
+                <tr><td colspan="5" class="text-center text-muted py-4">No audit log entries yet.</td></tr>
+            {{ end }}
+        </table>
+    </div>
 {{ end }}

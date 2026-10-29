@@ -32,5 +32,7 @@
 {{- else if eq . "upload" -}}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>
 {{- else if eq . "globe" -}}<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
 {{- else if eq . "user" -}}<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>
+{{- else if eq . "check" -}}<path d="M20 6 9 17l-5-5"/>
+{{- else if eq . "download" -}}<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>
 {{- end -}}
 </svg>{{ end }}

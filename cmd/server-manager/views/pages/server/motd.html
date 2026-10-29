@@ -3,44 +3,54 @@
 {{ define "title" }}Messages{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">Messages</h1>
+    <div class="page-header">
+        <div>
+            <h1>Messages</h1>
+            <p>Messages shown to drivers when they join the server.</p>
+        </div>
+    </div>
 
-    <form method="post" action="/motd">
-        <div class="mb-3">
-            <h3>MOTD</h3>
-
-            <label for="motd">Message of the day. Shown by Assetto Corsa in a full screen popup window to everyone who joins the server.</label>
-            <textarea id="motd" name="motd" class="form-control md-textarea text-area">{{ .MOTDText }}</textarea>
+    <form method="post" action="/motd" class="admin-form">
+        <div class="card admin-card mb-4">
+            <div class="card-header"><h2>MOTD</h2></div>
+            <div class="card-body">
+                <label for="motd">Message of the day. Shown by Assetto Corsa in a full screen popup window to everyone who joins the server.</label>
+                <textarea id="motd" name="motd" class="form-control md-textarea text-area">{{ .MOTDText }}</textarea>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <h3>Server Join Message</h3>
-
-            <label for="serverJoinMessage">Shown in chat to each user when they join the server.</label>
-            <textarea id="serverJoinMessage" name="serverJoinMessage" class="form-control md-textarea text-area">{{ $.Opts.ServerJoinMessage }}</textarea>
+        <div class="card admin-card mb-4">
+            <div class="card-header"><h2>Server Join Message</h2></div>
+            <div class="card-body">
+                <label for="serverJoinMessage">Shown in chat to each user when they join the server.</label>
+                <textarea id="serverJoinMessage" name="serverJoinMessage" class="form-control md-textarea text-area">{{ $.Opts.ServerJoinMessage }}</textarea>
+            </div>
         </div>
 
-        <div class="mb-3">
-            <h3>Content Manager Welcome Message</h3>
+        <div class="card admin-card mb-4">
+            <div class="card-header"><h2>Content Manager Welcome Message</h2></div>
+            <div class="card-body">
+                {{ if and $.Opts.EnableContentManagerWrapper (gt $.Opts.ContentManagerWrapperPort 0) }}
+                    <div class="d-none" id="ContentManagerMessageContent">{{ trustHTML $.Opts.ContentManagerWelcomeMessage }}</div>
 
-            {{ if and $.Opts.EnableContentManagerWrapper (gt $.Opts.ContentManagerWrapperPort 0) }}
-                <div class="d-none" id="ContentManagerMessageContent">{{ trustHTML $.Opts.ContentManagerWelcomeMessage }}</div>
+                    <label for="contentManagerWelcomeMessage">
+                        Shown to Content Manager users before they join the server.
 
-                <label for="contentManagerWelcomeMessage">
-                    Shown to Content Manager users before they join the server.
-
-                    This input is a template, in which you can access data about your manager/the current event.
-                    You can enter anything you like in here. If you put <code>&lbrace;&lbrace; .ServerName &rbrace;&rbrace;</code> in, the Server Name will replace it.
-                    If you put <code>&lbrace;&lbrace; .EventName &rbrace;&rbrace;</code>, then the Event Name will replace it.
-                    You can <a href='https://github.com/JustaPenguin/assetto-server-manager/wiki/Content-Manager-Description-Templates'>view some examples</a> on the Server Manager Wiki!
-                </label><br>
-                <textarea id="contentManagerWelcomeMessage" name="contentManagerWelcomeMessage"></textarea>
-            {{ else }}
-                Enable Content Manager Wrapper in <a href="/server-options">Server Options</a> to show this message.
-            {{ end }}
+                        This input is a template, in which you can access data about your manager/the current event.
+                        You can enter anything you like in here. If you put <code>&lbrace;&lbrace; .ServerName &rbrace;&rbrace;</code> in, the Server Name will replace it.
+                        If you put <code>&lbrace;&lbrace; .EventName &rbrace;&rbrace;</code>, then the Event Name will replace it.
+                        You can <a href='https://github.com/JustaPenguin/assetto-server-manager/wiki/Content-Manager-Description-Templates'>view some examples</a> on the Server Manager Wiki!
+                    </label><br>
+                    <textarea id="contentManagerWelcomeMessage" name="contentManagerWelcomeMessage"></textarea>
+                {{ else }}
+                    <p class="mb-0 text-muted">Enable Content Manager Wrapper in <a href="/server-options">Server Options</a> to show this message.</p>
+                {{ end }}
+            </div>
         </div>
 
-
-        <button class="btn btn-success float-right mt-2" type="submit">Save</button>
+        <div class="save-bar">
+            <span class="save-bar-text">Join messages are sent to drivers as they connect.</span>
+            <button class="btn btn-success" type="submit">Save</button>
+        </div>
     </form>
 {{ end }}

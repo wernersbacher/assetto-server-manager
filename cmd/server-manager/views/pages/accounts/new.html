@@ -5,9 +5,11 @@
 {{ end }}
 
 {{ define "content" }}
-    <div class="card">
+    <div class="page-header"><div><h1>{{ if $.IsEditing }}Edit{{ else }}Add{{ end }} an Account</h1><p>Accounts decide what a person may do in Server Manager.</p></div></div>
+
+    <div class="form-page"><div class="card admin-card">
         <div class="card-header">
-            {{ if $.IsEditing }}Edit{{ else }}Add{{ end }} an Account
+            Account details
         </div>
 
         <div class="card-body">
@@ -89,5 +91,5 @@
                 <button class="btn btn-success float-right" type="submit">{{ if $.IsEditing }}Edit{{ else }}Add{{ end }} User</button>
             </form>
         </div>
-    </div>
+    </div></div>
 {{ end }}

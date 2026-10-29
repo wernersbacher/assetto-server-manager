@@ -25,10 +25,12 @@ import {SpectatorCar} from "./SpectatorCar";
 import {Form} from "./Form";
 import {Shell} from "./Shell";
 import {DeleteConfirm} from "./DeleteConfirm";
+import {AdminForm} from "./AdminForm";
 
 $(() => {
     new Shell();
     new DeleteConfirm();
+    new AdminForm();
     new Form();
     EntryPoint();
     new RaceControl();

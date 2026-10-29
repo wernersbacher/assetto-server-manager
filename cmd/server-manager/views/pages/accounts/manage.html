@@ -2,56 +2,104 @@
 
 {{ define "title" }}Manage Accounts{{ end }}
 
+{{ define "roleBadge" }}<span class="role-badge role-{{ . }}">{{ if eq . "read" }}Read{{ else if eq . "write" }}Write{{ else if eq . "delete" }}Delete{{ else if eq . "admin" }}Admin{{ else if eq . "no_access" }}No access{{ else }}{{ . }}{{ end }}</span>{{ end }}
+
 {{ define "content" }}
-    <h1 class="text-center">Manage Accounts</h1>
-
-    <table class="table table-bordered table-striped">
-        <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Group</th>
-            <th>Actions</th>
-        </tr>
-
-        {{ range $index, $account := .Accounts }}
-            <tr>
-                <td>{{ $index }}</td>
-                <td>{{ $account.Name }}</td>
-                <td>{{ $account.Group }}</td>
-                <td>
-                    {{ if ne $account.Name "admin" }}
-                        <a class="btn btn-warning" href="/accounts/edit/{{ $account.ID.String }}">
-                            Edit
-                        </a>
-                        {{ if ne $.BaseTemplateVars.User.ID.String $account.ID.String }}
-                            <form method="post" action="/accounts/delete/{{ $account.ID.String }}" class="d-inline"
-                                   data-confirm-delete="Delete account {{ $account.Name }}?" data-confirm-detail="The account is removed permanently." data-confirm-label="Delete account">
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                        {{ end }}
-                    {{ end }}
-                </td>
-            </tr>
-        {{ end }}
-    </table>
-
-    <div class="mt-3">
-        <a class="btn btn-success float-right" href="/accounts/new">Add Account</a>
+    <div class="page-header">
+        <div>
+            <h1>Accounts</h1>
+            <p>Manage who can log in and what they are allowed to do.</p>
+        </div>
+        <a class="btn btn-success" href="/accounts/new">{{ template "icon" "plus" }} Add Account</a>
     </div>
-    <div class="clearfix"></div>
 
+    <div class="table-card">
+        <table class="table accounts-table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Group</th>
+                <th class="text-right">Actions</th>
+            </tr>
+            </thead>
 
-    <h2>Open Server Manager</h2>
+            {{ range $index, $account := .Accounts }}
+                <tr>
+                    <td>
+                        <span class="d-inline-flex align-items-center" style="gap: 10px">
+                            <span class="avatar">{{ substr 0 1 $account.Name }}</span>
+                            <span>{{ $account.Name }}</span>
+                        </span>
+                    </td>
+                    <td>{{ template "roleBadge" (print $account.Group) }}</td>
+                    <td class="text-right text-nowrap">
+                        {{ if ne $account.Name "admin" }}
+                            <a class="btn btn-warning" href="/accounts/edit/{{ $account.ID.String }}">
+                                Edit
+                            </a>
+                            {{ if ne $.BaseTemplateVars.User.ID.String $account.ID.String }}
+                                <form method="post" action="/accounts/delete/{{ $account.ID.String }}" class="d-inline"
+                                       data-confirm-delete="Delete account {{ $account.Name }}?" data-confirm-detail="The account is removed permanently." data-confirm-label="Delete account">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            {{ end }}
+                        {{ end }}
+                    </td>
+                </tr>
+            {{ end }}
+        </table>
+    </div>
 
-    <p>An Open Server Manager allows read access to anyone without an account.</p>
+    <div class="dashboard-grid">
+        <div class="card admin-card">
+            <div class="card-header"><h2>Open Server Manager</h2></div>
+            <div class="card-body">
+                <p>An Open Server Manager allows read access to anyone without an account.</p>
 
-    {{ if $.ServerReadIsOpen }}
-        <p class="d-inline-block mr-5 text-success">Server Manager is currently open.</p>
+                <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
+                    {{ if $.ServerReadIsOpen }}
+                        <span class="role-badge role-read">Open</span>
+                        <a href="/accounts/toggle-open" class="btn btn-danger">Make Closed</a>
+                    {{ else }}
+                        <span class="role-badge role-no_access">Closed</span>
+                        <a href="/accounts/toggle-open" class="btn btn-success">Make Open</a>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
 
-        <a href="/accounts/toggle-open" class="btn btn-danger d-inline-block">Make Closed</a>
-    {{ else }}
-        <p class="d-inline-block mr-5 text-danger">Server Manager is currently not open.</p>
-
-        <a href="/accounts/toggle-open" class="btn btn-success d-inline-block">Make Open</a>
-    {{ end }}
+        <div class="card admin-card">
+            <div class="card-header"><h2>What each group can do</h2></div>
+            <div class="table-responsive">
+                <table class="table role-matrix mb-0">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{ template "roleBadge" "read" }}</th>
+                        <th>{{ template "roleBadge" "write" }}</th>
+                        <th>{{ template "roleBadge" "delete" }}</th>
+                        <th>{{ template "roleBadge" "admin" }}</th>
+                    </tr>
+                    </thead>
+                    <tr>
+                        <td>View races, results, content, championships and live timing</td>
+                        <td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Create and edit races, championships and race weekends; upload content; start and stop the server; view logs</td>
+                        <td></td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Delete races, championships, results and content; manage AutoFill entrants</td>
+                        <td></td><td></td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td>
+                    </tr>
+                    <tr>
+                        <td>Server options, plugins, accounts, blacklist, messages, audit logs and race control commands</td>
+                        <td></td><td></td><td></td><td>{{ template "icon" "check" }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card-body pt-2 text-muted small">Accounts in the "No access" group cannot use Server Manager at all.</div>
+        </div>
+    </div>
 {{ end }}
