@@ -5,7 +5,7 @@
     <div class="race-info">
         <strong>
             {{ with $trackInfo }}
-                {{- /*gotype: github.com/wernersbacher/assetto-server-manager.TrackInfo*/ -}}
+                {{- /*gotype: github.com/wernersbacher/assetto-server-manager/internal/content.TrackInfo*/ -}}
                 {{ .Name }}
             {{ else }}
                 {{ prettify .RaceConfig.Track false }} {{ with .RaceConfig.TrackLayout }}({{ prettify . true }}){{ end }}

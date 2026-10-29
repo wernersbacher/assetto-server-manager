@@ -109,7 +109,10 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   the pages (the compiler does not check templates).
 - **Tests**: helpers live in `envtest` (`serverenv.Env` for a temp install), `webtest` (request scope for handlers),
   `server/servertest` (`Dummy`, `Interruptible` process), `notification/notificationtest`. Results/championship
-  fixtures are read from `fixtures/` and `cmd/server-manager/assetto`.
+  fixtures are read from `fixtures/` and `cmd/server-manager/assetto`. Test packages run in parallel processes, so a
+  test must never use a fixed directory in `os.TempDir()` (use `envtest.TempJSONStore` or `ioutil.TempDir`).
+  `internal/templatecheck` type checks every page template (fields, methods, argument counts) against the Go types named
+  in its `gotype` comment (add the comment to new pages), because templates are otherwise only checked when rendered.
 - `pkg/` holds standalone libraries: `udp` (AC UDP protocol), `acd` (encrypted car data), `when` (timers).
 
 ## Beads Issue Tracker

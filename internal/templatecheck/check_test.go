@@ -78,10 +78,11 @@ func check(repoRoot string) ([]string, error) {
 	})
 	sort.Strings(files)
 
-	gotypeRe := regexp.MustCompile(`gotype:\s*\S*\.([A-Za-z0-9_]+)`)
+	gotypeRe := regexp.MustCompile(`gotype:\s*(\S*)\.([A-Za-z0-9_]+)`)
 	type entry struct {
 		file string
 		typ  string
+		pkg  string
 	}
 	var entries []entry
 	for _, f := range files {
@@ -100,14 +101,14 @@ func check(repoRoot string) ([]string, error) {
 			}
 		}
 		if m := gotypeRe.FindStringSubmatch(src); m != nil {
-			entries = append(entries, entry{rel, m[1]})
+			entries = append(entries, entry{rel, m[2], m[1]})
 		} else if ov, ok := overrides[rel]; ok {
-			entries = append(entries, entry{rel, ov})
+			entries = append(entries, entry{rel, ov, ""})
 		} else if strings.HasPrefix(rel, "pages/") {
 			report(rel, nil, "no gotype comment")
 		}
 	}
-	entries = append(entries, entry{"layout/base.html", "BaseTemplateVars"})
+	entries = append(entries, entry{"layout/base.html", "BaseTemplateVars", ""})
 
 	for _, e := range entries {
 		ts := namedByNm[e.typ]
@@ -115,6 +116,10 @@ func check(repoRoot string) ([]string, error) {
 			report(e.file, nil, "gotype %s not found in HEAD", e.typ)
 			continue
 		}
+		if e.pkg != "" && ts[0].Obj().Pkg().Path() != e.pkg {
+			report(e.file, nil, "gotype comment names package %s, but %s is declared in %s", e.pkg, e.typ, ts[0].Obj().Pkg().Path())
+		}
+
 		var dot types.Type = types.NewPointer(ts[0])
 		prefix := e.file + "#"
 		for k, t := range allTrees {
