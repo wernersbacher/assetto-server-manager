@@ -253,10 +253,146 @@ also deletes that server's `cfg` and `results`, so back them up first) and run `
 Full reset: `docker compose --profile install down -v` deletes **all** volumes including the AC install. The install
 has to be redone afterwards.
 
-## Adding a server
+## Adding and removing servers
 
-Add a volume `assetto-c` and a `seed-c` service like `seed-a` to `compose.yaml`, mount the volume and `ac-content`
-(onto `assetto-c/content`) into `server-manager`, publish new ports, and add a `servers:` entry to `config.yml`.
+The number of servers is set by the `servers:` list in `config.yml`; `compose.yaml` only has to provide the volumes and
+ports that go with it. The ids (`a`, `b`, ...) are the keys under which the manager stores the data of a server, so
+never rename the id of a server that has data. The example adds a server `c`; the snippets use the same
+`${VAR:-default}` style as the existing ones (the committed `compose.yaml` is not changed).
+
+### Adding server c
+
+1. `compose.yaml`, five places.
+
+   a) new service next to `seed-a` / `seed-b`:
+
+   ```yaml
+     seed-c:
+       <<: *seed
+       command: ["slot"]
+       volumes:
+         - ac-base:/base:ro
+         - assetto-c:/slot
+         - ./seed.sh:/seed.sh:ro
+   ```
+
+   b) `server-manager`, `depends_on:` (after `seed-b`):
+
+   ```yaml
+         seed-c:
+           condition: service_completed_successfully
+   ```
+
+   c) `server-manager`, `ports:` (after the server b entries):
+
+   ```yaml
+         # server c
+         - "${SERVER_C_PORT:-9602}:${SERVER_C_PORT:-9602}/udp"
+         - "${SERVER_C_PORT:-9602}:${SERVER_C_PORT:-9602}/tcp"
+         - "${SERVER_C_HTTP_PORT:-8083}:${SERVER_C_HTTP_PORT:-8083}/tcp"
+   ```
+
+   d) `server-manager`, `volumes:` - the install copy of c right after the `assetto-b` line, and the shared content
+   volume onto the content directory of c right after the `ac-content` lines of a and b (the content mount is nested
+   inside the install mount, so the install mount has to come first):
+
+   ```yaml
+         - assetto-c:/home/assetto/server-manager/assetto-c
+         - ac-content:/home/assetto/server-manager/assetto-c/content
+   ```
+
+   e) top-level `volumes:` (after `assetto-b:`):
+
+   ```yaml
+     assetto-c:
+   ```
+
+2. `config.yml`: a third entry under `servers:`. `steam.install_path` stays `assetto-a`.
+
+   ```yaml
+     - id: c
+       name: Server C
+       install_path: assetto-c
+   ```
+
+   `install_path` is relative to the working directory of the manager (`/home/assetto/server-manager`), i.e. the
+   mount point of d).
+3. `.env` (only if the defaults 9602 / 8083 do not suit you): `SERVER_C_PORT=9602` and `SERVER_C_HTTP_PORT=8083`
+   (commented-out lines in `.env.example`).
+4. Firewall (VPS): `sudo ufw allow 9602/udp && sudo ufw allow 9602/tcp && sudo ufw allow 8083/tcp` (see part 7).
+5. Apply: `docker compose up -d`. Compose creates the volume, `seed-c` copies the install from `ac-base` (it never
+   overwrites an existing copy) and the `server-manager` container is recreated, which restarts the manager. **That
+   stops running acServers**, so do it between events. The data of the other servers is kept.
+6. In the UI choose Server C in the server selector, open Server > Options and set the UDP/TCP and HTTP ports to
+   9602 / 8083 (or your `.env` values); a new server starts with the default ports 9600 / 8081 (part 6).
+
+Verified (temporary copy of this directory, separate compose project `acsm-test`, a copy of an install imported with
+`AC_BASE_VOLUME=acsm-test_ac-base sh import-server.sh`, other host ports): the snippets above applied literally give a
+valid `docker compose config -q`, `docker compose up -d` starts the project, and after the login `/api/servers` lists
+`a`, `b` and `c`. Not verified: starting a race on server c (no real AC server in that test), the firewall commands.
+
+### Removing a server
+
+1. Back up (part 8) and stop the events of that server in the UI.
+2. Remove its entry from `servers:` in `config.yml`; in `compose.yaml` remove its `seed-x` service, the `depends_on`
+   entry, the port entries, the volume mounts and the volume definition. Then `docker compose up -d --remove-orphans`
+   (restarts the manager; `--remove-orphans` removes the stopped `seed-x` container). The volume `assetto-x` is kept
+   until you delete it (`docker volume rm assetto-multiserver_assetto-x`), so it also serves as an archive.
+
+What happens to the data of the removed server (read from the code, in `internal/config`, `internal/servers`,
+`internal/store`, `internal/schedule`, `internal/resultshttp`; not tested end to end):
+
+- **Nothing is deleted.** The manager never cleans up after a server that is no longer configured.
+- **Server options, plugin options (stracker, KissMyRank, Real Penalty), live timings and the last race event** are
+  stored under per-server keys (BoltDB: `serverOptions/<id>`, `<key>/<id>`; JSON store: files with the id in the
+  name). They stay in the database, are never read again, and are used again if you re-add a server with the same id.
+- **Scheduled events** (custom races, championship events, race weekend sessions) keep their `ScheduledServerID`. At
+  start-up every server only creates timers for events with its own id, so an event of a removed server **never
+  starts, silently**: no timer, no log line, no error. It stays in the database and still appears in the calendar
+  (`/calendar`, labelled "On another server", as the name lookup finds no server) and in `/api/upcoming-races`
+  (`OnThisServer: false`, empty server name). Delete such events or reschedule them for another server (the Server
+  field of the schedule form); re-adding the id makes them live again at the next start.
+- **Results** are attributed to a server by the results directory they are in. The results lists read only the
+  directories of the configured servers, so the result files in the volume of the removed server are **no longer
+  listed**, and a championship or race weekend that references one of them cannot load it. The files stay in the
+  volume. To get them back, copy them into the `results` folder of a remaining server (not verified):
+  `docker run --rm -v assetto-multiserver_assetto-c:/x:ro -v assetto-multiserver_assetto-a:/a alpine sh -c 'cp -n /x/results/*.json /a/results/'`
+  (then `chown` them to the `assetto` user if the manager cannot read them).
+- **Busy state** (championship or race weekend "active on server x") is derived from the running processes, in memory
+  only, so nothing stale remains after the restart; the removed server's process stops with the container. A request
+  with `?server=<removed id>` (an old bookmark) is answered with `404 unknown server`; a server remembered in the
+  session that no longer exists falls back to the first server.
+
+### Going down to one server
+
+There are two ways to have one server, and they are **not interchangeable**:
+
+- **One explicit entry** in `servers:` (`id: a`). The server keeps its id `a` and its keys. **Recommended.**
+- **No `servers:` list** (the default slot, derived from `steam.install_path`). Its id is not configured: it is the
+  UUID the database created on its first start (`InitServerID`), and it uses the original, unsuffixed keys
+  (`serverOptions`, ...), which a plain single-server installation has always used.
+
+So deleting the list to go from `a` + `b` to one server changes the id and the data keys of the remaining server:
+it starts with default server and plugin options (the old ones are under `serverOptions/a`, ...) and its scheduled
+events (id `a`) count as events of a removed server (see above). The same happens the other way round when you add a
+`servers:` list to a setup that ran without one: server `a` is a new server, the old data stays under the unsuffixed
+keys and the UUID. Nothing is lost in either case, but it is invisible until you switch back. Therefore: keep **one
+entry with the same id** and remove the other server as described above. With fewer than two servers the UI hides the
+server selector and the results are not attributed to servers, as in a plain installation. Not tested: switching an
+existing database between the two modes.
+
+### Rules that always apply
+
+- **The first server of `servers:` is the one the manager manages content through** (uploads, car and track lists,
+  content scan). Keep `steam.install_path` equal to its `install_path` (here `assetto-a`). Do not remove or reorder the
+  first entry without thinking: a new first server needs the shared `ac-content` mounted onto its `content`
+  directory and `steam.install_path` has to follow it.
+- **All servers share one content folder**: `ac-content` is mounted onto `<install_path>/content` of every server (d
+  above). A server without this mount has its own, empty content folder.
+- `id` and `install_path` are required and must be unique, otherwise the manager does not start (`config: server id
+  "x" is used more than once`, `config: servers "a" and "b" have the same install_path`).
+- Every server needs its own ports (acServer UDP/TCP, HTTP, plugin ports), published 1:1 and set in Server Options;
+  the manager warns about conflicts (part 6).
 
 ## Troubleshooting summary
 
