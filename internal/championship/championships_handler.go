@@ -88,7 +88,11 @@ func (ch *ChampionshipsHandler) CreateOrEdit(w http.ResponseWriter, r *http.Requ
 func (ch *ChampionshipsHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	championship, edited, err := ch.championshipManager.HandleCreateChampionship(r)
 
-	if err != nil {
+	if _, ok := err.(ValidationError); ok {
+		logrus.WithError(err).Warn("invalid championship form")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	} else if err != nil {
 		logrus.WithError(err).Errorf("couldn't create championship")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

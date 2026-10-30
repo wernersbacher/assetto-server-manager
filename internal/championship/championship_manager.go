@@ -170,6 +170,10 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 		return nil, false, err
 	}
 
+	if err := validateChampionshipForm(r); err != nil {
+		return nil, false, err
+	}
+
 	previousClasses := make(map[uuid.UUID]smmodel.ChampionshipClass)
 
 	if championshipID := r.FormValue("Editing"); championshipID != "" {
