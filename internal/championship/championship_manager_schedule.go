@@ -182,6 +182,13 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *smmodel.Champio
 		}
 	}
 
+	name := championship.Name + ": " + cm.env.TrackSummary(event.RaceSetup.Track, event.RaceSetup.TrackLayout)
+
+	if !cm.AllowScheduledStart(name) {
+		// the schedule was already cleared (or the next recurrence set) above
+		return nil
+	}
+
 	return cm.StartEvent(championshipID, eventID, false)
 }
 

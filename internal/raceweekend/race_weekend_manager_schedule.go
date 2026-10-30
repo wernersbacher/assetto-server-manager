@@ -61,11 +61,15 @@ func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *smmodel.R
 			return
 		}
 
-		err := rwm.StartSession(raceWeekend.ID.String(), session.ID.String(), false)
+		if rwm.raceManager.AllowScheduledStart(raceWeekend.Name + ": " + session.Name()) {
+			err := rwm.StartSession(raceWeekend.ID.String(), session.ID.String(), false)
 
-		if err != nil {
-			logrus.WithError(err).Errorf("Could not start scheduled race weekend session")
+			if err != nil {
+				logrus.WithError(err).Errorf("Could not start scheduled race weekend session")
+			}
 		}
+
+		// the scheduled time is cleared in any case, so that a skipped session is not fired again
 
 		raceWeekend, session, err := rwm.FindSession(raceWeekend.ID.String(), session.ID.String())
 

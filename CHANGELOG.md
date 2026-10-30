@@ -50,7 +50,7 @@ Added:
 
 Changed:
 
-* Starting a Championship event, Race Weekend session, custom race or quick race while an event is already running on the server is now refused with an error message, instead of replacing the running event. Stop the event first, or start on another server. Scheduled events whose start time is reached still take over a running event.
+* Starting a Championship event, Race Weekend session, custom race or quick race while an event is already running on the server is now refused with an error message, instead of replacing the running event. Stop the event first, or start on another server. Scheduled events whose start time is reached only interrupt a running event if its session is a practice, or a qualifying or race session without any connected drivers; otherwise the scheduled start is skipped, logged as a warning and sent as a notification (the schedule is cleared, recurring events still get their next occurrence).
 
 Fixed:
 

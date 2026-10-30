@@ -125,10 +125,19 @@ func eventSchedulePlugin(race *smmodel.CustomRace) error {
 }
 
 func (rm *RaceManager) StartScheduledRace(race *smmodel.CustomRace) error {
-	startedRace, err := rm.StartCustomRace(race.UUID.String(), false)
+	startedRace, err := rm.store.FindCustomRaceByID(race.UUID.String())
 
 	if err != nil {
 		return err
+	}
+
+	// a skipped start still goes through the schedule bookkeeping below (next recurrence or cleared schedule)
+	if rm.AllowScheduledStart(startedRace.EventName(rm.env.TrackSummary)) {
+		startedRace, err = rm.StartCustomRace(race.UUID.String(), false)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	if startedRace.HasRecurrenceRule() {
