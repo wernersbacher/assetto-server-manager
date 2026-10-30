@@ -5,12 +5,14 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Messages</h1>
+            <h1>Messages{{ template "server-badge" $ }}</h1>
             <p>Messages shown to drivers when they join the server.</p>
         </div>
     </div>
 
-    <form method="post" action="/motd" class="admin-form">
+    {{ template "server-tabs" $ }}
+
+    <form method="post" action="{{ serverURL "/motd" }}" class="admin-form">
         <div class="card admin-card mb-4">
             <div class="card-header"><h2>MOTD</h2></div>
             <div class="card-body">
@@ -42,7 +44,7 @@
                     </label><br>
                     <textarea id="contentManagerWelcomeMessage" name="contentManagerWelcomeMessage"></textarea>
                 {{ else }}
-                    <p class="mb-0 text-muted">Enable Content Manager Wrapper in <a href="/server-options">Server Options</a> to show this message.</p>
+                    <p class="mb-0 text-muted">Enable Content Manager Wrapper in <a href="{{ serverURL "/server-options" }}">Server Options</a> to show this message.</p>
                 {{ end }}
             </div>
         </div>

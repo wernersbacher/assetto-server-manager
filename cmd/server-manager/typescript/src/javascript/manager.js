@@ -1341,7 +1341,7 @@ let serverLogs = {
 
         if ($serverLog.length && $managerLog.length && $pluginLog.length) {
             setInterval(function () {
-                $.get("/api/logs", function (data) {
+                $.get($("#log-tabs").data("logs-url") || "/api/logs", function (data) {
                     if (!window.getSelection().toString()) {
 
                         if (isAtBottom($serverLog) && !disableServerLogRefresh) {

@@ -352,6 +352,7 @@ func Router(
 			r.Use(auditLogHandler.Middleware)
 		}
 
+		r.Get("/servers", serverAdministrationHandler.Servers)
 		r.HandleFunc("/server-options", serverAdministrationHandler.Options)
 		r.HandleFunc("/blacklist", serverAdministrationHandler.Blacklist)
 		r.HandleFunc("/motd", serverAdministrationHandler.MOTD)

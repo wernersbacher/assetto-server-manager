@@ -5,10 +5,12 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>KissMyRank Options</h1>
+            <h1>KissMyRank Options{{ template "server-badge" $ }}</h1>
             <p>Server side plugin integration</p>
         </div>
     </div>
+
+    {{ template "server-tabs" $ }}
 
     {{ template "port-warnings" $.PortWarnings }}
 
@@ -29,7 +31,7 @@
     </div>
 
     {{ if .IsKMRInstalled }}
-        <form method="post" action="/kissmyrank/options" class="admin-form">
+        <form method="post" action="{{ serverURL "/kissmyrank/options" }}" class="admin-form">
             <p class="text-muted">
                 These configuration options are those of the selected server - they are applied to the KissMyRank configuration file
                 whenever a race setup is started by Server Manager.
@@ -53,7 +55,7 @@
                 <ol class="mb-0">
                     <li><a href="https://www.racedepartment.com/downloads/kissmyrank-local-assetto-corsa-server-plugin.17667/">Download KissMyRank</a></li>
                     <li>Extract the correct folder for your platform from the KissMyRank zip into a folder called "kissmyrank" (case sensitive) in your Assetto Corsa Server folder</li>
-                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="/server-options">Server Options</a></li>
+                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{{ serverURL "/server-options" }}">Server Options</a></li>
                     <li>Refresh this page!</li>
                 </ol>
             </div>

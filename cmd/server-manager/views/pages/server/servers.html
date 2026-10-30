@@ -1,0 +1,94 @@
+{{/* gotype: github.com/wernersbacher/assetto-server-manager/internal/admin.serversTemplateVars */}}
+
+{{ define "title" }}Servers{{ end }}
+
+{{ define "content" }}
+    <div class="page-header">
+        <div>
+            <h1>Servers</h1>
+            <p>All servers of this Server Manager with their ports, plugins and port conflicts, so that you can compare and fix the settings in one place.</p>
+        </div>
+    </div>
+
+    <div class="dashboard-grid mb-4">
+        {{ range $server := $.Details }}
+            <article class="card dashboard-card server-card" aria-labelledby="server-{{ $server.ID }}-heading">
+                <div class="dashboard-card-header">
+                    <h3 id="server-{{ $server.ID }}-heading">{{ $server.Name }} <small class="text-muted">{{ if $server.ID }}{{ $server.ID }}{{ else }}default{{ end }}</small></h3>
+
+                    {{ if $server.Running }}
+                        <span class="badge badge-success">{{ $server.EventType }}</span>
+                    {{ else }}
+                        <span class="badge badge-secondary">Idle</span>
+                    {{ end }}
+                </div>
+
+                <dl class="stat-row">
+                    <div>
+                        <dt>Event</dt>
+                        <dd>{{ if $server.Running }}{{ $server.EventName }}{{ else }}No event is running{{ end }}</dd>
+                    </div>
+                    <div>
+                        <dt>Drivers online</dt>
+                        <dd>{{ $server.DriversOnline }}</dd>
+                    </div>
+                </dl>
+
+                {{ if $server.Warnings }}
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Port conflict with another server.</strong>
+                        <ul class="mb-0">
+                            {{ range $warning := $server.Warnings }}
+                                <li>{{ $warning }}</li>
+                            {{ end }}
+                        </ul>
+                    </div>
+                {{ end }}
+
+                <h4 class="h6">acServer ports</h4>
+                <ul class="server-ports mb-3">
+                    {{ range $port := $server.Ports }}
+                        <li><span>{{ $port.What }}</span><span class="port-number">{{ $port.Port }} / {{ $port.Protocol }}</span></li>
+                    {{ else }}
+                        <li class="text-muted">No ports known.</li>
+                    {{ end }}
+                </ul>
+
+                <h4 class="h6">Plugins</h4>
+                <ul class="server-ports mb-3">
+                    {{ range $plugin := $server.Plugins }}
+                        <li>
+                            <span>
+                                <a href="{{ $plugin.OptionsURL }}?server={{ $server.ID }}">{{ $plugin.Name }}</a>
+                                {{ if $plugin.Enabled }}<span class="badge badge-success">Enabled</span>{{ else }}<span class="badge badge-secondary">Disabled</span>{{ end }}
+                            </span>
+                            <span class="port-number">
+                                {{ range $i, $port := $plugin.Ports }}{{ if $i }}, {{ end }}{{ $port.Port }}/{{ $port.Protocol }}{{ end }}
+                            </span>
+                        </li>
+                    {{ end }}
+                </ul>
+
+                <div class="server-card-actions">
+                    <a href="/server-options?server={{ $server.ID }}" class="btn btn-primary btn-sm">Options</a>
+                    <a href="/logs?server={{ $server.ID }}" class="btn btn-outline-secondary btn-sm">Logs</a>
+                    {{ if ReadAccess }}
+                        <a href="/live-timing?server={{ $server.ID }}" class="btn btn-outline-secondary btn-sm">Live timing</a>
+                    {{ end }}
+                </div>
+            </article>
+        {{ end }}
+    </div>
+
+    <div class="card admin-card">
+        <div class="card-header"><h2>Global and per-server settings</h2></div>
+        <div class="card-body">
+            <p><strong>Per server:</strong> server options (including the ports), sTracker, KissMyRank and Real Penalty options, blacklist, messages (MOTD), logs of the
+                acServer, the current config, live timing and the race control, the running event and the last race.</p>
+            <p><strong>Shared by all servers:</strong> accounts, the audit log, cars, tracks, weather and setups, the AutoFill entrants, penalties, the calendar and
+                scheduled events, championships and their results (results are kept in the folder of the server that ran the session).</p>
+            <p class="mb-0"><strong>Notifications</strong> (Discord) are sent with the options of the default server, the Discord settings of the other servers are not used.
+                The Server Manager log is shared, only the acServer log belongs to a server.</p>
+        </div>
+    </div>
+{{ end }}

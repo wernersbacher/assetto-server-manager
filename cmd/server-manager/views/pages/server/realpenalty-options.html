@@ -5,10 +5,12 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Real Penalty Options</h1>
+            <h1>Real Penalty Options{{ template "server-badge" $ }}</h1>
             <p>Server side plugin integration</p>
         </div>
     </div>
+
+    {{ template "server-tabs" $ }}
 
     {{ template "port-warnings" $.PortWarnings }}
 
@@ -28,7 +30,7 @@
     </div>
 
     {{ if .IsRealPenaltyInstalled }}
-        <form method="post" action="/realpenalty/options" class="admin-form">
+        <form method="post" action="{{ serverURL "/realpenalty/options" }}" class="admin-form">
             <p class="text-muted">
                 These configuration options are those of the selected server - they are applied to the Real Penalty configuration files
                 whenever a race setup is started by Server Manager.
@@ -42,7 +44,7 @@
                 <div class="card-header"><h2>Download Logs</h2></div>
                 <div class="card-body d-flex flex-wrap align-items-center justify-content-between" style="gap: 16px">
                     <p class="mb-0">You can download all of your Real Penalty logs in zip format here.</p>
-                    <a class="btn btn-info" href="/realpenalty/logs">{{ template "icon" "download" }} Download Logs</a>
+                    <a class="btn btn-info" href="{{ serverURL "/realpenalty/logs" }}">{{ template "icon" "download" }} Download Logs</a>
                 </div>
             </div>
 
@@ -62,7 +64,7 @@
                     <li>Extract <code>Real Penalty {{ $.RealPenaltySupportedVersion }}.zip</code></li>
                     <li>Rename the extracted folder to <code>realpenalty</code></li>
                     <li>Move that folder inside your <code>assetto</code> folder. If you are using multiserver, copy it inside each one of them. E.g. inside <code>youracserver/servers/SERVER_00/assetto/</code></li>
-                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="/server-options">Server Options</a></li>
+                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{{ serverURL "/server-options" }}">Server Options</a></li>
                     <li>Refresh this page!</li>
                 </ol>
 

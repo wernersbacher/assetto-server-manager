@@ -5,10 +5,12 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Current Config</h1>
+            <h1>Current Config{{ template "server-badge" $ }}</h1>
             <p>The <code>server_cfg.ini</code> and <code>entry_list.ini</code> that are currently applied to the server. Read-only, intended for troubleshooting.</p>
         </div>
     </div>
+
+    {{ template "server-tabs" $ }}
 
     <div class="card admin-card mb-4">
         <div class="card-header"><h2><label for="current-config" class="mb-0">Server Config</label></h2></div>

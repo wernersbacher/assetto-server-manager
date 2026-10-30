@@ -5,12 +5,14 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Blacklist</h1>
+            <h1>Blacklist{{ template "server-badge" $ }}</h1>
             <p>Banned user GUIDs, one per line.</p>
         </div>
     </div>
 
-    <form method="post" action="/blacklist" class="admin-form">
+    {{ template "server-tabs" $ }}
+
+    <form method="post" action="{{ serverURL "/blacklist" }}" class="admin-form">
         <div class="card admin-card">
             <div class="card-body">
                 <label for="blacklist" class="sr-only">Blacklist</label>

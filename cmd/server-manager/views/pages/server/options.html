@@ -5,14 +5,16 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Options</h1>
+            <h1>Options{{ template "server-badge" $ }}</h1>
             <p>These configuration options are those of the selected server - they are applied to each race setup started by Server Manager.</p>
         </div>
     </div>
 
+    {{ template "server-tabs" $ }}
+
     {{ template "port-warnings" $.PortWarnings }}
 
-    <form method="post" action="/server-options" class="admin-form">
+    <form method="post" action="{{ serverURL "/server-options" }}" class="admin-form">
         <div class="options-layout">
             <nav class="options-index" id="options-index" aria-label="Sections" hidden>
                 <div class="options-index-title">Sections</div>

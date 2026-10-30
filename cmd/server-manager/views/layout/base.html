@@ -175,6 +175,7 @@
                 <div class="nav-group">
                     <div class="nav-group-title">Server</div>
                     {{ if AdminAccess }}
+                        {{ if gt (len $.Servers) 1 }}<a class="nav-item-link {{ if eq $path "/servers" }}active{{ end }}" href="/servers">{{ template "icon" "config" }}Servers</a>{{ end }}
                         <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="{{ serverURL "/server-options" }}">{{ template "icon" "options" }}Options</a>
                         <a class="nav-item-link {{ if hasPrefix "/accounts" $path }}active{{ end }}" href="/accounts">{{ template "icon" "accounts" }}Accounts</a>
                         <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="{{ serverURL "/blacklist" }}">{{ template "icon" "blacklist" }}Blacklist</a>
@@ -193,9 +194,9 @@
                 {{ if AdminAccess }}
                     <div class="nav-group">
                         <div class="nav-group-title">Plugins</div>
-                        <a class="nav-item-link {{ if hasPrefix "/stracker" $path }}active{{ end }}" href="/stracker/options">{{ template "icon" "plugin" }}sTracker</a>
-                        <a class="nav-item-link {{ if hasPrefix "/kissmyrank" $path }}active{{ end }}" href="/kissmyrank/options">{{ template "icon" "plugin" }}KissMyRank</a>
-                        <a class="nav-item-link {{ if hasPrefix "/realpenalty" $path }}active{{ end }}" href="/realpenalty/options">{{ template "icon" "plugin" }}Real Penalty</a>
+                        <a class="nav-item-link {{ if hasPrefix "/stracker" $path }}active{{ end }}" href="{{ serverURL "/stracker/options" }}">{{ template "icon" "plugin" }}sTracker</a>
+                        <a class="nav-item-link {{ if hasPrefix "/kissmyrank" $path }}active{{ end }}" href="{{ serverURL "/kissmyrank/options" }}">{{ template "icon" "plugin" }}KissMyRank</a>
+                        <a class="nav-item-link {{ if hasPrefix "/realpenalty" $path }}active{{ end }}" href="{{ serverURL "/realpenalty/options" }}">{{ template "icon" "plugin" }}Real Penalty</a>
                     </div>
                 {{ end }}
             {{ end }}

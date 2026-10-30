@@ -5,10 +5,12 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>sTracker Options</h1>
+            <h1>sTracker Options{{ template "server-badge" $ }}</h1>
             <p>Server side plugin integration</p>
         </div>
     </div>
+
+    {{ template "server-tabs" $ }}
 
     {{ template "port-warnings" $.PortWarnings }}
 
@@ -30,7 +32,7 @@
     </div>
 
     {{ if .IsStrackerInstalled }}
-        <form method="post" action="/stracker/options" class="admin-form">
+        <form method="post" action="{{ serverURL "/stracker/options" }}" class="admin-form">
             <p class="text-muted">
                 These configuration options are those of the selected server - they are applied to the stracker configuration file
                 whenever a race setup is started by Server Manager.
@@ -55,7 +57,7 @@
                     <li><a href="https://www.racedepartment.com/downloads/stracker.3510/">Download stracker</a></li>
                     <li>Extract the stracker zip into a folder called "stracker" (case sensitive) in your Assetto Corsa Server folder</li>
                     <li>If you are on Linux, extract the <code>stracker_linux_x86.tgz</code> folder. (e.g. <code>tar xfvz stracker_linux_x86.tgz</code>)</li>
-                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="/server-options">Server Options</a></li>
+                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{{ serverURL "/server-options" }}">Server Options</a></li>
                     <li>Refresh this page!</li>
                 </ol>
             </div>

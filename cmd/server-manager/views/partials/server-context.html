@@ -1,0 +1,19 @@
+{{/* Shows which server a per-server page is for. Both take the page variables ($) and render nothing with a single server. */}}
+
+{{/* "server-badge": the name of the current server, for the page heading. */}}
+{{ define "server-badge" }}{{ if gt (len .Servers) 1 }}<span class="badge badge-primary server-badge" title="Server: {{ .CurrentServer.Name }}">{{ .CurrentServer.Name }}</span>{{ end }}{{ end }}
+
+{{/* "server-tabs": links to the same page of every server. */}}
+{{ define "server-tabs" }}
+    {{ if gt (len .Servers) 1 }}
+        {{ $path := .Request.URL.Path }}
+        {{ $current := .CurrentServer.ID }}
+        <nav class="server-tabs" aria-label="Server">
+            {{ range $server := .Servers }}
+                <a class="server-tab {{ if eq $server.ID $current }}active{{ end }}" href="{{ $path }}?server={{ $server.ID }}" {{ if eq $server.ID $current }}aria-current="page"{{ end }}>
+                    <span class="server-dot {{ if $server.Running }}is-running{{ end }}" aria-hidden="true"></span>{{ $server.Name }}
+                </a>
+            {{ end }}
+        </nav>
+    {{ end }}
+{{ end }}

@@ -1,7 +1,11 @@
 package servermanager
 
 import (
+	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -333,5 +337,131 @@ func TestResolverChecksPortsOfSlots(t *testing.T) {
 
 	if warnings := single.portWarnings(single.registry.Default().ID()); len(warnings) != 0 {
 		t.Errorf("expected no warnings with one server, got %v", warnings)
+	}
+}
+
+// serveWithServerSelection runs the request through the server selection middleware, as the router does.
+func serveWithServerSelection(resolver *Resolver, scope *smweb.Scope, handler http.HandlerFunc, req *http.Request) *httptest.ResponseRecorder {
+	rec := httptest.NewRecorder()
+	smweb.ServerSelectionMiddleware(resolver.isServerID)(handler).ServeHTTP(rec, smweb.WithScope(req, scope))
+
+	return rec
+}
+
+// Saving the options with ?server=b must change server b even if the session remembers server a (e.g. because the user
+// switched the server in another browser tab), and must leave a alone.
+func TestResolverOptionsSaveGoesToServerOfRequest(t *testing.T) {
+	dir, err := ioutil.TempDir("", "resolver-slots-install")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	resolver, store, cleanup := newTestResolver(t, &smconfig.Configuration{Servers: []smconfig.ServerSlotConfig{
+		{ID: "a", Name: "Server A", InstallPath: filepath.Join(dir, "a")},
+		{ID: "b", Name: "Server B", InstallPath: filepath.Join(dir, "b")},
+	}})
+	defer cleanup()
+
+	scope := webtest.RequestScope()
+	handler := resolver.resolveServerAdministrationHandler().Options
+
+	var seen smmodel.ServerID
+
+	probe := func(w http.ResponseWriter, r *http.Request) { seen = smweb.RequestedServerID(r) }
+
+	// the session remembers server a
+	rec := serveWithServerSelection(resolver, scope, probe, httptest.NewRequest(http.MethodGet, "/server-options?server=a", nil))
+	cookies := rec.Result().Cookies()
+
+	if len(cookies) == 0 {
+		t.Fatal("expected the server to be remembered in a cookie")
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/server-options", nil)
+
+	for _, c := range cookies {
+		req.AddCookie(c)
+	}
+
+	serveWithServerSelection(resolver, scope, probe, req)
+
+	if seen != "a" {
+		t.Fatalf("expected the session to remember server a, got %q", seen)
+	}
+
+	before, err := store.LoadServerOptionsFor("a")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	nameOfA := before.Name
+
+	// a form as the page renders it: the action carries the server of the page
+	form := url.Values{"Name": {"Renamed B"}}
+	post := httptest.NewRequest(http.MethodPost, "/server-options?server=b", strings.NewReader(form.Encode()))
+	post.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	for _, c := range cookies {
+		post.AddCookie(c)
+	}
+
+	serveWithServerSelection(resolver, scope, handler, post)
+
+	if loaded, err := store.LoadServerOptionsFor("b"); err != nil || loaded.Name != "Renamed B" {
+		t.Errorf("expected the options of b to be saved, got %v %v", loaded, err)
+	}
+
+	if loaded, err := store.LoadServerOptionsFor("a"); err != nil || loaded.Name != nameOfA {
+		t.Errorf("the options of a must not change, got %v %v", loaded, err)
+	}
+}
+
+func TestResolverServersPageShowsPortConflicts(t *testing.T) {
+	dir, err := ioutil.TempDir("", "resolver-slots-install")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	resolver, store, cleanup := newTestResolver(t, &smconfig.Configuration{Servers: []smconfig.ServerSlotConfig{
+		{ID: "a", Name: "Server A", InstallPath: filepath.Join(dir, "a")},
+		{ID: "b", Name: "Server B", InstallPath: filepath.Join(dir, "b")},
+	}})
+	defer cleanup()
+
+	// b keeps the default ports and so conflicts with a; stracker of a is enabled
+	strackerOpts, err := store.LoadStrackerOptionsFor("a")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	strackerOpts.EnableStracker = true
+
+	if err := store.UpsertStrackerOptionsFor("a", strackerOpts); err != nil {
+		t.Fatal(err)
+	}
+
+	req := smweb.WithScope(httptest.NewRequest(http.MethodGet, "/servers", nil), webtest.RequestScope())
+	rec := httptest.NewRecorder()
+
+	resolver.resolveServerAdministrationHandler().Servers(rec, smweb.WithRequestedServerID(req, "a"))
+
+	body := rec.Body.String()
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected the page to render, got %d %q", rec.Code, body)
+	}
+
+	for _, expected := range []string{"Server A", "Server B", "Port conflict with another server", "acServer UDP port", "9600", "/stracker/options?server=a", "/server-options?server=b"} {
+		if !strings.Contains(body, expected) {
+			t.Errorf("expected the servers page to contain %q", expected)
+		}
 	}
 }
