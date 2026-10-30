@@ -516,7 +516,7 @@ export namespace RaceWeekend {
 
         protected saveValues(): void {
             $.ajax(`/race-weekend/${RaceWeekendID}/update-entrylist?sessionID=${this.sessionID}&sortType=${this.sortType}&reverseGrid=${this.reverseGrid}`, {
-                type: "GET",
+                type: "POST",
             }).then(() => {
                 $("#filters-modal").modal("hide");
             });

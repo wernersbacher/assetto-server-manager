@@ -50,7 +50,7 @@
 
                                     {{ if WriteAccess }}
                                         <a href="/championship/{{ $championship.ID }}/edit" class="dropdown-item d-sm-none">Edit</a>
-                                        <a href="/championship/{{ $championship.ID }}/duplicate" class="dropdown-item">Duplicate Championship</a>
+                                        <form method="post" action="/championship/{{ $championship.ID }}/duplicate"><button type="submit" class="dropdown-item">Duplicate Championship</button></form>
 
                                         <div class="dropdown-divider"></div>
                                         <form method="post" action="/championship/{{ $championship.ID }}/delete"

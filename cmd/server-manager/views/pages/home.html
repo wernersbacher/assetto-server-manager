@@ -51,13 +51,12 @@
 
                             {{ if WriteAccess }}
                                 {{ if .Running }}
-                                    {{ $confirm := "" }}
-                                    {{ if not .IsPractice }}
-                                        {{ if .IsChampionship }}{{ $confirm = "return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');" }}{{ end }}
-                                        {{ if .IsRaceWeekend }}{{ $confirm = "return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');" }}{{ end }}
-                                    {{ end }}
-                                    <a href="/process/stop?server={{ .ID }}" class="btn btn-outline-danger btn-sm" onClick="{{ $confirm }}">{{ template "icon" "stop" }} Stop</a>
-                                    <a href="/process/restart?server={{ .ID }}" class="btn btn-outline-secondary btn-sm" onClick="{{ $confirm }}">{{ template "icon" "restart" }} Restart</a>
+                                    <form method="post" action="/process/stop?server={{ .ID }}" class="d-inline" {{ template "ServerStopConfirm" . }}>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ template "icon" "stop" }} Stop</button>
+                                    </form>
+                                    <form method="post" action="/process/restart?server={{ .ID }}" class="d-inline" {{ template "ServerStopConfirm" . }}>
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">{{ template "icon" "restart" }} Restart</button>
+                                    </form>
                                 {{ else }}
                                     <a href="/quick?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">Quick race</a>
                                     <a href="/custom/new?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">New custom race</a>

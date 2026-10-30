@@ -25,7 +25,7 @@
 
                         {{ if WriteAccess }}
                         <td class="align-middle custom-race-actions">
-                            <a class="btn btn-sm btn-primary" href="/championship/{{ $championship.ID.String }}/race-weekend/{{ .ID.String }}/import">Import</a>
+                            <form method="post" action="/championship/{{ $championship.ID.String }}/race-weekend/{{ .ID.String }}/import" class="d-inline"><button type="submit" class="btn btn-sm btn-primary">Import</button></form>
                         </td>
                         {{ end }}
                     </tr>

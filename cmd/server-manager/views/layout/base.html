@@ -6,12 +6,13 @@
     {{- else }}Running{{ end -}}
 {{ end }}
 
+{{/* Attributes for the confirm dialog of a form that stops or restarts a running event (see DeleteConfirm.ts). */}}
 {{ define "ServerStopConfirm" }}
     {{- if not .IsPractice -}}
         {{- if .IsChampionship -}}
-            return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');
+            data-confirm-delete="Cancel the current championship event?" data-confirm-detail="All progress of the running event will be permanently lost." data-confirm-label="Cancel event"
         {{- else if .IsRaceWeekend -}}
-            return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');
+            data-confirm-delete="Cancel the current race weekend session?" data-confirm-detail="All progress of the running session will be permanently lost." data-confirm-label="Cancel session"
         {{- end -}}
     {{- end -}}
 {{ end }}
@@ -100,12 +101,16 @@
                 </a>
 
                 {{ if WriteAccess }}
-                    <a href="{{ serverURL "/process/stop" }}" class="btn-outline is-danger" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
-                        {{ template "icon" "stop" }}<span class="d-none d-md-inline">Stop</span>
-                    </a>
-                    <a href="{{ serverURL "/process/restart" }}" class="btn-outline btn-outline-icon" aria-label="Restart server" title="Restart server" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
-                        {{ template "icon" "restart" }}
-                    </a>
+                    <form method="post" action="{{ serverURL "/process/stop" }}" class="d-inline-flex m-0" {{ template "ServerStopConfirm" $.ServerEvent }}>
+                        <button type="submit" class="btn-outline is-danger">
+                            {{ template "icon" "stop" }}<span class="d-none d-md-inline">Stop</span>
+                        </button>
+                    </form>
+                    <form method="post" action="{{ serverURL "/process/restart" }}" class="d-inline-flex m-0" {{ template "ServerStopConfirm" $.ServerEvent }}>
+                        <button type="submit" class="btn-outline btn-outline-icon" aria-label="Restart server" title="Restart server">
+                            {{ template "icon" "restart" }}
+                        </button>
+                    </form>
                 {{ end }}
             {{ else }}
                 <span class="server-status" role="status"><span class="server-status-text">Stopped</span></span>

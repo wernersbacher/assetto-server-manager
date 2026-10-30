@@ -32,7 +32,7 @@
                 {{ end }}
 
                 {{ if WriteAccess }}
-                    <a class="text-decoration-none" href="/custom/star/{{ $.Race.UUID.String }}">
+                    <form method="post" action="/custom/star/{{ $.Race.UUID.String }}" class="d-inline"><button type="submit" class="btn btn-link p-0 border-0 text-decoration-none align-baseline">
                 {{ end }}
 
                     {{ if $.Race.Starred }}
@@ -42,9 +42,9 @@
                     {{ end }}
 
                 {{ if WriteAccess }}
-                    </a>
+                    </button></form>
 
-                    <a class="text-decoration-none" href="/custom/loop/{{ $.Race.UUID.String }}">
+                    <form method="post" action="/custom/loop/{{ $.Race.UUID.String }}" class="d-inline"><button type="submit" class="btn btn-link p-0 border-0 text-decoration-none align-baseline">
                 {{ end }}
 
                     {{ with $.Race.LoopServer }}
@@ -58,7 +58,7 @@
                     {{ end }}
 
                 {{ if WriteAccess }}
-                    </a>
+                    </button></form>
                 {{ end }}
             </div>
         </div>
@@ -82,7 +82,7 @@
                     <div class="action-row card-actions">
                     {{ if WriteAccess }}
                         <div class="btn-group">
-                            <a class="btn btn-primary" href="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}">Start</a>
+                            <form method="post" action="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}" class="d-inline-flex m-0"><button type="submit" class="btn btn-primary">Start</button></form>
                             {{ template "start-target" dict "Path" (printf "/custom/load/%s" $.Race.UUID.String) "Servers" $.Servers "Class" "btn-primary" }}
 
                             <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split popover-external-html" data-placement="bottom"
@@ -115,9 +115,9 @@
                                     </div>
 
                                     <button type="submit" name="action" value="add" class="btn btn-sm btn-primary">Schedule</button>
-                                    <a href="/custom/schedule/{{ $.Race.UUID.String }}/remove" class="btn btn-sm btn-danger">
+                                    <button type="submit" formaction="/custom/schedule/{{ $.Race.UUID.String }}/remove" formnovalidate class="btn btn-sm btn-danger">
                                         Remove Scheduled Event
-                                    </a>
+                                    </button>
                                 </form>
                             </div>
                         </div>

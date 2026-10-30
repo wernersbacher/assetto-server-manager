@@ -90,9 +90,9 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                                    <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
-                                        Duplicate
-                                    </a>
+                                    <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
+                                        <button type="submit" class="dropdown-item">Duplicate</button>
+                                    </form>
 
                                     {{ if DeleteAccess }}
                                         <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"

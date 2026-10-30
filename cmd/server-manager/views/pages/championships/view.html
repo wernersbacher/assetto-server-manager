@@ -55,7 +55,7 @@
                         {{ end }}
 
                         <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/export">Export</a>
-                        {{ if $writeAccess }}<a href="/championship/{{ $championship.ID }}/duplicate" class="dropdown-item">Duplicate</a>{{ end }}
+                        {{ if $writeAccess }}<form method="post" action="/championship/{{ $championship.ID }}/duplicate"><button type="submit" class="dropdown-item">Duplicate</button></form>{{ end }}
 
                         {{ if gt $championship.Progress 0.0 }}
                             <a class="dropdown-item" id="simres-group" target="_blank" href="/championship/{{ $championship.ID.String }}/export-results">View in Simresults</a>

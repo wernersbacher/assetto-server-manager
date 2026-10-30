@@ -7,7 +7,9 @@
         </button>
         <div class="dropdown-menu">
             {{ range $server := $.Servers }}
-                <a class="dropdown-item" href="{{ $.Path }}?server={{ $server.ID }}">Start on {{ $server.Name }}</a>
+                <form method="post" action="{{ $.Path }}?server={{ $server.ID }}">
+                    <button type="submit" class="dropdown-item">Start on {{ $server.Name }}</button>
+                </form>
             {{ end }}
         </div>
     {{ end }}

@@ -126,19 +126,19 @@
 
                             <div class="dropdown-menu" aria-labelledby="manageEntrant-{{ $entrant.GUID }}">
 
-                                <a class="dropdown-item text-success" href="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=accept">
-                                    Accept
-                                </a>
+                                <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=accept">
+                                    <button type="submit" class="dropdown-item text-success">Accept</button>
+                                </form>
 
-                                <a class="dropdown-item text-danger" href="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=reject">
-                                    Reject
-                                </a>
+                                <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=reject">
+                                    <button type="submit" class="dropdown-item text-danger">Reject</button>
+                                </form>
 
                                 <div class="dropdown-divider"></div>
 
-                                <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=delete">
-                                    Delete
-                                </a>
+                                <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=delete">
+                                    <button type="submit" class="dropdown-item">Delete</button>
+                                </form>
                             </div>
                         </div>
 

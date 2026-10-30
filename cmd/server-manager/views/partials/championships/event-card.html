@@ -301,14 +301,11 @@
                                 {{ $startPath := printf "/championship/%s/event/%s/start" $championship.ID.String $event.ID.String }}
 
                                 <div class="btn-group">
-                                    <a class="btn btn-primary {{ if $eventInProgress }}disabled{{ end }}"
-                                       href="{{ serverURL $startPath }}"
-                                            {{ if $eventInProgress }}
-                                                aria-disabled="true"
-                                            {{ end }}
-                                    >
-                                        Start Event
-                                    </a>
+                                    <form method="post" action="{{ serverURL $startPath }}" class="d-inline-flex m-0">
+                                        <button type="submit" class="btn btn-primary" {{ if $eventInProgress }}disabled aria-disabled="true"{{ end }}>
+                                            Start Event
+                                        </button>
+                                    </form>
 
                                     {{ if not $eventInProgress }}
                                         {{ template "start-target" dict "Path" $startPath "Servers" $servers "Class" "btn-primary" }}
@@ -342,7 +339,7 @@
                                         </div>
 
                                         <button type='submit' name='action' value='add' class='btn btn-sm btn-primary'>Schedule</button>
-                                        <a href='/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/schedule/remove' class='btn btn-sm btn-danger'>Remove Scheduled Event</a>
+                                        <button type='submit' formaction='/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/schedule/remove' formnovalidate class='btn btn-sm btn-danger'>Remove Scheduled Event</button>
                                     </form>
                                 </div>
 
@@ -354,13 +351,14 @@
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
-                                        <a class="dropdown-item {{ if $eventInProgress }}disabled{{ end }}"
-                                           href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/practice"
-                                           {{ if $eventInProgress }}aria-disabled="true"{{ end }}
-                                           data-toggle="tooltip" data-placement="left"
-                                           title="Loads the configured event onto the server as a 2 hour looping practice, but doesn't track its progress as a championship event.">
-                                            Start Practice Event
-                                        </a>
+                                        <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/practice">
+                                            <button type="submit" class="dropdown-item {{ if $eventInProgress }}disabled{{ end }}"
+                                               {{ if $eventInProgress }}disabled aria-disabled="true"{{ end }}
+                                               data-toggle="tooltip" data-placement="left"
+                                               title="Loads the configured event onto the server as a 2 hour looping practice, but doesn't track its progress as a championship event.">
+                                                Start Practice Event
+                                            </button>
+                                        </form>
 
                                         <div class="dropdown-divider"></div>
 
@@ -372,9 +370,9 @@
                                             Import Results
                                         </a>
 
-                                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
-                                            Duplicate
-                                        </a>
+                                        <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
+                                            <button type="submit" class="dropdown-item">Duplicate</button>
+                                        </form>
 
                                         {{ if DeleteAccess }}
                                             <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
@@ -386,15 +384,15 @@
                                 </div>
 
                             {{ else if $event.InProgress }}
-                                <a onClick="return confirm('I understand that this will restart this entire event and any current results will be lost.') "
-                                   class="btn btn-warning" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/restart">
-                                    Restart Event
-                                </a>
+                                <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/restart" class="d-inline"
+                                      data-confirm-delete="Restart this event?" data-confirm-detail="The entire event is restarted and any current results will be lost." data-confirm-label="Restart event">
+                                    <button type="submit" class="btn btn-warning">Restart Event</button>
+                                </form>
 
-                                <a onClick="return confirm('I understand that this will cancel this entire event and any current results will be lost.') "
-                                   class="btn btn-danger" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/cancel">
-                                    Cancel Event
-                                </a>
+                                <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/cancel" class="d-inline"
+                                      data-confirm-delete="Cancel this event?" data-confirm-detail="The entire event is cancelled and any current results will be lost." data-confirm-label="Cancel event">
+                                    <button type="submit" class="btn btn-danger">Cancel Event</button>
+                                </form>
                             {{ end }}
                         {{ end }}
 
@@ -419,9 +417,9 @@
                                             Import Results
                                         </a>
 
-                                        <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
-                                            Duplicate
-                                        </a>
+                                        <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
+                                            <button type="submit" class="dropdown-item">Duplicate</button>
+                                        </form>
 
                                         {{ if DeleteAccess }}
                                             <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"

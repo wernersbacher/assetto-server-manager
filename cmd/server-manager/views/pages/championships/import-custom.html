@@ -31,7 +31,7 @@
 
                     {{ if $writeAccess }}
                         <td class="align-middle custom-race-actions">
-                            <a class="btn btn-sm btn-primary" href="/championship/{{ $championship.ID.String }}/custom/{{ $race.UUID.String }}/import">Import</a>
+                            <form method="post" action="/championship/{{ $championship.ID.String }}/custom/{{ $race.UUID.String }}/import" class="d-inline"><button type="submit" class="btn btn-sm btn-primary">Import</button></form>
                         </td>
                     {{ end }}
                 </tr>

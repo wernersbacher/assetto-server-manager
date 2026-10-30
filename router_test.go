@@ -98,3 +98,75 @@ func TestRouterUnknownAPIPathIsPlainText(t *testing.T) {
 		t.Errorf("expected a plain text 404, got %d %q", rec.Code, rec.Header().Get("Content-Type"))
 	}
 }
+
+// state-changing actions (start, stop, cancel, ...) must only be reachable via POST
+func TestRouterActionRoutesArePostOnly(t *testing.T) {
+	dir, err := ioutil.TempDir("", "router-test")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
+
+	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store, serverenv.NewState())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	router, ok := resolver.ResolveRouter(http.Dir(dir)).(chi.Routes)
+
+	if !ok {
+		t.Fatal("router does not implement chi.Routes")
+	}
+
+	methods := make(map[string][]string)
+
+	err = chi.Walk(router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		methods[route] = append(methods[route], method)
+
+		return nil
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, route := range []string{
+		"/process/{action}",
+		"/custom/load/{uuid}",
+		"/custom/schedule/{uuid}/remove",
+		"/custom/star/{uuid}",
+		"/custom/loop/{uuid}",
+		"/championship/{championshipID}/duplicate",
+		"/championship/{championshipID}/event/{eventID}/start",
+		"/championship/{championshipID}/event/{eventID}/practice",
+		"/championship/{championshipID}/event/{eventID}/cancel",
+		"/championship/{championshipID}/event/{eventID}/restart",
+		"/championship/{championshipID}/event/{eventID}/schedule/remove",
+		"/championship/{championshipID}/event/{eventID}/duplicate",
+		"/championship/{championshipID}/entrant/{entrantGUID}",
+		"/championship/{championshipID}/custom/{eventID}/import",
+		"/championship/{championshipID}/race-weekend/{weekendID}/import",
+		"/race-weekend/{raceWeekendID}/session/{sessionID}/start",
+		"/race-weekend/{raceWeekendID}/session/{sessionID}/practice",
+		"/race-weekend/{raceWeekendID}/session/{sessionID}/restart",
+		"/race-weekend/{raceWeekendID}/session/{sessionID}/cancel",
+		"/race-weekend/{raceWeekendID}/session/{sessionID}/schedule/remove",
+		"/race-weekend/{raceWeekendID}/update-entrylist",
+	} {
+		got, ok := methods[route]
+
+		if !ok {
+			t.Errorf("route %s is not registered", route)
+			continue
+		}
+
+		if len(got) != 1 || got[0] != http.MethodPost {
+			t.Errorf("route %s must be POST only, is registered for %v", route, got)
+		}
+	}
+}
