@@ -14,12 +14,19 @@
   }
 }
 
+// The graph has a fixed size (set from the dagre layout in RaceWeekend.ts); it scrolls inside this wrapper
+// instead of making the whole page scroll horizontally.
+.race-weekend-graph-scroll {
+  overflow-x: auto;
+  margin-bottom: 32px;
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background-color: var(--muted);
+}
+
 #race-weekend-graph-container {
   position: relative;
   padding-bottom: 250px;
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 svg.race-weekend-connector path {

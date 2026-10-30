@@ -535,7 +535,10 @@ func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*sm
 
 	practice := newSession("Practice", serverconfig.SessionTypePractice, 0, 20, rw.ID, "")
 	qualy := newSession("Qualify", serverconfig.SessionTypeQualifying, 0, 10, practice.ID, "fastest_lap")
+	// a second, parallel qualifying: the race has two parents, which gives the session graph a branch
+	qualy2 := newSession("Qualify 2", serverconfig.SessionTypeQualifying, 0, 10, practice.ID, "fastest_lap")
 	race := newSession("Race", serverconfig.SessionTypeRace, 6, 0, qualy.ID, "fastest_lap")
+	race.ParentIDs = append(race.ParentIDs, qualy2.ID)
 
 	start := at(now, -1, 19, 0)
 
@@ -554,6 +557,7 @@ func seedRaceWeekend(rng *rand.Rand, now time.Time, manifest *seedManifest) (*sm
 
 	rw.AddSession(practice, nil)
 	rw.AddSession(qualy, nil)
+	rw.AddSession(qualy2, nil)
 	rw.AddSession(race, nil)
 
 	// AddSession(nil) does not set parents, they have been configured above.
