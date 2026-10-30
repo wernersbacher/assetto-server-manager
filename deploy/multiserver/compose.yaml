@@ -1,0 +1,35 @@
+# Multiple server manager instances on one host, all started from the same image.
+# See README.md in this directory.
+
+name: assetto-multiserver
+
+x-image: &image
+  image: assetto-server-manager:local
+  build:
+    context: ../..
+    args:
+      SM_VERSION: docker-multiserver
+    secrets:
+      - ca_cert
+
+services:
+  # one-off: installs the AC server into the ac-base volume. Asks for password and Steam Guard code.
+  #   docker compose --profile install run --rm install
+  install:
+    <<: *image
+    profiles: ["install"]
+    user: root
+    entrypoint: ["sh", "/install-ac.sh"]
+    environment:
+      STEAM_USER:
+    volumes:
+      - ac-base:/base
+      - ./install-ac.sh:/install-ac.sh:ro
+
+volumes:
+  # the pristine AC server install; the instances get a copy of it
+  ac-base:
+
+secrets:
+  ca_cert:
+    file: ${EXTRA_CA_CERT:-../../dev/no-extra-ca.pem}
