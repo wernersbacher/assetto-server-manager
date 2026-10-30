@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/admin"
+	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
@@ -154,6 +155,20 @@ func (r *Resolver) resultsServers() []resultshttp.ServerDir {
 
 	for _, slot := range r.registry.All() {
 		servers = append(servers, resultshttp.ServerDir{
+			ServerRef:  smweb.ServerRef{ID: slot.ID(), Name: slot.Name},
+			ResultsDir: filepath.Join(slot.InstallPath, "results"),
+		})
+	}
+
+	return servers
+}
+
+// contentServers lists all server slots with their results directories, for attributing lap records to a server.
+func (r *Resolver) contentServers() []contenthttp.ServerDir {
+	servers := make([]contenthttp.ServerDir, 0, r.registry.Len())
+
+	for _, slot := range r.registry.All() {
+		servers = append(servers, contenthttp.ServerDir{
 			ServerRef:  smweb.ServerRef{ID: slot.ID(), Name: slot.Name},
 			ResultsDir: filepath.Join(slot.InstallPath, "results"),
 		})

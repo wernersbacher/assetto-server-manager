@@ -28,14 +28,16 @@ type CarsHandler struct {
 	carManager   *smcontent.CarManager
 	trackManager *smcontent.TrackManager
 	env          *serverenv.Env
+	records      *Records
 }
 
-func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env) *CarsHandler {
+func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env, records *Records) *CarsHandler {
 	return &CarsHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,
 		trackManager: trackManager,
 		env:          env,
+		records:      records,
 	}
 }
 
@@ -158,7 +160,7 @@ func (ch *CarsHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateParams, err := ch.loadCarDetailsForTemplate(carName)
+	templateParams, err := ch.loadCarDetailsForTemplate(carName, r)
 
 	if os.IsNotExist(err) {
 		http.NotFound(w, r)
@@ -298,10 +300,15 @@ type carDetailsTemplateVars struct {
 	Results   []smresults.SessionResults
 	Setups    map[string][]string
 	TrackOpts []smcontent.Track
+
+	// Records are the best laps of the car per track layout.
+	Records []RecordRow
+	// FilterServer is the id of the server the records are restricted to, empty for all.
+	FilterServer string
 }
 
 // loadCarDetailsForTemplate loads all necessary items to generate the car details template.
-func (ch *CarsHandler) loadCarDetailsForTemplate(carName string) (*carDetailsTemplateVars, error) {
+func (ch *CarsHandler) loadCarDetailsForTemplate(carName string, r *http.Request) (*carDetailsTemplateVars, error) {
 	tyres, err := smcontent.ListTyres(ch.env.InstallPath())
 
 	if err != nil {
@@ -332,11 +339,15 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string) (*carDetailsTem
 		return nil, err
 	}
 
+	recordsFilter, filterServer := ch.records.filter(r)
+
 	return &carDetailsTemplateVars{
-		Car:       car,
-		Results:   results,
-		Setups:    setups,
-		TrackOpts: tracks,
+		Car:          car,
+		Results:      results,
+		Setups:       setups,
+		TrackOpts:    tracks,
+		Records:      ch.records.rows(ch.records.forCar(carName, recordsFilter)),
+		FilterServer: filterServer,
 	}, nil
 }
 

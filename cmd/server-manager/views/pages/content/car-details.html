@@ -187,6 +187,35 @@
                     </form>
                 {{ end }}
 
+                <h2>Best Laps</h2>
+
+                {{ if $.Records }}
+                    <div class="table-card"><table class="table results-table">
+                        <tr>
+                            <th>Track</th>
+                            <th class="text-nowrap">Lap Time</th>
+                            <th>Driver</th>
+                            <th>Date</th>
+                        </tr>
+                        {{ range $.Records }}
+                            <tr class="row-link" data-href="/results/{{ .ResultFile }}">
+                                <td>
+                                    <a href="/track/{{ .Track }}">{{ prettify .Track false }}</a>
+                                    {{ with .Layout }}({{ prettify . true }}){{ end }}
+                                </td>
+                                <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
+                                <td>{{ driverName .DriverName }}</td>
+                                <td class="text-nowrap">
+                                    {{ localFormat .Date }}
+                                    {{ with .Server }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
+                                </td>
+                            </tr>
+                        {{ end }}
+                    </table></div>
+                {{ else }}
+                    {{ template "empty-state" dict "Icon" "results" "Text" "No best laps yet. Valid laps with this car show up here." }}
+                {{ end }}
+
                 <h2>Sessions</h2>
 
                 <p>This car has been used in {{ len $.Results }} sessions.</p>

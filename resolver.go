@@ -19,7 +19,8 @@ import (
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	"github.com/wernersbacher/assetto-server-manager/internal/servers"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+		"github.com/wernersbacher/assetto-server-manager/internal/stats"
+smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"net/http"
@@ -64,6 +65,8 @@ type Resolver struct {
 	auditLogHandler             *smaccounts.AuditLogHandler
 	carsHandler                 *contenthttp.CarsHandler
 	tracksHandler               *contenthttp.TracksHandler
+	statsIndex                  *stats.Index
+	contentRecords              *contenthttp.Records
 	weatherHandler              *contenthttp.WeatherHandler
 	setupsHandler               *contenthttp.SetupsHandler
 	penaltiesHandler            *racecontrol.PenaltiesHandler
@@ -367,7 +370,7 @@ func (r *Resolver) resolveCarsHandler() *contenthttp.CarsHandler {
 		return r.carsHandler
 	}
 
-	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv())
+	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv(), r.resolveRecords())
 
 	return r.carsHandler
 }
@@ -396,12 +399,35 @@ func (r *Resolver) resolveTrackManager() *smcontent.TrackManager {
 	return r.trackManager
 }
 
+// resolveStatsIndex returns the results statistics index, shared by all handlers. The loader of the default slot reads the
+// results of all slots.
+func (r *Resolver) resolveStatsIndex() *stats.Index {
+	if r.statsIndex != nil {
+		return r.statsIndex
+	}
+
+	r.statsIndex = stats.New(r.resolveEnv().Results(), stats.DefaultRefreshInterval)
+
+	return r.statsIndex
+}
+
+// resolveRecords returns the lap records source of the track and car pages and the records API.
+func (r *Resolver) resolveRecords() *contenthttp.Records {
+	if r.contentRecords != nil {
+		return r.contentRecords
+	}
+
+	r.contentRecords = contenthttp.NewRecords(r.resolveStatsIndex(), r.contentServers)
+
+	return r.contentRecords
+}
+
 func (r *Resolver) resolveTracksHandler() *contenthttp.TracksHandler {
 	if r.tracksHandler != nil {
 		return r.tracksHandler
 	}
 
-	r.tracksHandler = contenthttp.NewTracksHandler(r.resolveBaseHandler(), r.resolveTrackManager(), r.resolveEnv(), func() []byte {
+	r.tracksHandler = contenthttp.NewTracksHandler(r.resolveBaseHandler(), r.resolveTrackManager(), r.resolveEnv(), r.resolveRecords(), func() []byte {
 		return static.FSMustByte(false, "/img/no-preview-general.png")
 	})
 

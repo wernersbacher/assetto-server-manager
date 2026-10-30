@@ -161,6 +161,14 @@ Results can be read in the same way, with the same access rules as the results p
 - `GET /api/results/{fileName}`: a single result, with or without the `.json` extension. It has the same fields as the
   list, plus the `Classification` (position, driver name and GUID, car, team, best lap, total time, laps, penalties and
   disqualification) and all `Laps` (lap time, sectors, cuts, tyre).
+- `GET /api/track-records`: the lap records of a track layout. The query parameter `track` (the track folder name) is
+  required, `layout` (the layout folder name, empty or missing for the default layout) selects the layout, `car` restricts
+  the records to one car model and `filterServer` (see below) to one server; invalid names are a 400. Only valid laps
+  (no cuts) from the results count. The response has the track (`Track`, `TrackLayout`, a readable `TrackName`), the
+  `Records`, which are the best lap of every car, fastest first, and the `Overall` record (the first one, `null` if
+  there are none). A record has the driver (`DriverName`, `DriverGUID`), the car (`CarModel`, `CarName`), `LapTime` and
+  `Sectors` in milliseconds, the `Tyre`, the `Date` and `SessionType` of the session, its results `FileName` (see
+  `/api/results/{fileName}`) and, with several servers, the `Server` (`ID`, `Name`).
 
 All times and durations are in milliseconds, as Assetto Corsa stores them. Driver names are shortened if the server
 hides driver last names. Collisions are not included, use `/results/download/{fileName}` for the full results file.
@@ -187,7 +195,7 @@ With several servers (see [Several servers](#several-servers)) the APIs know abo
   of `DriversOnline`. It does not depend on a selected server. Same access rules as `/api/server-status` (the live timing page).
 - `GET /api/server-status` reports the server given in the `server` query parameter (the server id), the first server
   without it (or the one remembered in the session).
-- `filterServer=<server id>` restricts `/api/results`, `/api/upcoming-races` (and the calendar and its .ics feed) to one
+- `filterServer=<server id>` restricts `/api/results`, `/api/track-records`, `/api/upcoming-races` (and the calendar and its .ics feed) to one
   server; an unknown id matches nothing.
 - `/api/results` entries have a `Server` (`ID`, `Name`) and `/api/championships` has an `ActiveServer` while one of
   their events runs. `Server` is only set if there are several servers. `/api/upcoming-races` entries have a `ServerID`

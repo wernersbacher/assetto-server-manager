@@ -149,6 +149,7 @@ func Router(
 		r.HandleFunc("/results/download/{fileName}", resultsHandler.File)
 		r.Get("/api/results", resultsHandler.ListAPI)
 		r.Get("/api/results/{fileName}", resultsHandler.ViewAPI)
+		r.Get("/api/track-records", tracksHandler.RecordsAPI)
 
 		r.Get("/custom", customRaceHandler.List)
 

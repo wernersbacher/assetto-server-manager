@@ -29,6 +29,18 @@
         {{ end }}
 
         <h2>Layouts</h2>
+        {{ if gt (len $.Servers) 1 }}
+            <form class="results-filter mb-2" method="get" action="/track/{{ $.Track.Name }}">
+                <select name="filterServer" class="form-control" aria-label="Server for lap records" onchange="this.form.submit()">
+                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>Lap records of any server</option>
+                    {{ range $.Servers }}
+                        <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
+                    {{ end }}
+                </select>
+                <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+            </form>
+        {{ end }}
+
 
         {{ range $index, $layout := $.Track.Layouts }}
             <div class="card mt-2">
@@ -70,6 +82,49 @@
                                 <p>{{ $info.Description }}</p>
                             </div>
                         </div>
+                    {{ end }}
+                </div>
+
+                <hr>
+
+                <div class="card-body lap-records">
+
+                    <h2>Lap Records</h2>
+
+                    {{ $records := index $.Records $layout }}
+
+                    {{ if $records }}
+                        {{ $best := index $records 0 }}
+
+                        <p class="lap-record-overall mb-2">
+                            <span class="h3 mr-2">{{ formatDuration $best.LapTime true }}</span>
+                            {{ driverName $best.DriverName }}, {{ prettify $best.Car true }}
+                            <small class="text-muted ml-1">{{ localFormat $best.Date }}</small>
+                        </p>
+
+                        <div class="table-card"><table class="table results-table">
+                            <tr>
+                                <th>Car</th>
+                                <th>Driver</th>
+                                <th class="text-nowrap">Lap Time</th>
+                                <th class="d-none d-md-table-cell">Sectors</th>
+                                <th>Date</th>
+                            </tr>
+                            {{ range $records }}
+                                <tr class="row-link" data-href="/results/{{ .ResultFile }}">
+                                    <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a></td>
+                                    <td>{{ driverName .DriverName }}</td>
+                                    <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
+                                    <td class="d-none d-md-table-cell text-nowrap">{{ range $i, $sector := .Sectors }}{{ if $i }} / {{ end }}{{ formatDuration $sector true }}{{ end }}</td>
+                                    <td class="text-nowrap">
+                                        {{ localFormat .Date }}
+                                        {{ with .Server }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
+                                    </td>
+                                </tr>
+                            {{ end }}
+                        </table></div>
+                    {{ else }}
+                        {{ template "empty-state" dict "Icon" "results" "Text" "No lap records yet. Valid laps from results show up here." }}
                     {{ end }}
                 </div>
 

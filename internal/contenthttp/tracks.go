@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
@@ -23,16 +24,18 @@ type TracksHandler struct {
 
 	trackManager *smcontent.TrackManager
 	env          *serverenv.Env
+	records      *Records
 
 	// noPreview returns the image which is served for tracks without a preview.
 	noPreview func() []byte
 }
 
-func NewTracksHandler(baseHandler *smweb.BaseHandler, trackManager *smcontent.TrackManager, env *serverenv.Env, noPreview func() []byte) *TracksHandler {
+func NewTracksHandler(baseHandler *smweb.BaseHandler, trackManager *smcontent.TrackManager, env *serverenv.Env, records *Records, noPreview func() []byte) *TracksHandler {
 	return &TracksHandler{
 		BaseHandler:  baseHandler,
 		trackManager: trackManager,
 		env:          env,
+		records:      records,
 		noPreview:    noPreview,
 	}
 }
@@ -109,7 +112,7 @@ func (th *TracksHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateParams, err := th.loadTrackDetailsForTemplate(trackName)
+	templateParams, err := th.loadTrackDetailsForTemplate(trackName, r)
 
 	if os.IsNotExist(err) {
 		http.NotFound(w, r)
@@ -181,11 +184,18 @@ type trackDetailsTemplateVars struct {
 	Track     *smcontent.Track
 	TrackInfo map[string]*smcontent.TrackInfo
 	Results   map[string][]smresults.SessionResults
+
+	// Records are the best laps per car of every layout, fastest first (the first one is the layout record).
+	Records map[string][]RecordRow
+	// FilterServer is the id of the server the records are restricted to, empty for all.
+	FilterServer string
 }
 
-func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDetailsTemplateVars, error) {
+func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string, r *http.Request) (*trackDetailsTemplateVars, error) {
 	trackInfoMap := make(map[string]*smcontent.TrackInfo)
 	resultsMap := make(map[string][]smresults.SessionResults)
+	recordsMap := make(map[string][]RecordRow)
+	recordsFilter, filterServer := th.records.filter(r)
 
 	track, err := th.trackManager.GetTrackFromName(trackName)
 
@@ -217,6 +227,7 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDe
 		}
 
 		resultsMap[layout] = results
+		recordsMap[layout] = th.records.rows(th.records.forTrack(track.Name, layout, recordsFilter))
 	}
 
 	return &trackDetailsTemplateVars{
@@ -224,6 +235,8 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string) (*trackDe
 		Track:            track,
 		TrackInfo:        trackInfoMap,
 		Results:          resultsMap,
+		Records:          recordsMap,
+		FilterServer:     filterServer,
 	}, nil
 }
 
@@ -243,4 +256,44 @@ func (th *TracksHandler) resultsForLayout(trackName, layout string) ([]smresults
 	}
 
 	return out, nil
+}
+
+// RecordsAPI lists the lap records of a track layout: the best valid lap of every car, fastest first, and the overall
+// record. Query parameters: track (required), layout (empty is the default layout), car (restricts the records to one
+// car model) and filterServer (restricts them to one server).
+func (th *TracksHandler) RecordsAPI(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	track, layout, car := query.Get("track"), query.Get("layout"), query.Get("car")
+
+	if !plainname.Valid(track) || (layout != "" && !plainname.Valid(layout)) || (car != "" && !plainname.Valid(car)) {
+		http.Error(w, "track, layout and car must be valid names (track is required)", http.StatusBadRequest)
+		return
+	}
+
+	filter, _ := th.records.filter(r)
+
+	if car != "" {
+		filter.Cars = []string{car}
+	}
+
+	servers := th.records.attributedServers()
+
+	out := &APITrackRecords{
+		Track:       track,
+		TrackLayout: layout,
+		TrackName:   api.TrackName(th.env.InstallPath(), track, layout),
+		Records:     []*APIRecord{},
+	}
+
+	for _, record := range th.records.forTrack(track, layout, filter) {
+		out.Records = append(out.Records, newAPIRecord(th.records, servers, record, smcontent.PrettifyName(record.Car, true)))
+	}
+
+	if len(out.Records) > 0 {
+		out.Overall = out.Records[0]
+	}
+
+	w.Header().Add("Content-Type", "application/json")
+
+	_ = json.NewEncoder(w).Encode(out)
 }
