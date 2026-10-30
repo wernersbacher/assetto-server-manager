@@ -59,10 +59,10 @@
                 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
                     {{ if $.ServerReadIsOpen }}
                         <span class="role-badge role-read">Open</span>
-                        <a href="/accounts/toggle-open" class="btn btn-danger">Make Closed</a>
+                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-danger">Make Closed</button></form>
                     {{ else }}
                         <span class="role-badge role-no_access">Closed</span>
-                        <a href="/accounts/toggle-open" class="btn btn-success">Make Open</a>
+                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-success">Make Open</button></form>
                     {{ end }}
                 </div>
             </div>
@@ -76,10 +76,10 @@
                 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
                     {{ if $.PublicStats }}
                         <span class="role-badge role-read">Public</span>
-                        <a href="/accounts/toggle-public-stats" class="btn btn-danger">Make Private</a>
+                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-danger">Make Private</button></form>
                     {{ else }}
                         <span class="role-badge role-no_access">Private</span>
-                        <a href="/accounts/toggle-public-stats" class="btn btn-success">Make Public</a>
+                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-success">Make Public</button></form>
                     {{ end }}
                 </div>
             </div>

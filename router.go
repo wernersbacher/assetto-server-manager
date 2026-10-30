@@ -379,8 +379,8 @@ func Router(
 		r.HandleFunc("/accounts/edit/{id}", accountHandler.CreateOrEditAccount)
 		r.Post("/accounts/delete/{id}", accountHandler.DeleteAccount)
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
-		r.HandleFunc("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
-		r.HandleFunc("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
+		r.Post("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
+		r.Post("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
 
