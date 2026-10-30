@@ -153,7 +153,7 @@
                     {{ if $.ServerStatus }}<span class="nav-badge">LIVE</span>{{ end }}
                 </a>
                 <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}Results</a>
-                <a class="nav-item-link {{ if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/leaderboards">{{ template "icon" "championship" }}Leaderboards</a>
+                {{ if StatsAccess }}<a class="nav-item-link {{ if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/leaderboards">{{ template "icon" "championship" }}Leaderboards</a>{{ end }}
                 <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}Championships</a>
                 <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}Race Weekends</a>
                 <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="{{ serverURL "/custom" }}">{{ template "icon" "flag" }}Custom Races</a>

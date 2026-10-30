@@ -69,6 +69,23 @@
         </div>
 
         <div class="card admin-card">
+            <div class="card-header"><h2>Public driver statistics</h2></div>
+            <div class="card-body">
+                <p>Driver profiles, leaderboards and lap records. If off, they are only visible to logged in accounts, even on an Open Server Manager.</p>
+
+                <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
+                    {{ if $.PublicStats }}
+                        <span class="role-badge role-read">Public</span>
+                        <a href="/accounts/toggle-public-stats" class="btn btn-danger">Make Private</a>
+                    {{ else }}
+                        <span class="role-badge role-no_access">Private</span>
+                        <a href="/accounts/toggle-public-stats" class="btn btn-success">Make Public</a>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card admin-card">
             <div class="card-header"><h2>What each group can do</h2></div>
             <div class="table-responsive">
                 <table class="table role-matrix mb-0">

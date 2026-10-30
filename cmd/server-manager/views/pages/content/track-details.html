@@ -29,7 +29,7 @@
         {{ end }}
 
         <h2>Layouts</h2>
-        {{ if gt (len $.Servers) 1 }}
+        {{ if and (gt (len $.Servers) 1) StatsAccess }}
             <form class="results-filter mb-2" method="get" action="/track/{{ $.Track.Name }}">
                 <select name="filterServer" class="form-control" aria-label="Server for lap records" onchange="this.form.submit()">
                     <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>Lap records of any server</option>
@@ -85,6 +85,7 @@
                     {{ end }}
                 </div>
 
+                {{ if StatsAccess }}
                 <hr>
 
                 <div class="card-body lap-records">
@@ -129,6 +130,7 @@
                         {{ template "empty-state" dict "Icon" "results" "Text" "No lap records yet. Valid laps from results show up here." }}
                     {{ end }}
                 </div>
+                {{ end }}
 
                 <hr>
 

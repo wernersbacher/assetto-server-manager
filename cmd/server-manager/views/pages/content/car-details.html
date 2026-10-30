@@ -187,6 +187,7 @@
                     </form>
                 {{ end }}
 
+                {{ if StatsAccess }}
                 <h2>Best Laps</h2>
 
                 {{ if $.Records }}
@@ -214,6 +215,7 @@
                     </table></div>
                 {{ else }}
                     {{ template "empty-state" dict "Icon" "results" "Text" "No best laps yet. Valid laps with this car show up here." }}
+                {{ end }}
                 {{ end }}
 
                 <h2>Sessions</h2>

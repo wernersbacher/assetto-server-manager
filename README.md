@@ -188,6 +188,10 @@ Results can be read in the same way, with the same access rules as the results p
   with several servers they have a `Server` (`ID`, `Name`). The page is `/driver/{guid}`; driver names in results and
   championship tables link to it.
 
+The three driver statistics APIs (`/api/track-records`, `/api/driver/{guid}`, `/api/leaderboard`) and their pages need a
+logged in account with read access, even on an open Server Manager, unless "Public driver statistics" is enabled on the
+Accounts page (default off). Anonymous requests are redirected to `/login` (302), like on other protected APIs.
+
 All times and durations are in milliseconds, as Assetto Corsa stores them. Driver names are shortened if the server
 hides driver last names. Collisions are not included, use `/results/download/{fileName}` for the full results file.
 

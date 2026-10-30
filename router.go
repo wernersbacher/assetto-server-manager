@@ -124,6 +124,17 @@ func Router(
 		http.NotFound(w, r)
 	})
 
+	// driver statistics: read access, but anonymous visitors of an open server only if the statistics are public
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.StatsAccessMiddleware)
+
+		r.Get("/api/track-records", tracksHandler.RecordsAPI)
+		r.Get("/driver/{guid}", driverHandler.View)
+		r.Get("/api/driver/{guid}", driverHandler.ViewAPI)
+		r.Get("/leaderboards", leaderboardHandler.View)
+		r.Get("/api/leaderboard", leaderboardHandler.ViewAPI)
+	})
+
 	// readers
 	r.Group(func(r chi.Router) {
 		r.Use(accountHandler.ReadAccessMiddleware)
@@ -152,11 +163,6 @@ func Router(
 		r.HandleFunc("/results/download/{fileName}", resultsHandler.File)
 		r.Get("/api/results", resultsHandler.ListAPI)
 		r.Get("/api/results/{fileName}", resultsHandler.ViewAPI)
-		r.Get("/api/track-records", tracksHandler.RecordsAPI)
-		r.Get("/driver/{guid}", driverHandler.View)
-		r.Get("/api/driver/{guid}", driverHandler.ViewAPI)
-		r.Get("/leaderboards", leaderboardHandler.View)
-		r.Get("/api/leaderboard", leaderboardHandler.ViewAPI)
 
 		r.Get("/custom", customRaceHandler.List)
 
@@ -374,6 +380,7 @@ func Router(
 		r.Post("/accounts/delete/{id}", accountHandler.DeleteAccount)
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
 		r.HandleFunc("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
+		r.HandleFunc("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
 

@@ -1,5 +1,16 @@
 package web
 
+import "net/http"
+
+// statsDriverURL is DriverURL for the requester: empty if the requester may not see driver statistics.
+func statsDriverURL(r *http.Request, guid string) string {
+	if !StatsAccess(r)() {
+		return ""
+	}
+
+	return DriverURL(guid)
+}
+
 // MaxDriverGUIDLength is the longest GUID accepted in a driver profile URL.
 const MaxDriverGUIDLength = 64
 

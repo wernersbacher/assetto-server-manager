@@ -24,6 +24,10 @@ type Scope struct {
 	// ReadIsOpen is true if anonymous visitors may read.
 	ReadIsOpen bool
 
+	// StatsPublic is true if anonymous visitors of an open server may see driver statistics (profiles,
+	// leaderboards, lap records).
+	StatsPublic bool
+
 	// OpenAccount is the dummy account which is used for visitors if read access is open.
 	OpenAccount *smmodel.Account
 }
@@ -70,6 +74,25 @@ func ReadAccess(r *http.Request) func() bool {
 
 	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
 	ok := account.HasGroupPrivilege(scope.ServerID, smmodel.GroupRead) || (account.Name == "" && scope.ReadIsOpen)
+
+	return func() bool {
+		return ok
+	}
+}
+
+// StatsAccess tells whether the requester may see driver statistics: every logged in account with read access,
+// anonymous visitors (of an open server) only if the statistics are public.
+func StatsAccess(r *http.Request) func() bool {
+	account := AccountFromRequest(r)
+	scope := ScopeFromRequest(r)
+
+	var ok bool
+
+	if account.Name == "" || account == scope.OpenAccount {
+		ok = scope.ReadIsOpen && scope.StatsPublic
+	} else {
+		ok = account.HasGroupPrivilege(scope.ServerID, smmodel.GroupRead)
+	}
 
 	return func() bool {
 		return ok

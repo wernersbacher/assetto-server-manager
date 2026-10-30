@@ -119,6 +119,7 @@ func (tr *Renderer) init() error {
 	funcs["DeleteAccess"] = dummyAccessFunc
 	funcs["AdminAccess"] = dummyAccessFunc
 	funcs["LoggedIn"] = dummyAccessFunc
+	funcs["StatsAccess"] = dummyAccessFunc
 	funcs["serverURL"] = func(path string) string { return path }
 	funcs["serverName"] = tr.serverName
 	funcs["stringArrayToCSV"] = stringArrayToCSV
@@ -194,6 +195,8 @@ func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view st
 		"DeleteAccess": DeleteAccess(r),
 		"AdminAccess":  AdminAccess(r),
 		"LoggedIn":     LoggedIn(r),
+		"StatsAccess":  StatsAccess(r),
+		"driverURL":    func(guid string) string { return statsDriverURL(r, guid) },
 		"serverURL":    func(path string) string { return ServerURL(r, path) },
 	})
 
@@ -242,6 +245,8 @@ func (tr *Renderer) LoadPartial(w http.ResponseWriter, r *http.Request, partial 
 		"DeleteAccess": DeleteAccess(r),
 		"AdminAccess":  AdminAccess(r),
 		"LoggedIn":     LoggedIn(r),
+		"StatsAccess":  StatsAccess(r),
+		"driverURL":    func(guid string) string { return statsDriverURL(r, guid) },
 		"serverURL":    func(path string) string { return ServerURL(r, path) },
 	})
 

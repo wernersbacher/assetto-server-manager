@@ -30,10 +30,27 @@ const (
 
 type ServerAccountOptions struct {
 	IsOpen bool
+
+	// PublicStats makes driver profiles, leaderboards and lap records visible to anonymous visitors of an open
+	// server. If false, they need a login even on an open server.
+	PublicStats bool
 }
 
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
 func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next http.Handler) http.Handler {
+	return ah.mustLogin(requiredGroup, func() bool { return ah.accountManager.options.IsOpen }, next)
+}
+
+// StatsAccessMiddleware guards the driver statistics (profiles, leaderboards, lap records). They need read access
+// like other pages, but anonymous visitors of an open server only get in if the "public driver statistics" option is on.
+func (ah *AccountHandler) StatsAccessMiddleware(next http.Handler) http.Handler {
+	return ah.mustLogin(smmodel.GroupRead, func() bool {
+		return ah.accountManager.options.IsOpen && ah.accountManager.options.PublicStats
+	}, next)
+}
+
+// mustLogin is MustLoginMiddleware with the condition under which anonymous visitors may read.
+func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowed func() bool, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		serverID := ah.accountManager.serverID
 
@@ -71,7 +88,7 @@ func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next 
 			return
 		}
 
-		if requiredGroup == smmodel.GroupRead && ah.accountManager.options.IsOpen {
+		if requiredGroup == smmodel.GroupRead && anonymousAllowed() {
 			// if read is open, allow access and use a dummy account so the UI doesn't break
 			next.ServeHTTP(w, smweb.WithAccount(r, ah.accountManager.openAccount))
 			return
@@ -167,6 +184,15 @@ func (ah *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
+	ah.toggleOption(w, r, "Server openness", func(o *ServerAccountOptions) { o.IsOpen = !o.IsOpen })
+}
+
+// TogglePublicStats switches the "public driver statistics" option.
+func (ah *AccountHandler) TogglePublicStats(w http.ResponseWriter, r *http.Request) {
+	ah.toggleOption(w, r, "Public driver statistics", func(o *ServerAccountOptions) { o.PublicStats = !o.PublicStats })
+}
+
+func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, name string, toggle func(*ServerAccountOptions)) {
 	err := ah.store.GetMeta(serverAccountOptionsMetaKey, &ah.accountManager.options)
 
 	if err != nil && err != smstore.ErrValueNotSet {
@@ -175,7 +201,7 @@ func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.
 		return
 	}
 
-	ah.accountManager.options.IsOpen = !ah.accountManager.options.IsOpen
+	toggle(ah.accountManager.options)
 
 	err = ah.store.SetMeta(serverAccountOptionsMetaKey, ah.accountManager.options)
 
@@ -185,7 +211,7 @@ func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.
 		return
 	}
 
-	smweb.AddFlash(w, r, "Server openness successfully changed")
+	smweb.AddFlash(w, r, name+" successfully changed")
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -392,6 +418,7 @@ func (am *AccountManager) RequestScopeMiddleware(next http.Handler) http.Handler
 			SessionStore: am.sessionStore,
 			ServerID:     am.serverID,
 			ReadIsOpen:   am.options.IsOpen,
+			StatsPublic:  am.options.PublicStats,
 			OpenAccount:  am.openAccount,
 		}))
 	})
@@ -597,6 +624,7 @@ type manageAccountsTemplateVars struct {
 
 	Accounts         []*smmodel.Account
 	ServerReadIsOpen bool
+	PublicStats      bool
 }
 
 func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request) {
@@ -611,6 +639,7 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/manage.html", &manageAccountsTemplateVars{
 		Accounts:         accounts,
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
+		PublicStats:      ah.accountManager.options.PublicStats,
 	})
 }
 
