@@ -3,8 +3,11 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -16,6 +19,7 @@ import (
 type Configuration struct {
 	HTTP          HTTPConfig          `yaml:"http"`
 	Steam         SteamConfig         `yaml:"steam"`
+	Servers       []ServerSlotConfig  `yaml:"servers"`
 	Store         StoreConfig         `yaml:"store"`
 	LiveMap       LiveMapConfig       `yaml:"live_map"`
 	Server        ServerExtraConfig   `yaml:"server"`
@@ -111,6 +115,135 @@ type SteamConfig struct {
 	ExecutablePath string `yaml:"executable_path"`
 }
 
+// ServerSlotConfig is one entry of the servers list: an acServer with its own working directory.
+type ServerSlotConfig struct {
+	ID             string `yaml:"id"`
+	Name           string `yaml:"name"`
+	InstallPath    string `yaml:"install_path"`
+	ExecutablePath string `yaml:"executable_path"`
+}
+
+// DefaultSlotID is the ID of the slot that is derived from the steam section when no servers are configured. It is
+// empty on purpose: the ServerID of that slot is the one from the store (InitServerID), not a configured one.
+const DefaultSlotID = ""
+
+// DefaultSlotName is the name of the slot that is derived from the steam section.
+const DefaultSlotName = "Server 1"
+
+// Slot is an effective server slot: one acServer with its own working directory.
+type Slot struct {
+	// ID is the configured id of the slot, DefaultSlotID for the slot derived from the steam section.
+	ID   string
+	Name string
+
+	// InstallPath is the absolute working directory of the acServer.
+	InstallPath string
+
+	// ExecutablePath is the acServer executable, relative to InstallPath unless it is absolute.
+	ExecutablePath string
+}
+
+// IsDefault returns true for the slot that is derived from the steam section.
+func (s Slot) IsDefault() bool {
+	return s.ID == DefaultSlotID
+}
+
+// Slots returns the effective server slots. If no servers are configured, exactly one default slot is derived from
+// steam.install_path and steam.executable_path. Install paths are made absolute by joining relative ones to the
+// working directory; the first slot is the one the content is managed through.
+func (c *Configuration) Slots() ([]Slot, error) {
+	executablePath := c.Steam.ExecutablePath
+
+	if executablePath == "" {
+		executablePath = ServerExecutablePath
+	}
+
+	if len(c.Servers) == 0 {
+		installPath, err := absInstallPath(c.Steam.InstallPath)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return []Slot{{
+			ID:             DefaultSlotID,
+			Name:           DefaultSlotName,
+			InstallPath:    installPath,
+			ExecutablePath: executablePath,
+		}}, nil
+	}
+
+	slots := make([]Slot, 0, len(c.Servers))
+
+	for i, server := range c.Servers {
+		if server.ID == "" {
+			return nil, fmt.Errorf("config: servers[%d] has no id", i)
+		}
+
+		if server.InstallPath == "" {
+			return nil, fmt.Errorf("config: server %q has no install_path", server.ID)
+		}
+
+		installPath, err := absInstallPath(server.InstallPath)
+
+		if err != nil {
+			return nil, err
+		}
+
+		slot := Slot{
+			ID:             server.ID,
+			Name:           server.Name,
+			InstallPath:    installPath,
+			ExecutablePath: server.ExecutablePath,
+		}
+
+		if slot.Name == "" {
+			slot.Name = slot.ID
+		}
+
+		if slot.ExecutablePath == "" {
+			slot.ExecutablePath = executablePath
+		}
+
+		for _, other := range slots {
+			if other.ID == slot.ID {
+				return nil, fmt.Errorf("config: server id %q is used more than once", slot.ID)
+			}
+
+			if samePath(other.InstallPath, slot.InstallPath) {
+				return nil, fmt.Errorf("config: servers %q and %q have the same install_path (%s)", other.ID, slot.ID, slot.InstallPath)
+			}
+		}
+
+		slots = append(slots, slot)
+	}
+
+	return slots, nil
+}
+
+// absInstallPath makes an install path absolute by joining a relative one to the working directory.
+func absInstallPath(installPath string) (string, error) {
+	if filepath.IsAbs(installPath) {
+		return filepath.Clean(installPath), nil
+	}
+
+	wd, err := os.Getwd()
+
+	if err != nil {
+		return "", fmt.Errorf("config: unable to get working directory: %v", err)
+	}
+
+	return filepath.Join(wd, installPath), nil
+}
+
+func samePath(a, b string) bool {
+	if runtime.GOOS == "windows" {
+		return strings.EqualFold(a, b)
+	}
+
+	return a == b
+}
+
 type StoreConfig struct {
 	Type                    string        `yaml:"type"`
 	Path                    string        `yaml:"path"`
@@ -164,5 +297,9 @@ func ReadConfig(location string) (conf *Configuration, err error) {
 		conf.Steam.ExecutablePath = ServerExecutablePath
 	}
 
-	return conf, err
+	if _, err := conf.Slots(); err != nil {
+		return nil, err
+	}
+
+	return conf, nil
 }

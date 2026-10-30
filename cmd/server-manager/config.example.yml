@@ -46,6 +46,32 @@ steam:
 
 ################################################################################
 #
+#  servers - run several assetto corsa servers from this server manager
+#
+################################################################################
+# optional. if this list is empty (default), ONE server is used, which is
+# installed to steam.install_path and run with steam.executable_path.
+#
+# every entry is an assetto corsa server with its own folder (cfg, results,
+# setups...). ids must be unique and not empty, install paths must be different
+# (relative paths are relative to the server manager's working directory).
+# server manager installs missing servers with steamcmd, using the steam
+# credentials above. content (cars, tracks, weather) is managed through the
+# install_path of the FIRST entry, so share the content folder of the others
+# with it (volume, junction, symlink).
+#
+# servers:
+#   - id: server1
+#     name: Server 1
+#     install_path: assetto
+#     # optional, defaults to steam.executable_path
+#     executable_path: acServer
+#   - id: server2
+#     name: Server 2
+#     install_path: assetto2
+
+################################################################################
+#
 #  http settings
 #
 ################################################################################

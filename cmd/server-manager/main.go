@@ -82,8 +82,17 @@ func main() {
 		filesystem = static.FS(false)
 	}
 
-	// the managers created by the resolver (cars, tracks) are given the install path, so it has to be set before
-	if err := state.SetInstallPath(config.Steam.InstallPath); err != nil {
+	// the slots were validated by ReadConfig
+	slots, err := config.Slots()
+
+	if err != nil {
+		ServeHTTPWithError(defaultAddress, "Resolve the server slots", err)
+		return
+	}
+
+	// the managers created by the resolver (cars, tracks) are given the install path, so it has to be set before.
+	// content is managed through the install of the first slot
+	if err := state.SetInstallPath(slots[0].InstallPath); err != nil {
 		ServeHTTPWithError(defaultAddress, "Resolve the assetto corsa install path", err)
 		return
 	}
@@ -95,11 +104,13 @@ func main() {
 		return
 	}
 
-	err = steam.InstallAssettoCorsaServer(state.InstallPath(), config.Steam.Username, config.Steam.Password, config.Steam.ForceUpdate)
+	for _, slot := range slots {
+		err = steam.InstallAssettoCorsaServer(slot.InstallPath, config.Steam.Username, config.Steam.Password, config.Steam.ForceUpdate)
 
-	if err != nil {
-		ServeHTTPWithError(defaultAddress, "Install assetto corsa server with steamcmd. Likely you do not have steamcmd installed correctly.", err)
-		return
+		if err != nil {
+			ServeHTTPWithError(defaultAddress, "Install assetto corsa server with steamcmd. Likely you do not have steamcmd installed correctly.", err)
+			return
+		}
 	}
 
 	if config.LiveMap.IsEnabled() {
