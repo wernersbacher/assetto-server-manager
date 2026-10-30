@@ -34,7 +34,7 @@
                         Scheduled
 
                         {{ if ne $event.ScheduledServerID $serverID }}
-                            (on <span class="scheduled-server-id" data-server-id="{{ $event.ScheduledServerID }}">another server</span>)
+                            (on <span class="scheduled-server-id" data-server-id="{{ $event.ScheduledServerID }}">{{ with serverName $event.ScheduledServerID }}{{ . }}{{ else }}another server{{ end }}</span>)
                         {{ end }}
 
                         for {{ localFormat $event.Scheduled }}
@@ -328,6 +328,9 @@
                                             <input type='time' class='form-control' name='event-schedule-time' id='event-schedule-time' required min='' value="{{ $championship.MostRecentScheduledDateFormat "15:04" }}">
                                             <input type='hidden' name="event-schedule-timezone" class="event-schedule-timezone">
                                             <small class='form-text text-muted'>Please enter the correct date and time to add a scheduled race. This date/time is in your timezone (<span class='timezone'></span>).</small>
+
+                                            {{ template "schedule-target" dict "Servers" $servers "Selected" $serverID "Id" $event.ID.String }}
+
 
                                             <label for="event-schedule-recurrence" class="col-form-label">Recurrence Rule</label>
                                             <input type='text' class='form-control' name='event-schedule-recurrence' id='event-schedule-recurrence' value="{{ $event.Recurrence }}">

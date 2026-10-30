@@ -657,15 +657,16 @@ func (rwh *RaceWeekendHandler) ImportRaceWeekend(w http.ResponseWriter, r *http.
 }
 
 func (rwh *RaceWeekendHandler) ScheduleSession(w http.ResponseWriter, r *http.Request) {
-	rwm, ok := rwh.manager(w, r)
-
-	if !ok {
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// the session is scheduled on the server which the form selected, whose manager runs the timer
+	rwm, ok := rwh.manager(w, smweb.ScheduleTarget(r))
+
+	if !ok {
 		return
 	}
 

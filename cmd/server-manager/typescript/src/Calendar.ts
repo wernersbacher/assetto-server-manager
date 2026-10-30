@@ -3,6 +3,17 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
 
+// serverLabel returns the HTML which tells on which server an event is scheduled, if that is worth showing.
+function serverLabel(props: any): string {
+    if (!props.scheduledServerName && !props.scheduledServerID) {
+        return '';
+    }
+
+    let name = $('<span>').text(props.scheduledServerName || 'another server').html();
+
+    return '<div class="calendar-small">On <span class="scheduled-server-id" data-server-id="' + $('<span>').text(props.scheduledServerID).html() + '">' + name + '</span></div>';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     let calendarEl = document.getElementById('calendar');
 
@@ -13,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let calendar = new Calendar(calendarEl, {
         plugins: [ timeGridPlugin, listPlugin, bootstrapPlugin ],
         defaultView: 'timeGridThreeDay',
-        events: '/calendar.json',
+        events: '/calendar.json' + window.location.search.replace(/[?&]server=[^&]*/g, '').replace(/^&/, '?'),
         themeSystem: 'bootstrap',
 
         header: {
@@ -38,9 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             $title.append('<div class="hr-line-solid-no-margin"></div><span class="calendar-small">'+info.event.extendedProps.description+'</span></div>');
 
-            if (info.event.extendedProps.scheduledServerID) {
-                $title.append('<div class="calendar-small">On <span class="scheduled-server-id" data-server-id="'+info.event.extendedProps.scheduledServerID+'">another server</span></div>');
-            }
+            $title.append(serverLabel(info.event.extendedProps));
 
             let $listTitle = $(info.el).find('.fc-list-item-title');
 
@@ -50,9 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             $listTitle.append('<div class="ml-2"></div><span class="calendar-small">'+info.event.extendedProps.description+'</span></div>');
 
-            if (info.event.extendedProps.scheduledServerID) {
-                $listTitle.append('<div class="calendar-small">On <span class="scheduled-server-id" data-server-id="'+info.event.extendedProps.scheduledServerID+'">another server</span></div>');
-            }
+            $listTitle.append(serverLabel(info.event.extendedProps));
         },
 
         nowIndicator: true,

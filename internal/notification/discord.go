@@ -119,7 +119,7 @@ func (dm *DiscordManager) CommandSessions() (string, error) {
 	start := time.Now()
 	end := start.AddDate(0, 0, 7)
 
-	calendar, err := dm.scheduledRacesManager.BuildCalendar(start, end)
+	calendar, err := dm.scheduledRacesManager.BuildCalendar(start, end, "")
 
 	if err != nil {
 		return "A server error occurred, please try again later", err

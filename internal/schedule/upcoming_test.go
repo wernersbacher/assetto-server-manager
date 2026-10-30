@@ -38,7 +38,7 @@ func setupUpcomingAPITest(t *testing.T) (*Handler, smstore.Store, func()) {
 
 	handler := NewHandler(&smweb.BaseHandler{}, NewManager(&smconfig.Configuration{}, store, env, func(*smmodel.RaceWeekendSession) (serverconfig.EntryList, error) {
 		return nil, nil
-	}))
+	}, nil))
 
 	return handler, store, func() {
 		_ = os.RemoveAll(dir)

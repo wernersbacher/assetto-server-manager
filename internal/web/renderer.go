@@ -120,6 +120,7 @@ func (tr *Renderer) init() error {
 	funcs["AdminAccess"] = dummyAccessFunc
 	funcs["LoggedIn"] = dummyAccessFunc
 	funcs["serverURL"] = func(path string) string { return path }
+	funcs["serverName"] = tr.serverName
 	funcs["stringArrayToCSV"] = stringArrayToCSV
 	funcs["dict"] = templateDict
 	funcs["asset"] = NewAssetHelper("/", "", "", map[string]string{"cb": tr.opts.BuildVersion}).GetURL
@@ -254,4 +255,20 @@ func (tr *Renderer) MustLoadPartial(w http.ResponseWriter, r *http.Request, part
 		http.Error(w, "unable to load partial", http.StatusInternalServerError)
 		return
 	}
+}
+
+// serverName returns the name of the server slot with the given id, or an empty string if it is not a slot (e.g. the
+// event was scheduled for a server which has since been removed from the configuration).
+func (tr *Renderer) serverName(id smmodel.ServerID) string {
+	if tr.opts.Servers == nil {
+		return ""
+	}
+
+	for _, server := range tr.opts.Servers() {
+		if server.ID == id {
+			return server.Name
+		}
+	}
+
+	return ""
 }

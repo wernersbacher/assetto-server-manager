@@ -15,7 +15,7 @@
                         Scheduled
 
                         {{ if ne $.Race.ScheduledServerID $.ServerID }}
-                            (on <span class="scheduled-server-id" data-server-id="{{ $.Race.ScheduledServerID }}">another server</span>)
+                            (on <span class="scheduled-server-id" data-server-id="{{ $.Race.ScheduledServerID }}">{{ with serverName $.Race.ScheduledServerID }}{{ . }}{{ else }}another server{{ end }}</span>)
                         {{ end }}
 
                         for {{ localFormat $.Race.Scheduled }}
@@ -81,7 +81,8 @@
                 <div class="col-12 mt-3">
                     {{ if WriteAccess }}
                         <div class="btn-group">
-                            <a class="btn btn-success" href="/custom/load/{{ $.Race.UUID.String }}">Start</a>
+                            <a class="btn btn-success" href="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}">Start</a>
+                            {{ template "start-target" dict "Path" (printf "/custom/load/%s" $.Race.UUID.String) "Servers" $.Servers "Class" "btn-success" }}
 
                             <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split popover-external-html" data-placement="bottom"
                                     data-toggle="popover" title="Schedule Event" data-html="true"
@@ -93,6 +94,8 @@
                                     <div class="form-group">
                                         <input type="date" class="form-control" name="event-schedule-date" id="event-schedule-date" required>
                                         <input type="time" class="form-control" name="event-schedule-time" id="event-schedule-time" required>
+                                        {{ template "schedule-target" dict "Servers" $.Servers "Selected" $.ServerID "Id" $.Race.UUID.String }}
+
                                         <small class="form-text text-muted">
                                             Please enter the correct date and time to add a scheduled event.
                                             This date/time is in your timezone (<span class='timezone'></span>).
@@ -146,7 +149,7 @@
 
 {{ define "custom-race-list" }}
     {{ range $index, $race := $.Race }}
-        {{ template "custom-race" dict "Race" $race "ServerID" $.ServerID "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
+        {{ template "custom-race" dict "Race" $race "ServerID" $.ServerID "Servers" $.Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
     {{ end }}
 {{ end }}
 
@@ -190,7 +193,7 @@
     <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-recent" role="tabpanel" aria-labelledby="nav-recent-tab">
             {{ if gt (len .Recent) 0 }}
-                {{ template "custom-race-list" dict "Race" .Recent "ServerID" .ServerID "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
+                {{ template "custom-race-list" dict "Race" .Recent "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
                 <p class="text-center mt-5">We couldn't find any recent races. Perhaps you should <a href="/custom/new">create one now</a>?</p>
             {{ else }}
@@ -199,7 +202,7 @@
         </div>
         <div class="tab-pane fade" id="nav-starred" role="tabpanel" aria-labelledby="nav-starred-tab">
             {{ if gt (len .Starred) 0 }}
-                {{ template "custom-race-list" dict "Race" .Starred "ServerID" .ServerID "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
+                {{ template "custom-race-list" dict "Race" .Starred "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
                 <p class="text-center mt-5">You haven't starred any Custom Races yet. You can star them in the Recent tab!</p>
             {{ else }}
@@ -208,7 +211,7 @@
         </div>
         <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">
             {{ if gt (len .Scheduled) 0 }}
-                {{ template "custom-race-list" dict "Race" .Scheduled "ServerID" .ServerID "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
+                {{ template "custom-race-list" dict "Race" .Scheduled "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
                 <p class="text-center mt-5">You haven't scheduled any races!</p>
             {{ else }}
@@ -222,7 +225,7 @@
                     work if allowed to start automatically, please don't manually start these events if you want them to loop!
                 </p>
 
-                {{ template "custom-race-list" dict "Race" .Loop "ServerID" .ServerID "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
+                {{ template "custom-race-list" dict "Race" .Loop "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
                 <p class="text-center mt-5">
                     No custom races have been added to the auto loop list yet! Use the play icon to add a race to the loop.

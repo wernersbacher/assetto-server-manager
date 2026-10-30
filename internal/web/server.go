@@ -20,6 +20,11 @@ const (
 	serverSessionKey  = "id"
 )
 
+// ScheduleServerParam is the form field of the scheduling forms which selects the server an event is scheduled for.
+// It is separate from ServerParam, so that scheduling an event for another server does not switch the server the user
+// is looking at.
+const ScheduleServerParam = "event-schedule-server"
+
 type requestedServerContextKey struct{}
 
 // RequestedServerID returns the id of the server slot the request is for: the server parameter, or else the slot which
@@ -34,6 +39,17 @@ func RequestedServerID(r *http.Request) smmodel.ServerID {
 // WithRequestedServerID returns a copy of r which is for the given server slot.
 func WithRequestedServerID(r *http.Request, id smmodel.ServerID) *http.Request {
 	return r.WithContext(context.WithValue(r.Context(), requestedServerContextKey{}, id))
+}
+
+// ScheduleTarget returns the request as it is for the server which a scheduling form selected, so that the manager of
+// that server can be looked up. Requests without the field stay with the server of the request. The caller has to parse
+// the form first; the lookup of the manager still rejects unknown ids.
+func ScheduleTarget(r *http.Request) *http.Request {
+	if id := r.FormValue(ScheduleServerParam); id != "" {
+		return WithRequestedServerID(r, smmodel.ServerID(id))
+	}
+
+	return r
 }
 
 // serverParam reads the server parameter without parsing the body of requests other than url encoded forms.

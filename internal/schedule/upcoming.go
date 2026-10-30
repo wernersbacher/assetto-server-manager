@@ -16,9 +16,10 @@ import (
 )
 
 // UpcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose
-// scheduled time has passed is listed with its next recurrence. A limit of 0 returns all events.
-func (srm *Manager) UpcomingRaces(now time.Time, limit int) ([]*api.UpcomingRace, error) {
-	scheduled, err := srm.GetScheduledRaces(true)
+// scheduled time has passed is listed with its next recurrence. A limit of 0 returns all events. If server is not empty
+// only the events scheduled for that server are returned.
+func (srm *Manager) UpcomingRaces(now time.Time, limit int, server smmodel.ServerID) ([]*api.UpcomingRace, error) {
+	scheduled, err := srm.GetScheduledRacesFor(server)
 
 	if err != nil {
 		return nil, err
@@ -72,11 +73,16 @@ func (srm *Manager) newUpcomingRace(event Event, start time.Time) *api.UpcomingR
 		ID:           event.GetID(),
 		Start:        start,
 		OnThisServer: scheduledServerID == "" || scheduledServerID == srm.env.ServerID(),
+		ServerID:     scheduledServerID,
 		Track:        setup.Track,
 		TrackLayout:  setup.TrackLayout,
 		TrackName:    api.TrackName(srm.env.InstallPath(), setup.Track, setup.TrackLayout),
 		Cars:         []*api.Car{},
 		Sessions:     []*api.Session{},
+	}
+
+	if srm.multipleServers() {
+		out.ServerName = srm.serverName(scheduledServerID)
 	}
 
 	switch e := event.(type) {
@@ -163,7 +169,7 @@ func (rs *Handler) UpcomingAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	upcoming, err := rs.scheduledRacesManager.UpcomingRaces(time.Now(), limit)
+	upcoming, err := rs.scheduledRacesManager.UpcomingRaces(time.Now(), limit, filterServer(r))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list upcoming races")

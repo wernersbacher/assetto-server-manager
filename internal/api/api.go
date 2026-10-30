@@ -373,6 +373,10 @@ type UpcomingRace struct {
 	// OnThisServer is false if the event is scheduled on another server of a multiserver setup.
 	OnThisServer bool
 
+	// ServerID is the server the event is scheduled for, ServerName its name if there are several servers.
+	ServerID   smmodel.ServerID
+	ServerName string `json:",omitempty"`
+
 	// ChampionshipID and ChampionshipName are set for championship events, RaceWeekendID and RaceWeekendName for
 	// race weekend sessions.
 	ChampionshipID   *uuid.UUID `json:",omitempty"`

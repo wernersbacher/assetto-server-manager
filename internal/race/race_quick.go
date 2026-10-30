@@ -48,6 +48,10 @@ func (qrh *QuickRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if flashServerBusy(w, r, manager.CheckCanStart()) {
+		return
+	}
+
 	err := manager.SetupQuickRace(r)
 
 	if err == ErrMustSubmitCar {

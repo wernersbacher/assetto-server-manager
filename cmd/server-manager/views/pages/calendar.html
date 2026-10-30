@@ -1,12 +1,25 @@
-{{/* gotype: github.com/wernersbacher/assetto-server-manager/internal/web.BaseTemplateVars */}}
+{{/* gotype: github.com/wernersbacher/assetto-server-manager/internal/schedule.calendarTemplateVars */}}
 
 {{ define "title" }}Calendar{{ end }}
 
 {{ define "content" }}
+    {{ if gt (len .Servers) 1 }}
+        <form method="get" action="/calendar" class="form-inline mb-3">
+            <label for="filterServer" class="mr-2">Server</label>
+            <select class="form-control mr-2" name="filterServer" id="filterServer" onchange="this.form.submit()">
+                <option value="">All servers</option>
+                {{ range $server := .Servers }}
+                    <option value="{{ $server.ID }}" {{ if eq $server.ID $.FilterServer }}selected{{ end }}>{{ $server.Name }}</option>
+                {{ end }}
+            </select>
+            <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+        </form>
+    {{ end }}
+
     <div id="calendar"></div>
 
     <div class="d-block mt-3">
-        <a href="/events.ics">
+        <a href="/events.ics{{ with .FilterServer }}?filterServer={{ . }}{{ end }}">
             <i class="fas fa-calendar"></i> Subscribe to Calendar Feed
         </a>
     </div>

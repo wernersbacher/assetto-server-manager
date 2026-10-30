@@ -501,15 +501,16 @@ func (ch *ChampionshipsHandler) StartEvent(w http.ResponseWriter, r *http.Reques
 }
 
 func (ch *ChampionshipsHandler) ScheduleEvent(w http.ResponseWriter, r *http.Request) {
-	cm, ok := ch.manager(w, r)
-
-	if !ok {
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// the event is scheduled on the server which the form selected, whose manager runs the timer
+	cm, ok := ch.manager(w, smweb.ScheduleTarget(r))
+
+	if !ok {
 		return
 	}
 

@@ -79,9 +79,29 @@ func (crh *CustomRaceHandler) CreateOrEdit(w http.ResponseWriter, r *http.Reques
 }
 
 func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
-	manager, ok := crh.manager(w, r)
+	if err := r.ParseForm(); err != nil {
+		logrus.WithError(err).Errorf("couldn't parse custom race form")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	action := r.FormValue("action")
+
+	// a schedule is run by the manager of the server it is scheduled for
+	request := r
+
+	if action == "schedule" {
+		request = smweb.ScheduleTarget(r)
+	}
+
+	manager, ok := crh.manager(w, request)
 
 	if !ok {
+		return
+	}
+
+	// saving or editing a race does not start it
+	if action != "justSave" && action != "schedule" && r.FormValue("Editing") == "" && flashServerBusy(w, r, manager.CheckCanStart()) {
 		return
 	}
 
@@ -92,8 +112,6 @@ func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	action := r.FormValue("action")
 
 	if action == "justSave" {
 		smweb.AddFlash(w, r, "Custom race saved!")
@@ -112,15 +130,16 @@ func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (crh *CustomRaceHandler) Schedule(w http.ResponseWriter, r *http.Request) {
-	manager, ok := crh.manager(w, r)
-
-	if !ok {
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// the race is scheduled on the server which the form selected, whose manager runs the timer
+	manager, ok := crh.manager(w, smweb.ScheduleTarget(r))
+
+	if !ok {
 		return
 	}
 
@@ -179,6 +198,10 @@ func (crh *CustomRaceHandler) Start(w http.ResponseWriter, r *http.Request) {
 	manager, ok := crh.manager(w, r)
 
 	if !ok {
+		return
+	}
+
+	if flashServerBusy(w, r, manager.CheckCanStart()) {
 		return
 	}
 

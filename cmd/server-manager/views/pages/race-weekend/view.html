@@ -172,7 +172,7 @@
                                         Scheduled
 
                                         {{ if ne $session.ScheduledServerID $serverID }}
-                                            (on <span class="scheduled-server-id" data-server-id="{{ $session.ScheduledServerID }}">another server</span>)
+                                            (on <span class="scheduled-server-id" data-server-id="{{ $session.ScheduledServerID }}">{{ with serverName $session.ScheduledServerID }}{{ . }}{{ else }}another server{{ end }}</span>)
                                         {{ end }}
 
                                         for {{ localFormat $session.ScheduledTime }}
@@ -254,6 +254,8 @@
                                             <input type="date" class="form-control" name="session-schedule-date" id="session-schedule-date" value="{{ $.RaceWeekend.MostRecentScheduledDateFormat "2006-01-02" }}">
                                             <input type="time" class="form-control" name="session-schedule-time" id="session-schedule-time" value="{{ $.RaceWeekend.MostRecentScheduledDateFormat "15:04" }}">
                                             <input type="hidden" name="session-schedule-timezone" class="session-schedule-timezone">
+                                            {{ template "schedule-target" dict "Servers" $.Servers "Selected" $serverID "Id" $session.ID.String }}
+
                                             <small class="form-text text-muted">
                                                 This date/time is in your timezone (<span class="timezone"></span>).
 

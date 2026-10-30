@@ -2091,6 +2091,34 @@
                             <input type='hidden' name="CustomRaceScheduledTimezone" class="event-schedule-timezone">
                         </div>
 
+                        {{ if gt (len .Servers) 1 }}
+
+                            <div class="form-group row">
+
+                                <label for="event-schedule-server" class="col-sm-3 col-form-label">Scheduled on Server</label>
+
+
+                                <div class="col-sm-5">
+
+                                    <select class="form-control" name="event-schedule-server" id="event-schedule-server">
+
+                                        {{ range $server := .Servers }}
+
+                                            <option value="{{ $server.ID }}" {{ if eq $server.ID $.ServerID }}selected{{ end }}>{{ $server.Name }}</option>
+
+                                        {{ end }}
+
+                                    </select>
+
+                                    <small>The server which runs the race when a start time is set above.</small>
+
+                                </div>
+
+                            </div>
+
+                        {{ end }}
+
+
                         <div class="form-group row">
                             <label for="event-schedule-recurrence" class="col-sm-3 col-form-label">Recurrence Rule</label>
 

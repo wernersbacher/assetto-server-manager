@@ -109,8 +109,26 @@ func NewHandler(baseHandler *smweb.BaseHandler, scheduledRacesManager *Manager) 
 	}
 }
 
+// FilterServerParam is the query parameter of the calendar, the calendar feed and the upcoming races API which limits
+// the events to those scheduled for one server. It is not the server parameter, which selects the server of the request.
+const FilterServerParam = "filterServer"
+
+type calendarTemplateVars struct {
+	smweb.BaseTemplateVars
+
+	// FilterServer is the id of the server the calendar is limited to, empty for all servers.
+	FilterServer smmodel.ServerID
+}
+
 func (rs *Handler) Calendar(w http.ResponseWriter, r *http.Request) {
-	rs.ViewRenderer.MustLoadTemplate(w, r, "calendar.html", &smweb.BaseTemplateVars{WideContainer: true})
+	rs.ViewRenderer.MustLoadTemplate(w, r, "calendar.html", &calendarTemplateVars{
+		BaseTemplateVars: smweb.BaseTemplateVars{WideContainer: true},
+		FilterServer:     filterServer(r),
+	})
+}
+
+func filterServer(r *http.Request) smmodel.ServerID {
+	return smmodel.ServerID(r.URL.Query().Get(FilterServerParam))
 }
 
 func (rs *Handler) CalendarJSON(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +144,7 @@ func (rs *Handler) AllScheduledRacesICalHandler(w http.ResponseWriter, r *http.R
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
-	err := rs.scheduledRacesManager.buildScheduledRaces(w)
+	err := rs.scheduledRacesManager.buildScheduledRaces(w, filterServer(r))
 
 	if err != nil {
 		logrus.WithError(err).Error("could not build scheduled races feed")
@@ -148,7 +166,7 @@ func (rs *Handler) generateJSON(w io.Writer, r *http.Request) error {
 		return err
 	}
 
-	calendarObjects, err := rs.scheduledRacesManager.BuildCalendar(start, end)
+	calendarObjects, err := rs.scheduledRacesManager.BuildCalendar(start, end, filterServer(r))
 
 	if err != nil {
 		return err
@@ -160,6 +178,10 @@ func (rs *Handler) generateJSON(w io.Writer, r *http.Request) error {
 // EntryListFunc returns the entry list a race weekend session will be run with.
 type EntryListFunc func(session *smmodel.RaceWeekendSession) (serverconfig.EntryList, error)
 
+// ServersFunc returns the server slots. The schedule only needs their names; the resolver provides the list, as this
+// package does not know the slots.
+type ServersFunc func() []smweb.ServerRef
+
 // Manager finds the scheduled events of all types.
 type Manager struct {
 	config *smconfig.Configuration
@@ -167,15 +189,18 @@ type Manager struct {
 	env    *serverenv.Env
 
 	raceWeekendEntryList EntryListFunc
+	servers              ServersFunc
 }
 
-// NewManager creates a Manager. raceWeekendEntryList is used to show the entrants of race weekend sessions.
-func NewManager(config *smconfig.Configuration, store smstore.Store, env *serverenv.Env, raceWeekendEntryList EntryListFunc) *Manager {
+// NewManager creates a Manager. raceWeekendEntryList is used to show the entrants of race weekend sessions, servers to
+// show the names of the servers events are scheduled for (nil for a single server).
+func NewManager(config *smconfig.Configuration, store smstore.Store, env *serverenv.Env, raceWeekendEntryList EntryListFunc, servers ServersFunc) *Manager {
 	return &Manager{
 		config:               config,
 		store:                store,
 		env:                  env,
 		raceWeekendEntryList: raceWeekendEntryList,
+		servers:              servers,
 	}
 }
 
@@ -252,8 +277,48 @@ func (srm *Manager) GetScheduledRaces(forAllServers bool) ([]Event, error) {
 	return scheduled, nil
 }
 
-func (srm *Manager) buildScheduledRaces(w io.Writer) error {
+// serverName returns the name of the server slot with the given id, or an empty string if it is not a slot.
+func (srm *Manager) serverName(id smmodel.ServerID) string {
+	if srm.servers == nil {
+		return ""
+	}
+
+	for _, server := range srm.servers() {
+		if server.ID == id {
+			return server.Name
+		}
+	}
+
+	return ""
+}
+
+// multipleServers tells if events can be scheduled for several servers.
+func (srm *Manager) multipleServers() bool {
+	return srm.servers != nil && len(srm.servers()) > 1
+}
+
+// GetScheduledRacesFor returns all scheduled events, or only those scheduled for the server with the given id if it is
+// not empty.
+func (srm *Manager) GetScheduledRacesFor(server smmodel.ServerID) ([]Event, error) {
 	scheduled, err := srm.GetScheduledRaces(true)
+
+	if err != nil || server == "" {
+		return scheduled, err
+	}
+
+	filtered := make([]Event, 0, len(scheduled))
+
+	for _, event := range scheduled {
+		if event.GetScheduledServerID() == server {
+			filtered = append(filtered, event)
+		}
+	}
+
+	return filtered, nil
+}
+
+func (srm *Manager) buildScheduledRaces(w io.Writer, server smmodel.ServerID) error {
+	scheduled, err := srm.GetScheduledRacesFor(server)
 
 	if err != nil {
 		return err
@@ -281,21 +346,24 @@ func (srm *Manager) buildScheduledRaces(w io.Writer) error {
 type CalendarObject struct {
 	ID                string           `json:"id"`
 	ScheduledServerID smmodel.ServerID `json:"scheduledServerID"`
-	GroupID           string           `json:"groupId"`
-	AllDay            bool             `json:"allDay"`
-	Start             time.Time        `json:"start"`
-	End               time.Time        `json:"end"`
-	Title             string           `json:"title"`
-	Description       string           `json:"description"`
-	URL               string           `json:"url"`
-	SignUpURL         string           `json:"signUpURL"`
-	ClassNames        []string         `json:"classNames"`
-	Editable          bool             `json:"editable"`
-	StartEditable     bool             `json:"startEditable"`
-	DurationEditable  bool             `json:"durationEditable"`
-	ResourceEditable  bool             `json:"resourceEditable"`
-	Rendering         string           `json:"rendering"`
-	Overlap           bool             `json:"overlap"`
+
+	// ScheduledServerName is the name of the server the event is scheduled for, if there are several servers.
+	ScheduledServerName string    `json:"scheduledServerName"`
+	GroupID             string    `json:"groupId"`
+	AllDay              bool      `json:"allDay"`
+	Start               time.Time `json:"start"`
+	End                 time.Time `json:"end"`
+	Title               string    `json:"title"`
+	Description         string    `json:"description"`
+	URL                 string    `json:"url"`
+	SignUpURL           string    `json:"signUpURL"`
+	ClassNames          []string  `json:"classNames"`
+	Editable            bool      `json:"editable"`
+	StartEditable       bool      `json:"startEditable"`
+	DurationEditable    bool      `json:"durationEditable"`
+	ResourceEditable    bool      `json:"resourceEditable"`
+	Rendering           string    `json:"rendering"`
+	Overlap             bool      `json:"overlap"`
 
 	Constraint      string `json:"constraint"`
 	BackgroundColor string `json:"backgroundColor"`
@@ -303,9 +371,10 @@ type CalendarObject struct {
 	TextColor       string `json:"textColor"`
 }
 
-// BuildCalendar returns the calendar entries for the scheduled events between start and end.
-func (srm *Manager) BuildCalendar(start time.Time, end time.Time) ([]CalendarObject, error) {
-	scheduled, err := srm.GetScheduledRaces(true)
+// BuildCalendar returns the calendar entries for the scheduled events between start and end, limited to the events
+// scheduled for the server with the given id if it is not empty.
+func (srm *Manager) BuildCalendar(start time.Time, end time.Time, server smmodel.ServerID) ([]CalendarObject, error) {
+	scheduled, err := srm.GetScheduledRacesFor(server)
 
 	if err != nil {
 		return nil, err
@@ -460,33 +529,39 @@ func (srm *Manager) buildCalObject(scheduled []Event, calendarObjects []Calendar
 			textColor = "#303030"
 
 			scheduledServerID := scheduledEvent.GetScheduledServerID()
+			var scheduledServerName string
+
+			if srm.multipleServers() {
+				scheduledServerName = srm.serverName(scheduledServerID)
+			}
 
 			if srm.env.ServerID() == scheduledServerID {
 				scheduledServerID = ""
 			}
 
 			calendarObjects = append(calendarObjects, CalendarObject{
-				ID:                scheduledEvent.GetID().String() + session.Name,
-				ScheduledServerID: scheduledServerID,
-				GroupID:           scheduledEvent.GetID().String(),
-				AllDay:            false,
-				Start:             start,
-				End:               end,
-				Title:             generateSummary(srm.env, scheduledEvent.GetRaceSetup(), session.Name) + " " + scheduledEvent.GetSummary(),
-				Description:       smcontent.CarList(scheduledEvent.GetRaceSetup().Cars) + ": " + scheduledEvent.ReadOnlyEntryList().Entrants(smresults.DriverName),
-				URL:               pageURL,
-				SignUpURL:         signUpURL,
-				ClassNames:        classNames,
-				Editable:          false,
-				StartEditable:     false,
-				DurationEditable:  false,
-				ResourceEditable:  false,
-				Rendering:         "",
-				Overlap:           true,
-				Constraint:        "",
-				BackgroundColor:   backgroundColor,
-				BorderColor:       borderColor,
-				TextColor:         textColor,
+				ID:                  scheduledEvent.GetID().String() + session.Name,
+				ScheduledServerID:   scheduledServerID,
+				ScheduledServerName: scheduledServerName,
+				GroupID:             scheduledEvent.GetID().String(),
+				AllDay:              false,
+				Start:               start,
+				End:                 end,
+				Title:               generateSummary(srm.env, scheduledEvent.GetRaceSetup(), session.Name) + " " + scheduledEvent.GetSummary(),
+				Description:         smcontent.CarList(scheduledEvent.GetRaceSetup().Cars) + ": " + scheduledEvent.ReadOnlyEntryList().Entrants(smresults.DriverName),
+				URL:                 pageURL,
+				SignUpURL:           signUpURL,
+				ClassNames:          classNames,
+				Editable:            false,
+				StartEditable:       false,
+				DurationEditable:    false,
+				ResourceEditable:    false,
+				Rendering:           "",
+				Overlap:             true,
+				Constraint:          "",
+				BackgroundColor:     backgroundColor,
+				BorderColor:         borderColor,
+				TextColor:           textColor,
 			})
 		}
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
@@ -23,8 +24,9 @@ type ActiveEvents interface {
 	RaceWeekendActiveOn(id uuid.UUID) (smweb.ServerRef, bool)
 }
 
-// ErrServerBusy is returned when an event is started on a server which already runs an event.
-var ErrServerBusy = errors.New("servermanager: the server is already running an event")
+// ErrServerBusy is returned when an event is started on a server which already runs an event. It is the error of the
+// race manager, so that all kinds of events report it alike.
+var ErrServerBusy = smrace.ErrServerBusy
 
 // ActiveElsewhereError is returned when a championship or race weekend is used on one server while it is active on
 // another one.

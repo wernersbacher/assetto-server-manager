@@ -463,7 +463,7 @@ func (r *Resolver) resolveScheduledRacesManager() *schedule.Manager {
 	r.scheduledRacesManager = schedule.NewManager(r.config, r.ResolveStore(), r.resolveEnv(), func(session *smmodel.RaceWeekendSession) (serverconfig.EntryList, error) {
 		// resolved when called, because the race weekend manager needs the notification manager, which needs this manager
 		return r.resolveRaceWeekendManager().SessionEntryList(session, session.RaceWeekend())
-	})
+	}, r.serverRefs)
 
 	return r.scheduledRacesManager
 }
