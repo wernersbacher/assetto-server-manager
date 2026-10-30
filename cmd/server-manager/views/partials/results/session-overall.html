@@ -34,7 +34,7 @@
                         <tr {{ if eq $account.GUID $result.DriverGUID }}style="font-weight: bold"{{ end }}>
                             <td>{{ add $pos 1 }}</td>
                             <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">
-                                {{ driverName $result.DriverName }}
+                                {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
 
                                 {{ if $result.HasPenalty }}
                                     <span class="badge badge-danger">Time Penalty: {{ $result.PenaltyTime }}</span>
@@ -144,7 +144,7 @@
                     {{ with $result.DriverGUID }}
                         <tr {{ if eq $account.GUID $result.DriverGUID }}style="font-weight: bold"{{ end }}>
                             <td>{{ add $pos 1 }}</td>
-                            <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">{{ driverName $result.DriverName }}
+                            <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">{{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                 {{ if $result.HasPenalty }} <span class="badge badge-danger">Time Penalty: {{ $result.PenaltyTime }}</span> {{ end }}
                                 {{ if $result.Disqualified }} <span class="badge badge-danger">Disqualified</span> {{ end }}</td>
                             {{ if $driversHaveTeams }}
@@ -239,7 +239,7 @@
                     {{ with $result.DriverGUID }}
                         <tr {{ if eq $account.GUID $result.DriverGUID }}style="font-weight: bold"{{ end }}>
                             <td>{{ add $pos 1 }}</td>
-                            <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">{{ driverName $result.DriverName }}
+                            <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">{{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                 {{ if $result.HasPenalty }} <span class="badge badge-danger">Time Penalty: {{ $result.PenaltyTime }}</span> {{ end }}
                                 {{ if $result.Disqualified }} <span class="badge badge-danger">Disqualified</span> {{ end }}</td>
                             {{ if $driversHaveTeams }}

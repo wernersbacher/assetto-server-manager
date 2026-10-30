@@ -74,7 +74,7 @@
                     {{ range $i, $entrant := $.RaceWeekend.GetEntryList }}
                         <tr>
                             <td>{{ $num }}</td>
-                            <td>{{ driverName $entrant.Name }}</td>
+                            <td>{{ template "driver-link" dict "GUID" $entrant.GUID "Name" $entrant.Name }}</td>
 
                             {{ if $.RaceWeekend.HasTeamNames }}
                                 <td>{{ $entrant.Team }}</td>

@@ -191,7 +191,7 @@
         <div class="card mt-3 border-secondary">
             <div class="card-header {{ if eq $account.GUID $sessionResult.DriverGUID }}bg-success text-white{{ end }}">
                 <strong>
-                    {{ add $i 1 }}{{ ordinal (add $i 1) }} {{ driverName $sessionResult.DriverName }}
+                    {{ add $i 1 }}{{ ordinal (add $i 1) }} {{ template "driver-link" dict "GUID" $sessionResult.DriverGUID "Name" $sessionResult.DriverName }}
                 </strong>
 
                 {{ if eq $sessionResult.DriverGUID "76561198256908075" }} (Ey up you Southern twit){{ end }}

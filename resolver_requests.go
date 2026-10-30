@@ -6,13 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/admin"
-	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
 	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
-	"github.com/wernersbacher/assetto-server-manager/internal/resultshttp"
 	"github.com/wernersbacher/assetto-server-manager/internal/servers"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -149,26 +147,13 @@ func (r *Resolver) raceWeekendManagerFor(req *http.Request) (*smraceweekend.Race
 	return slot.RaceWeekendManager, nil
 }
 
-// resultsServers lists all server slots with their results directories, for attributing results to a server.
-func (r *Resolver) resultsServers() []resultshttp.ServerDir {
-	servers := make([]resultshttp.ServerDir, 0, r.registry.Len())
+// resultsServers lists all server slots with their results directories, for attributing results, lap records and driver
+// statistics to a server.
+func (r *Resolver) resultsServers() []smweb.ServerDir {
+	servers := make([]smweb.ServerDir, 0, r.registry.Len())
 
 	for _, slot := range r.registry.All() {
-		servers = append(servers, resultshttp.ServerDir{
-			ServerRef:  smweb.ServerRef{ID: slot.ID(), Name: slot.Name},
-			ResultsDir: filepath.Join(slot.InstallPath, "results"),
-		})
-	}
-
-	return servers
-}
-
-// contentServers lists all server slots with their results directories, for attributing lap records to a server.
-func (r *Resolver) contentServers() []contenthttp.ServerDir {
-	servers := make([]contenthttp.ServerDir, 0, r.registry.Len())
-
-	for _, slot := range r.registry.All() {
-		servers = append(servers, contenthttp.ServerDir{
+		servers = append(servers, smweb.ServerDir{
 			ServerRef:  smweb.ServerRef{ID: slot.ID(), Name: slot.Name},
 			ResultsDir: filepath.Join(slot.InstallPath, "results"),
 		})

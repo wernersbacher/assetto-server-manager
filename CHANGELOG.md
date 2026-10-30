@@ -7,6 +7,8 @@ Fixed:
 
 Added:
 
+* Driver profile pages (`/driver/{guid}`, linked from driver names in results, championship standings and entry lists, and race weekend entry lists) show a driver's statistics (sessions by type, races, wins, podiums, laps, valid lap share, cuts and collisions), personal bests per track layout and car, the championships the driver is in with their standing, and a paged list of all results; with several servers the lists can be filtered by server. The profile is also available as JSON from `GET /api/driver/{guid}`, see the README.
+
 * Track pages show the lap records of every layout: the overall record and the best valid lap (no cuts) of every car with driver, date and a link to the result, and car pages list the best lap of the car per track. With several servers the records can be filtered by server. The records are also available as JSON from `GET /api/track-records`, see the README.
 
 * The race setup forms (custom race, championship event, race weekend session) collapse the advanced Assists, Realism, Rules and Server Options sections by default and show a one line summary of their values (for example "ABS: Factory, TC: Factory, Stability off") while collapsed; the choice is remembered per form type and an "edited" badge shows changed sections. Fields the browser rejects on save are listed in an error summary at the top of the form, with links that open and scroll to the affected section, the section index shows error, edited and complete markers, and the sticky save bar has a Discard changes button (with confirmation when something was edited).

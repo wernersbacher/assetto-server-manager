@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"strings"
 
 	"github.com/cj123/sessions"
@@ -196,6 +197,60 @@ type ServerRef struct {
 
 	// Running tells if the server runs an event. It is only set for the lists the renderer gives to templates.
 	Running bool
+}
+
+// ServerDir is a server slot together with its results directory.
+type ServerDir struct {
+	ServerRef
+
+	ResultsDir string
+}
+
+// ServersFunc returns all server slots with their results directories. The resolver provides it, as the handlers
+// cannot know the slots. Results are attributed to a server by the directory they are found in, which keeps the
+// results format unchanged.
+type ServersFunc func() []ServerDir
+
+// Attributed returns the servers for attributing results: none if there are fewer than two (a single server setup
+// looks and answers as before) or no function.
+func (f ServersFunc) Attributed() []ServerDir {
+	if f == nil {
+		return nil
+	}
+
+	servers := f()
+
+	if len(servers) < 2 {
+		return nil
+	}
+
+	return servers
+}
+
+// ServerOfDir returns the server whose results directory is dir, nil if there is none.
+func ServerOfDir(servers []ServerDir, dir string) *ServerRef {
+	dir = filepath.Clean(dir)
+
+	for _, server := range servers {
+		if filepath.Clean(server.ResultsDir) == dir {
+			ref := server.ServerRef
+
+			return &ref
+		}
+	}
+
+	return nil
+}
+
+// DirOfServer returns the results directory of the server with the id, false if there is no such server.
+func DirOfServer(servers []ServerDir, id string) (string, bool) {
+	for _, server := range servers {
+		if string(server.ID) == id {
+			return server.ResultsDir, true
+		}
+	}
+
+	return "", false
 }
 
 // PortWarnings returns what is shown to the user about the ports the server slot with the id shares with other server

@@ -19,8 +19,9 @@ import (
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	"github.com/wernersbacher/assetto-server-manager/internal/servers"
-		"github.com/wernersbacher/assetto-server-manager/internal/stats"
-smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	"github.com/wernersbacher/assetto-server-manager/internal/stats"
+	"github.com/wernersbacher/assetto-server-manager/internal/statshttp"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"net/http"
@@ -72,6 +73,7 @@ type Resolver struct {
 	penaltiesHandler            *racecontrol.PenaltiesHandler
 	penaltiesManager            *racecontrol.PenaltiesManager
 	resultsHandler              *resultshttp.ResultsHandler
+	driverHandler               *statshttp.DriverHandler
 	scheduledRacesHandler       *schedule.Handler
 	contentUploadHandler        *contenthttp.ContentUploadHandler
 	raceControlHandler          *racecontrol.RaceControlHandler
@@ -417,7 +419,7 @@ func (r *Resolver) resolveRecords() *contenthttp.Records {
 		return r.contentRecords
 	}
 
-	r.contentRecords = contenthttp.NewRecords(r.resolveStatsIndex(), r.contentServers)
+	r.contentRecords = contenthttp.NewRecords(r.resolveStatsIndex(), r.resultsServers)
 
 	return r.contentRecords
 }
@@ -482,6 +484,17 @@ func (r *Resolver) resolveResultsHandler() *resultshttp.ResultsHandler {
 	r.resultsHandler = resultshttp.NewResultsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv(), r.resultsServers)
 
 	return r.resultsHandler
+}
+
+// resolveDriverHandler returns the handler of the driver profile page and API.
+func (r *Resolver) resolveDriverHandler() *statshttp.DriverHandler {
+	if r.driverHandler != nil {
+		return r.driverHandler
+	}
+
+	r.driverHandler = statshttp.NewDriverHandler(r.resolveBaseHandler(), r.resolveStatsIndex(), r.resultsServers, r.championshipManagerFor)
+
+	return r.driverHandler
 }
 
 func (r *Resolver) resolveScheduledRacesManager() *schedule.Manager {
@@ -667,5 +680,6 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveHealthCheck(),
 		r.resolveKissMyRankHandler(),
 		r.resolveRealPenaltyHandler(),
+		r.resolveDriverHandler(),
 	)
 }

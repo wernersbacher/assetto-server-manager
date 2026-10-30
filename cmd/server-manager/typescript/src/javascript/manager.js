@@ -111,6 +111,11 @@ export function EntryPoint() {
     $(".session-schedule-timezone").val(timezone);
     $(".sol-timezone").val(timezone);
 
+    // links inside clickable rows and cells navigate on their own
+    $document.find(".row-link a, .driver-link a").click(function (e) {
+        e.stopPropagation();
+    });
+
     $document.find(".row-link").click(function () {
         window.location = $(this).data("href");
     });

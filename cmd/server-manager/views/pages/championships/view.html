@@ -214,7 +214,7 @@
                                         {{ end }}
                                         <td>{{ add $i 1 }}</td>
                                         <td class="sticky-col">
-                                            {{ driverName $entrant.Car.Driver.Name }}
+                                            {{ template "driver-link" dict "GUID" $entrant.Car.Driver.GUID "Name" $entrant.Car.Driver.Name }}
 
                                             {{ $driverPenalty := $class.PenaltyForGUID $entrant.Car.Driver.GUID }}
 
@@ -389,7 +389,7 @@
                                             {{ end }}
                                         {{ end }}
                                         <td><span data-toggle="tooltip" title="Pit Box: {{ $entrant.PitBox }}">{{ add $i 1 }}</span></td>
-                                        <td class="sticky-col">{{ driverName $entrant.Name }}</td>
+                                        <td class="sticky-col">{{ template "driver-link" dict "GUID" $entrant.GUID "Name" $entrant.Name }}</td>
                                         {{ if $championship.HasTeamNames }}
                                             <td>{{ $entrant.Team }}</td>
                                         {{ end }}
@@ -504,7 +504,7 @@
 
                                         <p class="mb-0">
                                             <small {{ if eq $account.GUID $entrant.Car.Driver.GUID }}style="font-weight: bold"{{ end }}>
-                                                {{ driverName $entrant.Car.Driver.Name }}<br>
+                                                {{ template "driver-link" dict "GUID" $entrant.Car.Driver.GUID "Name" $entrant.Car.Driver.Name }}<br>
                                                 {{ $entrant.Car.Driver.Team }}
                                             </small>
                                         </p>

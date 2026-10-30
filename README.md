@@ -169,6 +169,15 @@ Results can be read in the same way, with the same access rules as the results p
   there are none). A record has the driver (`DriverName`, `DriverGUID`), the car (`CarModel`, `CarName`), `LapTime` and
   `Sectors` in milliseconds, the `Tyre`, the `Date` and `SessionType` of the session, its results `FileName` (see
   `/api/results/{fileName}`) and, with several servers, the `Server` (`ID`, `Name`).
+- `GET /api/driver/{guid}`: the profile of a driver (404 if the GUID is in no results). It has the `Name` last used and
+  all `Names`, `Nation` and `Team`, the number of `Sessions` by type, `Races`, `Wins`, `Podiums`, `Laps`, `ValidLaps`,
+  `Cuts`, `CollisionsCar` and `CollisionsEnv`, the `PersonalBests` (best valid lap per track layout and car: `Track`,
+  `TrackLayout`, `CarModel`, `LapTime` and `Sectors` in milliseconds, `Tyre`, `Date`, `SessionType`, results `FileName`),
+  all `Results` (newest first: `FileName`, `Date`, track, `SessionType`, `Cars`, `Position` in a race, `Disqualified`,
+  `BestLap`, `Laps`) and the `Championships` the driver is in (`ID`, `Name`, `Class`, `Position`, `Entrants`, `Points`,
+  `Completed`) of the selected server. `filterServer` (see below) restricts `Results` and `PersonalBests` to one server;
+  with several servers they have a `Server` (`ID`, `Name`). The page is `/driver/{guid}`; driver names in results and
+  championship tables link to it.
 
 All times and durations are in milliseconds, as Assetto Corsa stores them. Driver names are shortened if the server
 hides driver last names. Collisions are not included, use `/results/download/{fileName}` for the full results file.

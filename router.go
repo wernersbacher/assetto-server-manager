@@ -13,6 +13,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/resultshttp"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	"github.com/wernersbacher/assetto-server-manager/internal/statshttp"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"fmt"
@@ -83,6 +84,7 @@ func Router(
 	healthCheck *admin.HealthCheck,
 	kissMyRankHandler *pluginhttp.KissMyRankHandler,
 	realPenaltyHandler *pluginhttp.RealPenaltyHandler,
+	driverHandler *statshttp.DriverHandler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -150,6 +152,8 @@ func Router(
 		r.Get("/api/results", resultsHandler.ListAPI)
 		r.Get("/api/results/{fileName}", resultsHandler.ViewAPI)
 		r.Get("/api/track-records", tracksHandler.RecordsAPI)
+		r.Get("/driver/{guid}", driverHandler.View)
+		r.Get("/api/driver/{guid}", driverHandler.ViewAPI)
 
 		r.Get("/custom", customRaceHandler.List)
 

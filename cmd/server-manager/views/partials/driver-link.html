@@ -1,0 +1,2 @@
+{{/* Driver name linked to the driver profile, plain if the GUID has no profile: {{ template "driver-link" dict "GUID" $guid "Name" $name }}. The name is shortened like driverName does. */}}
+{{ define "driver-link" }}{{ with driverURL .GUID }}<a href="{{ . }}" class="driver-profile-link">{{ driverName $.Name }}</a>{{ else }}{{ driverName .Name }}{{ end }}{{ end }}

@@ -216,7 +216,7 @@
                                                                 {{ end }}
                                                             {{ end }}
                                                             <td>{{ add $pos 1 }}</td>
-                                                            <td>{{ driverName $standing.Car.Driver.Name }}</td>
+                                                            <td>{{ template "driver-link" dict "GUID" $standing.Car.Driver.GUID "Name" $standing.Car.Driver.Name }}</td>
                                                             {{ if $championshipHasTeamNames }}
                                                                 <td>{{ $standing.Car.Driver.Team }}</td>
                                                             {{ end }}

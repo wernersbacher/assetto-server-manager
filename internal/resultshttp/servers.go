@@ -9,16 +9,10 @@ import (
 )
 
 // ServerDir is a server slot together with its results directory.
-type ServerDir struct {
-	smweb.ServerRef
+type ServerDir = smweb.ServerDir
 
-	ResultsDir string
-}
-
-// ServersFunc returns all server slots with their results directories. The resolver provides it, as the handlers
-// cannot know the slots. Results are attributed to a server by the directory they are found in, which keeps the
-// results format unchanged.
-type ServersFunc func() []ServerDir
+// ServersFunc returns all server slots with their results directories (see smweb.ServersFunc).
+type ServersFunc = smweb.ServersFunc
 
 // serverIndex maps the results directories to their servers.
 type serverIndex struct {
@@ -28,47 +22,17 @@ type serverIndex struct {
 // serverIndex returns the servers for attributing results. It is empty (nothing is attributed) if there are fewer than
 // two servers, so that a single server setup looks and answers as before.
 func (rh *ResultsHandler) serverIndex() serverIndex {
-	if rh.servers == nil {
-		return serverIndex{}
-	}
-
-	servers := rh.servers()
-
-	if len(servers) < 2 {
-		return serverIndex{}
-	}
-
-	return serverIndex{servers: servers}
+	return serverIndex{servers: rh.servers.Attributed()}
 }
 
 // of returns the server which holds the results file, nil if there is none or the server is not attributed.
 func (i serverIndex) of(loader *smresults.Loader, fileName string) *smweb.ServerRef {
-	if len(i.servers) == 0 {
-		return nil
-	}
-
-	dir := filepath.Clean(loader.DirOf(fileName))
-
-	for _, server := range i.servers {
-		if filepath.Clean(server.ResultsDir) == dir {
-			ref := server.ServerRef
-
-			return &ref
-		}
-	}
-
-	return nil
+	return smweb.ServerOfDir(i.servers, loader.DirOf(fileName))
 }
 
 // dirOf returns the results directory of the server with the given id, and false if there is no such server.
 func (i serverIndex) dirOf(id string) (string, bool) {
-	for _, server := range i.servers {
-		if string(server.ID) == id {
-			return server.ResultsDir, true
-		}
-	}
-
-	return "", false
+	return smweb.DirOfServer(i.servers, id)
 }
 
 // filterServerParam is the query parameter which restricts the results list and API to one server. It is not the

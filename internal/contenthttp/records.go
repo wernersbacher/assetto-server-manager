@@ -12,15 +12,11 @@ import (
 )
 
 // ServerDir is a server slot together with its results directory.
-type ServerDir struct {
-	smweb.ServerRef
+type ServerDir = smweb.ServerDir
 
-	ResultsDir string
-}
-
-// ServersFunc returns all server slots with their results directories. The resolver provides it, as the handlers
-// cannot know the slots. Records are attributed to a server by the directory of their results file.
-type ServersFunc func() []ServerDir
+// ServersFunc returns all server slots with their results directories (see smweb.ServersFunc). Records are attributed
+// to a server by the directory of their results file.
+type ServersFunc = smweb.ServersFunc
 
 // filterServerParam restricts the records to one server. It is not the global server parameter, which selects the
 // server a page is shown for.
@@ -46,17 +42,11 @@ type RecordRow struct {
 
 // attributedServers returns the servers for attributing records: none if there are fewer than two.
 func (rs *Records) attributedServers() []ServerDir {
-	if rs == nil || rs.servers == nil {
+	if rs == nil {
 		return nil
 	}
 
-	servers := rs.servers()
-
-	if len(servers) < 2 {
-		return nil
-	}
-
-	return servers
+	return rs.servers.Attributed()
 }
 
 // filter reads filterServer from the request. It returns the filter and the server id as given. An unknown id matches
@@ -73,25 +63,11 @@ func (rs *Records) filter(r *http.Request) (stats.Filter, string) {
 
 	filter.Dir = filepath.Join(string(filepath.Separator), "unknown-server", id)
 
-	for _, server := range servers {
-		if string(server.ID) == id {
-			filter.Dir = server.ResultsDir
-		}
+	if dir, ok := smweb.DirOfServer(servers, id); ok {
+		filter.Dir = dir
 	}
 
 	return filter, id
-}
-
-func (rs *Records) serverOf(servers []ServerDir, dir string) *smweb.ServerRef {
-	for _, server := range servers {
-		if filepath.Clean(server.ResultsDir) == filepath.Clean(dir) {
-			ref := server.ServerRef
-
-			return &ref
-		}
-	}
-
-	return nil
 }
 
 func (rs *Records) rows(records []stats.Record) []RecordRow {
@@ -101,7 +77,7 @@ func (rs *Records) rows(records []stats.Record) []RecordRow {
 	for _, record := range records {
 		row := RecordRow{Record: record}
 
-		if server := rs.serverOf(servers, record.Dir); server != nil {
+		if server := smweb.ServerOfDir(servers, record.Dir); server != nil {
 			row.Server = server.Name
 		}
 
@@ -184,7 +160,7 @@ func newAPIRecord(rs *Records, servers []ServerDir, record stats.Record, prettyC
 		FileName:    record.ResultFile,
 	}
 
-	if server := rs.serverOf(servers, record.Dir); server != nil {
+	if server := smweb.ServerOfDir(servers, record.Dir); server != nil {
 		out.Server = &api.Server{ID: string(server.ID), Name: server.Name}
 	}
 
