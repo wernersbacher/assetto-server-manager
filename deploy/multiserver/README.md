@@ -4,11 +4,13 @@ ONE Server Manager (one UI, one login, one database) which hosts two Assetto Cor
 a championship can run on one server while a custom race runs on the other. The AC server is installed once with
 steamcmd and every server gets its own copy of it (`cfg/`, `results/`, ...), so nothing has to be copied by hand.
 
-| | Server A | Server B |
+| Default port | Server A | Server B |
 |---|---|---|
-| Web UI (both servers) | http://localhost:8772 | |
-| acServer UDP/TCP | 9600 | 9601 |
-| acServer HTTP | 8081 | 8082 |
+| Web UI (both servers) | 8772 (`SM_WEB_PORT`) | |
+| acServer UDP/TCP | 9600 (`SERVER_A_PORT`) | 9601 (`SERVER_B_PORT`) |
+| acServer HTTP | 8081 (`SERVER_A_HTTP_PORT`) | 8082 (`SERVER_B_HTTP_PORT`) |
+
+The published ports can be changed in a `.env` file (see "Changing the ports").
 
 ## Setup
 
@@ -28,11 +30,30 @@ Run everything from this directory.
 3. Start: `docker compose up -d --build`. Behind a TLS-intercepting proxy, set `EXTRA_CA_CERT` to the root
    certificate before building (see `Dockerfile`).
 4. Log in and open **Server Options** of each server (the selector in the top bar switches the server). A new server
-   starts with the default ports 9600 / 8081, so set server B to UDP/TCP port 9601 and HTTP port 8082. Compose
-   publishes the ports 1:1, because the acServer announces the configured ports to clients. Plugin ports (stracker,
+   starts with the default ports 9600 / 8081, so set server B to UDP/TCP port 9601 and HTTP port 8082 (or the ports
+   from your `.env`, see "Changing the ports"). Compose publishes the ports 1:1, because the acServer announces the
+   configured ports to clients. Plugin ports (stracker,
    KissMyRank, Real Penalty) have to be different per server too: Server Manager warns about conflicts and refuses to
    start an event on ports that a running server already uses. Publish the plugin ports in `compose.yaml` if you use
    them.
+
+## Changing the ports
+
+Copy `.env.example` to `.env` (gitignored) and change the values; compose reads it automatically. Unset variables
+use the defaults of the table above.
+
+| Variable | Default | |
+|---|---|---|
+| `SM_WEB_PORT` | 8772 | host port of the web UI |
+| `SERVER_A_PORT` / `SERVER_A_HTTP_PORT` | 9600 / 8081 | acServer UDP+TCP / HTTP port of server a |
+| `SERVER_B_PORT` / `SERVER_B_HTTP_PORT` | 9601 / 8082 | acServer UDP+TCP / HTTP port of server b |
+
+- The acServer ports are published with the same number on host and container side, so after changing them set the
+  **same ports in Server Options of each server** (a and b). Every new server starts with 9600 / 8081 in its options,
+  so this is needed at least once per server.
+- Only the host side of the web port changes. If you change `SM_WEB_PORT`, also change `server_manager_base_URL` in
+  `config.yml` to the new port: it is used for links in chat messages, iCal events and the API.
+- Run `docker compose up -d` again after changing `.env`.
 
 ## Volumes
 

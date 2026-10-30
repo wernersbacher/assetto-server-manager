@@ -55,8 +55,9 @@ services:
       - assetto-b:/slot
       - ./seed.sh:/seed.sh:ro
 
-  # The acServers announce the configured ports to the lobby and the clients, so every port is published 1:1 and the
-  # acServer ports of each server are set in its "Server Options" (a: 9600/8081, b: 9601/8082).
+  # The acServers announce the configured ports to the lobby and the clients, so each acServer port is published 1:1
+  # (same variable on both sides). The values come from .env (see .env.example); the defaults are 9600/8081 for
+  # server a and 9601/8082 for server b. The same ports have to be set in "Server Options" of each server.
   server-manager:
     <<: *image
     restart: unless-stopped
@@ -68,13 +69,16 @@ services:
       seed-b:
         condition: service_completed_successfully
     ports:
-      - "8772:8772"     # web UI
-      - "9600:9600/udp" # server a: acServer UDP
-      - "9600:9600/tcp" # server a: acServer TCP
-      - "8081:8081/tcp" # server a: acServer HTTP
-      - "9601:9601/udp" # server b
-      - "9601:9601/tcp"
-      - "8082:8082/tcp"
+      # web UI: only the host side is variable (the container side is http.hostname in config.yml)
+      - "${SM_WEB_PORT:-8772}:8772"
+      # server a: acServer UDP, TCP and HTTP
+      - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/udp"
+      - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/tcp"
+      - "${SERVER_A_HTTP_PORT:-8081}:${SERVER_A_HTTP_PORT:-8081}/tcp"
+      # server b
+      - "${SERVER_B_PORT:-9601}:${SERVER_B_PORT:-9601}/udp"
+      - "${SERVER_B_PORT:-9601}:${SERVER_B_PORT:-9601}/tcp"
+      - "${SERVER_B_HTTP_PORT:-8082}:${SERVER_B_HTTP_PORT:-8082}/tcp"
     volumes:
       # store, logs, sessions
       - data:/home/assetto/server-manager

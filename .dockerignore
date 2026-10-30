@@ -16,3 +16,4 @@ docker-compose.yml
 compose.yaml
 cmd/championship-import
 dev/data/
+deploy/multiserver/.env

@@ -42,3 +42,5 @@ changelog_embed.go
 *.gate.lock*
 
 todo.md
+# local compose overrides
+.env
