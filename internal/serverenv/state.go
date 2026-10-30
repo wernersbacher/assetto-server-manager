@@ -88,6 +88,20 @@ func (s *State) SetFallBackSorting(fallBackSorting bool) {
 	s.fallBackSorting = fallBackSorting
 }
 
+// EnvFor builds the Env of one server slot: the install path and the server id (read whenever it is asked, as it
+// may only be known once the store has been initialised) are those of the slot, resultsDirs returns the results
+// directories of all slots. The fallback sorting option is read from this State, so it is shared by all slots.
+func (s *State) EnvFor(installPath string, serverID func() smmodel.ServerID, resultsDirs func() []string, panicCapture func(fn func()), debug bool) *Env {
+	return &Env{
+		ServerID:        serverID,
+		InstallPath:     func() string { return installPath },
+		ResultsDirs:     resultsDirs,
+		FallBackSorting: s.FallBackSorting,
+		PanicCapture:    panicCapture,
+		Debug:           debug,
+	}
+}
+
 // Env builds the Env which reads this State.
 func (s *State) Env(panicCapture func(fn func()), debug bool) *Env {
 	return &Env{

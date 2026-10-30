@@ -73,7 +73,8 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   `pkg/*`, `acserver/serverconfig`, `plainname`, `formfields`, `lua`, `results`; `model`, `content`, `plugins`; `store`,
   `config`; `web` (renderer, `BaseHandler`, access checks, form encoding); `serverenv`; `server` (AC process, content
   manager wrapper); `accounts`, `api`, `notification`, `schedule`, `racecontrol`; `race`; `championship`;
-  `raceweekend`; the handler packages `contenthttp`, `resultshttp`, `pluginhttp`, `admin`; the root.
+  `raceweekend`; `servers` (server slots: per-slot `Env` and runtime stack, `Registry`); the handler packages
+  `contenthttp`, `resultshttp`, `pluginhttp`, `admin`; the root.
 - **Domain packages with their own HTTP handlers**: `race` (custom/quick races), `championship`, `raceweekend`,
   `racecontrol` (live timing, penalties), `schedule` (calendar, upcoming races), `accounts`. Each holds its `*Manager`
   (business logic) and `*Handler` (thin HTTP layer embedding `smweb.BaseHandler`).
