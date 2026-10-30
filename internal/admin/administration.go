@@ -31,6 +31,7 @@ type ServerAdministrationHandler struct {
 	config         *smconfig.Configuration
 	slotFor        SlotFor
 	slotsFunc      SlotsFunc
+	portWarnings   smweb.PortWarnings
 	scheduledRaces *schedule.Manager
 
 	managerLog, pluginsLog *smserver.LogBuffer
@@ -49,6 +50,7 @@ func NewServerAdministrationHandler(
 	baseHandler *smweb.BaseHandler,
 	slotFor SlotFor,
 	slotsFunc SlotsFunc,
+	portWarnings smweb.PortWarnings,
 	scheduledRaces *schedule.Manager,
 	logs Logs,
 	changelogHTML func() template.HTML,
@@ -59,6 +61,7 @@ func NewServerAdministrationHandler(
 		BaseHandler:        baseHandler,
 		slotFor:            slotFor,
 		slotsFunc:          slotsFunc,
+		portWarnings:       portWarnings,
 		scheduledRaces:     scheduledRaces,
 		managerLog:         logs.Manager,
 		pluginsLog:         logs.Plugins,
@@ -236,6 +239,9 @@ type serverOptionsTemplateVars struct {
 	smweb.BaseTemplateVars
 
 	Form template.HTML
+
+	// PortWarnings are the ports this server shares with other servers.
+	PortWarnings []string
 }
 
 func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.Request) {
@@ -284,7 +290,8 @@ func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.R
 	}
 
 	sah.ViewRenderer.MustLoadTemplate(w, r, "server/options.html", &serverOptionsTemplateVars{
-		Form: form,
+		Form:         form,
+		PortWarnings: sah.portWarnings.For(slot.Env.ServerID()),
 	})
 }
 

@@ -4,11 +4,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/admin"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	"github.com/wernersbacher/assetto-server-manager/internal/servers"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
@@ -235,5 +237,101 @@ func TestResolverServerRefsAndAdminSlots(t *testing.T) {
 		if refs[i].Running || admin.NewServerSummary(slots[i]).Running {
 			t.Errorf("server %q must be idle", id)
 		}
+	}
+}
+
+func TestResolverChecksPortsOfSlots(t *testing.T) {
+	dir, err := ioutil.TempDir("", "resolver-slots-install")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	resolver, store, cleanup := newTestResolver(t, &smconfig.Configuration{Servers: []smconfig.ServerSlotConfig{
+		{ID: "a", InstallPath: filepath.Join(dir, "a")},
+		{ID: "b", InstallPath: filepath.Join(dir, "b")},
+	}})
+	defer cleanup()
+
+	registry := resolver.Servers()
+	slotA, _ := registry.ByID("a")
+	slotB, _ := registry.ByID("b")
+
+	// both slots have the default ports
+	if warnings := resolver.portWarnings("b"); len(warnings) == 0 {
+		t.Fatal("expected warnings about the shared default ports")
+	}
+
+	if err := resolver.checkPorts(slotB); err != nil {
+		t.Errorf("no server runs, expected the start to be allowed, got %v", err)
+	}
+
+	process := &servertest.Interruptible{}
+	slotA.Process = process
+
+	if err := process.Start(smmodel.QuickRace{}, "", 0, "", 0); err != nil {
+		t.Fatal(err)
+	}
+
+	err = resolver.checkPorts(slotB)
+
+	if err == nil || !strings.Contains(err.Error(), "collide with a running server") {
+		t.Fatalf("expected the start to be refused while a runs on the same ports, got %v", err)
+	}
+
+	// b gets its own acServer ports, plugin options of both slots are per slot
+	opts, err := store.LoadServerOptionsFor("b")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	opts.UDPPort, opts.TCPPort, opts.HTTPPort = 9701, 9701, 8082
+
+	if err := store.UpsertServerOptionsFor("b", opts); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := resolver.checkPorts(slotB); err != nil {
+		t.Errorf("expected the start to be allowed on its own ports, got %v", err)
+	}
+
+	if warnings := resolver.portWarnings("b"); len(warnings) != 0 {
+		t.Errorf("expected no warnings, got %v", warnings)
+	}
+
+	// plugins on the same ports are warned about, but don't stop the start
+	for _, id := range []smmodel.ServerID{"a", "b"} {
+		kmr, err := store.LoadKissMyRankOptionsFor(id)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		kmr.EnableKissMyRank = true
+
+		if err := store.UpsertKissMyRankOptionsFor(id, kmr); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if warnings := resolver.portWarnings("b"); len(warnings) == 0 || !strings.Contains(warnings[0], "KissMyRank") {
+		t.Errorf("expected a warning about the KissMyRank ports, got %v", warnings)
+	}
+
+	if err := resolver.checkPorts(slotB); err != nil {
+		t.Errorf("plugin port conflicts must not stop the start, got %v", err)
+	}
+
+	// with one server there is nothing to compare
+	single, _, cleanupSingle := newTestResolver(t, &smconfig.Configuration{})
+	defer cleanupSingle()
+
+	single.Servers()
+
+	if warnings := single.portWarnings(single.registry.Default().ID()); len(warnings) != 0 {
+		t.Errorf("expected no warnings with one server, got %v", warnings)
 	}
 }

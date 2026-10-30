@@ -9,27 +9,30 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type StrackerHandler struct {
 	*smweb.BaseHandler
 
-	store        smstore.Store
-	env          *serverenv.Env
-	reverseProxy *httputil.ReverseProxy
+	slotFor      SlotFor
+	portWarnings smweb.PortWarnings
+
+	// reverseProxies are the proxies to the stracker web interface of each slot, by the id of the slot
+	reverseProxies map[smmodel.ServerID]*httputil.ReverseProxy
+	mutex          sync.Mutex
 }
 
-func NewStrackerHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *StrackerHandler {
-	return &StrackerHandler{BaseHandler: baseHandler, store: store, env: env}
+func NewStrackerHandler(baseHandler *smweb.BaseHandler, slotFor SlotFor, portWarnings smweb.PortWarnings) *StrackerHandler {
+	return &StrackerHandler{BaseHandler: baseHandler, slotFor: slotFor, portWarnings: portWarnings, reverseProxies: make(map[smmodel.ServerID]*httputil.ReverseProxy)}
 }
 
 type strackerConfigurationTemplateVars struct {
@@ -37,10 +40,12 @@ type strackerConfigurationTemplateVars struct {
 
 	Form                template.HTML
 	IsStrackerInstalled bool
+	PortWarnings        []string
 }
 
-func (sth *StrackerHandler) initReverseProxy() error {
-	strackerOptions, err := sth.store.LoadStrackerOptions()
+// initReverseProxy (re-)creates the proxy to the stracker web interface of the slot, with the address from its options.
+func (sth *StrackerHandler) initReverseProxy(slot *Slot) error {
+	strackerOptions, err := slot.Store.LoadStrackerOptions()
 
 	if err != nil {
 		return err
@@ -96,20 +101,38 @@ func (sth *StrackerHandler) initReverseProxy() error {
 		return nil
 	}
 
-	sth.reverseProxy = reverseProxy
+	sth.mutex.Lock()
+	sth.reverseProxies[slot.Env.ServerID()] = reverseProxy
+	sth.mutex.Unlock()
 
 	return nil
 }
 
+// Proxy serves the stracker web interface of the server the request is for (the one selected by the server parameter or
+// remembered in the session, as the links in the proxied pages do not carry the parameter).
 func (sth *StrackerHandler) Proxy(w http.ResponseWriter, r *http.Request) {
-	if sth.reverseProxy == nil {
-		err := sth.initReverseProxy()
+	slot, ok := slotOrError(sth.slotFor, w, r)
+
+	if !ok {
+		return
+	}
+
+	sth.mutex.Lock()
+	reverseProxy := sth.reverseProxies[slot.Env.ServerID()]
+	sth.mutex.Unlock()
+
+	if reverseProxy == nil {
+		err := sth.initReverseProxy(slot)
 
 		if err != nil {
 			logrus.WithError(err).Error("Could not initialise stracker reverse proxy")
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+
+		sth.mutex.Lock()
+		reverseProxy = sth.reverseProxies[slot.Env.ServerID()]
+		sth.mutex.Unlock()
 	}
 
 	r.URL.Path = strings.TrimPrefix(r.URL.Path, "/stracker")
@@ -122,7 +145,7 @@ func (sth *StrackerHandler) Proxy(w http.ResponseWriter, r *http.Request) {
 		r.URL.Path = "/admin/mainpage"
 	}
 
-	sth.reverseProxy.ServeHTTP(w, r)
+	reverseProxy.ServeHTTP(w, r)
 }
 
 // strackerLinkTagReplacements is a map of html tags to their attributes which need their links prefixing
@@ -176,7 +199,13 @@ func processSTrackerLink(attr *html.Attribute) {
 }
 
 func (sth *StrackerHandler) Options(w http.ResponseWriter, r *http.Request) {
-	strackerOptions, err := sth.store.LoadStrackerOptions()
+	slot, ok := slotOrError(sth.slotFor, w, r)
+
+	if !ok {
+		return
+	}
+
+	strackerOptions, err := slot.Store.LoadStrackerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load stracker options")
@@ -193,7 +222,7 @@ func (sth *StrackerHandler) Options(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = sth.store.UpsertStrackerOptions(strackerOptions)
+		err = slot.Store.UpsertStrackerOptions(strackerOptions)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save stracker options")
@@ -202,7 +231,7 @@ func (sth *StrackerHandler) Options(w http.ResponseWriter, r *http.Request) {
 			smweb.AddFlash(w, r, "Stracker options successfully saved!")
 		}
 
-		err = sth.initReverseProxy()
+		err = sth.initReverseProxy(slot)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't re-init stracker proxy")
@@ -219,6 +248,7 @@ func (sth *StrackerHandler) Options(w http.ResponseWriter, r *http.Request) {
 
 	sth.ViewRenderer.MustLoadTemplate(w, r, "server/stracker-options.html", &strackerConfigurationTemplateVars{
 		Form:                form,
-		IsStrackerInstalled: smplugins.IsStrackerInstalled(sth.env.InstallPath()),
+		IsStrackerInstalled: smplugins.IsStrackerInstalled(slot.Env.InstallPath()),
+		PortWarnings:        sth.portWarnings.For(slot.Env.ServerID()),
 	})
 }

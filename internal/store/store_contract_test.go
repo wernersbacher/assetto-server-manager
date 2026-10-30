@@ -1200,3 +1200,152 @@ func TestStoreContract_PerSlotLiveStateAndSlotView(t *testing.T) {
 		}
 	})
 }
+
+func TestStoreContract_PluginOptionsPerSlot(t *testing.T) {
+	runStoreContract(t, func(t *testing.T, store Store) {
+		// the default slot uses the same storage as the methods without an id
+		sto, err := store.LoadStrackerOptions()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		sto.InstanceConfiguration.ListeningPort = 50100
+		sto.EnableStracker = true
+
+		kmr, err := store.LoadKissMyRankOptions()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		kmr.WebStatsServerPort = 7800
+
+		rpc, err := store.LoadRealPenaltyOptions()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		rpc.RealPenaltyAppConfig.General.AppTCPPort = 53100
+
+		if err := store.UpsertStrackerOptions(sto); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertKissMyRankOptions(kmr); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertRealPenaltyOptions(rpc); err != nil {
+			t.Fatal(err)
+		}
+
+		if loaded, err := store.LoadStrackerOptionsFor(""); err != nil || loaded.InstanceConfiguration.ListeningPort != 50100 {
+			t.Errorf("default slot does not read the existing stracker options, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadKissMyRankOptionsFor(""); err != nil || loaded.WebStatsServerPort != 7800 {
+			t.Errorf("default slot does not read the existing KissMyRank options, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadRealPenaltyOptionsFor(""); err != nil || loaded.RealPenaltyAppConfig.General.AppTCPPort != 53100 {
+			t.Errorf("default slot does not read the existing Real Penalty options, got (%v, %v)", loaded, err)
+		}
+
+		// a slot without options gets the defaults
+		slotSto, err := store.LoadStrackerOptionsFor("slot-a")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if slotSto.EnableStracker || slotSto.InstanceConfiguration.ListeningPort != smplugins.DefaultStrackerIni("").InstanceConfiguration.ListeningPort {
+			t.Errorf("expected default stracker options for a new slot, got enabled=%t port=%d", slotSto.EnableStracker, slotSto.InstanceConfiguration.ListeningPort)
+		}
+
+		slotSto.InstanceConfiguration.ListeningPort = 50200
+
+		slotKMR, err := store.LoadKissMyRankOptionsFor("slot-a")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		slotKMR.WebStatsServerPort = 7900
+
+		slotRPC, err := store.LoadRealPenaltyOptionsFor("slot-a")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		slotRPC.RealPenaltyAppConfig.General.AppTCPPort = 53200
+
+		if err := store.UpsertStrackerOptionsFor("slot-a", slotSto); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertKissMyRankOptionsFor("slot-a", slotKMR); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertRealPenaltyOptionsFor("slot-a", slotRPC); err != nil {
+			t.Fatal(err)
+		}
+
+		if loaded, err := store.LoadStrackerOptionsFor("slot-a"); err != nil || loaded.InstanceConfiguration.ListeningPort != 50200 {
+			t.Errorf("slot-a: stracker options did not round-trip, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadKissMyRankOptionsFor("slot-a"); err != nil || loaded.WebStatsServerPort != 7900 {
+			t.Errorf("slot-a: KissMyRank options did not round-trip, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadRealPenaltyOptionsFor("slot-a"); err != nil || loaded.RealPenaltyAppConfig.General.AppTCPPort != 53200 {
+			t.Errorf("slot-a: Real Penalty options did not round-trip, got (%v, %v)", loaded, err)
+		}
+
+		// the default slot is left alone, and another slot starts with the defaults
+		if loaded, err := store.LoadStrackerOptions(); err != nil || loaded.InstanceConfiguration.ListeningPort != 50100 || !loaded.EnableStracker {
+			t.Errorf("default slot was modified by another slot, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadKissMyRankOptions(); err != nil || loaded.WebStatsServerPort != 7800 {
+			t.Errorf("default slot KissMyRank options were modified by another slot, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadRealPenaltyOptions(); err != nil || loaded.RealPenaltyAppConfig.General.AppTCPPort != 53100 {
+			t.Errorf("default slot Real Penalty options were modified by another slot, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadStrackerOptionsFor("slot-b"); err != nil || loaded.InstanceConfiguration.ListeningPort == 50200 {
+			t.Errorf("slot-b must not see the options of slot-a, got (%v, %v)", loaded, err)
+		}
+
+		// the view of a slot routes the methods without an id to the slot
+		view := ForServer(store, "slot-a")
+
+		if loaded, err := view.LoadStrackerOptions(); err != nil || loaded.InstanceConfiguration.ListeningPort != 50200 {
+			t.Errorf("slot view: expected the stracker options of the slot, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := view.LoadKissMyRankOptions(); err != nil || loaded.WebStatsServerPort != 7900 {
+			t.Errorf("slot view: expected the KissMyRank options of the slot, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := view.LoadRealPenaltyOptions(); err != nil || loaded.RealPenaltyAppConfig.General.AppTCPPort != 53200 {
+			t.Errorf("slot view: expected the Real Penalty options of the slot, got (%v, %v)", loaded, err)
+		}
+
+		slotRPC.RealPenaltyAppConfig.General.AppTCPPort = 53300
+
+		if err := view.UpsertRealPenaltyOptions(slotRPC); err != nil {
+			t.Fatal(err)
+		}
+
+		if loaded, err := store.LoadRealPenaltyOptionsFor("slot-a"); err != nil || loaded.RealPenaltyAppConfig.General.AppTCPPort != 53300 {
+			t.Errorf("expected the view to write the options of the slot, got (%v, %v)", loaded, err)
+		}
+	})
+}

@@ -118,3 +118,62 @@ func TestReadConfigServersInvalid(t *testing.T) {
 		})
 	}
 }
+
+func TestReadConfigSlotPlugins(t *testing.T) {
+	conf, err := readConfig(t, `
+server:
+  plugins:
+    - executable: /global/run.sh
+      arguments: ["--global"]
+servers:
+  - id: inherits
+    install_path: one
+  - id: own
+    install_path: two
+    plugins:
+      - executable: /own/run.sh
+        arguments: ["--own", "config.json"]
+  - id: none
+    install_path: three
+    plugins: []
+`)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	slots, err := conf.Slots()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(slots[0].Plugins) != 1 || slots[0].Plugins[0].Executable != "/global/run.sh" {
+		t.Errorf("a server without a plugins list must inherit server.plugins, got %+v", slots[0].Plugins)
+	}
+
+	if len(slots[1].Plugins) != 1 || slots[1].Plugins[0].Executable != "/own/run.sh" || len(slots[1].Plugins[0].Arguments) != 2 {
+		t.Errorf("a server with a plugins list must use it, got %+v", slots[1].Plugins)
+	}
+
+	if len(slots[2].Plugins) != 0 {
+		t.Errorf("an empty plugins list must start no plugins, got %+v", slots[2].Plugins)
+	}
+
+	// the default slot uses server.plugins
+	conf, err = readConfig(t, "server:\n  plugins:\n    - executable: /global/run.sh\n")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	slots, err = conf.Slots()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(slots[0].Plugins) != 1 {
+		t.Errorf("the default slot must use server.plugins, got %+v", slots[0].Plugins)
+	}
+}

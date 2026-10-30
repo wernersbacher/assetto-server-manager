@@ -79,6 +79,9 @@ type AssettoServerProcess struct {
 	forwardListenPort  int
 
 	sessionStartedChan chan struct{}
+
+	// startCheck is asked before an event is started, see SetStartCheck.
+	startCheck func() error
 }
 
 type pluginProcess struct {
@@ -132,6 +135,12 @@ func (sp *AssettoServerProcess) UDPCallback(message udp.Message) {
 func (sp *AssettoServerProcess) Start(event smmodel.RaceEvent, udpPluginAddress string, udpPluginLocalPort int, forwardingAddress string, forwardListenPort int) error {
 	sp.startMutex.Lock()
 	defer sp.startMutex.Unlock()
+
+	if sp.startCheck != nil {
+		if err := sp.startCheck(); err != nil {
+			return err
+		}
+	}
 
 	sp.mutex.Lock()
 	sp.udpPluginAddress = udpPluginAddress
@@ -310,9 +319,17 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 	sp.cmd.Stdout = logOutput
 	sp.cmd.Stderr = errorOutput
 
+	// the plugin options are those of this slot (the store is the view of the slot)
+	strackerOptions, err := sp.store.LoadStrackerOptions()
+	strackerEnabled := err == nil && strackerOptions.EnableStracker && smplugins.IsStrackerInstalled(sp.env.InstallPath())
+
 	if err := sp.startUDPListener(); err != nil {
 		return err
 	}
+
+	// if stracker is enabled we need to let it set the interval. This is per connection, so slots with and without
+	// stracker don't influence each other.
+	sp.udpServerConn.SetPosIntervalModifierEnabled(!strackerEnabled)
 
 	wd, err := os.Getwd()
 
@@ -350,12 +367,6 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 			}
 		})
 	}
-
-	strackerOptions, err := sp.store.LoadStrackerOptions()
-	strackerEnabled := err == nil && strackerOptions.EnableStracker && smplugins.IsStrackerInstalled(sp.env.InstallPath())
-
-	// if stracker is enabled we need to let it set the interval
-	udp.PosIntervalModifierEnabled = !strackerEnabled
 
 	kissMyRankOptions, err := sp.store.LoadKissMyRankOptions()
 	kissMyRankEnabled := err == nil && kissMyRankOptions.EnableKissMyRank && smplugins.IsKissMyRankInstalled(sp.env.InstallPath())
@@ -938,4 +949,25 @@ func describeRaceEvent(raceEvent smmodel.RaceEvent) string {
 	cfg := raceEvent.GetRaceConfig()
 
 	return fmt.Sprintf("%d sessions with %d entrants at %s (%s)", len(cfg.Sessions), len(raceEvent.GetEntryList()), cfg.Track, cfg.TrackLayout)
+}
+
+// SetStartCheck sets a function which is asked before an event is started. If it returns an error, the event is not
+// started (and a running event is not stopped). The resolver uses it to refuse starting on ports which another running
+// server slot uses. It must be set before the process is used.
+func (sp *AssettoServerProcess) SetStartCheck(check func() error) {
+	sp.startCheck = check
+}
+
+// CurrentRealtimePosInterval returns the real time pos interval (in ms) which is currently requested from the server
+// of this process, see udp.AssettoServerUDP.CurrentRealtimePosInterval. Without a running server it is the configured
+// interval.
+func (sp *AssettoServerProcess) CurrentRealtimePosInterval() int {
+	sp.mutex.Lock()
+	defer sp.mutex.Unlock()
+
+	if sp.udpServerConn == nil || sp.raceEvent == nil {
+		return udp.RealtimePosIntervalMs
+	}
+
+	return sp.udpServerConn.CurrentRealtimePosInterval()
 }

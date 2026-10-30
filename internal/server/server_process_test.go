@@ -1,6 +1,7 @@
 package server
 
 import (
+	"errors"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
@@ -120,5 +121,46 @@ func TestAssettoServerProcess_StartMissingExecutable(t *testing.T) {
 	// the UDP listener has been released, so the server can be started again
 	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err == nil {
 		t.Fatal("expected an error starting a missing executable")
+	}
+}
+
+// A failing start check keeps the event from starting, and leaves a running event alone.
+func TestAssettoServerProcess_StartCheck(t *testing.T) {
+	executable, err := os.Executable()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	sp, udpAddress, cleanup := setupServerProcessTest(t, executable)
+	defer cleanup()
+
+	errRefused := errors.New("ports in use")
+	sp.SetStartCheck(func() error { return errRefused })
+
+	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err != errRefused {
+		t.Fatalf("expected the error of the start check, got %v", err)
+	}
+
+	if sp.IsRunning() {
+		t.Fatal("expected the server not to be started")
+	}
+
+	sp.SetStartCheck(func() error { return nil })
+
+	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() { _ = sp.Stop() }()
+
+	sp.SetStartCheck(func() error { return errRefused })
+
+	if err := sp.Start(smmodel.QuickRace{}, udpAddress, freeUDPPort(t), "", -1); err != errRefused {
+		t.Fatalf("expected the error of the start check, got %v", err)
+	}
+
+	if !sp.IsRunning() {
+		t.Error("a refused start must not stop the running event")
 	}
 }

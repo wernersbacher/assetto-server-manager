@@ -110,14 +110,22 @@ type Store interface {
 	// Stracker Options
 	UpsertStrackerOptions(sto *smplugins.StrackerConfiguration) error
 	LoadStrackerOptions() (*smplugins.StrackerConfiguration, error)
+	// The ...For variants of the plugin options (stracker, KissMyRank, Real Penalty) store the options of one server
+	// slot. The default slot (empty id) uses the same storage as the methods without an id.
+	UpsertStrackerOptionsFor(id smmodel.ServerID, sto *smplugins.StrackerConfiguration) error
+	LoadStrackerOptionsFor(id smmodel.ServerID) (*smplugins.StrackerConfiguration, error)
 
 	// KissMyRank Options
 	UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) error
 	LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error)
+	UpsertKissMyRankOptionsFor(id smmodel.ServerID, kmr *smplugins.KissMyRankConfig) error
+	LoadKissMyRankOptionsFor(id smmodel.ServerID) (*smplugins.KissMyRankConfig, error)
 
 	// RealPenalty options
 	UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) error
 	LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, error)
+	UpsertRealPenaltyOptionsFor(id smmodel.ServerID, rpc *smplugins.RealPenaltyConfig) error
+	LoadRealPenaltyOptionsFor(id smmodel.ServerID) (*smplugins.RealPenaltyConfig, error)
 }
 
 // autoFillEntrant prepares an entrant for storage in the AutoFill entrant list. The list is used to fill in

@@ -9,6 +9,7 @@ import (
 	"io"
 	"net"
 	"runtime"
+	"sync/atomic"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -18,8 +19,6 @@ import (
 // RealtimePosIntervalMs is the interval to request real time positional information.
 // Set this to greater than 0 to enable.
 var RealtimePosIntervalMs = -1
-var CurrentRealtimePosIntervalMs = -1
-var PosIntervalModifierEnabled = false
 
 func NewServerClient(addr string, receivePort, sendPort int, forward bool, forwardAddrStr string, forwardListenPort int, callback CallbackFunc) (*AssettoServerUDP, error) {
 	listener, err := net.DialUDP("udp", &net.UDPAddr{IP: net.ParseIP(addr), Port: receivePort}, &net.UDPAddr{IP: net.ParseIP(addr), Port: sendPort})
@@ -37,11 +36,12 @@ func NewServerClient(addr string, receivePort, sendPort int, forward bool, forwa
 	ctx, cfn := context.WithCancel(context.Background())
 
 	u := &AssettoServerUDP{
-		ctx:      ctx,
-		cfn:      cfn,
-		callback: callback,
-		forward:  forward,
-		listener: listener,
+		ctx:                          ctx,
+		cfn:                          cfn,
+		callback:                     callback,
+		forward:                      forward,
+		listener:                     listener,
+		currentRealtimePosIntervalMs: int32(RealtimePosIntervalMs),
 	}
 
 	if forward && forwardAddrStr != "" && forwardListenPort != 0 {
@@ -78,6 +78,13 @@ type AssettoServerUDP struct {
 	callback CallbackFunc
 
 	closed bool
+
+	// currentRealtimePosIntervalMs is the real time pos interval currently requested from this server, which is
+	// adjusted if messages can't be handled fast enough. posIntervalModifierEnabledFlag (0 or 1) tells if this
+	// connection may change the interval: it must not if a plugin, e.g. stracker, sets it. Both are per connection,
+	// as every server slot has its own connection. They are accessed atomically.
+	currentRealtimePosIntervalMs   int32
+	posIntervalModifierEnabledFlag int32
 }
 
 func (asu *AssettoServerUDP) Close() error {
@@ -141,7 +148,7 @@ func (asu *AssettoServerUDP) serve() {
 	messageChan := make(chan []byte, 1000)
 	defer close(messageChan)
 
-	CurrentRealtimePosIntervalMs = RealtimePosIntervalMs
+	asu.setCurrentRealtimePosInterval(RealtimePosIntervalMs)
 	lastQueueSize := 0
 
 	go func() {
@@ -164,7 +171,7 @@ func (asu *AssettoServerUDP) serve() {
 					_, _ = asu.forwarder.Write(buf)
 				}
 			case <-ticker.C:
-				if RealtimePosIntervalMs < 0 || !PosIntervalModifierEnabled {
+				if RealtimePosIntervalMs < 0 || !asu.posIntervalModifierEnabled() {
 					// there is no real time pos interval set or stracker is enabled, we don't need to check if we're keeping up with messages
 					continue
 				}
@@ -176,23 +183,23 @@ func (asu *AssettoServerUDP) serve() {
 
 					// update as infrequently as we can, within sensible limits
 					if currentQueueSize > 5 { // at this point we are half a second behind
-						CurrentRealtimePosIntervalMs += (currentQueueSize * 2) + 1
+						asu.setCurrentRealtimePosInterval(asu.CurrentRealtimePosInterval() + (currentQueueSize * 2) + 1)
 
-						logrus.Debugf("Adjusting real time pos interval: %d", CurrentRealtimePosIntervalMs)
-						err := asu.SendMessage(NewEnableRealtimePosInterval(CurrentRealtimePosIntervalMs))
+						logrus.Debugf("Adjusting real time pos interval: %d", asu.CurrentRealtimePosInterval())
+						err := asu.SendMessage(NewEnableRealtimePosInterval(asu.CurrentRealtimePosInterval()))
 
 						if err != nil {
 							logrus.WithError(err).Error("Could not send realtime pos interval adjustment")
 						}
 					}
-				} else if currentQueueSize <= lastQueueSize && currentQueueSize < 5 && CurrentRealtimePosIntervalMs > RealtimePosIntervalMs {
+				} else if currentQueueSize <= lastQueueSize && currentQueueSize < 5 && asu.CurrentRealtimePosInterval() > RealtimePosIntervalMs {
 					logrus.Debugf("Catching up, queue size: %d vs %d: changed by %d", currentQueueSize, lastQueueSize, currentQueueSize-lastQueueSize)
 
-					if CurrentRealtimePosIntervalMs-1 >= RealtimePosIntervalMs {
-						CurrentRealtimePosIntervalMs--
+					if asu.CurrentRealtimePosInterval()-1 >= RealtimePosIntervalMs {
+						asu.setCurrentRealtimePosInterval(asu.CurrentRealtimePosInterval() - 1)
 
-						logrus.Debugf("Adjusting real time pos interval, is now: %d", CurrentRealtimePosIntervalMs)
-						err := asu.SendMessage(NewEnableRealtimePosInterval(CurrentRealtimePosIntervalMs))
+						logrus.Debugf("Adjusting real time pos interval, is now: %d", asu.CurrentRealtimePosInterval())
+						err := asu.SendMessage(NewEnableRealtimePosInterval(asu.CurrentRealtimePosInterval()))
 
 						if err != nil {
 							logrus.WithError(err).Error("Could not send realtime pos interval adjustment")
@@ -265,7 +272,7 @@ func readString(r io.Reader, sizeMultiplier int) string {
 func (asu *AssettoServerUDP) SendMessage(message Message) error {
 	switch a := message.(type) {
 	case EnableRealtimePosInterval:
-		if PosIntervalModifierEnabled {
+		if asu.posIntervalModifierEnabled() {
 			return binary.Write(asu.listener, binary.LittleEndian, a)
 		}
 
@@ -649,4 +656,30 @@ func (asu *AssettoServerUDP) handleMessage(r io.Reader) (Message, error) {
 	}
 
 	return response, nil
+}
+
+// SetPosIntervalModifierEnabled sets if this connection may request and adjust the real time pos interval. It must
+// be disabled if a plugin (stracker) sets the interval, and is disabled until it is set.
+func (asu *AssettoServerUDP) SetPosIntervalModifierEnabled(enabled bool) {
+	var v int32
+
+	if enabled {
+		v = 1
+	}
+
+	atomic.StoreInt32(&asu.posIntervalModifierEnabledFlag, v)
+}
+
+func (asu *AssettoServerUDP) posIntervalModifierEnabled() bool {
+	return atomic.LoadInt32(&asu.posIntervalModifierEnabledFlag) == 1
+}
+
+// CurrentRealtimePosInterval is the real time pos interval (in ms) currently requested from the server of this
+// connection. It starts at RealtimePosIntervalMs and is raised while messages can't be handled fast enough.
+func (asu *AssettoServerUDP) CurrentRealtimePosInterval() int {
+	return int(atomic.LoadInt32(&asu.currentRealtimePosIntervalMs))
+}
+
+func (asu *AssettoServerUDP) setCurrentRealtimePosInterval(ms int) {
+	atomic.StoreInt32(&asu.currentRealtimePosIntervalMs, int32(ms))
 }

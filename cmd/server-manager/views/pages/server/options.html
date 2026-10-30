@@ -6,9 +6,11 @@
     <div class="page-header">
         <div>
             <h1>Options</h1>
-            <p>These configuration options are applied globally - they are applied to each race setup started by Server Manager.</p>
+            <p>These configuration options are those of the selected server - they are applied to each race setup started by Server Manager.</p>
         </div>
     </div>
+
+    {{ template "port-warnings" $.PortWarnings }}
 
     <form method="post" action="/server-options" class="admin-form">
         <div class="options-layout">

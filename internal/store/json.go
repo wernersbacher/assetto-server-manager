@@ -619,18 +619,38 @@ func (rs *JSONStore) DeleteRaceWeekend(id string) error {
 }
 
 func (rs *JSONStore) UpsertStrackerOptions(sto *smplugins.StrackerConfiguration) error {
-	return rs.encodeFile(rs.base, strackerOptionsFile, sto)
+	return rs.UpsertStrackerOptionsFor("", sto)
+}
+
+func (rs *JSONStore) UpsertStrackerOptionsFor(id smmodel.ServerID, sto *smplugins.StrackerConfiguration) error {
+	file, err := slotFileFor(strackerOptionsFile, id)
+
+	if err != nil {
+		return err
+	}
+
+	return rs.encodeFile(rs.base, file, sto)
 }
 
 func (rs *JSONStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, error) {
+	return rs.LoadStrackerOptionsFor("")
+}
+
+func (rs *JSONStore) LoadStrackerOptionsFor(id smmodel.ServerID) (*smplugins.StrackerConfiguration, error) {
+	file, err := slotFileFor(strackerOptionsFile, id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var out *smplugins.StrackerConfiguration
 
-	err := rs.decodeFile(rs.base, strackerOptionsFile, &out)
+	err = rs.decodeFile(rs.base, file, &out)
 
 	if os.IsNotExist(err) {
 		strackerConfig := smplugins.DefaultStrackerIni(rs.opts.serverInstallPath())
 
-		return strackerConfig, rs.UpsertStrackerOptions(strackerConfig)
+		return strackerConfig, rs.UpsertStrackerOptionsFor(id, strackerConfig)
 	} else if err != nil {
 		return nil, err
 	}
@@ -639,18 +659,38 @@ func (rs *JSONStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, er
 }
 
 func (rs *JSONStore) UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) error {
-	return rs.encodeFile(rs.base, kissMyRankOptionsFile, kmr)
+	return rs.UpsertKissMyRankOptionsFor("", kmr)
+}
+
+func (rs *JSONStore) UpsertKissMyRankOptionsFor(id smmodel.ServerID, kmr *smplugins.KissMyRankConfig) error {
+	file, err := slotFileFor(kissMyRankOptionsFile, id)
+
+	if err != nil {
+		return err
+	}
+
+	return rs.encodeFile(rs.base, file, kmr)
 }
 
 func (rs *JSONStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error) {
+	return rs.LoadKissMyRankOptionsFor("")
+}
+
+func (rs *JSONStore) LoadKissMyRankOptionsFor(id smmodel.ServerID) (*smplugins.KissMyRankConfig, error) {
+	file, err := slotFileFor(kissMyRankOptionsFile, id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var out *smplugins.KissMyRankConfig
 
-	err := rs.decodeFile(rs.base, kissMyRankOptionsFile, &out)
+	err = rs.decodeFile(rs.base, file, &out)
 
 	if os.IsNotExist(err) {
 		kmrConfig := smplugins.DefaultKissMyRankConfig()
 
-		return kmrConfig, rs.UpsertKissMyRankOptions(kmrConfig)
+		return kmrConfig, rs.UpsertKissMyRankOptionsFor(id, kmrConfig)
 	} else if err != nil {
 		return nil, err
 	}
@@ -659,18 +699,38 @@ func (rs *JSONStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error
 }
 
 func (rs *JSONStore) UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) error {
-	return rs.encodeFile(rs.base, realPenaltyOptionsFile, rpc)
+	return rs.UpsertRealPenaltyOptionsFor("", rpc)
+}
+
+func (rs *JSONStore) UpsertRealPenaltyOptionsFor(id smmodel.ServerID, rpc *smplugins.RealPenaltyConfig) error {
+	file, err := slotFileFor(realPenaltyOptionsFile, id)
+
+	if err != nil {
+		return err
+	}
+
+	return rs.encodeFile(rs.base, file, rpc)
 }
 
 func (rs *JSONStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, error) {
+	return rs.LoadRealPenaltyOptionsFor("")
+}
+
+func (rs *JSONStore) LoadRealPenaltyOptionsFor(id smmodel.ServerID) (*smplugins.RealPenaltyConfig, error) {
+	file, err := slotFileFor(realPenaltyOptionsFile, id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var out *smplugins.RealPenaltyConfig
 
-	err := rs.decodeFile(rs.base, realPenaltyOptionsFile, &out)
+	err = rs.decodeFile(rs.base, file, &out)
 
 	if os.IsNotExist(err) {
 		rpcConfig := smplugins.DefaultRealPenaltyConfig()
 
-		return rpcConfig, rs.UpsertRealPenaltyOptions(rpcConfig)
+		return rpcConfig, rs.UpsertRealPenaltyOptionsFor(id, rpcConfig)
 	} else if err != nil {
 		return nil, err
 	}

@@ -7,8 +7,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
@@ -17,24 +15,31 @@ type kissMyRankConfigurationTemplateVars struct {
 
 	Form           template.HTML
 	IsKMRInstalled bool
+	PortWarnings   []string
 }
 
 type KissMyRankHandler struct {
 	*smweb.BaseHandler
-	store smstore.Store
-	env   *serverenv.Env
+	slotFor      SlotFor
+	portWarnings smweb.PortWarnings
 }
 
-func NewKissMyRankHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *KissMyRankHandler {
+func NewKissMyRankHandler(baseHandler *smweb.BaseHandler, slotFor SlotFor, portWarnings smweb.PortWarnings) *KissMyRankHandler {
 	return &KissMyRankHandler{
-		BaseHandler: baseHandler,
-		store:       store,
-		env:         env,
+		BaseHandler:  baseHandler,
+		slotFor:      slotFor,
+		portWarnings: portWarnings,
 	}
 }
 
 func (kmrh *KissMyRankHandler) Options(w http.ResponseWriter, r *http.Request) {
-	opts, err := kmrh.store.LoadKissMyRankOptions()
+	slot, ok := slotOrError(kmrh.slotFor, w, r)
+
+	if !ok {
+		return
+	}
+
+	opts, err := slot.Store.LoadKissMyRankOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load kissmyrank options")
@@ -51,7 +56,7 @@ func (kmrh *KissMyRankHandler) Options(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = kmrh.store.UpsertKissMyRankOptions(opts)
+		err = slot.Store.UpsertKissMyRankOptions(opts)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save KissMyRank options")
@@ -71,6 +76,7 @@ func (kmrh *KissMyRankHandler) Options(w http.ResponseWriter, r *http.Request) {
 
 	kmrh.ViewRenderer.MustLoadTemplate(w, r, "server/kissmyrank-options.html", &kissMyRankConfigurationTemplateVars{
 		Form:           form,
-		IsKMRInstalled: smplugins.IsKissMyRankInstalled(kmrh.env.InstallPath()),
+		IsKMRInstalled: smplugins.IsKissMyRankInstalled(slot.Env.InstallPath()),
+		PortWarnings:   kmrh.portWarnings.For(slot.Env.ServerID()),
 	})
 }

@@ -853,6 +853,10 @@ func (rs *BoltStore) DeleteRaceWeekend(id string) error {
 }
 
 func (rs *BoltStore) UpsertStrackerOptions(sto *smplugins.StrackerConfiguration) error {
+	return rs.UpsertStrackerOptionsFor("", sto)
+}
+
+func (rs *BoltStore) UpsertStrackerOptionsFor(id smmodel.ServerID, sto *smplugins.StrackerConfiguration) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -866,11 +870,15 @@ func (rs *BoltStore) UpsertStrackerOptions(sto *smplugins.StrackerConfiguration)
 			return err
 		}
 
-		return bkt.Put(strackerOptionsKey, encoded)
+		return bkt.Put(slotKey(strackerOptionsKey, id), encoded)
 	})
 }
 
 func (rs *BoltStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, error) {
+	return rs.LoadStrackerOptionsFor("")
+}
+
+func (rs *BoltStore) LoadStrackerOptionsFor(id smmodel.ServerID) (*smplugins.StrackerConfiguration, error) {
 	// start with defaults
 	sto := smplugins.DefaultStrackerIni(rs.opts.serverInstallPath())
 
@@ -884,7 +892,7 @@ func (rs *BoltStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, er
 			return err
 		}
 
-		data := bkt.Get(strackerOptionsKey)
+		data := bkt.Get(slotKey(strackerOptionsKey, id))
 
 		if data == nil {
 			return nil
@@ -897,6 +905,10 @@ func (rs *BoltStore) LoadStrackerOptions() (*smplugins.StrackerConfiguration, er
 }
 
 func (rs *BoltStore) UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) error {
+	return rs.UpsertKissMyRankOptionsFor("", kmr)
+}
+
+func (rs *BoltStore) UpsertKissMyRankOptionsFor(id smmodel.ServerID, kmr *smplugins.KissMyRankConfig) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -910,11 +922,15 @@ func (rs *BoltStore) UpsertKissMyRankOptions(kmr *smplugins.KissMyRankConfig) er
 			return err
 		}
 
-		return bkt.Put(kissMyRankOptionsKey, encoded)
+		return bkt.Put(slotKey(kissMyRankOptionsKey, id), encoded)
 	})
 }
 
 func (rs *BoltStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error) {
+	return rs.LoadKissMyRankOptionsFor("")
+}
+
+func (rs *BoltStore) LoadKissMyRankOptionsFor(id smmodel.ServerID) (*smplugins.KissMyRankConfig, error) {
 	// start with defaults
 	kmr := smplugins.DefaultKissMyRankConfig()
 
@@ -928,7 +944,7 @@ func (rs *BoltStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error
 			return err
 		}
 
-		data := bkt.Get(kissMyRankOptionsKey)
+		data := bkt.Get(slotKey(kissMyRankOptionsKey, id))
 
 		if data == nil {
 			return nil
@@ -941,6 +957,10 @@ func (rs *BoltStore) LoadKissMyRankOptions() (*smplugins.KissMyRankConfig, error
 }
 
 func (rs *BoltStore) UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) error {
+	return rs.UpsertRealPenaltyOptionsFor("", rpc)
+}
+
+func (rs *BoltStore) UpsertRealPenaltyOptionsFor(id smmodel.ServerID, rpc *smplugins.RealPenaltyConfig) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -954,11 +974,15 @@ func (rs *BoltStore) UpsertRealPenaltyOptions(rpc *smplugins.RealPenaltyConfig) 
 			return err
 		}
 
-		return bkt.Put(realPenaltyOptionsKey, encoded)
+		return bkt.Put(slotKey(realPenaltyOptionsKey, id), encoded)
 	})
 }
 
 func (rs *BoltStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, error) {
+	return rs.LoadRealPenaltyOptionsFor("")
+}
+
+func (rs *BoltStore) LoadRealPenaltyOptionsFor(id smmodel.ServerID) (*smplugins.RealPenaltyConfig, error) {
 	// start with defaults
 	rpc := smplugins.DefaultRealPenaltyConfig()
 
@@ -972,7 +996,7 @@ func (rs *BoltStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, err
 			return err
 		}
 
-		data := bkt.Get(realPenaltyOptionsKey)
+		data := bkt.Get(slotKey(realPenaltyOptionsKey, id))
 
 		if data == nil {
 			return nil

@@ -158,3 +158,17 @@ type ServerRef struct {
 	// Running tells if the server runs an event. It is only set for the lists the renderer gives to templates.
 	Running bool
 }
+
+// PortWarnings returns what is shown to the user about the ports the server slot with the id shares with other server
+// slots (see the portcheck package), one message per conflict. The handler packages can't know the slots, so the
+// resolver provides it.
+type PortWarnings func(id smmodel.ServerID) []string
+
+// For returns the warnings of the slot, none if there is no function.
+func (p PortWarnings) For(id smmodel.ServerID) []string {
+	if p == nil {
+		return nil
+	}
+
+	return p(id)
+}

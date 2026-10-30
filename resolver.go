@@ -190,12 +190,15 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 	store := smstore.ForServer(r.store, smmodel.ServerID(slotConfig.ID))
 	slot.Store = store
 
-	// the process reads the executable of the slot from the steam section
+	// the process reads the executable and the plugin commands of the slot from the configuration
 	processConfig := *r.config
 	processConfig.Steam.ExecutablePath = slot.ExecutablePath
+	processConfig.Server.Plugins = slotConfig.Plugins
 
 	slot.ContentManagerWrapper = smserver.NewContentManagerWrapper(r.config, store, r.resolveCarManager(), r.resolveTrackManager(), slot.Env)
-	slot.Process = smserver.NewAssettoServerProcess(&processConfig, r.slotUDPCallback(slot), store, slot.ContentManagerWrapper, slot.Env, pluginsOutput)
+	process := smserver.NewAssettoServerProcess(&processConfig, r.slotUDPCallback(slot), store, slot.ContentManagerWrapper, slot.Env, pluginsOutput)
+	process.SetStartCheck(func() error { return r.checkPorts(slot) })
+	slot.Process = process
 
 	slot.RaceControlHub = racecontrol.NewRaceControlHub()
 	go panicCapture(slot.RaceControlHub.Run)
@@ -488,6 +491,7 @@ func (r *Resolver) resolveServerAdministrationHandler() *admin.ServerAdministrat
 		r.resolveBaseHandler(),
 		r.adminSlotFor,
 		r.adminSlots,
+		r.portWarnings,
 		r.resolveScheduledRacesManager(),
 		admin.Logs{Manager: logOutput, Plugins: pluginsOutput},
 		changelogHTML,
@@ -572,7 +576,7 @@ func (r *Resolver) resolveStrackerHandler() *pluginhttp.StrackerHandler {
 		return r.strackerHandler
 	}
 
-	r.strackerHandler = pluginhttp.NewStrackerHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv())
+	r.strackerHandler = pluginhttp.NewStrackerHandler(r.resolveBaseHandler(), r.pluginSlotFor, r.portWarnings)
 
 	return r.strackerHandler
 }
@@ -592,11 +596,7 @@ func (r *Resolver) resolveKissMyRankHandler() *pluginhttp.KissMyRankHandler {
 		return r.kissMyRankHandler
 	}
 
-	r.kissMyRankHandler = pluginhttp.NewKissMyRankHandler(
-		r.resolveBaseHandler(),
-		r.ResolveStore(),
-		r.resolveEnv(),
-	)
+	r.kissMyRankHandler = pluginhttp.NewKissMyRankHandler(r.resolveBaseHandler(), r.pluginSlotFor, r.portWarnings)
 
 	return r.kissMyRankHandler
 }
@@ -606,11 +606,7 @@ func (r *Resolver) resolveRealPenaltyHandler() *pluginhttp.RealPenaltyHandler {
 		return r.realPenaltyHandler
 	}
 
-	r.realPenaltyHandler = pluginhttp.NewRealPenaltyHandler(
-		r.resolveBaseHandler(),
-		r.ResolveStore(),
-		r.resolveEnv(),
-	)
+	r.realPenaltyHandler = pluginhttp.NewRealPenaltyHandler(r.resolveBaseHandler(), r.pluginSlotFor, r.portWarnings)
 
 	return r.realPenaltyHandler
 }

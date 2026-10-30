@@ -69,6 +69,19 @@ steam:
 #   - id: server2
 #     name: Server 2
 #     install_path: assetto2
+#     # optional: the extra commands of this server, see server.plugins below.
+#     # Without a list the server starts the commands of server.plugins; an
+#     # empty list (plugins: []) starts none. The AC server sends its UDP messages
+#     # to a single plugin only, see the note at server.plugins.
+#     plugins:
+#       - executable: /my/cool/plugin/path/run.sh
+#         arguments: ["--some-opt", "config-server2.json"]
+#
+# The options of stracker, KissMyRank and Real Penalty are stored per server
+# (their pages and the Server Options show the server they are for). Their
+# plugin ports and the AC server ports of the servers must not collide: Server
+# Manager warns on the options pages and when an event starts, and refuses to
+# start an event on ports a running server already uses.
 
 ################################################################################
 #
@@ -249,6 +262,9 @@ server:
   # feature interfaces so additional plugins can be chained between themselves.
   #
   # you can of course add your own commands (whatever you like!) here.
+  #
+  # with several servers (see servers above) these commands are started with each
+  # server, unless a server has its own plugins list.
   #
   # each executable specified is run from the directory it is inside, for example,
   # the command:

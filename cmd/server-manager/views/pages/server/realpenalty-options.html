@@ -10,6 +10,8 @@
         </div>
     </div>
 
+    {{ template "port-warnings" $.PortWarnings }}
+
     <div class="card admin-card mb-4">
         <div class="card-body">
             <p>
@@ -28,7 +30,7 @@
     {{ if .IsRealPenaltyInstalled }}
         <form method="post" action="/realpenalty/options" class="admin-form">
             <p class="text-muted">
-                These configuration options are applied globally - they are applied to the Real Penalty configuration files
+                These configuration options are those of the selected server - they are applied to the Real Penalty configuration files
                 whenever a race setup is started by Server Manager.
             </p>
 

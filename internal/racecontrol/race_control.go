@@ -157,7 +157,7 @@ func (rc *RaceControl) UDPCallback(message udp.Message) {
 
 	if sendUpdatedRaceControlStatus {
 		// update the current refresh rate
-		rc.CurrentRealtimePosInterval = udp.CurrentRealtimePosIntervalMs
+		rc.CurrentRealtimePosInterval = rc.currentRealtimePosInterval()
 
 		lastUpdateMessage, err := rc.broadcaster.Send(rc)
 
@@ -351,4 +351,14 @@ func (NilTrackData) TrackMap(name, layout string) (*smcontent.TrackMapData, erro
 // SetTimeAttackEvent sets the time attack race which is currently running, or clears it if race is nil.
 func (rc *RaceControl) SetTimeAttackEvent(race *smmodel.CustomRace) {
 	rc.currentTimeAttackEvent = race
+}
+
+// currentRealtimePosInterval is the real time pos interval of the server of this race control, which each server
+// process adjusts on its own. A process which does not report it (the tests' dummies) runs at the configured interval.
+func (rc *RaceControl) currentRealtimePosInterval() int {
+	if p, ok := rc.process.(interface{ CurrentRealtimePosInterval() int }); ok {
+		return p.CurrentRealtimePosInterval()
+	}
+
+	return udp.RealtimePosIntervalMs
 }

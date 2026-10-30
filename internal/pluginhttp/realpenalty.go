@@ -14,20 +14,18 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 type RealPenaltyHandler struct {
 	*smweb.BaseHandler
 
-	store smstore.Store
-	env   *serverenv.Env
+	slotFor      SlotFor
+	portWarnings smweb.PortWarnings
 }
 
-func NewRealPenaltyHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *RealPenaltyHandler {
-	return &RealPenaltyHandler{BaseHandler: baseHandler, store: store, env: env}
+func NewRealPenaltyHandler(baseHandler *smweb.BaseHandler, slotFor SlotFor, portWarnings smweb.PortWarnings) *RealPenaltyHandler {
+	return &RealPenaltyHandler{BaseHandler: baseHandler, slotFor: slotFor, portWarnings: portWarnings}
 }
 
 type realPenaltyConfigurationTemplateVars struct {
@@ -36,10 +34,17 @@ type realPenaltyConfigurationTemplateVars struct {
 	Form                        template.HTML
 	IsRealPenaltyInstalled      bool
 	RealPenaltySupportedVersion string
+	PortWarnings                []string
 }
 
 func (rph *RealPenaltyHandler) Options(w http.ResponseWriter, r *http.Request) {
-	realPenaltyOptions, err := rph.store.LoadRealPenaltyOptions()
+	slot, ok := slotOrError(rph.slotFor, w, r)
+
+	if !ok {
+		return
+	}
+
+	realPenaltyOptions, err := slot.Store.LoadRealPenaltyOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load real penalty options")
@@ -56,7 +61,7 @@ func (rph *RealPenaltyHandler) Options(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = rph.store.UpsertRealPenaltyOptions(realPenaltyOptions)
+		err = slot.Store.UpsertRealPenaltyOptions(realPenaltyOptions)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save Real Penalty options")
@@ -76,34 +81,41 @@ func (rph *RealPenaltyHandler) Options(w http.ResponseWriter, r *http.Request) {
 
 	rph.ViewRenderer.MustLoadTemplate(w, r, "server/realpenalty-options.html", &realPenaltyConfigurationTemplateVars{
 		Form:                        form,
-		IsRealPenaltyInstalled:      smplugins.IsRealPenaltyInstalled(rph.env.InstallPath()),
+		IsRealPenaltyInstalled:      smplugins.IsRealPenaltyInstalled(slot.Env.InstallPath()),
 		RealPenaltySupportedVersion: smplugins.RealPenaltySupportedVersion,
+		PortWarnings:                rph.portWarnings.For(slot.Env.ServerID()),
 	})
 }
 
 func (rph *RealPenaltyHandler) DownloadLogs(w http.ResponseWriter, r *http.Request) {
+	slot, ok := slotOrError(rph.slotFor, w, r)
+
+	if !ok {
+		return
+	}
+
 	w.Header().Add("Content-Disposition", fmt.Sprintf(`attachment;filename="realpenalty_logs_%s.zip"`, time.Now().Format("2006-01-02_15_04")))
 	w.Header().Set("Content-Type", "application/zip")
 
-	if err := rph.buildLogZip(w); err != nil {
+	if err := buildLogZip(w, slot.Env.InstallPath()); err != nil {
 		logrus.WithError(err).Errorf("Could not create real penalty log zip")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 }
 
-func (rph *RealPenaltyHandler) buildLogZip(w io.Writer) error {
+func buildLogZip(w io.Writer, installPath string) error {
 	z := zip.NewWriter(w)
 	defer z.Close()
 
-	logFiles, err := ioutil.ReadDir(filepath.Join(smplugins.RealPenaltyFolderPath(rph.env.InstallPath()), "logs"))
+	logFiles, err := ioutil.ReadDir(filepath.Join(smplugins.RealPenaltyFolderPath(installPath), "logs"))
 
 	if err != nil {
 		return err
 	}
 
 	for _, file := range logFiles {
-		if err := rph.writeRealPenaltyLogFileToZip(z, file); err != nil {
+		if err := writeRealPenaltyLogFileToZip(z, installPath, file); err != nil {
 			return err
 		}
 	}
@@ -111,14 +123,14 @@ func (rph *RealPenaltyHandler) buildLogZip(w io.Writer) error {
 	return nil
 }
 
-func (rph *RealPenaltyHandler) writeRealPenaltyLogFileToZip(z *zip.Writer, info os.FileInfo) error {
+func writeRealPenaltyLogFileToZip(z *zip.Writer, installPath string, info os.FileInfo) error {
 	zf, err := z.Create(info.Name())
 
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Open(filepath.Join(filepath.Join(smplugins.RealPenaltyFolderPath(rph.env.InstallPath()), "logs"), info.Name()))
+	f, err := os.Open(filepath.Join(filepath.Join(smplugins.RealPenaltyFolderPath(installPath), "logs"), info.Name()))
 
 	if err != nil {
 		return err

@@ -121,6 +121,10 @@ type ServerSlotConfig struct {
 	Name           string `yaml:"name"`
 	InstallPath    string `yaml:"install_path"`
 	ExecutablePath string `yaml:"executable_path"`
+
+	// Plugins are the extra commands (see server.plugins) which are started with this server. A server without its
+	// own list (not even an empty one) starts those of server.plugins.
+	Plugins []*CommandPlugin `yaml:"plugins"`
 }
 
 // DefaultSlotID is the ID of the slot that is derived from the steam section when no servers are configured. It is
@@ -141,6 +145,12 @@ type Slot struct {
 
 	// ExecutablePath is the acServer executable, relative to InstallPath unless it is absolute.
 	ExecutablePath string
+
+	// Plugins are the extra commands which are started with the acServer: the own list of the server if it has one, else
+	// server.plugins. Like the acServer, which can send its UDP messages to one plugin only, a chain of plugins has to
+	// be set up by the plugins themselves. Stracker, KissMyRank and Real Penalty are not part of this list, they are
+	// started from their options, which are stored per slot.
+	Plugins []*CommandPlugin
 }
 
 // IsDefault returns true for the slot that is derived from the steam section.
@@ -170,6 +180,7 @@ func (c *Configuration) Slots() ([]Slot, error) {
 			Name:           DefaultSlotName,
 			InstallPath:    installPath,
 			ExecutablePath: executablePath,
+			Plugins:        c.Server.Plugins,
 		}}, nil
 	}
 
@@ -195,10 +206,15 @@ func (c *Configuration) Slots() ([]Slot, error) {
 			Name:           server.Name,
 			InstallPath:    installPath,
 			ExecutablePath: server.ExecutablePath,
+			Plugins:        server.Plugins,
 		}
 
 		if slot.Name == "" {
 			slot.Name = slot.ID
+		}
+
+		if slot.Plugins == nil {
+			slot.Plugins = c.Server.Plugins
 		}
 
 		if slot.ExecutablePath == "" {
