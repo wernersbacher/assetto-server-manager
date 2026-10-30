@@ -1,19 +1,31 @@
-# Server Manager config of instance sm1. All options: cmd/server-manager/config.example.yml
-# Ports of this instance: web 8772, acServer UDP/TCP 9600, acServer HTTP 8081 (set the acServer ones
-# in "Server Options" of this instance, they have to match the port mappings in compose.yaml).
+# Server Manager config of the multiserver setup: ONE Server Manager with two acServers (slots "a" and "b").
+# All options: cmd/server-manager/config.example.yml
+# Ports: web 8772, server a: UDP/TCP 9600 + HTTP 8081, server b: UDP/TCP 9601 + HTTP 8082. The acServer ports are set
+# in "Server Options" of each server in the UI (they have to match the port mappings in compose.yaml).
 
 steam:
-  # the server is installed by the "install" service, nothing to do here
+  # the server is installed by the "install" service, nothing to do here. Keep install_path equal to the install_path
+  # of the first server below.
   username:
   password:
-  install_path: assetto
+  install_path: assetto-a
   executable_path: acServer
   force_update: false
 
+# the acServers of this Server Manager. Each has its own working directory (cfg, results, ...); the content folders
+# of all of them are the same volume, as content is managed through the first server.
+servers:
+  - id: a
+    name: Server A
+    install_path: assetto-a
+  - id: b
+    name: Server B
+    install_path: assetto-b
+
 http:
   hostname: 0.0.0.0:8772
-  # CHANGE ME: a random secret, different per instance
-  session_key: change-me-sm1
+  # CHANGE ME: a random secret
+  session_key: change-me
   server_manager_base_URL: http://localhost:8772
   session_store_type: filesystem
   session_store_path: sessions
@@ -26,15 +38,14 @@ monitoring:
   enabled: false
 
 store:
-  # the json store is needed to share data between instances
-  type: json
-  path: store
-  # accounts, championships, race weekends, entrants and custom races of all instances
-  shared_data_path: /shared
+  # one Server Manager: the default store is enough
+  type: boltdb
+  path: server_manager.db
+  shared_data_path:
   scheduled_event_check_loop: 0s
 
 accounts:
-  # CHANGE ME: log in as "admin" with this password (accounts are shared by all instances)
+  # CHANGE ME: log in as "admin" with this password
   admin_password_override: admin
 
 live_map:
@@ -44,8 +55,7 @@ server:
   audit_logging: true
   performance_mode: false
   dont_open_browser: true
-  # the content folder is shared, so pick up cars and tracks added through another instance
-  scan_content_folder_for_changes: true
+  scan_content_folder_for_changes: false
   use_car_name_cache: true
   persist_mid_session_results: false
   plugins:

@@ -1,5 +1,4 @@
-# Multiple server manager instances on one host, all started from the same image.
-# See README.md in this directory.
+# ONE Server Manager with two acServers (slots a and b), see README.md in this directory.
 
 name: assetto-multiserver
 
@@ -18,10 +17,6 @@ x-seed: &seed
   user: root
   entrypoint: ["sh", "/seed.sh"]
 
-x-instance: &instance
-  <<: *image
-  restart: unless-stopped
-
 services:
   # one-off: installs the AC server into the ac-base volume. Asks for password and Steam Guard code.
   #   docker compose --profile install run --rm install
@@ -36,83 +31,70 @@ services:
       - ac-base:/base
       - ./install-ac.sh:/install-ac.sh:ro
 
-  seed-shared:
+  seed-content:
     <<: *seed
-    command: ["shared"]
+    command: ["content"]
     volumes:
       - ac-base:/base:ro
       - ac-content:/content
-      - shared:/shared
       - ./seed.sh:/seed.sh:ro
 
-  sm1-seed:
+  seed-a:
     <<: *seed
-    command: ["instance"]
+    command: ["slot"]
     volumes:
       - ac-base:/base:ro
-      - sm1-assetto:/instance
+      - assetto-a:/slot
       - ./seed.sh:/seed.sh:ro
 
-  sm2-seed:
+  seed-b:
     <<: *seed
-    command: ["instance"]
+    command: ["slot"]
     volumes:
       - ac-base:/base:ro
-      - sm2-assetto:/instance
+      - assetto-b:/slot
       - ./seed.sh:/seed.sh:ro
 
-  # Every instance publishes its ports 1:1, because the acServer announces the configured ports to the lobby and
-  # the clients. Set the acServer ports in "Server Options" of the instance accordingly.
-  sm1:
-    <<: *instance
+  # The acServers announce the configured ports to the lobby and the clients, so every port is published 1:1 and the
+  # acServer ports of each server are set in its "Server Options" (a: 9600/8081, b: 9601/8082).
+  server-manager:
+    <<: *image
+    restart: unless-stopped
     depends_on:
-      seed-shared:
+      seed-content:
         condition: service_completed_successfully
-      sm1-seed:
+      seed-a:
+        condition: service_completed_successfully
+      seed-b:
         condition: service_completed_successfully
     ports:
       - "8772:8772"     # web UI
-      - "9600:9600/udp" # acServer UDP
-      - "9600:9600/tcp" # acServer TCP
-      - "8081:8081/tcp" # acServer HTTP
-    volumes:
-      - sm1-data:/home/assetto/server-manager
-      - sm1-assetto:/home/assetto/server-manager/assetto
-      - ac-content:/home/assetto/server-manager/assetto/content
-      - shared:/shared
-      - ./sm1.config.yml:/home/assetto/server-manager/config.yml:ro
-
-  sm2:
-    <<: *instance
-    depends_on:
-      seed-shared:
-        condition: service_completed_successfully
-      sm2-seed:
-        condition: service_completed_successfully
-    ports:
-      - "8773:8772"
-      - "9601:9601/udp"
+      - "9600:9600/udp" # server a: acServer UDP
+      - "9600:9600/tcp" # server a: acServer TCP
+      - "8081:8081/tcp" # server a: acServer HTTP
+      - "9601:9601/udp" # server b
       - "9601:9601/tcp"
       - "8082:8082/tcp"
     volumes:
-      - sm2-data:/home/assetto/server-manager
-      - sm2-assetto:/home/assetto/server-manager/assetto
-      - ac-content:/home/assetto/server-manager/assetto/content
-      - shared:/shared
-      - ./sm2.config.yml:/home/assetto/server-manager/config.yml:ro
+      # store, logs, sessions
+      - data:/home/assetto/server-manager
+      - assetto-a:/home/assetto/server-manager/assetto-a
+      - assetto-b:/home/assetto/server-manager/assetto-b
+      # the content of both servers is the same folder; the manager manages content through the first server
+      - ac-content:/home/assetto/server-manager/assetto-a/content
+      - ac-content:/home/assetto/server-manager/assetto-b/content
+      - ./config.yml:/home/assetto/server-manager/config.yml:ro
 
 volumes:
-  # the pristine AC server install; the instances get a copy of it
+  # the pristine AC server install; the servers get a copy of it
   ac-base:
-  # cars, tracks, ... shared by all instances
+  # cars, tracks, ... shared by both servers
   ac-content:
-  # json data shared by all instances (accounts, championships, ...)
-  shared:
-  # per instance: the install copy (cfg, results, ...) and the working directory (store, logs)
-  sm1-assetto:
-  sm1-data:
-  sm2-assetto:
-  sm2-data:
+  # the install copy (cfg, results, ...) of each server
+  assetto-a:
+  assetto-b:
+  # working directory of the Server Manager (database, logs)
+  data:
 
 secrets:
   ca_cert:

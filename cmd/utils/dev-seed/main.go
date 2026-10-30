@@ -64,6 +64,10 @@ func resolveDir(dir string) (string, error) {
 // state holds the install path of the fake Assetto Corsa installation, which is resolved from the configuration.
 var state = serverenv.NewState()
 
+// seedSlot is the server slot the data is seeded for: the first one, as content is managed through it. The zero value
+// is the default slot of a config without servers.
+var seedSlot smconfig.Slot
+
 func run(dir string, reset bool, out io.Writer) error {
 	dir, err := resolveDir(dir)
 
@@ -82,7 +86,16 @@ func run(dir string, reset bool, out io.Writer) error {
 		return fmt.Errorf("read config.yml: %v", err)
 	}
 
-	if err := state.SetInstallPath(conf.Steam.InstallPath); err != nil {
+	slots, err := conf.Slots()
+
+	if err != nil {
+		return err
+	}
+
+	// the data is seeded for the first slot: content is managed through it and its events are scheduled on it
+	seedSlot = slots[0]
+
+	if err := state.SetInstallPath(seedSlot.InstallPath); err != nil {
 		return err
 	}
 
@@ -185,10 +198,15 @@ func seed(store smstore.Store, reset bool, now time.Time, out io.Writer) error {
 		return checkStandings(out, store, devCupID.String())
 	}
 
-	serverID, err := loadServerID(store)
+	// the default slot (no servers in config.yml) is stored under the id of the store, a configured slot under its own
+	serverID := smmodel.ServerID(seedSlot.ID)
 
-	if err != nil {
-		return err
+	if seedSlot.IsDefault() {
+		serverID, err = loadServerID(store)
+
+		if err != nil {
+			return err
+		}
 	}
 
 	manifest, summary, err := seedAll(store, serverID, now)

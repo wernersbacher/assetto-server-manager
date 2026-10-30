@@ -1,7 +1,7 @@
 # Local test setup: runs the Docker image with the dev config and the fake Assetto Corsa install from dev/,
 # so no Steam account or acServer is needed.
 #
-#   docker compose up --build        -> http://localhost:8772 (login: admin / admin)
+#   docker compose up --build        -> http://localhost:8772 (login: admin / admin), two servers a and b
 #   docker compose down -v           -> stop and delete all data (database, results, ...)
 #
 # Behind a TLS-intercepting proxy, pass its root CA for the build (it is not stored in the image):
@@ -10,7 +10,8 @@
 name: assetto-server-manager-dev
 
 services:
-  # copies the fake AC install into the assetto volume once, the server skips the steamcmd install if it is present
+  # copies the fake AC install into the volumes of server a (assetto) and b (assetto-b) once, the server skips the
+  # steamcmd install if it is present. Server b shares the content folder of a (symlink), as content is managed through a.
   seed:
     image: assetto-server-manager:dev
     build:
@@ -19,9 +20,19 @@ services:
         SM_VERSION: docker-dev
       secrets:
         - ca_cert
-    entrypoint: ["sh", "-c", "[ -d assetto/system ] || cp -r /seed/. assetto/"]
+    # root, because a new named volume is owned by root; the files are handed to the server user at the end
+    user: root
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        [ -d assetto/system ] || cp -r /seed/. assetto/;
+        [ -d assetto-b/system ] || { cp -r /seed/. assetto-b/ && rm -rf assetto-b/content assetto-b/results/* &&
+        ln -s /home/assetto/server-manager/assetto/content assetto-b/content; };
+        chown -R assetto:assetto assetto assetto-b
     volumes:
       - assetto:/home/assetto/server-manager/assetto
+      - assetto-b:/home/assetto/server-manager/assetto-b
       - ./dev/assetto-seed:/seed:ro
 
   server-manager:
@@ -34,13 +45,15 @@ services:
     volumes:
       - data:/home/assetto/server-manager
       - assetto:/home/assetto/server-manager/assetto
+      - assetto-b:/home/assetto/server-manager/assetto-b
       - ./dev/config.yml:/home/assetto/server-manager/config.yml:ro
 
 volumes:
   # server manager working directory (database, logs)
   data:
-  # the (fake) Assetto Corsa install, declared as a volume by the image
+  # the (fake) Assetto Corsa installs of server a and b; a is declared as a volume by the image
   assetto:
+  assetto-b:
 
 secrets:
   ca_cert:

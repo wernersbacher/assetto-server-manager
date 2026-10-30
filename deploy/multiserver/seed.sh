@@ -1,7 +1,7 @@
 #!/bin/sh
 # Prepares the volumes of the multiserver setup from the pristine install in /base. Safe to run repeatedly.
-#   seed.sh shared    populates the volume shared by all instances (content, shared data)
-#   seed.sh instance  gives one instance its own copy of the install (everything except content)
+#   seed.sh content  populates the content volume shared by all servers
+#   seed.sh slot     gives one server its own copy of the install (everything except content)
 set -eu
 
 if [ ! -d /base/system ]; then
@@ -10,25 +10,24 @@ if [ ! -d /base/system ]; then
 fi
 
 case "${1:-}" in
-shared)
+content)
     if [ ! -e /content/.seeded ]; then
         cp -a /base/content/. /content/
         touch /content/.seeded
     fi
 
-    mkdir -p /shared
-    chown -R assetto:assetto /content /shared
+    chown -R assetto:assetto /content
     ;;
-instance)
+slot)
     # content is mounted from the shared volume at runtime
-    if [ ! -d /instance/system ]; then
-        tar -C /base --exclude=./content -cf - . | tar -C /instance -xf -
+    if [ ! -d /slot/system ]; then
+        tar -C /base --exclude=./content -cf - . | tar -C /slot -xf -
     fi
 
-    chown -R assetto:assetto /instance
+    chown -R assetto:assetto /slot
     ;;
 *)
-    echo "usage: seed.sh shared|instance" >&2
+    echo "usage: seed.sh content|slot" >&2
     exit 2
     ;;
 esac

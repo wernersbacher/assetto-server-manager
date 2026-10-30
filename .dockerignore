@@ -5,6 +5,7 @@
 **/*.log
 cmd/server-manager/typescript/.gulp-cache
 cmd/server-manager/assetto/
+cmd/server-manager/assetto-b/
 cmd/server-manager/config.yml
 cmd/server-manager/server_manager.db
 cmd/server-manager/server-manager

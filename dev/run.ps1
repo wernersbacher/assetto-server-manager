@@ -6,6 +6,7 @@
     - builds the frontend (TypeScript/SCSS) if it hasn't been built yet, or when -Frontend is given
     - generates the embedded asset files (esc) and builds the Go binary
     - on first run, copies dev/config.yml and the fake AC install (dev/assetto-seed) into cmd/server-manager
+      (twice: server a in assetto, server b in assetto-b, whose content folder is a junction to that of a)
     - starts Server Manager with templates/static files served from disk (FILESYSTEM_HTML=true),
       so changes to views/ only need a browser refresh.
 
@@ -15,7 +16,7 @@
     Force a rebuild of the frontend (npm install + gulp build).
 
 .PARAMETER Reset
-    Delete the local dev data (fake AC install, database, config.yml) and start from scratch.
+    Delete the local dev data (both fake AC installs, database, config.yml) and start from scratch.
 
 .PARAMETER NoRun
     Only build, don't start the server.
@@ -86,11 +87,14 @@ try {
 # local dev data (all gitignored)
 $assettoDir = Join-Path $appDir 'assetto'
 $configFile = Join-Path $appDir 'config.yml'
+$assettoBDir = Join-Path $appDir 'assetto-b'
 $dbFile = Join-Path $appDir 'server_manager.db'
 
 if ($Reset) {
     Write-Host '==> Resetting local dev data' -ForegroundColor Cyan
-    foreach ($p in $assettoDir, $configFile, $dbFile) {
+    # the content folder of server b is a junction to that of server a: remove the link, not the shared files
+    if (Test-Path (Join-Path $assettoBDir 'content')) { cmd /c rmdir (Join-Path $assettoBDir 'content') | Out-Null }
+    foreach ($p in $assettoDir, $assettoBDir, $configFile, $dbFile) {
         if (Test-Path $p) { Remove-Item -Recurse -Force $p }
     }
 }
@@ -103,6 +107,16 @@ if (-not (Test-Path $configFile)) {
 if (-not (Test-Path $assettoDir)) {
     Write-Host '==> Creating fake Assetto Corsa install from dev/assetto-seed' -ForegroundColor Cyan
     Copy-Item -Recurse (Join-Path $PSScriptRoot 'assetto-seed') $assettoDir
+}
+
+if (-not (Test-Path $assettoBDir)) {
+    Write-Host '==> Creating fake install of server b (content shared with server a)' -ForegroundColor Cyan
+    Copy-Item -Recurse (Join-Path $PSScriptRoot 'assetto-seed') $assettoBDir
+    # the sample results belong to server a only (the same file names would be hidden as duplicates)
+    Get-ChildItem (Join-Path $assettoBDir 'results') | Remove-Item -Recurse -Force
+    # content is managed through the first server, so the second one uses the same folder
+    Remove-Item -Recurse -Force (Join-Path $assettoBDir 'content')
+    New-Item -ItemType Junction -Path (Join-Path $assettoBDir 'content') -Target (Join-Path $assettoDir 'content') | Out-Null
 }
 
 if ($Seed) {

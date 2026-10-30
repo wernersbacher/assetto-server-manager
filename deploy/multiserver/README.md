@@ -1,11 +1,12 @@
 # Multiserver setup with Docker Compose
 
-Two server manager instances (`sm1`, `sm2`) from one image. The Assetto Corsa server is installed once with steamcmd
-and every instance gets its own copy of it, so nothing has to be copied by hand.
+ONE Server Manager (one UI, one login, one database) which hosts two Assetto Corsa servers, `a` and `b`, so that e.g.
+a championship can run on one server while a custom race runs on the other. The AC server is installed once with
+steamcmd and every server gets its own copy of it (`cfg/`, `results/`, ...), so nothing has to be copied by hand.
 
-| | sm1 | sm2 |
+| | Server A | Server B |
 |---|---|---|
-| Web UI | http://localhost:8772 | http://localhost:8773 |
+| Web UI (both servers) | http://localhost:8772 | |
 | acServer UDP/TCP | 9600 | 9601 |
 | acServer HTTP | 8081 | 8082 |
 
@@ -13,8 +14,7 @@ and every instance gets its own copy of it, so nothing has to be copied by hand.
 
 Run everything from this directory.
 
-1. Edit `sm1.config.yml` and `sm2.config.yml`: set a different random `session_key` and your own
-   `admin_password_override`.
+1. Edit `config.yml`: set a random `session_key` and your own `admin_password_override`.
 2. Install the AC server (once). steamcmd asks for the password and the Steam Guard code on the terminal; use an
    account that owns Assetto Corsa:
 
@@ -23,26 +23,31 @@ Run everything from this directory.
    ```
 
    `STEAM_USER` can be set in the environment, otherwise the script asks for it. Re-running the command updates the
-   pristine copy in `ac-base` only: an instance keeps its own copy until its `sm<n>-assetto` volume is deleted
+   pristine copy in `ac-base` only: a server keeps its own copy until its `assetto-a` / `assetto-b` volume is deleted
    (which also removes its `cfg` and `results`).
 3. Start: `docker compose up -d --build`. Behind a TLS-intercepting proxy, set `EXTRA_CA_CERT` to the root
    certificate before building (see `Dockerfile`).
-4. In **Server Options** of each instance set the acServer ports from the table above. Compose publishes them 1:1,
-   because the acServer announces the configured ports to clients.
+4. Log in and open **Server Options** of each server (the selector in the top bar switches the server). A new server
+   starts with the default ports 9600 / 8081, so set server B to UDP/TCP port 9601 and HTTP port 8082. Compose
+   publishes the ports 1:1, because the acServer announces the configured ports to clients. Plugin ports (stracker,
+   KissMyRank, Real Penalty) have to be different per server too: Server Manager warns about conflicts and refuses to
+   start an event on ports that a running server already uses. Publish the plugin ports in `compose.yaml` if you use
+   them.
 
-## What is shared
+## Volumes
 
-- `ac-content`: cars, tracks, ... (`content/`). Uploading a car through one instance makes it available on both
-  (`scan_content_folder_for_changes` picks it up within seconds).
-- `shared`: accounts, championships, race weekends, entrants and custom races (`store.shared_data_path`, needs the
-  json store).
+- `ac-base`: the pristine install, only written by the `install` service.
+- `assetto-a`, `assetto-b`: the install copy of each server (`cfg/`, `results/`, ...).
+- `ac-content`: cars, tracks, ... It is mounted onto `content` of **both** servers. Content is managed (upload,
+  delete) through the first server, so the other servers must see the same folder; keep this when adding a server.
+- `data`: the Server Manager working directory (database, logs, sessions).
 
-Everything else (server options, `cfg/`, `results/`, logs) is per instance and lives in `sm<n>-assetto` / `sm<n>-data`.
+Results of both servers are shown together in the results list (filterable by server).
 
-## Adding an instance
+## Adding a server
 
-Copy the `sm2` and `sm2-seed` services and the `sm2-*` volumes in `compose.yaml` and `sm2.config.yml`, and choose new
-host ports.
+Add a volume `assetto-c` and a `seed-c` service like `seed-a` to `compose.yaml`, mount the volume and `ac-content`
+(onto `assetto-c/content`) into `server-manager`, publish new ports, and add a `servers:` entry to `config.yml`.
 
 ## Reset
 
