@@ -39,16 +39,16 @@ go vet ./...
 `make test` additionally copies `fixtures/results/*.json` into `cmd/server-manager/assetto/results` and runs with
 `-race`; some results-based tests rely on that. The Makefiles are Unix-only (`rm`, `cp`, `sed`).
 
-Run locally on Windows without a real AC server (fake install in `dev/assetto-seed`), login `admin`/`admin` at
+Run locally on Windows without a real AC server (two slots `a`/`b`, each a copy of the fake install in `dev/assetto-seed`; `deploy/multiserver` is the Docker setup with real installs), login `admin`/`admin` at
 http://localhost:8772:
 
 ```powershell
 ./dev/run.ps1             # generate assets, build, start (frontend built on first run only)
 ./dev/run.ps1 -Frontend   # also rebuild TypeScript/SCSS
-./dev/run.ps1 -Reset      # wipe local DB/config/fake install
+./dev/run.ps1 -Reset      # wipe local DB/config/fake installs (two servers: a = assetto, b = assetto-b)
 ./dev/run.ps1 -NoRun      # build only
 ./dev/run.ps1 -Seed       # fill the DB with test data first (cmd/utils/dev-seed; server must be stopped; idempotent)
-docker compose up --build # alternative: production Dockerfile with dev config
+docker compose up --build # alternative: production Dockerfile with dev config (also two servers)
 ```
 
 The server runs from `cmd/server-manager` with `FILESYSTEM_HTML=true`, so template changes only need a browser

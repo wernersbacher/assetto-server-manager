@@ -24,12 +24,19 @@ files in `cmd/server-manager/static` are served from disk: template changes only
 need a restart of the script.
 
 On first run, `dev/config.yml` is copied to `cmd/server-manager/config.yml` and `dev/assetto-seed` to
-`cmd/server-manager/assetto` (both gitignored). Edit those copies to try things locally.
+`cmd/server-manager/assetto` (server a) and `cmd/server-manager/assetto-b` (server b), all gitignored. Edit those copies to
+try things locally.
+
+The dev setup runs **two servers** (`servers:` in `dev/config.yml`, ids `a` and `b`) to try the multiserver features.
+The `content` folder of `assetto-b` is a junction to that of `assetto` (content is managed through the first server), and
+the sample results belong to server a. Both servers start with the default acServer ports; change them in Server Options
+of a server if you want both to run. A `config.yml` and fake install from before this change have a single server: use
+`./dev/run.ps1 -Reset` (it removes both fake installs) to get two.
 
 ### Test data
 
 `-Seed` runs `cmd/utils/dev-seed` (also usable on its own: `go run ./cmd/utils/dev-seed -dir cmd/server-manager`),
-which fills the local dev instance with 10 drivers, ~18 result files (practice/qualify/race on `dev_ring` gp/short and
+which fills the local dev instance (for the first server, a) with 10 drivers, ~18 result files (practice/qualify/race on `dev_ring` gp/short and
 `dev_track`), the championships "Dev Cup" (2 classes, drop worst result, championship race settings, 4 completed events
 and 1 scheduled) and "Dev Sprint Series" (1 completed, 2 scheduled, one weekly), 3 custom races (starred, scheduled,
 weekly) and a race weekend. It prints the championship standings as a sanity check. The server must not be running (the
@@ -54,7 +61,7 @@ docker compose up --build   # http://localhost:8772
 docker compose down -v      # stop and delete all data
 ```
 
-`compose.yaml` builds the production `Dockerfile` and runs it with `dev/config.yml` and the fake AC install. The data
+`compose.yaml` builds the production `Dockerfile` and runs it with `dev/config.yml` and the fake AC installs of both servers (the content folder of b is a symlink to that of a). The data
 lives in Docker volumes, so it's independent from the native setup.
 
 Behind a TLS-intercepting proxy, the build needs the proxy's root CA. It is passed as a BuildKit secret, so it is not

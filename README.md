@@ -38,8 +38,8 @@ A web interface to manage an Assetto Corsa Server.
 A docker image is available under the name `seejy/assetto-server-manager`. We recommend using docker-compose
 to set up a docker environment for the server manager. This docker image has steamcmd pre-installed.
 
-See [Manual](#Manual) to set up server manager without Docker. For several instances on one host (shared content and
-data, AC server installed once via steamcmd) see [deploy/multiserver](deploy/multiserver/README.md).
+See [Manual](#Manual) to set up server manager without Docker. For ONE server manager with several AC servers (shared
+content, AC server installed once via steamcmd) see [Several servers](#several-servers) and [deploy/multiserver](deploy/multiserver/README.md).
 
 **Note**: if you are using a directory volume for the server install (as is shown below), be sure to make 
 the directory before running `docker-compose up` - otherwise its permissions may be incorrect. 
@@ -71,6 +71,43 @@ services:
     # volume mount the config
     - ./config.yml:/home/assetto/server-manager/config.yml
 ```
+
+### Several servers
+
+One Server Manager can run several Assetto Corsa servers at once (e.g. a Championship event on one and a custom race on
+the other), with one UI, login and database. List the servers in `config.yml`; without a `servers:` list one server is
+used, from `steam.install_path`:
+
+```yaml
+steam:
+  install_path: assetto-a     # the first server; this is where a missing install is fetched with steamcmd
+
+servers:
+  - id: a                     # the server id: used in the server query parameter and the API
+    name: Server A
+    install_path: assetto-a   # the working directory of this acServer (cfg/, results/, setups/, ...)
+  - id: b
+    name: Server B
+    install_path: assetto-b
+    # optional: executable_path (default steam.executable_path) and plugins (default server.plugins)
+```
+
+- **Content is shared**: cars, tracks and weather are managed (uploaded, deleted) through the install path of the
+  *first* server. The `content` folder of every other server has to be that same folder (docker volume, junction on
+  Windows, symlink on Linux), otherwise the other servers do not find uploaded cars and tracks.
+- **Selecting a server**: with more than one server the top bar has a server selector (a `server=<id>` query parameter,
+  remembered in the session), and the home page shows a card per server. Live timing, race control, Server Options and
+  the plugin options (stracker, KissMyRank, Real Penalty) are per server.
+- **Ports**: every server stores its own ports in its Server Options and starts with the default ports (9600 / 8081),
+  so change them for each additional server (e.g. 9601 / 8082) and publish them in Docker. Plugin ports must differ
+  between servers too. Server Manager warns about conflicts and refuses to start an event on ports that a running server
+  already uses.
+- **Starting and scheduling**: events start on the selected server; scheduling forms have a "Server" field
+  (`event-schedule-server`) to pick the server an event is scheduled for. A server which already runs an event rejects a
+  new start. A Championship or Race Weekend can be active on one server only at a time.
+- **Results** of all servers are listed together; the list can be filtered by server and shows a server badge.
+
+A ready-made Docker Compose setup with two servers is in [deploy/multiserver](deploy/multiserver/README.md).
 
 ### Post Installation
 
@@ -142,6 +179,19 @@ first. The optional query parameter `limit` (a positive number) caps the number 
 the `Cars` and the `Sessions` with their length and calculated `Start`. `OnThisServer` is false if the event is
 scheduled on another server of a multiserver setup. Recurring events are not expanded: they are listed once with their
 next `Start` and the `Recurrence` rule. Entrants and passwords are not included.
+
+With several servers (see [Several servers](#several-servers)) the APIs know about them:
+
+- `GET /api/servers`: all servers (`ID`, `Name`), whether an event is `Running` and, if so, its `EventType`
+  (`Championship`, `Race Weekend`, `Looping event`, `Time attack`, `Running`, `... practice`) and `EventName`, and the number
+  of `DriversOnline`. It does not depend on a selected server. Same access rules as `/api/server-status` (the live timing page).
+- `GET /api/server-status` reports the server given in the `server` query parameter (the server id), the first server
+  without it (or the one remembered in the session).
+- `filterServer=<server id>` restricts `/api/results`, `/api/upcoming-races` (and the calendar and its .ics feed) to one
+  server; an unknown id matches nothing.
+- `/api/results` entries have a `Server` (`ID`, `Name`) and `/api/championships` has an `ActiveServer` while one of
+  their events runs. `Server` is only set if there are several servers. `/api/upcoming-races` entries have a `ServerID`
+  and, with several servers, a `ServerName`.
 
 ## Credits & Thanks
 
