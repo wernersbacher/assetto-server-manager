@@ -333,6 +333,15 @@ func scheduledEvent(c *smmodel.Championship, serverID smmodel.ServerID, cars []s
 	return event, nil
 }
 
+// openSlot is an empty entrant (no GUID), which a sign-up can fill.
+func openSlot(class, model string, index int) *serverconfig.Entrant {
+	e := serverconfig.NewEntrant()
+	e.InternalUUID = seedID(fmt.Sprintf("entrant/open/%s/%d", class, index))
+	e.Model = model
+
+	return e
+}
+
 func newClass(name string, drivers []*seedDriver, cars []string, points smmodel.ChampionshipPoints) *smmodel.ChampionshipClass {
 	class := smmodel.NewChampionshipClass(name)
 	class.ID = seedID("class/" + name)
@@ -375,8 +384,24 @@ func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manife
 	gt3 := driversOfClass("GT3")
 	mx5 := driversOfClass("MX5")
 
-	c.AddClass(newClass("GT3", gt3, []string{carGT3}, points))
-	c.AddClass(newClass("MX5", mx5, []string{carMX5}, points))
+	gt3Class := newClass("GT3", gt3, []string{carGT3}, points)
+	mx5Class := newClass("MX5", mx5, []string{carMX5}, points)
+
+	// open slots and a sign-up form with every field enabled, so that the sign-up page can be tried out
+	for i := 0; i < 2; i++ {
+		gt3Class.Entrants.AddToBackOfGrid(openSlot(gt3Class.Name, carGT3, i))
+		mx5Class.Entrants.AddToBackOfGrid(openSlot(mx5Class.Name, carMX5, i))
+	}
+
+	c.AddClass(gt3Class)
+	c.AddClass(mx5Class)
+
+	c.SignUpForm = smmodel.ChampionshipSignUpForm{
+		Enabled:     true,
+		AskForEmail: true,
+		AskForTeam:  true,
+		ExtraFields: []string{"Preferred race number", "Experience level"},
+	}
 
 	all := append(append([]*seedDriver{}, gt3...), mx5...)
 	cars := []string{carGT3, carMX5}
@@ -405,6 +430,22 @@ func seedDevCup(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, manife
 	}
 
 	c.Events = append(c.Events, upcoming)
+
+	// every event has the open slots in its entry list, like for a championship edited in the UI
+	for _, event := range c.Events {
+		if event.EntryList == nil {
+			event.EntryList = make(serverconfig.EntryList)
+		}
+
+		for _, class := range c.Classes {
+			for _, e := range class.Entrants {
+				if e.GUID == "" {
+					copied := *e
+					event.EntryList.AddToBackOfGrid(&copied)
+				}
+			}
+		}
+	}
 
 	return c, nil
 }

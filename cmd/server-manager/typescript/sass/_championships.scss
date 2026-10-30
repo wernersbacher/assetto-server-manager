@@ -259,3 +259,26 @@
     min-height: 44px;
   }
 }
+
+// Rows and cards of a class in a multi-class championship (standings, results, entrants) get the class colour through
+// --class-color. The colour is a pastel, so light mode uses dark text on it; dark mode darkens it with an overlay so
+// the light text stays readable and the rows do not glare. !important beats the table stripes and cell backgrounds
+// that the inline colour used to override.
+[style*="--class-color"],
+[style*="--class-color"] > td:not([style]),
+[style*="--class-color"] > th:not([style]) {
+  background: var(--class-color) !important;
+  color: #18181b !important;
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+  }
+}
+
+[data-theme="dark"] [style*="--class-color"],
+[data-theme="dark"] [style*="--class-color"] > td:not([style]),
+[data-theme="dark"] [style*="--class-color"] > th:not([style]) {
+  background: linear-gradient(rgba(9, 9, 11, 0.62), rgba(9, 9, 11, 0.62)), var(--class-color) !important;
+  color: #fafafa !important;
+}

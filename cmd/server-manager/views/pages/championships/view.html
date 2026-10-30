@@ -205,7 +205,7 @@
                                     <tr style="
                                     {{ if eq $account.GUID $entrant.Car.Driver.GUID }}font-weight: bold;{{ end }}
                                     {{ if $championship.IsMultiClass }}
-                                        color: white; background: {{ classColor $classIndex }}
+                                        --class-color: {{ classColor $classIndex }}
                                     {{ end }}">
                                         {{ if $championship.IsMultiClass }}
                                             {{ if eq $i 0 }}
@@ -291,7 +291,7 @@
                                 {{ $teamStandings := ($class.TeamStandings $championship $championship.Events) }}
 
                                 {{ range $i, $team := $teamStandings }}
-                                    <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                                    <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
 
                                         {{ if $championship.IsMultiClass }}
                                             {{ if eq $i 0 }}
@@ -381,7 +381,7 @@
                                     <tr style="
                                         {{ if eq $account.GUID $entrant.GUID }}font-weight: bold;{{ end }}
                                         {{ if $championship.IsMultiClass }}
-                                            color: white; background: {{ classColor $classIndex }}
+                                            --class-color: {{ classColor $classIndex }}
                                         {{ end }}">
                                         {{ if $championship.IsMultiClass }}
                                             {{ if eq $i 0 }}
@@ -398,7 +398,7 @@
                                     </tr>
                                 {{ else }}
                                     {{ if $championship.OpenEntrants }}
-                                        <tr {{ if $championship.IsMultiClass }}style="color: white; background: {{ classColor $classIndex }}"{{ end }}>
+                                        <tr {{ if $championship.IsMultiClass }}style="--class-color: {{ classColor $classIndex }}"{{ end }}>
                                             {{ if $championship.IsMultiClass }}
                                                 <td>{{ $class.Name }}</td>
                                             {{ end }}
@@ -427,7 +427,7 @@
                         {{ range $classIndex, $class := $championship.Classes }}
                             {{ range $i, $pts := $class.Points.Places }}
 
-                                <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                                <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                     {{ if $championship.IsMultiClass }}
                                         {{ if eq $i 0 }}
                                             <td rowspan="{{ add (len $class.Points.Places) 6 }}">{{ $class.Name }}</td>
@@ -438,37 +438,37 @@
                                 </tr>
                             {{ end }}
 
-                            <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                            <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                 <td><strong>Fastest Race Lap</strong></td>
                                 <td>
                                     {{ $class.Points.BestLap }}
                                 </td>
                             </tr>
-                            <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                            <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                 <td><strong>Best Qualifying Lap</strong></td>
                                 <td>
                                     {{ $class.Points.PolePosition }}
                                 </td>
                             </tr>
-                            <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                            <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                 <td><strong>Collision with Other Car</strong></td>
                                 <td>
                                     -{{ $class.Points.CollisionWithDriver }}
                                 </td>
                             </tr>
-                            <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                            <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                 <td><strong>Collision with Environment</strong></td>
                                 <td>
                                     -{{ $class.Points.CollisionWithEnv }}
                                 </td>
                             </tr>
-                            <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                            <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                 <td><strong>Cut Track</strong></td>
                                 <td>
                                     -{{ $class.Points.CutTrack }}
                                 </td>
                             </tr>
-                            <tr {{ if $championship.IsMultiClass }} style="color: white; background: {{ classColor $classIndex }}" {{ end }}>
+                            <tr {{ if $championship.IsMultiClass }} style="--class-color: {{ classColor $classIndex }}" {{ end }}>
                                 <td><strong>Second Race Points Multiplier</strong></td>
                                 <td>
                                     {{ $class.Points.SecondRaceMultiplier }}
@@ -491,7 +491,7 @@
 
                         {{ range $i, $entrant := $entrants }}
                             <div class="col-6 col-lg-3 col-md-3 col-sm-6 entrant-car">
-                                <div class="card card-block" {{ if $championship.IsMultiClass }}style="color: white; background: {{ classColor $classIndex }}"{{ end }}>
+                                <div class="card card-block" {{ if $championship.IsMultiClass }}style="--class-color: {{ classColor $classIndex }}"{{ end }}>
                                     <img src="{{ with $entrant.Car.Skin }}{{ carSkinURL $entrant.Car.Model $entrant.Car.Skin }}{{ else }}/static/img/no-preview-car.png{{ end }}"
                                          alt="Car Skin"
                                          class="card-img-top"

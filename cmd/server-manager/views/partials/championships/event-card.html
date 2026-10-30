@@ -542,7 +542,7 @@
                                                         <tr style="
                                                         {{ if eq $account.GUID $standing.Car.Driver.GUID }}font-weight: bold;{{ end }}
                                                         {{ if $championship.IsMultiClass }}
-                                                            color: white; background: {{ classColor $classIndex }}
+                                                            --class-color: {{ classColor $classIndex }}
                                                         {{ end }}">
                                                             {{ if $championship.IsMultiClass }}
                                                                 {{ if eq $pos 0 }}

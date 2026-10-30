@@ -3,18 +3,18 @@
 {{ define "title" }}{{ $.Championship.Name }} Entrants{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">
-        {{ $.Championship.Name }} Entrants
-    </h1>
-
     {{ with .Championship }}
         {{ $championship := .}}
 
-        <div class="float-left">
-            <a class="btn btn-primary" href="/championship/{{ $championship.ID.String }}">Back to Championship</a>
-        </div>
+        <div class="page-header">
+            <div>
+                <h1>{{ $championship.Name }} Entrants</h1>
+                <p>{{ len $championship.SignUpForm.Responses }} registration{{ if ne (len $championship.SignUpForm.Responses) 1 }}s{{ end }}</p>
+            </div>
 
-        <div class="float-right mb-5">
+            <div class="d-flex flex-wrap" style="gap: 8px;">
+            <a class="btn btn-outline" href="/championship/{{ $championship.ID.String }}">Back to Championship</a>
+
             {{ if $championship.SignUpForm.AskForEmail }}
                 <div class="dropdown show" style="display: inline-block">
                     <a class="btn btn-success dropdown-toggle" href="#" role="button" id="dropdownEmailEntrants" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -39,10 +39,10 @@
             {{ end }}
 
             <a class="btn btn-primary" href="/championship/{{ $championship.ID.String }}/entrants.csv">Export CSV</a>
+            </div>
         </div>
 
-        <div class="clearfix"></div>
-
+        <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <tr>
                 <th>Created</th>
@@ -143,5 +143,6 @@
                 </tr>
             {{ end }}
         </table>
+        </div>
     {{ end }}
 {{ end }}

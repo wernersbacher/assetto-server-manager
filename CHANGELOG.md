@@ -3,6 +3,8 @@ Unreleased
 
 Added:
 
+* Multi-class championship tables (driver and team standings, entrants, event results) use readable text on the class colours in light mode and a darkened class tint with light text in dark mode, the points legend keeps dark text on its coloured badges, and the signed-up entrants page uses the page header and scrolls its table on phones instead of widening the page. The dev seeder now also creates a championship with an open sign-up form.
+
 * Upload panels on the Cars, Tracks and Weather pages are spaced consistently with their preview and error panels, the "Only upload official KS content" switch (and all other switches) follow the theme in light and dark mode, the sticky save bar floats slightly above the viewport edge and focused fields scroll clear of it, and the Legal Tyres boxes and the highlighted weather card use theme colours in dark mode.
 
 * The Custom Races, Championships and Race Weekends lists have a clear button hierarchy: one primary action (Start / View), outline buttons for the rest and Delete only in a More menu (still with the confirmation dialog). Custom Races uses the page header, and the legacy green, orange, red and blue buttons follow the theme colours in light and dark mode.
