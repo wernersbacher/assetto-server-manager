@@ -20,6 +20,12 @@ import (
 // schedule, tracks, cars) in a stable JSON format, so that other systems can read it. Entrants, sign up responses,
 // passwords and server configuration are intentionally left out.
 
+// Server is a server of the server manager, as results and championships refer to it.
+type Server struct {
+	ID   string
+	Name string
+}
+
 // EventStatus is the progress of an event or session.
 type EventStatus string
 
@@ -41,6 +47,9 @@ type Championship struct {
 
 	// DropWorstResults is the number of worst event results dropped per driver in the standings (0 = off).
 	DropWorstResults int
+
+	// ActiveServer is the server which currently runs an event of the championship. It is only set while there is one.
+	ActiveServer *Server `json:",omitempty"`
 
 	Classes []*ChampionshipClass
 	Events  []*ChampionshipEvent

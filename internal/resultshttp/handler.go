@@ -29,15 +29,19 @@ import (
 type ResultsHandler struct {
 	*smweb.BaseHandler
 
-	store smstore.Store
-	env   *serverenv.Env
+	store   smstore.Store
+	env     *serverenv.Env
+	servers ServersFunc
 }
 
-func NewResultsHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env) *ResultsHandler {
+// NewResultsHandler creates the handler. The results are read from all results directories of the env; servers, which
+// may be nil, attributes them to the server slots.
+func NewResultsHandler(baseHandler *smweb.BaseHandler, store smstore.Store, env *serverenv.Env, servers ServersFunc) *ResultsHandler {
 	return &ResultsHandler{
 		BaseHandler: baseHandler,
 		store:       store,
 		env:         env,
+		servers:     servers,
 	}
 }
 
@@ -48,26 +52,35 @@ type resultsListTemplateVars struct {
 	Pages       []int
 	CurrentPage int
 	Filter      smresults.Filter
+
+	// FilterServer is the id of the server the list is restricted to, empty for all. ServerNames maps the SessionFile of
+	// a result to the name of the server it came from; both are only set if there are several servers.
+	FilterServer string
+	ServerNames  map[string]string
 }
 
 // resultsListQuery reads the page and filters of a results list request, which is shared by the results list page
 // and the results API.
-func resultsListQuery(r *http.Request) (int, smresults.Filter) {
+func (rh *ResultsHandler) resultsListQuery(r *http.Request) (int, smresults.Filter, serverIndex, string) {
 	page, err := strconv.Atoi(r.URL.Query().Get("page"))
 
 	if err != nil {
 		page = 0
 	}
 
-	return page, smresults.Filter{
+	filter := smresults.Filter{
 		Type:   strings.TrimSpace(r.URL.Query().Get("type")),
 		Track:  strings.TrimSpace(r.URL.Query().Get("track")),
 		Driver: strings.TrimSpace(r.URL.Query().Get("driver")),
 	}
+
+	index := rh.serverIndex()
+
+	return page, filter, index, index.filterServer(r, &filter)
 }
 
 func (rh *ResultsHandler) List(w http.ResponseWriter, r *http.Request) {
-	page, filter := resultsListQuery(r)
+	page, filter, servers, filterServer := rh.resultsListQuery(r)
 
 	results, pages, err := rh.env.Results().List(page, filter)
 
@@ -80,11 +93,25 @@ func (rh *ResultsHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var serverNames map[string]string
+
+	if len(servers.servers) > 0 {
+		serverNames = make(map[string]string)
+
+		for _, result := range results {
+			if server := servers.of(rh.env.Results(), result.SessionFile+".json"); server != nil {
+				serverNames[result.SessionFile] = server.Name
+			}
+		}
+	}
+
 	rh.ViewRenderer.MustLoadTemplate(w, r, "results/index.html", &resultsListTemplateVars{
-		Results:     results,
-		Pages:       pages,
-		CurrentPage: page,
-		Filter:      filter,
+		Results:      results,
+		Pages:        pages,
+		CurrentPage:  page,
+		Filter:       filter,
+		FilterServer: filterServer,
+		ServerNames:  serverNames,
 	})
 }
 
@@ -212,6 +239,12 @@ func (rh *ResultsHandler) upload(r *http.Request) (bool, error) {
 		return false, nil
 	}
 
+	// acServer names results after the session start, so a file of this name from another server would be hidden by
+	// (or hide) the uploaded one
+	if rh.env.Results().HeldByOtherDir(header.Filename) {
+		return true, fmt.Errorf("servermanager: a results file named %s already exists in the results of another server", header.Filename)
+	}
+
 	path := filepath.Join(rh.env.InstallPath(), "results", header.Filename)
 
 	err = ioutil.WriteFile(path, fileBytes, 0644)
@@ -230,6 +263,9 @@ type resultsViewTemplateVars struct {
 	AutoFillEntrants []*serverconfig.Entrant
 	Account          *smmodel.Account
 	UseMPH           bool
+
+	// Server is the server the result came from, only set if there are several servers.
+	Server *smweb.ServerRef
 }
 
 func (rh *ResultsHandler) View(w http.ResponseWriter, r *http.Request) {
@@ -274,6 +310,7 @@ func (rh *ResultsHandler) View(w http.ResponseWriter, r *http.Request) {
 		AutoFillEntrants: autoFillEntrants,
 		Account:          smweb.AccountFromRequest(r),
 		UseMPH:           serverOpts.UseMPH == 1,
+		Server:           rh.serverIndex().of(rh.env.Results(), fileName+".json"),
 	})
 }
 

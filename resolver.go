@@ -453,7 +453,7 @@ func (r *Resolver) resolveResultsHandler() *resultshttp.ResultsHandler {
 		return r.resultsHandler
 	}
 
-	r.resultsHandler = resultshttp.NewResultsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv())
+	r.resultsHandler = resultshttp.NewResultsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv(), r.resultsServers)
 
 	return r.resultsHandler
 }

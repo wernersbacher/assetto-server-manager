@@ -30,10 +30,13 @@ type Filter struct {
 	Type   string // session type as in the file name, e.g. "race". "booking" matches BOOK files.
 	Track  string // case-insensitive substring of the track name, readable track name or layout
 	Driver string // case-insensitive substring of a driver name, or an exact driver GUID
+
+	// Dir restricts the list to the results which are found in this results directory (the one of a server slot).
+	Dir string
 }
 
 func (f Filter) IsActive() bool {
-	return f.Type != "" || f.Track != "" || f.Driver != ""
+	return f.Type != "" || f.Track != "" || f.Driver != "" || f.Dir != ""
 }
 
 // needsLoading is true if the filter can only be evaluated by looking into the results files.
@@ -166,16 +169,16 @@ func (l *Loader) List(page int, filter Filter) ([]SessionResults, []int, error) 
 		return nil, nil, err
 	}
 
-	if filter.Type != "" {
-		var typeFiltered []os.FileInfo
+	if filter.Type != "" || filter.Dir != "" {
+		var nameFiltered []os.FileInfo
 
 		for _, resultFile := range resultFiles {
-			if filter.matchesFileName(resultFile.Name()) {
-				typeFiltered = append(typeFiltered, resultFile)
+			if filter.matchesFileName(resultFile.Name()) && (filter.Dir == "" || l.inDir(resultFile.Name(), filter.Dir)) {
+				nameFiltered = append(nameFiltered, resultFile)
 			}
 		}
 
-		resultFiles = typeFiltered
+		resultFiles = nameFiltered
 	}
 
 	sort.SliceStable(resultFiles, func(i, j int) bool {
@@ -350,9 +353,24 @@ func (l *Loader) readDirs() ([]os.FileInfo, error) {
 			if !seen[file.Name()] {
 				seen[file.Name()] = true
 				files = append(files, file)
+			} else if !file.IsDir() {
+				warnShadowed(file.Name(), dir)
 			}
 		}
 	}
 
 	return files, nil
+}
+
+// shadowedWarned remembers the shadowed files which were already reported.
+var shadowedWarned sync.Map
+
+// warnShadowed logs (once per file and directory) that a results file is hidden by a file of the same name in an
+// earlier directory. acServer names its files after the start of the session, so two servers can produce the same
+// name. The files are not renamed, as championships and race weekends refer to results by file name; the later copy
+// is not listed or loaded until the other one is moved or removed.
+func warnShadowed(name, dir string) {
+	if _, loaded := shadowedWarned.LoadOrStore(filepath.Join(dir, name), true); !loaded {
+		logrus.Warnf("Results file %s exists in several server results directories; the copy in %s is hidden by the one in an earlier directory", name, dir)
+	}
 }

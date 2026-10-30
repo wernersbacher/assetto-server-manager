@@ -29,7 +29,10 @@ func (ch *ChampionshipsHandler) ListAPI(w http.ResponseWriter, r *http.Request) 
 	out := make([]*api.Championship, 0, len(championships))
 
 	for _, championship := range championships {
-		out = append(out, api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
+		apiChampionship := api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL)
+		ch.setActiveServer(apiChampionship)
+
+		out = append(out, apiChampionship)
 	}
 
 	api.WriteJSON(w, out)
@@ -54,5 +57,19 @@ func (ch *ChampionshipsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	api.WriteJSON(w, api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
+	out := api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL)
+	ch.setActiveServer(out)
+
+	api.WriteJSON(w, out)
+}
+
+// setActiveServer sets the server which runs an event of the championship, if there is one.
+func (ch *ChampionshipsHandler) setActiveServer(championship *api.Championship) {
+	if ch.active == nil {
+		return
+	}
+
+	if server, ok := ch.active.ChampionshipActiveOn(championship.ID); ok {
+		championship.ActiveServer = &api.Server{ID: string(server.ID), Name: server.Name}
+	}
 }

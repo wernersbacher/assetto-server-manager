@@ -31,6 +31,15 @@
             <option value="booking" {{ if eq .Filter.Type "booking" }}selected{{ end }}>Booking</option>
         </select>
 
+        {{ if gt (len .Servers) 1 }}
+            <select name="filterServer" class="form-control" aria-label="Server">
+                <option value="" {{ if eq .FilterServer "" }}selected{{ end }}>Any Server</option>
+                {{ range .Servers }}
+                    <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
+                {{ end }}
+            </select>
+        {{ end }}
+
         <input type="text" name="track" class="form-control" placeholder="Track" aria-label="Track" value="{{ .Filter.Track }}">
         <input type="text" name="driver" class="form-control" placeholder="Driver name or GUID" aria-label="Driver" value="{{ .Filter.Driver }}">
 
@@ -60,6 +69,7 @@
             <tr class="row-link" data-href="/results/{{ $result.SessionFile }}">
                 <td class="text-nowrap">
                     {{ $result.GetDate }}
+                    {{ with index $.ServerNames $result.SessionFile }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
                 </td>
                 <td>
                     {{ if $result.IsTimeAttack }}

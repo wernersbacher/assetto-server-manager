@@ -199,3 +199,26 @@ func (l *Loader) path(fileName string) string {
 
 	return filepath.Join(l.Dir, fileName)
 }
+
+// DirOf returns the directory which holds the results file, Dir if no directory does. It is how a result is
+// attributed to the server slot which produced it.
+func (l *Loader) DirOf(fileName string) string {
+	return filepath.Dir(l.path(fileName))
+}
+
+// inDir tells if the results file is found in the directory dir.
+func (l *Loader) inDir(fileName, dir string) bool {
+	return filepath.Clean(l.DirOf(fileName)) == filepath.Clean(dir)
+}
+
+// HeldByOtherDir tells if the results file exists in one of ExtraDirs but not in Dir. Saving a new file of the same
+// name to Dir would then create a copy which the other one hides.
+func (l *Loader) HeldByOtherDir(fileName string) bool {
+	if _, err := os.Stat(filepath.Join(l.Dir, fileName)); err == nil {
+		return false
+	}
+
+	_, err := os.Stat(l.path(fileName))
+
+	return err == nil
+}

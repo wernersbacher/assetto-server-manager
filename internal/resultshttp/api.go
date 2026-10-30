@@ -13,6 +13,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/api"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
 // The results API exposes the information that is publicly visible on the results pages (session, track, drivers,
@@ -46,6 +47,9 @@ type APIResultSummary struct {
 	// ChampionshipID and RaceWeekendID are only set for sessions that were driven as part of one.
 	ChampionshipID string `json:",omitempty"`
 	RaceWeekendID  string `json:",omitempty"`
+
+	// Server is the server the result came from. It is only set if the server manager has several servers.
+	Server *api.Server `json:",omitempty"`
 }
 
 type APIResult struct {
@@ -179,7 +183,7 @@ func NewAPIResult(installPath string, result *smresults.SessionResults) *APIResu
 // listAPI returns a page of results in the API format. It takes the same page and filter query parameters as the
 // results list page.
 func (rh *ResultsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
-	page, filter := resultsListQuery(r)
+	page, filter, servers, _ := rh.resultsListQuery(r)
 
 	results, pages, err := rh.env.Results().List(page, filter)
 
@@ -199,7 +203,10 @@ func (rh *ResultsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for i := range results {
-		out.Results = append(out.Results, newAPIResultSummary(rh.env.InstallPath(), &results[i]))
+		summary := newAPIResultSummary(rh.env.InstallPath(), &results[i])
+		summary.Server = apiServer(servers.of(rh.env.Results(), summary.FileName))
+
+		out.Results = append(out.Results, summary)
 	}
 
 	api.WriteJSON(w, out)
@@ -232,5 +239,16 @@ func (rh *ResultsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 	result.ClearKickedGUIDs()
 	result.NormaliseCarIDs()
 
-	api.WriteJSON(w, NewAPIResult(rh.env.InstallPath(), result))
+	out := NewAPIResult(rh.env.InstallPath(), result)
+	out.Server = apiServer(rh.serverIndex().of(rh.env.Results(), fileName))
+
+	api.WriteJSON(w, out)
+}
+
+func apiServer(server *smweb.ServerRef) *api.Server {
+	if server == nil {
+		return nil
+	}
+
+	return &api.Server{ID: string(server.ID), Name: server.Name}
 }
