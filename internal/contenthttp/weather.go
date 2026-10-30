@@ -1,9 +1,11 @@
 package contenthttp
 
 import (
+	"errors"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
@@ -47,44 +49,45 @@ func (wh *WeatherHandler) List(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// errWeatherNotInstalled is returned if there is no folder for a weather preset, e.g. for the built-in presets
+// which are always listed.
+var errWeatherNotInstalled = errors.New("contenthttp: weather preset is not installed")
+
+// removeWeatherPreset deletes the folder of an installed weather preset. The built-in presets are always listed
+// even if there are no files for them, so there is nothing to delete for them.
+func removeWeatherPreset(installPath, key string) error {
+	weatherPath := filepath.Join(installPath, "content", "weather")
+
+	// the key comes from the URL, only direct sub folders of the weather folder may be removed
+	if key == "" || key == "." || key == ".." || strings.ContainsAny(key, `/\`) {
+		return errWeatherNotInstalled
+	}
+
+	info, err := os.Stat(filepath.Join(weatherPath, key))
+
+	if os.IsNotExist(err) || (err == nil && !info.IsDir()) {
+		return errWeatherNotInstalled
+	} else if err != nil {
+		return err
+	}
+
+	return os.RemoveAll(filepath.Join(weatherPath, key))
+}
+
 func (wh *WeatherHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	weatherKey := chi.URLParam(r, "key")
-	weatherPath := filepath.Join(wh.env.InstallPath(), "content", "weather")
 
-	existingWeather, err := smcontent.ListWeather(wh.env.InstallPath())
+	err := removeWeatherPreset(wh.env.InstallPath(), weatherKey)
 
-	if err != nil {
-		logrus.WithError(err).Errorf("could not get weather list")
-		smweb.AddErrorFlash(w, r, "Couldn't get weather list")
-		http.Redirect(w, r, r.Referer(), http.StatusFound)
-		return
-	}
-
-	var found bool
-
-	for key := range existingWeather {
-		if weatherKey == key {
-			// Delete car
-			found = true
-
-			err := os.RemoveAll(filepath.Join(weatherPath, weatherKey))
-
-			if err != nil {
-				found = false
-				logrus.WithError(err).Errorf("could not remove weather files")
-			}
-
-			delete(existingWeather, key)
-			break
-		}
-	}
-
-	if found {
-		// confirm deletion
+	switch {
+	case err == nil:
 		smweb.AddFlash(w, r, "Weather preset successfully deleted!")
-	} else {
+	case err == errWeatherNotInstalled:
 		// inform weather wasn't found
-		smweb.AddErrorFlash(w, r, "Sorry, weather preset could not be deleted. Are you sure it was installed?")
+		smweb.AddErrorFlash(w, r, "Sorry, weather preset could not be deleted. Are you sure it was installed? Built-in presets cannot be deleted.")
+	default:
+		logrus.WithError(err).Errorf("could not remove weather files")
+		smweb.AddErrorFlash(w, r, "Sorry, weather preset could not be deleted.")
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
