@@ -47,6 +47,7 @@ Fixed:
 * The average lap time now applies its 107% filter correctly, so slow laps (e.g. pit stops) no longer push up the average.
 * Fixes potential lap, consistency and race position of driver swap cars, which showed 0 or values above 100%.
 * A cut lap is no longer treated as the fastest lap (including Championship fastest lap points) when all laps of a class were cut.
+* The collisions overlay of a result page answers "not found" instead of an internal server error when the track has no map data.
 * Submitting an inconsistent Championship form (e.g. fewer points, cars or entrants than announced) now answers with a clear error (HTTP 400) instead of an internal server error.
 * Accepting a sign-up into a Championship that has no free slot left now shows a message instead of an error page. The same applies to sign-ups without approval when the car choice is hidden.
 * Championship standings: drivers who are tied on points and on all finishing positions are now ordered by name instead of in a random order.

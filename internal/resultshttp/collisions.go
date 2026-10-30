@@ -70,7 +70,12 @@ func (rh *ResultsHandler) RenderCollisions(w http.ResponseWriter, r *http.Reques
 
 	trackMapData, err := smcontent.LoadTrackMapData(rh.env.InstallPath(), result.TrackName, result.TrackConfig)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		// the track has no map (data), so there is nothing to draw the collisions on
+		logrus.WithError(err).Warn("no track map data for the collisions overlay")
+		http.Error(w, "No track map available for this track", http.StatusNotFound)
+		return
+	} else if err != nil {
 		logrus.WithError(err).Error("could not load track map data")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -78,7 +83,11 @@ func (rh *ResultsHandler) RenderCollisions(w http.ResponseWriter, r *http.Reques
 
 	trackMapImage, err := smcontent.LoadTrackMapImage(rh.env.InstallPath(), result.TrackName, result.TrackConfig)
 
-	if err != nil {
+	if os.IsNotExist(err) {
+		logrus.WithError(err).Warn("no track map image for the collisions overlay")
+		http.Error(w, "No track map available for this track", http.StatusNotFound)
+		return
+	} else if err != nil {
 		logrus.WithError(err).Error("could not load track map image")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
