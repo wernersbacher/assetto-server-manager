@@ -47,6 +47,7 @@ Fixed:
 * The average lap time now applies its 107% filter correctly, so slow laps (e.g. pit stops) no longer push up the average.
 * Fixes potential lap, consistency and race position of driver swap cars, which showed 0 or values above 100%.
 * A cut lap is no longer treated as the fastest lap (including Championship fastest lap points) when all laps of a class were cut.
+* Championship standings: drivers who are tied on points and on all finishing positions are now ordered by name instead of in a random order.
 * Deleting a built-in weather preset (which has no files on the server) no longer claims success; the message now says it cannot be deleted.
 * Fixes the "fall back results sorting" server option for driver swap cars: the swap car is no longer listed twice and keeps its total time and best lap.
 

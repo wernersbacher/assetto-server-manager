@@ -1093,3 +1093,33 @@ func TestChampionship_LegacyACSRFieldsAreIgnored(t *testing.T) {
 		}
 	})
 }
+
+func TestChampionshipClass_Standings_FullyTiedDriversSortByName(t *testing.T) {
+	championship := NewChampionship("Tie")
+	class := NewChampionshipClass("Class")
+	class.Points.Places = []int{10, 6}
+	championship.AddClass(class)
+
+	a := dropTestDriver{"A1", "T"}
+	b := dropTestDriver{"B1", "T"}
+	c := dropTestDriver{"C1", "T"}
+
+	// A and B swap first and second place, so they are tied on points and on every finishing position.
+	championship.Events = []*ChampionshipEvent{
+		dropTestEvent(class, b, a, c),
+		dropTestEvent(class, a, b, c),
+	}
+
+	// the standings are built from maps, so the order of tied drivers is random unless it is sorted explicitly
+	for i := 0; i < 50; i++ {
+		standings := class.Standings(championship, championship.Events)
+
+		if len(standings) != 3 {
+			t.Fatalf("expected 3 standings, got %d", len(standings))
+		}
+
+		if standings[0].Car.Driver.Name != "A1" || standings[1].Car.Driver.Name != "B1" || standings[2].Car.Driver.Name != "C1" {
+			t.Fatalf("expected A1, B1, C1, got %s, %s, %s", standings[0].Car.Driver.Name, standings[1].Car.Driver.Name, standings[2].Car.Driver.Name)
+		}
+	}
+}

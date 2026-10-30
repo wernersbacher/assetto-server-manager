@@ -652,10 +652,23 @@ func (c *ChampionshipClass) Standings(championship *Championship, inEvents []*Ch
 		if out[i].Points == out[j].Points {
 			// sort by number of wins (each race weekend session counts as an event)
 			if len(events) > 1 {
-				return c.HadBetterFinishingPositions(out[i].Car.Driver.GUID, out[j].Car.Driver.GUID, events, numPositions)
+				guidI, guidJ := out[i].Car.Driver.GUID, out[j].Car.Driver.GUID
+
+				if c.HadBetterFinishingPositions(guidI, guidJ, events, numPositions) {
+					return true
+				}
+
+				if c.HadBetterFinishingPositions(guidJ, guidI, events, numPositions) {
+					return false
+				}
 			}
 
-			return out[i].Car.GetName() < out[j].Car.GetName()
+			// fully tied: fall back to the name (and GUID) so the order does not depend on map order
+			if nameI, nameJ := out[i].Car.GetName(), out[j].Car.GetName(); nameI != nameJ {
+				return nameI < nameJ
+			}
+
+			return out[i].Car.Driver.GUID < out[j].Car.Driver.GUID
 		}
 
 		return out[i].Points > out[j].Points
