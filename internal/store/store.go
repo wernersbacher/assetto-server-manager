@@ -57,6 +57,11 @@ type Store interface {
 	// Server Options
 	UpsertServerOptions(so *serverconfig.GlobalServerConfig) error
 	LoadServerOptions() (*serverconfig.GlobalServerConfig, error)
+	// UpsertServerOptionsFor and LoadServerOptionsFor store the server options of one server slot. The default slot
+	// (empty id) uses the same storage as UpsertServerOptions and LoadServerOptions. A slot without stored options
+	// gets the defaults, which are persisted, like LoadServerOptions.
+	UpsertServerOptionsFor(id smmodel.ServerID, so *serverconfig.GlobalServerConfig) error
+	LoadServerOptionsFor(id smmodel.ServerID) (*serverconfig.GlobalServerConfig, error)
 
 	// Championships
 	UpsertChampionship(c *smmodel.Championship) error

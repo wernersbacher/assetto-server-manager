@@ -872,6 +872,90 @@ func TestStoreContract_ServerOptions(t *testing.T) {
 	})
 }
 
+func TestStoreContract_ServerOptionsPerSlot(t *testing.T) {
+	runStoreContract(t, func(t *testing.T, store Store) {
+		defaults := serverconfig.ConfigIniDefault().GlobalServerConfig
+
+		// a slot without options gets the defaults
+		so, err := store.LoadServerOptionsFor("slot-a")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if so.Name != defaults.Name || so.UDPPort != defaults.UDPPort {
+			t.Errorf("expected default server options, got name=%q udp=%d", so.Name, so.UDPPort)
+		}
+
+		// the default slot uses the same storage as the methods without an id
+		old, err := store.LoadServerOptions()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		old.Name = "Default Slot"
+
+		if err := store.UpsertServerOptions(old); err != nil {
+			t.Fatal(err)
+		}
+
+		fromDefaultSlot, err := store.LoadServerOptionsFor("")
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if fromDefaultSlot.Name != "Default Slot" {
+			t.Errorf("default slot does not read the existing key, name=%q", fromDefaultSlot.Name)
+		}
+
+		ports := map[smmodel.ServerID]int{"slot-a": 9701, "slot-b": 9702}
+
+		for id, name := range map[smmodel.ServerID]string{"slot-a": "Slot A", "slot-b": "Slot B"} {
+			opts, err := store.LoadServerOptionsFor(id)
+
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			opts.Name = name
+			opts.UDPPort = ports[id]
+
+			if err := store.UpsertServerOptionsFor(id, opts); err != nil {
+				t.Fatal(err)
+			}
+		}
+
+		for id, name := range map[smmodel.ServerID]string{"": "Default Slot", "slot-a": "Slot A", "slot-b": "Slot B"} {
+			loaded, err := store.LoadServerOptionsFor(id)
+
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if loaded.Name != name {
+				t.Errorf("slot %q: expected name %q, got %q", id, name, loaded.Name)
+			}
+
+			if id != "" && loaded.UDPPort != ports[id] {
+				t.Errorf("slot %q: expected udp port %d, got %d", id, ports[id], loaded.UDPPort)
+			}
+		}
+
+		// the method without an id still sees only the default slot
+		old, err = store.LoadServerOptions()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if old.Name != "Default Slot" || old.UDPPort != defaults.UDPPort {
+			t.Errorf("default slot was modified by another slot, name=%q udp=%d", old.Name, old.UDPPort)
+		}
+	})
+}
+
 func TestStoreContract_PluginOptions(t *testing.T) {
 	runStoreContract(t, func(t *testing.T, store Store) {
 		// defaults, loaded on a completely fresh store

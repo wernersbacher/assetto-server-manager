@@ -2,6 +2,7 @@ package store
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -295,19 +296,52 @@ func (rs *JSONStore) ListEntrants() ([]*serverconfig.Entrant, error) {
 	return entrants, nil
 }
 
+// serverOptionsFileFor returns the file of the server options of a slot. The default slot keeps the original file.
+func serverOptionsFileFor(id smmodel.ServerID) (string, error) {
+	if id == "" {
+		return serverOptionsFile, nil
+	}
+
+	if strings.ContainsAny(string(id), `/\:`) || id == "." || id == ".." {
+		return "", fmt.Errorf("store: invalid server id %q", id)
+	}
+
+	return "server_options_" + string(id) + ".json", nil
+}
+
 func (rs *JSONStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) error {
-	return rs.encodeFile(rs.base, serverOptionsFile, so)
+	return rs.UpsertServerOptionsFor("", so)
+}
+
+func (rs *JSONStore) UpsertServerOptionsFor(id smmodel.ServerID, so *serverconfig.GlobalServerConfig) error {
+	file, err := serverOptionsFileFor(id)
+
+	if err != nil {
+		return err
+	}
+
+	return rs.encodeFile(rs.base, file, so)
 }
 
 func (rs *JSONStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, error) {
+	return rs.LoadServerOptionsFor("")
+}
+
+func (rs *JSONStore) LoadServerOptionsFor(id smmodel.ServerID) (*serverconfig.GlobalServerConfig, error) {
+	file, err := serverOptionsFileFor(id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var out *serverconfig.GlobalServerConfig
 
-	err := rs.decodeFile(rs.base, serverOptionsFile, &out)
+	err = rs.decodeFile(rs.base, file, &out)
 
 	if os.IsNotExist(err) {
 		defaultConfig := serverconfig.ConfigIniDefault()
 
-		return &defaultConfig.GlobalServerConfig, rs.UpsertServerOptions(&defaultConfig.GlobalServerConfig)
+		return &defaultConfig.GlobalServerConfig, rs.UpsertServerOptionsFor(id, &defaultConfig.GlobalServerConfig)
 	} else if err != nil {
 		return nil, err
 	}

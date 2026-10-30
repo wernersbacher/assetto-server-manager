@@ -294,7 +294,20 @@ func (rs *BoltStore) serverOptionsBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) {
 	return tx.CreateBucketIfNotExists(serverOptionsBucketName)
 }
 
+// serverOptionsKeyFor returns the key of the server options of a slot. The default slot keeps the original key.
+func serverOptionsKeyFor(id smmodel.ServerID) []byte {
+	if id == "" {
+		return serverOptionsKey
+	}
+
+	return []byte(string(serverOptionsKey) + "/" + string(id))
+}
+
 func (rs *BoltStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) error {
+	return rs.UpsertServerOptionsFor("", so)
+}
+
+func (rs *BoltStore) UpsertServerOptionsFor(id smmodel.ServerID, so *serverconfig.GlobalServerConfig) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.serverOptionsBucket(tx)
 
@@ -308,11 +321,15 @@ func (rs *BoltStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) er
 			return err
 		}
 
-		return bkt.Put(serverOptionsKey, encoded)
+		return bkt.Put(serverOptionsKeyFor(id), encoded)
 	})
 }
 
 func (rs *BoltStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, error) {
+	return rs.LoadServerOptionsFor("")
+}
+
+func (rs *BoltStore) LoadServerOptionsFor(id smmodel.ServerID) (*serverconfig.GlobalServerConfig, error) {
 	// start with defaults
 	defaultConfig := serverconfig.ConfigIniDefault()
 
@@ -325,7 +342,7 @@ func (rs *BoltStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, erro
 			return err
 		}
 
-		data := bkt.Get(serverOptionsKey)
+		data := bkt.Get(serverOptionsKeyFor(id))
 
 		if data == nil {
 			return nil
@@ -336,7 +353,7 @@ func (rs *BoltStore) LoadServerOptions() (*serverconfig.GlobalServerConfig, erro
 
 	if err == bbolt.ErrBucketNotFound {
 		// no server options created yet, apply defaults
-		return so, rs.UpsertServerOptions(so)
+		return so, rs.UpsertServerOptionsFor(id, so)
 	}
 
 	return so, err
