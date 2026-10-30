@@ -1,0 +1,59 @@
+# Server Manager config of instance sm2. All options: cmd/server-manager/config.example.yml
+# Ports of this instance: web 8773, acServer UDP/TCP 9601, acServer HTTP 8082 (set the acServer ones
+# in "Server Options" of this instance, they have to match the port mappings in compose.yaml).
+
+steam:
+  # the server is installed by the "install" service, nothing to do here
+  username:
+  password:
+  install_path: assetto
+  executable_path: acServer
+  force_update: false
+
+http:
+  hostname: 0.0.0.0:8772
+  # CHANGE ME: a random secret, different per instance
+  session_key: change-me-sm2
+  server_manager_base_URL: http://localhost:8773
+  session_store_type: filesystem
+  session_store_path: sessions
+  tls:
+    enabled: false
+    cert_path: ""
+    key_path: ""
+
+monitoring:
+  enabled: false
+
+store:
+  # the json store is needed to share data between instances
+  type: json
+  path: store
+  # accounts, championships, race weekends, entrants and custom races of all instances
+  shared_data_path: /shared
+  scheduled_event_check_loop: 0s
+
+accounts:
+  # CHANGE ME: log in as "admin" with this password (accounts are shared by all instances)
+  admin_password_override: admin
+
+live_map:
+  refresh_interval_ms: 500
+
+server:
+  audit_logging: true
+  performance_mode: false
+  dont_open_browser: true
+  # the content folder is shared, so pick up cars and tracks added through another instance
+  scan_content_folder_for_changes: true
+  use_car_name_cache: true
+  persist_mid_session_results: false
+  plugins:
+
+championships:
+  recaptcha:
+    site_key:
+    secret_key:
+
+lua:
+  enabled: false

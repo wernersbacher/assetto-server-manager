@@ -12,6 +12,16 @@ x-image: &image
     secrets:
       - ca_cert
 
+# prepares a volume from the pristine install, see seed.sh
+x-seed: &seed
+  <<: *image
+  user: root
+  entrypoint: ["sh", "/seed.sh"]
+
+x-instance: &instance
+  <<: *image
+  restart: unless-stopped
+
 services:
   # one-off: installs the AC server into the ac-base volume. Asks for password and Steam Guard code.
   #   docker compose --profile install run --rm install
@@ -26,9 +36,83 @@ services:
       - ac-base:/base
       - ./install-ac.sh:/install-ac.sh:ro
 
+  seed-shared:
+    <<: *seed
+    command: ["shared"]
+    volumes:
+      - ac-base:/base:ro
+      - ac-content:/content
+      - shared:/shared
+      - ./seed.sh:/seed.sh:ro
+
+  sm1-seed:
+    <<: *seed
+    command: ["instance"]
+    volumes:
+      - ac-base:/base:ro
+      - sm1-assetto:/instance
+      - ./seed.sh:/seed.sh:ro
+
+  sm2-seed:
+    <<: *seed
+    command: ["instance"]
+    volumes:
+      - ac-base:/base:ro
+      - sm2-assetto:/instance
+      - ./seed.sh:/seed.sh:ro
+
+  # Every instance publishes its ports 1:1, because the acServer announces the configured ports to the lobby and
+  # the clients. Set the acServer ports in "Server Options" of the instance accordingly.
+  sm1:
+    <<: *instance
+    depends_on:
+      seed-shared:
+        condition: service_completed_successfully
+      sm1-seed:
+        condition: service_completed_successfully
+    ports:
+      - "8772:8772"     # web UI
+      - "9600:9600/udp" # acServer UDP
+      - "9600:9600/tcp" # acServer TCP
+      - "8081:8081/tcp" # acServer HTTP
+    volumes:
+      - sm1-data:/home/assetto/server-manager
+      - sm1-assetto:/home/assetto/server-manager/assetto
+      - ac-content:/home/assetto/server-manager/assetto/content
+      - shared:/shared
+      - ./sm1.config.yml:/home/assetto/server-manager/config.yml:ro
+
+  sm2:
+    <<: *instance
+    depends_on:
+      seed-shared:
+        condition: service_completed_successfully
+      sm2-seed:
+        condition: service_completed_successfully
+    ports:
+      - "8773:8772"
+      - "9601:9601/udp"
+      - "9601:9601/tcp"
+      - "8082:8082/tcp"
+    volumes:
+      - sm2-data:/home/assetto/server-manager
+      - sm2-assetto:/home/assetto/server-manager/assetto
+      - ac-content:/home/assetto/server-manager/assetto/content
+      - shared:/shared
+      - ./sm2.config.yml:/home/assetto/server-manager/config.yml:ro
+
 volumes:
   # the pristine AC server install; the instances get a copy of it
   ac-base:
+  # cars, tracks, ... shared by all instances
+  ac-content:
+  # json data shared by all instances (accounts, championships, ...)
+  shared:
+  # per instance: the install copy (cfg, results, ...) and the working directory (store, logs)
+  sm1-assetto:
+  sm1-data:
+  sm2-assetto:
+  sm2-data:
 
 secrets:
   ca_cert:
