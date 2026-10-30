@@ -245,3 +245,71 @@
     padding: 12px 14px;
   }
 }
+
+// Button hierarchy of list pages: one primary action, outline secondary actions, destructive ones only in a menu.
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  .btn, .btn-group {
+    margin: 0;
+  }
+
+  // the Delete form lives in a dropdown menu
+  form {
+    margin: 0;
+  }
+}
+
+.dropdown-item.dropdown-item-danger {
+  color: var(--danger-foreground);
+
+  &:hover, &:focus {
+    background-color: var(--danger);
+    color: var(--danger-foreground);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    background: transparent;
+  }
+}
+
+button.dropdown-item {
+  width: 100%;
+  cursor: pointer;
+}
+
+.table-list-actions {
+  white-space: nowrap;
+  text-align: right;
+  width: 1%;
+
+  .action-row {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .card-actions {
+    > .btn-group:first-child {
+      flex: 1 1 100%;
+
+      > .btn:first-child {
+        flex: 1 1 auto;
+      }
+    }
+
+    > .btn:not(.dropdown-toggle) {
+      flex: 1 1 0;
+    }
+  }
+}
+
+// Plain wrapper instead of .table-responsive: its overflow would clip the row action dropdowns.
+.table-list {
+  border-radius: $border-radius-lg;
+}

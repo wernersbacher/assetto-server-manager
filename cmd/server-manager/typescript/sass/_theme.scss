@@ -30,15 +30,19 @@
   --success: #f0fdf4;
   --success-foreground: #15803d;
   --success-solid: #16a34a;
+  --success-hover: #15803d;
   --warning: #fff7ed;
   --warning-foreground: #c2410c;
   --warning-solid: #ea580c;
+  --warning-hover: #c2410c;
   --danger: #fef2f2;
   --danger-foreground: #dc2626;
   --danger-solid: #dc2626;
+  --danger-hover: #b91c1c;
   --info: #eff6ff;
   --info-foreground: #1d4ed8;
   --info-solid: #2563eb;
+  --info-hover: #1d4ed8;
   --tertiary: #7c3aed;
 
   --table-header: #fafafa;
@@ -84,15 +88,19 @@
   --success: #0b2416;
   --success-foreground: #4ade80;
   --success-solid: #16a34a;
+  --success-hover: #15803d;
   --warning: #2a1606;
   --warning-foreground: #fb923c;
   --warning-solid: #c2410c;
+  --warning-hover: #9a3412;
   --danger: #2a1012;
   --danger-foreground: #f87171;
   --danger-solid: #dc2626;
+  --danger-hover: #b91c1c;
   --info: #0c1a30;
   --info-foreground: #60a5fa;
   --info-solid: #2563eb;
+  --info-hover: #1d4ed8;
   --tertiary: #c084fc;
 
   --table-header: #131316;
@@ -398,19 +406,19 @@ a.card {
 }
 
 .btn-success {
-  @include themed-button(var(--success-solid), #15803d, #fff);
+  @include themed-button(var(--success-solid), var(--success-hover), #fff);
 }
 
 .btn-danger {
-  @include themed-button(var(--danger-solid), #b91c1c, #fff);
+  @include themed-button(var(--danger-solid), var(--danger-hover), #fff);
 }
 
 .btn-warning {
-  @include themed-button(var(--warning-solid), #c2410c, #fff);
+  @include themed-button(var(--warning-solid), var(--warning-hover), #fff);
 }
 
 .btn-info {
-  @include themed-button(var(--info-solid), #1d4ed8, #fff);
+  @include themed-button(var(--info-solid), var(--info-hover), #fff);
 }
 
 .btn-outline-primary, .btn-outline-secondary, .btn-outline-dark, .btn-outline-light {
@@ -423,6 +431,14 @@ a.card {
 
 .btn-outline-success {
   @include themed-button(transparent, var(--success), var(--success-foreground), var(--border));
+}
+
+.btn-outline-warning {
+  @include themed-button(transparent, var(--warning), var(--warning-foreground), var(--border));
+}
+
+.btn-outline-info {
+  @include themed-button(transparent, var(--info), var(--info-foreground), var(--border));
 }
 
 .btn-link {

@@ -79,12 +79,13 @@
 
             <div class="row">
                 <div class="col-12 mt-3">
+                    <div class="action-row card-actions">
                     {{ if WriteAccess }}
                         <div class="btn-group">
-                            <a class="btn btn-success" href="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}">Start</a>
-                            {{ template "start-target" dict "Path" (printf "/custom/load/%s" $.Race.UUID.String) "Servers" $.Servers "Class" "btn-success" }}
+                            <a class="btn btn-primary" href="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}">Start</a>
+                            {{ template "start-target" dict "Path" (printf "/custom/load/%s" $.Race.UUID.String) "Servers" $.Servers "Class" "btn-primary" }}
 
-                            <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split popover-external-html" data-placement="bottom"
+                            <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split popover-external-html" data-placement="bottom"
                                     data-toggle="popover" title="Schedule Event" data-html="true"
                                     id="schedule-{{ $.Race.UUID.String }}"
                             ></button>
@@ -121,26 +122,35 @@
                             </div>
                         </div>
 
-                        <a class="btn btn-warning" href="/custom/edit/{{ $.Race.UUID.String }}">Edit</a>
-                        <a class="btn btn-primary" href="/custom/new?from={{ $.Race.UUID.String }}">Use as Template</a>
-
-                        {{ if DeleteAccess }}
-                            <form method="post" action="/custom/delete/{{ $.Race.UUID.String }}" class="d-inline"
-                                   data-confirm-delete="Delete race setup {{ $.Race.Name }}?" data-confirm-detail="The race setup is removed permanently." data-confirm-label="Delete race setup">
-                                <button type="submit" class="btn btn-danger">Delete</button>
-                            </form>
-                        {{ end }}
+                        <a class="btn btn-outline-secondary" href="/custom/edit/{{ $.Race.UUID.String }}">Edit</a>
                     {{ end }}
 
-
                     {{ if $.ShowEventDetailsPopup }}
-                        <a class="btn btn-info custom-race-details"
+                        <a class="btn btn-outline-secondary custom-race-details"
                            href="#"
                            data-race-id="{{ $.Race.UUID.String }}"
                         >
                             Race Details
                         </a>
                     {{ end }}
+
+                    {{ if WriteAccess }}
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" id="race-more-{{ $.Race.UUID.String }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</button>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="race-more-{{ $.Race.UUID.String }}">
+                                <a class="dropdown-item" href="/custom/new?from={{ $.Race.UUID.String }}">Use as Template</a>
+
+                                {{ if DeleteAccess }}
+                                    <div class="dropdown-divider"></div>
+                                    <form method="post" action="/custom/delete/{{ $.Race.UUID.String }}"
+                                           data-confirm-delete="Delete race setup {{ $.Race.Name }}?" data-confirm-detail="The race setup is removed permanently." data-confirm-label="Delete race setup">
+                                        <button type="submit" class="dropdown-item dropdown-item-danger">Delete</button>
+                                    </form>
+                                {{ end }}
+                            </div>
+                        </div>
+                    {{ end }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,15 +164,14 @@
 {{ end }}
 
 {{ define "content" }}
-    <div class="row">
-        <div class="col-sm-4"></div>
-        <div class="col-sm-4"><h1 class="text-center">Custom Races</h1></div>
-        <div class="col-sm-4">
-            {{ if WriteAccess }}
-                <a class="btn btn-success float-right" href="/custom/new">Create a new Custom Race</a>
-                <div class="clearfix mb-5"></div>
-            {{ end }}
+    <div class="page-header">
+        <div>
+            <h1>Custom Races</h1>
         </div>
+
+        {{ if WriteAccess }}
+            <a class="btn btn-primary" href="/custom/new">Create a new Custom Race</a>
+        {{ end }}
     </div>
 
     {{ if WriteAccess }}

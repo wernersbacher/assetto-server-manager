@@ -3,6 +3,8 @@ Unreleased
 
 Added:
 
+* The Custom Races, Championships and Race Weekends lists have a clear button hierarchy: one primary action (Start / View), outline buttons for the rest and Delete only in a More menu (still with the confirmation dialog). Custom Races uses the page header, and the legacy green, orange, red and blue buttons follow the theme colours in light and dark mode.
+
 * The Race Weekend page uses the new layout: a page header with the actions grouped in a menu, themed tables and buttons in light and dark mode, and the session graph scrolls inside its own frame instead of widening the whole page (no horizontal page scroll on desktop or phones).
 
 * The race setup forms (custom race, quick race, championship event, race weekend session, championship and race weekend settings) get a page header with breadcrumb, section cards with a sticky section index (a scrolling strip that also works on phones) and a sticky save bar that repeats the Save / Start buttons and shows when there are unsaved changes.
