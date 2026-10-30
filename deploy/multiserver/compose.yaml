@@ -25,6 +25,9 @@ services:
     profiles: ["install"]
     user: root
     entrypoint: ["sh", "/install-ac.sh"]
+    # extra root CA for steamcmd behind a TLS-intercepting proxy, see README.md
+    secrets:
+      - ca_cert
     environment:
       STEAM_USER:
     volumes:

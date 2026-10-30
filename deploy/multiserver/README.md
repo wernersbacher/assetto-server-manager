@@ -28,7 +28,10 @@ Run everything from this directory.
    pristine copy in `ac-base` only: a server keeps its own copy until its `assetto-a` / `assetto-b` volume is deleted
    (which also removes its `cfg` and `results`).
 3. Start: `docker compose up -d --build`. Behind a TLS-intercepting proxy, set `EXTRA_CA_CERT` to the root
-   certificate before building (see `Dockerfile`).
+   certificate before building (see `Dockerfile`). The same variable is used by the `install` service: it installs
+   the certificate in the container before steamcmd runs, so set it before step 2 as well. On Windows (PowerShell):
+   `$env:EXTRA_CA_CERT = "$HOME\certs\vector-root-ca-2.0.pem"` for the current session, or set it as a user
+   environment variable (then open a new terminal).
 4. Log in and open **Server Options** of each server (the selector in the top bar switches the server). A new server
    starts with the default ports 9600 / 8081, so set server B to UDP/TCP port 9601 and HTTP port 8082 (or the ports
    from your `.env`, see "Changing the ports"). Compose publishes the ports 1:1, because the acServer announces the
