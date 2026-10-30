@@ -1,8 +1,11 @@
 package web
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -45,24 +48,60 @@ func WithRequestedServerID(r *http.Request, id smmodel.ServerID) *http.Request {
 // that server can be looked up. Requests without the field stay with the server of the request. The caller has to parse
 // the form first; the lookup of the manager still rejects unknown ids.
 func ScheduleTarget(r *http.Request) *http.Request {
-	if id := r.FormValue(ScheduleServerParam); id != "" {
+	if id := formParam(r, ScheduleServerParam); id != "" {
 		return WithRequestedServerID(r, smmodel.ServerID(id))
 	}
 
 	return r
 }
 
-// serverParam reads the server parameter without parsing the body of requests other than url encoded forms.
-func serverParam(r *http.Request) string {
-	if id := r.URL.Query().Get(ServerParam); id != "" {
+// maxInspectedFormBody is the largest url encoded body which is looked at for a parameter. Larger bodies (uploads post
+// their JSON with the url encoded content type) are left alone.
+const maxInspectedFormBody = 1 << 20
+
+// formParam reads a parameter from the query and, for small url encoded POST bodies, from the body. It never consumes
+// the body: net/http's ParseForm would swallow up to 10 MB of it, which breaks handlers decoding the body themselves.
+// A form which has already been parsed is used as it is.
+func formParam(r *http.Request, name string) string {
+	if id := r.URL.Query().Get(name); id != "" {
 		return id
 	}
 
-	if r.Method == http.MethodPost && strings.HasPrefix(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") {
-		return r.PostFormValue(ServerParam)
+	if r.PostForm != nil {
+		return r.PostForm.Get(name)
 	}
 
-	return ""
+	if r.Method != http.MethodPost || r.Body == nil || r.Body == http.NoBody ||
+		!strings.HasPrefix(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") ||
+		r.ContentLength <= 0 || r.ContentLength > maxInspectedFormBody {
+		return ""
+	}
+
+	original := r.Body
+	body, err := ioutil.ReadAll(io.LimitReader(original, maxInspectedFormBody+1))
+
+	// restore what was read, followed by whatever is left, so that the handler sees the complete body.
+	r.Body = struct {
+		io.Reader
+		io.Closer
+	}{io.MultiReader(bytes.NewReader(body), original), original}
+
+	if err != nil || int64(len(body)) > maxInspectedFormBody {
+		return ""
+	}
+
+	values, err := url.ParseQuery(string(body))
+
+	if err != nil {
+		return ""
+	}
+
+	return values.Get(name)
+}
+
+// serverParam reads the server parameter without consuming the body.
+func serverParam(r *http.Request) string {
+	return formParam(r, ServerParam)
 }
 
 // ServerSelectionMiddleware attaches the requested server slot to each request. Slot ids come from the server

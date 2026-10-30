@@ -1,7 +1,11 @@
 package contenthttp
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"github.com/cj123/sessions"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
@@ -323,6 +327,57 @@ func TestCarSetupDeleteHandlerRejectsPathTraversal(t *testing.T) {
 
 		if _, err := os.Stat(filepath.Join(setupDir, "a.ini")); err != nil {
 			t.Fatalf("%v: setup file was deleted: %v", params, err)
+		}
+	}
+}
+
+// Uploads post their JSON with the url encoded content type; the server selection must not consume the body.
+func TestContentUploadBehindServerSelection(t *testing.T) {
+	root, err := ioutil.TempDir("", "content-upload-e2e")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(root)
+
+	installPath := filepath.Join(root, "install")
+	cuh := &ContentUploadHandler{env: envtest.New(installPath)}
+
+	payload := strings.Repeat("A", 4*1024*1024)
+	var files []ContentFile
+
+	for _, name := range []string{"one.json", "two.json", "three.json"} {
+		data := base64.StdEncoding.EncodeToString([]byte(payload))
+		files = append(files, ContentFile{Name: name, FilePath: "preset/" + name, Data: "data:application/json;base64," + data, Size: len(payload)})
+	}
+
+	body, err := json.Marshal(files)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(body) < 12*1024*1024 {
+		t.Fatalf("body too small: %d", len(body))
+	}
+
+	handler := smweb.ServerSelectionMiddleware(func(id smmodel.ServerID) bool { return true })(cuh.Upload(ContentTypeWeather))
+
+	req := httptest.NewRequest(http.MethodPost, "/weather/upload", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+
+	handler.ServeHTTP(httptest.NewRecorder(), smweb.WithScope(req, &smweb.Scope{SessionStore: sessions.NewCookieStore([]byte("test"))}))
+
+	for _, name := range []string{"one.json", "two.json", "three.json"} {
+		written, err := ioutil.ReadFile(filepath.Join(installPath, "content", "weather", "preset", name))
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if string(written) != payload {
+			t.Errorf("%s: wrong content (%d bytes)", name, len(written))
 		}
 	}
 }

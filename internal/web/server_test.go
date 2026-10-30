@@ -1,6 +1,8 @@
 package web_test
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -141,4 +143,96 @@ func TestServerURL(t *testing.T) {
 	if got := smweb.ServerURL(req, "/event-details?custom-race=1"); got != "/event-details?custom-race=1&server=b" {
 		t.Errorf("unexpected URL %q", got)
 	}
+}
+
+const formType = "application/x-www-form-urlencoded"
+
+// bodyKept sends a POST through the middleware (and ScheduleTarget) and returns the slot, the body the handler could
+// read, and the slot ScheduleTarget selected.
+func bodyKept(t *testing.T, contentType, target, body string) (smmodel.ServerID, smmodel.ServerID, string) {
+	t.Helper()
+
+	scope := &smweb.Scope{SessionStore: sessions.NewCookieStore([]byte("test"))}
+
+	var seen, scheduled smmodel.ServerID
+	var got []byte
+
+	handler := smweb.ServerSelectionMiddleware(func(id smmodel.ServerID) bool {
+		return id == "a" || id == "b"
+	})(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		seen = smweb.RequestedServerID(r)
+		scheduled = smweb.RequestedServerID(smweb.ScheduleTarget(r))
+
+		var err error
+		got, err = ioutil.ReadAll(r.Body)
+
+		if err != nil {
+			t.Error(err)
+		}
+	}))
+
+	req := httptest.NewRequest(http.MethodPost, target, strings.NewReader(body))
+	req.Header.Set("Content-Type", contentType)
+
+	handler.ServeHTTP(httptest.NewRecorder(), smweb.WithScope(req, scope))
+
+	return seen, scheduled, string(got)
+}
+
+func TestServerSelectionKeepsBody(t *testing.T) {
+	small := `[{"name":"a","dataBase64":"` + strings.Repeat("QUJD", 1000) + `"}]`
+	large := `[{"name":"a","dataBase64":"` + strings.Repeat("QUJD", 3*1024*1024) + `"}]` // ~12 MB
+
+	for name, body := range map[string]string{"small": small, "12MB": large} {
+		seen, scheduled, got := bodyKept(t, formType, "/upload", body)
+
+		if got != body {
+			t.Errorf("%s: body was altered (%d of %d bytes)", name, len(got), len(body))
+		}
+
+		if seen != "" || scheduled != "" {
+			t.Errorf("%s: unexpected slot %q / %q", name, seen, scheduled)
+		}
+	}
+
+	var decoded []map[string]string
+
+	if err := json.Unmarshal([]byte(small), &decoded); err != nil {
+		t.Fatal(err)
+	}
+
+	t.Run("server in a small form body", func(t *testing.T) {
+		body := "Name=x&server=b&event-schedule-server=a"
+		seen, scheduled, got := bodyKept(t, formType, "/x", body)
+
+		if seen != "b" || scheduled != "a" || got != body {
+			t.Errorf("got slot %q, schedule %q, body %q", seen, scheduled, got)
+		}
+	})
+
+	t.Run("server in a large body is not used", func(t *testing.T) {
+		body := "server=b&pad=" + strings.Repeat("x", 2<<20)
+		seen, scheduled, got := bodyKept(t, formType, "/x", body)
+
+		if seen != "" || scheduled != "" || got != body {
+			t.Errorf("got slot %q, schedule %q, body length %d of %d", seen, scheduled, len(got), len(body))
+		}
+	})
+
+	t.Run("other content types are untouched", func(t *testing.T) {
+		body := "server=b"
+		seen, _, got := bodyKept(t, "application/json", "/x", body)
+
+		if seen != "" || got != body {
+			t.Errorf("got slot %q, body %q", seen, got)
+		}
+	})
+
+	t.Run("query wins and body is kept", func(t *testing.T) {
+		seen, _, got := bodyKept(t, formType, "/x?server=a", "server=b")
+
+		if seen != "a" || got != "server=b" {
+			t.Errorf("got slot %q, body %q", seen, got)
+		}
+	})
 }
