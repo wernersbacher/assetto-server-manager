@@ -303,6 +303,15 @@ func serverOptionsKeyFor(id smmodel.ServerID) []byte {
 	return []byte(string(serverOptionsKey) + "/" + string(id))
 }
 
+// slotKey returns the key of a per-slot value. The default slot keeps the original key.
+func slotKey(key []byte, id smmodel.ServerID) []byte {
+	if id == "" {
+		return key
+	}
+
+	return []byte(string(key) + "/" + string(id))
+}
+
 func (rs *BoltStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) error {
 	return rs.UpsertServerOptionsFor("", so)
 }
@@ -990,6 +999,10 @@ func (rs *BoltStore) liveTimingsDataBucket(tx *bbolt.Tx) (*bbolt.Bucket, error) 
 }
 
 func (rs *BoltStore) UpsertLiveTimingsData(lt *smmodel.LiveTimingsPersistedData) error {
+	return rs.UpsertLiveTimingsDataFor("", lt)
+}
+
+func (rs *BoltStore) UpsertLiveTimingsDataFor(id smmodel.ServerID, lt *smmodel.LiveTimingsPersistedData) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
@@ -1003,11 +1016,15 @@ func (rs *BoltStore) UpsertLiveTimingsData(lt *smmodel.LiveTimingsPersistedData)
 			return err
 		}
 
-		return bkt.Put(liveTimingsKey, encoded)
+		return bkt.Put(slotKey(liveTimingsKey, id), encoded)
 	})
 }
 
 func (rs *BoltStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, error) {
+	return rs.LoadLiveTimingsDataFor("")
+}
+
+func (rs *BoltStore) LoadLiveTimingsDataFor(id smmodel.ServerID) (*smmodel.LiveTimingsPersistedData, error) {
 	var lt *smmodel.LiveTimingsPersistedData
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
@@ -1020,7 +1037,7 @@ func (rs *BoltStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, e
 			return err
 		}
 
-		data := bkt.Get(liveTimingsKey)
+		data := bkt.Get(slotKey(liveTimingsKey, id))
 
 		if data == nil {
 			return nil
@@ -1033,6 +1050,10 @@ func (rs *BoltStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, e
 }
 
 func (rs *BoltStore) UpsertLastRaceEvent(r smmodel.RaceEvent) error {
+	return rs.UpsertLastRaceEventFor("", r)
+}
+
+func (rs *BoltStore) UpsertLastRaceEventFor(id smmodel.ServerID, r smmodel.RaceEvent) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
@@ -1046,11 +1067,15 @@ func (rs *BoltStore) UpsertLastRaceEvent(r smmodel.RaceEvent) error {
 			return err
 		}
 
-		return bkt.Put(lastRaceEventKey, encoded)
+		return bkt.Put(slotKey(lastRaceEventKey, id), encoded)
 	})
 }
 
 func (rs *BoltStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
+	return rs.LoadLastRaceEventFor("")
+}
+
+func (rs *BoltStore) LoadLastRaceEventFor(id smmodel.ServerID) (smmodel.RaceEvent, error) {
 	var re smmodel.RaceEvent
 
 	err := rs.db.View(func(tx *bbolt.Tx) error {
@@ -1063,7 +1088,7 @@ func (rs *BoltStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
 			return err
 		}
 
-		data := bkt.Get(lastRaceEventKey)
+		data := bkt.Get(slotKey(lastRaceEventKey, id))
 
 		if data == nil {
 			return nil
@@ -1078,6 +1103,10 @@ func (rs *BoltStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
 }
 
 func (rs *BoltStore) ClearLastRaceEvent() error {
+	return rs.ClearLastRaceEventFor("")
+}
+
+func (rs *BoltStore) ClearLastRaceEventFor(id smmodel.ServerID) error {
 	return rs.db.Update(func(tx *bbolt.Tx) error {
 		bkt, err := rs.liveTimingsDataBucket(tx)
 
@@ -1085,6 +1114,6 @@ func (rs *BoltStore) ClearLastRaceEvent() error {
 			return err
 		}
 
-		return bkt.Delete(lastRaceEventKey)
+		return bkt.Delete(slotKey(lastRaceEventKey, id))
 	})
 }

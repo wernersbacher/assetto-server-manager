@@ -16,6 +16,7 @@ import (
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
 // Slot is one Assetto Corsa server and its runtime stack. NewRegistry fills the configuration and the Env; the
@@ -125,4 +126,20 @@ func (r *Registry) All() []*Slot {
 // Len returns the number of slots.
 func (r *Registry) Len() int {
 	return len(r.slots)
+}
+
+// DispatchUDP hands a message of this slot's server to the managers of this slot, and only to them. Messages of other
+// slots never get here, as every process is given the callback of its own slot. Race control is skipped in
+// performance mode, car updates only go to race control.
+func (s *Slot) DispatchUDP(message udp.Message, performanceMode bool) {
+	if !performanceMode {
+		s.RaceControl.UDPCallback(message)
+	}
+
+	if message.Event() != udp.EventCarUpdate {
+		s.ChampionshipManager.ChampionshipEventCallback(message)
+		s.RaceWeekendManager.UDPCallback(message)
+		s.RaceManager.LoopCallback(message)
+		s.ContentManagerWrapper.UDPCallback(message)
+	}
 }

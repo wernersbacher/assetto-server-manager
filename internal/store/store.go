@@ -75,6 +75,13 @@ type Store interface {
 	UpsertLastRaceEvent(r smmodel.RaceEvent) error
 	LoadLastRaceEvent() (smmodel.RaceEvent, error)
 	ClearLastRaceEvent() error
+	// The ...For variants store the live timings and the last race event of one server slot. The default slot (empty
+	// id) uses the same storage as the methods without an id.
+	UpsertLiveTimingsDataFor(id smmodel.ServerID, lt *smmodel.LiveTimingsPersistedData) error
+	LoadLiveTimingsDataFor(id smmodel.ServerID) (*smmodel.LiveTimingsPersistedData, error)
+	UpsertLastRaceEventFor(id smmodel.ServerID, r smmodel.RaceEvent) error
+	LoadLastRaceEventFor(id smmodel.ServerID) (smmodel.RaceEvent, error)
+	ClearLastRaceEventFor(id smmodel.ServerID) error
 
 	UpsertLiveFrames([]string) error
 	ListPrevFrames() ([]string, error)

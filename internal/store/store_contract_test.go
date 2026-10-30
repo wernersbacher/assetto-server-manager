@@ -1122,3 +1122,81 @@ func raceWeekendNames(raceWeekends []*smmodel.RaceWeekend) []string {
 
 	return out
 }
+
+func TestStoreContract_PerSlotLiveStateAndSlotView(t *testing.T) {
+	runStoreContract(t, func(t *testing.T, store Store) {
+		defaultRace := &smmodel.QuickRace{}
+		defaultRace.RaceConfig.Track = "spa"
+
+		slotRace := &smmodel.QuickRace{}
+		slotRace.RaceConfig.Track = "monza"
+
+		if err := store.UpsertLastRaceEvent(defaultRace); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertLastRaceEventFor("slot-a", slotRace); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertLiveTimingsData(&smmodel.LiveTimingsPersistedData{Track: "spa"}); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := store.UpsertLiveTimingsDataFor("slot-a", &smmodel.LiveTimingsPersistedData{Track: "monza"}); err != nil {
+			t.Fatal(err)
+		}
+
+		slotView := ForServer(store, "slot-a")
+
+		if loaded, err := slotView.LoadLastRaceEvent(); err != nil || loaded == nil || loaded.GetRaceConfig().Track != "monza" {
+			t.Errorf("slot view: expected the last event of the slot, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadLastRaceEvent(); err != nil || loaded == nil || loaded.GetRaceConfig().Track != "spa" {
+			t.Errorf("default slot: expected its own last event, got (%v, %v)", loaded, err)
+		}
+
+		if lt, err := slotView.LoadLiveTimingsData(); err != nil || lt == nil || lt.Track != "monza" {
+			t.Errorf("slot view: expected the live timings of the slot, got (%v, %v)", lt, err)
+		}
+
+		if lt, err := store.LoadLiveTimingsData(); err != nil || lt == nil || lt.Track != "spa" {
+			t.Errorf("default slot: expected its own live timings, got (%v, %v)", lt, err)
+		}
+
+		// clearing in the slot view leaves the default slot alone
+		if err := slotView.ClearLastRaceEvent(); err != nil {
+			t.Fatal(err)
+		}
+
+		if loaded, err := slotView.LoadLastRaceEvent(); err != nil || loaded != nil {
+			t.Errorf("slot view: expected the event to be cleared, got (%v, %v)", loaded, err)
+		}
+
+		if loaded, err := store.LoadLastRaceEvent(); err != nil || loaded == nil {
+			t.Errorf("default slot: event must survive clearing the other slot, got (%v, %v)", loaded, err)
+		}
+
+		// server options through the view
+		opts, err := slotView.LoadServerOptions()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		opts.Name = "Slot A"
+
+		if err := slotView.UpsertServerOptions(opts); err != nil {
+			t.Fatal(err)
+		}
+
+		if loaded, err := store.LoadServerOptionsFor("slot-a"); err != nil || loaded.Name != "Slot A" {
+			t.Errorf("expected the view to write the options of the slot, got (%v, %v)", loaded, err)
+		}
+
+		if ForServer(store, "") != store {
+			t.Error("the view of the default slot must be the store itself")
+		}
+	})
+}

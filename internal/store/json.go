@@ -309,6 +309,22 @@ func serverOptionsFileFor(id smmodel.ServerID) (string, error) {
 	return "server_options_" + string(id) + ".json", nil
 }
 
+// slotFileFor returns the file of a per-slot value: the file of the default slot with the id before the extension.
+// The default slot keeps the original file.
+func slotFileFor(file string, id smmodel.ServerID) (string, error) {
+	if id == "" {
+		return file, nil
+	}
+
+	if strings.ContainsAny(string(id), `/\:`) || id == "." || id == ".." {
+		return "", fmt.Errorf("store: invalid server id %q", id)
+	}
+
+	ext := filepath.Ext(file)
+
+	return strings.TrimSuffix(file, ext) + "_" + string(id) + ext, nil
+}
+
 func (rs *JSONStore) UpsertServerOptions(so *serverconfig.GlobalServerConfig) error {
 	return rs.UpsertServerOptionsFor("", so)
 }
@@ -663,13 +679,33 @@ func (rs *JSONStore) LoadRealPenaltyOptions() (*smplugins.RealPenaltyConfig, err
 }
 
 func (rs *JSONStore) UpsertLiveTimingsData(lt *smmodel.LiveTimingsPersistedData) error {
-	return rs.encodeFile(rs.base, liveTimingsDataFile, lt)
+	return rs.UpsertLiveTimingsDataFor("", lt)
+}
+
+func (rs *JSONStore) UpsertLiveTimingsDataFor(id smmodel.ServerID, lt *smmodel.LiveTimingsPersistedData) error {
+	file, err := slotFileFor(liveTimingsDataFile, id)
+
+	if err != nil {
+		return err
+	}
+
+	return rs.encodeFile(rs.base, file, lt)
 }
 
 func (rs *JSONStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, error) {
+	return rs.LoadLiveTimingsDataFor("")
+}
+
+func (rs *JSONStore) LoadLiveTimingsDataFor(id smmodel.ServerID) (*smmodel.LiveTimingsPersistedData, error) {
+	file, err := slotFileFor(liveTimingsDataFile, id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	var lt *smmodel.LiveTimingsPersistedData
 
-	err := rs.decodeFile(rs.base, liveTimingsDataFile, &lt)
+	err = rs.decodeFile(rs.base, file, &lt)
 
 	if os.IsNotExist(err) {
 		// no live timings stored yet
@@ -682,17 +718,37 @@ func (rs *JSONStore) LoadLiveTimingsData() (*smmodel.LiveTimingsPersistedData, e
 }
 
 func (rs *JSONStore) UpsertLastRaceEvent(r smmodel.RaceEvent) error {
+	return rs.UpsertLastRaceEventFor("", r)
+}
+
+func (rs *JSONStore) UpsertLastRaceEventFor(id smmodel.ServerID, r smmodel.RaceEvent) error {
+	file, err := slotFileFor(lastRaceEventFile, id)
+
+	if err != nil {
+		return err
+	}
+
 	raceEvent, err := smmodel.MarshalRaceEvent(r)
 
 	if err != nil {
 		return err
 	}
 
-	return rs.writeFile(rs.base, lastRaceEventFile, raceEvent)
+	return rs.writeFile(rs.base, file, raceEvent)
 }
 
 func (rs *JSONStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
-	data, err := rs.readFile(rs.base, lastRaceEventFile)
+	return rs.LoadLastRaceEventFor("")
+}
+
+func (rs *JSONStore) LoadLastRaceEventFor(id smmodel.ServerID) (smmodel.RaceEvent, error) {
+	file, err := slotFileFor(lastRaceEventFile, id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	data, err := rs.readFile(rs.base, file)
 
 	if os.IsNotExist(err) {
 		// no last race event stored (or it has been cleared)
@@ -705,7 +761,17 @@ func (rs *JSONStore) LoadLastRaceEvent() (smmodel.RaceEvent, error) {
 }
 
 func (rs *JSONStore) ClearLastRaceEvent() error {
-	err := rs.deleteFile(rs.base, lastRaceEventFile)
+	return rs.ClearLastRaceEventFor("")
+}
+
+func (rs *JSONStore) ClearLastRaceEventFor(id smmodel.ServerID) error {
+	file, err := slotFileFor(lastRaceEventFile, id)
+
+	if err != nil {
+		return err
+	}
+
+	err = rs.deleteFile(rs.base, file)
 
 	if err != nil && os.IsNotExist(err) {
 		return nil

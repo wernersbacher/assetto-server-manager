@@ -18,6 +18,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/assetto-server-manager/internal/servers"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
@@ -37,22 +38,21 @@ type Resolver struct {
 	templateLoader  smweb.TemplateLoader
 	reloadTemplates bool
 
-	raceManager           *smrace.RaceManager
+	// registry holds the runtime stack of every server slot, slotConfigs are the configured slots in the same order.
+	// The stacks are built by resolveSlot. The single-slot accessors (resolveServerProcess, resolveRaceManager, ...)
+	// return the components of the default slot until the handlers are routed to the slot of the request.
+	registry     *servers.Registry
+	slotConfigs  []smconfig.Slot
+	slotResolved map[*servers.Slot]bool
+
 	carManager            *smcontent.CarManager
 	trackManager          *smcontent.TrackManager
-	championshipManager   *smchampionship.ChampionshipManager
 	accountManager        *smaccounts.AccountManager
 	discordManager        *notification.DiscordManager
 	notificationManager   *notification.Manager
 	scheduledRacesManager *schedule.Manager
-	raceWeekendManager    *smraceweekend.RaceWeekendManager
 
-	env                   *serverenv.Env
-	viewRenderer          *smweb.Renderer
-	serverProcess         smserver.ServerProcess
-	raceControl           *racecontrol.RaceControl
-	raceControlHub        *racecontrol.RaceControlHub
-	contentManagerWrapper *smserver.ContentManagerWrapper
+	viewRenderer *smweb.Renderer
 
 	// handlers
 	baseHandler                 *smweb.BaseHandler
@@ -87,7 +87,23 @@ func NewResolver(config *smconfig.Configuration, templateLoader smweb.TemplateLo
 		templateLoader:  templateLoader,
 		reloadTemplates: reloadTemplates,
 		store:           store,
+		slotResolved:    make(map[*servers.Slot]bool),
 	}
+
+	slotConfigs, err := config.Slots()
+
+	if err != nil {
+		return nil, err
+	}
+
+	registry, err := servers.NewRegistry(slotConfigs, state, func(fn func()) { panicCapture(fn) }, Debug)
+
+	if err != nil {
+		return nil, err
+	}
+
+	r.slotConfigs = slotConfigs
+	r.registry = registry
 
 	sessionStore, err := config.HTTP.CreateSessionStore()
 
@@ -102,19 +118,6 @@ func NewResolver(config *smconfig.Configuration, templateLoader smweb.TemplateLo
 	}
 
 	return r, nil
-}
-
-func (r *Resolver) UDPCallback(message udp.Message) {
-	if !r.config.Server.PerformanceMode {
-		r.ResolveRaceControl().UDPCallback(message)
-	}
-
-	if message.Event() != udp.EventCarUpdate {
-		r.resolveChampionshipManager().ChampionshipEventCallback(message)
-		r.resolveRaceWeekendManager().UDPCallback(message)
-		r.resolveRaceManager().LoopCallback(message)
-		r.resolveContentManagerWrapper().UDPCallback(message)
-	}
 }
 
 func (r *Resolver) initViewRenderer() error {
@@ -142,64 +145,125 @@ func (r *Resolver) initViewRenderer() error {
 	return nil
 }
 
-// resolveEnv returns the environment of the managers.
+// resolveEnv returns the environment of the managers which are shared by all slots: that of the default slot.
 func (r *Resolver) resolveEnv() *serverenv.Env {
-	if r.env != nil {
-		return r.env
-	}
-
-	r.env = r.state.Env(func(fn func()) { panicCapture(fn) }, Debug)
-
-	return r.env
+	return r.registry.Default().Env
 }
 
 func (r *Resolver) ResolveStore() smstore.Store {
 	return r.store
 }
 
-func (r *Resolver) resolveServerProcess() smserver.ServerProcess {
-	if r.serverProcess != nil {
-		return r.serverProcess
+// Servers returns the registry of the server slots, with the runtime stack of every slot built.
+func (r *Resolver) Servers() *servers.Registry {
+	for _, slot := range r.registry.All() {
+		r.resolveSlot(slot)
 	}
 
-	r.serverProcess = smserver.NewAssettoServerProcess(r.config, r.UDPCallback, r.ResolveStore(), r.resolveContentManagerWrapper(), r.resolveEnv(), pluginsOutput)
-
-	return r.serverProcess
+	return r.registry
 }
 
-func (r *Resolver) resolveContentManagerWrapper() *smserver.ContentManagerWrapper {
-	if r.contentManagerWrapper != nil {
-		return r.contentManagerWrapper
+// slotConfig returns the configuration of a slot of the registry.
+func (r *Resolver) slotConfig(slot *servers.Slot) smconfig.Slot {
+	for i, s := range r.registry.All() {
+		if s == slot {
+			return r.slotConfigs[i]
+		}
 	}
 
-	r.contentManagerWrapper = smserver.NewContentManagerWrapper(
+	panic("servermanager: slot is not part of the registry")
+}
+
+// resolveSlot builds the runtime stack of a slot, once: the server process, the content manager wrapper, race control
+// with its hub and the race, championship and race weekend managers. The stack works on the data of the slot (see
+// smstore.ForServer) and the Env of the slot, and UDP messages of its process only reach the managers of the slot.
+// Cars, tracks, notifications and penalties are shared by all slots.
+func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
+	if r.slotResolved[slot] {
+		return slot
+	}
+
+	r.slotResolved[slot] = true
+
+	slotConfig := r.slotConfig(slot)
+	store := smstore.ForServer(r.store, smmodel.ServerID(slotConfig.ID))
+
+	// the process reads the executable of the slot from the steam section
+	processConfig := *r.config
+	processConfig.Steam.ExecutablePath = slot.ExecutablePath
+
+	slot.ContentManagerWrapper = smserver.NewContentManagerWrapper(r.config, store, r.resolveCarManager(), r.resolveTrackManager(), slot.Env)
+	slot.Process = smserver.NewAssettoServerProcess(&processConfig, r.slotUDPCallback(slot), store, slot.ContentManagerWrapper, slot.Env, pluginsOutput)
+
+	slot.RaceControlHub = racecontrol.NewRaceControlHub()
+	go panicCapture(slot.RaceControlHub.Run)
+
+	slot.RaceControl = racecontrol.NewRaceControl(
 		r.config,
-		r.ResolveStore(),
-		r.resolveCarManager(),
-		r.resolveTrackManager(),
-		r.resolveEnv(),
+		slot.RaceControlHub,
+		racecontrol.NewFilesystemTrackData(slot.Env),
+		slot.Process,
+		store,
+		r.resolvePenaltiesManager(),
+		slot.Env,
 	)
 
-	return r.contentManagerWrapper
-}
-
-func (r *Resolver) resolveRaceManager() *smrace.RaceManager {
-	if r.raceManager != nil {
-		return r.raceManager
-	}
-
-	r.raceManager = smrace.NewRaceManager(
+	slot.RaceManager = smrace.NewRaceManager(
 		r.config,
-		r.store,
-		r.resolveServerProcess(),
+		store,
+		slot.Process,
 		r.resolveCarManager(),
 		r.resolveTrackManager(),
 		r.resolveNotificationManager(),
-		r.ResolveRaceControl(),
-		r.resolveEnv(),
+		slot.RaceControl,
+		slot.Env,
 	)
 
-	return r.raceManager
+	slot.ChampionshipManager = smchampionship.NewChampionshipManager(
+		slot.RaceManager,
+		r.config,
+		store,
+		slot.Process,
+		slot.Env,
+		r.resolveNotificationManager(),
+	)
+
+	slot.RaceWeekendManager = smraceweekend.NewRaceWeekendManager(
+		r.config,
+		slot.RaceManager,
+		slot.ChampionshipManager,
+		store,
+		slot.Process,
+		r.resolveNotificationManager(),
+		r.resolveCarManager(),
+		slot.Env,
+	)
+
+	return slot
+}
+
+// slotUDPCallback returns the callback of the process of a slot. It dispatches to the managers of that slot only.
+func (r *Resolver) slotUDPCallback(slot *servers.Slot) func(message udp.Message) {
+	return func(message udp.Message) {
+		slot.DispatchUDP(message, r.config.Server.PerformanceMode)
+	}
+}
+
+// resolveDefaultSlot returns the default slot with its stack built.
+func (r *Resolver) resolveDefaultSlot() *servers.Slot {
+	return r.resolveSlot(r.registry.Default())
+}
+
+func (r *Resolver) resolveServerProcess() smserver.ServerProcess {
+	return r.resolveDefaultSlot().Process
+}
+
+func (r *Resolver) resolveContentManagerWrapper() *smserver.ContentManagerWrapper {
+	return r.resolveDefaultSlot().ContentManagerWrapper
+}
+
+func (r *Resolver) resolveRaceManager() *smrace.RaceManager {
+	return r.resolveDefaultSlot().RaceManager
 }
 
 func (r *Resolver) resolveBaseHandler() *smweb.BaseHandler {
@@ -304,20 +368,7 @@ func (r *Resolver) resolveCarsHandler() *contenthttp.CarsHandler {
 }
 
 func (r *Resolver) resolveChampionshipManager() *smchampionship.ChampionshipManager {
-	if r.championshipManager != nil {
-		return r.championshipManager
-	}
-
-	r.championshipManager = smchampionship.NewChampionshipManager(
-		r.resolveRaceManager(),
-		r.config,
-		r.ResolveStore(),
-		r.resolveServerProcess(),
-		r.resolveEnv(),
-		r.resolveNotificationManager(),
-	)
-
-	return r.championshipManager
+	return r.resolveDefaultSlot().ChampionshipManager
 }
 
 func (r *Resolver) resolveChampionshipsHandler() *smchampionship.ChampionshipsHandler {
@@ -459,32 +510,11 @@ func (r *Resolver) resolveContentUploadHandler() *contenthttp.ContentUploadHandl
 }
 
 func (r *Resolver) resolveRaceControlHub() *racecontrol.RaceControlHub {
-	if r.raceControlHub != nil {
-		return r.raceControlHub
-	}
-
-	r.raceControlHub = racecontrol.NewRaceControlHub()
-	go panicCapture(r.raceControlHub.Run)
-
-	return r.raceControlHub
+	return r.resolveDefaultSlot().RaceControlHub
 }
 
 func (r *Resolver) ResolveRaceControl() *racecontrol.RaceControl {
-	if r.raceControl != nil {
-		return r.raceControl
-	}
-
-	r.raceControl = racecontrol.NewRaceControl(
-		r.config,
-		r.resolveRaceControlHub(),
-		racecontrol.NewFilesystemTrackData(r.resolveEnv()),
-		r.resolveServerProcess(),
-		r.ResolveStore(),
-		r.resolvePenaltiesManager(),
-		r.resolveEnv(),
-	)
-
-	return r.raceControl
+	return r.resolveDefaultSlot().RaceControl
 }
 
 func (r *Resolver) resolveRaceControlHandler() *racecontrol.RaceControlHandler {
@@ -510,22 +540,7 @@ func (r *Resolver) resolveRaceControlHandler() *racecontrol.RaceControlHandler {
 }
 
 func (r *Resolver) resolveRaceWeekendManager() *smraceweekend.RaceWeekendManager {
-	if r.raceWeekendManager != nil {
-		return r.raceWeekendManager
-	}
-
-	r.raceWeekendManager = smraceweekend.NewRaceWeekendManager(
-		r.config,
-		r.resolveRaceManager(),
-		r.resolveChampionshipManager(),
-		r.ResolveStore(),
-		r.resolveServerProcess(),
-		r.resolveNotificationManager(),
-		r.resolveCarManager(),
-		r.resolveEnv(),
-	)
-
-	return r.raceWeekendManager
+	return r.resolveDefaultSlot().RaceWeekendManager
 }
 
 func (r *Resolver) resolveRaceWeekendHandler() *smraceweekend.RaceWeekendHandler {

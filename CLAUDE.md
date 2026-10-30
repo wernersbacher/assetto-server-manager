@@ -62,9 +62,9 @@ Frontend: `cd cmd/server-manager/typescript && npm ci && npx gulp build` (`npx g
 The root package `servermanager` is only the wiring layer (about 1.6k lines including tests); all domain code lives in packages under
 `internal/` and `pkg/`:
 
-- **Root (wiring only)**: `resolver.go` (manual dependency wiring, UDP dispatch `Resolver.UDPCallback`), `router.go`
+- **Root (wiring only)**: `resolver.go` (manual dependency wiring; `resolveSlot` builds one runtime stack per server slot into `servers.Registry` (`Resolver.Servers()`), the single-slot accessors `resolveRaceManager()` etc. return the default slot's component), `router.go`
   (routes and permission groups), `template_funcs.go` (template functions that need domain code), `init.go`
-  (`InitWithResolver`: startup, signal handling, scheduled events), `servermanager_config.go` (`BuildStore`),
+  (`InitWithResolver`: startup, signal handling, scheduled events, last event restart, all per slot), `servermanager_config.go` (`BuildStore`),
   `monitoring.go` (Prometheus, panic capture), `lua.go`. `cmd/server-manager/main.go` only wires config, store,
   migrations, UDP and HTTP together. The root stays the wiring package because `main.go`, `cmd/utils/*` and the
   `-X github.com/wernersbacher/assetto-server-manager.BuildVersion` ldflags (Makefile, Dockerfile, `dev/run.ps1`)
@@ -87,7 +87,7 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   functions on purpose: migrations run (in `BuildStore`) before the install path is set from the config. `main` sets it
   before `NewResolver`, because the car and track managers are given the path when they are created. Remaining globals:
   `BuildVersion` (ldflags target), `Debug` (from `$DEBUG`), the log buffers / `panicCapture` and the Prometheus metrics
-  in `router.go` / `monitoring.go` (process-wide singletons), `smresults.UseShortenedDriverNames`.
+  in `router.go` / `monitoring.go` (process-wide singletons), `smresults.UseShortenedDriverNames` and the fallback sorting (both follow the default slot's server options). The `Env` of a slot comes from `State.EnvFor` (`servers.Registry`); `Resolver.resolveEnv()` is the default slot's Env, used by the shared managers.
 - **Where new code goes**: a new manager/handler goes into the domain package it belongs to (a handler-only package if
   it would otherwise form a cycle), gets exported handler methods, is created in a `resolveXxx()` method of
   `resolver.go` and is passed to `Router()`; do not read package globals, take a `*serverenv.Env`.
@@ -101,7 +101,7 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   version is the slice index).
 - **AC server integration**: `server.AssettoServerProcess` (OS-specific files) starts/stops `acServer` and plugins
   after writing `server_cfg.ini` / `entry_list.ini`. Live data comes back via the AC UDP plugin protocol (`pkg/udp`)
-  and is dispatched by `Resolver.UDPCallback` to race control, championship and race weekend managers.
+  and is dispatched by the per-slot callback (`Slot.DispatchUDP`, given to the process of its slot by `resolveSlot`) to race control, championship, race weekend, race and content manager wrapper of that slot only. Per-slot data (server options, live timings, last race event) is reached through `smstore.ForServer(store, slotID)`; cars, tracks, notifications, penalties, schedule and accounts are shared by all slots, Lua and the HTTP handlers still use the default slot until routing is slot aware.
 - **Forms**: many edit forms are generated from struct tags via `github.com/cj123/formulate`
   (`web.EncodeFormData` / `web.DecodeFormData`).
 - **Templates** live in `cmd/server-manager/views` (`layout/`, `pages/`, `partials/`), rendered by `web.Renderer`
