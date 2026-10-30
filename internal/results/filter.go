@@ -341,7 +341,50 @@ func GetResultDate(name string) (time.Time, error) {
 // readDirs lists the files of all results directories. A file name that exists in several directories is listed once,
 // from the first directory. The primary directory has to exist, extra directories may be missing.
 func (l *Loader) readDirs() ([]os.FileInfo, error) {
-	var files []os.FileInfo
+	entries, err := l.readDirEntries()
+
+	if err != nil {
+		return nil, err
+	}
+
+	files := make([]os.FileInfo, 0, len(entries))
+
+	for _, entry := range entries {
+		files = append(files, entry.Info)
+	}
+
+	return files, nil
+}
+
+// FileEntry is a results file together with the results directory it is found in.
+type FileEntry struct {
+	Info os.FileInfo
+	Dir  string
+}
+
+// Files lists the results files (*.json) of all directories with the directory that holds them. A file name that
+// exists in several directories is listed once, from the first directory, like in List.
+func (l *Loader) Files() ([]FileEntry, error) {
+	entries, err := l.readDirEntries()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var files []FileEntry
+
+	for _, entry := range entries {
+		if !entry.Info.IsDir() && filepath.Ext(entry.Info.Name()) == ".json" {
+			files = append(files, entry)
+		}
+	}
+
+	return files, nil
+}
+
+// readDirEntries is readDirs which also reports the directory of each file.
+func (l *Loader) readDirEntries() ([]FileEntry, error) {
+	var files []FileEntry
 
 	seen := make(map[string]bool)
 
@@ -359,7 +402,7 @@ func (l *Loader) readDirs() ([]os.FileInfo, error) {
 		for _, file := range dirFiles {
 			if !seen[file.Name()] {
 				seen[file.Name()] = true
-				files = append(files, file)
+				files = append(files, FileEntry{Info: file, Dir: dir})
 			} else if !file.IsDir() {
 				warnShadowed(file.Name(), dir)
 			}

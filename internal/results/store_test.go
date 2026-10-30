@@ -222,3 +222,32 @@ func TestListRecentSkipsFilesWithoutSessionData(t *testing.T) {
 		t.Errorf("expected only the real result, got %v", recent)
 	}
 }
+
+func TestLoaderFiles(t *testing.T) {
+	l, cleanup := twoDirLoader(t)
+	defer cleanup()
+
+	writeResult(t, l.Dir, "2020_1_1_10_0_RACE.json", "a")
+	writeResult(t, l.ExtraDirs[0], "2020_1_1_11_0_RACE.json", "b")
+	writeResult(t, l.ExtraDirs[0], "2020_1_1_10_0_RACE.json", "shadowed")
+
+	if err := ioutil.WriteFile(filepath.Join(l.Dir, "notes.txt"), []byte("x"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	files, err := l.Files()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got := make(map[string]string)
+
+	for _, f := range files {
+		got[f.Info.Name()] = f.Dir
+	}
+
+	if len(got) != 2 || got["2020_1_1_10_0_RACE.json"] != l.Dir || got["2020_1_1_11_0_RACE.json"] != l.ExtraDirs[0] {
+		t.Fatalf("unexpected files: %v", got)
+	}
+}
