@@ -178,7 +178,10 @@ func (cm *ChampionshipManager) AddEntrantFromSessionData(championship *smmodel.C
 		foundFreeEntrantSlot, entrant, entrantClass, err = championship.AddEntrantFromSession(potentialEntrant)
 	}
 
-	if err != nil {
+	if err == smmodel.ErrEntryListFull {
+		// not an error for the callers: like when no slot for the car is free, they tell the user there is no slot
+		return false, nil, nil
+	} else if err != nil {
 		return foundFreeEntrantSlot, entrantClass, err
 	}
 
