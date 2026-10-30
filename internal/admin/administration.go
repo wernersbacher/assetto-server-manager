@@ -30,6 +30,7 @@ type ServerAdministrationHandler struct {
 
 	config         *smconfig.Configuration
 	slotFor        SlotFor
+	slotsFunc      SlotsFunc
 	scheduledRaces *schedule.Manager
 
 	managerLog, pluginsLog *smserver.LogBuffer
@@ -47,6 +48,7 @@ func NewServerAdministrationHandler(
 	config *smconfig.Configuration,
 	baseHandler *smweb.BaseHandler,
 	slotFor SlotFor,
+	slotsFunc SlotsFunc,
 	scheduledRaces *schedule.Manager,
 	logs Logs,
 	changelogHTML func() template.HTML,
@@ -56,6 +58,7 @@ func NewServerAdministrationHandler(
 		config:             config,
 		BaseHandler:        baseHandler,
 		slotFor:            slotFor,
+		slotsFunc:          slotsFunc,
 		scheduledRaces:     scheduledRaces,
 		managerLog:         logs.Manager,
 		pluginsLog:         logs.Plugins,
@@ -76,6 +79,9 @@ type homeTemplateVars struct {
 	PerformanceMode bool
 	UpcomingRaces   []*api.UpcomingRace
 	RecentResults   []*smresults.SessionResults
+
+	// ServerOverview summarises all servers, it is only set with more than one server.
+	ServerOverview []*ServerSummary
 }
 
 // homeHandler serves content to /
@@ -107,7 +113,14 @@ func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("couldn't load recent results for the overview")
 	}
 
+	var overview []*ServerSummary
+
+	if len(sah.slots()) > 1 {
+		overview = sah.serverSummaries()
+	}
+
 	sah.ViewRenderer.MustLoadTemplate(w, r, "home.html", &homeTemplateVars{
+		ServerOverview:  overview,
 		RaceDetails:     customRace,
 		PerformanceMode: sah.config.Server.PerformanceMode,
 		UpcomingRaces:   upcoming,

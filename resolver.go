@@ -487,6 +487,7 @@ func (r *Resolver) resolveServerAdministrationHandler() *admin.ServerAdministrat
 		r.config,
 		r.resolveBaseHandler(),
 		r.adminSlotFor,
+		r.adminSlots,
 		r.resolveScheduledRacesManager(),
 		admin.Logs{Manager: logOutput, Plugins: pluginsOutput},
 		changelogHTML,

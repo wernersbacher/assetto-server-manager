@@ -181,6 +181,7 @@ func Router(
 			r.Get("/live-timing", raceControlHandler.LiveTiming)
 			r.Get("/api/race-control", raceControlHandler.Websocket)
 			r.Get("/api/server-status", raceControlHandler.ServerStatusAPI)
+			r.Get("/api/servers", serverAdministrationHandler.ServersAPI)
 		})
 
 		// calendar

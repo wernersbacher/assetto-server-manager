@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/wernersbacher/assetto-server-manager/internal/admin"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
@@ -200,5 +201,39 @@ func TestResolverSingleSlotIsTheDefaultStack(t *testing.T) {
 
 	if guids := connectedGUIDs(slot); len(guids) != 1 {
 		t.Errorf("race control must not get messages in performance mode, got %v", guids)
+	}
+}
+
+func TestResolverServerRefsAndAdminSlots(t *testing.T) {
+	dir, err := ioutil.TempDir("", "resolver-slots-install")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	resolver, _, cleanup := newTestResolver(t, &smconfig.Configuration{Servers: []smconfig.ServerSlotConfig{
+		{ID: "a", Name: "Server A", InstallPath: filepath.Join(dir, "a")},
+		{ID: "b", Name: "Server B", InstallPath: filepath.Join(dir, "b")},
+	}})
+	defer cleanup()
+
+	refs := resolver.serverRefs()
+	slots := resolver.adminSlots()
+
+	if len(refs) != 2 || len(slots) != 2 {
+		t.Fatalf("expected 2 servers, got %d refs and %d slots", len(refs), len(slots))
+	}
+
+	for i, id := range []smmodel.ServerID{"a", "b"} {
+		if refs[i].ID != id || slots[i].ID != id || slots[i].Slot.Env.ServerID() != id {
+			t.Errorf("unexpected server at %d: %+v %+v", i, refs[i], slots[i].ServerRef)
+		}
+
+		// no event runs, and the summary of an idle server needs no race control data
+		if refs[i].Running || admin.NewServerSummary(slots[i]).Running {
+			t.Errorf("server %q must be idle", id)
+		}
 	}
 }

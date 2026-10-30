@@ -16,6 +16,60 @@
         </div>
     {{ end }}
 
+    {{ with .ServerOverview }}
+        <section class="mb-4" aria-labelledby="servers-heading">
+            <h2 id="servers-heading" class="section-title">Servers</h2>
+
+            <div class="dashboard-grid">
+                {{ range . }}
+                    <article class="card dashboard-card server-card" aria-labelledby="server-{{ .ID }}-heading">
+                        <div class="dashboard-card-header">
+                            <h3 id="server-{{ .ID }}-heading"><a href="/?server={{ .ID }}" class="text-body">{{ .Name }}</a></h3>
+
+                            {{ if .Running }}
+                                <span class="badge badge-success">{{ .EventType }}</span>
+                            {{ else }}
+                                <span class="badge badge-secondary">Idle</span>
+                            {{ end }}
+                        </div>
+
+                        <dl class="stat-row">
+                            <div>
+                                <dt>Event</dt>
+                                <dd>{{ if .Running }}{{ .EventName }}{{ else }}No event is running{{ end }}</dd>
+                            </div>
+                            <div>
+                                <dt>Drivers online</dt>
+                                <dd>{{ .DriversOnline }}</dd>
+                            </div>
+                        </dl>
+
+                        <div class="server-card-actions">
+                            {{ if and ReadAccess (not $.PerformanceMode) }}
+                                <a href="/live-timing?server={{ .ID }}" class="btn btn-primary btn-sm">Live timing</a>
+                            {{ end }}
+
+                            {{ if WriteAccess }}
+                                {{ if .Running }}
+                                    {{ $confirm := "" }}
+                                    {{ if not .IsPractice }}
+                                        {{ if .IsChampionship }}{{ $confirm = "return confirm('I understand that this will cancel the current championship event and all progress will be permanently lost');" }}{{ end }}
+                                        {{ if .IsRaceWeekend }}{{ $confirm = "return confirm('I understand that this will cancel the current race weekend session and all progress will be permanently lost');" }}{{ end }}
+                                    {{ end }}
+                                    <a href="/process/stop?server={{ .ID }}" class="btn btn-outline-danger btn-sm" onClick="{{ $confirm }}">{{ template "icon" "stop" }} Stop</a>
+                                    <a href="/process/restart?server={{ .ID }}" class="btn btn-outline-secondary btn-sm" onClick="{{ $confirm }}">{{ template "icon" "restart" }} Restart</a>
+                                {{ else }}
+                                    <a href="/quick?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">Quick race</a>
+                                    <a href="/custom/new?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">New custom race</a>
+                                {{ end }}
+                            {{ end }}
+                        </div>
+                    </article>
+                {{ end }}
+            </div>
+        </section>
+    {{ end }}
+
     <div class="dashboard-grid mb-4">
         <section class="card dashboard-card" aria-labelledby="current-session-heading">
             <div class="dashboard-card-header">

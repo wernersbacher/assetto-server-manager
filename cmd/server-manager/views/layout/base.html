@@ -74,6 +74,25 @@
             </span>
         </a>
 
+        {{ if gt (len $.Servers) 1 }}
+            <div class="dropdown server-selector">
+                <button type="button" class="btn-outline dropdown-toggle" id="server-selector" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Switch server, current server: {{ $.CurrentServer.Name }}" title="Switch server">
+                    <span class="server-dot {{ if $.ServerStatus }}is-running{{ end }}" aria-hidden="true"></span>
+                    <span class="server-selector-name">{{ $.CurrentServer.Name }}</span>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="server-selector">
+                    <h6 class="dropdown-header">Servers</h6>
+                    {{ range $server := $.Servers }}
+                        <a class="dropdown-item server-selector-item {{ if eq $server.ID $.CurrentServer.ID }}active{{ end }}" href="{{ $path }}?server={{ $server.ID }}" {{ if eq $server.ID $.CurrentServer.ID }}aria-current="true"{{ end }}>
+                            <span class="server-dot {{ if $server.Running }}is-running{{ end }}" aria-hidden="true"></span>
+                            <span class="server-selector-name">{{ $server.Name }}</span>
+                            <span class="server-selector-state">{{ if $server.Running }}Running{{ else }}Idle{{ end }}</span>
+                        </a>
+                    {{ end }}
+                </div>
+            </div>
+        {{ end }}
+
         <div class="app-topbar-actions">
             {{ if $.ServerStatus }}
                 <a class="server-status is-running" {{ if ReadAccess }}href="{{ serverURL "/live-timing" }}"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}">

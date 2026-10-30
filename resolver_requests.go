@@ -54,6 +54,10 @@ func (r *Resolver) adminSlotFor(req *http.Request) (*admin.Slot, error) {
 		return nil, err
 	}
 
+	return adminSlot(slot), nil
+}
+
+func adminSlot(slot *servers.Slot) *admin.Slot {
 	return &admin.Slot{
 		Store:               slot.Store,
 		Env:                 slot.Env,
@@ -62,7 +66,7 @@ func (r *Resolver) adminSlotFor(req *http.Request) (*admin.Slot, error) {
 		RaceManager:         slot.RaceManager,
 		ChampionshipManager: slot.ChampionshipManager,
 		RaceWeekendManager:  slot.RaceWeekendManager,
-	}, nil
+	}
 }
 
 func (r *Resolver) raceControlSlotFor(req *http.Request) (*racecontrol.Slot, error) {
@@ -97,12 +101,26 @@ func (r *Resolver) serverContextFor(req *http.Request) (*smweb.ServerContext, er
 	}, nil
 }
 
+// adminSlots lists all server slots with what the administration handlers work with.
+func (r *Resolver) adminSlots() []admin.NamedSlot {
+	slots := make([]admin.NamedSlot, 0, r.registry.Len())
+
+	for _, slot := range r.registry.All() {
+		slots = append(slots, admin.NamedSlot{
+			ServerRef: smweb.ServerRef{ID: slot.ID(), Name: slot.Name},
+			Slot:      adminSlot(r.resolveSlot(slot)),
+		})
+	}
+
+	return slots
+}
+
 // serverRefs lists all server slots for the templates.
 func (r *Resolver) serverRefs() []smweb.ServerRef {
 	refs := make([]smweb.ServerRef, 0, r.registry.Len())
 
 	for _, slot := range r.registry.All() {
-		refs = append(refs, smweb.ServerRef{ID: slot.ID(), Name: slot.Name})
+		refs = append(refs, smweb.ServerRef{ID: slot.ID(), Name: slot.Name, Running: r.resolveSlot(slot).Process.IsRunning()})
 	}
 
 	return refs

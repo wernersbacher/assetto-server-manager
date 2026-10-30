@@ -154,4 +154,7 @@ func ServerURL(r *http.Request, path string) string {
 type ServerRef struct {
 	ID   smmodel.ServerID
 	Name string
+
+	// Running tells if the server runs an event. It is only set for the lists the renderer gives to templates.
+	Running bool
 }

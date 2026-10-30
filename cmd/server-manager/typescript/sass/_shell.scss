@@ -111,6 +111,56 @@ $sidebar-width: 240px;
   }
 }
 
+// Server selector (only with several servers)
+
+.server-selector {
+  min-width: 0;
+
+  > .btn-outline {
+    max-width: 220px;
+  }
+
+  .dropdown-menu {
+    min-width: 240px;
+    max-width: calc(100vw - 32px);
+  }
+}
+
+.server-selector-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.server-selector-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .server-selector-name {
+    flex: 1;
+  }
+}
+
+.server-selector-state {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.server-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  box-sizing: border-box;
+  border: 2px solid var(--muted-foreground);
+
+  &.is-running {
+    border-color: var(--success-solid);
+    background-color: var(--success-solid);
+  }
+}
+
 // Generic small buttons used in the top bar and page headers
 
 .btn-icon {
@@ -349,6 +399,11 @@ $sidebar-width: 240px;
 }
 
 @media (max-width: 575.98px) {
+  .server-selector > .btn-outline {
+    max-width: 120px;
+    padding: 0 10px;
+  }
+
   .server-status {
     max-width: 44px;
     padding: 6px 14px;
