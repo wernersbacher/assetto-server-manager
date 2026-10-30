@@ -5,9 +5,11 @@ import (
 	"net/http"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/admin"
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
 	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
+	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	"github.com/wernersbacher/assetto-server-manager/internal/servers"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
@@ -104,4 +106,24 @@ func (r *Resolver) serverRefs() []smweb.ServerRef {
 	}
 
 	return refs
+}
+
+func (r *Resolver) championshipManagerFor(req *http.Request) (*smchampionship.ChampionshipManager, error) {
+	slot, err := r.slotForRequest(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return slot.ChampionshipManager, nil
+}
+
+func (r *Resolver) raceWeekendManagerFor(req *http.Request) (*smraceweekend.RaceWeekendManager, error) {
+	slot, err := r.slotForRequest(req)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return slot.RaceWeekendManager, nil
 }

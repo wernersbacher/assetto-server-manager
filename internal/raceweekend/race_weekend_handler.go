@@ -2,6 +2,7 @@ package raceweekend
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
@@ -20,13 +22,15 @@ import (
 type RaceWeekendHandler struct {
 	*smweb.BaseHandler
 
-	raceWeekendManager *RaceWeekendManager
+	managerFor ManagerFor
+	active     smchampionship.ActiveEvents
 }
 
-func NewRaceWeekendHandler(baseHandler *smweb.BaseHandler, raceWeekendManager *RaceWeekendManager) *RaceWeekendHandler {
+func NewRaceWeekendHandler(baseHandler *smweb.BaseHandler, managerFor ManagerFor, active smchampionship.ActiveEvents) *RaceWeekendHandler {
 	return &RaceWeekendHandler{
-		BaseHandler:        baseHandler,
-		raceWeekendManager: raceWeekendManager,
+		BaseHandler: baseHandler,
+		managerFor:  managerFor,
+		active:      active,
 	}
 }
 
@@ -37,7 +41,13 @@ type raceWeekendListTemplateVars struct {
 }
 
 func (rwh *RaceWeekendHandler) List(w http.ResponseWriter, r *http.Request) {
-	raceWeekends, err := rwh.raceWeekendManager.ListRaceWeekends()
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekends, err := rwm.ListRaceWeekends()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list weekends")
@@ -55,10 +65,19 @@ type raceWeekendViewTemplateVars struct {
 
 	RaceWeekend *smmodel.RaceWeekend
 	Account     *smmodel.Account
+
+	// ActiveServer is the other server which runs the race weekend, if there is one.
+	ActiveServer *smweb.ServerRef
 }
 
 func (rwh *RaceWeekendHandler) View(w http.ResponseWriter, r *http.Request) {
-	raceWeekend, err := rwh.raceWeekendManager.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekend, err := rwm.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load race weekend")
@@ -66,17 +85,32 @@ func (rwh *RaceWeekendHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var activeServer *smweb.ServerRef
+
+	var elsewhere smchampionship.ActiveElsewhereError
+
+	if errors.As(rwm.CheckNotActiveElsewhere(raceWeekend.ID.String(), rwh.active), &elsewhere) {
+		activeServer = &elsewhere.Server
+	}
+
 	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/view.html", &raceWeekendViewTemplateVars{
 		BaseTemplateVars: smweb.BaseTemplateVars{
 			WideContainer: true,
 		},
-		RaceWeekend: raceWeekend,
-		Account:     smweb.AccountFromRequest(r),
+		RaceWeekend:  raceWeekend,
+		Account:      smweb.AccountFromRequest(r),
+		ActiveServer: activeServer,
 	})
 }
 
 func (rwh *RaceWeekendHandler) CreateOrEdit(w http.ResponseWriter, r *http.Request) {
-	raceWeekendOpts, err := rwh.raceWeekendManager.BuildRaceWeekendTemplateOpts(r)
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekendOpts, err := rwm.BuildRaceWeekendTemplateOpts(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load race weekend")
@@ -88,7 +122,13 @@ func (rwh *RaceWeekendHandler) CreateOrEdit(w http.ResponseWriter, r *http.Reque
 }
 
 func (rwh *RaceWeekendHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.DeleteRaceWeekend(chi.URLParam(r, "raceWeekendID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.DeleteRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't delete race weekend")
@@ -101,7 +141,13 @@ func (rwh *RaceWeekendHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rwh *RaceWeekendHandler) Submit(w http.ResponseWriter, r *http.Request) {
-	raceWeekend, edited, err := rwh.raceWeekendManager.SaveRaceWeekend(r)
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekend, edited, err := rwm.SaveRaceWeekend(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't create race weekend")
@@ -119,7 +165,13 @@ func (rwh *RaceWeekendHandler) Submit(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rwh *RaceWeekendHandler) SessionConfiguration(w http.ResponseWriter, r *http.Request) {
-	raceWeekendSessionOpts, err := rwh.raceWeekendManager.BuildRaceWeekendSessionOpts(r)
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekendSessionOpts, err := rwm.BuildRaceWeekendSessionOpts(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build race weekend session")
@@ -131,7 +183,13 @@ func (rwh *RaceWeekendHandler) SessionConfiguration(w http.ResponseWriter, r *ht
 }
 
 func (rwh *RaceWeekendHandler) SubmitSessionConfiguration(w http.ResponseWriter, r *http.Request) {
-	raceWeekend, session, edited, err := rwh.raceWeekendManager.SaveRaceWeekendSession(r)
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekend, session, edited, err := rwm.SaveRaceWeekendSession(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build race weekend session")
@@ -166,12 +224,22 @@ func (rwh *RaceWeekendHandler) SubmitSessionConfiguration(w http.ResponseWriter,
 }
 
 func (rwh *RaceWeekendHandler) StartSession(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.StartSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"), false)
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.CheckCanStartSession(chi.URLParam(r, "raceWeekendID"), rwh.active)
+
+	if err == nil {
+		err = rwm.StartSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"), false)
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start Race Weekend session")
 
-		smweb.AddErrorFlash(w, r, "Couldn't start the Session")
+		flashSessionError(w, r, err, "Couldn't start the Session")
 	} else {
 		smweb.AddFlash(w, r, "Session started successfully!")
 		time.Sleep(time.Second * 1)
@@ -181,12 +249,22 @@ func (rwh *RaceWeekendHandler) StartSession(w http.ResponseWriter, r *http.Reque
 }
 
 func (rwh *RaceWeekendHandler) StartPracticeSession(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.StartPracticeSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.CheckCanStartSession(chi.URLParam(r, "raceWeekendID"), rwh.active)
+
+	if err == nil {
+		err = rwm.StartPracticeSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start Race Weekend practice session")
 
-		smweb.AddErrorFlash(w, r, "Couldn't start the Session")
+		flashSessionError(w, r, err, "Couldn't start the Session")
 	} else {
 		smweb.AddFlash(w, r, "Session started successfully!")
 		time.Sleep(time.Second * 1)
@@ -196,12 +274,22 @@ func (rwh *RaceWeekendHandler) StartPracticeSession(w http.ResponseWriter, r *ht
 }
 
 func (rwh *RaceWeekendHandler) RestartSession(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.RestartSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.CheckNotActiveElsewhere(chi.URLParam(r, "raceWeekendID"), rwh.active)
+
+	if err == nil {
+		err = rwm.RestartSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not restart Race Weekend session")
 
-		smweb.AddErrorFlash(w, r, "Couldn't restart the Session")
+		flashSessionError(w, r, err, "Couldn't restart the Session")
 	} else {
 		smweb.AddFlash(w, r, "Session restarted successfully!")
 		time.Sleep(time.Second * 1)
@@ -211,12 +299,22 @@ func (rwh *RaceWeekendHandler) RestartSession(w http.ResponseWriter, r *http.Req
 }
 
 func (rwh *RaceWeekendHandler) CancelSession(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.CancelSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.CheckNotActiveElsewhere(chi.URLParam(r, "raceWeekendID"), rwh.active)
+
+	if err == nil {
+		err = rwm.CancelSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not cancel Race Weekend session")
 
-		smweb.AddErrorFlash(w, r, "Couldn't cancel the Session")
+		flashSessionError(w, r, err, "Couldn't cancel the Session")
 	} else {
 		smweb.AddFlash(w, r, "Session canceled successfully!")
 		time.Sleep(time.Second * 1)
@@ -226,7 +324,13 @@ func (rwh *RaceWeekendHandler) CancelSession(w http.ResponseWriter, r *http.Requ
 }
 
 func (rwh *RaceWeekendHandler) DeleteSession(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.DeleteSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.DeleteSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete Race Weekend session")
@@ -248,11 +352,17 @@ type raceWeekendSessionImportTemplateVars struct {
 }
 
 func (rwh *RaceWeekendHandler) ImportSessionResults(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := chi.URLParam(r, "sessionID")
 
 	if r.Method == http.MethodPost {
-		err := rwh.raceWeekendManager.ImportSession(raceWeekendID, sessionID, r)
+		err := rwm.ImportSession(raceWeekendID, sessionID, r)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not import race weekend session")
@@ -264,7 +374,7 @@ func (rwh *RaceWeekendHandler) ImportSessionResults(w http.ResponseWriter, r *ht
 		}
 	}
 
-	session, results, err := rwh.raceWeekendManager.ListAvailableResultsFilesForSession(raceWeekendID, sessionID)
+	session, results, err := rwm.ListAvailableResultsFilesForSession(raceWeekendID, sessionID)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load session files")
@@ -292,11 +402,17 @@ type raceWeekendFilterTemplateVars struct {
 }
 
 func (rwh *RaceWeekendHandler) ManageFilters(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
 
-	raceWeekend, parentSession, childSession, err := rwh.raceWeekendManager.FindConnectedSessions(raceWeekendID, parentSessionID, childSessionID)
+	raceWeekend, parentSession, childSession, err := rwm.FindConnectedSessions(raceWeekendID, parentSessionID, childSessionID)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load connected sessions")
@@ -312,13 +428,13 @@ func (rwh *RaceWeekendHandler) ManageFilters(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	sessionResults, err := rwh.raceWeekendManager.ListAvailableResultsFilesForSorting(raceWeekend, childSession)
+	sessionResults, err := rwm.ListAvailableResultsFilesForSorting(raceWeekend, childSession)
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't list results files for sorting")
 	}
 
-	parentSessionResults, err := raceWeekendFinishingGrid(rwh.raceWeekendManager.env, parentSession, raceWeekend)
+	parentSessionResults, err := raceWeekendFinishingGrid(rwm.env, parentSession, raceWeekend)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load previous session results")
@@ -344,13 +460,19 @@ func (rwh *RaceWeekendHandler) ManageFilters(w http.ResponseWriter, r *http.Requ
 		ChildSession:               childSession,
 		ResultsAvailableForSorting: sessionResults,
 		Filter:                     filter,
-		AvailableSorters:           RaceWeekendEntryListSorters(rwh.raceWeekendManager.env),
+		AvailableSorters:           RaceWeekendEntryListSorters(rwm.env),
 		ParentSessionResults:       parentSessionResults,
 		ChampionshipClasses:        championshipClasses,
 	})
 }
 
 func (rwh *RaceWeekendHandler) GridPreview(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
@@ -364,7 +486,7 @@ func (rwh *RaceWeekendHandler) GridPreview(w http.ResponseWriter, r *http.Reques
 
 	filter.IsPreview = true
 
-	previewResponse, err := rwh.raceWeekendManager.PreviewGrid(raceWeekendID, parentSessionID, childSessionID, filter)
+	previewResponse, err := rwm.PreviewGrid(raceWeekendID, parentSessionID, childSessionID, filter)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't preview session grid")
@@ -378,6 +500,12 @@ func (rwh *RaceWeekendHandler) GridPreview(w http.ResponseWriter, r *http.Reques
 }
 
 func (rwh *RaceWeekendHandler) UpdateGrid(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
@@ -389,7 +517,7 @@ func (rwh *RaceWeekendHandler) UpdateGrid(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	if err := rwh.raceWeekendManager.UpdateGrid(raceWeekendID, parentSessionID, childSessionID, filter); err != nil {
+	if err := rwm.UpdateGrid(raceWeekendID, parentSessionID, childSessionID, filter); err != nil {
 		logrus.WithError(err).Errorf("Couldn't update session grid")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -407,10 +535,16 @@ type raceWeekendManageEntryListTemplateVars struct {
 }
 
 func (rwh *RaceWeekendHandler) ManageEntryList(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := r.URL.Query().Get("sessionID")
 
-	raceWeekend, session, err := rwh.raceWeekendManager.FindSession(raceWeekendID, sessionID)
+	raceWeekend, session, err := rwm.FindSession(raceWeekendID, sessionID)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load manage entry list popup")
@@ -421,17 +555,23 @@ func (rwh *RaceWeekendHandler) ManageEntryList(w http.ResponseWriter, r *http.Re
 	rwh.ViewRenderer.MustLoadPartial(w, r, "race-weekend/popups/manage-entrylist.html", &raceWeekendManageEntryListTemplateVars{
 		RaceWeekend:      raceWeekend,
 		Session:          session,
-		AvailableSorters: RaceWeekendEntryListSorters(rwh.raceWeekendManager.env),
+		AvailableSorters: RaceWeekendEntryListSorters(rwm.env),
 	})
 }
 
 func (rwh *RaceWeekendHandler) EntryListPreview(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := r.URL.Query().Get("sessionID")
 	sortType := r.URL.Query().Get("sortType")
 	reverseNumber := smweb.FormValueAsInt(r.URL.Query().Get("reverseGrid"))
 
-	previewResponse, err := rwh.raceWeekendManager.PreviewSessionEntryList(raceWeekendID, sessionID, sortType, reverseNumber)
+	previewResponse, err := rwm.PreviewSessionEntryList(raceWeekendID, sessionID, sortType, reverseNumber)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't preview session grid")
@@ -445,12 +585,18 @@ func (rwh *RaceWeekendHandler) EntryListPreview(w http.ResponseWriter, r *http.R
 }
 
 func (rwh *RaceWeekendHandler) UpdateEntryList(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("sessionID")
 	sortType := r.URL.Query().Get("sortType")
 	reverseNumber := smweb.FormValueAsInt(r.URL.Query().Get("reverseGrid"))
 
-	if err := rwh.raceWeekendManager.UpdateSessionSorting(raceWeekendID, parentSessionID, sortType, reverseNumber); err != nil {
+	if err := rwm.UpdateSessionSorting(raceWeekendID, parentSessionID, sortType, reverseNumber); err != nil {
 		logrus.WithError(err).Errorf("Couldn't update session entrylist sorting")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -460,7 +606,13 @@ func (rwh *RaceWeekendHandler) UpdateEntryList(w http.ResponseWriter, r *http.Re
 }
 
 func (rwh *RaceWeekendHandler) Export(w http.ResponseWriter, r *http.Request) {
-	raceWeekend, err := rwh.raceWeekendManager.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekend, err := rwm.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't export race weeeknd")
@@ -468,7 +620,7 @@ func (rwh *RaceWeekendHandler) Export(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !smweb.AccountFromRequest(r).HasGroupPrivilege(rwh.raceWeekendManager.env.ServerID(), smmodel.GroupWrite) {
+	if !smweb.AccountFromRequest(r).HasGroupPrivilege(rwm.env.ServerID(), smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		for _, session := range raceWeekend.Sessions {
 			session.ReplacementPassword = ""
@@ -483,8 +635,14 @@ func (rwh *RaceWeekendHandler) Export(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rwh *RaceWeekendHandler) ImportRaceWeekend(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	if r.Method == http.MethodPost {
-		raceWeekendID, err := rwh.raceWeekendManager.ImportRaceWeekend(r.FormValue("import"))
+		raceWeekendID, err := rwm.ImportRaceWeekend(r.FormValue("import"))
 
 		if err != nil {
 			logrus.WithError(err).Error("could not import race weekend")
@@ -499,6 +657,12 @@ func (rwh *RaceWeekendHandler) ImportRaceWeekend(w http.ResponseWriter, r *http.
 }
 
 func (rwh *RaceWeekendHandler) ScheduleSession(w http.ResponseWriter, r *http.Request) {
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -540,7 +704,7 @@ func (rwh *RaceWeekendHandler) ScheduleSession(w http.ResponseWriter, r *http.Re
 		message = "We have scheduled the Race Weekend Session to begin after the parent session(s) complete."
 	}
 
-	err := rwh.raceWeekendManager.ScheduleSession(championshipID, championshipEventID, date, startWhenParentFinished)
+	err := rwm.ScheduleSession(championshipID, championshipEventID, date, startWhenParentFinished)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't schedule race weekend session")
@@ -553,7 +717,13 @@ func (rwh *RaceWeekendHandler) ScheduleSession(w http.ResponseWriter, r *http.Re
 }
 
 func (rwh *RaceWeekendHandler) RemoveSessionSchedule(w http.ResponseWriter, r *http.Request) {
-	err := rwh.raceWeekendManager.DeScheduleSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
+	rwm, ok := rwh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := rwm.DeScheduleSession(chi.URLParam(r, "raceWeekendID"), chi.URLParam(r, "sessionID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't de-schedule race weekend session")

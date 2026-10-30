@@ -54,7 +54,13 @@ func (rwm *RaceWeekendManager) setupScheduledSessionTimer(raceWeekend *smmodel.R
 
 	var err error
 
+	scheduledTime := session.ScheduledTime
+
 	rwm.scheduledSessionTimers[session.ID.String()], err = when.When(session.ScheduledTime, func() {
+		if !rwm.scheduleStillValid(raceWeekend.ID.String(), session.ID.String(), scheduledTime) {
+			return
+		}
+
 		err := rwm.StartSession(raceWeekend.ID.String(), session.ID.String(), false)
 
 		if err != nil {
@@ -167,4 +173,23 @@ func (rwm *RaceWeekendManager) DeScheduleSession(raceWeekendID, sessionID string
 	rwm.clearScheduledSessionTimer(session)
 
 	return rwm.UpsertRaceWeekend(raceWeekend)
+}
+
+// scheduleStillValid tells if a session is still scheduled on this server for the time a timer was set for. The timers
+// of other servers or older schedules are not stopped when a session is rescheduled or its schedule is removed on
+// another server, so a timer checks the stored session when it fires.
+func (rwm *RaceWeekendManager) scheduleStillValid(raceWeekendID, sessionID string, scheduledTime time.Time) bool {
+	_, session, err := rwm.FindSession(raceWeekendID, sessionID)
+
+	if err != nil {
+		logrus.WithError(err).Warnf("Scheduled race weekend session %s not started: it could not be loaded", sessionID)
+		return false
+	}
+
+	if session.ScheduledServerID != rwm.env.ServerID() || session.ScheduledTime.IsZero() || !session.ScheduledTime.Equal(scheduledTime) {
+		logrus.Warnf("Scheduled race weekend session %s not started: its schedule was changed or removed", sessionID)
+		return false
+	}
+
+	return true
 }

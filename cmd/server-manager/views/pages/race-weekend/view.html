@@ -9,6 +9,10 @@
     <div class="container">
 
         <h1 class="text-center">{{ $.RaceWeekend.Name }}</h1>
+
+        {{ with $.ActiveServer }}
+            <p class="text-center text-warning">This Race Weekend is running on server <a href="/race-weekend/{{ $.RaceWeekend.ID.String }}?server={{ .ID }}">{{ .Name }}</a>. Select that server to manage the running session.</p>
+        {{ end }}
         <p class="text-center">
             <em>
                 {{ if $.RaceWeekend.HasLinkedChampionship }}
@@ -194,9 +198,11 @@
                             {{ if not (or $session.InProgress $session.Completed) }}
                                     {{ if $.RaceWeekend.SessionCanBeRun $session }}
                                         <div class="btn-group btn-group-sm">
+                                            {{ $startPath := printf "/race-weekend/%s/session/%s/start" $.RaceWeekend.ID.String $session.ID.String }}
+
                                             <a class="btn btn-success btn-sm"
                                                onClick="return confirm('I have checked all Entry List configurations and the starting grid is correct');"
-                                               href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/start"
+                                               href="{{ serverURL $startPath }}"
                                             >
                                                 Start Session
                                             </a>
@@ -205,6 +211,16 @@
                                                 <span class="sr-only">Toggle Dropdown</span>
                                             </button>
                                             <div class="dropdown-menu">
+                                                {{ if gt (len $.Servers) 1 }}
+                                                    {{ range $server := $.Servers }}
+                                                        <a class="dropdown-item"
+                                                           onClick="return confirm('I have checked all Entry List configurations and the starting grid is correct');"
+                                                           href="{{ $startPath }}?server={{ $server.ID }}">Start Session on {{ $server.Name }}</a>
+                                                    {{ end }}
+
+                                                    <div class="dropdown-divider"></div>
+                                                {{ end }}
+
                                                 <a class="dropdown-item"
                                                    href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/practice"
                                                    data-toggle="tooltip"

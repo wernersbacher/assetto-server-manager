@@ -1,0 +1,14 @@
+{{/* Lets the user pick the server an event is started on. Only shown if there are several servers.
+     Takes: Path (the start URL, without server parameter), Servers ([]ServerRef), Class (button classes). */}}
+{{ define "start-target" }}
+    {{ if gt (len $.Servers) 1 }}
+        <button type="button" class="btn {{ $.Class }} dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Choose the server to start on">
+            <span class="sr-only">Choose server</span>
+        </button>
+        <div class="dropdown-menu">
+            {{ range $server := $.Servers }}
+                <a class="dropdown-item" href="{{ $.Path }}?server={{ $server.ID }}">Start on {{ $server.Name }}</a>
+            {{ end }}
+        </div>
+    {{ end }}
+{{ end }}

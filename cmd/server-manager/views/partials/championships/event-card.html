@@ -5,6 +5,8 @@
     {{ $eventInProgress := $.EventInProgress }}
     {{ $account := $.Account }}
     {{ $serverID := $.ServerID }}
+    {{ $servers := $.Servers }}
+    {{ $activeServer := $.ActiveServer }}
 
     {{ $eventSetup := $event.RaceSetup }}
 
@@ -293,17 +295,25 @@
                             {{ if not (or $event.InProgress $event.Completed) }}
 
                                 {{ if $eventInProgress }}
-                                    <p>An event in this championship is in progress. You must wait for it to finish or cancel it before you can start this one.</p>
+                                    <p>An event in this championship is in progress{{ with $activeServer }} on server <a href="/championship/{{ $championship.ID.String }}?server={{ .ID }}">{{ .Name }}</a>{{ end }}. You must wait for it to finish or cancel it before you can start this one.</p>
                                 {{ end }}
 
-                                <a class="btn btn-primary {{ if $eventInProgress }}disabled{{ end }}"
-                                   href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/start"
-                                        {{ if $eventInProgress }}
-                                            aria-disabled="true"
-                                        {{ end }}
-                                >
-                                    Start Event
-                                </a>
+                                {{ $startPath := printf "/championship/%s/event/%s/start" $championship.ID.String $event.ID.String }}
+
+                                <div class="btn-group">
+                                    <a class="btn btn-primary {{ if $eventInProgress }}disabled{{ end }}"
+                                       href="{{ serverURL $startPath }}"
+                                            {{ if $eventInProgress }}
+                                                aria-disabled="true"
+                                            {{ end }}
+                                    >
+                                        Start Event
+                                    </a>
+
+                                    {{ if not $eventInProgress }}
+                                        {{ template "start-target" dict "Path" $startPath "Servers" $servers "Class" "btn-primary" }}
+                                    {{ end }}
+                                </div>
 
                                 <button type="button" class="btn btn-outline{{ if $eventInProgress }} disabled{{ end }} dropdown-toggle popover-external-html" data-placement="bottom"
                                         data-toggle="popover" title="Schedule Event" data-html="true" {{ if $eventInProgress }}aria-disabled="true"{{ end }}

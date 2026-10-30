@@ -18,7 +18,7 @@ import (
 
 func TestChampionshipsHandler_ModifyEntrantStatus_AcceptIntoFullChampionship(t *testing.T) {
 	cm := newTestChampionshipManager()
-	handler := NewChampionshipsHandler(&smconfig.Configuration{}, &smweb.BaseHandler{}, cm)
+	handler := NewChampionshipsHandler(&smconfig.Configuration{}, &smweb.BaseHandler{}, func(*http.Request) (*ChampionshipManager, error) { return cm, nil }, nil)
 
 	// a championship whose only slot is taken already
 	championship := smmodel.NewChampionship("Full")

@@ -378,7 +378,7 @@ func (r *Resolver) resolveChampionshipsHandler() *smchampionship.ChampionshipsHa
 		return r.championshipsHandler
 	}
 
-	r.championshipsHandler = smchampionship.NewChampionshipsHandler(r.config, r.resolveBaseHandler(), r.resolveChampionshipManager())
+	r.championshipsHandler = smchampionship.NewChampionshipsHandler(r.config, r.resolveBaseHandler(), r.championshipManagerFor, r.registry)
 
 	return r.championshipsHandler
 }
@@ -540,7 +540,7 @@ func (r *Resolver) resolveRaceWeekendHandler() *smraceweekend.RaceWeekendHandler
 		return r.raceWeekendHandler
 	}
 
-	r.raceWeekendHandler = smraceweekend.NewRaceWeekendHandler(r.resolveBaseHandler(), r.resolveRaceWeekendManager())
+	r.raceWeekendHandler = smraceweekend.NewRaceWeekendHandler(r.resolveBaseHandler(), r.raceWeekendManagerFor, r.registry)
 
 	return r.raceWeekendHandler
 }

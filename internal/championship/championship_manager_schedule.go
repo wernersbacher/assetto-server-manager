@@ -155,6 +155,11 @@ func (cm *ChampionshipManager) StartScheduledEvent(championship *smmodel.Champio
 		return nil
 	}
 
+	if event.ScheduledServerID != cm.env.ServerID() {
+		logrus.Warnf("Scheduled championship event %s not started: it was scheduled for server %q, not %q", eventID, event.ScheduledServerID, cm.env.ServerID())
+		return nil
+	}
+
 	if event.Scheduled.IsZero() || !event.Scheduled.Equal(scheduled) {
 		logrus.Warnf("Scheduled championship event %s not started: its schedule was changed or removed (timer for %s, now %s)", eventID, scheduled, event.Scheduled)
 		return nil

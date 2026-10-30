@@ -12,7 +12,13 @@ import (
 
 // listAPI returns all championships in the API format.
 func (ch *ChampionshipsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
-	championships, err := ch.championshipManager.ListChampionships()
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championships, err := cm.ListChampionships()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list championships")
@@ -23,7 +29,7 @@ func (ch *ChampionshipsHandler) ListAPI(w http.ResponseWriter, r *http.Request) 
 	out := make([]*api.Championship, 0, len(championships))
 
 	for _, championship := range championships {
-		out = append(out, api.NewChampionship(ch.championshipManager.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
+		out = append(out, api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
 	}
 
 	api.WriteJSON(w, out)
@@ -31,7 +37,13 @@ func (ch *ChampionshipsHandler) ListAPI(w http.ResponseWriter, r *http.Request) 
 
 // viewAPI returns a single championship in the API format.
 func (ch *ChampionshipsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err == smstore.ErrChampionshipNotFound {
 		http.NotFound(w, r)
@@ -42,5 +54,5 @@ func (ch *ChampionshipsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	api.WriteJSON(w, api.NewChampionship(ch.championshipManager.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
+	api.WriteJSON(w, api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL))
 }

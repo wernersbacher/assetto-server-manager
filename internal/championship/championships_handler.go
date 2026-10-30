@@ -11,6 +11,7 @@ import (
 
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sort"
@@ -26,15 +27,17 @@ type ChampionshipsHandler struct {
 	*smweb.BaseHandler
 	steam.LoginHandler
 
-	config              *smconfig.Configuration
-	championshipManager *ChampionshipManager
+	config     *smconfig.Configuration
+	managerFor ManagerFor
+	active     ActiveEvents
 }
 
-func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHandler, championshipManager *ChampionshipManager) *ChampionshipsHandler {
+func NewChampionshipsHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHandler, managerFor ManagerFor, active ActiveEvents) *ChampionshipsHandler {
 	return &ChampionshipsHandler{
-		config:              config,
-		BaseHandler:         baseHandler,
-		championshipManager: championshipManager,
+		config:      config,
+		BaseHandler: baseHandler,
+		managerFor:  managerFor,
+		active:      active,
 	}
 }
 
@@ -46,7 +49,13 @@ type championshipListTemplateVars struct {
 
 // lists all available Championships known to Server Manager
 func (ch *ChampionshipsHandler) List(w http.ResponseWriter, r *http.Request) {
-	championships, err := ch.championshipManager.ListChampionships()
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championships, err := cm.ListChampionships()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list championships")
@@ -72,7 +81,13 @@ func (ch *ChampionshipsHandler) List(w http.ResponseWriter, r *http.Request) {
 
 // createOrEdit builds a Championship form for the user to create a Championship.
 func (ch *ChampionshipsHandler) CreateOrEdit(w http.ResponseWriter, r *http.Request) {
-	_, opts, err := ch.championshipManager.BuildChampionshipOpts(r)
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	_, opts, err := cm.BuildChampionshipOpts(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build championship form")
@@ -86,7 +101,13 @@ func (ch *ChampionshipsHandler) CreateOrEdit(w http.ResponseWriter, r *http.Requ
 // submit creates a given Championship and redirects the user to begin
 // the flow of adding events to the new Championship
 func (ch *ChampionshipsHandler) Submit(w http.ResponseWriter, r *http.Request) {
-	championship, edited, err := ch.championshipManager.HandleCreateChampionship(r)
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, edited, err := cm.HandleCreateChampionship(r)
 
 	if _, ok := err.(ValidationError); ok {
 		logrus.WithError(err).Warn("invalid championship form")
@@ -115,7 +136,13 @@ func (ch *ChampionshipsHandler) Submit(w http.ResponseWriter, r *http.Request) {
 
 // duplicate duplicates a championship, clearing results
 func (ch *ChampionshipsHandler) Duplicate(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.DuplicateChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.DuplicateChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't duplicate championship (id: %s)", chi.URLParam(r, "championshipID"))
@@ -134,11 +161,20 @@ type championshipViewTemplateVars struct {
 	EventInProgress bool
 	Account         *smmodel.Account
 	RaceWeekends    map[uuid.UUID]*smmodel.RaceWeekend
+
+	// ActiveServer is the other server which runs the championship, if there is one.
+	ActiveServer *smweb.ServerRef
 }
 
 // view shows details of a given Championship
 func (ch *ChampionshipsHandler) View(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load championship")
@@ -149,17 +185,26 @@ func (ch *ChampionshipsHandler) View(w http.ResponseWriter, r *http.Request) {
 	eventInProgress := false
 
 	for _, event := range championship.Events {
-		if event.InProgress() && ch.championshipManager.activeChampionship != nil {
+		if event.InProgress() && cm.activeChampionship != nil {
 			eventInProgress = true
 			break
 		}
+	}
+
+	var activeServer *smweb.ServerRef
+
+	var elsewhere ActiveElsewhereError
+
+	if errors.As(cm.CheckNotActiveElsewhere(chi.URLParam(r, "championshipID"), ch.active), &elsewhere) {
+		activeServer = &elsewhere.Server
+		eventInProgress = true
 	}
 
 	raceWeekends := make(map[uuid.UUID]*smmodel.RaceWeekend)
 
 	for _, event := range championship.Events {
 		if event.IsRaceWeekend() {
-			raceWeekends[event.RaceWeekendID], err = ch.championshipManager.store.LoadRaceWeekend(event.RaceWeekendID.String())
+			raceWeekends[event.RaceWeekendID], err = cm.store.LoadRaceWeekend(event.RaceWeekendID.String())
 
 			if err != nil {
 				logrus.WithError(err).Errorf("couldn't load championship")
@@ -175,12 +220,19 @@ func (ch *ChampionshipsHandler) View(w http.ResponseWriter, r *http.Request) {
 		EventInProgress: eventInProgress,
 		Account:         account,
 		RaceWeekends:    raceWeekends,
+		ActiveServer:    activeServer,
 	})
 }
 
 // export returns all known data about a Championship in JSON format.
 func (ch *ChampionshipsHandler) Export(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't export championship")
@@ -190,12 +242,12 @@ func (ch *ChampionshipsHandler) Export(w http.ResponseWriter, r *http.Request) {
 
 	account := smweb.AccountFromRequest(r)
 
-	if !account.HasGroupPrivilege(ch.championshipManager.env.ServerID(), smmodel.GroupAdmin) {
+	if !account.HasGroupPrivilege(cm.env.ServerID(), smmodel.GroupAdmin) {
 		// sign up responses are hidden for data protection reasons
 		championship.SignUpForm.Responses = nil
 	}
 
-	if !account.HasGroupPrivilege(ch.championshipManager.env.ServerID(), smmodel.GroupWrite) {
+	if !account.HasGroupPrivilege(cm.env.ServerID(), smmodel.GroupWrite) {
 		// if you don't have write access or above you can't see the replacement password
 		championship.ReplacementPassword = ""
 		championship.OverridePassword = false
@@ -210,8 +262,14 @@ func (ch *ChampionshipsHandler) Export(w http.ResponseWriter, r *http.Request) {
 
 // importChampionship reads Championship data from JSON.
 func (ch *ChampionshipsHandler) ImportChampionship(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	if r.Method == http.MethodPost {
-		championshipID, err := ch.championshipManager.ImportChampionship(r.FormValue("import"))
+		championshipID, err := cm.ImportChampionship(r.FormValue("import"))
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't import championship")
@@ -237,7 +295,13 @@ type championshipResults struct {
 
 // exportResults returns championship result files in JSON format.
 func (ch *ChampionshipsHandler) ExportResults(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't export championship")
@@ -283,7 +347,13 @@ func (ch *ChampionshipsHandler) ExportResults(w http.ResponseWriter, r *http.Req
 
 // delete soft deletes a Championship.
 func (ch *ChampionshipsHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.DeleteChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.DeleteChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't delete championship")
@@ -304,11 +374,17 @@ type eventImportTemplateVars struct {
 }
 
 func (ch *ChampionshipsHandler) EventImport(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	championshipID := chi.URLParam(r, "championshipID")
 	eventID := chi.URLParam(r, "eventID")
 
 	if r.Method == http.MethodPost {
-		err := ch.championshipManager.ImportEvent(championshipID, eventID, r)
+		err := cm.ImportEvent(championshipID, eventID, r)
 
 		if err != nil {
 			logrus.Errorf("Could not import championship event, error: %s", err)
@@ -320,7 +396,7 @@ func (ch *ChampionshipsHandler) EventImport(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	event, results, err := ch.championshipManager.ListAvailableResultsFilesForEvent(championshipID, eventID)
+	event, results, err := cm.ListAvailableResultsFilesForEvent(championshipID, eventID)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't load session files")
@@ -338,7 +414,13 @@ func (ch *ChampionshipsHandler) EventImport(w http.ResponseWriter, r *http.Reque
 // eventConfiguration builds a Custom Race form with slight modifications
 // to allow a user to configure a ChampionshipEvent.
 func (ch *ChampionshipsHandler) EventConfiguration(w http.ResponseWriter, r *http.Request) {
-	championshipRaceOpts, err := ch.championshipManager.BuildChampionshipEventOpts(r)
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championshipRaceOpts, err := cm.BuildChampionshipEventOpts(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build championship race")
@@ -352,7 +434,13 @@ func (ch *ChampionshipsHandler) EventConfiguration(w http.ResponseWriter, r *htt
 // submitEventConfiguration takes an Event Configuration from a form and
 // builds an event optionally, this is used for editing ChampionshipEvents.
 func (ch *ChampionshipsHandler) SubmitEventConfiguration(w http.ResponseWriter, r *http.Request) {
-	championship, event, edited, err := ch.championshipManager.SaveChampionshipEvent(r)
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, event, edited, err := cm.SaveChampionshipEvent(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build championship race")
@@ -388,12 +476,22 @@ func (ch *ChampionshipsHandler) SubmitEventConfiguration(w http.ResponseWriter, 
 
 // startEvent begins a championship event given by its ID
 func (ch *ChampionshipsHandler) StartEvent(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.StartEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"), false)
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.CheckCanStartEvent(chi.URLParam(r, "championshipID"), ch.active)
+
+	if err == nil {
+		err = cm.StartEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"), false)
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start championship event")
 
-		smweb.AddErrorFlash(w, r, "Couldn't start the Event")
+		flashEventError(w, r, err, "Couldn't start the Event")
 	} else {
 		smweb.AddFlash(w, r, "Event started successfully!")
 		time.Sleep(time.Second * 1)
@@ -403,6 +501,12 @@ func (ch *ChampionshipsHandler) StartEvent(w http.ResponseWriter, r *http.Reques
 }
 
 func (ch *ChampionshipsHandler) ScheduleEvent(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -431,7 +535,7 @@ func (ch *ChampionshipsHandler) ScheduleEvent(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	err = ch.championshipManager.ScheduleEvent(championshipID, championshipEventID, date, r.FormValue("action"), r.FormValue("event-schedule-recurrence"))
+	err = cm.ScheduleEvent(championshipID, championshipEventID, date, r.FormValue("action"), r.FormValue("event-schedule-recurrence"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't schedule championship event")
@@ -444,7 +548,13 @@ func (ch *ChampionshipsHandler) ScheduleEvent(w http.ResponseWriter, r *http.Req
 }
 
 func (ch *ChampionshipsHandler) ScheduleEventRemove(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.ScheduleEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"),
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.ScheduleEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"),
 		time.Time{}, "remove", "")
 
 	if err != nil {
@@ -458,7 +568,13 @@ func (ch *ChampionshipsHandler) ScheduleEventRemove(w http.ResponseWriter, r *ht
 
 // deleteEvent soft deletes a championship event
 func (ch *ChampionshipsHandler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.DeleteEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.DeleteEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete championship event")
@@ -473,12 +589,22 @@ func (ch *ChampionshipsHandler) DeleteEvent(w http.ResponseWriter, r *http.Reque
 
 // startPracticeEvent starts a Practice session for a given event
 func (ch *ChampionshipsHandler) StartPracticeEvent(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.StartPracticeEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.CheckCanStartEvent(chi.URLParam(r, "championshipID"), ch.active)
+
+	if err == nil {
+		err = cm.StartPracticeEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start practice championship event")
 
-		smweb.AddErrorFlash(w, r, "Couldn't start the Practice Event")
+		flashEventError(w, r, err, "Couldn't start the Practice Event")
 	} else {
 		smweb.AddFlash(w, r, "Practice Event started successfully!")
 		time.Sleep(time.Second * 1)
@@ -489,12 +615,22 @@ func (ch *ChampionshipsHandler) StartPracticeEvent(w http.ResponseWriter, r *htt
 
 // cancelEvent stops a running championship event and clears any saved results
 func (ch *ChampionshipsHandler) CancelEvent(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.CancelEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.CheckNotActiveElsewhere(chi.URLParam(r, "championshipID"), ch.active)
+
+	if err == nil {
+		err = cm.CancelEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not cancel championship event")
 
-		smweb.AddErrorFlash(w, r, "Couldn't cancel the Championship Event")
+		flashEventError(w, r, err, "Couldn't cancel the Championship Event")
 	} else {
 		smweb.AddFlash(w, r, "Event cancelled successfully!")
 	}
@@ -505,12 +641,22 @@ func (ch *ChampionshipsHandler) CancelEvent(w http.ResponseWriter, r *http.Reque
 // restartEvent stops a running championship event and clears any saved results
 // then starts the event again.
 func (ch *ChampionshipsHandler) RestartEvent(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.RestartEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.CheckNotActiveElsewhere(chi.URLParam(r, "championshipID"), ch.active)
+
+	if err == nil {
+		err = cm.RestartEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not restart championship event")
 
-		smweb.AddErrorFlash(w, r, "Couldn't restart the Championship Event")
+		flashEventError(w, r, err, "Couldn't restart the Championship Event")
 	} else {
 		smweb.AddFlash(w, r, "Event restarted successfully!")
 	}
@@ -533,7 +679,13 @@ type championshipRaceWeekendImportTemplateVars struct {
 }
 
 func (ch *ChampionshipsHandler) ListCustomRacesForImport(w http.ResponseWriter, r *http.Request) {
-	recent, starred, looped, scheduled, err := ch.championshipManager.RaceManager.ListCustomRaces()
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	recent, starred, looped, scheduled, err := cm.RaceManager.ListCustomRaces()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list custom races")
@@ -541,7 +693,7 @@ func (ch *ChampionshipsHandler) ListCustomRacesForImport(w http.ResponseWriter, 
 		return
 	}
 
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load championship for custom race import page list")
@@ -559,9 +711,15 @@ func (ch *ChampionshipsHandler) ListCustomRacesForImport(w http.ResponseWriter, 
 }
 
 func (ch *ChampionshipsHandler) CustomRaceImport(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	championshipID := chi.URLParam(r, "championshipID")
 
-	err := ch.championshipManager.ImportEventSetup(championshipID, chi.URLParam(r, "eventID"))
+	err := cm.ImportEventSetup(championshipID, chi.URLParam(r, "eventID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("could not import event setup to championship")
@@ -573,7 +731,13 @@ func (ch *ChampionshipsHandler) CustomRaceImport(w http.ResponseWriter, r *http.
 }
 
 func (ch *ChampionshipsHandler) ListRaceWeekendsForImport(w http.ResponseWriter, r *http.Request) {
-	raceWeekends, err := ch.championshipManager.store.ListRaceWeekends()
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	raceWeekends, err := cm.store.ListRaceWeekends()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list race weekends for championship import")
@@ -581,7 +745,7 @@ func (ch *ChampionshipsHandler) ListRaceWeekendsForImport(w http.ResponseWriter,
 		return
 	}
 
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load championship for custom race import page list")
@@ -596,9 +760,15 @@ func (ch *ChampionshipsHandler) ListRaceWeekendsForImport(w http.ResponseWriter,
 }
 
 func (ch *ChampionshipsHandler) RaceWeekendImport(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	championshipID := chi.URLParam(r, "championshipID")
 
-	err := ch.championshipManager.ImportRaceWeekendSetup(championshipID, chi.URLParam(r, "weekendID"))
+	err := cm.ImportRaceWeekendSetup(championshipID, chi.URLParam(r, "weekendID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("could not import race weekend setup to championship")
@@ -610,10 +780,16 @@ func (ch *ChampionshipsHandler) RaceWeekendImport(w http.ResponseWriter, r *http
 }
 
 func (ch *ChampionshipsHandler) IcalFeed(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
-	err := ch.championshipManager.BuildICalFeed(chi.URLParam(r, "championshipID"), w)
+	err := cm.BuildICalFeed(chi.URLParam(r, "championshipID"), w)
 
 	if err != nil {
 		logrus.WithError(err).Error("could not build scheduled races feed")
@@ -623,7 +799,13 @@ func (ch *ChampionshipsHandler) IcalFeed(w http.ResponseWriter, r *http.Request)
 }
 
 func (ch *ChampionshipsHandler) DriverPenalty(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.ModifyDriverPenalty(
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.ModifyDriverPenalty(
 		chi.URLParam(r, "championshipID"),
 		chi.URLParam(r, "classID"),
 		chi.URLParam(r, "driverGUID"),
@@ -643,7 +825,13 @@ func (ch *ChampionshipsHandler) DriverPenalty(w http.ResponseWriter, r *http.Req
 }
 
 func (ch *ChampionshipsHandler) TeamPenalty(w http.ResponseWriter, r *http.Request) {
-	err := ch.championshipManager.ModifyTeamPenalty(
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.ModifyTeamPenalty(
 		chi.URLParam(r, "championshipID"),
 		chi.URLParam(r, "classID"),
 		chi.URLParam(r, "team"),
@@ -671,7 +859,13 @@ type championshipSignUpFormTemplateVars struct {
 }
 
 func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Request) {
-	championship, championshipOpts, err := ch.championshipManager.BuildChampionshipOpts(r)
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, championshipOpts, err := cm.BuildChampionshipOpts(r)
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load championship")
@@ -701,7 +895,7 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 	}
 
 	if r.Method == http.MethodPost {
-		signUpResponse, foundSlot, err := ch.championshipManager.HandleChampionshipSignUp(r)
+		signUpResponse, foundSlot, err := cm.HandleChampionshipSignUp(r)
 
 		if err != nil {
 			switch err.(type) {
@@ -746,7 +940,13 @@ type signedUpEntrantsTemplateVars struct {
 }
 
 func (ch *ChampionshipsHandler) SignedUpEntrants(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load championship")
@@ -770,7 +970,13 @@ func (ch *ChampionshipsHandler) SignedUpEntrants(w http.ResponseWriter, r *http.
 }
 
 func (ch *ChampionshipsHandler) SignedUpEntrantsCSV(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load championship")
@@ -826,7 +1032,13 @@ func (ch *ChampionshipsHandler) SignedUpEntrantsCSV(w http.ResponseWriter, r *ht
 }
 
 func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *http.Request) {
-	championship, err := ch.championshipManager.LoadChampionship(chi.URLParam(r, "championshipID"))
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load championship")
@@ -854,7 +1066,7 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 			}
 
 			// add the entrant to the entrylist
-			foundSlot, _, err := ch.championshipManager.AddEntrantFromSessionData(championship, entrant, true, championship.SignUpForm.HideCarChoice)
+			foundSlot, _, err := cm.AddEntrantFromSessionData(championship, entrant, true, championship.SignUpForm.HideCarChoice)
 
 			if err != nil {
 				logrus.WithError(err).Error("couldn't add entrant to championship")
@@ -882,7 +1094,7 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 		}
 	}
 
-	if err := ch.championshipManager.UpsertChampionship(championship); err != nil {
+	if err := cm.UpsertChampionship(championship); err != nil {
 		logrus.WithError(err).Error("couldn't save championship")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -892,6 +1104,12 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 }
 
 func (ch *ChampionshipsHandler) ReorderEvents(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	var eventIDsInOrder []string
 
 	if err := json.NewDecoder(r.Body).Decode(&eventIDsInOrder); err != nil {
@@ -900,7 +1118,7 @@ func (ch *ChampionshipsHandler) ReorderEvents(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	if err := ch.championshipManager.ReorderChampionshipEvents(chi.URLParam(r, "championshipID"), eventIDsInOrder); err != nil {
+	if err := cm.ReorderChampionshipEvents(chi.URLParam(r, "championshipID"), eventIDsInOrder); err != nil {
 		logrus.WithError(err).Error("couldn't reorder championship events")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -908,10 +1126,16 @@ func (ch *ChampionshipsHandler) ReorderEvents(w http.ResponseWriter, r *http.Req
 }
 
 func (ch *ChampionshipsHandler) DuplicateEvent(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	championshipID := chi.URLParam(r, "championshipID")
 	eventID := chi.URLParam(r, "eventID")
 
-	newEvent, err := ch.championshipManager.DuplicateEventInChampionship(championshipID, eventID)
+	newEvent, err := cm.DuplicateEventInChampionship(championshipID, eventID)
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't duplicate championship race weekend")

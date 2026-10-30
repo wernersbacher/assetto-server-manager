@@ -562,7 +562,7 @@
         <div class="championship-events">
             {{ range $eventIndex, $event := $championship.Events }}
                 {{ if not $event.IsRaceWeekend }}
-                    {{ template "event-card" dict "Championship" $championship "Event" $event "EventIndex" $eventIndex "EventInProgress" $eventInProgress "Account" $account "ServerID" $serverID "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
+                    {{ template "event-card" dict "Championship" $championship "Event" $event "EventIndex" $eventIndex "EventInProgress" $eventInProgress "Account" $account "ServerID" $serverID "Servers" $.Servers "ActiveServer" $.ActiveServer "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
                 {{ else }}
                     {{ template "raceweekend-card" dict "Championship" $championship "Event" $event "EventIndex" $eventIndex "EventInProgress" $eventInProgress "Account" $account "RaceWeekend" (index $.RaceWeekends $event.RaceWeekendID) }}
                 {{ end }}

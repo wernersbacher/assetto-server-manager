@@ -1,6 +1,9 @@
 package servers_test
 
 import (
+	"github.com/google/uuid"
+	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	"path/filepath"
 	"testing"
 
@@ -131,5 +134,51 @@ func TestNewRegistryErrors(t *testing.T) {
 
 	if _, err := servers.NewRegistry([]config.Slot{{ID: "a"}, {ID: "a"}}, state, nil, false); err == nil {
 		t.Error("expected an error for duplicate ids")
+	}
+}
+
+func TestRegistryActiveEvents(t *testing.T) {
+	state := serverenv.NewState()
+	state.SetServerID("main-id")
+
+	root := filepath.FromSlash("/srv")
+	registry := newRegistry(t, state,
+		config.Slot{ID: config.DefaultSlotID, Name: "Main", InstallPath: filepath.Join(root, "a")},
+		config.Slot{ID: "b", Name: "Second", InstallPath: filepath.Join(root, "b")},
+	)
+
+	championshipID, raceWeekendID, linkedChampionshipID := uuid.New(), uuid.New(), uuid.New()
+
+	main, second := &servertest.Interruptible{}, &servertest.Interruptible{}
+	registry.All()[0].Process = main
+	registry.All()[1].Process = second
+
+	if _, ok := registry.ChampionshipActiveOn(championshipID); ok {
+		t.Fatal("nothing is running")
+	}
+
+	_ = main.Start(&smmodel.ActiveChampionship{ChampionshipID: championshipID}, "", 0, "", 0)
+	_ = second.Start(&smmodel.ActiveRaceWeekend{RaceWeekendID: raceWeekendID, ChampionshipID: linkedChampionshipID}, "", 0, "", 0)
+
+	if ref, ok := registry.ChampionshipActiveOn(championshipID); !ok || ref.ID != "main-id" || ref.Name != "Main" {
+		t.Errorf("the championship runs on the main slot: %v %v", ref, ok)
+	}
+
+	if ref, ok := registry.RaceWeekendActiveOn(raceWeekendID); !ok || ref.ID != "b" {
+		t.Errorf("the race weekend runs on b: %v %v", ref, ok)
+	}
+
+	if ref, ok := registry.ChampionshipActiveOn(linkedChampionshipID); !ok || ref.ID != "b" {
+		t.Errorf("the championship of a running race weekend is active on b: %v %v", ref, ok)
+	}
+
+	if _, ok := registry.RaceWeekendActiveOn(championshipID); ok {
+		t.Error("a championship id is not a race weekend")
+	}
+
+	main.ClearEvent()
+
+	if _, ok := registry.ChampionshipActiveOn(championshipID); ok {
+		t.Error("the championship is not running any more")
 	}
 }
