@@ -40,6 +40,29 @@ type raceWeekendListTemplateVars struct {
 	RaceWeekends []*smmodel.RaceWeekend
 }
 
+// standaloneWeekends returns the race weekends that are not part of a championship, finished or not.
+func (v *raceWeekendListTemplateVars) standaloneWeekends(finished bool) []*smmodel.RaceWeekend {
+	var out []*smmodel.RaceWeekend
+
+	for _, rw := range v.RaceWeekends {
+		if !rw.HasLinkedChampionship() && (rw.Progress() == 100.0) == finished {
+			out = append(out, rw)
+		}
+	}
+
+	return out
+}
+
+// Active returns the unfinished race weekends that are not part of a championship.
+func (v *raceWeekendListTemplateVars) Active() []*smmodel.RaceWeekend {
+	return v.standaloneWeekends(false)
+}
+
+// Completed returns the finished race weekends that are not part of a championship.
+func (v *raceWeekendListTemplateVars) Completed() []*smmodel.RaceWeekend {
+	return v.standaloneWeekends(true)
+}
+
 func (rwh *RaceWeekendHandler) List(w http.ResponseWriter, r *http.Request) {
 	rwm, ok := rwh.manager(w, r)
 

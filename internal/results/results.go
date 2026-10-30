@@ -652,3 +652,9 @@ func DriverInitials(name string) string {
 
 	return strings.ToUpper(name)
 }
+
+// IsEmpty reports whether the results contain no session data at all (no track, laps, results or cars), which is the
+// case for JSON files that are not session results.
+func (s *SessionResults) IsEmpty() bool {
+	return s.TrackName == "" && s.Type == "" && len(s.Result) == 0 && len(s.Laps) == 0 && len(s.Cars) == 0
+}

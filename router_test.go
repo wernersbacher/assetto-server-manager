@@ -8,6 +8,7 @@ import (
 
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
@@ -64,5 +65,36 @@ func TestRouterDeleteRoutesArePostOnly(t *testing.T) {
 
 	if found == 0 {
 		t.Fatal("no delete routes found")
+	}
+}
+
+// unknown /api/ paths keep the plain text 404 even for clients that accept HTML, only page navigations get the styled page
+func TestRouterUnknownAPIPathIsPlainText(t *testing.T) {
+	dir, err := ioutil.TempDir("", "router-test")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
+
+	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store, serverenv.NewState())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	router := resolver.ResolveRouter(http.Dir(dir))
+
+	req := httptest.NewRequest(http.MethodGet, "/api/does-not-exist", nil)
+	req.Header.Set("Accept", "text/html")
+
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusNotFound || !strings.HasPrefix(rec.Header().Get("Content-Type"), "text/plain") {
+		t.Errorf("expected a plain text 404, got %d %q", rec.Code, rec.Header().Get("Content-Type"))
 	}
 }

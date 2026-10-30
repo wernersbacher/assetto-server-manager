@@ -66,18 +66,44 @@ export function EntryPoint() {
         });
     });
 
+    // compact local-time format: "Thu 29 Oct, 23:18", the year is only shown when it is not the current one
     $(".time-local").each(function (i, elem) {
         let $elem = $(elem);
+        let local = moment.parseZone($elem.attr("data-time")).tz(moment.tz.guess());
+        let sameYear = local.year() === moment().tz(moment.tz.guess()).year();
 
-        $elem.text(moment.parseZone($elem.attr("data-time")).tz(moment.tz.guess()).format('LLLL (z)'));
+        $elem.text(local.format(sameYear ? 'ddd D MMM, HH:mm' : 'ddd D MMM YYYY, HH:mm'));
+        $elem.attr("data-original-title", local.format('LLLL (z)'));
     });
 
     $(".time-local-kitchen").each(function (i, elem) {
         let $elem = $(elem);
+        let local = moment.parseZone($elem.attr("data-time")).tz(moment.tz.guess());
 
-        $elem.text(moment.parseZone($elem.attr("data-time")).tz(moment.tz.guess()).calendar());
+        $elem.text(local.format('HH:mm'));
+        $elem.attr("data-original-title", local.format('LLLL (z)'));
     });
 
+
+    // scroll hint for wide tables: fade out the right edge while columns are hidden
+    $(".standings-scroll").each(function (i, elem) {
+        let $elem = $(elem);
+        let $wrap = $('<div class="scroll-hint"></div>');
+
+        $elem.wrap($wrap);
+        $wrap = $elem.parent();
+
+        let update = function () {
+            let hidden = elem.scrollWidth - elem.clientWidth - elem.scrollLeft;
+
+            $wrap.toggleClass("can-scroll-right", hidden > 4);
+        };
+
+        $elem.on("scroll", update);
+        $(window).on("resize", update);
+        $('a[data-toggle="tab"]').on("shown.bs.tab", update);
+        update();
+    });
     const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
     $(".timezone").text(timezone);

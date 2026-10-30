@@ -1,0 +1,8 @@
+{{/* Small empty state for lists and tables without rows: {{ template "empty-state" dict "Icon" "results" "Text" "No results yet." "Href" "/x" "Label" "Do it" }}. Icon (icons.html), Href and Label are optional. */}}
+{{ define "empty-state" }}
+    <div class="empty-state">
+        {{ with .Icon }}<span class="empty-state-icon">{{ template "icon" . }}</span>{{ end }}
+        <p class="empty-state-text">{{ .Text }}</p>
+        {{ if and .Href .Label }}<a href="{{ .Href }}" class="btn btn-sm btn-outline-primary">{{ .Label }}</a>{{ end }}
+    </div>
+{{ end }}

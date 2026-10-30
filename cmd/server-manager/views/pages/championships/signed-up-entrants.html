@@ -42,6 +42,9 @@
             </div>
         </div>
 
+        {{ if not .SignUpForm.Responses }}
+            {{ template "empty-state" dict "Icon" "accounts" "Text" "Nobody has signed up yet." }}
+        {{ else }}
         <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <tr>
@@ -144,5 +147,6 @@
             {{ end }}
         </table>
         </div>
+        {{ end }}
     {{ end }}
 {{ end }}

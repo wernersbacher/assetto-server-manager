@@ -50,6 +50,9 @@
         {{ end }}
     </form>
 
+    {{ if and (not .Results) (not .Filter.IsActive) }}
+        {{ template "empty-state" dict "Icon" "results" "Text" "No results yet. Finished sessions show up here." }}
+    {{ else }}
     <div class="table-card"><table class="table results-table">
         <tr>
             <th>Date</th>
@@ -68,7 +71,7 @@
         {{ range $i, $result := .Results }}
             <tr class="row-link" data-href="/results/{{ $result.SessionFile }}">
                 <td class="text-nowrap">
-                    {{ $result.GetDate }}
+                    {{ localFormat $result.Date }}
                     {{ with index $.ServerNames $result.SessionFile }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
                 </td>
                 <td>
@@ -98,6 +101,7 @@
             </tr>
         {{ end }}
     </table></div>
+    {{ end }}
 
     <div class="clearfix"></div>
 

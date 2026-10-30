@@ -275,7 +275,7 @@ func (l *Loader) ListAll() ([]SessionResults, error) {
 	return results, nil
 }
 
-// ListRecent returns the newest n results, newest first. Results that can't be loaded are skipped.
+// ListRecent returns the newest n results, newest first. Results that can't be loaded or contain no session data are skipped.
 func (l *Loader) ListRecent(n int) ([]*SessionResults, error) {
 	resultFiles, err := l.readDirs()
 
@@ -305,6 +305,13 @@ func (l *Loader) ListRecent(n int) ([]*SessionResults, error) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
+			continue
+		}
+
+		// a JSON file without any session data (e.g. an empty object or a file that is not a session result) would show
+		// up as a row with only a date
+		if result.IsEmpty() {
+			logrus.Warnf("Skipping results file without session data: %s", resultFile.Name())
 			continue
 		}
 

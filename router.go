@@ -13,6 +13,7 @@ import (
 	"github.com/wernersbacher/assetto-server-manager/internal/resultshttp"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"fmt"
 	"io"
@@ -92,6 +93,7 @@ func Router(
 	r.Use(panicHandler)
 	r.Use(accountHandler.RequestScopeMiddleware)
 	r.Use(serverSelection)
+	r.Use(smweb.NotFoundPageMiddleware(accountHandler.ReadAccessMiddleware(http.HandlerFunc(serverAdministrationHandler.NotFound))))
 
 	r.HandleFunc("/login", accountHandler.Login)
 	r.HandleFunc("/logout", accountHandler.Logout)

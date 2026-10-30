@@ -240,7 +240,7 @@
                 </table>
             </div>
         {{ else }}
-            <p class="text-muted">No results yet.</p>
+            {{ template "empty-state" dict "Icon" "results" "Text" "No results yet." }}
         {{ end }}
     </section>
 {{ end }}

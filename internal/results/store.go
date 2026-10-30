@@ -72,7 +72,7 @@ func (l *Loader) Load(fileName string, opts ...LoadOpts) (*SessionResults, error
 		result.Date = f.ModTime()
 	}
 
-	result.SessionFile = strings.Trim(fileName, ".json")
+	result.SessionFile = strings.TrimSuffix(fileName, ".json")
 
 	var validResults []*SessionResult
 

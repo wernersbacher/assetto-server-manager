@@ -24,7 +24,7 @@
 
             {{ range $i, $entry := .AuditLogs }}
                 <tr>
-                    <td class="text-nowrap">{{ fullTimeFormat $entry.Time }}</td>
+                    <td class="text-nowrap">{{ localFormat $entry.Time }}</td>
                     <td>{{ $entry.User }}</td>
                     <td><span class="role-badge role-{{ $entry.UserGroup }}">{{ $entry.UserGroup }}</span></td>
                     <td><code>{{ $entry.URL }}</code></td>

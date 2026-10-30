@@ -3,6 +3,9 @@
 {{ define "title" }}Championships{{ end }}
 
 {{ define "championships-list" }}
+    {{ if not .Championships }}
+        {{ template "empty-state" dict "Icon" "championship" "Text" .EmptyText }}
+    {{ else }}
     <div class="table-list">
         <table class="table table-striped table-championship">
             <tr>
@@ -63,6 +66,7 @@
             {{ end}}
         </table>
     </div>
+    {{ end }}
 {{ end }}
 
 {{ define "content" }}
@@ -88,9 +92,9 @@
 
     <h2 class="section-title">Active</h2>
 
-    {{ template "championships-list" dict "Championships" $.ActiveChampionships }}
+    {{ template "championships-list" dict "Championships" $.ActiveChampionships "EmptyText" "No active championships." }}
 
     <h2 class="section-title mt-5">Completed</h2>
 
-    {{ template "championships-list" dict "Championships" $.CompletedChampionships }}
+    {{ template "championships-list" dict "Championships" $.CompletedChampionships "EmptyText" "No completed championships yet." }}
 {{ end }}

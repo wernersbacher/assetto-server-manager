@@ -557,3 +557,24 @@ func (sah *ServerAdministrationHandler) Robots(w http.ResponseWriter, r *http.Re
 		return
 	}
 }
+
+// NotFound renders the styled 404 page (status 404) for page navigations; see smweb.NotFoundPageMiddleware.
+func (sah *ServerAdministrationHandler) NotFound(w http.ResponseWriter, r *http.Request) {
+	// the status is sent with the first body write, so that the renderer can still set cookies (flash messages)
+	sah.ViewRenderer.MustLoadTemplate(&notFoundStatusWriter{ResponseWriter: w}, r, "404.html", &smweb.BaseTemplateVars{})
+}
+
+type notFoundStatusWriter struct {
+	http.ResponseWriter
+
+	wroteHeader bool
+}
+
+func (w *notFoundStatusWriter) Write(b []byte) (int, error) {
+	if !w.wroteHeader {
+		w.wroteHeader = true
+		w.ResponseWriter.WriteHeader(http.StatusNotFound)
+	}
+
+	return w.ResponseWriter.Write(b)
+}

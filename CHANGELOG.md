@@ -3,6 +3,8 @@ Unreleased
 
 Added:
 
+* Lists and tables without rows (championships, race weekends, custom race tabs, results, sign-up responses, recent results on the overview) show a small empty state with an icon and a short text instead of an empty table header. Dates are shown compactly in your local time zone ("Thu 29 Oct, 23:18", with the year only when it is not the current one); hover for the full date with time zone. Missing car and track previews use a small neutral placeholder instead of the large red question mark, wide standings tables fade out their right edge while more columns are hidden, unknown pages show a styled 404 page in the app layout, and results files without any session data no longer show up as an empty row in the overview.
+
 * Multi-class championship tables (driver and team standings, entrants, event results) use readable text on the class colours in light mode and a darkened class tint with light text in dark mode, the points legend keeps dark text on its coloured badges, and the signed-up entrants page uses the page header and scrolls its table on phones instead of widening the page. The dev seeder now also creates a championship with an open sign-up form.
 
 * Upload panels on the Cars, Tracks and Weather pages are spaced consistently with their preview and error panels, the "Only upload official KS content" switch (and all other switches) follow the theme in light and dark mode, the sticky save bar floats slightly above the viewport edge and focused fields scroll clear of it, and the Legal Tyres boxes and the highlighted weather card use theme colours in dark mode.

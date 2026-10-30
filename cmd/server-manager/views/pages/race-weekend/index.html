@@ -30,6 +30,7 @@
 
     <h2 class="section-title">Active</h2>
 
+    {{ if $.Active }}
     <div class="table-list">
         <table class="table table-striped table-championship">
             <tr>
@@ -90,9 +91,13 @@
             {{ end }}
         </table>
     </div>
+    {{ else }}
+        {{ if WriteAccess }}{{ template "empty-state" dict "Icon" "weekend" "Text" "No active race weekends." "Href" "/race-weekends/new" "Label" "Create a race weekend" }}{{ else }}{{ template "empty-state" dict "Icon" "weekend" "Text" "No active race weekends." }}{{ end }}
+    {{ end }}
 
     <h2 class="section-title mt-5">Completed</h2>
 
+    {{ if $.Completed }}
     <div class="table-list">
         <table class="table table-striped table-championship">
             <tr>
@@ -148,4 +153,7 @@
             {{ end }}
         </table>
     </div>
+    {{ else }}
+        {{ template "empty-state" dict "Icon" "weekend" "Text" "No completed race weekends yet." }}
+    {{ end }}
 {{ end }}

@@ -201,3 +201,24 @@ func TestLoaderIgnoresMissingExtraDir(t *testing.T) {
 		t.Errorf("expected one result, got %d, %v", len(results), err)
 	}
 }
+
+func TestListRecentSkipsFilesWithoutSessionData(t *testing.T) {
+	l, cleanup := twoDirLoader(t)
+	defer cleanup()
+
+	writeResult(t, l.Dir, "2020_1_1_10_0_RACE.json", "a")
+
+	if err := ioutil.WriteFile(filepath.Join(l.Dir, "2020_1_2_10_0_RACE.json"), []byte(`{}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	recent, err := l.ListRecent(5)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(recent) != 1 || recent[0].SessionFile != "2020_1_1_10_0_RACE" {
+		t.Errorf("expected only the real result, got %v", recent)
+	}
+}

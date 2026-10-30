@@ -4,6 +4,9 @@
     {{ $writeAccess := WriteAccess }}
     {{ $championship := .Championship }}
 
+    {{ if not .Races }}
+        {{ template "empty-state" dict "Icon" "flag" "Text" "There are no custom races to import." }}
+    {{ else }}
     <div class="table-responsive mt-4">
         <table class="table table-striped table-bordered">
             <tr>
@@ -35,6 +38,7 @@
             {{ end }}
         </table>
     </div>
+    {{ end }}
 {{ end }}
 
 {{ define "content" }}

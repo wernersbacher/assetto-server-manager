@@ -61,12 +61,24 @@ func templateDict(values ...interface{}) (map[string]interface{}, error) {
 	return dict, nil
 }
 
+// compactTimeFormat renders a time like "Thu 29 Oct, 23:18"; the year is only added when it is not the year of now.
+// The browser replaces the text of .time-local elements with the same format in the viewer's time zone.
+func compactTimeFormat(t, now time.Time) string {
+	if t.Year() != now.Year() {
+		return t.Format("Mon 2 Jan 2006, 15:04")
+	}
+
+	return t.Format("Mon 2 Jan, 15:04")
+}
+
 func localFormatHelper(t time.Time) template.HTML {
-	return template.HTML(fmt.Sprintf(`<span class="time-local" data-toggle="tooltip" data-time="%s" title="Translated to your timezone from %s">%s</span>`, t.Format(time.RFC3339), fullTimeFormat(t), fullTimeFormat(t)))
+	return template.HTML(fmt.Sprintf(`<span class="time-local" data-toggle="tooltip" data-time="%s" title="%s">%s</span>`,
+		t.Format(time.RFC3339), template.HTMLEscapeString(fullTimeFormat(t)), template.HTMLEscapeString(compactTimeFormat(t, time.Now()))))
 }
 
 func localFormatHelperHourAndZone(t time.Time) template.HTML {
-	return template.HTML(fmt.Sprintf(`<span class="time-local-kitchen" data-toggle="tooltip" data-time="%s" title="Translated to your timezone from %s">%s</span>`, t.Format(time.RFC3339), fullTimeFormat(t), fullTimeFormat(t)))
+	return template.HTML(fmt.Sprintf(`<span class="time-local-kitchen" data-toggle="tooltip" data-time="%s" title="%s">%s</span>`,
+		t.Format(time.RFC3339), template.HTMLEscapeString(fullTimeFormat(t)), t.Format("15:04")))
 }
 
 func timeFormat(t time.Time) string {

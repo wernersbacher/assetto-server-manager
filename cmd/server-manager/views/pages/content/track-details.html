@@ -90,7 +90,7 @@
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-2 text-primary">
                                         <strong>{{ title (lower $session.Type.String) }}</strong></h5>
-                                    <small>{{ fullTimeFormat $session.Date }}</small>
+                                    <small>{{ localFormat $session.Date }}</small>
                                 </div>
                                 <p class="mb-1">{{ carList $session.Cars }}</p>
                             </a>
