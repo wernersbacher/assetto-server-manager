@@ -49,13 +49,7 @@ func InstallAssettoCorsaServer(installPath, login, password string, force bool) 
 		}
 	}
 
-	cmd := exec.Command(commandToUse,
-		"+@sSteamCmdForcePlatformType windows",
-		fmt.Sprintf("+login %s %s", login, password),
-		"+force_install_dir "+installPath,
-		"+app_update "+assettoServerSteamID,
-		"+quit",
-	)
+	cmd := exec.Command(commandToUse, steamCmdArgs(installPath, login, password)...)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -81,4 +75,16 @@ func InstallAssettoCorsaServer(installPath, login, password string, force bool) 
 func isCommandAvailable(name string) bool {
 	_, err := exec.LookPath(name)
 	return err == nil
+}
+
+// steamCmdArgs builds the steamcmd command line. The order matters: force_install_dir must come before login,
+// otherwise steamcmd refuses it ("Please use force_install_dir before logon!").
+func steamCmdArgs(installPath, login, password string) []string {
+	return []string{
+		"+@sSteamCmdForcePlatformType windows",
+		"+force_install_dir " + installPath,
+		fmt.Sprintf("+login %s %s", login, password),
+		"+app_update " + assettoServerSteamID,
+		"+quit",
+	}
 }

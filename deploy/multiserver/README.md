@@ -73,6 +73,18 @@ Results of both servers are shown together in the results list (filterable by se
 Add a volume `assetto-c` and a `seed-c` service like `seed-a` to `compose.yaml`, mount the volume and `ac-content`
 (onto `assetto-c/content`) into `server-manager`, publish new ports, and add a `servers:` entry to `config.yml`.
 
+## Troubleshooting
+
+If the install fails (for example with `Failed to write file after download` or `Missing file permissions`), run it
+with `STEAM_STRACE=1`. The script then installs `strace` in the container, runs steamcmd under it and, on failure,
+prints the failed file creations (`... = -1 ENOENT`, i.e. a missing directory) plus a directory listing of
+`/root/Steam`, `/opt/steamcmd` and `/base`. Only file syscalls are traced (no read/write), so the password is not
+part of the output. In PowerShell:
+
+```
+docker compose --profile install run --rm -e STEAM_STRACE=1 install
+```
+
 ## Reset
 
 `docker compose --profile install down -v` deletes all volumes, including the AC server install.
