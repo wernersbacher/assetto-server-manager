@@ -273,6 +273,7 @@ func Router(
 		r.Get("/championship/{championshipID}/event/{eventID}/edit", championshipsHandler.EventConfiguration)
 		r.Post("/championship/{championshipID}/event/{eventID}/practice", championshipsHandler.StartPracticeEvent)
 		r.Post("/championship/{championshipID}/event/{eventID}/cancel", championshipsHandler.CancelEvent)
+		r.Post("/championship/{championshipID}/event/{eventID}/finish", championshipsHandler.FinishEvent)
 		r.Post("/championship/{championshipID}/event/{eventID}/restart", championshipsHandler.RestartEvent)
 		r.Post("/championship/{championshipID}/event/{eventID}/duplicate", championshipsHandler.DuplicateEvent)
 

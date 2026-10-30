@@ -350,3 +350,68 @@ func (cm *ChampionshipManager) ListAvailableResultsFilesForEvent(championshipID 
 
 	return event, filteredResults, nil
 }
+
+// ErrNoSessionsDriven is returned by FinishEvent if no session of the event has been completed yet: there is nothing
+// to keep, so the event has to be cancelled (or just started) instead.
+var ErrNoSessionsDriven = errors.New("servermanager: this event has no completed session yet, cancel it instead")
+
+// FinishEvent completes an event that was only partially driven, e.g. one where the second race of a reversed grid
+// event was never driven. The sessions completed so far keep their results (and count for the standings); sessions
+// that were started but not finished are dropped, the remaining sessions are skipped. If the event is running on
+// this server, the server is stopped.
+func (cm *ChampionshipManager) FinishEvent(championshipID string, eventID string) error {
+	championship, err := cm.LoadChampionship(championshipID)
+
+	if err != nil {
+		return err
+	}
+
+	event, _, err := championship.EventByID(eventID)
+
+	if err != nil {
+		return err
+	}
+
+	if event.Completed() {
+		return nil
+	}
+
+	driven := false
+
+	for sessionType, session := range event.Sessions {
+		if session.Completed() && session.Results != nil {
+			driven = true
+		} else {
+			delete(event.Sessions, sessionType)
+		}
+	}
+
+	if !driven {
+		return ErrNoSessionsDriven
+	}
+
+	if event.StartedTime.IsZero() {
+		event.StartedTime = time.Now()
+	}
+
+	event.CompletedTime = time.Now()
+
+	if err := cm.UpsertChampionship(championship); err != nil {
+		return err
+	}
+
+	cm.mutex.Lock()
+	runningHere := cm.activeChampionship != nil && cm.activeChampionship.EventID.String() == eventID && cm.activeChampionship.ChampionshipID.String() == championshipID
+	if runningHere {
+		cm.activeChampionship = nil
+	}
+	cm.mutex.Unlock()
+
+	if runningHere && cm.process.IsRunning() {
+		if err := cm.process.Stop(); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}

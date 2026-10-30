@@ -639,6 +639,32 @@ func (ch *ChampionshipsHandler) CancelEvent(w http.ResponseWriter, r *http.Reque
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
+// FinishEvent completes a partially driven event: the results of the sessions driven so far are kept, the remaining
+// sessions are skipped and the server is stopped if the event runs on it.
+func (ch *ChampionshipsHandler) FinishEvent(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := cm.CheckNotActiveElsewhere(chi.URLParam(r, "championshipID"), ch.active)
+
+	if err == nil {
+		err = cm.FinishEvent(chi.URLParam(r, "championshipID"), chi.URLParam(r, "eventID"))
+	}
+
+	if err != nil {
+		logrus.WithError(err).Errorf("Could not finish championship event")
+
+		flashEventError(w, r, err, "Couldn't finish the Championship Event")
+	} else {
+		smweb.AddFlash(w, r, "Event finished with the results driven so far!")
+	}
+
+	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
+
 // restartEvent stops a running championship event and clears any saved results
 // then starts the event again.
 func (ch *ChampionshipsHandler) RestartEvent(w http.ResponseWriter, r *http.Request) {

@@ -363,3 +363,15 @@ func (ce *ChampionshipSession) InProgress() bool {
 func (ce *ChampionshipSession) Completed() bool {
 	return !ce.CompletedTime.IsZero() && ce.Results != nil
 }
+
+// HasCompletedSessions is true if at least one session of the event was driven to its end and has results, so
+// that a partially driven event can be finished instead of cancelled.
+func (cr *ChampionshipEvent) HasCompletedSessions() bool {
+	for _, session := range cr.Sessions {
+		if session.Completed() && session.Results != nil {
+			return true
+		}
+	}
+
+	return false
+}

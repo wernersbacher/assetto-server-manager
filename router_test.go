@@ -145,6 +145,7 @@ func TestRouterActionRoutesArePostOnly(t *testing.T) {
 		"/championship/{championshipID}/event/{eventID}/start",
 		"/championship/{championshipID}/event/{eventID}/practice",
 		"/championship/{championshipID}/event/{eventID}/cancel",
+		"/championship/{championshipID}/event/{eventID}/finish",
 		"/championship/{championshipID}/event/{eventID}/restart",
 		"/championship/{championshipID}/event/{eventID}/schedule/remove",
 		"/championship/{championshipID}/event/{eventID}/duplicate",

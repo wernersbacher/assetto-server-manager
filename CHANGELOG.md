@@ -3,6 +3,8 @@ Unreleased
 
 Fixed:
 
+* A championship event whose last session is never driven (for example the second race of a reversed grid event) can now be completed with "Finish Event": the results of the sessions driven so far are kept and count for the standings, the remaining sessions are skipped and a running server is stopped. Cancel Event still discards all results of the event, which the confirmation now says.
+
 * The Current Config page no longer fails with an error on a fresh install: until the server has written server_cfg.ini and entry_list.ini (when the first event is started) it shows an empty state with a link to start a race, and a config file that exists but cannot be read is reported on the page.
 
 Added:
