@@ -1,6 +1,10 @@
 Unreleased
 ----------
 
+Fixed:
+
+* The Current Config page no longer fails with an error on a fresh install: until the server has written server_cfg.ini and entry_list.ini (when the first event is started) it shows an empty state with a link to start a race, and a config file that exists but cannot be read is reported on the page.
+
 Added:
 
 * The race setup forms (custom race, championship event, race weekend session) collapse the advanced Assists, Realism, Rules and Server Options sections by default and show a one line summary of their values (for example "ABS: Factory, TC: Factory, Stability off") while collapsed; the choice is remembered per form type and an "edited" badge shows changed sections. Fields the browser rejects on save are listed in an error summary at the top of the form, with links that open and scroll to the affected section, the section index shows error, edited and complete markers, and the sticky save bar has a Discard changes button (with confirmation when something was edited).

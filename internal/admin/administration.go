@@ -201,6 +201,42 @@ type currentCFGTemplateVars struct {
 
 	ConfigText    string
 	EntryListText string
+
+	// NotWritten is true if the server has not written its configuration yet (no event was started).
+	NotWritten bool
+	// ReadError is set if the configuration exists but could not be read.
+	ReadError string
+}
+
+// readCurrentConfig reads the server_cfg.ini and entry_list.ini of the install path. Missing files are not an
+// error: the server writes them when the first event is started.
+func readCurrentConfig(installPath string) *currentCFGTemplateVars {
+	vars := &currentCFGTemplateVars{}
+	dir := filepath.Join(installPath, serverenv.ConfigPath)
+
+	configText, err := (&serverconfig.ServerConfig{}).ReadString(dir)
+	configMissing := os.IsNotExist(err)
+
+	if err != nil && !configMissing {
+		logrus.WithError(err).Error("Couldn't load server config")
+		vars.ReadError = "The server config could not be read: " + err.Error()
+	}
+
+	entryListText, err := (&serverconfig.EntryList{}).ReadString(dir)
+
+	entryMissing := os.IsNotExist(err)
+
+	if err != nil && !entryMissing {
+		logrus.WithError(err).Error("Couldn't load entry list")
+		vars.ReadError = "The entry list could not be read: " + err.Error()
+	}
+
+	vars.NotWritten = configMissing && entryMissing
+
+	vars.ConfigText = configText
+	vars.EntryListText = entryListText
+
+	return vars
 }
 
 func (sah *ServerAdministrationHandler) CurrentConfig(w http.ResponseWriter, r *http.Request) {
@@ -210,29 +246,7 @@ func (sah *ServerAdministrationHandler) CurrentConfig(w http.ResponseWriter, r *
 		return
 	}
 
-	config := &serverconfig.ServerConfig{}
-	entryList := &serverconfig.EntryList{}
-
-	configText, err := config.ReadString(filepath.Join(slot.Env.InstallPath(), serverenv.ConfigPath))
-
-	if err != nil {
-		logrus.WithError(err).Error("Couldn't load server config")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	entryListText, err := entryList.ReadString(filepath.Join(slot.Env.InstallPath(), serverenv.ConfigPath))
-
-	if err != nil {
-		logrus.WithError(err).Error("Couldn't load entry list")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	sah.ViewRenderer.MustLoadTemplate(w, r, "server/current-config.html", &currentCFGTemplateVars{
-		ConfigText:    configText,
-		EntryListText: entryListText,
-	})
+	sah.ViewRenderer.MustLoadTemplate(w, r, "server/current-config.html", readCurrentConfig(slot.Env.InstallPath()))
 }
 
 type serverOptionsTemplateVars struct {

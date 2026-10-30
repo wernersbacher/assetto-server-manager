@@ -12,6 +12,13 @@
 
     {{ template "server-tabs" $ }}
 
+    {{ if .ReadError }}
+        <div class="alert alert-danger">{{ .ReadError }}</div>
+    {{ end }}
+
+    {{ if and .NotWritten (not .ReadError) }}
+        {{ template "empty-state" dict "Icon" "config" "Text" "No configuration yet. The server writes its configuration when the first event is started." "Href" (serverURL "/quick") "Label" "Start a quick race" }}
+    {{ else }}
     <div class="card admin-card mb-4">
         <div class="card-header"><h2><label for="current-config" class="mb-0">Server Config</label></h2></div>
         <div class="card-body">
@@ -25,4 +32,5 @@
             <textarea readonly id="entry-list" name="entry-list" class="form-control md-textarea text-area mono-area" rows="30">{{ .EntryListText }}</textarea>
         </div>
     </div>
+    {{ end }}
 {{ end }}
