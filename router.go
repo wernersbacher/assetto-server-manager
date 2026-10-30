@@ -85,6 +85,7 @@ func Router(
 	kissMyRankHandler *pluginhttp.KissMyRankHandler,
 	realPenaltyHandler *pluginhttp.RealPenaltyHandler,
 	driverHandler *statshttp.DriverHandler,
+	leaderboardHandler *statshttp.LeaderboardHandler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -154,6 +155,8 @@ func Router(
 		r.Get("/api/track-records", tracksHandler.RecordsAPI)
 		r.Get("/driver/{guid}", driverHandler.View)
 		r.Get("/api/driver/{guid}", driverHandler.ViewAPI)
+		r.Get("/leaderboards", leaderboardHandler.View)
+		r.Get("/api/leaderboard", leaderboardHandler.ViewAPI)
 
 		r.Get("/custom", customRaceHandler.List)
 

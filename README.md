@@ -169,6 +169,15 @@ Results can be read in the same way, with the same access rules as the results p
   there are none). A record has the driver (`DriverName`, `DriverGUID`), the car (`CarModel`, `CarName`), `LapTime` and
   `Sectors` in milliseconds, the `Tyre`, the `Date` and `SessionType` of the session, its results `FileName` (see
   `/api/results/{fileName}`) and, with several servers, the `Server` (`ID`, `Name`).
+- `GET /api/leaderboard`: the hotlap leaderboard of a track layout. `track` is required (the track folder name), `layout`
+  selects the layout (empty or missing is the default layout), `car` (repeatable) restricts it to car models, `period`
+  is `all` (default), `30d` or `7d`, `sessionType` is `practice`, `qualify` or `race` (empty for any), `perCar=1` lists
+  the best lap of every driver and car instead of one per driver and `filterServer` (see below) restricts it to one
+  server; invalid values are a 400. Only valid laps (no cuts) count. The response repeats the request (`Track`,
+  `TrackLayout`, a readable `TrackName`, `Period`, `SessionType`, `PerCar`, `Cars`) and has the `Entries`, fastest first:
+  `Position`, `DriverName`, `DriverGUID`, `CarModel`, `CarName`, `LapTime`, `Gap` to the leader and `Sectors` in
+  milliseconds, `Tyre`, `Date`, `SessionType`, the results `FileName` and, with several servers, the `Server` (`ID`,
+  `Name`). The page is `/leaderboards`.
 - `GET /api/driver/{guid}`: the profile of a driver (404 if the GUID is in no results). It has the `Name` last used and
   all `Names`, `Nation` and `Team`, the number of `Sessions` by type, `Races`, `Wins`, `Podiums`, `Laps`, `ValidLaps`,
   `Cuts`, `CollisionsCar` and `CollisionsEnv`, the `PersonalBests` (best valid lap per track layout and car: `Track`,
@@ -204,7 +213,7 @@ With several servers (see [Several servers](#several-servers)) the APIs know abo
   of `DriversOnline`. It does not depend on a selected server. Same access rules as `/api/server-status` (the live timing page).
 - `GET /api/server-status` reports the server given in the `server` query parameter (the server id), the first server
   without it (or the one remembered in the session).
-- `filterServer=<server id>` restricts `/api/results`, `/api/track-records`, `/api/upcoming-races` (and the calendar and its .ics feed) to one
+- `filterServer=<server id>` restricts `/api/results`, `/api/track-records`, `/api/leaderboard`, `/api/upcoming-races` (and the calendar and its .ics feed) to one
   server; an unknown id matches nothing.
 - `/api/results` entries have a `Server` (`ID`, `Name`) and `/api/championships` has an `ActiveServer` while one of
   their events runs. `Server` is only set if there are several servers. `/api/upcoming-races` entries have a `ServerID`

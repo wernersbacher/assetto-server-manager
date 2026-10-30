@@ -96,6 +96,8 @@
                     {{ if $records }}
                         {{ $best := index $records 0 }}
 
+                        <p class="mb-2"><a href="/leaderboards?track={{ $.Track.Name | urlquery }}&layout={{ $layout | urlquery }}">Full leaderboard</a></p>
+
                         <p class="lap-record-overall mb-2">
                             <span class="h3 mr-2">{{ formatDuration $best.LapTime true }}</span>
                             {{ driverName $best.DriverName }}, {{ prettify $best.Car true }}

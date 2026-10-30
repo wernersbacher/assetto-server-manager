@@ -74,6 +74,7 @@ type Resolver struct {
 	penaltiesManager            *racecontrol.PenaltiesManager
 	resultsHandler              *resultshttp.ResultsHandler
 	driverHandler               *statshttp.DriverHandler
+	leaderboardHandler          *statshttp.LeaderboardHandler
 	scheduledRacesHandler       *schedule.Handler
 	contentUploadHandler        *contenthttp.ContentUploadHandler
 	raceControlHandler          *racecontrol.RaceControlHandler
@@ -681,5 +682,17 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveKissMyRankHandler(),
 		r.resolveRealPenaltyHandler(),
 		r.resolveDriverHandler(),
+		r.resolveLeaderboardHandler(),
 	)
+}
+
+// resolveLeaderboardHandler returns the handler of the hotlap leaderboard page and API.
+func (r *Resolver) resolveLeaderboardHandler() *statshttp.LeaderboardHandler {
+	if r.leaderboardHandler != nil {
+		return r.leaderboardHandler
+	}
+
+	r.leaderboardHandler = statshttp.NewLeaderboardHandler(r.resolveBaseHandler(), r.resolveStatsIndex(), r.resultsServers, r.resolveEnv().InstallPath)
+
+	return r.leaderboardHandler
 }

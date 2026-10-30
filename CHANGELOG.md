@@ -7,6 +7,8 @@ Fixed:
 
 Added:
 
+* Hotlap leaderboards (`/leaderboards`, in the Racing menu): the fastest valid lap of every driver on a track layout with gap to the leader, sectors (best sector highlighted), tyre, date and a link to the result and the driver profile. The track, cars, period (all time, 30 days, 7 days), session type and server can be filtered, and the table can show one row per driver and car instead of per driver. The track page links to its layout's leaderboard. Also available as JSON from `GET /api/leaderboard`, see the README.
+
 * Driver profile pages (`/driver/{guid}`, linked from driver names in results, championship standings and entry lists, and race weekend entry lists) show a driver's statistics (sessions by type, races, wins, podiums, laps, valid lap share, cuts and collisions), personal bests per track layout and car, the championships the driver is in with their standing, and a paged list of all results; with several servers the lists can be filtered by server. The profile is also available as JSON from `GET /api/driver/{guid}`, see the README.
 
 * Track pages show the lap records of every layout: the overall record and the best valid lap (no cuts) of every car with driver, date and a link to the result, and car pages list the best lap of the car per track. With several servers the records can be filtered by server. The records are also available as JSON from `GET /api/track-records`, see the README.
