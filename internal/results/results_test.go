@@ -1330,3 +1330,47 @@ func TestSessionResultsUnknownDriverDoesNotMatchCarZero(t *testing.T) {
 		}
 	}
 }
+
+func TestSessionResultsFallBackSortDriverSwap(t *testing.T) {
+	// The swap car's result carries the joined GUID, its laps are driven by both drivers.
+	results := &SessionResults{
+		Type: serverconfig.SessionTypeRace,
+		Cars: []*SessionCar{
+			{CarID: 1, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDAlice, GuidsList: []string{helperGUIDAlice}, Name: "Alice Smith"}},
+			{CarID: 3, Model: helperModelFerrari, Driver: SessionDriver{GUID: helperGUIDCarl1, GuidsList: []string{helperGUIDCarl1, helperGUIDCarl2}, Name: "Carl One"}},
+		},
+		Laps: []*SessionLap{
+			helperLap(1, helperGUIDAlice, "Alice Smith", helperModelFerrari, 100000, 0, nil, "", uuid.Nil),
+			helperLap(3, helperGUIDCarl1, "Carl One", helperModelFerrari, 90000, 0, nil, "", uuid.Nil),
+			helperLap(1, helperGUIDAlice, "Alice Smith", helperModelFerrari, 100000, 0, nil, "", uuid.Nil),
+			helperLap(3, helperGUIDCarl2, "Carl Two", helperModelFerrari, 95000, 0, nil, "", uuid.Nil),
+		},
+		Result: []*SessionResult{
+			{CarID: 3, CarModel: helperModelFerrari, DriverGUID: helperGUIDSwap, DriverName: "Carl One, Carl Two"},
+		},
+	}
+
+	results.FallBackSort()
+
+	if len(results.Result) != 2 {
+		t.Fatalf("got %d results, want 2 (no duplicate for the first swap driver): %v", len(results.Result), resultOrder(results))
+	}
+
+	for _, r := range results.Result {
+		if r.DriverGUID != helperGUIDSwap {
+			continue
+		}
+
+		if r.TotalTime != 185000 {
+			t.Errorf("swap TotalTime = %d, want 185000", r.TotalTime)
+		}
+
+		if r.BestLap != 90000 {
+			t.Errorf("swap BestLap = %d, want 90000", r.BestLap)
+		}
+
+		return
+	}
+
+	t.Errorf("swap result missing: %v", resultOrder(results))
+}

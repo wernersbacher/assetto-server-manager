@@ -19,19 +19,13 @@ func (s *SessionResults) FallBackSort() {
 cars:
 	for i := range s.Cars {
 		for z := range s.Result {
-			if s.Cars[i].Driver.GUID == s.Result[z].DriverGUID {
+			// the result may carry the joined GUID of a driver swap car
+			if carID, ok := s.FindCarIDForGUIDAndModel(s.Result[z].DriverGUID, s.Cars[i].Model); ok && carID == s.Cars[i].CarID {
 				continue cars
 			}
 		}
 
-		var bestLap int
-
-		for y := range s.Laps {
-			if (s.Cars[i].Driver.GUID == s.Laps[y].DriverGUID) && (s.Cars[i].Model == s.Laps[y].CarModel) && s.IsDriversFastestLap(s.Cars[i].Driver.GUID, s.Cars[i].Model, s.Laps[y].LapTime, s.Laps[y].Cuts) {
-				bestLap = s.Laps[y].LapTime
-				break
-			}
-		}
+		bestLap := s.carBestLap(s.Cars[i].Driver.GUID, s.Cars[i].Model)
 
 		s.Result = append(s.Result, &SessionResult{
 			BallastKG:    s.Cars[i].BallastKG,
@@ -53,7 +47,7 @@ laps:
 	// in the crazy case that a driver has laps but is in neither car or results list
 	for _, lap := range s.Laps {
 		for _, result := range s.Result {
-			if result.DriverGUID == lap.DriverGUID {
+			if s.LapAssociatedWithGUIDAndModel(lap, result.DriverGUID, result.CarModel) {
 				continue laps
 			}
 		}
@@ -84,35 +78,11 @@ laps:
 		})
 	}
 
-	for i := range s.Result {
-		s.Result[i].TotalTime = 0
-
-		for _, lap := range s.Laps {
-			if lap.DriverGUID == s.Result[i].DriverGUID {
-				s.Result[i].TotalTime += lap.LapTime
-			}
-		}
-
-		// TotalTime stays the plain race time (in ms), like in the results written by the AC server. Time penalties are
-		// added on top by GetTime(..., penalty=true), which is used for sorting and display.
-
-		if s.Result[i].BestLap == 0 {
-			for _, findBestLap := range s.Laps {
-				if (findBestLap.DriverGUID == s.Result[i].DriverGUID) && (findBestLap.CarModel == s.Result[i].CarModel) && s.IsDriversFastestLap(findBestLap.DriverGUID, findBestLap.CarModel, findBestLap.LapTime, findBestLap.Cuts) {
-					s.Result[i].BestLap = findBestLap.LapTime
-					break
-				}
-			}
-		}
-	}
-
 results:
 	// is this result car in the car list? If not then add it
 	for _, result := range s.Result {
-		for _, car := range s.Cars {
-			if result.DriverGUID == car.Driver.GUID && result.CarModel == car.Model {
-				continue results
-			}
+		if _, ok := s.FindCarIDForGUIDAndModel(result.DriverGUID, result.CarModel); ok {
+			continue results
 		}
 
 		guidList := []string{result.DriverGUID}
@@ -134,6 +104,22 @@ results:
 			Restrictor: result.Restrictor,
 			Skin:       "",
 		})
+	}
+
+	for i := range s.Result {
+		s.Result[i].TotalTime = 0
+
+		// per car, so that the laps of all drivers of a driver swap car are counted
+		for _, lap := range s.carLaps(s.Result[i].DriverGUID, s.Result[i].CarModel) {
+			s.Result[i].TotalTime += lap.LapTime
+		}
+
+		// TotalTime stays the plain race time (in ms), like in the results written by the AC server. Time penalties are
+		// added on top by GetTime(..., penalty=true), which is used for sorting and display.
+
+		if s.Result[i].BestLap == 0 {
+			s.Result[i].BestLap = s.carBestLap(s.Result[i].DriverGUID, s.Result[i].CarModel)
+		}
 	}
 
 	sort.Slice(s.Result, func(i, j int) bool {
@@ -449,4 +435,13 @@ func (s *SessionResults) LapAssociatedWithGUIDAndModel(lap *SessionLap, driverGU
 // FastestLapInClass returns the fastest clean lap of the given class, or nil if there is none.
 func (s *SessionResults) FastestLapInClass(classID uuid.UUID) *SessionLap {
 	return fastestCleanLap(s.Laps, func(lap *SessionLap) bool { return lap.ClassID == classID })
+}
+
+// carBestLap returns the time of the fastest clean lap of the driver's car (all drivers of a driver swap car), or 0.
+func (s *SessionResults) carBestLap(guid, model string) int {
+	if lap := fastestCleanLap(s.carLaps(guid, model), func(*SessionLap) bool { return true }); lap != nil {
+		return lap.LapTime
+	}
+
+	return 0
 }
