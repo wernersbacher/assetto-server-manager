@@ -112,7 +112,7 @@ func (l *Loader) prettify(name string) string {
 }
 
 func (l *Loader) getResultSummary(info os.FileInfo) (*resultSummary, error) {
-	path := filepath.Join(l.Dir, info.Name())
+	path := l.path(info.Name())
 
 	summaryCache.Lock()
 	summary, ok := summaryCache.entries[path]
@@ -158,10 +158,9 @@ func (l *Loader) getResultSummary(info os.FileInfo) (*resultSummary, error) {
 	return summary, nil
 }
 
-// List returns one page of the results, newest first, and the available page numbers.
+// List returns one page of the results of all directories, newest first, and the available page numbers.
 func (l *Loader) List(page int, filter Filter) ([]SessionResults, []int, error) {
-	resultsPath := l.Dir
-	resultFiles, err := ioutil.ReadDir(resultsPath)
+	resultFiles, err := l.readDirs()
 
 	if err != nil {
 		return nil, nil, err
@@ -179,7 +178,7 @@ func (l *Loader) List(page int, filter Filter) ([]SessionResults, []int, error) 
 		resultFiles = typeFiltered
 	}
 
-	sort.Slice(resultFiles, func(i, j int) bool {
+	sort.SliceStable(resultFiles, func(i, j int) bool {
 		d1, _ := GetResultDate(resultFiles[i].Name())
 		d2, _ := GetResultDate(resultFiles[j].Name())
 
@@ -244,14 +243,13 @@ func (l *Loader) List(page int, filter Filter) ([]SessionResults, []int, error) 
 
 // ListAll returns all results without firing the OnLoad hook, newest first.
 func (l *Loader) ListAll() ([]SessionResults, error) {
-	resultsPath := l.Dir
-	resultFiles, err := ioutil.ReadDir(resultsPath)
+	resultFiles, err := l.readDirs()
 
 	if err != nil {
 		return nil, err
 	}
 
-	sort.Slice(resultFiles, func(i, j int) bool {
+	sort.SliceStable(resultFiles, func(i, j int) bool {
 		d1, _ := GetResultDate(resultFiles[i].Name())
 		d2, _ := GetResultDate(resultFiles[j].Name())
 
@@ -276,13 +274,13 @@ func (l *Loader) ListAll() ([]SessionResults, error) {
 
 // ListRecent returns the newest n results, newest first. Results that can't be loaded are skipped.
 func (l *Loader) ListRecent(n int) ([]*SessionResults, error) {
-	resultFiles, err := ioutil.ReadDir(l.Dir)
+	resultFiles, err := l.readDirs()
 
 	if err != nil {
 		return nil, err
 	}
 
-	sort.Slice(resultFiles, func(i, j int) bool {
+	sort.SliceStable(resultFiles, func(i, j int) bool {
 		d1, _ := GetResultDate(resultFiles[i].Name())
 		d2, _ := GetResultDate(resultFiles[j].Name())
 
@@ -328,4 +326,33 @@ func GetResultDate(name string) (time.Time, error) {
 	}
 
 	return time.Date(year, time.Month(month), day, hour, minute, 0, 0, time.Local), nil
+}
+
+// readDirs lists the files of all results directories. A file name that exists in several directories is listed once,
+// from the first directory. The primary directory has to exist, extra directories may be missing.
+func (l *Loader) readDirs() ([]os.FileInfo, error) {
+	var files []os.FileInfo
+
+	seen := make(map[string]bool)
+
+	for i, dir := range l.dirs() {
+		dirFiles, err := ioutil.ReadDir(dir)
+
+		if err != nil {
+			if i > 0 && os.IsNotExist(err) {
+				continue
+			}
+
+			return nil, err
+		}
+
+		for _, file := range dirFiles {
+			if !seen[file.Name()] {
+				seen[file.Name()] = true
+				files = append(files, file)
+			}
+		}
+	}
+
+	return files, nil
 }

@@ -17,10 +17,17 @@ type LoadOpts int
 // WithoutPluginFire skips the OnLoad hook of the Loader.
 const WithoutPluginFire LoadOpts = 0
 
-// Loader reads, lists and writes the AC result files in Dir.
+// Loader reads, lists and writes the AC result files in Dir and ExtraDirs.
 type Loader struct {
-	// Dir is the directory containing the results files.
+	// Dir is the primary directory containing the results files. New files are saved here. If a file name exists in
+	// Dir and in an extra directory, the file in Dir wins.
 	Dir string
+
+	// ExtraDirs are further results directories (e.g. of other server slots) which are loaded and listed together
+	// with Dir, in this order. Save and Remove act on the directory that already holds the file. A file name which
+	// exists in several directories is only listed once, from the first directory. Extra directories which do not
+	// exist are ignored.
+	ExtraDirs []string
 
 	// FallBackSorting applies SessionResults.FallBackSort to every loaded result.
 	FallBackSorting bool
@@ -33,11 +40,11 @@ type Loader struct {
 	PrettifyName func(name string) string
 }
 
-// Load reads a single results file from the results directory.
+// Load reads a single results file from the results directories.
 func (l *Loader) Load(fileName string, opts ...LoadOpts) (*SessionResults, error) {
 	var result *SessionResults
 
-	data, err := ioutil.ReadFile(filepath.Join(l.Dir, fileName))
+	data, err := ioutil.ReadFile(l.path(fileName))
 
 	if err != nil {
 		return nil, err
@@ -56,7 +63,7 @@ func (l *Loader) Load(fileName string, opts ...LoadOpts) (*SessionResults, error
 	} else {
 		logrus.WithError(err).Errorf("Could not parse results date from filename: %s. Using mod time.", fileName)
 
-		f, err := os.Stat(filepath.Join(l.Dir, fileName))
+		f, err := os.Stat(l.path(fileName))
 
 		if err != nil {
 			return nil, err
@@ -114,14 +121,14 @@ func ValidFileName(fileName string) bool {
 		!strings.ContainsAny(fileName, `/\`)
 }
 
-// Remove deletes a results file from the results directory. guard, if not nil, is called after the file was found
+// Remove deletes a results file from the results directories. guard, if not nil, is called after the file was found
 // to be a regular file and before it is removed; if it returns an error the file is kept.
 func (l *Loader) Remove(fileName string, guard func() error) error {
 	if !ValidFileName(fileName) {
 		return ErrInvalidFileName
 	}
 
-	path := filepath.Join(l.Dir, fileName)
+	path := l.path(fileName)
 
 	info, err := os.Stat(path)
 
@@ -152,7 +159,7 @@ func (l *Loader) Remove(fileName string, guard func() error) error {
 
 // Save takes a full json filepath (including the json extension) and saves the results to that file.
 func (l *Loader) Save(jsonFileName string, results *SessionResults) error {
-	path := filepath.Join(l.Dir, jsonFileName)
+	path := l.path(jsonFileName)
 
 	file, err := os.Create(path)
 
@@ -173,4 +180,22 @@ func ClearSummaryCache() {
 	summaryCache.Lock()
 	summaryCache.entries = make(map[string]*resultSummary)
 	summaryCache.Unlock()
+}
+
+// dirs returns all results directories, the primary one first.
+func (l *Loader) dirs() []string {
+	return append([]string{l.Dir}, l.ExtraDirs...)
+}
+
+// path returns the path of a results file: in the first directory that holds it, or in Dir if there is none.
+func (l *Loader) path(fileName string) string {
+	for _, dir := range l.dirs() {
+		path := filepath.Join(dir, fileName)
+
+		if _, err := os.Stat(path); err == nil {
+			return path
+		}
+	}
+
+	return filepath.Join(l.Dir, fileName)
 }

@@ -13,13 +13,17 @@ import (
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 )
 
-// Env is the environment of the managers. All fields have to be set.
+// Env is the environment of the managers. All fields have to be set, except ResultsDirs.
 type Env struct {
 	// ServerID identifies this server manager instance.
 	ServerID func() smmodel.ServerID
 
 	// InstallPath is the directory in which the Assetto Corsa server is installed.
 	InstallPath func() string
+
+	// ResultsDirs is optional. It returns the results directories of all server slots, which Results reads in
+	// addition to the results directory of InstallPath. If it is nil, only the results of InstallPath are read.
+	ResultsDirs func() []string
 
 	// FallBackSorting returns true if loaded results are to use SessionResults.FallBackSort (a server option).
 	FallBackSorting func() bool
@@ -46,13 +50,22 @@ func (e *Env) TrackDownloadLink(track string) string {
 	return smcontent.TrackDownloadLink(e.InstallPath(), track)
 }
 
-// Results returns the loader of the results files of the server. If Lua is enabled, the results Lua plugin is applied
+// Results returns the loader of the results files. New results are written to the results directory of the
+// InstallPath; results are read from there and from the directories of ResultsDirs. If Lua is enabled, the results Lua plugin is applied
 // to every loaded result.
 func (e *Env) Results() *smresults.Loader {
 	loader := &smresults.Loader{
 		Dir:             filepath.Join(e.InstallPath(), "results"),
 		FallBackSorting: e.FallBackSorting(),
 		PrettifyName:    func(name string) string { return smcontent.PrettifyName(name, false) },
+	}
+
+	if e.ResultsDirs != nil {
+		for _, dir := range e.ResultsDirs() {
+			if dir != loader.Dir {
+				loader.ExtraDirs = append(loader.ExtraDirs, dir)
+			}
+		}
 	}
 
 	if smlua.Initialised() {
