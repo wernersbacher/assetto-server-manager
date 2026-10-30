@@ -3,16 +3,12 @@ package admin
 import (
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
 	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
 	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/json"
@@ -32,14 +28,9 @@ import (
 type ServerAdministrationHandler struct {
 	*smweb.BaseHandler
 
-	config              *smconfig.Configuration
-	store               smstore.Store
-	raceManager         *smrace.RaceManager
-	championshipManager *smchampionship.ChampionshipManager
-	raceWeekendManager  *smraceweekend.RaceWeekendManager
-	process             smserver.ServerProcess
-	scheduledRaces      *schedule.Manager
-	env                 *serverenv.Env
+	config         *smconfig.Configuration
+	slotFor        SlotFor
+	scheduledRaces *schedule.Manager
 
 	managerLog, pluginsLog *smserver.LogBuffer
 	changelogHTML          func() template.HTML
@@ -55,31 +46,21 @@ type Logs struct {
 func NewServerAdministrationHandler(
 	config *smconfig.Configuration,
 	baseHandler *smweb.BaseHandler,
-	store smstore.Store,
-	raceManager *smrace.RaceManager,
-	championshipManager *smchampionship.ChampionshipManager,
-	raceWeekendManager *smraceweekend.RaceWeekendManager,
-	process smserver.ServerProcess,
+	slotFor SlotFor,
 	scheduledRaces *schedule.Manager,
-	env *serverenv.Env,
 	logs Logs,
 	changelogHTML func() template.HTML,
 	setFallBackSorting func(bool),
 ) *ServerAdministrationHandler {
 	return &ServerAdministrationHandler{
-		config:              config,
-		BaseHandler:         baseHandler,
-		store:               store,
-		raceManager:         raceManager,
-		championshipManager: championshipManager,
-		raceWeekendManager:  raceWeekendManager,
-		process:             process,
-		scheduledRaces:      scheduledRaces,
-		env:                 env,
-		managerLog:          logs.Manager,
-		pluginsLog:          logs.Plugins,
-		changelogHTML:       changelogHTML,
-		setFallBackSorting:  setFallBackSorting,
+		config:             config,
+		BaseHandler:        baseHandler,
+		slotFor:            slotFor,
+		scheduledRaces:     scheduledRaces,
+		managerLog:         logs.Manager,
+		pluginsLog:         logs.Plugins,
+		changelogHTML:      changelogHTML,
+		setFallBackSorting: setFallBackSorting,
 	}
 }
 
@@ -99,7 +80,13 @@ type homeTemplateVars struct {
 
 // homeHandler serves content to /
 func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Request) {
-	currentRace, entryList := sah.raceManager.CurrentRace()
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	currentRace, entryList := slot.RaceManager.CurrentRace()
 
 	var customRace *smmodel.CustomRace
 
@@ -114,7 +101,7 @@ func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("couldn't load upcoming races for the overview")
 	}
 
-	recentResults, err := sah.env.Results().ListRecent(homeRecentResults)
+	recentResults, err := slot.Env.Results().ListRecent(homeRecentResults)
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load recent results for the overview")
@@ -138,7 +125,13 @@ type motdTemplateVars struct {
 }
 
 func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Request) {
-	opts, err := sah.store.LoadServerOptions()
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	opts, err := slot.Store.LoadServerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load server options")
@@ -151,7 +144,7 @@ func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Requ
 
 		success := true
 
-		err := ioutil.WriteFile(filepath.Join(sah.env.InstallPath(), MOTDFilename), []byte(wrapped), 0644)
+		err := ioutil.WriteFile(filepath.Join(slot.Env.InstallPath(), MOTDFilename), []byte(wrapped), 0644)
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save message of the day")
@@ -162,7 +155,7 @@ func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Requ
 		opts.ServerJoinMessage = r.FormValue("serverJoinMessage")
 		opts.ContentManagerWelcomeMessage = r.FormValue("contentManagerWelcomeMessage")
 
-		if err := sah.store.UpsertServerOptions(opts); err != nil {
+		if err := slot.Store.UpsertServerOptions(opts); err != nil {
 			logrus.WithError(err).Error("couldn't save messages")
 			smweb.AddErrorFlash(w, r, "Failed to save message changes")
 			success = false
@@ -173,7 +166,7 @@ func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	b, err := ioutil.ReadFile(filepath.Join(sah.env.InstallPath(), MOTDFilename))
+	b, err := ioutil.ReadFile(filepath.Join(slot.Env.InstallPath(), MOTDFilename))
 
 	if err != nil && !os.IsNotExist(err) {
 		logrus.WithError(err).Error("couldn't find motd.txt")
@@ -195,10 +188,16 @@ type currentCFGTemplateVars struct {
 }
 
 func (sah *ServerAdministrationHandler) CurrentConfig(w http.ResponseWriter, r *http.Request) {
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	config := &serverconfig.ServerConfig{}
 	entryList := &serverconfig.EntryList{}
 
-	configText, err := config.ReadString(filepath.Join(sah.env.InstallPath(), serverenv.ConfigPath))
+	configText, err := config.ReadString(filepath.Join(slot.Env.InstallPath(), serverenv.ConfigPath))
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't load server config")
@@ -206,7 +205,7 @@ func (sah *ServerAdministrationHandler) CurrentConfig(w http.ResponseWriter, r *
 		return
 	}
 
-	entryListText, err := entryList.ReadString(filepath.Join(sah.env.InstallPath(), serverenv.ConfigPath))
+	entryListText, err := entryList.ReadString(filepath.Join(slot.Env.InstallPath(), serverenv.ConfigPath))
 
 	if err != nil {
 		logrus.WithError(err).Error("Couldn't load entry list")
@@ -227,7 +226,13 @@ type serverOptionsTemplateVars struct {
 }
 
 func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.Request) {
-	serverOpts, err := sah.raceManager.LoadServerOptions()
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	serverOpts, err := slot.RaceManager.LoadServerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load server options")
@@ -246,7 +251,7 @@ func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.R
 		sah.setFallBackSorting(serverOpts.FallBackResultsSorting == 1)
 
 		// save the config
-		err = sah.raceManager.SaveServerOptions(serverOpts)
+		err = slot.RaceManager.SaveServerOptions(serverOpts)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save config")
@@ -277,13 +282,19 @@ type serverBlacklistTemplateVars struct {
 }
 
 func (sah *ServerAdministrationHandler) Blacklist(w http.ResponseWriter, r *http.Request) {
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	if r.Method == http.MethodPost {
 		// save to blacklist.txt
 		var text string
 
 		if r.FormValue("type") == "single" {
 			// we're adding a single GUID, load the existing blacklist list then append
-			b, err := ioutil.ReadFile(filepath.Join(sah.env.InstallPath(), "blacklist.txt"))
+			b, err := ioutil.ReadFile(filepath.Join(slot.Env.InstallPath(), "blacklist.txt"))
 			if err != nil {
 				logrus.WithError(err).Error("couldn't find blacklist.txt")
 			}
@@ -297,7 +308,7 @@ func (sah *ServerAdministrationHandler) Blacklist(w http.ResponseWriter, r *http
 			text += "\n"
 		}
 
-		err := ioutil.WriteFile(filepath.Join(sah.env.InstallPath(), "blacklist.txt"), []byte(text), 0644)
+		err := ioutil.WriteFile(filepath.Join(slot.Env.InstallPath(), "blacklist.txt"), []byte(text), 0644)
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save blacklist")
@@ -308,7 +319,7 @@ func (sah *ServerAdministrationHandler) Blacklist(w http.ResponseWriter, r *http
 	}
 
 	// load blacklist.txt
-	b, err := ioutil.ReadFile(filepath.Join(sah.env.InstallPath(), "blacklist.txt")) // just pass the file name
+	b, err := ioutil.ReadFile(filepath.Join(slot.Env.InstallPath(), "blacklist.txt")) // just pass the file name
 	if err != nil {
 		logrus.WithError(err).Error("couldn't find blacklist.txt")
 	}
@@ -326,7 +337,13 @@ type autoFillEntrantListTemplateVars struct {
 }
 
 func (sah *ServerAdministrationHandler) AutoFillEntrantList(w http.ResponseWriter, r *http.Request) {
-	entrants, err := sah.raceManager.ListAutoFillEntrants()
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	entrants, err := slot.RaceManager.ListAutoFillEntrants()
 
 	if err != nil {
 		logrus.WithError(err).Error("could not list entrants")
@@ -340,7 +357,13 @@ func (sah *ServerAdministrationHandler) AutoFillEntrantList(w http.ResponseWrite
 }
 
 func (sah *ServerAdministrationHandler) AutoFillEntrantDelete(w http.ResponseWriter, r *http.Request) {
-	err := sah.store.DeleteEntrant(chi.URLParam(r, "entrantID"))
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := slot.Store.DeleteEntrant(chi.URLParam(r, "entrantID"))
 
 	if err != nil {
 		logrus.WithError(err).Error("could not delete entrant")
@@ -363,10 +386,16 @@ type logData struct {
 }
 
 func (sah *ServerAdministrationHandler) LogsAPI(w http.ResponseWriter, r *http.Request) {
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 
 	_ = json.NewEncoder(w).Encode(logData{
-		ServerLog:  sah.process.Logs(),
+		ServerLog:  slot.Process.Logs(),
 		ManagerLog: sah.managerLog.String(),
 		PluginsLog: sah.pluginsLog.String(),
 	})
@@ -374,11 +403,17 @@ func (sah *ServerAdministrationHandler) LogsAPI(w http.ResponseWriter, r *http.R
 
 // downloading logfiles
 func (sah *ServerAdministrationHandler) LogsDownload(w http.ResponseWriter, r *http.Request) {
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	logFile := chi.URLParam(r, "logFile")
 	var outputString string
 
 	if logFile == "server" {
-		outputString = sah.process.Logs()
+		outputString = slot.Process.Logs()
 	} else if logFile == "manager" {
 		outputString = sah.managerLog.String()
 	} else if logFile == "plugins" {
@@ -402,28 +437,34 @@ func (sah *ServerAdministrationHandler) LogsDownload(w http.ResponseWriter, r *h
 
 // serverProcessHandler modifies the server process.
 func (sah *ServerAdministrationHandler) ServerProcess(w http.ResponseWriter, r *http.Request) {
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	var err error
 	var txt string
 
-	event := sah.process.Event()
+	event := slot.Process.Event()
 
 	switch chi.URLParam(r, "action") {
 	case "stop":
 		if event.IsChampionship() && !event.IsPractice() {
-			err = sah.championshipManager.StopActiveEvent()
+			err = slot.ChampionshipManager.StopActiveEvent()
 		} else if event.IsRaceWeekend() && !event.IsPractice() {
-			err = sah.raceWeekendManager.StopActiveSession()
+			err = slot.RaceWeekendManager.StopActiveSession()
 		} else {
-			err = sah.process.Stop()
+			err = slot.Process.Stop()
 		}
 		txt = "stopped"
 	case "restart":
 		if event.IsChampionship() && !event.IsPractice() {
-			err = sah.championshipManager.RestartActiveEvent()
+			err = slot.ChampionshipManager.RestartActiveEvent()
 		} else if event.IsRaceWeekend() && !event.IsPractice() {
-			err = sah.raceWeekendManager.RestartActiveSession()
+			err = slot.RaceWeekendManager.RestartActiveSession()
 		} else {
-			err = sah.process.Restart()
+			err = slot.Process.Restart()
 		}
 		txt = "restarted"
 	}
@@ -463,8 +504,14 @@ func (sah *ServerAdministrationHandler) Changelog(w http.ResponseWriter, r *http
 }
 
 func (sah *ServerAdministrationHandler) Robots(w http.ResponseWriter, r *http.Request) {
+	slot, ok := sah.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	// do we want to let robots on the internet know things about us?!?
-	serverOpts, err := sah.store.LoadServerOptions()
+	serverOpts, err := slot.Store.LoadServerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load server options")

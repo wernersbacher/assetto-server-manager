@@ -60,6 +60,7 @@ func Router(
 	config *smconfig.Configuration,
 	fs http.FileSystem,
 	installPath string,
+	serverSelection func(http.Handler) http.Handler,
 	quickRaceHandler *smrace.QuickRaceHandler,
 	customRaceHandler *smrace.CustomRaceHandler,
 	eventDetailsHandler *admin.EventDetailsHandler,
@@ -90,6 +91,7 @@ func Router(
 	r.Use(compressor)
 	r.Use(panicHandler)
 	r.Use(accountHandler.RequestScopeMiddleware)
+	r.Use(serverSelection)
 
 	r.HandleFunc("/login", accountHandler.Login)
 	r.HandleFunc("/logout", accountHandler.Logout)

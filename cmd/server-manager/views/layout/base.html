@@ -66,7 +66,7 @@
             </button>
         {{ end }}
 
-        <a class="app-brand" href="/" title="{{ $.ServerName }}">
+        <a class="app-brand" href="{{ serverURL "/" }}" title="{{ $.ServerName }}">
             <span class="app-brand-mark">{{ template "icon" "flag" }}</span>
             <span class="app-brand-text">
                 <span class="app-brand-name">{{ $.ServerName }}</span>
@@ -76,15 +76,15 @@
 
         <div class="app-topbar-actions">
             {{ if $.ServerStatus }}
-                <a class="server-status is-running" {{ if ReadAccess }}href="/live-timing"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}">
+                <a class="server-status is-running" {{ if ReadAccess }}href="{{ serverURL "/live-timing" }}"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}">
                     <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}</span>
                 </a>
 
                 {{ if WriteAccess }}
-                    <a href="/process/stop" class="btn-outline is-danger" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
+                    <a href="{{ serverURL "/process/stop" }}" class="btn-outline is-danger" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
                         {{ template "icon" "stop" }}<span class="d-none d-md-inline">Stop</span>
                     </a>
-                    <a href="/process/restart" class="btn-outline btn-outline-icon" aria-label="Restart server" title="Restart server" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
+                    <a href="{{ serverURL "/process/restart" }}" class="btn-outline btn-outline-icon" aria-label="Restart server" title="Restart server" onClick="{{ template "ServerStopConfirm" $.ServerEvent }}">
                         {{ template "icon" "restart" }}
                     </a>
                 {{ end }}
@@ -123,23 +123,23 @@
         <nav class="app-sidebar" id="app-sidebar" aria-label="Main">
             <div class="nav-group">
                 <div class="nav-group-title">Racing</div>
-                <a class="nav-item-link {{ if eq $path "/" }}active{{ end }}" href="/">{{ template "icon" "overview" }}Overview</a>
-                <a class="nav-item-link {{ if hasPrefix "/live-timing" $path }}active{{ end }}" href="/live-timing">
+                <a class="nav-item-link {{ if eq $path "/" }}active{{ end }}" href="{{ serverURL "/" }}">{{ template "icon" "overview" }}Overview</a>
+                <a class="nav-item-link {{ if hasPrefix "/live-timing" $path }}active{{ end }}" href="{{ serverURL "/live-timing" }}">
                     {{ template "icon" "live" }}Live Timing
                     {{ if $.ServerStatus }}<span class="nav-badge">LIVE</span>{{ end }}
                 </a>
                 <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}Results</a>
                 <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}Championships</a>
                 <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}Race Weekends</a>
-                <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="/custom">{{ template "icon" "flag" }}Custom Races</a>
+                <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="{{ serverURL "/custom" }}">{{ template "icon" "flag" }}Custom Races</a>
                 <a class="nav-item-link {{ if hasPrefix "/calendar" $path }}active{{ end }}" href="/calendar">{{ template "icon" "calendar" }}Calendar</a>
             </div>
 
             {{ if WriteAccess }}
                 <div class="nav-group">
                     <div class="nav-group-title">Organize</div>
-                    <a class="nav-item-link {{ if hasPrefix "/quick" $path }}active{{ end }}" href="/quick">{{ template "icon" "quick" }}Quick Race</a>
-                    <a class="nav-item-link {{ if eq $path "/custom/new" }}active{{ end }}" href="/custom/new">{{ template "icon" "plus" }}New Custom Race</a>
+                    <a class="nav-item-link {{ if hasPrefix "/quick" $path }}active{{ end }}" href="{{ serverURL "/quick" }}">{{ template "icon" "quick" }}Quick Race</a>
+                    <a class="nav-item-link {{ if eq $path "/custom/new" }}active{{ end }}" href="{{ serverURL "/custom/new" }}">{{ template "icon" "plus" }}New Custom Race</a>
                     <a class="nav-item-link" href="/championships/new">{{ template "icon" "plus" }}New Championship</a>
                     <a class="nav-item-link" href="/race-weekends/new">{{ template "icon" "plus" }}New Race Weekend</a>
                 </div>
@@ -156,18 +156,18 @@
                 <div class="nav-group">
                     <div class="nav-group-title">Server</div>
                     {{ if AdminAccess }}
-                        <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="/server-options">{{ template "icon" "options" }}Options</a>
+                        <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="{{ serverURL "/server-options" }}">{{ template "icon" "options" }}Options</a>
                         <a class="nav-item-link {{ if hasPrefix "/accounts" $path }}active{{ end }}" href="/accounts">{{ template "icon" "accounts" }}Accounts</a>
-                        <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="/blacklist">{{ template "icon" "blacklist" }}Blacklist</a>
-                        <a class="nav-item-link {{ if hasPrefix "/motd" $path }}active{{ end }}" href="/motd">{{ template "icon" "message" }}Messages</a>
+                        <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="{{ serverURL "/blacklist" }}">{{ template "icon" "blacklist" }}Blacklist</a>
+                        <a class="nav-item-link {{ if hasPrefix "/motd" $path }}active{{ end }}" href="{{ serverURL "/motd" }}">{{ template "icon" "message" }}Messages</a>
                     {{ end }}
                     {{ if DeleteAccess }}
-                        <a class="nav-item-link {{ if hasPrefix "/autofill-entrants" $path }}active{{ end }}" href="/autofill-entrants">{{ template "icon" "autofill" }}AutoFill Entrants</a>
+                        <a class="nav-item-link {{ if hasPrefix "/autofill-entrants" $path }}active{{ end }}" href="{{ serverURL "/autofill-entrants" }}">{{ template "icon" "autofill" }}AutoFill Entrants</a>
                     {{ end }}
-                    <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="/logs">{{ template "icon" "logs" }}Logs</a>
+                    <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="{{ serverURL "/logs" }}">{{ template "icon" "logs" }}Logs</a>
                     {{ if AdminAccess }}
                         <a class="nav-item-link {{ if hasPrefix "/audit-logs" $path }}active{{ end }}" href="/audit-logs">{{ template "icon" "audit" }}Audit Logs</a>
-                        <a class="nav-item-link {{ if hasPrefix "/current-config" $path }}active{{ end }}" href="/current-config">{{ template "icon" "config" }}Current Config</a>
+                        <a class="nav-item-link {{ if hasPrefix "/current-config" $path }}active{{ end }}" href="{{ serverURL "/current-config" }}">{{ template "icon" "config" }}Current Config</a>
                     {{ end }}
                 </div>
 

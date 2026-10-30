@@ -25,12 +25,24 @@ type ServerState interface {
 	Event() smmodel.RaceEvent
 }
 
+// ServerContext is what the renderer needs to know about the server slot a request is for.
+type ServerContext struct {
+	ServerRef
+
+	// Store is the view of the store for the slot (see smstore.ForServer).
+	Store smstore.Store
+	State ServerState
+}
+
 // RendererOptions configure a Renderer.
 type RendererOptions struct {
 	Config *smconfig.Configuration
 	Store  smstore.Store
 	Loader TemplateLoader
-	Server ServerState
+
+	// ServerFor returns the server slot the request is for, Servers lists all slots.
+	ServerFor func(r *http.Request) (*ServerContext, error)
+	Servers   func() []ServerRef
 
 	// BuildVersion is shown in the UI and used to bust asset caches.
 	BuildVersion string
@@ -107,6 +119,7 @@ func (tr *Renderer) init() error {
 	funcs["DeleteAccess"] = dummyAccessFunc
 	funcs["AdminAccess"] = dummyAccessFunc
 	funcs["LoggedIn"] = dummyAccessFunc
+	funcs["serverURL"] = func(path string) string { return path }
 	funcs["stringArrayToCSV"] = stringArrayToCSV
 	funcs["dict"] = templateDict
 	funcs["asset"] = NewAssetHelper("/", "", "", map[string]string{"cb": tr.opts.BuildVersion}).GetURL
@@ -179,6 +192,7 @@ func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view st
 		"DeleteAccess": DeleteAccess(r),
 		"AdminAccess":  AdminAccess(r),
 		"LoggedIn":     LoggedIn(r),
+		"serverURL":    func(path string) string { return ServerURL(r, path) },
 	})
 
 	return t.ExecuteTemplate(w, "base", vars)
@@ -226,6 +240,7 @@ func (tr *Renderer) LoadPartial(w http.ResponseWriter, r *http.Request, partial 
 		"DeleteAccess": DeleteAccess(r),
 		"AdminAccess":  AdminAccess(r),
 		"LoggedIn":     LoggedIn(r),
+		"serverURL":    func(path string) string { return ServerURL(r, path) },
 	})
 
 	return t.ExecuteTemplate(w, "partial", vars)

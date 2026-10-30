@@ -5,9 +5,6 @@ import (
 	"net/http"
 
 	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 )
 
@@ -16,17 +13,13 @@ import (
 type EventDetailsHandler struct {
 	*smweb.BaseHandler
 
-	store               smstore.Store
-	championshipManager *smchampionship.ChampionshipManager
-	raceWeekendManager  *smraceweekend.RaceWeekendManager
+	slotFor SlotFor
 }
 
-func NewEventDetailsHandler(base *smweb.BaseHandler, store smstore.Store, championshipManager *smchampionship.ChampionshipManager, raceWeekendManager *smraceweekend.RaceWeekendManager) *EventDetailsHandler {
+func NewEventDetailsHandler(base *smweb.BaseHandler, slotFor SlotFor) *EventDetailsHandler {
 	return &EventDetailsHandler{
-		BaseHandler:         base,
-		store:               store,
-		championshipManager: championshipManager,
-		raceWeekendManager:  raceWeekendManager,
+		BaseHandler: base,
+		slotFor:     slotFor,
 	}
 }
 
@@ -40,6 +33,12 @@ type eventDetailsTemplateVars struct {
 }
 
 func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
+	slot, ok := edh.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	var (
 		eventConfig    serverconfig.CurrentRaceConfig
 		eventName      string
@@ -48,7 +47,7 @@ func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if customRaceID := r.URL.Query().Get("custom-race"); customRaceID != "" {
-		race, err := edh.store.FindCustomRaceByID(customRaceID)
+		race, err := slot.Store.FindCustomRaceByID(customRaceID)
 
 		if err != nil {
 			http.NotFound(w, r)
@@ -59,7 +58,7 @@ func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 		eventName = race.Name
 		entryList = race.EntryList
 	} else if championshipID := r.URL.Query().Get("championshipID"); championshipID != "" {
-		championship, err := edh.championshipManager.LoadChampionship(championshipID)
+		championship, err := slot.ChampionshipManager.LoadChampionship(championshipID)
 
 		if err != nil {
 			http.NotFound(w, r)
@@ -76,11 +75,11 @@ func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 		}
 
 		eventName = "Championship Event"
-		eventConfig, entryList = edh.championshipManager.FinalEventConfigurationFiles(championship, event, false)
+		eventConfig, entryList = slot.ChampionshipManager.FinalEventConfigurationFiles(championship, event, false)
 
 		isChampionship = true
 	} else if raceWeekendID := r.URL.Query().Get("raceWeekendID"); raceWeekendID != "" {
-		raceWeekend, err := edh.raceWeekendManager.LoadRaceWeekend(raceWeekendID)
+		raceWeekend, err := slot.RaceWeekendManager.LoadRaceWeekend(raceWeekendID)
 
 		if err != nil {
 			http.NotFound(w, r)
@@ -103,7 +102,7 @@ func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 		}
 
 		eventName = fmt.Sprintf("%s (%s)", session.Name(), raceWeekend.Name)
-		entryList, err = edh.raceWeekendManager.SessionEntryList(session, raceWeekend)
+		entryList, err = slot.RaceWeekendManager.SessionEntryList(session, raceWeekend)
 
 		if err != nil {
 			http.NotFound(w, r)

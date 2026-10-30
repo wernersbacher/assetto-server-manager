@@ -63,7 +63,7 @@ export class RaceControl {
             return;
         }
 
-        let ws = new ReconnectingWebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/api/race-control", [], {
+        let ws = new ReconnectingWebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/api/race-control" + window.location.search, [], {
             minReconnectionDelay: 0,
         });
 

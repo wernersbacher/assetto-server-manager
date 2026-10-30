@@ -14,8 +14,6 @@ import (
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
@@ -152,25 +150,15 @@ type CurrentRaceProvider interface {
 // RaceControlHandler serves the live timing page and the race control actions.
 type RaceControlHandler struct {
 	*smweb.BaseHandler
-	serverProcess smserver.ServerProcess
 
-	store          smstore.Store
-	raceManager    CurrentRaceProvider
-	env            *serverenv.Env
-	raceControl    *RaceControl
-	raceControlHub *RaceControlHub
+	slotFor SlotFor
 }
 
 // NewRaceControlHandler creates the handler of the live timing.
-func NewRaceControlHandler(baseHandler *smweb.BaseHandler, store smstore.Store, raceManager CurrentRaceProvider, raceControl *RaceControl, raceControlHub *RaceControlHub, serverProcess smserver.ServerProcess, env *serverenv.Env) *RaceControlHandler {
+func NewRaceControlHandler(baseHandler *smweb.BaseHandler, slotFor SlotFor) *RaceControlHandler {
 	return &RaceControlHandler{
-		BaseHandler:    baseHandler,
-		store:          store,
-		raceManager:    raceManager,
-		raceControl:    raceControl,
-		raceControlHub: raceControlHub,
-		serverProcess:  serverProcess,
-		env:            env,
+		BaseHandler: baseHandler,
+		slotFor:     slotFor,
 	}
 }
 
@@ -189,7 +177,13 @@ type liveTimingTemplateVars struct {
 }
 
 func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request) {
-	currentRace, entryList := rch.raceManager.CurrentRace()
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	currentRace, entryList := slot.RaceManager.CurrentRace()
 
 	var customRace *smmodel.CustomRace
 
@@ -197,7 +191,7 @@ func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request
 		customRace = &smmodel.CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
 	}
 
-	frameLinks, err := rch.store.ListPrevFrames()
+	frameLinks, err := slot.Store.ListPrevFrames()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not get frame links")
@@ -205,7 +199,7 @@ func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	serverOpts, err := rch.store.LoadServerOptions()
+	serverOpts, err := slot.Store.LoadServerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load server options")
@@ -225,7 +219,7 @@ func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request
 		}
 	}
 
-	strackerOptions, err := rch.store.LoadStrackerOptions()
+	strackerOptions, err := slot.Store.LoadStrackerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load stracker options")
@@ -239,7 +233,7 @@ func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request
 		sTrackerPublicURL = "/stracker/mainpage"
 	}
 
-	kissMyRankOptions, err := rch.store.LoadKissMyRankOptions()
+	kissMyRankOptions, err := slot.Store.LoadKissMyRankOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load kissmyrank options")
@@ -256,8 +250,8 @@ func (rch *RaceControlHandler) LiveTiming(w http.ResponseWriter, r *http.Request
 		CSSDotSmoothing:             udp.RealtimePosIntervalMs,
 		CMJoinLink:                  linkString,
 		UseMPH:                      serverOpts.UseMPH == 1,
-		IsStrackerEnabled:           smplugins.IsStrackerInstalled(rch.env.InstallPath()) && strackerOptions.EnableStracker,
-		IsKissMyRankEnabled:         smplugins.IsKissMyRankInstalled(rch.env.InstallPath()) && kissMyRankOptions.EnableKissMyRank,
+		IsStrackerEnabled:           smplugins.IsStrackerInstalled(slot.Env.InstallPath()) && strackerOptions.EnableStracker,
+		IsKissMyRankEnabled:         smplugins.IsKissMyRankInstalled(slot.Env.InstallPath()) && kissMyRankOptions.EnableKissMyRank,
 		KissMyRankWebStatsPublicURL: kissMyRankOptions.WebStatsPublicURL,
 		STrackerInterfacePublicURL:  sTrackerPublicURL,
 	})
@@ -274,6 +268,12 @@ func deleteEmpty(s []string) []string {
 }
 
 func (rch *RaceControlHandler) SaveIFrames(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	// Save the frame links from the form
 	err := r.ParseForm()
 
@@ -282,7 +282,7 @@ func (rch *RaceControlHandler) SaveIFrames(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	err = rch.store.UpsertLiveFrames(deleteEmpty(r.Form["frame-link"]))
+	err = slot.Store.UpsertLiveFrames(deleteEmpty(r.Form["frame-link"]))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not save frame links")
@@ -293,6 +293,12 @@ func (rch *RaceControlHandler) SaveIFrames(w http.ResponseWriter, r *http.Reques
 }
 
 func (rch *RaceControlHandler) Websocket(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	c, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
@@ -300,20 +306,20 @@ func (rch *RaceControlHandler) Websocket(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	client := &raceControlClient{hub: rch.raceControlHub, conn: c, receive: make(chan []byte, 256)}
+	client := &raceControlClient{hub: slot.Hub, conn: c, receive: make(chan []byte, 256)}
 	client.hub.register <- client
 
 	go client.writePump()
 
 	// new client, send them an initial race control message.
-	rch.raceControl.lastUpdateMessageMutex.Lock()
-	client.receive <- rch.raceControl.lastUpdateMessage
-	rch.raceControl.lastUpdateMessageMutex.Unlock()
+	slot.RaceControl.lastUpdateMessageMutex.Lock()
+	client.receive <- slot.RaceControl.lastUpdateMessage
+	slot.RaceControl.lastUpdateMessageMutex.Unlock()
 
 	// send stored chat messages to new client
-	rch.raceControl.ChatMessagesMutex.Lock()
+	slot.RaceControl.ChatMessagesMutex.Lock()
 
-	for _, message := range rch.raceControl.ChatMessages {
+	for _, message := range slot.RaceControl.ChatMessages {
 		encoded, err := encodeRaceControlMessage(message)
 
 		if err != nil {
@@ -323,15 +329,21 @@ func (rch *RaceControlHandler) Websocket(w http.ResponseWriter, r *http.Request)
 		client.receive <- encoded
 	}
 
-	rch.raceControl.ChatMessagesMutex.Unlock()
+	slot.RaceControl.ChatMessagesMutex.Unlock()
 }
 
 func (rch *RaceControlHandler) BroadcastChat(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		return
 	}
 
-	err := rch.raceControl.splitAndBroadcastChat(r.FormValue("broadcast-chat"), smweb.AccountFromRequest(r))
+	err := slot.RaceControl.splitAndBroadcastChat(r.FormValue("broadcast-chat"), smweb.AccountFromRequest(r))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to broadcast chat message")
@@ -339,6 +351,12 @@ func (rch *RaceControlHandler) BroadcastChat(w http.ResponseWriter, r *http.Requ
 }
 
 func (rch *RaceControlHandler) AdminCommand(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -346,7 +364,7 @@ func (rch *RaceControlHandler) AdminCommand(w http.ResponseWriter, r *http.Reque
 	adminCommand, err := udp.NewAdminCommand(r.FormValue("admin-command"))
 
 	if err == nil {
-		err := rch.serverProcess.SendUDPMessage(adminCommand)
+		err := slot.Process.SendUDPMessage(adminCommand)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Unable to send admin command")
@@ -357,6 +375,12 @@ func (rch *RaceControlHandler) AdminCommand(w http.ResponseWriter, r *http.Reque
 }
 
 func (rch *RaceControlHandler) KickUser(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -367,7 +391,7 @@ func (rch *RaceControlHandler) KickUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err := rch.raceControl.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
+	err := slot.RaceControl.ConnectedDrivers.Each(func(driverGUID udp.DriverGUID, driver *smmodel.RaceControlDriver) error {
 		if string(driverGUID) != guid {
 			return nil
 		}
@@ -378,7 +402,7 @@ func (rch *RaceControlHandler) KickUser(w http.ResponseWriter, r *http.Request) 
 			return err
 		}
 
-		return rch.serverProcess.SendUDPMessage(command)
+		return slot.Process.SendUDPMessage(command)
 	})
 
 	if err != nil {
@@ -387,6 +411,12 @@ func (rch *RaceControlHandler) KickUser(w http.ResponseWriter, r *http.Request) 
 }
 
 func (rch *RaceControlHandler) SendChat(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		return
 	}
@@ -397,7 +427,7 @@ func (rch *RaceControlHandler) SendChat(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	err := rch.raceControl.splitAndSendChat(r.FormValue("send-chat"), guid)
+	err := slot.RaceControl.splitAndSendChat(r.FormValue("send-chat"), guid)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to send chat message to driver: %s", guid)
@@ -405,7 +435,13 @@ func (rch *RaceControlHandler) SendChat(w http.ResponseWriter, r *http.Request) 
 }
 
 func (rch *RaceControlHandler) RestartSession(w http.ResponseWriter, r *http.Request) {
-	err := rch.serverProcess.SendUDPMessage(&udp.RestartSession{})
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := slot.Process.SendUDPMessage(&udp.RestartSession{})
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to restart session")
@@ -413,11 +449,17 @@ func (rch *RaceControlHandler) RestartSession(w http.ResponseWriter, r *http.Req
 		smweb.AddErrorFlash(w, r, "The server was unable to restart the session!")
 	}
 
-	http.Redirect(w, r, "/live-timing", http.StatusFound)
+	http.Redirect(w, r, smweb.ServerURL(r, "/live-timing"), http.StatusFound)
 }
 
 func (rch *RaceControlHandler) NextSession(w http.ResponseWriter, r *http.Request) {
-	err := rch.serverProcess.SendUDPMessage(&udp.NextSession{})
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := slot.Process.SendUDPMessage(&udp.NextSession{})
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to move to next session")
@@ -425,10 +467,15 @@ func (rch *RaceControlHandler) NextSession(w http.ResponseWriter, r *http.Reques
 		smweb.AddErrorFlash(w, r, "The server was unable to move to the next session!")
 	}
 
-	http.Redirect(w, r, "/live-timing", http.StatusFound)
+	http.Redirect(w, r, smweb.ServerURL(r, "/live-timing"), http.StatusFound)
 }
 
 func (rch *RaceControlHandler) Countdown(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
 
 	// broadcast countdown
 	ticker := time.NewTicker(time.Second * 3)
@@ -449,7 +496,7 @@ func (rch *RaceControlHandler) Countdown(w http.ResponseWriter, r *http.Request)
 			return
 		}
 
-		err := rch.raceControl.splitAndBroadcastChat(countdown, nil)
+		err := slot.RaceControl.splitAndBroadcastChat(countdown, nil)
 
 		if err != nil {
 			logrus.WithError(err).Error("Unable to broadcast countdown message")

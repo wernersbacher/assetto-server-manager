@@ -129,7 +129,8 @@ func (r *Resolver) initViewRenderer() error {
 		Config:       r.config,
 		Store:        r.store,
 		Loader:       r.templateLoader,
-		Server:       r.resolveServerProcess(),
+		ServerFor:    r.serverContextFor,
+		Servers:      r.serverRefs,
 		BuildVersion: BuildVersion,
 		Debug:        Debug,
 		Reload:       r.reloadTemplates,
@@ -187,6 +188,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 
 	slotConfig := r.slotConfig(slot)
 	store := smstore.ForServer(r.store, smmodel.ServerID(slotConfig.ID))
+	slot.Store = store
 
 	// the process reads the executable of the slot from the steam section
 	processConfig := *r.config
@@ -284,7 +286,7 @@ func (r *Resolver) resolveCustomRaceHandler() *smrace.CustomRaceHandler {
 	r.customRaceHandler = smrace.NewCustomRaceHandler(
 		r.config,
 		r.resolveBaseHandler(),
-		r.resolveRaceManager(),
+		r.raceManagerFor,
 		r.ResolveStore(),
 	)
 
@@ -296,7 +298,7 @@ func (r *Resolver) resolveEventDetailsHandler() *admin.EventDetailsHandler {
 		return r.eventDetailsHandler
 	}
 
-	r.eventDetailsHandler = admin.NewEventDetailsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveChampionshipManager(), r.resolveRaceWeekendManager())
+	r.eventDetailsHandler = admin.NewEventDetailsHandler(r.resolveBaseHandler(), r.adminSlotFor)
 
 	return r.eventDetailsHandler
 }
@@ -326,7 +328,7 @@ func (r *Resolver) resolveQuickRaceHandler() *smrace.QuickRaceHandler {
 		return r.quickRaceHandler
 	}
 
-	r.quickRaceHandler = smrace.NewQuickRaceHandler(r.config, r.resolveBaseHandler(), r.resolveRaceManager())
+	r.quickRaceHandler = smrace.NewQuickRaceHandler(r.config, r.resolveBaseHandler(), r.raceManagerFor)
 
 	return r.quickRaceHandler
 }
@@ -484,13 +486,8 @@ func (r *Resolver) resolveServerAdministrationHandler() *admin.ServerAdministrat
 	r.serverAdministrationHandler = admin.NewServerAdministrationHandler(
 		r.config,
 		r.resolveBaseHandler(),
-		r.ResolveStore(),
-		r.resolveRaceManager(),
-		r.resolveChampionshipManager(),
-		r.resolveRaceWeekendManager(),
-		r.resolveServerProcess(),
+		r.adminSlotFor,
 		r.resolveScheduledRacesManager(),
-		r.resolveEnv(),
 		admin.Logs{Manager: logOutput, Plugins: pluginsOutput},
 		changelogHTML,
 		r.state.SetFallBackSorting,
@@ -528,12 +525,7 @@ func (r *Resolver) resolveRaceControlHandler() *racecontrol.RaceControlHandler {
 
 	r.raceControlHandler = racecontrol.NewRaceControlHandler(
 		r.resolveBaseHandler(),
-		r.ResolveStore(),
-		r.resolveRaceManager(),
-		r.ResolveRaceControl(),
-		r.resolveRaceControlHub(),
-		r.resolveServerProcess(),
-		r.resolveEnv(),
+		r.raceControlSlotFor,
 	)
 
 	return r.raceControlHandler
@@ -589,7 +581,7 @@ func (r *Resolver) resolveHealthCheck() *admin.HealthCheck {
 		return r.healthCheck
 	}
 
-	r.healthCheck = admin.NewHealthCheck(r.ResolveRaceControl(), r.ResolveStore(), r.resolveServerProcess(), r.resolveEnv(), BuildVersion)
+	r.healthCheck = admin.NewHealthCheck(r.adminSlotFor, BuildVersion)
 
 	return r.healthCheck
 }
@@ -623,10 +615,14 @@ func (r *Resolver) resolveRealPenaltyHandler() *pluginhttp.RealPenaltyHandler {
 }
 
 func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
+	// the stacks of all slots have to exist before requests are served
+	r.Servers()
+
 	return Router(
 		r.config,
 		fs,
 		r.state.InstallPath(),
+		smweb.ServerSelectionMiddleware(r.isServerID),
 		r.resolveQuickRaceHandler(),
 		r.resolveCustomRaceHandler(),
 		r.resolveEventDetailsHandler(),

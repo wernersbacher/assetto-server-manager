@@ -16,6 +16,7 @@ import (
 	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
 	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
 	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -30,6 +31,10 @@ type Slot struct {
 	// Env is the environment of the managers of this slot (install path and server id of the slot, results
 	// directories of all slots).
 	Env *serverenv.Env
+
+	// Store is the view of the store for the slot (see smstore.ForServer): its server options, live timings and last
+	// race event are those of the slot.
+	Store smstore.Store
 
 	Process               smserver.ServerProcess
 	ContentManagerWrapper *smserver.ContentManagerWrapper

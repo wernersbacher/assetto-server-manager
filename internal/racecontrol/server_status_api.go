@@ -146,9 +146,15 @@ func NewAPIServerStatus(env *serverenv.Env, running bool, serverName string, eve
 
 // serverStatusAPI returns the current state of the server in the API format.
 func (rch *RaceControlHandler) ServerStatusAPI(w http.ResponseWriter, r *http.Request) {
+	slot, ok := rch.slot(w, r)
+
+	if !ok {
+		return
+	}
+
 	var serverName string
 
-	opts, err := rch.store.LoadServerOptions()
+	opts, err := slot.Store.LoadServerOptions()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't load server options")
@@ -156,7 +162,7 @@ func (rch *RaceControlHandler) ServerStatusAPI(w http.ResponseWriter, r *http.Re
 		serverName = opts.Name
 	}
 
-	api.WriteJSON(w, NewAPIServerStatus(rch.env, rch.serverProcess.IsRunning(), serverName, rch.serverProcess.Event(), rch.raceControl))
+	api.WriteJSON(w, NewAPIServerStatus(slot.Env, slot.Process.IsRunning(), serverName, slot.Process.Event(), slot.RaceControl))
 }
 
 // apiSessionType converts the session type of the UDP plugin protocol to the session types used in results and

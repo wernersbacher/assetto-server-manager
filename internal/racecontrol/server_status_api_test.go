@@ -7,8 +7,10 @@ import (
 	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
 	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
 	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
 
 	"encoding/json"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -53,10 +55,14 @@ func TestRaceControlHandlerServerStatusAPI(t *testing.T) {
 
 	process := stoppedServerProcess{}
 	rch := &RaceControlHandler{
-		store:         store,
-		serverProcess: process,
-		env:           testEnv(),
-		raceControl:   NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, NilTrackData{}, process, store, NewPenaltiesManager(store, testEnv()), testEnv()),
+		slotFor: func(r *http.Request) (*Slot, error) {
+			return &Slot{
+				Store:       store,
+				Process:     process,
+				Env:         testEnv(),
+				RaceControl: NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, NilTrackData{}, process, store, NewPenaltiesManager(store, testEnv()), testEnv()),
+			}, nil
+		},
 	}
 
 	rec := httptest.NewRecorder()
@@ -167,4 +173,78 @@ func TestNewAPIServerStatus(t *testing.T) {
 			t.Errorf("unexpected status: %+v", out)
 		}
 	})
+}
+
+func TestRaceControlHandlerUsesSlotOfRequest(t *testing.T) {
+	dir, err := ioutil.TempDir("", "server-status-slots")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "store-shared"))
+	process := stoppedServerProcess{}
+
+	slots := make(map[smmodel.ServerID]*Slot)
+
+	for id, name := range map[smmodel.ServerID]string{"": "Default Server", "b": "Server B"} {
+		opts := serverconfig.ConfigIniDefault().GlobalServerConfig
+		opts.Name = name
+
+		slotStore := smstore.ForServer(store, id)
+
+		if err := slotStore.UpsertServerOptions(&opts); err != nil {
+			t.Fatal(err)
+		}
+
+		slots[id] = &Slot{
+			Store:       slotStore,
+			Process:     process,
+			Env:         testEnv(),
+			RaceControl: NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, NilTrackData{}, process, slotStore, NewPenaltiesManager(slotStore, testEnv()), testEnv()),
+		}
+	}
+
+	rch := &RaceControlHandler{
+		slotFor: func(r *http.Request) (*Slot, error) {
+			slot, ok := slots[smweb.RequestedServerID(r)]
+
+			if !ok {
+				return nil, errors.New("unknown server")
+			}
+
+			return slot, nil
+		},
+	}
+
+	for _, tc := range []struct {
+		requested smmodel.ServerID
+		name      string
+	}{
+		{"", "Default Server"},
+		{"b", "Server B"},
+	} {
+		req := smweb.WithRequestedServerID(httptest.NewRequest(http.MethodGet, "/api/server-status", nil), tc.requested)
+		rec := httptest.NewRecorder()
+		rch.ServerStatusAPI(rec, req)
+
+		var out APIServerStatus
+
+		if err := json.Unmarshal(rec.Body.Bytes(), &out); err != nil {
+			t.Fatal(err)
+		}
+
+		if out.ServerName != tc.name {
+			t.Errorf("server %q: expected name %q, got %q", tc.requested, tc.name, out.ServerName)
+		}
+	}
+
+	rec := httptest.NewRecorder()
+	rch.ServerStatusAPI(rec, smweb.WithRequestedServerID(httptest.NewRequest(http.MethodGet, "/api/server-status", nil), "missing"))
+
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("expected 404 for an unknown server, got %d", rec.Code)
+	}
 }

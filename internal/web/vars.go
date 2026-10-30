@@ -14,20 +14,25 @@ type TemplateVars interface {
 }
 
 type BaseTemplateVars struct {
-	Messages              []interface{}
-	Errors                []interface{}
-	ServerStatus          bool
-	ServerEvent           smmodel.RaceEvent
-	ServerName            string
-	CustomCSS             template.CSS
-	User                  *smmodel.Account
-	IsDarkTheme           bool
-	Request               *http.Request
-	Debug                 bool
-	RecaptchaSiteKey      string
-	WideContainer         bool
-	OGImage               string
-	ServerID              smmodel.ServerID
+	Messages         []interface{}
+	Errors           []interface{}
+	ServerStatus     bool
+	ServerEvent      smmodel.RaceEvent
+	ServerName       string
+	CustomCSS        template.CSS
+	User             *smmodel.Account
+	IsDarkTheme      bool
+	Request          *http.Request
+	Debug            bool
+	RecaptchaSiteKey string
+	WideContainer    bool
+	OGImage          string
+	ServerID         smmodel.ServerID
+
+	// CurrentServer is the server slot the page is for, Servers lists all slots.
+	CurrentServer ServerRef
+	Servers       []ServerRef
+
 	ShowEventDetailsPopup bool
 	ShowUpgradePopup      bool
 }
@@ -54,14 +59,22 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	_ = session.Save(r, w)
 	_ = errSession.Save(r, w)
 
-	opts, err := tr.opts.Store.LoadServerOptions()
+	server, err := tr.opts.ServerFor(r)
 
 	if err != nil {
 		return err
 	}
 
-	data.ServerStatus = tr.opts.Server.IsRunning()
-	data.ServerEvent = tr.opts.Server.Event()
+	opts, err := server.Store.LoadServerOptions()
+
+	if err != nil {
+		return err
+	}
+
+	data.CurrentServer = server.ServerRef
+	data.Servers = tr.opts.Servers()
+	data.ServerStatus = server.State.IsRunning()
+	data.ServerEvent = server.State.Event()
 	data.ServerName = opts.Name
 	data.CustomCSS = template.CSS(opts.CustomCSS)
 	data.User = AccountFromRequest(r)

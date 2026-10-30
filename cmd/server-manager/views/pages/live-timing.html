@@ -116,7 +116,7 @@
         </div>
 
         <div id="popover-content-admin-panel" class="d-none">
-            <form class="form-inline p-1" id="broadcast-chat-form" name="broadcast-chat-form" action="/broadcast-chat">
+            <form class="form-inline p-1" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}">
 
                 <div class="form-row">
                     <label for="broadcast-chat">Broadcast Chat: </label>
@@ -130,7 +130,7 @@
 
             </form>
 
-            <form class="form p-1" id="send-chat-form" name="send-chat-form" action="/send-chat">
+            <form class="form p-1" id="send-chat-form" name="send-chat-form" action="{{ serverURL "/send-chat" }}">
                 <div class="form-row" style="margin-bottom: -7px">
                     <label for="send-chat">Send Chat to Driver: </label>
                 </div>
@@ -149,7 +149,7 @@
                 </div>
             </form>
 
-            <form class="form-inline p-1" id="admin-command-form" name="admin-command-form" action="/admin-command">
+            <form class="form-inline p-1" id="admin-command-form" name="admin-command-form" action="{{ serverURL "/admin-command" }}">
 
                 <div class="form-row">
                     <label for="admin-command">Admin Command: </label>
@@ -163,7 +163,7 @@
 
             </form>
 
-            <form class="form p-1" id="kick-user-form" name="kick-user-form" action="/kick-user">
+            <form class="form p-1" id="kick-user-form" name="kick-user-form" action="{{ serverURL "/kick-user" }}">
                 <div class="form-row" style="margin-bottom: -7px">
                     <label for="kick-user">Kick Driver: </label>
                 </div>
@@ -179,11 +179,11 @@
             </form>
 
             <div style="height: 43px">
-                <a id="countdown" href="/countdown" class="btn btn-info btn-sm mt-3">Broadcast Countdown</a>
+                <a id="countdown" href="{{ serverURL "/countdown" }}" class="btn btn-info btn-sm mt-3">Broadcast Countdown</a>
             </div>
 
-            <a id="next-session" href="/next-session" class="btn btn-success btn-sm mt-3">Next Session</a>
-            <a id="restart-session" href="/restart-session" class="btn btn-warning btn-sm mt-3">Restart Session</a>
+            <a id="next-session" href="{{ serverURL "/next-session" }}" class="btn btn-success btn-sm mt-3">Next Session</a>
+            <a id="restart-session" href="{{ serverURL "/restart-session" }}" class="btn btn-warning btn-sm mt-3">Restart Session</a>
 
 
 
@@ -256,7 +256,7 @@
 
                     {{ if AdminAccess }}
 
-                        <form class="form mt-2" id="broadcast-chat-form" name="broadcast-chat-form" action="/broadcast-chat" autocomplete="off">
+                        <form class="form mt-2" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}" autocomplete="off">
                             <div class="form-group">
                                 <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="Broadcast chat">
                             </div>
@@ -267,7 +267,7 @@
             </div>
         </div>
 
-        <form action="/live-timing/save-frames" method="post" class="live-frames row mt-2">
+        <form action="{{ serverURL "/live-timing/save-frames" }}" method="post" class="live-frames row mt-2">
             <!-- Hidden, used for cloning -->
             {{ template "iframe-block" }}
 

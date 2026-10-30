@@ -11,11 +11,7 @@ import (
 
 	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
 	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
 	"github.com/wernersbacher/assetto-server-manager/internal/steam"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
 	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
 )
 
@@ -23,20 +19,14 @@ var LaunchTime = time.Now()
 
 // HealthCheck serves the health of the server manager as JSON.
 type HealthCheck struct {
-	raceControl  *racecontrol.RaceControl
-	process      smserver.ServerProcess
-	store        smstore.Store
-	env          *serverenv.Env
+	slotFor      SlotFor
 	buildVersion string
 }
 
-func NewHealthCheck(raceControl *racecontrol.RaceControl, store smstore.Store, process smserver.ServerProcess, env *serverenv.Env, buildVersion string) *HealthCheck {
+func NewHealthCheck(slotFor SlotFor, buildVersion string) *HealthCheck {
 	return &HealthCheck{
-		env:          env,
+		slotFor:      slotFor,
 		buildVersion: buildVersion,
-		store:        store,
-		raceControl:  raceControl,
-		process:      process,
 	}
 }
 
@@ -71,8 +61,15 @@ type HealthCheckResponse struct {
 }
 
 func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	event := h.process.Event()
-	opts, err := h.store.LoadServerOptions()
+	slot, err := h.slotFor(r)
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	event := slot.Process.Event()
+	opts, err := slot.Store.LoadServerOptions()
 
 	var serverName string
 
@@ -90,22 +87,22 @@ func (h *HealthCheck) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		GoVersion:     runtime.Version(),
 
 		ServerName:          serverName,
-		ServerID:            h.env.ServerID(),
-		EventInProgress:     h.process.IsRunning(),
-		EventIsCritical:     !event.IsPractice() && (event.IsChampionship() || event.IsRaceWeekend() || h.raceControl.SessionInfo.Type == udp.SessionTypeRace || h.raceControl.SessionInfo.Type == udp.SessionTypeQualifying),
+		ServerID:            slot.Env.ServerID(),
+		EventInProgress:     slot.Process.IsRunning(),
+		EventIsCritical:     !event.IsPractice() && (event.IsChampionship() || event.IsRaceWeekend() || slot.RaceControl.SessionInfo.Type == udp.SessionTypeRace || slot.RaceControl.SessionInfo.Type == udp.SessionTypeQualifying),
 		EventIsChampionship: event.IsChampionship(),
 		EventIsRaceWeekend:  event.IsRaceWeekend(),
 		EventIsPractice:     event.IsPractice(),
-		NumConnectedDrivers: h.raceControl.ConnectedDrivers.Len(),
-		AssettoIsInstalled:  steam.IsAssettoInstalled(h.env.InstallPath()),
-		StrackerIsInstalled: smplugins.IsStrackerInstalled(h.env.InstallPath()),
+		NumConnectedDrivers: slot.RaceControl.ConnectedDrivers.Len(),
+		AssettoIsInstalled:  steam.IsAssettoInstalled(slot.Env.InstallPath()),
+		StrackerIsInstalled: smplugins.IsStrackerInstalled(slot.Env.InstallPath()),
 
-		ConfigDirectoryIsWritable:  IsDirWriteable(filepath.Join(h.env.InstallPath(), "cfg")) == nil,
-		CarDirectoryIsWritable:     IsDirWriteable(filepath.Join(h.env.InstallPath(), "content", "cars")) == nil,
-		TrackDirectoryIsWritable:   IsDirWriteable(filepath.Join(h.env.InstallPath(), "content", "tracks")) == nil,
-		WeatherDirectoryIsWritable: IsDirWriteable(filepath.Join(h.env.InstallPath(), "content", "weather")) == nil,
-		SetupsDirectoryIsWritable:  IsDirWriteable(filepath.Join(h.env.InstallPath(), "setups")) == nil,
-		ResultsDirectoryIsWritable: IsDirWriteable(filepath.Join(h.env.InstallPath(), "results")) == nil,
+		ConfigDirectoryIsWritable:  IsDirWriteable(filepath.Join(slot.Env.InstallPath(), "cfg")) == nil,
+		CarDirectoryIsWritable:     IsDirWriteable(filepath.Join(slot.Env.InstallPath(), "content", "cars")) == nil,
+		TrackDirectoryIsWritable:   IsDirWriteable(filepath.Join(slot.Env.InstallPath(), "content", "tracks")) == nil,
+		WeatherDirectoryIsWritable: IsDirWriteable(filepath.Join(slot.Env.InstallPath(), "content", "weather")) == nil,
+		SetupsDirectoryIsWritable:  IsDirWriteable(filepath.Join(slot.Env.InstallPath(), "setups")) == nil,
+		ResultsDirectoryIsWritable: IsDirWriteable(filepath.Join(slot.Env.InstallPath(), "results")) == nil,
 	})
 }
 

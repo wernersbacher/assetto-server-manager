@@ -17,16 +17,16 @@ import (
 type CustomRaceHandler struct {
 	*smweb.BaseHandler
 
-	config      *smconfig.Configuration
-	raceManager *RaceManager
-	store       smstore.Store
+	config     *smconfig.Configuration
+	managerFor ManagerFor
+	store      smstore.Store
 }
 
-func NewCustomRaceHandler(config *smconfig.Configuration, base *smweb.BaseHandler, raceManager *RaceManager, store smstore.Store) *CustomRaceHandler {
+func NewCustomRaceHandler(config *smconfig.Configuration, base *smweb.BaseHandler, managerFor ManagerFor, store smstore.Store) *CustomRaceHandler {
 	return &CustomRaceHandler{
 		config:      config,
 		BaseHandler: base,
-		raceManager: raceManager,
+		managerFor:  managerFor,
 		store:       store,
 	}
 }
@@ -38,7 +38,13 @@ type customRaceListTemplateVars struct {
 }
 
 func (crh *CustomRaceHandler) List(w http.ResponseWriter, r *http.Request) {
-	recent, starred, looped, scheduled, err := crh.raceManager.ListCustomRaces()
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	recent, starred, looped, scheduled, err := manager.ListCustomRaces()
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list custom races")
@@ -55,7 +61,13 @@ func (crh *CustomRaceHandler) List(w http.ResponseWriter, r *http.Request) {
 }
 
 func (crh *CustomRaceHandler) CreateOrEdit(w http.ResponseWriter, r *http.Request) {
-	customRaceData, err := crh.raceManager.BuildRaceOpts(r)
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	customRaceData, err := manager.BuildRaceOpts(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build custom race")
@@ -67,7 +79,13 @@ func (crh *CustomRaceHandler) CreateOrEdit(w http.ResponseWriter, r *http.Reques
 }
 
 func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
-	err := crh.raceManager.SetupCustomRace(r)
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := manager.SetupCustomRace(r)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't apply custom race")
@@ -79,21 +97,27 @@ func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 
 	if action == "justSave" {
 		smweb.AddFlash(w, r, "Custom race saved!")
-		http.Redirect(w, r, "/custom", http.StatusFound)
+		http.Redirect(w, r, smweb.ServerURL(r, "/custom"), http.StatusFound)
 	} else if action == "schedule" {
 		smweb.AddFlash(w, r, "Custom race scheduled!")
-		http.Redirect(w, r, "/custom", http.StatusFound)
+		http.Redirect(w, r, smweb.ServerURL(r, "/custom"), http.StatusFound)
 	} else {
 		smweb.AddFlash(w, r, "Custom race started!")
 		if crh.config.Server.PerformanceMode {
 			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
-			http.Redirect(w, r, "/live-timing", http.StatusFound)
+			http.Redirect(w, r, smweb.ServerURL(r, "/live-timing"), http.StatusFound)
 		}
 	}
 }
 
 func (crh *CustomRaceHandler) Schedule(w http.ResponseWriter, r *http.Request) {
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
 	if err := r.ParseForm(); err != nil {
 		logrus.WithError(err).Errorf("couldn't parse schedule race form")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -121,7 +145,7 @@ func (crh *CustomRaceHandler) Schedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = crh.raceManager.ScheduleRace(raceID, date, r.FormValue("action"), r.FormValue("event-schedule-recurrence"))
+	err = manager.ScheduleRace(raceID, date, r.FormValue("action"), r.FormValue("event-schedule-recurrence"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't schedule race")
@@ -134,7 +158,13 @@ func (crh *CustomRaceHandler) Schedule(w http.ResponseWriter, r *http.Request) {
 }
 
 func (crh *CustomRaceHandler) RemoveSchedule(w http.ResponseWriter, r *http.Request) {
-	err := crh.raceManager.ScheduleRace(chi.URLParam(r, "uuid"), time.Time{}, "remove", "")
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := manager.ScheduleRace(chi.URLParam(r, "uuid"), time.Time{}, "remove", "")
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't remove scheduled race")
@@ -146,7 +176,13 @@ func (crh *CustomRaceHandler) RemoveSchedule(w http.ResponseWriter, r *http.Requ
 }
 
 func (crh *CustomRaceHandler) Start(w http.ResponseWriter, r *http.Request) {
-	_, err := crh.raceManager.StartCustomRace(chi.URLParam(r, "uuid"), false)
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	_, err := manager.StartCustomRace(chi.URLParam(r, "uuid"), false)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't apply custom race")
@@ -159,12 +195,18 @@ func (crh *CustomRaceHandler) Start(w http.ResponseWriter, r *http.Request) {
 	if crh.config.Server.PerformanceMode {
 		http.Redirect(w, r, "/", http.StatusFound)
 	} else {
-		http.Redirect(w, r, "/live-timing", http.StatusFound)
+		http.Redirect(w, r, smweb.ServerURL(r, "/live-timing"), http.StatusFound)
 	}
 }
 
 func (crh *CustomRaceHandler) Delete(w http.ResponseWriter, r *http.Request) {
-	err := crh.raceManager.DeleteCustomRace(chi.URLParam(r, "uuid"))
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := manager.DeleteCustomRace(chi.URLParam(r, "uuid"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't delete custom race")
@@ -177,7 +219,13 @@ func (crh *CustomRaceHandler) Delete(w http.ResponseWriter, r *http.Request) {
 }
 
 func (crh *CustomRaceHandler) Star(w http.ResponseWriter, r *http.Request) {
-	err := crh.raceManager.ToggleStarCustomRace(chi.URLParam(r, "uuid"))
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	err := manager.ToggleStarCustomRace(chi.URLParam(r, "uuid"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't star custom race")
@@ -190,7 +238,13 @@ func (crh *CustomRaceHandler) Star(w http.ResponseWriter, r *http.Request) {
 }
 
 func (crh *CustomRaceHandler) Loop(w http.ResponseWriter, r *http.Request) {
-	loopStatus, err := crh.raceManager.ToggleLoopCustomRace(chi.URLParam(r, "uuid"))
+	manager, ok := crh.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	loopStatus, err := manager.ToggleLoopCustomRace(chi.URLParam(r, "uuid"))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't add custom race to loop")

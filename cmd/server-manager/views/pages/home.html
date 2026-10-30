@@ -71,7 +71,7 @@
 
                 {{ if not $.PerformanceMode }}
                     <div>
-                        <a href="/live-timing" class="btn btn-primary">Open live timing {{ template "icon" "arrow-right" }}</a>
+                        <a href="{{ serverURL "/live-timing" }}" class="btn btn-primary">Open live timing {{ template "icon" "arrow-right" }}</a>
                     </div>
                 {{ end }}
             {{ else }}
