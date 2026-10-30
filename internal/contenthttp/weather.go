@@ -33,6 +33,8 @@ type weatherListTemplateVars struct {
 	smweb.BaseTemplateVars
 
 	Weathers smcontent.Weather
+	// Installed holds the keys of the presets which have a folder on the server and can therefore be deleted.
+	Installed map[string]bool
 }
 
 func (wh *WeatherHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -45,8 +47,22 @@ func (wh *WeatherHandler) List(w http.ResponseWriter, r *http.Request) {
 	}
 
 	wh.ViewRenderer.MustLoadTemplate(w, r, "content/weather.html", &weatherListTemplateVars{
-		Weathers: weather,
+		Weathers:  weather,
+		Installed: installedWeatherPresets(wh.env.InstallPath(), weather),
 	})
+}
+
+// installedWeatherPresets returns the keys of the listed presets which exist as a folder on the server.
+func installedWeatherPresets(installPath string, weather smcontent.Weather) map[string]bool {
+	installed := make(map[string]bool)
+
+	for key := range weather {
+		if info, err := os.Stat(filepath.Join(installPath, "content", "weather", key)); err == nil && info.IsDir() {
+			installed[key] = true
+		}
+	}
+
+	return installed
 }
 
 // errWeatherNotInstalled is returned if there is no folder for a weather preset, e.g. for the built-in presets

@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
 )
 
 func TestRemoveWeatherPreset(t *testing.T) {
@@ -39,5 +41,26 @@ func TestRemoveWeatherPreset(t *testing.T) {
 
 	if _, err := os.Stat(weatherPath); err != nil {
 		t.Errorf("weather folder must not be removed: %v", err)
+	}
+}
+
+func TestInstalledWeatherPresets(t *testing.T) {
+	installPath, err := ioutil.TempDir("", "weather-installed")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(installPath)
+
+	if err := os.MkdirAll(filepath.Join(installPath, "content", "weather", "my_preset"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	listed := smcontent.Weather{"3_clear": "Clear", "my_preset": "My Preset"}
+	installed := installedWeatherPresets(installPath, listed)
+
+	if installed["3_clear"] || !installed["my_preset"] {
+		t.Fatalf("expected only my_preset to be installed, got %v", installed)
 	}
 }

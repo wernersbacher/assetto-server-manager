@@ -51,7 +51,7 @@ Fixed:
 * Submitting an inconsistent Championship form (e.g. fewer points, cars or entrants than announced) now answers with a clear error (HTTP 400) instead of an internal server error.
 * Accepting a sign-up into a Championship that has no free slot left now shows a message instead of an error page. The same applies to sign-ups without approval when the car choice is hidden.
 * Championship standings: drivers who are tied on points and on all finishing positions are now ordered by name instead of in a random order.
-* Deleting a built-in weather preset (which has no files on the server) no longer claims success; the message now says it cannot be deleted.
+* Deleting a built-in weather preset (which has no files on the server) no longer claims success; the message now says it cannot be deleted, and the Weather page no longer shows a delete button for such presets.
 * Fixes the "fall back results sorting" server option for driver swap cars: the swap car is no longer listed twice and keeps its total time and best lap.
 
 Removed:
