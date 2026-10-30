@@ -17,10 +17,12 @@
     </div>
 
     {{ if WriteAccess }}
+        <div class="stack">
         {{ template "content-upload" dict "Kind" "car" "Plural" "cars" "Tags" true "OnlyKS" true }}
 
         <div id="car-fail"></div>
         <div id="car-info-panel"></div>
+        </div>
     {{ end }}
 
     <form method="get" action="/cars" class="content-search mb-3">

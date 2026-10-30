@@ -3,6 +3,8 @@ Unreleased
 
 Added:
 
+* Upload panels on the Cars, Tracks and Weather pages are spaced consistently with their preview and error panels, the "Only upload official KS content" switch (and all other switches) follow the theme in light and dark mode, the sticky save bar floats slightly above the viewport edge and focused fields scroll clear of it, and the Legal Tyres boxes and the highlighted weather card use theme colours in dark mode.
+
 * The Custom Races, Championships and Race Weekends lists have a clear button hierarchy: one primary action (Start / View), outline buttons for the rest and Delete only in a More menu (still with the confirmation dialog). Custom Races uses the page header, and the legacy green, orange, red and blue buttons follow the theme colours in light and dark mode.
 
 * The Race Weekend page uses the new layout: a page header with the actions grouped in a menu, themed tables and buttons in light and dark mode, and the session graph scrolls inside its own frame instead of widening the whole page (no horizontal page scroll on desktop or phones).

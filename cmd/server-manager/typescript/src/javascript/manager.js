@@ -1609,7 +1609,7 @@ function handleWeatherFilesLoop(fileList) {
         weatherName = fileList[0].filepath.replace('\\', '/').split("/")[0];
     }
 
-    $weatherPanel.attr({'class': "card p-3 mt-2"});
+    $weatherPanel.attr({'class': "card p-3"});
     $title.text("Preview: " + weatherName);
     $row.attr({'class': "card-deck"});
 
@@ -1753,7 +1753,7 @@ function handleCarFilesLoop(fileList) {
         carName = fileList[0].filepath.split("/")[0];
     }
 
-    $carPanel.attr({'class': "card p-3 mt-2"});
+    $carPanel.attr({'class': "card p-3"});
     $title.text("Preview: " + carName);
     $row.attr({'class': "card-deck"});
 
@@ -2015,7 +2015,7 @@ function handleTrackFilesLoop(fileList) {
     let $row = $("<div/>");
     let $title = $("<h3/>");
 
-    $trackPanel.attr({'class': "card p-3 mt-2"});
+    $trackPanel.attr({'class': "card p-3"});
     $title.text("Preview: " + trackName);
     $row.attr({'class': "card-deck"});
 
@@ -2107,7 +2107,7 @@ function notA(thing) {
     let $panel = $("#" + thing + "-fail");
 
     $panel.show();
-    $panel.attr({'class': "alert alert-danger mt-2"});
+    $panel.attr({'class': "alert alert-danger"});
     $panel.text("Sorry, looks like that wasn't a " + thing + "!")
 }
 

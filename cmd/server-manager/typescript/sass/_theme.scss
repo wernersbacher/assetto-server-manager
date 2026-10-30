@@ -213,7 +213,7 @@ code, pre {
 }
 
 .border-primary {
-  border-color: var(--foreground) !important;
+  border-color: var(--muted-foreground) !important;
 }
 
 .border-success {
@@ -810,16 +810,54 @@ a.badge:hover, a.badge:focus {
   }
 }
 
+// bootstrap-switch (jQuery plugin) skinned as a pill toggle with theme tokens: muted OFF handle, solid ON handle, a
+// card coloured knob in between. The focus ring and the disabled state follow the plugin's own classes.
 .bootstrap-switch {
   border-color: var(--input-border);
+  border-radius: 999px;
+  background-color: var(--muted);
+
+  &.bootstrap-switch-focused {
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px var(--ring);
+  }
+
+  &.bootstrap-switch-disabled, &.bootstrap-switch-readonly {
+    opacity: .5;
+  }
+
+  .bootstrap-switch-container {
+    border-radius: 999px;
+  }
 
   .bootstrap-switch-label {
-    background-color: var(--input);
+    background-color: var(--card);
+    color: var(--foreground);
+    border-left: 1px solid var(--input-border);
+    border-right: 1px solid var(--input-border);
+  }
+
+  .bootstrap-switch-handle-on, .bootstrap-switch-handle-off {
+    font-weight: 600;
+    border-radius: 0;
+  }
+
+  .bootstrap-switch-handle-on {
+    padding-left: 14px;
+  }
+
+  .bootstrap-switch-handle-off {
+    padding-right: 14px;
   }
 
   .bootstrap-switch-handle-off.bootstrap-switch-default, .bootstrap-switch-handle-on.bootstrap-switch-default {
     background-color: var(--muted);
-    color: var(--foreground);
+    color: var(--muted-foreground);
+  }
+
+  .bootstrap-switch-handle-on.bootstrap-switch-success {
+    background-color: var(--success-solid);
+    color: #fff;
   }
 
   .bootstrap-switch-handle-on.bootstrap-switch-primary {

@@ -15,9 +15,11 @@
     </div>
 
     {{ if WriteAccess }}
+        <div class="stack">
         {{ template "content-upload" dict "Kind" "weather" "Plural" "weather presets" }}
 
         <div id="weather-info-panel"></div>
+        </div>
     {{ end }}
 
     {{ $writeAccess := WriteAccess }}

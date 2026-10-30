@@ -17,10 +17,12 @@
     </div>
 
     {{ if WriteAccess }}
+        <div class="stack">
         {{ template "content-upload" dict "Kind" "track" "Plural" "tracks" "OnlyKS" true }}
 
         <div id="track-fail"></div>
         <div id="track-info-panel"></div>
+        </div>
     {{ end }}
 
     {{ $writeAccess := WriteAccess }}
