@@ -1,7 +1,7 @@
 // DeleteConfirm replaces the browser confirm() popup for destructive actions. Any form marked up with
 // data-confirm-delete="Delete X?" shows the shared modal in layout/base.html; the form is only submitted once the
 // Delete button is pressed. Optional: data-confirm-detail (explanation) and data-confirm-label (button text).
-// data-confirm-action="Stop X?" works the same for non-delete actions (stop, restart, cancel) and shows a neutral
+// data-confirm-action="Stop X?" works the same for non-delete actions (stop, restart) and shows a neutral
 // warning icon with a warning button instead of the red trash can.
 export class DeleteConfirm {
     private pending: HTMLFormElement | null = null;

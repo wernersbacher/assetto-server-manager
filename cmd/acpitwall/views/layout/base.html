@@ -10,9 +10,9 @@
 {{ define "ServerStopConfirm" }}
     {{- if not .IsPractice -}}
         {{- if .IsChampionship -}}
-            data-confirm-action="Cancel the current championship event?" data-confirm-detail="All progress of the running event will be permanently lost." data-confirm-label="Cancel event"
+            data-confirm-delete="Cancel the current championship event?" data-confirm-detail="All progress of the running event will be permanently lost." data-confirm-label="Cancel event"
         {{- else if .IsRaceWeekend -}}
-            data-confirm-action="Cancel the current race weekend session?" data-confirm-detail="All progress of the running session will be permanently lost." data-confirm-label="Cancel session"
+            data-confirm-delete="Cancel the current race weekend session?" data-confirm-detail="All progress of the running session will be permanently lost." data-confirm-label="Cancel session"
         {{- end -}}
     {{- end -}}
 {{ end }}

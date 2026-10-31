@@ -397,7 +397,7 @@
                                 {{ end }}
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/cancel" class="d-inline"
-                                      data-confirm-action="Cancel this event?" data-confirm-detail="The entire event is cancelled and the results of all sessions driven so far are discarded. To keep them, use Finish Event instead." data-confirm-label="Cancel event">
+                                      data-confirm-delete="Cancel this event?" data-confirm-detail="The entire event is cancelled and the results of all sessions driven so far are discarded. To keep them, use Finish Event instead." data-confirm-label="Cancel event">
                                     <button type="submit" class="btn btn-danger">Cancel Event</button>
                                 </form>
                             {{ end }}
