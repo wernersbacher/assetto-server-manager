@@ -2,6 +2,7 @@
 
     {{ $sessionResults := .sessionResults }}
     {{ $account := .account }}
+    {{ $server := .server }}
     {{ $driversHaveTeams := $sessionResults.DriversHaveTeams }}
     {{ $sessionHasHandicaps := $sessionResults.HasHandicaps }}
 
@@ -109,7 +110,7 @@
                                         </form>
 
                                         {{ if AdminAccess }}
-                                            <form action="/blacklist" method="POST">
+                                            <form action="{{ if $server }}/blacklist?server={{ $server.ID }}{{ else }}{{ serverURL "/blacklist" }}{{ end }}" method="POST">
                                                 <input type="text" class="d-none" name="blacklist" id="blacklist" value="{{ $result.DriverGUID }}">
 
                                                 <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>Blacklist Driver</button>
@@ -204,7 +205,7 @@
                                         </form>
 
                                         {{ if AdminAccess }}
-                                            <form action="/blacklist" method="POST">
+                                            <form action="{{ if $server }}/blacklist?server={{ $server.ID }}{{ else }}{{ serverURL "/blacklist" }}{{ end }}" method="POST">
                                                 <input type="text" class="d-none" name="blacklist" id="blacklist" value="{{ $result.DriverGUID }}">
 
                                                 <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>Blacklist Driver</button>
@@ -301,7 +302,7 @@
                                         </form>
 
                                         {{ if AdminAccess }}
-                                            <form action="/blacklist" method="POST">
+                                            <form action="{{ if $server }}/blacklist?server={{ $server.ID }}{{ else }}{{ serverURL "/blacklist" }}{{ end }}" method="POST">
                                                 <input type="text" class="d-none" name="blacklist" id="blacklist" value="{{ $result.DriverGUID }}">
 
                                                 <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>Blacklist Driver</button>
