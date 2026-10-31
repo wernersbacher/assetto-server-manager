@@ -133,7 +133,8 @@ func TestSignUpPageOffersTheTeamsOfTheDriver(t *testing.T) {
 
 	expectBody(t, "no limit", page(unlimited, member), http.StatusOK,
 		[]string{"Roomy Racing (0 registered)"},
-		[]string{"/2", "up to"})
+		// specific strings: a bare "/2" would also match random UUIDs in links of the page
+		[]string{"/2 registered", "can register up to"})
 
 	// no team asked for: no field at all
 	none := e.championship(smmodel.ChampionshipSignUpForm{TeamMode: smmodel.SignUpTeamSelect})
