@@ -83,6 +83,33 @@ paths:
           $ref: "#/components/responses/LoginRedirect"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/championship/{championshipID}/standings:
+    get:
+      tags: [Championships]
+      summary: Standings of a championship
+      description: |
+        The driver and team standings of every class, best first, as the championship page shows them. Points already
+        have dropped results subtracted (`DropWorstResults`). Access: read.
+      operationId: getChampionshipStandings
+      parameters:
+        - name: championshipID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "200":
+          description: The standings.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChampionshipStandings"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/results:
     get:
       tags: [Results]
@@ -703,6 +730,67 @@ components:
         TrackName:
           type: string
           description: Optional. Only set for Race Weekend sessions.
+    ChampionshipStandings:
+      type: object
+      properties:
+        ChampionshipID:
+          type: string
+          format: uuid
+        ChampionshipName:
+          type: string
+        Completed:
+          type: boolean
+        Progress:
+          type: number
+        DropWorstResults:
+          type: integer
+        Classes:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: string
+                format: uuid
+              Name:
+                type: string
+              Drivers:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Position:
+                      type: integer
+                    DriverName:
+                      type: string
+                    DriverGUID:
+                      type: string
+                    Team:
+                      type: string
+                      description: Optional.
+                    CarModel:
+                      type: string
+                    CarName:
+                      type: string
+                    Points:
+                      type: number
+                    DroppedPoints:
+                      type: number
+                      description: Sum of the points that were dropped.
+              Teams:
+                type: array
+                description: Empty if no driver of the class has a team.
+                items:
+                  type: object
+                  properties:
+                    Position:
+                      type: integer
+                    Team:
+                      type: string
+                    Points:
+                      type: number
+                    DroppedPoints:
+                      type: number
     ResultsList:
       type: object
       properties:

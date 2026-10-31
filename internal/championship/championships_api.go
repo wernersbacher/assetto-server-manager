@@ -73,3 +73,25 @@ func (ch *ChampionshipsHandler) setActiveServer(championship *api.Championship) 
 		championship.ActiveServer = &api.Server{ID: string(server.ID), Name: server.Name}
 	}
 }
+
+// StandingsAPI returns the driver and team standings of a championship in the API format.
+func (ch *ChampionshipsHandler) StandingsAPI(w http.ResponseWriter, r *http.Request) {
+	cm, ok := ch.manager(w, r)
+
+	if !ok {
+		return
+	}
+
+	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
+
+	if err == smstore.ErrChampionshipNotFound {
+		http.NotFound(w, r)
+		return
+	} else if err != nil {
+		logrus.WithError(err).Errorf("couldn't load championship")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	api.WriteJSON(w, api.NewChampionshipStandings(championship))
+}

@@ -14,6 +14,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 // The championship API exposes the information that is publicly visible on the championship pages (events,
@@ -402,3 +403,105 @@ type UpcomingRace struct {
 }
 
 // upcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose
+
+// ChampionshipStandings are the driver and team standings of a championship, per class.
+type ChampionshipStandings struct {
+	ChampionshipID   uuid.UUID
+	ChampionshipName string
+	Completed        bool
+	Progress         float64
+
+	// DropWorstResults is the number of worst event results dropped per driver in the standings (0 = off). Points
+	// already have the dropped results subtracted.
+	DropWorstResults int
+
+	Classes []*ClassStandings
+}
+
+// ClassStandings are the standings of one championship class, best first.
+type ClassStandings struct {
+	ID   uuid.UUID
+	Name string
+
+	Drivers []*DriverStanding
+
+	// Teams is empty if no driver of the class has a team.
+	Teams []*TeamStanding
+}
+
+type DriverStanding struct {
+	Position   int
+	DriverName string
+	DriverGUID string
+
+	// Team is optional.
+	Team     string `json:",omitempty"`
+	CarModel string
+	CarName  string
+
+	Points float64
+	// DroppedPoints is the sum of the points that were dropped (see DropWorstResults).
+	DroppedPoints float64
+}
+
+type TeamStanding struct {
+	Position      int
+	Team          string
+	Points        float64
+	DroppedPoints float64
+}
+
+// NewChampionshipStandings returns the standings of all classes of a championship.
+func NewChampionshipStandings(championship *smmodel.Championship) *ChampionshipStandings {
+	out := &ChampionshipStandings{
+		ChampionshipID:   championship.ID,
+		ChampionshipName: championship.Name,
+		Completed:        championship.Progress() == 100,
+		Progress:         championship.Progress(),
+		DropWorstResults: championship.DropWorstResults,
+		Classes:          []*ClassStandings{},
+	}
+
+	for _, class := range championship.Classes {
+		apiClass := &ClassStandings{
+			ID:      class.ID,
+			Name:    class.Name,
+			Drivers: []*DriverStanding{},
+			Teams:   []*TeamStanding{},
+		}
+
+		for i, standing := range class.Standings(championship, championship.Events) {
+			if standing.Car == nil {
+				continue
+			}
+
+			apiClass.Drivers = append(apiClass.Drivers, &DriverStanding{
+				Position:      i + 1,
+				DriverName:    smresults.DriverName(standing.Car.Driver.Name),
+				DriverGUID:    standing.Car.Driver.GUID,
+				Team:          standing.Car.Driver.Team,
+				CarModel:      standing.Car.Model,
+				CarName:       smcontent.PrettifyName(standing.Car.Model, true),
+				Points:        standing.Points,
+				DroppedPoints: standing.DroppedPoints,
+			})
+		}
+
+		for i, standing := range class.TeamStandings(championship, championship.Events) {
+			if standing.Team == "" {
+				continue
+			}
+
+			apiClass.Teams = append(apiClass.Teams, &TeamStanding{
+				Position:      i + 1,
+				Team:          standing.Team,
+				Points:        standing.Points,
+				DroppedPoints: standing.DroppedPoints,
+			})
+		}
+
+		out.Classes = append(out.Classes, apiClass)
+	}
+
+	return out
+}
