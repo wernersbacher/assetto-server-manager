@@ -102,7 +102,7 @@ func TestScheduleServerNamesAndFilter(t *testing.T) {
 	})
 
 	t.Run("upcoming", func(t *testing.T) {
-		upcoming, err := manager.UpcomingRaces(now, 0, otherServerID)
+		upcoming, err := manager.UpcomingRaces(now, 0, otherServerID, false)
 
 		if err != nil {
 			t.Fatal(err)
@@ -112,7 +112,7 @@ func TestScheduleServerNamesAndFilter(t *testing.T) {
 			t.Errorf("unexpected upcoming races for the other server: %+v", upcoming)
 		}
 
-		all, err := manager.UpcomingRaces(now, 0, "")
+		all, err := manager.UpcomingRaces(now, 0, "", false)
 
 		if err != nil {
 			t.Fatal(err)
@@ -126,7 +126,7 @@ func TestScheduleServerNamesAndFilter(t *testing.T) {
 	t.Run("single server", func(t *testing.T) {
 		single := NewManager(&smconfig.Configuration{}, store, manager.env, manager.raceWeekendEntryList, nil)
 
-		upcoming, err := single.UpcomingRaces(now, 0, "")
+		upcoming, err := single.UpcomingRaces(now, 0, "", false)
 
 		if err != nil {
 			t.Fatal(err)

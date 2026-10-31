@@ -173,3 +173,32 @@ func TestRouterActionRoutesArePostOnly(t *testing.T) {
 		}
 	}
 }
+
+func TestNoDirListing(t *testing.T) {
+	dir, err := ioutil.TempDir("", "nodirlisting")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	if err := os.MkdirAll(filepath.Join(dir, "cars", "x"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ioutil.WriteFile(filepath.Join(dir, "cars", "x", "ui.json"), []byte("{}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	handler := http.FileServer(noDirListing{http.Dir(dir)})
+
+	for target, want := range map[string]int{"/": http.StatusNotFound, "/cars/": http.StatusNotFound, "/cars/x/ui.json": http.StatusOK} {
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, target, nil))
+
+		if rec.Code != want {
+			t.Errorf("%s: expected %d, got %d", target, want, rec.Code)
+		}
+	}
+}

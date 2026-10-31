@@ -2,8 +2,8 @@ package servermanager
 
 import (
 	smaccounts "github.com/wernersbacher/ACPitwall/internal/accounts"
-	"github.com/wernersbacher/ACPitwall/internal/apidocs"
 	"github.com/wernersbacher/ACPitwall/internal/admin"
+	"github.com/wernersbacher/ACPitwall/internal/apidocs"
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
@@ -22,6 +22,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -221,8 +222,8 @@ func Router(
 		}))
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
-		FileServer(r, "/content", http.Dir(filepath.Join(installPath, "content")), true)
-		FileServer(r, "/setups/download", http.Dir(filepath.Join(installPath, "setups")), true)
+		FileServer(r, "/content", noDirListing{http.Dir(filepath.Join(installPath, "content"))}, true)
+		FileServer(r, "/setups/download", noDirListing{http.Dir(filepath.Join(installPath, "setups"))}, true)
 
 		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
 		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
@@ -440,4 +441,38 @@ func AssetCacheHeaders(next http.Handler, useRevalidation bool) http.HandlerFunc
 			next.ServeHTTP(w, r)
 		}
 	}
+}
+
+// noDirListing is a http.FileSystem that serves files, but pretends that directories (which have no index.html) do not
+// exist. It keeps an open server from handing out a browsable index of the whole content or setups directory.
+type noDirListing struct {
+	http.FileSystem
+}
+
+func (n noDirListing) Open(name string) (http.File, error) {
+	f, err := n.FileSystem.Open(name)
+
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := f.Stat()
+
+	if err != nil {
+		_ = f.Close()
+		return nil, err
+	}
+
+	if info.IsDir() {
+		index, err := n.FileSystem.Open(path.Join(name, "index.html"))
+
+		if err != nil {
+			_ = f.Close()
+			return nil, os.ErrNotExist
+		}
+
+		_ = index.Close()
+	}
+
+	return f, nil
 }

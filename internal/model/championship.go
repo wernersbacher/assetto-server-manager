@@ -31,6 +31,10 @@ type Championship struct {
 	OverridePassword    bool
 	ReplacementPassword string
 
+	// Hidden championships are only visible to logged in accounts with read access, never to anonymous visitors of
+	// an open server. The zero value (visible) is what championships stored before this field existed decode to.
+	Hidden bool
+
 	// Raw html can be attached to championships, used to share tracks/cars etc.
 	Info template.HTML
 

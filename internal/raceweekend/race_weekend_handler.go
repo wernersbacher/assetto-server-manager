@@ -78,6 +78,18 @@ func (rwh *RaceWeekendHandler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !smweb.CanSeeHidden(r) {
+		visible := make([]*smmodel.RaceWeekend, 0, len(raceWeekends))
+
+		for _, raceWeekend := range raceWeekends {
+			if !raceWeekend.Hidden {
+				visible = append(visible, raceWeekend)
+			}
+		}
+
+		raceWeekends = visible
+	}
+
 	rwh.ViewRenderer.MustLoadTemplate(w, r, "race-weekend/index.html", &raceWeekendListTemplateVars{
 		RaceWeekends: raceWeekends,
 	})
@@ -97,6 +109,10 @@ func (rwh *RaceWeekendHandler) View(w http.ResponseWriter, r *http.Request) {
 	rwm, ok := rwh.manager(w, r)
 
 	if !ok {
+		return
+	}
+
+	if rwh.denyHidden(w, r, rwm) {
 		return
 	}
 
@@ -431,6 +447,10 @@ func (rwh *RaceWeekendHandler) ManageFilters(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	if rwh.denyHidden(w, r, rwm) {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	parentSessionID := r.URL.Query().Get("parentSessionID")
 	childSessionID := r.URL.Query().Get("childSessionID")
@@ -493,6 +513,10 @@ func (rwh *RaceWeekendHandler) GridPreview(w http.ResponseWriter, r *http.Reques
 	rwm, ok := rwh.manager(w, r)
 
 	if !ok {
+		return
+	}
+
+	if rwh.denyHidden(w, r, rwm) {
 		return
 	}
 
@@ -564,6 +588,10 @@ func (rwh *RaceWeekendHandler) ManageEntryList(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	if rwh.denyHidden(w, r, rwm) {
+		return
+	}
+
 	raceWeekendID := chi.URLParam(r, "raceWeekendID")
 	sessionID := r.URL.Query().Get("sessionID")
 
@@ -586,6 +614,10 @@ func (rwh *RaceWeekendHandler) EntryListPreview(w http.ResponseWriter, r *http.R
 	rwm, ok := rwh.manager(w, r)
 
 	if !ok {
+		return
+	}
+
+	if rwh.denyHidden(w, r, rwm) {
 		return
 	}
 
@@ -632,6 +664,10 @@ func (rwh *RaceWeekendHandler) Export(w http.ResponseWriter, r *http.Request) {
 	rwm, ok := rwh.manager(w, r)
 
 	if !ok {
+		return
+	}
+
+	if rwh.denyHidden(w, r, rwm) {
 		return
 	}
 
@@ -756,4 +792,23 @@ func (rwh *RaceWeekendHandler) RemoveSessionSchedule(w http.ResponseWriter, r *h
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
+
+// denyHidden answers with 404 and returns true if the race weekend of the request is hidden and the requester may not
+// see hidden race weekends. A hidden race weekend must look like one that does not exist. A race weekend which can't
+// be loaded is left to the handler to report.
+func (rwh *RaceWeekendHandler) denyHidden(w http.ResponseWriter, r *http.Request, rwm *RaceWeekendManager) bool {
+	if smweb.CanSeeHidden(r) {
+		return false
+	}
+
+	raceWeekend, err := rwm.store.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
+
+	if err != nil || !raceWeekend.Hidden {
+		return false
+	}
+
+	http.NotFound(w, r)
+
+	return true
 }

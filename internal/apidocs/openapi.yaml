@@ -15,6 +15,11 @@ info:
     `/login` (302). Driver statistics need a logged in account even on an open server, unless "Public driver
     statistics" is enabled on the Accounts page.
 
+    **Hidden championships.** A championship or race weekend can be marked as hidden. Hidden ones are left out of the
+    championship list, the standings and the schedule endpoints (`/api/championships`, `/api/upcoming-races`) and
+    answer 404 for their own endpoints, unless the request carries the session of a logged in account (an open server
+    does not count as logged in).
+
     **Conventions.** Field names are capitalised (`DriverName`). Fields marked as optional are left out when empty.
     All times and durations are in milliseconds, as Assetto Corsa stores them, unless noted otherwise; dates are RFC 3339.
     Driver names are shortened if the server hides driver last names.
@@ -44,6 +49,7 @@ paths:
       summary: List all championships
       description: |
         Entrants, sign up responses and passwords are not included. Access: read.
+        Hidden championships are only listed for logged in accounts.
       operationId: listChampionships
       parameters:
         - $ref: "#/components/parameters/Server"
@@ -366,7 +372,8 @@ paths:
       description: |
         The custom races, championship events and race weekend sessions that start from now on, soonest first, as the
         calendar shows them. Recurring events are listed once with their next start and the recurrence rule. Entrants
-        and passwords are not included. Access: read.
+        and passwords are not included. Events of hidden championships and race weekends are only listed for logged in
+        accounts. Access: read.
       operationId: listUpcomingRaces
       parameters:
         - name: limit

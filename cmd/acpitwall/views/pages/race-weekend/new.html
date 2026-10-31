@@ -45,6 +45,19 @@
                     </div>
 
                     {{ if not $.RaceWeekend.HasLinkedChampionship }}
+                        <div class="form-group row">
+                            <label for="RaceWeekendHidden" class="col-sm-3 col-form-label">Hidden</label>
+
+                            <div class="col-sm-9">
+                                <input type="checkbox" id="RaceWeekendHidden" name="RaceWeekendHidden"
+                                       {{ if $.RaceWeekend.Hidden }} checked="checked" {{ end }}><br><br>
+
+                                <small>
+                                    A hidden Race Weekend is only visible to logged in accounts. Anonymous visitors of an open
+                                    server do not see it in lists, the calendar, calendar feeds or the API, and can not open its pages.
+                                </small>
+                            </div>
+                        </div>
 
                         <div class="form-group row">
                             <label for="Cars" class="col-sm-3 col-form-label">

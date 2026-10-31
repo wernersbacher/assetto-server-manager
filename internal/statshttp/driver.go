@@ -15,6 +15,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/api"
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -197,7 +198,15 @@ func (dh *DriverHandler) championships(r *http.Request, guid string) []Champions
 		return nil
 	}
 
-	return ChampionshipEntries(championships, guid)
+	visible := make([]*smmodel.Championship, 0, len(championships))
+
+	for _, championship := range championships {
+		if !championship.Hidden || smweb.CanSeeHidden(r) {
+			visible = append(visible, championship)
+		}
+	}
+
+	return ChampionshipEntries(visible, guid)
 }
 
 func sessionCounts(sessions map[string]int) []SessionCount {

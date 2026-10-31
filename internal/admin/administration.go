@@ -104,7 +104,7 @@ func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Requ
 	}
 
 	// the overview still renders if the calendar or the results can't be loaded, they are just left out
-	upcoming, err := sah.scheduledRaces.UpcomingRaces(time.Now(), homeUpcomingRaces, "")
+	upcoming, err := sah.scheduledRaces.UpcomingRaces(time.Now(), homeUpcomingRaces, "", smweb.CanSeeHidden(r))
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load upcoming races for the overview")

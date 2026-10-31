@@ -188,6 +188,11 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *sm
 
 	raceWeekend.Name = r.FormValue("RaceWeekendName")
 
+	if r.FormValue("ChampionshipID") == "" {
+		// race weekends of a championship are as visible as the championship
+		raceWeekend.Hidden = r.FormValue("RaceWeekendHidden") == "on" || r.FormValue("RaceWeekendHidden") == "1"
+	}
+
 	if championshipID := r.FormValue("ChampionshipID"); championshipID != "" {
 		champ, err := rwm.store.LoadChampionship(championshipID)
 

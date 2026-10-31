@@ -13,13 +13,14 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/api"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // UpcomingRaces returns the scheduled events that start at or after now, soonest first. A recurring event whose
 // scheduled time has passed is listed with its next recurrence. A limit of 0 returns all events. If server is not empty
-// only the events scheduled for that server are returned.
-func (srm *Manager) UpcomingRaces(now time.Time, limit int, server smmodel.ServerID) ([]*api.UpcomingRace, error) {
-	scheduled, err := srm.GetScheduledRacesFor(server)
+// only the events scheduled for that server are returned. Events of hidden championships and race weekends are only listed if includeHidden is set.
+func (srm *Manager) UpcomingRaces(now time.Time, limit int, server smmodel.ServerID, includeHidden bool) ([]*api.UpcomingRace, error) {
+	scheduled, err := srm.GetScheduledRacesFor(server, includeHidden)
 
 	if err != nil {
 		return nil, err
@@ -169,7 +170,7 @@ func (rs *Handler) UpcomingAPI(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	upcoming, err := rs.scheduledRacesManager.UpcomingRaces(time.Now(), limit, filterServer(r))
+	upcoming, err := rs.scheduledRacesManager.UpcomingRaces(time.Now(), limit, filterServer(r), smweb.CanSeeHidden(r))
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't list upcoming races")

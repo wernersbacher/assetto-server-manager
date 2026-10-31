@@ -128,3 +128,12 @@ func groupAccess(r *http.Request, group smmodel.Group) func() bool {
 		return ok
 	}
 }
+
+// CanSeeHidden tells whether the requester may see hidden championships and race weekends: only logged in accounts
+// with read access, never the anonymous visitors of an open server.
+func CanSeeHidden(r *http.Request) bool {
+	account := AccountFromRequest(r)
+	scope := ScopeFromRequest(r)
+
+	return LoggedIn(r)() && account.HasGroupPrivilege(scope.ServerID, smmodel.GroupRead)
+}

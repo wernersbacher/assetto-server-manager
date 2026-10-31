@@ -144,7 +144,7 @@ func (rs *Handler) AllScheduledRacesICalHandler(w http.ResponseWriter, r *http.R
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
-	err := rs.scheduledRacesManager.buildScheduledRaces(w, filterServer(r))
+	err := rs.scheduledRacesManager.buildScheduledRaces(w, filterServer(r), smweb.CanSeeHidden(r))
 
 	if err != nil {
 		logrus.WithError(err).Error("could not build scheduled races feed")
@@ -166,7 +166,7 @@ func (rs *Handler) generateJSON(w io.Writer, r *http.Request) error {
 		return err
 	}
 
-	calendarObjects, err := rs.scheduledRacesManager.BuildCalendar(start, end, filterServer(r))
+	calendarObjects, err := rs.scheduledRacesManager.BuildCalendar(start, end, filterServer(r), smweb.CanSeeHidden(r))
 
 	if err != nil {
 		return err
@@ -298,27 +298,33 @@ func (srm *Manager) multipleServers() bool {
 }
 
 // GetScheduledRacesFor returns all scheduled events, or only those scheduled for the server with the given id if it is
-// not empty.
-func (srm *Manager) GetScheduledRacesFor(server smmodel.ServerID) ([]Event, error) {
+// not empty. Events of hidden championships and race weekends are only included if includeHidden is set.
+func (srm *Manager) GetScheduledRacesFor(server smmodel.ServerID, includeHidden bool) ([]Event, error) {
 	scheduled, err := srm.GetScheduledRaces(true)
 
-	if err != nil || server == "" {
-		return scheduled, err
+	if err != nil {
+		return nil, err
 	}
 
 	filtered := make([]Event, 0, len(scheduled))
 
 	for _, event := range scheduled {
-		if event.GetScheduledServerID() == server {
-			filtered = append(filtered, event)
+		if !includeHidden && eventHidden(event) {
+			continue
 		}
+
+		if server != "" && event.GetScheduledServerID() != server {
+			continue
+		}
+
+		filtered = append(filtered, event)
 	}
 
 	return filtered, nil
 }
 
-func (srm *Manager) buildScheduledRaces(w io.Writer, server smmodel.ServerID) error {
-	scheduled, err := srm.GetScheduledRacesFor(server)
+func (srm *Manager) buildScheduledRaces(w io.Writer, server smmodel.ServerID, includeHidden bool) error {
+	scheduled, err := srm.GetScheduledRacesFor(server, includeHidden)
 
 	if err != nil {
 		return err
@@ -373,8 +379,8 @@ type CalendarObject struct {
 
 // BuildCalendar returns the calendar entries for the scheduled events between start and end, limited to the events
 // scheduled for the server with the given id if it is not empty.
-func (srm *Manager) BuildCalendar(start time.Time, end time.Time, server smmodel.ServerID) ([]CalendarObject, error) {
-	scheduled, err := srm.GetScheduledRacesFor(server)
+func (srm *Manager) BuildCalendar(start time.Time, end time.Time, server smmodel.ServerID, includeHidden bool) ([]CalendarObject, error) {
+	scheduled, err := srm.GetScheduledRacesFor(server, includeHidden)
 
 	if err != nil {
 		return nil, err
@@ -604,4 +610,16 @@ func (s raceWeekendSession) ReadOnlyEntryList() serverconfig.EntryList {
 	}
 
 	return entryList
+}
+
+// eventHidden tells whether the event belongs to a hidden championship or race weekend.
+func eventHidden(event Event) bool {
+	switch e := event.(type) {
+	case *smmodel.ChampionshipEvent:
+		return e.Championship() != nil && e.Championship().Hidden
+	case raceWeekendSession:
+		return e.RaceWeekend() != nil && e.RaceWeekend().Hidden
+	}
+
+	return false
 }

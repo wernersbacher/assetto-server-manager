@@ -8,6 +8,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/api"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // listAPI returns all championships in the API format.
@@ -29,6 +30,10 @@ func (ch *ChampionshipsHandler) ListAPI(w http.ResponseWriter, r *http.Request) 
 	out := make([]*api.Championship, 0, len(championships))
 
 	for _, championship := range championships {
+		if championship.Hidden && !smweb.CanSeeHidden(r) {
+			continue
+		}
+
 		apiChampionship := api.NewChampionship(cm.env.InstallPath(), championship, ch.config.HTTP.BaseURL)
 		ch.setActiveServer(apiChampionship)
 
@@ -54,6 +59,10 @@ func (ch *ChampionshipsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) 
 	} else if err != nil {
 		logrus.WithError(err).Errorf("couldn't load championship")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if ch.denyHidden(w, r, championship) {
 		return
 	}
 
@@ -90,6 +99,10 @@ func (ch *ChampionshipsHandler) StandingsAPI(w http.ResponseWriter, r *http.Requ
 	} else if err != nil {
 		logrus.WithError(err).Errorf("couldn't load championship")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if ch.denyHidden(w, r, championship) {
 		return
 	}
 

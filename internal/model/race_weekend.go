@@ -31,6 +31,10 @@ type RaceWeekend struct {
 	Updated time.Time
 	Deleted time.Time
 
+	// Hidden race weekends are only visible to logged in accounts with read access, never to anonymous visitors of
+	// an open server. The zero value (visible) is what race weekends stored before this field existed decode to.
+	Hidden bool
+
 	// Filters is a map of Parent ID -> Child ID -> Filter
 	Filters map[string]map[string]*RaceWeekendSessionToSessionFilter
 

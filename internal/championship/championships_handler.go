@@ -66,6 +66,10 @@ func (ch *ChampionshipsHandler) List(w http.ResponseWriter, r *http.Request) {
 	var activeChampionships, completedChampionships []*smmodel.Championship
 
 	for _, championship := range championships {
+		if championship.Hidden && !smweb.CanSeeHidden(r) {
+			continue
+		}
+
 		if championship.Progress() == 100 {
 			completedChampionships = append(completedChampionships, championship)
 		} else {
@@ -182,6 +186,10 @@ func (ch *ChampionshipsHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ch.denyHidden(w, r, championship) {
+		return
+	}
+
 	eventInProgress := false
 
 	for _, event := range championship.Events {
@@ -237,6 +245,10 @@ func (ch *ChampionshipsHandler) Export(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't export championship")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if ch.denyHidden(w, r, championship) {
 		return
 	}
 
@@ -306,6 +318,10 @@ func (ch *ChampionshipsHandler) ExportResults(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't export championship")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if ch.denyHidden(w, r, championship) {
 		return
 	}
 
@@ -813,6 +829,10 @@ func (ch *ChampionshipsHandler) IcalFeed(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	if championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID")); err == nil && ch.denyHidden(w, r, championship) {
+		return
+	}
+
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
@@ -889,6 +909,10 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 	cm, ok := ch.manager(w, r)
 
 	if !ok {
+		return
+	}
+
+	if hidden, err := cm.LoadChampionship(chi.URLParam(r, "championshipID")); err == nil && ch.denyHidden(w, r, hidden) {
 		return
 	}
 
@@ -1177,4 +1201,15 @@ func (ch *ChampionshipsHandler) DuplicateEvent(w http.ResponseWriter, r *http.Re
 		smweb.AddFlash(w, r, "Championship Event was successfully duplicated!")
 		http.Redirect(w, r, "/championship/"+championshipID+"/event/"+newEvent.ID.String()+"/edit", http.StatusFound)
 	}
+}
+
+// denyHidden answers with 404 and returns true if the championship is hidden and the requester may not see hidden
+// championships. A hidden championship must look like one that does not exist.
+func (ch *ChampionshipsHandler) denyHidden(w http.ResponseWriter, r *http.Request, championship *smmodel.Championship) bool {
+	if championship.Hidden && !smweb.CanSeeHidden(r) {
+		http.NotFound(w, r)
+		return true
+	}
+
+	return false
 }

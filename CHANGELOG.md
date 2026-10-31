@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The directory listings of `/content` and `/setups/download` are no longer served (files can still be downloaded by their exact path), so an open server does not hand out a browsable index of the content and setups.
+
 * Assetto Server Manager is now called ACPitwall and has its own repository (https://github.com/wernersbacher/ACPitwall). The Docker image is published as `ghcr.io/wernersbacher/acpitwall`. The binary is now called `acpitwall` (`acpitwall.exe`) and the source folder `cmd/acpitwall`; the Docker volume and service names in the compose files changed accordingly. config.yml, the data formats and the environment variables are unchanged.
 
 
@@ -13,6 +15,8 @@ Fixed:
 * The Current Config page no longer fails with an error on a fresh install: until the server has written server_cfg.ini and entry_list.ini (when the first event is started) it shows an empty state with a link to start a race, and a config file that exists but cannot be read is reported on the page.
 
 Added:
+
+* Championships and standalone race weekends can be marked as hidden (checkbox "Hidden" in the edit form). Hidden ones are only visible to logged in accounts: on an open server anonymous visitors do not see them in the lists, the calendar, the calendar feeds (`events.ics`, championship ics), the upcoming races and championship API, the driver profile, and get "not found" for their pages, exports and API endpoints. Existing championships and race weekends stay visible.
 
 * Car skins can be downloaded as a zip (`/car/{car_id}/skin/{skin}/download`, layout `content/cars/<car>/skins/<skin>/`) from the car page, so drivers can install them or use the link as a Content Manager download URL.
 
