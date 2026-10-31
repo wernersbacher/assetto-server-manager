@@ -14,6 +14,8 @@ Fixed:
 
 Added:
 
+* Car skins can be downloaded as a zip (`/car/{car_id}/skin/{skin}/download`, layout `content/cars/<car>/skins/<skin>/`) from the car page, so drivers can install them or use the link as a Content Manager download URL.
+
 * Driver names in live timing and the winners of championship event cards link to the driver profile.
 
 * API documentation: the JSON API is described by an OpenAPI 3 specification (`/api/openapi.yaml`) with an embedded Swagger UI at `/api/docs`, which replaces the API section of the README. New endpoint `GET /api/championship/{championshipID}/standings` returns the driver and team standings of a championship.

@@ -28,6 +28,7 @@
                 <div class="col-4 col-md-2 car-skins">
                     {{ range $index, $skin := $.Car.Skins }}
                         <div class="car-skin">
+                            <a href="/car/{{ $.Car.Name }}/skin/{{ $skin }}/download" class="small d-block text-center" title="Download skin"><i class="fas fa-download"></i></a>
                             <img class="img img-fluid car-image" src="{{ carSkinURL $.Car.Name $skin }}" alt="{{ $.Car.Details.Name }}, skin {{ $skin }}" title="{{ prettify $skin true }}" data-skin="{{ $skin }}" data-toggle="tooltip" data-placement="bottom">
                         </div>
                     {{ end }}

@@ -1,9 +1,12 @@
 package contenthttp
 
 import (
+	"archive/zip"
 	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"io"
+	"path"
 
 	"encoding/json"
 	"fmt"
@@ -377,4 +380,76 @@ func (ch *CarsHandler) resultsForCar(car string) ([]smresults.SessionResults, er
 	}
 
 	return out, nil
+}
+
+// DownloadSkin streams one skin of a car as a zip archive, laid out as content/cars/<car>/skins/<skin>/... so that
+// Content Manager (or a manual unzip into the AC folder) installs it. Only the skin directory itself is served, never
+// anything outside of it; symbolic links are skipped.
+func (ch *CarsHandler) DownloadSkin(w http.ResponseWriter, r *http.Request) {
+	car := chi.URLParam(r, "car_id")
+	skin := chi.URLParam(r, "skin")
+
+	if !plainname.Valid(car) || !plainname.Valid(skin) {
+		http.NotFound(w, r)
+		return
+	}
+
+	skinDir := filepath.Join(ch.env.InstallPath(), "content", "cars", car, "skins", skin)
+
+	if info, err := os.Lstat(skinDir); err != nil || !info.IsDir() {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", car+"_"+skin+".zip"))
+
+	if err := writeSkinZip(w, skinDir, path.Join("content", "cars", car, "skins", skin)); err != nil {
+		logrus.WithError(err).Errorf("could not zip skin %s of car %s", skin, car)
+	}
+}
+
+func writeSkinZip(w io.Writer, skinDir, prefix string) error {
+	zw := zip.NewWriter(w)
+
+	err := filepath.Walk(skinDir, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Walk uses Lstat, so symbolic links show up as non regular files and are skipped
+		if !info.Mode().IsRegular() {
+			return nil
+		}
+
+		rel, err := filepath.Rel(skinDir, p)
+
+		if err != nil {
+			return err
+		}
+
+		fw, err := zw.Create(path.Join(prefix, filepath.ToSlash(rel)))
+
+		if err != nil {
+			return err
+		}
+
+		f, err := os.Open(p)
+
+		if err != nil {
+			return err
+		}
+
+		defer f.Close()
+
+		_, err = io.Copy(fw, f)
+
+		return err
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return zw.Close()
 }

@@ -155,6 +155,7 @@ func Router(
 		r.Get("/cars", carsHandler.List)
 		r.Get("/cars/search.json", carsHandler.SearchJSON)
 		r.Get("/car/{car_id}", carsHandler.View)
+		r.Get("/car/{car_id}/skin/{skin}/download", carsHandler.DownloadSkin)
 		r.Get("/tracks", tracksHandler.List)
 		r.Get("/track/{track_id}", tracksHandler.View)
 		r.Get("/weather", weatherHandler.List)
