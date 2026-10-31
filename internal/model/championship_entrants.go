@@ -45,13 +45,17 @@ func (c *Championship) NumEntrants() int {
 	return entrants
 }
 
-// AllEntrants returns the list of all entrants in the championship (across ALL classes)
+// AllEntrants returns the list of all entrants in the championship (across ALL classes), the classes in their order
+// and the entrants of a class in the order of their pit boxes. The entrants are copies with the pit boxes of the
+// combined grid: placing the entrants of the classes themselves would overwrite their pit boxes (in the random order of
+// the class entrant map), which changes the order of the entry list of the class.
 func (c *Championship) AllEntrants() serverconfig.EntryList {
 	e := make(serverconfig.EntryList)
 
 	for _, class := range c.Classes {
-		for _, entrant := range class.Entrants {
-			e.AddToBackOfGrid(entrant)
+		for _, entrant := range class.Entrants.AsSlice() {
+			entrantCopy := *entrant
+			e.AddToBackOfGrid(&entrantCopy)
 		}
 	}
 

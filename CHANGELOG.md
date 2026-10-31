@@ -20,6 +20,8 @@ Changed:
 
 Fixed:
 
+* Saving a championship no longer shuffles the order of the entrants: the pit boxes of the entrants were overwritten in a random order while the entries were collected for autofill, so the entry list of a class came back in a different order after saving (and new events got a random grid order). The entry list now keeps the order of the form, also after deleting and adding entrants. In the custom race form, an entrant added after deleting one in the middle no longer takes the Grid/Pit ID of another entrant (and replaces it); it gets the next free ID.
+
 * The custom race form is now validated on the server (track, cars, at least one session, session time or laps, maximum clients, pit window, wind speeds, entrants without a car, race name for presets, schedule date) instead of failing with a bare error page: the form is shown again with your input and an error list that links to the affected fields and sections. The quick race form reports invalid values as error messages instead of a server error.
 
 * The championship event and race weekend session forms are validated like the custom race form (track, session time or laps, maximum clients, pit window, wind speeds): invalid input shows the form again with your input and the error list instead of a bare error page.

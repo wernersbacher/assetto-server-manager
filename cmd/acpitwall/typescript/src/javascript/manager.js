@@ -1217,7 +1217,19 @@ class RaceSetup {
                 $elem.find("[name='EntryList.Restrictor']").val(restrictor);
                 let $entrantID = $elem.find("[name='EntryList.EntrantID']");
 
-                $entrantID.val($visibleEntrants.length);
+                // the next free grid/pit ID: the number of entrants is not unique once an entrant in the middle was
+                // deleted (the new entrant would take the ID of another one and replace it on the server)
+                let maxEntrantID = -1;
+
+                that.$parent.find(".entrant-id").each(function (index, input) {
+                    if ($(input).closest("#entrantTemplate, .template").length || $(input).closest(".entrant")[0] === $elem[0]) {
+                        return;
+                    }
+
+                    maxEntrantID = Math.max(maxEntrantID, parseInt($(input).val(), 10) || 0);
+                });
+
+                $entrantID.val(maxEntrantID + 1);
 
                 populateEntryListCars();
                 showEntrantSkin(chosenCar, chosenSkin, $elem);
