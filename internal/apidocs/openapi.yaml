@@ -1,0 +1,1151 @@
+openapi: 3.0.3
+info:
+  title: ACPitwall API
+  description: |
+    JSON API of ACPitwall, for reading championships, results, driver statistics, the server status and the schedule
+    from other systems (websites, bots), plus a few endpoints used by the web interface itself.
+
+    This file is the single source of truth for the API. It is embedded in the binary and served from
+    `/api/openapi.yaml`; the Swagger UI at `/api/docs` shows it. A test checks that every `/api` route of the router
+    is described here and vice versa.
+
+    **Access.** There are no API tokens: requests are authorised like the pages they belong to, with the session cookie
+    of a logged in account (`POST /login`). Each operation lists the access level it needs. If ACPitwall is set to
+    "open" (public read access), read endpoints work anonymously; otherwise anonymous requests are redirected to
+    `/login` (302). Driver statistics need a logged in account even on an open server, unless "Public driver
+    statistics" is enabled on the Accounts page.
+
+    **Conventions.** Field names are capitalised (`DriverName`). Fields marked as optional are left out when empty.
+    All times and durations are in milliseconds, as Assetto Corsa stores them, unless noted otherwise; dates are RFC 3339.
+    Driver names are shortened if the server hides driver last names.
+
+    **Several servers.** With more than one server (see the README) the `server` query parameter selects the server an
+    endpoint refers to (default: the one remembered in the session, else the first). `filterServer` restricts list
+    endpoints to one server; an unknown id matches nothing.
+  version: "1.0"
+  license:
+    name: MIT
+    url: https://github.com/wernersbacher/ACPitwall/blob/main/LICENSE
+servers:
+  - url: /
+tags:
+  - name: Championships
+  - name: Results
+  - name: Driver statistics
+  - name: Server
+  - name: Schedule
+  - name: Administration
+  - name: Content upload
+  - name: Documentation
+paths:
+  /api/championships:
+    get:
+      tags: [Championships]
+      summary: List all championships
+      description: |
+        Entrants, sign up responses and passwords are not included. Access: read.
+      operationId: listChampionships
+      parameters:
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "200":
+          description: All championships.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Championship"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+  /api/championship/{championshipID}:
+    get:
+      tags: [Championships]
+      summary: A single championship
+      description: "Access: read."
+      operationId: getChampionship
+      parameters:
+        - name: championshipID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "200":
+          description: The championship.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Championship"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/results:
+    get:
+      tags: [Results]
+      summary: A page of results, newest first
+      description: |
+        Takes the same query parameters as the results list page. A page past the end is a 404. Access: read.
+      operationId: listResults
+      parameters:
+        - name: page
+          in: query
+          description: Page number, starting at 0 (25 results per page).
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: type
+          in: query
+          description: Session type.
+          schema:
+            type: string
+            enum: [practice, qualify, race, booking]
+        - name: track
+          in: query
+          schema:
+            type: string
+        - name: driver
+          in: query
+          description: Driver name or GUID.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/FilterServer"
+      responses:
+        "200":
+          description: A page of results.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultsList"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/results/{fileName}:
+    get:
+      tags: [Results]
+      summary: A single result
+      description: |
+        With the classification and all laps. The file name works with and without the `.json` extension. Collisions
+        are not included, use `/results/download/{fileName}` for the full results file. Access: read.
+      operationId: getResult
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The result.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Result"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/track-records:
+    get:
+      tags: [Driver statistics]
+      summary: Lap records of a track layout
+      description: |
+        The best valid lap (no cuts) of every car, fastest first. Access: read, and a logged in account unless
+        public driver statistics are enabled.
+      operationId: getTrackRecords
+      parameters:
+        - name: track
+          in: query
+          required: true
+          description: Track folder name.
+          schema:
+            type: string
+        - name: layout
+          in: query
+          description: Layout folder name; empty or missing is the default layout.
+          schema:
+            type: string
+        - name: car
+          in: query
+          description: Restrict the records to one car model.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/FilterServer"
+      responses:
+        "200":
+          description: The records.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackRecords"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/leaderboard:
+    get:
+      tags: [Driver statistics]
+      summary: Hotlap leaderboard of a track layout
+      description: |
+        Only valid laps (no cuts) count. Access: read, and a logged in account unless public driver statistics are
+        enabled.
+      operationId: getLeaderboard
+      parameters:
+        - name: track
+          in: query
+          required: true
+          description: Track folder name.
+          schema:
+            type: string
+        - name: layout
+          in: query
+          description: Layout folder name; empty or missing is the default layout.
+          schema:
+            type: string
+        - name: car
+          in: query
+          description: Restrict the leaderboard to car models. Repeatable.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [all, 30d, 7d]
+            default: all
+        - name: sessionType
+          in: query
+          description: Empty for any session type.
+          schema:
+            type: string
+            enum: [practice, qualify, race]
+        - name: perCar
+          in: query
+          description: "`1` lists the best lap of every driver and car instead of one per driver."
+          schema:
+            type: string
+            enum: ["1"]
+        - $ref: "#/components/parameters/FilterServer"
+      responses:
+        "200":
+          description: The leaderboard, fastest first.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leaderboard"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/driver/{guid}:
+    get:
+      tags: [Driver statistics]
+      summary: Profile of a driver
+      description: |
+        Statistics, personal bests, results and championships of a driver. Access: read, and a logged in account
+        unless public driver statistics are enabled.
+      operationId: getDriver
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          description: Steam GUID of the driver.
+          schema:
+            type: string
+        - $ref: "#/components/parameters/FilterServer"
+      responses:
+        "200":
+          description: The driver profile.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Driver"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          description: The GUID is in no results.
+  /api/server-status:
+    get:
+      tags: [Server]
+      summary: State of the server
+      description: |
+        What the live timing page shows about the running event. Passwords, driver GUIDs and IP addresses are not
+        included. Not available (404) in performance mode. Access: read.
+      operationId: getServerStatus
+      parameters:
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "200":
+          description: The server status.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServerStatus"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/servers:
+    get:
+      tags: [Server]
+      summary: All servers
+      description: |
+        All servers with their running event and the number of drivers online. Does not depend on the selected
+        server. Not available (404) in performance mode. Access: read.
+      operationId: listServers
+      responses:
+        "200":
+          description: All servers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ServerSummary"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/race-control:
+    get:
+      tags: [Server]
+      summary: Live timing WebSocket
+      description: |
+        Upgrades to a WebSocket that pushes the live timing messages shown on the live timing page (used by the web
+        interface; the message format is not a stable API). Not available (404) in performance mode. Access: read.
+      operationId: raceControlWebsocket
+      parameters:
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "101":
+          description: Switching protocols to WebSocket.
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/upcoming-races:
+    get:
+      tags: [Schedule]
+      summary: Upcoming scheduled events
+      description: |
+        The custom races, championship events and race weekend sessions that start from now on, soonest first, as the
+        calendar shows them. Recurring events are listed once with their next start and the recurrence rule. Entrants
+        and passwords are not included. Access: read.
+      operationId: listUpcomingRaces
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of entries (a positive number).
+          schema:
+            type: integer
+            minimum: 1
+        - $ref: "#/components/parameters/FilterServer"
+      responses:
+        "200":
+          description: The upcoming events.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UpcomingRace"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/logs:
+    get:
+      tags: [Administration]
+      summary: Current server, ACPitwall and plugin logs
+      description: "Access: write."
+      operationId: getLogs
+      parameters:
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "200":
+          description: The logs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ServerLog:
+                    type: string
+                  ManagerLog:
+                    type: string
+                  PluginsLog:
+                    type: string
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/log-download/{logFile}:
+    get:
+      tags: [Administration]
+      summary: Download a log file
+      description: "Access: write."
+      operationId: downloadLog
+      parameters:
+        - name: logFile
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: [server, manager, plugins]
+        - $ref: "#/components/parameters/Server"
+      responses:
+        "200":
+          description: The log as a file download.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/track/upload:
+    post:
+      tags: [Content upload]
+      summary: Upload a track
+      description: |
+        Used by the track upload page. The request body is the list of files of the track; the result is shown as a
+        flash message on the next page. Access: write.
+      operationId: uploadTrack
+      requestBody:
+        $ref: "#/components/requestBodies/ContentFiles"
+      responses:
+        "200":
+          $ref: "#/components/responses/Uploaded"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/car/upload:
+    post:
+      tags: [Content upload]
+      summary: Upload a car
+      description: |
+        Used by the car upload page. The request body is the list of files of the car; the result is shown as a flash
+        message on the next page. Access: write.
+      operationId: uploadCar
+      requestBody:
+        $ref: "#/components/requestBodies/ContentFiles"
+      responses:
+        "200":
+          $ref: "#/components/responses/Uploaded"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/weather/upload:
+    post:
+      tags: [Content upload]
+      summary: Upload a weather preset
+      description: |
+        Used by the weather upload page. The request body is the list of files of the preset; the result is shown as a
+        flash message on the next page. Access: write.
+      operationId: uploadWeather
+      requestBody:
+        $ref: "#/components/requestBodies/ContentFiles"
+      responses:
+        "200":
+          $ref: "#/components/responses/Uploaded"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/image-upload:
+    post:
+      tags: [Content upload]
+      summary: Upload an image
+      description: "Used by the rich text editors. Access: write."
+      operationId: uploadImage
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: The path of the stored image.
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: /content/server-manager/images/0b1c2d3e.png
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "500":
+          description: The upload was not an image or could not be stored.
+  /api/openapi.yaml:
+    get:
+      tags: [Documentation]
+      summary: This OpenAPI specification
+      description: "Access: read."
+      operationId: getOpenAPISpec
+      responses:
+        "200":
+          description: The OpenAPI 3 document.
+          content:
+            application/yaml:
+              schema:
+                type: string
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+components:
+  parameters:
+    Server:
+      name: server
+      in: query
+      description: Id of the server (with several servers). Defaults to the one remembered in the session, else the first.
+      schema:
+        type: string
+    FilterServer:
+      name: filterServer
+      in: query
+      description: Restrict the list to the server with this id (with several servers). An unknown id matches nothing.
+      schema:
+        type: string
+  requestBodies:
+    ContentFiles:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ContentFile"
+  responses:
+    LoginRedirect:
+      description: "Not logged in (or the server is not open): redirect to `/login`."
+    Forbidden:
+      description: The account does not have the required access level.
+    NotFound:
+      description: Not found.
+      content:
+        text/plain:
+          schema:
+            type: string
+    BadRequest:
+      description: Invalid or missing query parameter; the body is a text message.
+      content:
+        text/plain:
+          schema:
+            type: string
+    Uploaded:
+      description: The upload was processed (the outcome is a flash message, errors are only logged).
+  schemas:
+    Server:
+      type: object
+      description: A server of ACPitwall. Only set if there are several servers.
+      properties:
+        ID:
+          type: string
+        Name:
+          type: string
+    SessionType:
+      type: string
+      enum: [BOOK, PRACTICE, QUALIFY, RACE, RACEx2]
+    EventStatus:
+      type: string
+      enum: [unscheduled, scheduled, in_progress, completed]
+    Car:
+      type: object
+      properties:
+        ID:
+          type: string
+        Name:
+          type: string
+    Championship:
+      type: object
+      properties:
+        ID:
+          type: string
+          format: uuid
+        Name:
+          type: string
+        URL:
+          type: string
+          description: Optional.
+        Info:
+          type: string
+          description: Optional. HTML.
+        Completed:
+          type: boolean
+        Progress:
+          type: number
+          description: Percent of completed events.
+        SignUpOpen:
+          type: boolean
+        DropWorstResults:
+          type: integer
+          description: Number of worst event results dropped per driver in the standings (0 means off).
+        ActiveServer:
+          $ref: "#/components/schemas/Server"
+        Classes:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: string
+                format: uuid
+              Name:
+                type: string
+              Cars:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Car"
+        Events:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChampionshipEvent"
+    ChampionshipEvent:
+      type: object
+      properties:
+        ID:
+          type: string
+          format: uuid
+        Status:
+          $ref: "#/components/schemas/EventStatus"
+        RaceWeekendName:
+          type: string
+          description: Optional. Set if the event is a Race Weekend.
+        Track:
+          type: string
+        TrackLayout:
+          type: string
+        TrackName:
+          type: string
+        Scheduled:
+          type: string
+          format: date-time
+          description: Optional.
+        Recurrence:
+          type: string
+          description: Optional. Recurrence rule.
+        StartedTime:
+          type: string
+          format: date-time
+          description: Optional.
+        CompletedTime:
+          type: string
+          format: date-time
+          description: Optional.
+        Sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+    Session:
+      type: object
+      properties:
+        Type:
+          $ref: "#/components/schemas/SessionType"
+        Name:
+          type: string
+        Status:
+          $ref: "#/components/schemas/EventStatus"
+        Time:
+          type: integer
+          description: Optional. Length in minutes. Only one of Time and Laps is set.
+        Laps:
+          type: integer
+          description: Optional. Number of laps.
+        ExtraLap:
+          type: boolean
+          description: Optional.
+        Start:
+          type: string
+          format: date-time
+          description: Optional. Calculated start, if it is known.
+        Track:
+          type: string
+          description: Optional. Only set for Race Weekend sessions.
+        TrackLayout:
+          type: string
+          description: Optional. Only set for Race Weekend sessions.
+        TrackName:
+          type: string
+          description: Optional. Only set for Race Weekend sessions.
+    ResultsList:
+      type: object
+      properties:
+        Page:
+          type: integer
+          description: Zero-based number of the returned page.
+        Pages:
+          type: integer
+          description: Total number of pages.
+        Results:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultSummary"
+    ResultSummary:
+      type: object
+      properties:
+        FileName:
+          type: string
+          description: Name of the results file, as used by `/results/download/{fileName}`.
+        Date:
+          type: string
+          format: date-time
+        SessionType:
+          $ref: "#/components/schemas/SessionType"
+        TimeAttack:
+          type: boolean
+        Track:
+          type: string
+        TrackLayout:
+          type: string
+        TrackName:
+          type: string
+        Drivers:
+          type: array
+          items:
+            type: string
+        ChampionshipID:
+          type: string
+          description: Optional. Only set for sessions driven as part of a championship.
+        RaceWeekendID:
+          type: string
+          description: Optional. Only set for sessions driven as part of a race weekend.
+        Server:
+          $ref: "#/components/schemas/Server"
+    Result:
+      allOf:
+        - $ref: "#/components/schemas/ResultSummary"
+        - type: object
+          properties:
+            Classification:
+              type: array
+              items:
+                type: object
+                properties:
+                  Position:
+                    type: integer
+                  DriverName:
+                    type: string
+                  DriverGUID:
+                    type: string
+                  Team:
+                    type: string
+                    description: Optional.
+                  CarModel:
+                    type: string
+                  CarName:
+                    type: string
+                  BestLap:
+                    type: integer
+                  TotalTime:
+                    type: integer
+                    description: 0 for sessions without a race time.
+                  Laps:
+                    type: integer
+                    description: Laps the driver is credited with, after lap penalties.
+                  HasPenalty:
+                    type: boolean
+                  PenaltyTime:
+                    type: integer
+                    format: int64
+                    description: Optional. Milliseconds.
+                  LapPenalty:
+                    type: integer
+                    description: Optional.
+                  Disqualified:
+                    type: boolean
+            Laps:
+              type: array
+              items:
+                type: object
+                properties:
+                  Number:
+                    type: integer
+                    description: Lap number of the car, starting at 1.
+                  DriverName:
+                    type: string
+                  DriverGUID:
+                    type: string
+                  CarModel:
+                    type: string
+                  LapTime:
+                    type: integer
+                  Sectors:
+                    type: array
+                    items:
+                      type: integer
+                  Cuts:
+                    type: integer
+                  Tyre:
+                    type: string
+    Record:
+      type: object
+      description: A lap of a driver.
+      properties:
+        DriverName:
+          type: string
+        DriverGUID:
+          type: string
+        CarModel:
+          type: string
+        CarName:
+          type: string
+        LapTime:
+          type: integer
+        Sectors:
+          type: array
+          items:
+            type: integer
+        Tyre:
+          type: string
+        Date:
+          type: string
+          format: date-time
+        SessionType:
+          type: string
+        FileName:
+          type: string
+          description: Results file, see `/api/results/{fileName}`.
+        Server:
+          $ref: "#/components/schemas/Server"
+    TrackRecords:
+      type: object
+      properties:
+        Track:
+          type: string
+        TrackLayout:
+          type: string
+        TrackName:
+          type: string
+        Overall:
+          allOf:
+            - $ref: "#/components/schemas/Record"
+          nullable: true
+          description: The fastest record, `null` if there are none.
+        Records:
+          type: array
+          description: The best lap of every car, fastest first.
+          items:
+            $ref: "#/components/schemas/Record"
+    Leaderboard:
+      type: object
+      properties:
+        Track:
+          type: string
+        TrackLayout:
+          type: string
+        TrackName:
+          type: string
+        Period:
+          type: string
+        SessionType:
+          type: string
+        PerCar:
+          type: boolean
+        Cars:
+          type: array
+          items:
+            type: string
+        Entries:
+          type: array
+          items:
+            allOf:
+              - $ref: "#/components/schemas/Record"
+              - type: object
+                properties:
+                  Position:
+                    type: integer
+                  Gap:
+                    type: integer
+                    description: Gap to the leader in milliseconds.
+    Driver:
+      type: object
+      properties:
+        GUID:
+          type: string
+        Name:
+          type: string
+          description: Name last used.
+        Names:
+          type: array
+          items:
+            type: string
+        Nation:
+          type: string
+        Team:
+          type: string
+        Sessions:
+          type: object
+          description: Number of sessions by type.
+          additionalProperties:
+            type: integer
+        Races:
+          type: integer
+        Wins:
+          type: integer
+        Podiums:
+          type: integer
+        Laps:
+          type: integer
+        ValidLaps:
+          type: integer
+        Cuts:
+          type: integer
+        CollisionsCar:
+          type: integer
+        CollisionsEnv:
+          type: integer
+        PersonalBests:
+          type: array
+          description: Best valid lap per track layout and car.
+          items:
+            type: object
+            properties:
+              Track:
+                type: string
+              TrackLayout:
+                type: string
+              CarModel:
+                type: string
+              LapTime:
+                type: integer
+              Sectors:
+                type: array
+                items:
+                  type: integer
+              Tyre:
+                type: string
+              Date:
+                type: string
+                format: date-time
+              SessionType:
+                type: string
+              FileName:
+                type: string
+              Server:
+                $ref: "#/components/schemas/Server"
+        Results:
+          type: array
+          description: All results of the driver, newest first.
+          items:
+            type: object
+            properties:
+              FileName:
+                type: string
+              Date:
+                type: string
+                format: date-time
+              Track:
+                type: string
+              TrackLayout:
+                type: string
+              SessionType:
+                type: string
+              Cars:
+                type: array
+                items:
+                  type: string
+              Position:
+                type: integer
+                description: Position in a race.
+              Disqualified:
+                type: boolean
+              BestLap:
+                type: integer
+              Laps:
+                type: integer
+              Server:
+                $ref: "#/components/schemas/Server"
+        Championships:
+          type: array
+          description: The championships of the selected server the driver is in.
+          items:
+            type: object
+            properties:
+              ID:
+                type: string
+              Name:
+                type: string
+              Class:
+                type: string
+                description: Optional. Only set for championships with several classes.
+              Position:
+                type: integer
+              Entrants:
+                type: integer
+              Points:
+                type: number
+              Completed:
+                type: boolean
+    ServerStatus:
+      type: object
+      properties:
+        Running:
+          type: boolean
+          description: False if no event is running; all other fields except ServerName are then empty.
+        ServerName:
+          type: string
+        EventName:
+          type: string
+        IsChampionship:
+          type: boolean
+        ChampionshipName:
+          type: string
+        IsRaceWeekend:
+          type: boolean
+        RaceWeekendName:
+          type: string
+        IsPractice:
+          type: boolean
+        IsTimeAttack:
+          type: boolean
+        Track:
+          type: string
+        TrackLayout:
+          type: string
+        TrackName:
+          type: string
+        MaxClients:
+          type: integer
+        NumConnectedDrivers:
+          type: integer
+        Session:
+          type: object
+          description: Optional. The session that is currently running, if the server has reported it.
+          properties:
+            Type:
+              $ref: "#/components/schemas/SessionType"
+            Name:
+              type: string
+            Time:
+              type: integer
+              description: Optional. Length in minutes.
+            Laps:
+              type: integer
+              description: Optional.
+            Started:
+              type: string
+              format: date-time
+        ConnectedDrivers:
+          type: array
+          items:
+            type: object
+            properties:
+              Name:
+                type: string
+              CarModel:
+                type: string
+              CarName:
+                type: string
+              CarSkin:
+                type: string
+    ServerSummary:
+      type: object
+      properties:
+        ID:
+          type: string
+        Name:
+          type: string
+        Running:
+          type: boolean
+        EventType:
+          type: string
+          description: Optional. `Championship`, `Race Weekend`, `Looping event`, `Time attack`, `Running` or one of the first two with ` practice`.
+        EventName:
+          type: string
+          description: Optional.
+        IsChampionship:
+          type: boolean
+        IsRaceWeekend:
+          type: boolean
+        IsPractice:
+          type: boolean
+        DriversOnline:
+          type: integer
+    UpcomingRace:
+      type: object
+      properties:
+        ID:
+          type: string
+          format: uuid
+        Kind:
+          type: string
+          enum: [custom_race, championship_event, race_weekend_session]
+        Name:
+          type: string
+        Start:
+          type: string
+          format: date-time
+          description: Next start of the event.
+        Recurrence:
+          type: string
+          description: Optional. Recurrence rule of a recurring event.
+        OnThisServer:
+          type: boolean
+          description: False if the event is scheduled on another server of a multiserver setup.
+        ServerID:
+          type: string
+        ServerName:
+          type: string
+          description: Optional. Only set with several servers.
+        ChampionshipID:
+          type: string
+          format: uuid
+          description: Optional. Set for championship events.
+        ChampionshipName:
+          type: string
+          description: Optional.
+        RaceWeekendID:
+          type: string
+          format: uuid
+          description: Optional. Set for race weekend sessions.
+        RaceWeekendName:
+          type: string
+          description: Optional.
+        Track:
+          type: string
+        TrackLayout:
+          type: string
+        TrackName:
+          type: string
+        Cars:
+          type: array
+          items:
+            $ref: "#/components/schemas/Car"
+        Sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/Session"
+    ContentFile:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        filepath:
+          type: string
+        dataBase64:
+          type: string
+        size:
+          type: integer

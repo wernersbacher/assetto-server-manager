@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	smaccounts "github.com/wernersbacher/ACPitwall/internal/accounts"
+	"github.com/wernersbacher/ACPitwall/internal/apidocs"
 	"github.com/wernersbacher/ACPitwall/internal/admin"
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
@@ -142,6 +143,9 @@ func Router(
 		// pages
 		r.Get("/", serverAdministrationHandler.Home)
 		r.Get("/changelog", serverAdministrationHandler.Changelog)
+
+		// API documentation
+		r.Get(apidocs.SpecPath, apidocs.SpecHandler)
 
 		r.Mount("/stracker/", http.HandlerFunc(strackerHandler.Proxy))
 

@@ -44,3 +44,4 @@ changelog_embed.go
 todo.md
 # local compose overrides
 .env
+internal/apidocs/apidocs_embed.go
