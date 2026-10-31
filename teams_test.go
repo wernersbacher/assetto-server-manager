@@ -39,6 +39,44 @@ func newTeamsTestEnv(t *testing.T, config *smconfig.Configuration) (*teamsTestEn
 	return &teamsTestEnv{t: t, resolver: resolver, open: &smmodel.Account{Name: smmodel.OpenAccountName}}, cleanup
 }
 
+// newTeamsRenderEnv is newTeamsTestEnv for the pages that list cars (the championship pages): the server is
+// installed in a temporary directory and the car search index is open, as InitWithResolver leaves it.
+func newTeamsRenderEnv(t *testing.T) (*teamsTestEnv, func()) {
+	t.Helper()
+
+	dir, err := ioutil.TempDir("", "teams-render-install")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resolver, _, cleanupResolver := newTestResolver(t, &smconfig.Configuration{})
+
+	if err := resolver.state.SetInstallPath(dir); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, sub := range []string{"cars", "tracks", "weather"} {
+		if err := os.MkdirAll(filepath.Join(dir, "content", sub), 0755); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	resolver.Servers()
+
+	carManager := resolver.resolveCarManager()
+
+	if err := carManager.CreateOrOpenSearchIndex(); err != nil {
+		t.Fatal(err)
+	}
+
+	return &teamsTestEnv{t: t, resolver: resolver, open: &smmodel.Account{Name: smmodel.OpenAccountName}}, func() {
+		_ = carManager.CloseSearchIndex()
+		cleanupResolver()
+		_ = os.RemoveAll(dir)
+	}
+}
+
 func (e *teamsTestEnv) account(group smmodel.Group) (*smmodel.Account, teams.Actor) {
 	e.t.Helper()
 
@@ -61,7 +99,14 @@ func (e *teamsTestEnv) account(group smmodel.Group) (*smmodel.Account, teams.Act
 func (e *teamsTestEnv) serve(fn http.HandlerFunc, method string, account *smmodel.Account, params map[string]string, form url.Values) *httptest.ResponseRecorder {
 	e.t.Helper()
 
-	req := httptest.NewRequest(method, "/", strings.NewReader(form.Encode()))
+	return e.serveTo("/", fn, method, account, params, form)
+}
+
+// serveTo is serve with a request target, for the handlers that read the query (?action=...).
+func (e *teamsTestEnv) serveTo(target string, fn http.HandlerFunc, method string, account *smmodel.Account, params map[string]string, form url.Values) *httptest.ResponseRecorder {
+	e.t.Helper()
+
+	req := httptest.NewRequest(method, target, strings.NewReader(form.Encode()))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	scope := webtest.RequestScope()

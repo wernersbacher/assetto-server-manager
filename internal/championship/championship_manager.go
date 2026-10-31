@@ -214,6 +214,10 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	championship.SignUpForm.Enabled = r.FormValue("Championship.SignUpForm.Enabled") == "on" || r.FormValue("Championship.SignUpForm.Enabled") == "1"
 	championship.SignUpForm.AskForEmail = r.FormValue("Championship.SignUpForm.AskForEmail") == "on" || r.FormValue("Championship.SignUpForm.AskForEmail") == "1"
 	championship.SignUpForm.AskForTeam = r.FormValue("Championship.SignUpForm.AskForTeam") == "on" || r.FormValue("Championship.SignUpForm.AskForTeam") == "1"
+	championship.SignUpForm.TeamMode, championship.SignUpForm.MaxDriversPerTeam = parseSignUpTeamSettings(
+		r.FormValue("Championship.SignUpForm.TeamMode"),
+		r.FormValue("Championship.SignUpForm.MaxDriversPerTeam"),
+	)
 	championship.SignUpForm.HideCarChoice = !(r.FormValue("Championship.SignUpForm.HideCarChoice") == "on" || r.FormValue("Championship.SignUpForm.HideCarChoice") == "1")
 	championship.SignUpForm.RequiresApproval = r.FormValue("Championship.SignUpForm.RequiresApproval") == "on" || r.FormValue("Championship.SignUpForm.RequiresApproval") == "1"
 

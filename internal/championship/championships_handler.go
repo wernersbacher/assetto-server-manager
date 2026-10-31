@@ -903,6 +903,16 @@ type championshipSignUpFormTemplateVars struct {
 	FormData        *smmodel.ChampionshipSignUpResponse
 	ValidationError string
 	LockSteamGUID   bool
+
+	// LoggedIn tells whether the visitor has a login, which they need to choose a team.
+	LoggedIn bool
+
+	// TeamOptions are the teams the driver can choose. LockedResponse is set if the driver is registered already:
+	// their team is fixed then.
+	TeamOptions    []*SignUpTeamOption
+	LockedResponse *smmodel.ChampionshipSignUpResponse
+	TeamLimit      int
+	TeamLimited    bool
 }
 
 func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Request) {
@@ -981,6 +991,18 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 		opts.LockSteamGUID = true
 	}
 
+	if championship.SignUpForm.AskForTeam {
+		opts.LoggedIn = smweb.LoggedIn(r)() && account.ID != uuid.Nil
+		opts.TeamLimit, opts.TeamLimited = championship.SignUpForm.TeamLimit()
+		opts.LockedResponse = SignUpTeamLock(championship, opts.FormData.GUID)
+
+		if opts.TeamOptions, err = cm.SignUpTeamOptions(championship, account); err != nil {
+			logrus.WithError(err).Error("couldn't load the teams of the account")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/sign-up.html", opts)
 }
 
@@ -988,6 +1010,9 @@ type signedUpEntrantsTemplateVars struct {
 	smweb.BaseTemplateVars
 
 	Championship *smmodel.Championship
+
+	// Teams are all teams, for moving a driver to another team.
+	Teams []*smmodel.Team
 }
 
 func (ch *ChampionshipsHandler) SignedUpEntrants(w http.ResponseWriter, r *http.Request) {
@@ -1014,9 +1039,18 @@ func (ch *ChampionshipsHandler) SignedUpEntrants(w http.ResponseWriter, r *http.
 		return championship.SignUpForm.Responses[i].Created.After(championship.SignUpForm.Responses[j].Created)
 	})
 
+	teams, err := cm.AllTeams()
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't list teams")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/signed-up-entrants.html", &signedUpEntrantsTemplateVars{
 		BaseTemplateVars: smweb.BaseTemplateVars{WideContainer: true},
 		Championship:     championship,
+		Teams:            teams,
 	})
 }
 

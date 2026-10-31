@@ -315,6 +315,11 @@ func (m *Manager) List(actor Actor) ([]*smmodel.Team, error) {
 	return visible, nil
 }
 
+// ListAll returns all teams that were not deleted, private ones too. It is for moderators and for the championships.
+func (m *Manager) ListAll() ([]*smmodel.Team, error) {
+	return m.store.ListTeams()
+}
+
 // MemberOf returns the teams the account is a member of.
 func (m *Manager) MemberOf(accountID uuid.UUID) ([]*smmodel.Team, error) {
 	teams, err := m.store.ListTeams()

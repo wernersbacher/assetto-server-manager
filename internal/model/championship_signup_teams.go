@@ -71,6 +71,11 @@ func (csr ChampionshipSignUpResponse) TakesTeamSlot() bool {
 	return csr.Status != ChampionshipEntrantRejected
 }
 
+// HasListTeam reports whether the registration is for a team of the team list (and not free text or no team).
+func (csr ChampionshipSignUpResponse) HasListTeam() bool {
+	return csr.TeamID != uuid.Nil
+}
+
 // SameTeam reports whether two registrations are for the same team: the same team of the team list or, for free
 // text, the same name (ignoring case). No team is the same as no team.
 func (csr ChampionshipSignUpResponse) SameTeam(other ChampionshipSignUpResponse) bool {

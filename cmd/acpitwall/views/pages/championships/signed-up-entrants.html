@@ -134,6 +134,24 @@
                                     <button type="submit" class="dropdown-item text-danger">Reject</button>
                                 </form>
 
+                                {{ if $championship.SignUpForm.AskForTeam }}
+                                    <div class="dropdown-divider"></div>
+
+                                    {{/* drivers cannot change their team, moderators can (the team limit does not apply) */}}
+                                    <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=team" class="px-3 py-2" style="min-width: 260px">
+                                        <label class="small mb-1" for="team-{{ $entrant.GUID }}">Change team</label>
+                                        <select name="teamID" id="team-{{ $entrant.GUID }}" class="form-control form-control-sm mb-2">
+                                            <option value="">No team / free text</option>
+                                            {{ range $team := $.Teams }}
+                                                <option value="{{ $team.ID.String }}" {{ if eq $entrant.TeamID.String $team.ID.String }}selected="selected"{{ end }}>{{ $team.Name }}</option>
+                                            {{ end }}
+                                        </select>
+                                        <input type="text" name="team" class="form-control form-control-sm mb-2" placeholder="Free text team name"
+                                               value="{{ if not $entrant.HasListTeam }}{{ $entrant.Team }}{{ end }}">
+                                        <button type="submit" class="btn btn-sm btn-primary btn-block">Change team</button>
+                                    </form>
+                                {{ end }}
+
                                 <div class="dropdown-divider"></div>
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=delete">

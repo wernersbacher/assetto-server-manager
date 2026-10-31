@@ -54,13 +54,55 @@
 
                 {{ if $championship.SignUpForm.AskForTeam }}
                     <div class="form-group row">
-                        <label for="Team" class="col-sm-4 col-form-label">Team</label>
+                        <label for="TeamID" class="col-sm-4 col-form-label">Team</label>
 
                         <div class="col-sm-8">
-                            <input type="text" class="form-control" id="Team" name="Team"
-                                   placeholder="The Fast Team" value="{{ $.FormData.Team }}">
+                            {{ if $.LockedResponse }}
+                                {{/* the team is fixed once the driver is registered, the form sends the same team again */}}
+                                <p class="form-control-plaintext mb-1">
+                                    {{ if $.LockedResponse.Team }}<strong>{{ $.LockedResponse.Team }}</strong>{{ else }}No team{{ end }}
+                                </p>
 
-                            <small>You may leave the team name blank.</small>
+                                {{ if $.LockedResponse.HasListTeam }}
+                                    <input type="hidden" name="TeamID" value="{{ $.LockedResponse.TeamID.String }}">
+                                {{ else if $.LockedResponse.Team }}
+                                    <input type="hidden" name="Team" value="{{ $.LockedResponse.Team }}">
+                                {{ end }}
+
+                                <small>You are registered already, so your team is fixed. Ask the organisers if it has to change.</small>
+                            {{ else }}
+                                {{ if $championship.SignUpForm.UsesTeamSelection }}
+                                    {{ if $.LoggedIn }}
+                                        <select class="form-control" id="TeamID" name="TeamID">
+                                            <option value="">No team</option>
+                                            {{ range $option := $.TeamOptions }}
+                                                <option value="{{ $option.Team.ID.String }}"
+                                                        {{ if eq $.FormData.TeamID.String $option.Team.ID.String }}selected="selected"{{ end }}
+                                                        {{ if $option.Full }}disabled="disabled"{{ end }}>
+                                                    {{ $option.Team.Name }} ({{ $option.Drivers }}{{ if $.TeamLimited }}/{{ $.TeamLimit }}{{ end }} registered){{ if $option.Full }} - full{{ end }}
+                                                </option>
+                                            {{ end }}
+                                        </select>
+
+                                        <small>
+                                            Choose one of your teams, or <a href="/teams">create or join a team</a> first.
+                                            {{ if $.TeamLimited }}A team can register up to {{ $.TeamLimit }} drivers.{{ end }}
+                                            You cannot change your team after registering.
+                                        </small>
+                                    {{ else }}
+                                        <small><a href="/login">Sign in</a> to register with one of your teams.</small>
+                                    {{ end }}
+                                {{ end }}
+
+                                {{ if $championship.SignUpForm.AllowsFreeTextTeam }}
+                                    <input type="text" class="form-control {{ if $championship.SignUpForm.UsesTeamSelection }}mt-2{{ end }}" id="Team" name="Team"
+                                           placeholder="The Fast Team" value="{{ $.FormData.Team }}">
+
+                                    <small>
+                                        {{ if $championship.SignUpForm.UsesTeamSelection }}Without a team of your own you can type a team name instead, but not the name of an existing team.{{ else }}You may leave the team name blank.{{ end }}
+                                    </small>
+                                {{ end }}
+                            {{ end }}
                         </div>
                     </div>
                 {{ end }}

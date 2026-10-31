@@ -3,6 +3,8 @@ package championship
 import (
 	"fmt"
 	"net/http"
+	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -18,7 +20,101 @@ type TeamDirectory interface {
 	Lookup(id string) (*smmodel.Team, error)
 	// NameTaken reports whether a team uses the name.
 	NameTaken(name string) (bool, error)
+	// MemberOf returns the teams an account is a member of.
+	MemberOf(accountID uuid.UUID) ([]*smmodel.Team, error)
+	// ListAll returns all teams that were not deleted, whoever can see them.
+	ListAll() ([]*smmodel.Team, error)
 }
+
+// SignUpTeamOption is a team a driver can choose on the sign up form.
+type SignUpTeamOption struct {
+	Team *smmodel.Team
+
+	// Drivers is how many drivers are registered with the team, Full tells that the championship does not take
+	// another one.
+	Drivers int
+	Full    bool
+}
+
+// SignUpTeamOptions returns the teams the account can choose on the sign up form of the championship: the teams
+// they are a member of, with how many drivers each one has registered. It is empty if the form has no team
+// selection, the account is not logged in or the manager does not know the teams.
+func (cm *ChampionshipManager) SignUpTeamOptions(championship *smmodel.Championship, account *smmodel.Account) ([]*SignUpTeamOption, error) {
+	if !championship.SignUpForm.UsesTeamSelection() || cm.teams == nil || account == nil || account.ID == uuid.Nil {
+		return nil, nil
+	}
+
+	teams, err := cm.teams.MemberOf(account.ID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	limit, limited := championship.SignUpForm.TeamLimit()
+
+	var options []*SignUpTeamOption
+
+	for _, team := range teams {
+		drivers := championship.SignUpForm.TeamDriverCount(team.ID, "")
+
+		options = append(options, &SignUpTeamOption{Team: team, Drivers: drivers, Full: limited && drivers >= limit})
+	}
+
+	sort.SliceStable(options, func(i, j int) bool {
+		return strings.ToLower(options[i].Team.Name) < strings.ToLower(options[j].Team.Name)
+	})
+
+	return options, nil
+}
+
+// SignUpTeamLock returns the registration of a driver if it fixes their team, which is the case for every
+// registration that is not rejected. It is nil if the driver can still choose.
+func SignUpTeamLock(championship *smmodel.Championship, guid string) *smmodel.ChampionshipSignUpResponse {
+	response := championship.SignUpForm.Response(guid)
+
+	if response == nil || !response.TakesTeamSlot() {
+		return nil
+	}
+
+	return response
+}
+
+// AllTeams returns all teams for the moderators who move drivers between teams.
+func (cm *ChampionshipManager) AllTeams() ([]*smmodel.Team, error) {
+	if cm.teams == nil {
+		return nil, nil
+	}
+
+	return cm.teams.ListAll()
+}
+
+// parseSignUpTeamSettings reads the team settings of the championship form: how the team is asked for and how many
+// drivers a team can register. Values that make no sense fall back to the defaults (free text, the default limit)
+// instead of failing the whole form; every negative limit means unlimited.
+func parseSignUpTeamSettings(mode, maxDrivers string) (smmodel.SignUpTeamMode, int) {
+	teamMode := smmodel.SignUpTeamFreeText
+
+	switch smmodel.SignUpTeamMode(strings.TrimSpace(mode)) {
+	case smmodel.SignUpTeamSelect:
+		teamMode = smmodel.SignUpTeamSelect
+	case smmodel.SignUpTeamBoth:
+		teamMode = smmodel.SignUpTeamBoth
+	}
+
+	limit, err := strconv.Atoi(strings.TrimSpace(maxDrivers))
+
+	switch {
+	case err != nil || limit > maxDriversPerTeamLimit:
+		limit = 0
+	case limit < 0:
+		limit = -1
+	}
+
+	return teamMode, limit
+}
+
+// maxDriversPerTeamLimit is the highest number of drivers per team the form accepts.
+const maxDriversPerTeamLimit = 1000
 
 // SetTeamDirectory tells the manager where the teams are. Without it sign up forms cannot offer a team selection.
 func (cm *ChampionshipManager) SetTeamDirectory(teams TeamDirectory) {
