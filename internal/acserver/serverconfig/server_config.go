@@ -198,7 +198,7 @@ type GlobalServerConfig struct {
 	ContentManagerWrapperPort   int                    `ini:"-" min:"0" max:"65535" help:"The port on which to serve Content Manager with the above information. Please make sure this port is open on your firewall."`
 	ShowContentManagerJoinLink  formulate.BoolNumber   `ini:"-" help:"When on, this option will make ACPitwall display Content Manager join links on the Live Timing page and (if enabled) in Discord race start notifications."`
 	ContentManagerIPOverride    string                 `ini:"-" help:"When set, this overrides the IP address detected by the GeoIP service used for the Content Manager join link. This must be an IPv4 address."`
-	//ContentManagerWrapperContentRequiresPassword formulate.BoolNumber `ini:"-" help:"When on a user will require the server password in order to download linked content through the Content Manager Wrapper."`
+	ContentManagerWrapperContentRequiresPassword formulate.BoolNumber `ini:"-" help:"When on (and the server has a password) Content Manager is told that the linked content requires the server password. Downloads themselves are protected by signed URLs."`
 
 	Miscellaneous                     formfields.FormHeading `ini:"-" json:"-"`
 	UseShortenedDriverNames           formulate.BoolNumber   `ini:"-" help:"When on, this option will make ACPitwall hide driver's last names, for example 'John Smith' becomes 'John S.'"`

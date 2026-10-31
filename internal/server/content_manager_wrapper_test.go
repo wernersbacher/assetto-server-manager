@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
@@ -51,5 +52,25 @@ func TestContentManagerWrapper_setDescriptionTextEventMethods(t *testing.T) {
 
 	if expected := "Event Monza (GP) looping=true"; cmw.description != expected {
 		t.Errorf("expected description %q, got %q", expected, cmw.description)
+	}
+}
+
+func TestContentRequiresPassword(t *testing.T) {
+	var g serverconfig.GlobalServerConfig
+
+	if contentRequiresPassword(g) {
+		t.Error("option off must not flag the content")
+	}
+
+	g.ContentManagerWrapperContentRequiresPassword = 1
+
+	if contentRequiresPassword(g) {
+		t.Error("server without password must not flag the content")
+	}
+
+	g.Password = "secret"
+
+	if !contentRequiresPassword(g) {
+		t.Error("option on and password set must flag the content")
 	}
 }

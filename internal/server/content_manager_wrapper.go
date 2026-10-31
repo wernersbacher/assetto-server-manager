@@ -86,7 +86,8 @@ type CMContent struct {
 
 	// Password is the "password" flag of content.json. The wrapper (gro-ove/ac-server-wrapper) has no such field in
 	// its documented content.json (it uses downloadPasswordOnly in cm_wrapper_params.json for its own download
-	// server), and downloads here are protected by signed URLs instead, so it is always false.
+	// server), and downloads here are protected by signed URLs instead. It follows the option
+	// ContentManagerWrapperContentRequiresPassword (only for a server with a password); it has no proven effect in CM.
 	Password bool `json:"password"`
 }
 
@@ -628,8 +629,7 @@ func (cmw *ContentManagerWrapper) buildContentManagerDetails(guid string) (*Cont
 
 	description += cmw.description
 
-	// the password flag stays false, see CMContent.Password
-	cmContent, err := cmw.NewCMContent(sessionInfo.Cars, race.Track, false)
+	cmContent, err := cmw.NewCMContent(sessionInfo.Cars, race.Track, contentRequiresPassword(global))
 
 	if err != nil {
 		logrus.Errorf("Couldn't attach content download URL(s) through CM Wrapper!")
@@ -801,4 +801,10 @@ func GetContentManagerJoinLink(config serverconfig.GlobalServerConfig) (*url.URL
 	cmURL.RawQuery = queryString.Encode()
 
 	return cmURL, nil
+}
+
+// contentRequiresPassword tells whether content.json flags the content as password protected: the option is on and the
+// server has a password.
+func contentRequiresPassword(global serverconfig.GlobalServerConfig) bool {
+	return global.ContentManagerWrapperContentRequiresPassword == 1 && global.Password != ""
 }
