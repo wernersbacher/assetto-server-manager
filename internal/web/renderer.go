@@ -13,6 +13,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
@@ -60,7 +61,10 @@ type RendererOptions struct {
 type Renderer struct {
 	opts RendererOptions
 
-	templates map[string]*template.Template
+	// templates holds the templates of every language by language code and view, each set with the translation
+	// functions of its language bound, because a template's functions can't be changed safely per request.
+	templates map[string]map[string]*template.Template
+	bundle    *i18n.Bundle
 
 	mutex sync.Mutex
 }
@@ -69,7 +73,7 @@ func NewRenderer(opts RendererOptions) (*Renderer, error) {
 	tr := &Renderer{
 		opts: opts,
 
-		templates: make(map[string]*template.Template),
+		templates: make(map[string]map[string]*template.Template),
 	}
 
 	err := tr.init()
@@ -139,13 +143,7 @@ func (tr *Renderer) init() error {
 	}
 	funcs["formatDuration"] = formatDuration
 	funcs["appendQuery"] = appendQuery
-	funcs["yn"] = func(b bool) string {
-		if b {
-			return "Yes"
-		}
 
-		return "No"
-	}
 	funcs["trackMapURL"] = smcontent.TrackMapImageURL
 	funcs["sunAngleToTimeOfDay"] = sunAngleToTimeOfDay
 	funcs["anonymiseDriverGUID"] = smresults.AnonymiseDriverGUID
@@ -154,13 +152,59 @@ func (tr *Renderer) init() error {
 		funcs[name] = f
 	}
 
-	tr.templates, err = tr.opts.Loader.Templates(funcs)
+	locales, err := tr.opts.Loader.Locales()
 
 	if err != nil {
 		return err
 	}
 
+	bundle, err := i18n.NewBundle(locales)
+
+	if err != nil {
+		return err
+	}
+
+	templates := make(map[string]map[string]*template.Template)
+
+	for _, lang := range bundle.Languages() {
+		for name, f := range translationFuncs(bundle, bundle.Translator(lang.Code)) {
+			funcs[name] = f
+		}
+
+		templates[lang.Code], err = tr.opts.Loader.Templates(funcs)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	tr.templates = templates
+	tr.bundle = bundle
+
 	return nil
+}
+
+// Bundle returns the message catalogs.
+func (tr *Renderer) Bundle() *i18n.Bundle {
+	return tr.bundle
+}
+
+// Language returns the code of the language a request is answered in: the language cookie (set by the language
+// selection), else the best match of the browser's Accept-Language header, else the default language.
+func (tr *Renderer) Language(r *http.Request) string {
+	return RequestLanguage(r, tr.bundle)
+}
+
+// Translator returns the translator for the language of the request.
+func (tr *Renderer) Translator(r *http.Request) *i18n.Translator {
+	return tr.bundle.Translator(tr.Language(r))
+}
+
+// template returns the template of the view in the language of the request.
+func (tr *Renderer) template(r *http.Request, view string) (*template.Template, bool) {
+	t, ok := tr.templates[tr.Language(r)][filepath.ToSlash(view)]
+
+	return t, ok
 }
 
 // LoadTemplate reads a template from templates and renders it with data to the given io.Writer
@@ -175,7 +219,7 @@ func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view st
 		}
 	}
 
-	t, ok := tr.templates[filepath.ToSlash(view)]
+	t, ok := tr.template(r, view)
 
 	if !ok {
 		return fmt.Errorf("unable to find template: %s", filepath.ToSlash(view))
@@ -225,7 +269,7 @@ func (tr *Renderer) LoadPartial(w http.ResponseWriter, r *http.Request, partial 
 		}
 	}
 
-	t, ok := tr.templates[filepath.ToSlash(partial)]
+	t, ok := tr.template(r, partial)
 
 	if !ok {
 		return errors.New("partial not found")

@@ -20,7 +20,7 @@
 {{ define "base" }}
     {{ $path := $.Request.URL.Path }}
     <!DOCTYPE html>
-    <html lang="en" data-theme="{{ if $.User.ShowDarkTheme $.IsDarkTheme }}dark{{ else }}light{{ end }}">
+    <html lang="{{ lang }}" data-theme="{{ if $.User.ShowDarkTheme $.IsDarkTheme }}dark{{ else }}light{{ end }}">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 

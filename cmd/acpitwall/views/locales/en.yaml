@@ -1,0 +1,9 @@
+# English is the reference catalog: every key used by the templates or the TypeScript code has to be here.
+# Other catalogs fall back to it for keys they miss. Placeholders look like {name}; plurals have the sub keys one/other.
+# Keys below js. are handed to the browser (see Messages.ts / i18n.ts).
+language:
+  name: English
+
+common:
+  "yes": "Yes"
+  "no": "No"

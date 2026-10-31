@@ -6,6 +6,8 @@ import (
 	"io"
 	"path/filepath"
 	"strings"
+
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 type TemplateLoader struct {
@@ -88,4 +90,30 @@ func (t *TemplateLoader) Templates(funcs template.FuncMap) (map[string]*template
 	}
 
 	return templates, nil
+}
+
+func (t *TemplateLoader) Locales() (map[string][]byte, error) {
+	locales := make(map[string][]byte)
+
+	for fname, data := range _escData {
+		if data.IsDir() {
+			continue
+		}
+
+		code, ok := smweb.LocaleCode(fname)
+
+		if !ok {
+			continue
+		}
+
+		contents, err := t.fileContents(fname)
+
+		if err != nil {
+			return nil, err
+		}
+
+		locales[code] = []byte(contents)
+	}
+
+	return locales, nil
 }
