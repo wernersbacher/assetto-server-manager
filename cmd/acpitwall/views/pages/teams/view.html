@@ -1,0 +1,155 @@
+{{/* gotype: github.com/wernersbacher/ACPitwall/internal/teams.viewTemplateVars */}}
+
+{{ define "title" }}{{ $.Team.Name }}{{ end }}
+
+{{ define "content" }}
+    {{ $team := $.Team }}
+
+    <div class="page-header">
+        <div>
+            <h1>{{ $team.Name }}</h1>
+            <p>
+                {{ if $team.IsPrivate }}Private team: only invited people can join.{{ else }}Public team: everybody can join.{{ end }}
+                {{ len $.Members }} member{{ if ne (len $.Members) 1 }}s{{ end }}.
+            </p>
+        </div>
+
+        <div class="d-flex flex-wrap" style="gap: 8px">
+            <a class="btn btn-outline" href="/teams">All teams</a>
+
+            {{ if $.CanJoin }}
+                <form method="post" action="/teams/{{ $team.ID.String }}/join" class="m-0">
+                    <button type="submit" class="btn btn-success">Join team</button>
+                </form>
+            {{ end }}
+
+            {{ if and $.Invited (not $.IsMember) }}
+                <form method="post" action="/teams/{{ $team.ID.String }}/decline" class="m-0">
+                    <button type="submit" class="btn btn-outline">Decline invite</button>
+                </form>
+            {{ end }}
+
+            {{ if $.IsMember }}
+                <form method="post" action="/teams/{{ $team.ID.String }}/leave" class="m-0"
+                      data-confirm-delete="Leave {{ $team.Name }}?" data-confirm-detail="Registrations you made for championships keep this team. Ownership moves on if you are the owner." data-confirm-label="Leave team">
+                    <button type="submit" class="btn btn-danger">Leave team</button>
+                </form>
+            {{ end }}
+        </div>
+    </div>
+
+    {{ if not $.LoggedIn }}
+        <div class="alert alert-info"><a href="/login">Sign in</a> to join a team.</div>
+    {{ end }}
+
+    <h2>Members</h2>
+
+    <div class="table-card mb-4">
+        <table class="table">
+            <thead>
+            <tr><th>Name</th><th>Role</th><th>Member since</th>{{ if $.CanManage }}<th class="text-right">Actions</th>{{ end }}</tr>
+            </thead>
+
+            {{ range $member := $.Members }}
+                <tr>
+                    <td>{{ $member.Name }}{{ if $member.IsYou }} <small>(you)</small>{{ end }}</td>
+                    <td class="text-capitalize">{{ $member.Role }}</td>
+                    <td>{{ dateFormat $member.Joined }}</td>
+                    {{ if $.CanManage }}
+                        <td class="text-right text-nowrap">
+                            {{ if $member.CanSetAdmin }}
+                                <form method="post" action="/teams/{{ $team.ID.String }}/members/{{ $member.AccountID.String }}/admin" class="d-inline">
+                                    {{ if eq (print $member.Role) "admin" }}
+                                        <button type="submit" class="btn btn-outline">Remove admin</button>
+                                    {{ else }}
+                                        <input type="hidden" name="admin" value="on">
+                                        <button type="submit" class="btn btn-outline">Make admin</button>
+                                    {{ end }}
+                                </form>
+                            {{ end }}
+
+                            {{ if $member.CanTransfer }}
+                                <form method="post" action="/teams/{{ $team.ID.String }}/members/{{ $member.AccountID.String }}/transfer" class="d-inline"
+                                      data-confirm-delete="Make {{ $member.Name }} the owner?" data-confirm-detail="The current owner becomes an admin." data-confirm-label="Transfer ownership">
+                                    <button type="submit" class="btn btn-warning">Make owner</button>
+                                </form>
+                            {{ end }}
+
+                            {{ if $member.CanKick }}
+                                <form method="post" action="/teams/{{ $team.ID.String }}/members/{{ $member.AccountID.String }}/kick" class="d-inline"
+                                      data-confirm-delete="Remove {{ $member.Name }}?" data-confirm-detail="Their registrations in championships keep the team." data-confirm-label="Remove member">
+                                    <button type="submit" class="btn btn-danger">Remove</button>
+                                </form>
+                            {{ end }}
+                        </td>
+                    {{ end }}
+                </tr>
+            {{ end }}
+        </table>
+    </div>
+
+    {{ if $.CanManage }}
+        <div class="dashboard-grid">
+            <div class="card admin-card">
+                <div class="card-header"><h2>Invite</h2></div>
+                <div class="card-body">
+                    <p>Invite a driver by their account name, or leave the name empty to create a link anybody can use once.</p>
+
+                    <form method="post" action="/teams/{{ $team.ID.String }}/invite" class="d-flex flex-wrap align-items-center m-0" style="gap: 12px">
+                        <input type="text" class="form-control" name="driver" placeholder="Account name (optional)" style="max-width: 280px">
+                        <button type="submit" class="btn btn-success">Invite</button>
+                    </form>
+
+                    {{ if $.Invites }}
+                        <div class="table-responsive mt-3">
+                            <table class="table mb-0">
+                                <thead><tr><th>Invite</th><th>Valid until</th><th></th></tr></thead>
+                                {{ range $invite := $.Invites }}
+                                    <tr>
+                                        <td>
+                                            {{ if $invite.Target }}{{ $invite.Target }}{{ else }}<code>{{ $invite.Path }}</code>{{ end }}
+                                        </td>
+                                        <td>{{ if $invite.Expires.IsZero }}no limit{{ else }}{{ dateFormat $invite.Expires }}{{ end }}</td>
+                                        <td class="text-right">
+                                            <form method="post" action="/teams/{{ $team.ID.String }}/invite/revoke" class="d-inline">
+                                                <input type="hidden" name="token" value="{{ $invite.Token }}">
+                                                <button type="submit" class="btn btn-sm btn-danger">Withdraw</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {{ end }}
+                            </table>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+
+            <div class="card admin-card">
+                <div class="card-header"><h2>Settings</h2></div>
+                <div class="card-body">
+                    <form method="post" action="/teams/{{ $team.ID.String }}/rename" class="d-flex flex-wrap align-items-center" style="gap: 12px">
+                        <input type="text" class="form-control" name="name" value="{{ $team.Name }}" required minlength="2" maxlength="40" style="max-width: 280px">
+                        <button type="submit" class="btn btn-success">Rename</button>
+                    </form>
+                    <small>The new name is used in the registrations of championships that are not finished yet.</small>
+
+                    <form method="post" action="/teams/{{ $team.ID.String }}/visibility" class="d-flex flex-wrap align-items-center mt-3" style="gap: 12px">
+                        <select class="form-control" name="visibility" style="max-width: 280px">
+                            <option value="public" {{ if not $team.IsPrivate }}selected{{ end }}>Public</option>
+                            <option value="private" {{ if $team.IsPrivate }}selected{{ end }}>Private</option>
+                        </select>
+                        <button type="submit" class="btn btn-success">Save</button>
+                    </form>
+                    <small>Members stay in the team when it becomes private.</small>
+
+                    {{ if or $.IsOwner $.IsModerator }}
+                        <form method="post" action="/teams/{{ $team.ID.String }}/delete" class="mt-4"
+                              data-confirm-delete="Delete {{ $team.Name }}?" data-confirm-detail="Registrations of championships keep the name of the team." data-confirm-label="Delete team">
+                            <button type="submit" class="btn btn-danger">Delete team</button>
+                        </form>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+    {{ end }}
+{{ end }}

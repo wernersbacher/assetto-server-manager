@@ -23,6 +23,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 	"github.com/wernersbacher/ACPitwall/internal/statshttp"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	"github.com/wernersbacher/ACPitwall/internal/teams"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"net/http"
@@ -86,6 +87,8 @@ type Resolver struct {
 	healthCheck                 *admin.HealthCheck
 	kissMyRankHandler           *pluginhttp.KissMyRankHandler
 	realPenaltyHandler          *pluginhttp.RealPenaltyHandler
+	teamManager                 *teams.Manager
+	teamsHandler                *teams.Handler
 }
 
 func NewResolver(config *smconfig.Configuration, templateLoader smweb.TemplateLoader, reloadTemplates bool, store smstore.Store, state *serverenv.State) (*Resolver, error) {
@@ -241,6 +244,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 		slot.Env,
 		r.resolveNotificationManager(),
 	)
+	slot.ChampionshipManager.SetTeamDirectory(r.resolveTeamManager())
 
 	slot.RaceWeekendManager = smraceweekend.NewRaceWeekendManager(
 		r.config,
@@ -688,7 +692,42 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveRealPenaltyHandler(),
 		r.resolveDriverHandler(),
 		r.resolveLeaderboardHandler(),
+		r.resolveTeamsHandler(),
 	)
+}
+
+// resolveTeamManager returns the manager of the teams, which are shared by all slots. It reads the team options of the
+// account options on every use, follows the renaming of a team in the registrations of running championships and
+// takes deleted accounts out of their teams.
+func (r *Resolver) resolveTeamManager() *teams.Manager {
+	if r.teamManager != nil {
+		return r.teamManager
+	}
+
+	r.teamManager = teams.NewManager(r.store, func() teams.Options {
+		disableCreation, maxOwned := r.resolveAccountHandler().TeamOptions()
+
+		return teams.Options{DisableCreation: disableCreation, MaxOwnedTeams: maxOwned}
+	})
+
+	// the championships are shared by all slots, so the manager of the default slot can update all of them
+	r.teamManager.SetRenameHook(func(team *smmodel.Team) error {
+		return r.resolveChampionshipManager().RenameTeam(team)
+	})
+
+	r.resolveAccountHandler().SetAccountDeletedHook(r.teamManager.RemoveAccount)
+
+	return r.teamManager
+}
+
+func (r *Resolver) resolveTeamsHandler() *teams.Handler {
+	if r.teamsHandler != nil {
+		return r.teamsHandler
+	}
+
+	r.teamsHandler = teams.NewHandler(r.resolveBaseHandler(), r.resolveTeamManager(), r.store)
+
+	return r.teamsHandler
 }
 
 // resolveLeaderboardHandler returns the handler of the hotlap leaderboard page and API.

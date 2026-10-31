@@ -8,10 +8,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 	"github.com/sethvargo/go-diceware/diceware"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
@@ -39,6 +41,14 @@ type ServerAccountOptions struct {
 	// DownloadAccess restricts the downloads of the content directory (cars, tracks, ...), setups and car skin
 	// zips. Pictures shown on the pages stay readable. The zero value (Public) keeps the previous behaviour.
 	DownloadAccess downloads.Access
+
+	// DisableTeamCreation stops accounts without write access from creating teams. The zero value allows it, as
+	// before the option existed.
+	DisableTeamCreation bool
+
+	// MaxOwnedTeams is how many teams one account may own. 0 means the default of the teams package, a negative
+	// number is unlimited.
+	MaxOwnedTeams int
 }
 
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
@@ -187,6 +197,20 @@ type AccountHandler struct {
 	config         *smconfig.Configuration
 	store          smstore.Store
 	accountManager *AccountManager
+
+	onAccountDeleted func(id uuid.UUID) error
+}
+
+// SetAccountDeletedHook registers a function that is called after an account was deleted, e.g. to take it out of its
+// teams. An error is logged, the account stays deleted.
+func (ah *AccountHandler) SetAccountDeletedHook(hook func(id uuid.UUID) error) {
+	ah.onAccountDeleted = hook
+}
+
+// TeamOptions returns the team settings: whether accounts without write access may not create teams, and how many
+// teams one account can own (0 is the default, negative is unlimited).
+func (ah *AccountHandler) TeamOptions() (disableCreation bool, maxOwned int) {
+	return ah.accountManager.options.DisableTeamCreation, ah.accountManager.options.MaxOwnedTeams
 }
 
 func NewAccountHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHandler, store smstore.Store, accountManager *AccountManager) *AccountHandler {
@@ -242,6 +266,34 @@ func (ah *AccountHandler) SetDownloadAccess(w http.ResponseWriter, r *http.Reque
 	}
 
 	ah.toggleOption(w, r, "Download access", func(o *ServerAccountOptions) { o.DownloadAccess = access })
+}
+
+// SetTeamOptions sets the team options from the form values "creation" (enabled or disabled) and "max" (a whole
+// number: 0 is the default, negative is unlimited).
+func (ah *AccountHandler) SetTeamOptions(w http.ResponseWriter, r *http.Request) {
+	var disable bool
+
+	switch r.FormValue("creation") {
+	case "enabled":
+		disable = false
+	case "disabled":
+		disable = true
+	default:
+		http.Error(w, "unknown team creation setting", http.StatusBadRequest)
+		return
+	}
+
+	max, err := strconv.Atoi(strings.TrimSpace(r.FormValue("max")))
+
+	if err != nil || max < -1 || max > 1000 {
+		http.Error(w, "the maximum number of teams must be a whole number between -1 and 1000", http.StatusBadRequest)
+		return
+	}
+
+	ah.toggleOption(w, r, "Team options", func(o *ServerAccountOptions) {
+		o.DisableTeamCreation = disable
+		o.MaxOwnedTeams = max
+	})
 }
 
 func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, name string, toggle func(*ServerAccountOptions)) {
@@ -387,6 +439,12 @@ func (ah *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) 
 		smweb.AddErrorFlash(w, r, "Could not delete account")
 	} else {
 		smweb.AddFlash(w, r, "Account successfully deleted")
+
+		if id, err := uuid.Parse(accountID); err == nil && ah.onAccountDeleted != nil {
+			if err := ah.onAccountDeleted(id); err != nil {
+				logrus.WithError(err).Errorf("Could not clean up after the deleted account %s", accountID)
+			}
+		}
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -678,6 +736,9 @@ type manageAccountsTemplateVars struct {
 	ServerReadIsOpen bool
 	PublicStats      bool
 	DownloadAccess   string
+
+	TeamCreationEnabled bool
+	MaxOwnedTeams       int
 }
 
 func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request) {
@@ -694,6 +755,9 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 		PublicStats:      ah.accountManager.options.PublicStats,
 		DownloadAccess:   ah.accountManager.options.DownloadAccess.String(),
+
+		TeamCreationEnabled: !ah.accountManager.options.DisableTeamCreation,
+		MaxOwnedTeams:       ah.accountManager.options.MaxOwnedTeams,
 	})
 }
 

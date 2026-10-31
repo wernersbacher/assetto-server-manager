@@ -102,6 +102,29 @@
         </div>
 
         <div class="card admin-card">
+            <div class="card-header"><h2>Teams</h2></div>
+            <div class="card-body">
+                <p>Drivers can create teams, join them and register for championships with them. Accounts with write access can always create teams and manage every team.</p>
+
+                <form method="post" action="/accounts/team-options" class="m-0">
+                    <div class="form-group">
+                        <label for="team-creation">Creating teams</label>
+                        <select name="creation" id="team-creation" class="form-control" style="max-width: 360px">
+                            <option value="enabled" {{ if $.TeamCreationEnabled }}selected{{ end }}>Every account can create teams</option>
+                            <option value="disabled" {{ if not $.TeamCreationEnabled }}selected{{ end }}>Only accounts with write access</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="team-max">Teams one account can own</label>
+                        <input type="number" name="max" id="team-max" class="form-control" style="max-width: 160px" min="-1" max="1000" value="{{ $.MaxOwnedTeams }}">
+                        <small>0 is the default of 3, -1 is unlimited.</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card admin-card">
             <div class="card-header"><h2>What each group can do</h2></div>
             <div class="table-responsive">
                 <table class="table role-matrix mb-0">

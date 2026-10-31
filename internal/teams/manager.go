@@ -116,7 +116,25 @@ func (m *Manager) requireAccount(id uuid.UUID) error {
 	return nil
 }
 
+// canonicalID turns an id from outside (URL, form) into the form the store expects. The stores build file names from
+// it, so anything that is not a UUID must never reach them.
+func canonicalID(id string) (string, error) {
+	parsed, err := uuid.Parse(id)
+
+	if err != nil {
+		return "", smmodel.ErrTeamNotFound
+	}
+
+	return parsed.String(), nil
+}
+
 func (m *Manager) load(id string) (*smmodel.Team, error) {
+	id, err := canonicalID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	team, err := m.store.FindTeamByID(id)
 
 	if err != nil {
@@ -227,6 +245,12 @@ func (m *Manager) Create(actor Actor, name string, visibility smmodel.TeamVisibi
 	return team, m.store.UpsertTeam(team)
 }
 
+// CanCreate reports whether the actor may create teams right now (the actor has to be logged in, which is up to the
+// caller to find out).
+func (m *Manager) CanCreate(actor Actor) bool {
+	return actor.Moderator || !m.options().DisableCreation
+}
+
 // Get returns a team if the actor may see it.
 func (m *Manager) Get(actor Actor, id string) (*smmodel.Team, error) {
 	return m.loadVisible(actor, id)
@@ -234,7 +258,39 @@ func (m *Manager) Get(actor Actor, id string) (*smmodel.Team, error) {
 
 // Lookup returns a team including deleted ones, for registrations that refer to a team. It performs no access check.
 func (m *Manager) Lookup(id string) (*smmodel.Team, error) {
+	id, err := canonicalID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return m.store.FindTeamByID(id)
+}
+
+// FindByInvite returns the team an open invite token belongs to, so the invited person can see where they are going
+// to join. The token is the secret, anybody who has it may know the team.
+func (m *Manager) FindByInvite(token string) (*smmodel.Team, error) {
+	if token == "" {
+		return nil, smmodel.ErrTeamInviteInvalid
+	}
+
+	teams, err := m.store.ListTeams()
+
+	if err != nil {
+		return nil, err
+	}
+
+	now := m.now()
+
+	for _, team := range teams {
+		for _, invite := range team.Invites {
+			if invite.Token == token && !invite.Expired(now) {
+				return team, nil
+			}
+		}
+	}
+
+	return nil, smmodel.ErrTeamInviteInvalid
 }
 
 // List returns the teams the actor may see: public teams, their own teams and the private teams that invited them.

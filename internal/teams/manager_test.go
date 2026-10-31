@@ -14,6 +14,8 @@ import (
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
+const testServerID smmodel.ServerID = "test-server"
+
 type testEnv struct {
 	t       *testing.T
 	store   smstore.Store
@@ -21,6 +23,12 @@ type testEnv struct {
 	options Options
 	clock   time.Time
 	accNum  int
+
+	// accounts holds the accounts created by account(), for the tests that need the account of an actor
+	accounts map[uuid.UUID]*smmodel.Account
+
+	// open is the dummy account an open server gives to visitors who are not logged in
+	open *smmodel.Account
 }
 
 func newTestEnv(t *testing.T) *testEnv {
@@ -29,7 +37,7 @@ func newTestEnv(t *testing.T) *testEnv {
 	store, cleanup := envtest.TempJSONStore()
 	t.Cleanup(cleanup)
 
-	env := &testEnv{t: t, store: store, clock: time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC)}
+	env := &testEnv{t: t, store: store, clock: time.Date(2026, 3, 1, 12, 0, 0, 0, time.UTC), accounts: make(map[uuid.UUID]*smmodel.Account), open: &smmodel.Account{Name: smmodel.OpenAccountName}}
 
 	env.manager = NewManager(store, func() Options { return env.options })
 	env.manager.now = func() time.Time { return env.clock }
@@ -43,12 +51,14 @@ func (e *testEnv) account() Actor {
 
 	e.accNum++
 
-	account := smmodel.NewAccount("test-server", "test")
+	account := smmodel.NewAccount(testServerID, "test")
 	account.Name = fmt.Sprintf("user-%d", e.accNum)
 
 	if err := e.store.UpsertAccount(account); err != nil {
 		e.t.Fatal(err)
 	}
+
+	e.accounts[account.ID] = account
 
 	return Actor{AccountID: account.ID}
 }

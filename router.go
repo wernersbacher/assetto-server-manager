@@ -16,6 +16,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/schedule"
 	smserver "github.com/wernersbacher/ACPitwall/internal/server"
 	"github.com/wernersbacher/ACPitwall/internal/statshttp"
+	"github.com/wernersbacher/ACPitwall/internal/teams"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"fmt"
@@ -89,6 +90,7 @@ func Router(
 	realPenaltyHandler *pluginhttp.RealPenaltyHandler,
 	driverHandler *statshttp.DriverHandler,
 	leaderboardHandler *statshttp.LeaderboardHandler,
+	teamsHandler *teams.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -173,6 +175,25 @@ func Router(
 		r.Get("/api/results/{fileName}", resultsHandler.ViewAPI)
 
 		r.Get("/custom", customRaceHandler.List)
+
+		// teams: everybody who can read sees the public teams, the actions need a login (checked by the handler,
+		// the permissions inside of a team by the team manager)
+		r.Get("/teams", teamsHandler.List)
+		r.Post("/teams/new", teamsHandler.Create)
+		r.Get("/teams/invite/{token}", teamsHandler.InvitePage)
+		r.Post("/teams/invite/{token}", teamsHandler.AcceptInvite)
+		r.Get("/teams/{teamID}", teamsHandler.View)
+		r.Post("/teams/{teamID}/join", teamsHandler.Join)
+		r.Post("/teams/{teamID}/leave", teamsHandler.Leave)
+		r.Post("/teams/{teamID}/decline", teamsHandler.DeclineInvite)
+		r.Post("/teams/{teamID}/rename", teamsHandler.Rename)
+		r.Post("/teams/{teamID}/visibility", teamsHandler.SetVisibility)
+		r.Post("/teams/{teamID}/invite", teamsHandler.Invite)
+		r.Post("/teams/{teamID}/invite/revoke", teamsHandler.RevokeInvite)
+		r.Post("/teams/{teamID}/members/{accountID}/kick", teamsHandler.Kick)
+		r.Post("/teams/{teamID}/members/{accountID}/admin", teamsHandler.SetAdmin)
+		r.Post("/teams/{teamID}/members/{accountID}/transfer", teamsHandler.Transfer)
+		r.Post("/teams/{teamID}/delete", teamsHandler.Delete)
 
 		// championships
 		r.Get("/championships", championshipsHandler.List)
@@ -412,6 +433,7 @@ func Router(
 		r.Post("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
 		r.Post("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
 		r.Post("/accounts/download-access", accountHandler.SetDownloadAccess)
+		r.Post("/accounts/team-options", accountHandler.SetTeamOptions)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
 

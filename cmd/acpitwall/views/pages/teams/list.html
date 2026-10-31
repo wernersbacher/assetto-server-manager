@@ -1,0 +1,120 @@
+{{/* gotype: github.com/wernersbacher/ACPitwall/internal/teams.listTemplateVars */}}
+
+{{ define "title" }}Teams{{ end }}
+
+{{ define "content" }}
+    <div class="page-header">
+        <div>
+            <h1>Teams</h1>
+            <p>Create a team or join one, then register for championships together. A team can have as many members as it likes, but only a few of them can drive the same championship.</p>
+        </div>
+    </div>
+
+    {{ if not $.LoggedIn }}
+        <div class="alert alert-info">
+            <a href="/login">Sign in</a> to create a team or to join one.
+        </div>
+    {{ end }}
+
+    {{ if $.CanCreate }}
+        <div class="card mb-4">
+            <div class="card-header"><h2>Create a team</h2></div>
+            <div class="card-body">
+                <form method="post" action="/teams/new" class="d-flex flex-wrap align-items-end" style="gap: 12px" data-safe-submit>
+                    <div class="form-group mb-0">
+                        <label for="team-name">Name</label>
+                        <input type="text" class="form-control" id="team-name" name="name" required minlength="2" maxlength="40" placeholder="The Fast Team">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label for="team-visibility">Visibility</label>
+                        <select class="form-control" id="team-visibility" name="visibility">
+                            <option value="public">Public: everybody can see and join it</option>
+                            <option value="private">Private: only people you invite can join</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Create team</button>
+                </form>
+            </div>
+        </div>
+    {{ end }}
+
+    {{ if $.Invitations }}
+        <h2 class="mt-4">Invitations</h2>
+
+        <div class="table-card mb-4">
+            <table class="table">
+                <thead>
+                <tr><th>Team</th><th>Members</th><th class="text-right">Actions</th></tr>
+                </thead>
+                {{ range $summary := $.Invitations }}
+                    <tr>
+                        <td><a href="/teams/{{ $summary.Team.ID.String }}">{{ $summary.Team.Name }}</a></td>
+                        <td>{{ $summary.Members }}</td>
+                        <td class="text-right text-nowrap">
+                            <form method="post" action="/teams/{{ $summary.Team.ID.String }}/join" class="d-inline">
+                                <button type="submit" class="btn btn-success">Join</button>
+                            </form>
+                            <form method="post" action="/teams/{{ $summary.Team.ID.String }}/decline" class="d-inline">
+                                <button type="submit" class="btn btn-outline">Decline</button>
+                            </form>
+                        </td>
+                    </tr>
+                {{ end }}
+            </table>
+        </div>
+    {{ end }}
+
+    <h2 class="mt-4">Your teams</h2>
+
+    {{ if not $.MyTeams }}
+        {{ template "empty-state" dict "Icon" "accounts" "Text" "You are not in a team yet." }}
+    {{ else }}
+        <div class="table-card mb-4">
+            <table class="table">
+                <thead>
+                <tr><th>Team</th><th>Visibility</th><th>Members</th><th>Your role</th><th>Owner</th></tr>
+                </thead>
+                {{ range $summary := $.MyTeams }}
+                    <tr>
+                        <td><a href="/teams/{{ $summary.Team.ID.String }}">{{ $summary.Team.Name }}</a></td>
+                        <td>{{ if $summary.Team.IsPrivate }}Private{{ else }}Public{{ end }}</td>
+                        <td>{{ $summary.Members }}</td>
+                        <td class="text-capitalize">{{ $summary.Role }}</td>
+                        <td>{{ $summary.Owner }}</td>
+                    </tr>
+                {{ end }}
+            </table>
+        </div>
+    {{ end }}
+
+    <h2 class="mt-4">All teams</h2>
+
+    {{ if not $.OtherTeams }}
+        {{ template "empty-state" dict "Icon" "accounts" "Text" "There are no other teams." }}
+    {{ else }}
+        <div class="table-card">
+            <table class="table">
+                <thead>
+                <tr><th>Team</th><th>Visibility</th><th>Members</th><th>Owner</th><th class="text-right">Actions</th></tr>
+                </thead>
+                {{ range $summary := $.OtherTeams }}
+                    <tr>
+                        <td><a href="/teams/{{ $summary.Team.ID.String }}">{{ $summary.Team.Name }}</a></td>
+                        <td>{{ if $summary.Team.IsPrivate }}Private{{ else }}Public{{ end }}</td>
+                        <td>{{ $summary.Members }}</td>
+                        <td>{{ $summary.Owner }}</td>
+                        <td class="text-right text-nowrap">
+                            {{ if and $.LoggedIn (not $summary.Team.IsPrivate) }}
+                                <form method="post" action="/teams/{{ $summary.Team.ID.String }}/join" class="d-inline">
+                                    <button type="submit" class="btn btn-success">Join</button>
+                                </form>
+                            {{ end }}
+                        </td>
+                    </tr>
+                {{ end }}
+            </table>
+        </div>
+    {{ end }}
+{{ end }}
