@@ -44,6 +44,7 @@ deploy: clean generate vet test
 run:
 	$(MAKE) -C cmd/acpitwall run
 
+# manual push; normally GitHub Actions (.github/workflows/ci.yml) publishes the image on main and v* tags
 docker:
 	docker build --build-arg SM_VERSION=${VERSION} -t ghcr.io/wernersbacher/acpitwall:${VERSION} .
 	docker push ghcr.io/wernersbacher/acpitwall:${VERSION}

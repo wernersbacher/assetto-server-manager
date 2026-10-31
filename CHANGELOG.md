@@ -3,7 +3,7 @@ Unreleased
 
 Changed:
 
-* Assetto Server Manager is now called ACPitwall and has its own repository (https://github.com/wernersbacher/ACPitwall). The Docker image will be published as `ghcr.io/wernersbacher/acpitwall`. The binary is now called `acpitwall` (`acpitwall.exe`) and the source folder `cmd/acpitwall`; the Docker volume and service names in the compose files changed accordingly. config.yml, the data formats and the environment variables are unchanged.
+* Assetto Server Manager is now called ACPitwall and has its own repository (https://github.com/wernersbacher/ACPitwall). The Docker image is published as `ghcr.io/wernersbacher/acpitwall`. The binary is now called `acpitwall` (`acpitwall.exe`) and the source folder `cmd/acpitwall`; the Docker volume and service names in the compose files changed accordingly. config.yml, the data formats and the environment variables are unchanged.
 
 
 Fixed:

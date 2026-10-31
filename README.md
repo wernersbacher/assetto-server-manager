@@ -39,6 +39,7 @@ ACPitwall is based on [JustaPenguin/assetto-server-manager](https://github.com/J
 
 A docker image is available under the name `ghcr.io/wernersbacher/acpitwall`. We recommend using docker-compose
 to set up a docker environment for ACPitwall. This docker image has steamcmd pre-installed.
+The image is built and published by GitHub Actions (`.github/workflows/ci.yml`): `latest` and `x.y.z` for every `vX.Y.Z` tag, `unstable` for the `main` branch.
 
 See [Manual](#Manual) to set up ACPitwall without Docker. For ONE ACPitwall with several AC servers (shared
 content, AC server installed once via steamcmd) see [Several servers](#several-servers) and [deploy/multiserver](deploy/multiserver/README.md).
