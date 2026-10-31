@@ -3,3 +3,5 @@ bugs
 
 große features:
 - skill rating, driver history (nur logged in users)
+
+fork abkapseln und eigenständig machen, private
