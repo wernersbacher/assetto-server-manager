@@ -10,9 +10,9 @@
 {{ define "ServerStopConfirm" }}
     {{- if not .IsPractice -}}
         {{- if .IsChampionship -}}
-            data-confirm-delete="Cancel the current championship event?" data-confirm-detail="All progress of the running event will be permanently lost." data-confirm-label="Cancel event"
+            data-confirm-action="Cancel the current championship event?" data-confirm-detail="All progress of the running event will be permanently lost." data-confirm-label="Cancel event"
         {{- else if .IsRaceWeekend -}}
-            data-confirm-delete="Cancel the current race weekend session?" data-confirm-detail="All progress of the running session will be permanently lost." data-confirm-label="Cancel session"
+            data-confirm-action="Cancel the current race weekend session?" data-confirm-detail="All progress of the running session will be permanently lost." data-confirm-label="Cancel session"
         {{- end -}}
     {{- end -}}
 {{ end }}
@@ -254,7 +254,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content delete-dialog">
                     <div class="modal-body">
-                        <span class="delete-dialog-icon" aria-hidden="true">{{ template "icon" "trash" }}</span>
+                        <span class="delete-dialog-icon" aria-hidden="true"><span class="delete-dialog-icon-delete">{{ template "icon" "trash" }}</span><span class="delete-dialog-icon-action">{{ template "icon" "alert" }}</span></span>
                         <div>
                             <h2 class="delete-dialog-title" id="delete-confirm-title">Delete this item?</h2>
                             <p class="delete-dialog-detail" id="delete-confirm-detail">This cannot be undone.</p>

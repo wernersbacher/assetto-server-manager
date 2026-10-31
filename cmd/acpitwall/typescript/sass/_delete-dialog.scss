@@ -41,3 +41,25 @@
     color: var(--muted-foreground);
   }
 }
+
+// neutral variant (data-confirm-action): warning colours and icon instead of the red trash can
+.delete-dialog {
+  .delete-dialog-icon-action {
+    display: none;
+  }
+
+  &.delete-dialog-action {
+    .delete-dialog-icon {
+      background: var(--warning);
+      color: var(--warning-foreground);
+    }
+
+    .delete-dialog-icon-delete {
+      display: none;
+    }
+
+    .delete-dialog-icon-action {
+      display: flex;
+    }
+  }
+}

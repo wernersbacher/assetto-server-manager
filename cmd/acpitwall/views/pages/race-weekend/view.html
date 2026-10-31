@@ -280,12 +280,12 @@
                                 <a class="btn btn-outline-secondary btn-sm manage-entrylist" href="#">Manage Entry List</a>
                             {{ else if $session.InProgress }}
                                 <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/restart" class="d-inline"
-                                      data-confirm-delete="Restart this session?" data-confirm-detail="The entire session is restarted and any current results will be lost." data-confirm-label="Restart session">
+                                      data-confirm-action="Restart this session?" data-confirm-detail="The entire session is restarted and any current results will be lost." data-confirm-label="Restart session">
                                     <button type="submit" class="btn btn-outline-secondary btn-sm">Restart Session</button>
                                 </form>
 
                                 <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/cancel" class="d-inline"
-                                      data-confirm-delete="Cancel this session?" data-confirm-detail="The entire session is cancelled and any current results will be lost." data-confirm-label="Cancel session">
+                                      data-confirm-action="Cancel this session?" data-confirm-detail="The entire session is cancelled and any current results will be lost." data-confirm-label="Cancel session">
                                     <button type="submit" class="btn btn-danger btn-sm">Cancel Session</button>
                                 </form>
                             {{ end }}

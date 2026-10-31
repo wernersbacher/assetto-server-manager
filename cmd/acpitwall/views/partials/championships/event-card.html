@@ -385,19 +385,19 @@
 
                             {{ else if $event.InProgress }}
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/restart" class="d-inline"
-                                      data-confirm-delete="Restart this event?" data-confirm-detail="The entire event is restarted and any current results will be lost." data-confirm-label="Restart event">
+                                      data-confirm-action="Restart this event?" data-confirm-detail="The entire event is restarted and any current results will be lost." data-confirm-label="Restart event">
                                     <button type="submit" class="btn btn-warning">Restart Event</button>
                                 </form>
 
                                 {{ if $event.HasCompletedSessions }}
                                     <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/finish" class="d-inline"
-                                          data-confirm-delete="Finish this event?" data-confirm-detail="The event is completed with the results of the sessions driven so far, which keep counting for the standings. Sessions that were not driven yet (for example the second race) are skipped and a running server is stopped." data-confirm-label="Finish event">
+                                          data-confirm-action="Finish this event?" data-confirm-detail="The event is completed with the results of the sessions driven so far, which keep counting for the standings. Sessions that were not driven yet (for example the second race) are skipped and a running server is stopped." data-confirm-label="Finish event">
                                         <button type="submit" class="btn btn-success">Finish Event</button>
                                     </form>
                                 {{ end }}
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/cancel" class="d-inline"
-                                      data-confirm-delete="Cancel this event?" data-confirm-detail="The entire event is cancelled and the results of all sessions driven so far are discarded. To keep them, use Finish Event instead." data-confirm-label="Cancel event">
+                                      data-confirm-action="Cancel this event?" data-confirm-detail="The entire event is cancelled and the results of all sessions driven so far are discarded. To keep them, use Finish Event instead." data-confirm-label="Cancel event">
                                     <button type="submit" class="btn btn-danger">Cancel Event</button>
                                 </form>
                             {{ end }}
