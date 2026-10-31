@@ -513,6 +513,21 @@ paths:
                 type: string
         "302":
           $ref: "#/components/responses/LoginRedirect"
+  /api/docs:
+    get:
+      tags: [Documentation]
+      summary: Swagger UI
+      description: "Interactive documentation of this API. Access: read."
+      operationId: getSwaggerUI
+      responses:
+        "200":
+          description: The Swagger UI page.
+          content:
+            text/html:
+              schema:
+                type: string
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
 components:
   parameters:
     Server:

@@ -146,6 +146,8 @@ func Router(
 
 		// API documentation
 		r.Get(apidocs.SpecPath, apidocs.SpecHandler)
+		r.Get(apidocs.UIPath, apidocs.UIHandler)
+		r.Get(apidocs.UIAssetsPattern, apidocs.UIAssetsHandler().ServeHTTP)
 
 		r.Mount("/stracker/", http.HandlerFunc(strackerHandler.Proxy))
 
