@@ -46,7 +46,7 @@ content, AC server installed once via steamcmd) see [Several servers](#several-s
 **Note**: if you are using a directory volume for the server install (as is shown below), be sure to make 
 the directory before running `docker-compose up` - otherwise its permissions may be incorrect. 
 
-You will need a [config.yml](https://github.com/wernersbacher/ACPitwall/blob/master/cmd/server-manager/config.example.yml) file to mount into the docker container.
+You will need a [config.yml](https://github.com/wernersbacher/ACPitwall/blob/main/cmd/server-manager/config.example.yml) file to mount into the docker container.
 
 An example docker-compose.yml looks like this:
 
@@ -239,4 +239,4 @@ inspiration and reference on understanding the AC configuration files
 
 ## Screenshots
 
-Check out the [screenshots folder](https://github.com/wernersbacher/ACPitwall/tree/master/misc/screenshots)!
+Check out the [screenshots folder](https://github.com/wernersbacher/ACPitwall/tree/main/misc/screenshots)!
