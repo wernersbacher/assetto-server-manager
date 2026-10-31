@@ -144,6 +144,14 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (serverconfig.EntryList, error) {
 	entryList := serverconfig.EntryList{}
 
+	if start < 0 || length < 0 {
+		return nil, ValidationErrors{{Field: "EntryList.Name", Message: "Invalid form: the entry list has a negative size."}}
+	}
+
+	if err := checkFormArrays(r, start+length, "entrants", entryListFormFields); err != nil {
+		return nil, err
+	}
+
 	allCars, err := rm.carManager.ListCars()
 
 	if err != nil {
@@ -334,6 +342,10 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 	}
 
 	// weather
+	if err := checkFormArrays(r, len(r.Form["Graphics"]), "weather entries", weatherFormFields); err != nil {
+		return nil, err
+	}
+
 	for i := 0; i < len(r.Form["Graphics"]); i++ {
 		weatherName := r.Form["Graphics"][i]
 
