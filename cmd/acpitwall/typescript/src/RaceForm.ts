@@ -79,6 +79,7 @@ export class RaceForm {
         this.buildCollapsible($form, sections, "sm-form-sections:" + RaceForm.formType($form));
         const refresh = this.buildIndex($form, sections);
         this.buildErrorSummary($form, sections, refresh);
+        this.buildServerErrors($form, sections, refresh);
         this.buildSaveBar($form);
 
         // The page scripts still adjust some fields while the page loads (pickers, defaults), so the values the
@@ -453,6 +454,75 @@ export class RaceForm {
 
             refresh();
         });
+    }
+
+    // buildServerErrors turns the error list the server rendered (the form was submitted with invalid values) into the
+    // same kind of summary: the entries link to the fields, and the fields and sections are marked.
+    private buildServerErrors($form: JQuery, sections: Section[], refresh: () => void) {
+        const $summary = $form.children(".server-form-errors").first();
+
+        if (!$summary.length) {
+            return;
+        }
+
+        const $index = $form.children(".form-index");
+
+        if ($index.length) {
+            $index.after($summary);
+        }
+
+        $summary.addClass("form-error-summary");
+
+        $summary.find("li[data-field]").each((_, li) => {
+            const $li = $(li);
+            const name = $li.attr("data-field") || "";
+            const el = $form.find("[name='" + name.replace(/'/g, "") + "']").not("[type='hidden']").first()[0] as HTMLElement | undefined;
+
+            if (!el) {
+                return;
+            }
+
+            const s = sections.filter((x) => x.$card[0].contains(el))[0];
+            const $a = $("<a>").attr("href", "#").text((s ? s.title + ": " : "") + $li.text());
+
+            $(el).attr("aria-invalid", "true");
+
+            if (s) {
+                RaceForm.setOpen(s, true);
+                s.$card.addClass("has-error");
+            }
+
+            $a.on("click", (ev) => {
+                ev.preventDefault();
+
+                if (s) {
+                    RaceForm.setOpen(s, true);
+                }
+
+                el.scrollIntoView({block: "center"});
+                el.focus({preventScroll: true});
+            });
+
+            // a changed field is no longer reported
+            $(el).one("input change", () => {
+                $li.remove();
+                $(el).removeAttr("aria-invalid");
+
+                if (s && !$form.find("[aria-invalid='true']").filter((_i, o) => s.$card[0].contains(o)).length) {
+                    s.$card.removeClass("has-error");
+                }
+
+                if (!$summary.find("li").length) {
+                    $summary.remove();
+                }
+
+                refresh();
+            });
+
+            $li.empty().append($a);
+        });
+
+        refresh();
     }
 
     private buildSaveBar($form: JQuery) {

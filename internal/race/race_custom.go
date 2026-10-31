@@ -1,6 +1,7 @@
 package race
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -106,6 +107,13 @@ func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := manager.SetupCustomRace(r)
+
+	var validationErrors ValidationErrors
+
+	if errors.As(err, &validationErrors) {
+		crh.renderInvalid(w, r, manager, validationErrors)
+		return
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't apply custom race")
@@ -282,4 +290,18 @@ func (crh *CustomRaceHandler) Loop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
+
+// renderInvalid shows the custom race form again with the input of the user and the validation errors.
+func (crh *CustomRaceHandler) renderInvalid(w http.ResponseWriter, r *http.Request, manager *RaceManager, errs ValidationErrors) {
+	customRaceData, err := manager.BuildRaceOptsFromSubmission(r, errs)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("couldn't build custom race form with errors")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusUnprocessableEntity)
+	crh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", customRaceData)
 }

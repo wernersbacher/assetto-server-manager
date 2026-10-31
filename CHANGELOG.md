@@ -10,6 +10,8 @@ Changed:
 
 Fixed:
 
+* The custom race form is now validated on the server (track, cars, at least one session, session time or laps, maximum clients, pit window, wind speeds, entrants without a car, race name for presets, schedule date) instead of failing with a bare error page: the form is shown again with your input and an error list that links to the affected fields and sections. The quick race form reports invalid values as error messages instead of a server error.
+
 * With several servers, the "Blacklist Driver" buttons in the results now act on the server the result came from (or the currently selected server on pages without a known origin) instead of the server remembered in the session.
 
 * A championship event whose last session is never driven (for example the second race of a reversed grid event) can now be completed with "Finish Event": the results of the sessions driven so far are kept and count for the standings, the remaining sessions are skipped and a running server is stopped. Cancel Event still discards all results of the event, which the confirmation now says.

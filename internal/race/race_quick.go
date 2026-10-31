@@ -1,6 +1,7 @@
 package race
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/sirupsen/logrus"
@@ -54,8 +55,13 @@ func (qrh *QuickRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 
 	err := manager.SetupQuickRace(r)
 
-	if err == ErrMustSubmitCar {
-		smweb.AddErrorFlash(w, r, "You must choose at least one car!")
+	var validationErrors ValidationErrors
+
+	if errors.As(err, &validationErrors) {
+		for _, message := range validationErrors.Messages() {
+			smweb.AddErrorFlash(w, r, message)
+		}
+
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	} else if err != nil {

@@ -87,6 +87,9 @@ type RaceTemplateVars struct {
 	RaceWeekendHasAtLeastOneSession bool
 
 	ShowOverridePasswordCard bool
+
+	// FormErrors are the validation errors of a submitted form that is shown again.
+	FormErrors ValidationErrors
 }
 
 // BuildRaceOpts builds a quick race form
@@ -225,4 +228,44 @@ func (rm *RaceManager) SaveEntrantsForAutoFill(entryList serverconfig.EntryList)
 	}
 
 	return nil
+}
+
+// BuildRaceOptsFromSubmission builds the options of the custom race form from a submitted (invalid) form, so the
+// page can be rendered again with the input of the user and the errors.
+func (rm *RaceManager) BuildRaceOptsFromSubmission(r *http.Request, errs ValidationErrors) (*RaceTemplateVars, error) {
+	opts, err := rm.BuildRaceOpts(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	opts.FormErrors = errs
+	opts.EditingID = r.FormValue("Editing")
+	opts.IsEditing = opts.EditingID != ""
+	opts.CustomRaceName = r.FormValue("CustomRaceName")
+	opts.OverridePassword = r.FormValue("OverridePassword") == "1"
+	opts.ReplacementPassword = r.FormValue("ReplacementPassword")
+	opts.ForceStopTime = smweb.FormValueAsInt(r.FormValue("ForceStopTime"))
+	opts.ForceStopWithDrivers = r.FormValue("ForceStopWithDrivers") == "1"
+
+	// the values of the form replace the defaults. A form that cannot even be read keeps the defaults.
+	raceConfig, err := rm.BuildCustomRaceFromForm(r)
+
+	if err != nil {
+		return opts, nil
+	}
+
+	opts.Current = *raceConfig
+
+	if !raceConfig.HasSession(serverconfig.SessionTypeBooking) {
+		if entryList, err := rm.BuildEntryList(r, 0, len(r.Form["EntryList.Name"])); err == nil {
+			opts.CurrentEntrants = entryList
+		}
+	}
+
+	if err := rm.ApplyCurrentRaceSetupToOptions(opts, opts.Current); err != nil {
+		return nil, err
+	}
+
+	return opts, nil
 }

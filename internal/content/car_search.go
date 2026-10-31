@@ -211,3 +211,15 @@ func (cm *CarManager) Search(ctx context.Context, term string, from, size int) (
 
 	return results, cars, nil
 }
+
+// CloseSearchIndex closes the car search index, if it was opened.
+func (cm *CarManager) CloseSearchIndex() error {
+	cm.searchMutex.Lock()
+	defer cm.searchMutex.Unlock()
+
+	if cm.carIndex == nil {
+		return nil
+	}
+
+	return cm.carIndex.Close()
+}

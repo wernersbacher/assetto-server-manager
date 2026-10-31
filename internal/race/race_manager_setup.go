@@ -2,6 +2,7 @@ package race
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -19,7 +20,8 @@ import (
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
-var ErrMustSubmitCar = errors.New("servermanager: you must set a car")
+// errInvalidSolDate is returned when the Sol start date of the weather cannot be parsed.
+var errInvalidSolDate = errors.New("servermanager: invalid sol date")
 
 func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 	if err := r.ParseForm(); err != nil {
@@ -65,10 +67,12 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 
 	quickRace.Sessions = make(map[serverconfig.SessionType]*serverconfig.SessionConfig)
 
-	qualifyingTime, err := strconv.ParseInt(r.Form.Get("Qualifying.Time"), 10, 0)
+	qualifyingTime, qualifyingErr := strconv.ParseInt(r.Form.Get("Qualifying.Time"), 10, 0)
+	raceTime, raceTimeErr := strconv.ParseInt(r.Form.Get("Race.Time"), 10, 0)
+	raceLaps, raceLapsErr := strconv.ParseInt(r.Form.Get("Race.Laps"), 10, 0)
 
-	if err != nil {
-		return err
+	if errs := validateQuickRace(cars, qualifyingTime, qualifyingErr, raceTime, raceTimeErr, raceLaps, raceLapsErr); len(errs) > 0 {
+		return errs
 	}
 
 	quickRace.AddSession(serverconfig.SessionTypeQualifying, &serverconfig.SessionConfig{
@@ -77,18 +81,6 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		IsOpen: 1,
 	})
 
-	raceTime, err := strconv.ParseInt(r.Form.Get("Race.Time"), 10, 0)
-
-	if err != nil {
-		return err
-	}
-
-	raceLaps, err := strconv.ParseInt(r.Form.Get("Race.Laps"), 10, 0)
-
-	if err != nil {
-		return err
-	}
-
 	quickRace.AddSession(serverconfig.SessionTypeRace, &serverconfig.SessionConfig{
 		Name:     "Race",
 		Time:     int(raceTime),
@@ -96,10 +88,6 @@ func (rm *RaceManager) SetupQuickRace(r *http.Request) error {
 		IsOpen:   1,
 		WaitTime: 60,
 	})
-
-	if len(cars) == 0 {
-		return ErrMustSubmitCar
-	}
 
 	entryList := serverconfig.EntryList{}
 
@@ -370,7 +358,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 			startTime, err := time.ParseInLocation("2006-01-02T15:04", r.Form["DateUnix"][i], time.UTC)
 
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("%w: %v", errInvalidSolDate, err)
 			}
 
 			timeMulti := r.Form["TimeMulti"][i]
@@ -414,15 +402,17 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 	return raceConfig, nil
 }
 
-func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
-	if err := r.ParseForm(); err != nil {
-		return err
-	}
-
+// buildCustomRaceAndEntryList builds the config and entry list of a submitted custom race form and validates
+// them. Problems with the input are returned as ValidationErrors.
+func (rm *RaceManager) buildCustomRaceAndEntryList(r *http.Request) (*serverconfig.CurrentRaceConfig, serverconfig.EntryList, error) {
 	raceConfig, err := rm.BuildCustomRaceFromForm(r)
 
 	if err != nil {
-		return err
+		if errors.Is(err, errInvalidSolDate) {
+			return nil, nil, ValidationErrors{{Field: "DateUnix", Message: "Enter a valid date and time for the Sol weather."}}
+		}
+
+		return nil, nil, err
 	}
 
 	var entryList serverconfig.EntryList
@@ -431,8 +421,39 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 		entryList, err = rm.BuildEntryList(r, 0, len(r.Form["EntryList.Name"]))
 
 		if err != nil {
-			return err
+			return nil, nil, err
 		}
+	}
+
+	if errs := ValidateCustomRace(raceConfig, entryList, r.Form); len(errs) > 0 {
+		return nil, nil, errs
+	}
+
+	return raceConfig, entryList, nil
+}
+
+// parseScheduleDate parses the date, time and time zone fields of the schedule form. An unknown time zone
+// falls back to the local one.
+func parseScheduleDate(dateString, timeString, timezone string) (time.Time, error) {
+	location, err := tz.LoadLocation(timezone)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("could not find location: %s", timezone)
+		location = time.Local
+	}
+
+	return time.ParseInLocation("2006-01-02-15:04", dateString+"-"+timeString, location)
+}
+
+func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
+	if err := r.ParseForm(); err != nil {
+		return err
+	}
+
+	raceConfig, entryList, err := rm.buildCustomRaceAndEntryList(r)
+
+	if err != nil {
+		return err
 	}
 
 	if err := rm.SaveEntrantsForAutoFill(entryList); err != nil {
@@ -472,6 +493,17 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 	saveAsPresetWithoutStartingRace := r.FormValue("action") == "justSave"
 	schedule := r.FormValue("action") == "schedule"
 
+	// the date is parsed before anything is saved, so a bad date does not leave a half created race behind
+	var scheduleDate time.Time
+
+	if schedule {
+		scheduleDate, err = parseScheduleDate(r.FormValue("CustomRaceScheduled"), r.FormValue("CustomRaceScheduledTime"), r.FormValue("CustomRaceScheduledTimezone"))
+
+		if err != nil {
+			return ValidationErrors{{Field: "CustomRaceScheduled", Message: "Enter a valid date and time for the scheduled race."}}
+		}
+	}
+
 	// save the custom race preset
 	race, err := rm.SaveCustomRace(r.FormValue("CustomRaceName"), overridePassword, replacementPassword, *raceConfig, entryList, saveAsPresetWithoutStartingRace, forceStopTime, forceStopWithDrivers)
 
@@ -480,25 +512,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 	}
 
 	if schedule {
-		dateString := r.FormValue("CustomRaceScheduled")
-		timeString := r.FormValue("CustomRaceScheduledTime")
-		timezone := r.FormValue("CustomRaceScheduledTimezone")
-
-		location, err := tz.LoadLocation(timezone)
-
-		if err != nil {
-			logrus.WithError(err).Errorf("could not find location: %s", location)
-			location = time.Local
-		}
-
-		// Parse time in correct time zone
-		date, err := time.ParseInLocation("2006-01-02-15:04", dateString+"-"+timeString, location)
-
-		if err != nil {
-			return err
-		}
-
-		err = rm.ScheduleRace(race.UUID.String(), date, "add", r.FormValue("event-schedule-recurrence"))
+		err = rm.ScheduleRace(race.UUID.String(), scheduleDate, "add", r.FormValue("event-schedule-recurrence"))
 
 		if err != nil {
 			return err

@@ -71,6 +71,17 @@
           data-safe-submit
     >
 
+        {{ with .FormErrors }}
+            <div class="server-form-errors alert alert-danger" role="alert" tabindex="-1">
+                <strong>Please fix these fields before saving:</strong>
+                <ul>
+                    {{ range . }}
+                        <li data-field="{{ .Field }}">{{ .Message }}</li>
+                    {{ end }}
+                </ul>
+            </div>
+        {{ end }}
+
         {{ if .IsChampionship }}{{ if .Championship.HasRaceSettings }}
             <div class="card mt-3 border-secondary">
                 <div class="card-header">
