@@ -824,3 +824,30 @@ func canonicalID(id string) (string, error) {
 
 	return parsed.String(), nil
 }
+
+// ForgetCar drops the records and the private and team skins of a car that is deleted. Global skins go with the car
+// directory itself.
+func (m *Manager) ForgetCar(car string) error {
+	if !plainname.Valid(car) {
+		return nil
+	}
+
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	skins, err := m.store.ListUserSkins()
+
+	if err != nil {
+		return err
+	}
+
+	for _, skin := range skins {
+		if skin.Car == car {
+			if err := m.store.DeleteUserSkin(skin.ID.String()); err != nil {
+				return err
+			}
+		}
+	}
+
+	return os.RemoveAll(m.UserDir(car))
+}

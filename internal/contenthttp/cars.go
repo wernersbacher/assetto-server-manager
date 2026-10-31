@@ -156,6 +156,12 @@ func (ch *CarsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if ch.userSkins != nil {
+		if err := ch.userSkins.ForgetCar(carName); err != nil {
+			logrus.WithError(err).Errorf("Could not delete the user skins of car %s", carName)
+		}
+	}
+
 	smweb.AddFlash(w, r, fmt.Sprintf("Car %s successfully deleted!", carName))
 	http.Redirect(w, r, "/cars", http.StatusFound)
 }

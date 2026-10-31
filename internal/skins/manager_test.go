@@ -536,3 +536,55 @@ func TestUsableSkinsAndChecks(t *testing.T) {
 		t.Errorf("a writer sees all skins: %d", len(list))
 	}
 }
+
+func TestForgetCar(t *testing.T) {
+	e := newTestEnv(t)
+	defer e.cleanup()
+
+	if err := os.MkdirAll(filepath.Join(e.install, "content", "cars", "bmw"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	e.settings = smmodel.SkinSettings{UserUploads: true}
+	user := Actor{ID: uuid.New()}
+
+	ferrari, _ := e.m.Upload(user, "ferrari", smmodel.SkinPrivate, uuid.Nil, skinFiles("a", 10))
+	bmw, _ := e.m.Upload(user, "bmw", smmodel.SkinPrivate, uuid.Nil, skinFiles("b", 10))
+
+	if err := e.m.ForgetCar("ferrari"); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := e.m.Find(ferrari[0].ID.String()); err != smmodel.ErrUserSkinNotFound || exists(e.m.UserDir("ferrari")) {
+		t.Error("the skins of the deleted car must be gone")
+	}
+
+	if _, err := e.m.Find(bmw[0].ID.String()); err != nil || !exists(e.m.Dir(bmw[0])) {
+		t.Error("skins of other cars must stay")
+	}
+
+	if err := e.m.ForgetCar("../bmw"); err != nil || !exists(e.m.Dir(bmw[0])) {
+		t.Error("a bad car name must do nothing")
+	}
+}
+
+func TestSkinIDsFromOutsideNeverReachTheFileSystem(t *testing.T) {
+	e := newTestEnv(t)
+	defer e.cleanup()
+
+	admin := Actor{ID: uuid.New(), Writer: true}
+
+	for _, id := range []string{"../../x", `..\x`, "", "not-a-uuid", "00000000-0000-0000-0000-000000000000/../x"} {
+		if _, err := e.m.Find(id); err != smmodel.ErrUserSkinNotFound {
+			t.Errorf("Find(%q): %v", id, err)
+		}
+
+		if err := e.m.Delete(admin, id); err != smmodel.ErrUserSkinNotFound {
+			t.Errorf("Delete(%q): %v", id, err)
+		}
+
+		if err := e.m.SetVisibility(admin, id, smmodel.SkinGlobal, uuid.Nil); err != smmodel.ErrUserSkinNotFound {
+			t.Errorf("SetVisibility(%q): %v", id, err)
+		}
+	}
+}
