@@ -804,11 +804,27 @@ func (rwh *RaceWeekendHandler) denyHidden(w http.ResponseWriter, r *http.Request
 
 	raceWeekend, err := rwm.store.LoadRaceWeekend(chi.URLParam(r, "raceWeekendID"))
 
-	if err != nil || !raceWeekend.Hidden {
+	if err != nil || !rwm.isHidden(raceWeekend) {
 		return false
 	}
 
 	http.NotFound(w, r)
 
 	return true
+}
+
+// isHidden tells whether the race weekend is hidden itself or belongs to a hidden championship. A championship which
+// can't be loaded does not hide the race weekend.
+func (rwm *RaceWeekendManager) isHidden(raceWeekend *smmodel.RaceWeekend) bool {
+	if raceWeekend.Hidden {
+		return true
+	}
+
+	if !raceWeekend.HasLinkedChampionship() {
+		return false
+	}
+
+	championship, err := rwm.store.LoadChampionship(raceWeekend.ChampionshipID.String())
+
+	return err == nil && championship.Hidden
 }
