@@ -35,6 +35,7 @@ type ChampionshipManager struct {
 	process             smserver.ServerProcess
 	env                 *serverenv.Env
 	notificationManager notification.Dispatcher
+	teams               TeamDirectory
 
 	activeChampionship *smmodel.ActiveChampionship
 	mutex              sync.Mutex

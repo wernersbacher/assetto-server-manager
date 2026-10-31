@@ -3,6 +3,8 @@ package model
 import (
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func (c *Championship) SignUpAvailable() bool {
@@ -29,6 +31,14 @@ type ChampionshipSignUpForm struct {
 	HideCarChoice    bool
 	ExtraFields      []string
 	RequiresApproval bool
+
+	// TeamMode decides how the team is asked for if AskForTeam is set, see SignUpTeamMode. The zero value keeps the
+	// free text field of championships created before teams existed.
+	TeamMode SignUpTeamMode
+
+	// MaxDriversPerTeam limits the registrations (pending or accepted) per team, for teams that are chosen from the
+	// team list. 0 means DefaultMaxDriversPerTeam, a negative number means unlimited.
+	MaxDriversPerTeam int
 
 	Responses []*ChampionshipSignUpResponse
 }
@@ -76,9 +86,16 @@ const (
 type ChampionshipSignUpResponse struct {
 	Created time.Time
 
-	Name      string
-	GUID      string
-	Team      string
+	Name string
+	GUID string
+
+	// Team is the name of the team. For a team chosen from the team list (TeamID is set) it is the name at the time
+	// of the registration (updated when the team is renamed while the championship runs), otherwise free text.
+	Team string
+	// TeamID refers to the team the driver chose from the team list. It is uuid.Nil for free text teams and for
+	// registrations from before teams existed.
+	TeamID uuid.UUID
+
 	Email     string
 	Car       string
 	Skin      string

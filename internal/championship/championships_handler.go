@@ -1089,6 +1089,15 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 		return
 	}
 
+	if r.URL.Query().Get("action") == "team" {
+		// moderators move a driver to another team (drivers cannot change their team themselves)
+		ch.changeEntrantTeam(w, r, cm)
+		return
+	}
+
+	// the status changes the number of drivers of a team, nobody may register in between
+	defer LockSignUps()()
+
 	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
@@ -1113,6 +1122,12 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 		case "accept":
 			if entrant.Status == smmodel.ChampionshipEntrantAccepted {
 				smweb.AddFlash(w, r, "This entrant has already been accepted.")
+				break
+			}
+
+			// accepting a rejected registration puts the driver back into the team
+			if err := CheckAcceptTeamLimit(championship, entrant); err != nil {
+				smweb.AddErrorFlash(w, r, err.Error())
 				break
 			}
 
@@ -1147,6 +1162,34 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 
 	if err := cm.UpsertChampionship(championship); err != nil {
 		logrus.WithError(err).Error("couldn't save championship")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
+
+// changeEntrantTeam moves a registered driver to another team. The route is only reachable with write access, the
+// rules for the team of drivers do not apply to moderators.
+func (ch *ChampionshipsHandler) changeEntrantTeam(w http.ResponseWriter, r *http.Request, cm *ChampionshipManager) {
+	warning, err := cm.ChangeEntrantTeam(
+		chi.URLParam(r, "championshipID"),
+		chi.URLParam(r, "entrantGUID"),
+		r.FormValue("teamID"),
+		r.FormValue("team"),
+	)
+
+	switch err.(type) {
+	case nil:
+		smweb.AddFlash(w, r, "The team of the entrant was changed.")
+
+		if warning != "" {
+			smweb.AddErrorFlash(w, r, warning)
+		}
+	case ValidationError:
+		smweb.AddErrorFlash(w, r, err.Error())
+	default:
+		logrus.WithError(err).Error("couldn't change the team of the entrant")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

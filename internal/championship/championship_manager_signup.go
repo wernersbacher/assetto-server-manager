@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 	"github.com/haisum/recaptcha"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
@@ -27,17 +28,26 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		return nil, false, err
 	}
 
+	// the team limit and the lock of the team are checked against the registrations, which are then saved: nobody
+	// else may register in between
+	defer LockSignUps()()
+
 	championship, err := cm.LoadChampionship(chi.URLParam(r, "championshipID"))
 
 	if err != nil {
 		return nil, false, err
 	}
 
+	// the team of the form is taken over as typed, so the form can be shown again with the values of the driver if
+	// something is wrong; resolveSignUpTeam decides what really counts
+	chosenTeamID, _ := uuid.Parse(strings.TrimSpace(r.FormValue("TeamID")))
+
 	signUpResponse := &smmodel.ChampionshipSignUpResponse{
 		Created: time.Now(),
 		Name:    strings.TrimSpace(r.FormValue("Name")),
 		GUID:    serverconfig.NormaliseEntrantGUID(r.FormValue("GUID")),
 		Team:    strings.TrimSpace(r.FormValue("Team")),
+		TeamID:  chosenTeamID,
 		Email:   strings.TrimSpace(r.FormValue("Email")),
 
 		Car:  r.FormValue("Car"),
@@ -69,6 +79,14 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		if championship.SignUpForm.AskForEmail && entrant.Email == signUpResponse.Email && entrant.GUID != signUpResponse.GUID {
 			return signUpResponse, false, ValidationError("Someone has already registered with this email address.")
 		}
+	}
+
+	if err := cm.resolveSignUpTeam(championship, signUpResponse, r); err != nil {
+		return signUpResponse, false, err
+	}
+
+	if err := cm.checkSignUpTeam(championship, signUpResponse); err != nil {
+		return signUpResponse, false, err
 	}
 
 	if !championship.SignUpForm.RequiresApproval {
