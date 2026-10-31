@@ -122,12 +122,13 @@ func ValidateCustomRace(config *serverconfig.CurrentRaceConfig, entryList server
 
 // ValidateEventSetup checks the race config of a championship event or race weekend session. The cars come from
 // the championship or race weekend and the entry list and name are not part of the form, so only the
-// track, sessions and server settings are checked.
+// track, sessions and server settings are checked. The maximum number of clients is not: the race weekend session form
+// has no such field and both kinds of events set it from the entry list when they start.
 func ValidateEventSetup(config *serverconfig.CurrentRaceConfig) ValidationErrors {
 	var errs ValidationErrors
 
 	for _, e := range ValidateCustomRace(config, nil, url.Values{}) {
-		if e.Field != "Cars" {
+		if e.Field != "Cars" && e.Field != "MaxClients" {
 			errs = append(errs, e)
 		}
 	}

@@ -310,3 +310,25 @@ func TestRaceWeekendManager_SaveRaceWeekendSessionInvalidForm(t *testing.T) {
 		t.Fatalf("form input was not kept: %+v", opts)
 	}
 }
+
+// The session form of a race weekend has no max clients field (it is set from the entry list on start), so a valid form
+// without it must save.
+func TestRaceWeekendManager_SaveRaceWeekendSessionWithoutMaxClients(t *testing.T) {
+	slots, store := newTestSlots(t, smmodel.ServerID("a"))
+	manager := slots["a"].manager
+
+	raceWeekend, session := newSlotTestRaceWeekend(t, store)
+
+	values := url.Values{"Track": {"monza"}, "SessionType": {"Race"}, "Race.Enabled": {"1"}, "Race.Laps": {"3"}, "Editing": {session.ID.String()}}
+
+	r := httptest.NewRequest(http.MethodPost, "/race-weekend/x/session/submit", strings.NewReader(values.Encode()))
+	r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("raceWeekendID", raceWeekend.ID.String())
+	r = smweb.WithScope(r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx)), webtest.RequestScope())
+
+	if _, _, _, err := manager.SaveRaceWeekendSession(r); err != nil {
+		t.Fatalf("a valid session form without max clients must save, got %v", err)
+	}
+}
