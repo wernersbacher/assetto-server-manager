@@ -20,13 +20,13 @@ In order to activate Lua plugins for SM you need to set the following in your ``
 ################################################################################
 lua:
   # lua plugins allow you to run custom lua scripts through hooks with server
-  # manager! If you're interested have a look at the server-manager/plugins
+  # manager! If you're interested have a look at the acpitwall/plugins
   # folder to see some examples!
   enabled: true
 ```
 
 Once you've got the basics down we can have a look at how ACPitwall (SM) interacts with our Lua plugins. 
-It's worth noting that SM automatically adds the ```server-manager/plugins``` folder to your ```LUA_PATH``` when it initialises.
+It's worth noting that SM automatically adds the ```acpitwall/plugins``` folder to your ```LUA_PATH``` when it initialises.
 If you want to import Lua files from other locations then you can add them to your ```LUA_PATH``` manually.
 
 Here is an example of the program flow for the ```onEventStart``` Lua hook:

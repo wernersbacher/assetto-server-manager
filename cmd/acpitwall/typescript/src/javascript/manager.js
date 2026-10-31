@@ -10,7 +10,7 @@ let moment = require("moment");
 
 // entry-point
 export function EntryPoint() {
-    console.log("initialising server manager javascript");
+    console.log("initialising ACPitwall javascript");
 
     $document = $(document);
 

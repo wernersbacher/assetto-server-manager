@@ -1,7 +1,7 @@
 # ACPitwall config for local development (native via dev/run.ps1 and via compose.yaml).
 # Two servers (slots) a and b, both on a copy of the fake install; the content of b is linked to that of a.
-# Copied to cmd/server-manager/config.yml on first run (native) - edit that copy, not this file.
-# See cmd/server-manager/config.example.yml for all options and their documentation.
+# Copied to cmd/acpitwall/config.yml on first run (native) - edit that copy, not this file.
+# See cmd/acpitwall/config.example.yml for all options and their documentation.
 
 steam:
   # no steamcmd install happens, because the fake install in ./assetto contains a "system" folder

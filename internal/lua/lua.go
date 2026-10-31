@@ -141,7 +141,7 @@ func HTTPRequest(l *lua.LState) int {
 		return 0
 	}
 
-	req.Header.Set("User-Agent", "assetto-server-manager")
+	req.Header.Set("User-Agent", "ACPitwall")
 
 	res, err := httpClient.Do(req)
 	if err != nil {

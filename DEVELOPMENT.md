@@ -19,12 +19,12 @@ Requirements: Go (e.g. `scoop install go`) and Node.js >= 22.12 with npm (24 LTS
 ./dev/run.ps1 -NoRun      # only build
 ```
 
-The server runs in `cmd/server-manager` with `FILESYSTEM_HTML=true`, so templates in `cmd/server-manager/views` and
-files in `cmd/server-manager/static` are served from disk: template changes only need a browser refresh. Go changes
+The server runs in `cmd/acpitwall` with `FILESYSTEM_HTML=true`, so templates in `cmd/acpitwall/views` and
+files in `cmd/acpitwall/static` are served from disk: template changes only need a browser refresh. Go changes
 need a restart of the script.
 
-On first run, `dev/config.yml` is copied to `cmd/server-manager/config.yml` and `dev/assetto-seed` to
-`cmd/server-manager/assetto` (server a) and `cmd/server-manager/assetto-b` (server b), all gitignored. Edit those copies to
+On first run, `dev/config.yml` is copied to `cmd/acpitwall/config.yml` and `dev/assetto-seed` to
+`cmd/acpitwall/assetto` (server a) and `cmd/acpitwall/assetto-b` (server b), all gitignored. Edit those copies to
 try things locally.
 
 The dev setup runs **two servers** (`servers:` in `dev/config.yml`, ids `a` and `b`) to try the multiserver features.
@@ -35,7 +35,7 @@ of a server if you want both to run. A `config.yml` and fake install from before
 
 ### Test data
 
-`-Seed` runs `cmd/utils/dev-seed` (also usable on its own: `go run ./cmd/utils/dev-seed -dir cmd/server-manager`),
+`-Seed` runs `cmd/utils/dev-seed` (also usable on its own: `go run ./cmd/utils/dev-seed -dir cmd/acpitwall`),
 which fills the local dev instance (for the first server, a) with 10 drivers, ~18 result files (practice/qualify/race on `dev_ring` gp/short and
 `dev_track`), the championships "Dev Cup" (2 classes, drop worst result, championship race settings, 4 completed events
 and 1 scheduled) and "Dev Sprint Series" (1 completed, 2 scheduled, one weekly), 3 custom races (starred, scheduled,
@@ -45,10 +45,10 @@ database is locked otherwise). Running it again does nothing; `-reset` (tool fla
 
 ### Frontend
 
-TypeScript and SCSS live in `cmd/server-manager/typescript` and are built into `cmd/server-manager/static`:
+TypeScript and SCSS live in `cmd/acpitwall/typescript` and are built into `cmd/acpitwall/static`:
 
 ```powershell
-cd cmd/server-manager/typescript
+cd cmd/acpitwall/typescript
 npm ci
 npx gulp build   # one-off build
 npx gulp         # build, then watch for changes
@@ -71,7 +71,7 @@ stored in the image:
 $env:EXTRA_CA_CERT = "C:\path\to\corporate-root.crt"
 docker compose build
 # or without compose:
-docker build --secret id=ca_cert,src=C:\path\to\corporate-root.crt -t assetto-server-manager .
+docker build --secret id=ca_cert,src=C:\path\to\corporate-root.crt -t acpitwall .
 ```
 
 ## Tests

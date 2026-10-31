@@ -142,7 +142,7 @@ func (r *Resolver) stopSlotOnInterrupt(slot *servers.Slot) {
 	opts, err := store.LoadServerOptions()
 
 	if err == nil && opts.RestartEventOnServerManagerLaunch == 1 {
-		// save the event so it can be started again next time server-manager starts
+		// save the event so it can be started again next time ACPitwall starts
 		err := store.UpsertLastRaceEvent(event)
 
 		if err != nil {

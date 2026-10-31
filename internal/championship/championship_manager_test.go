@@ -77,7 +77,7 @@ var championshipEventFixtures = []string{
 }
 
 // testInstallPath is the fake Assetto Corsa installation of the development setup.
-var testInstallPath = filepath.Join("..", "..", "cmd", "server-manager", "assetto")
+var testInstallPath = filepath.Join("..", "..", "cmd", "acpitwall", "assetto")
 
 const testServerID smmodel.ServerID = "test-server"
 

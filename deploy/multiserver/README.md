@@ -27,12 +27,12 @@ This is a runbook from zero (fresh Linux VPS or a local Windows machine). Run al
 
 ```bash
 git clone https://github.com/wernersbacher/ACPitwall.git
-cd assetto-server-manager/deploy/multiserver
+cd ACPitwall/deploy/multiserver
 docker compose build
 ```
 
 The first build compiles the frontend and the Go binary (a few minutes). The image is called
-`assetto-server-manager:local`.
+`acpitwall:local`.
 
 Behind a TLS-intercepting corporate proxy the build and steamcmd need the proxy's root certificate (PEM): set
 `EXTRA_CA_CERT` first. Bash: `export EXTRA_CA_CERT=$HOME/corp-root.pem`; PowerShell:
@@ -46,7 +46,7 @@ Verified on Windows (Docker Desktop): build and everything below except where ma
    - `http.session_key`: a random secret, e.g. `openssl rand -hex 32` (the file contains the placeholder `devkey`).
    - `accounts.admin_password_override`: the password of the user `admin`. Change it. As the example config says, you
      can remove the line after the first login and set the password in the UI (see
-     `cmd/server-manager/config.example.yml`).
+     `cmd/acpitwall/config.example.yml`).
    - `http.server_manager_base_URL`: the public URL of the web UI **including the published port**, e.g.
      `https://acsm.example.com` or `http://203.0.113.10:8772`. It is used for links in notifications, iCal events and
      the API. Leave `http.hostname: 0.0.0.0:8772` as it is (that is the container side).
@@ -117,12 +117,12 @@ Troubleshooting:
    and `chown assetto`, prints a summary and starts the acServer for 3 seconds (you should see
    `Assetto Corsa Dedicated Server v1.15` or similar). Environment: `AC_BASE_VOLUME` (target volume, default
    `assetto-multiserver_ac-base`; set it if you use another compose project name via `COMPOSE_PROJECT_NAME`) and
-   `AC_IMAGE` (default `assetto-server-manager:local`).
+   `AC_IMAGE` (default `acpitwall:local`).
 
    On Windows, directly from PowerShell without the script (plain bind mount, no path mangling):
 
    ```powershell
-   docker run --rm --user root -v assetto-multiserver_ac-base:/base -v "C:\ac-server:/src:ro" --entrypoint sh assetto-server-manager:local -c 'cp -r /src/. /base/ && chmod +x /base/acServer && chown -R assetto:assetto /base'
+   docker run --rm --user root -v assetto-multiserver_ac-base:/base -v "C:\ac-server:/src:ro" --entrypoint sh acpitwall:local -c 'cp -r /src/. /base/ && chmod +x /base/acServer && chown -R assetto:assetto /base'
    ```
 
    With Git Bash `sh import-server.sh /c/ac-server` also works (the script disables the path conversion).
@@ -137,7 +137,7 @@ folder, smoke check printing `Assetto Corsa Dedicated Server v1.15`), tested int
 
 ```bash
 docker compose up -d
-docker compose logs -f server-manager
+docker compose logs -f acpitwall
 ```
 
 `seed-content`, `seed-a` and `seed-b` are one-shot jobs that copy the install into the volumes; they show
@@ -219,11 +219,11 @@ Volumes (prefix `assetto-multiserver_`): `ac-base` (pristine install), `ac-conte
 Backup (the whole set; stop the manager first for a consistent copy):
 
 ```bash
-docker compose stop server-manager
+docker compose stop acpitwall
 for v in ac-content assetto-a assetto-b data; do
   docker run --rm -v assetto-multiserver_$v:/v -v "$PWD":/b alpine tar czf /b/$v.tgz -C /v .
 done
-docker compose start server-manager
+docker compose start acpitwall
 ```
 
 `ac-base` can be recreated by part 4. Restore into an empty volume, e.g.:
@@ -276,14 +276,14 @@ never rename the id of a server that has data. The example adds a server `c`; th
          - ./seed.sh:/seed.sh:ro
    ```
 
-   b) `server-manager`, `depends_on:` (after `seed-b`):
+   b) `acpitwall`, `depends_on:` (after `seed-b`):
 
    ```yaml
          seed-c:
            condition: service_completed_successfully
    ```
 
-   c) `server-manager`, `ports:` (after the server b entries):
+   c) `acpitwall`, `ports:` (after the server b entries):
 
    ```yaml
          # server c
@@ -292,13 +292,13 @@ never rename the id of a server that has data. The example adds a server `c`; th
          - "${SERVER_C_HTTP_PORT:-8083}:${SERVER_C_HTTP_PORT:-8083}/tcp"
    ```
 
-   d) `server-manager`, `volumes:` - the install copy of c right after the `assetto-b` line, and the shared content
+   d) `acpitwall`, `volumes:` - the install copy of c right after the `assetto-b` line, and the shared content
    volume onto the content directory of c right after the `ac-content` lines of a and b (the content mount is nested
    inside the install mount, so the install mount has to come first):
 
    ```yaml
-         - assetto-c:/home/assetto/server-manager/assetto-c
-         - ac-content:/home/assetto/server-manager/assetto-c/content
+         - assetto-c:/home/assetto/acpitwall/assetto-c
+         - ac-content:/home/assetto/acpitwall/assetto-c/content
    ```
 
    e) top-level `volumes:` (after `assetto-b:`):
@@ -315,13 +315,13 @@ never rename the id of a server that has data. The example adds a server `c`; th
        install_path: assetto-c
    ```
 
-   `install_path` is relative to the working directory of the manager (`/home/assetto/server-manager`), i.e. the
+   `install_path` is relative to the working directory of the manager (`/home/assetto/acpitwall`), i.e. the
    mount point of d).
 3. `.env` (only if the defaults 9602 / 8083 do not suit you): `SERVER_C_PORT=9602` and `SERVER_C_HTTP_PORT=8083`
    (commented-out lines in `.env.example`).
 4. Firewall (VPS): `sudo ufw allow 9602/udp && sudo ufw allow 9602/tcp && sudo ufw allow 8083/tcp` (see part 7).
 5. Apply: `docker compose up -d`. Compose creates the volume, `seed-c` copies the install from `ac-base` (it never
-   overwrites an existing copy) and the `server-manager` container is recreated, which restarts the manager. **That
+   overwrites an existing copy) and the `acpitwall` container is recreated, which restarts the manager. **That
    stops running acServers**, so do it between events. The data of the other servers is kept.
 6. In the UI choose Server C in the server selector, open Server > Options and set the UDP/TCP and HTTP ports to
    9602 / 8083 (or your `.env` values); a new server starts with the default ports 9600 / 8081 (part 6).

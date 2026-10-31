@@ -7,13 +7,13 @@
 # Behind a TLS-intercepting proxy, pass its root CA for the build (it is not stored in the image):
 #   $env:EXTRA_CA_CERT = "C:\path\to\corporate-root.crt"; docker compose build
 
-name: assetto-server-manager-dev
+name: acpitwall-dev
 
 services:
   # copies the fake AC install into the volumes of server a (assetto) and b (assetto-b) once, the server skips the
   # steamcmd install if it is present. Server b shares the content folder of a (symlink), as content is managed through a.
   seed:
-    image: assetto-server-manager:dev
+    image: acpitwall:dev
     build:
       context: .
       args:
@@ -28,25 +28,25 @@ services:
       - >-
         [ -d assetto/system ] || cp -r /seed/. assetto/;
         [ -d assetto-b/system ] || { cp -r /seed/. assetto-b/ && rm -rf assetto-b/content assetto-b/results/* &&
-        ln -s /home/assetto/server-manager/assetto/content assetto-b/content; };
+        ln -s /home/assetto/acpitwall/assetto/content assetto-b/content; };
         chown -R assetto:assetto assetto assetto-b
     volumes:
-      - assetto:/home/assetto/server-manager/assetto
-      - assetto-b:/home/assetto/server-manager/assetto-b
+      - assetto:/home/assetto/acpitwall/assetto
+      - assetto-b:/home/assetto/acpitwall/assetto-b
       - ./dev/assetto-seed:/seed:ro
 
-  server-manager:
-    image: assetto-server-manager:dev
+  acpitwall:
+    image: acpitwall:dev
     depends_on:
       seed:
         condition: service_completed_successfully
     ports:
       - "8772:8772"
     volumes:
-      - data:/home/assetto/server-manager
-      - assetto:/home/assetto/server-manager/assetto
-      - assetto-b:/home/assetto/server-manager/assetto-b
-      - ./dev/config.yml:/home/assetto/server-manager/config.yml:ro
+      - data:/home/assetto/acpitwall
+      - assetto:/home/assetto/acpitwall/assetto
+      - assetto-b:/home/assetto/acpitwall/assetto-b
+      - ./dev/config.yml:/home/assetto/acpitwall/config.yml:ro
 
 volumes:
   # ACPitwall working directory (database, logs)

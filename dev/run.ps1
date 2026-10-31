@@ -5,7 +5,7 @@
 .DESCRIPTION
     - builds the frontend (TypeScript/SCSS) if it hasn't been built yet, or when -Frontend is given
     - generates the embedded asset files (esc) and builds the Go binary
-    - on first run, copies dev/config.yml and the fake AC install (dev/assetto-seed) into cmd/server-manager
+    - on first run, copies dev/config.yml and the fake AC install (dev/assetto-seed) into cmd/acpitwall
       (twice: server a in assetto, server b in assetto-b, whose content folder is a junction to that of a)
     - starts ACPitwall with templates/static files served from disk (FILESYSTEM_HTML=true),
       so changes to views/ only need a browser refresh.
@@ -36,7 +36,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
-$appDir = Join-Path $repoRoot 'cmd/server-manager'
+$appDir = Join-Path $repoRoot 'cmd/acpitwall'
 $tsDir = Join-Path $appDir 'typescript'
 
 function Invoke-Checked([string]$what, [scriptblock]$block) {
@@ -76,9 +76,9 @@ try {
     Invoke-Checked 'Generating embedded assets' { go generate ./... }
 
     $version = 'dev-' + (Get-Date -Format 'yy.MM.dd-HH-mm')
-    $out = Join-Path $appDir 'server-manager.exe'
-    Invoke-Checked 'Building server-manager' {
-        go build -o $out -ldflags "-X github.com/wernersbacher/ACPitwall.BuildVersion=$version" ./cmd/server-manager
+    $out = Join-Path $appDir 'acpitwall.exe'
+    Invoke-Checked 'Building acpitwall' {
+        go build -o $out -ldflags "-X github.com/wernersbacher/ACPitwall.BuildVersion=$version" ./cmd/acpitwall
     }
 } finally {
     Pop-Location

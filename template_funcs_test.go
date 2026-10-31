@@ -13,7 +13,7 @@ import (
 // the template functions which wrap methods of the domain types are only called when a page is rendered, so a changed
 // signature goes unnoticed until then
 func TestServerTemplateFuncs(t *testing.T) {
-	env := envtest.New(filepath.Join("cmd", "server-manager", "assetto"))
+	env := envtest.New(filepath.Join("cmd", "acpitwall", "assetto"))
 
 	rw := smmodel.NewRaceWeekend()
 	rw.Sessions = []*smmodel.RaceWeekendSession{{}, {}}

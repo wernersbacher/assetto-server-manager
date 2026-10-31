@@ -6,7 +6,7 @@
 #
 # Environment:
 #   AC_BASE_VOLUME  target volume (default: <compose project>_ac-base = assetto-multiserver_ac-base)
-#   AC_IMAGE        image used for the copy (default: assetto-server-manager:local, built by "docker compose build")
+#   AC_IMAGE        image used for the copy (default: acpitwall:local, built by "docker compose build")
 set -eu
 
 usage() {
@@ -29,7 +29,7 @@ for arg in "$@"; do
 done
 [ -n "$DIR" ] || usage
 
-IMAGE=${AC_IMAGE:-assetto-server-manager:local}
+IMAGE=${AC_IMAGE:-acpitwall:local}
 VOLUME=${AC_BASE_VOLUME:-${COMPOSE_PROJECT_NAME:-assetto-multiserver}_ac-base}
 
 # Git Bash on Windows would rewrite /base, /src, ... in the docker arguments

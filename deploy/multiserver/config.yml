@@ -1,5 +1,5 @@
-# Server Manager config of the multiserver setup: ONE Server Manager with two acServers (slots "a" and "b").
-# All options: cmd/server-manager/config.example.yml
+# ACPitwall config of the multiserver setup: ONE ACPitwall with two acServers (slots "a" and "b").
+# All options: cmd/acpitwall/config.example.yml
 # Ports: the published ports are variables of compose.yaml (defaults and overrides: .env, see README.md). The acServer
 # ports have to be set to the same values in "Server Options" of each server in the UI.
 
@@ -12,7 +12,7 @@ steam:
   executable_path: acServer
   force_update: false
 
-# the acServers of this Server Manager. Each has its own working directory (cfg, results, ...); the content folders
+# the acServers of this ACPitwall. Each has its own working directory (cfg, results, ...); the content folders
 # of all of them are the same volume, as content is managed through the first server.
 servers:
   - id: a
@@ -40,7 +40,7 @@ monitoring:
   enabled: false
 
 store:
-  # one Server Manager: the default store is enough
+  # one ACPitwall: the default store is enough
   type: boltdb
   path: server_manager.db
   shared_data_path:

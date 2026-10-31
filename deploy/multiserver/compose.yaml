@@ -3,7 +3,7 @@
 name: assetto-multiserver
 
 x-image: &image
-  image: assetto-server-manager:local
+  image: acpitwall:local
   build:
     context: ../..
     args:
@@ -61,7 +61,7 @@ services:
   # The acServers announce the configured ports to the lobby and the clients, so each acServer port is published 1:1
   # (same variable on both sides). The values come from .env (see .env.example); the defaults are 9600/8081 for
   # server a and 9601/8082 for server b. The same ports have to be set in "Server Options" of each server.
-  server-manager:
+  acpitwall:
     <<: *image
     restart: unless-stopped
     depends_on:
@@ -84,13 +84,13 @@ services:
       - "${SERVER_B_HTTP_PORT:-8082}:${SERVER_B_HTTP_PORT:-8082}/tcp"
     volumes:
       # store, logs, sessions
-      - data:/home/assetto/server-manager
-      - assetto-a:/home/assetto/server-manager/assetto-a
-      - assetto-b:/home/assetto/server-manager/assetto-b
+      - data:/home/assetto/acpitwall
+      - assetto-a:/home/assetto/acpitwall/assetto-a
+      - assetto-b:/home/assetto/acpitwall/assetto-b
       # the content of both servers is the same folder; the manager manages content through the first server
-      - ac-content:/home/assetto/server-manager/assetto-a/content
-      - ac-content:/home/assetto/server-manager/assetto-b/content
-      - ./config.yml:/home/assetto/server-manager/config.yml:ro
+      - ac-content:/home/assetto/acpitwall/assetto-a/content
+      - ac-content:/home/assetto/acpitwall/assetto-b/content
+      - ./config.yml:/home/assetto/acpitwall/config.yml:ro
 
 volumes:
   # the pristine AC server install; the servers get a copy of it

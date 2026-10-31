@@ -23,7 +23,7 @@ These rules override the conservative git defaults of the Beads block below.
 
 `go.mod` targets Go 1.13 with pinned, old dependencies — don't bump them as a side effect.
 
-The root package imports generated, gitignored embed files (`cmd/server-manager/{static,views}/static_embed.go`,
+The root package imports generated, gitignored embed files (`cmd/acpitwall/{static,views}/static_embed.go`,
 `internal/changelog/changelog_embed.go`), so run `go generate` on a fresh checkout and after changing
 `CHANGELOG.md` or static files, otherwise nothing compiles:
 
@@ -36,7 +36,7 @@ go test -run TestNewAPIChampionship ./internal/championship   # single test in i
 go vet ./...
 ```
 
-`make test` additionally copies `fixtures/results/*.json` into `cmd/server-manager/assetto/results` and runs with
+`make test` additionally copies `fixtures/results/*.json` into `cmd/acpitwall/assetto/results` and runs with
 `-race`; some results-based tests rely on that. The Makefiles are Unix-only (`rm`, `cp`, `sed`).
 
 Run locally on Windows without a real AC server (two slots `a`/`b`, each a copy of the fake install in `dev/assetto-seed`; `deploy/multiserver` is the Docker setup with real installs), login `admin`/`admin` at
@@ -51,11 +51,11 @@ http://localhost:8772:
 docker compose up --build # alternative: production Dockerfile with dev config (also two servers)
 ```
 
-The server runs from `cmd/server-manager` with `FILESYSTEM_HTML=true`, so template changes only need a browser
+The server runs from `cmd/acpitwall` with `FILESYSTEM_HTML=true`, so template changes only need a browser
 refresh; Go changes need a restart. Actually starting a race doesn't work locally (no `acServer` binary).
 
-Frontend: `cd cmd/server-manager/typescript && npm ci && npx gulp build` (`npx gulp` to watch); output goes to
-`cmd/server-manager/static`. See `DEVELOPMENT.md` for more (e.g. proxy CA for Docker builds).
+Frontend: `cd cmd/acpitwall/typescript && npm ci && npx gulp build` (`npx gulp` to watch); output goes to
+`cmd/acpitwall/static`. See `DEVELOPMENT.md` for more (e.g. proxy CA for Docker builds).
 
 ## Architecture
 
@@ -65,7 +65,7 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
 - **Root (wiring only)**: `resolver.go` (manual dependency wiring; `resolveSlot` builds one runtime stack per server slot into `servers.Registry` (`Resolver.Servers()`), the single-slot accessors `resolveRaceManager()` etc. return the default slot's component), `router.go`
   (routes and permission groups), `template_funcs.go` (template functions that need domain code), `init.go`
   (`InitWithResolver`: startup, signal handling, scheduled events, last event restart, all per slot), `servermanager_config.go` (`BuildStore`),
-  `monitoring.go` (Prometheus, panic capture), `lua.go`. `cmd/server-manager/main.go` only wires config, store,
+  `monitoring.go` (Prometheus, panic capture), `lua.go`. `cmd/acpitwall/main.go` only wires config, store,
   migrations, UDP and HTTP together. The root stays the wiring package because `main.go`, `cmd/utils/*` and the
   `-X github.com/wernersbacher/ACPitwall.BuildVersion` ldflags (Makefile, Dockerfile, `dev/run.ps1`)
   reference it.
@@ -107,13 +107,13 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
 - **Results across slots**: every slot's `Env.Results()` loader reads all slots' `results` dirs (`Loader.ExtraDirs`); `Save`/`Remove` act on the dir that holds the file (so the shared `resultshttp` handlers and `PenaltiesManager`, which hold the default Env, work on any slot's file; managers of a slot create new files in their own dir). A file name present in several dirs is listed/loaded from the first (own) dir; the hidden copy is logged once (`warnShadowed`), uploads of such a name are refused (`Loader.HeldByOtherDir`); acServer's names are not changed. Results are attributed to a server by the dir they are found in (`Loader.DirOf`), nothing is persisted: `resultshttp.ServersFunc` (`Resolver.resultsServers`) maps dirs to servers; with more than one server the results list/detail show a badge, `filterServer` (`Filter.Dir`) filters list and API, and `/api/results` entries get `Server` (`api.Server`); `/api/championships` gets `ActiveServer` while one of its events runs.
 - **Forms**: many edit forms are generated from struct tags via `github.com/cj123/formulate`
   (`web.EncodeFormData` / `web.DecodeFormData`).
-- **Templates** live in `cmd/server-manager/views` (`layout/`, `pages/`, `partials/`), rendered by `web.Renderer`
+- **Templates** live in `cmd/acpitwall/views` (`layout/`, `pages/`, `partials/`), rendered by `web.Renderer`
   (sprig + `web` funcs + `serverTemplateFuncs`); views and static files are embedded with `esc`. Templates call
   methods and functions by name at runtime: after moving or changing a symbol, grep the views for it and smoke-test
   the pages (the compiler does not check templates).
 - **Tests**: helpers live in `envtest` (`serverenv.Env` for a temp install), `webtest` (request scope for handlers),
   `server/servertest` (`Dummy`, `Interruptible` process), `notification/notificationtest`. Results/championship
-  fixtures are read from `fixtures/` and `cmd/server-manager/assetto`. Test packages run in parallel processes, so a
+  fixtures are read from `fixtures/` and `cmd/acpitwall/assetto`. Test packages run in parallel processes, so a
   test must never use a fixed directory in `os.TempDir()` (use `envtest.TempJSONStore` or `ioutil.TempDir`).
   `internal/templatecheck` type checks every page template (fields, methods, argument counts) against the Go types named
   in its `gotype` comment (add the comment to new pages), because templates are otherwise only checked when rendered.

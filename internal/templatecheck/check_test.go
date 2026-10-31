@@ -68,7 +68,7 @@ func check(repoRoot string) ([]string, error) {
 		return nil, err
 	}
 
-	views := filepath.Join(root, "cmd/server-manager/views")
+	views := filepath.Join(root, "cmd/acpitwall/views")
 	var files []string
 	filepath.Walk(views, func(p string, info os.FileInfo, err error) error {
 		if err == nil && !info.IsDir() && strings.HasSuffix(p, ".html") {

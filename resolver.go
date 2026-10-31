@@ -26,7 +26,7 @@ import (
 
 	"net/http"
 
-	"github.com/wernersbacher/ACPitwall/cmd/server-manager/static"
+	"github.com/wernersbacher/ACPitwall/cmd/acpitwall/static"
 
 	"github.com/cj123/sessions"
 	"github.com/wernersbacher/ACPitwall/pkg/udp"

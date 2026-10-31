@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	servermanager "github.com/wernersbacher/ACPitwall"
-	"github.com/wernersbacher/ACPitwall/cmd/server-manager/static"
-	"github.com/wernersbacher/ACPitwall/cmd/server-manager/views"
+	"github.com/wernersbacher/ACPitwall/cmd/acpitwall/static"
+	"github.com/wernersbacher/ACPitwall/cmd/acpitwall/views"
 	"github.com/wernersbacher/ACPitwall/internal/changelog"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	"github.com/wernersbacher/ACPitwall/internal/steam"

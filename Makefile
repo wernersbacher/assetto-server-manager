@@ -13,12 +13,12 @@ install-linter:
 
 clean:
 	rm -rf internal/changelog/changelog_embed.go
-	$(MAKE) -C cmd/server-manager clean
+	$(MAKE) -C cmd/acpitwall clean
 
 test:
-	mkdir -p cmd/server-manager/assetto/cfg
-	mkdir -p cmd/server-manager/assetto/results
-	cp -R fixtures/results/*.json cmd/server-manager/assetto/results
+	mkdir -p cmd/acpitwall/assetto/cfg
+	mkdir -p cmd/acpitwall/assetto/results
+	cp -R fixtures/results/*.json cmd/acpitwall/assetto/results
 	go test -race
 
 vet: install-linter generate
@@ -30,19 +30,19 @@ generate:
 	go generate ./...
 
 assets:
-	$(MAKE) -C cmd/server-manager assets
+	$(MAKE) -C cmd/acpitwall assets
 
 asset-embed: generate
-	$(MAKE) -C cmd/server-manager asset-embed
+	$(MAKE) -C cmd/acpitwall asset-embed
 
 build:
-	$(MAKE) -C cmd/server-manager build
+	$(MAKE) -C cmd/acpitwall build
 
 deploy: clean generate vet test
-	$(MAKE) -C cmd/server-manager deploy
+	$(MAKE) -C cmd/acpitwall deploy
 
 run:
-	$(MAKE) -C cmd/server-manager run
+	$(MAKE) -C cmd/acpitwall run
 
 docker:
 	docker build --build-arg SM_VERSION=${VERSION} -t ghcr.io/wernersbacher/acpitwall:${VERSION} .

@@ -4,7 +4,7 @@ VERSION?=dev-$(shell date +'%y.%m.%d-%H-%M')
 export GO111MODULE=on
 
 clean:
-	rm -rf server-manager server-manager.exe
+	rm -rf acpitwall acpitwall.exe
 	rm -rf static/manager.js
 	rm -rf build/
 	rm -rf rsrc.syso
@@ -14,7 +14,7 @@ clean:
 
 run:
 	go build -ldflags "-s -w -X github.com/wernersbacher/ACPitwall.BuildVersion=${VERSION} ${LDFLAGS}"
-	FILESYSTEM_HTML=true DEBUG=true ./server-manager
+	FILESYSTEM_HTML=true DEBUG=true ./acpitwall
 
 assets:
 	$(MAKE) -C typescript build
@@ -35,8 +35,8 @@ deploy: clean assets asset-embed
 	rsrc -ico ../../misc/windows/icon.ico -arch amd64 -o rsrc.syso
 
 	# build
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -a -installsuffix cgo -ldflags="-s -w -X github.com/wernersbacher/ACPitwall.BuildVersion=${VERSION} ${LDFLAGS}" -o build/linux/server-manager
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w -X github.com/wernersbacher/ACPitwall.BuildVersion=${VERSION} ${LDFLAGS}" -o build/windows/server-manager.exe
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -a -installsuffix cgo -ldflags="-s -w -X github.com/wernersbacher/ACPitwall.BuildVersion=${VERSION} ${LDFLAGS}" -o build/linux/acpitwall
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath -ldflags="-s -w -X github.com/wernersbacher/ACPitwall.BuildVersion=${VERSION} ${LDFLAGS}" -o build/windows/acpitwall.exe
 
 	cp ../../README.md build/README.txt
 	cp ../../INSTALL.txt build/INSTALL.txt
@@ -47,4 +47,4 @@ deploy: clean assets asset-embed
 	unix2dos build/README.txt build/LICENSE.txt build/CHANGELOG.txt build/windows/config.yml build/INSTALL.txt
 
 	# archive
-	cd build && zip -r ../server-manager_${VERSION}.zip *
+	cd build && zip -r ../acpitwall_${VERSION}.zip *

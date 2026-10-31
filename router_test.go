@@ -31,7 +31,7 @@ func TestRouterDeleteRoutesArePostOnly(t *testing.T) {
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
-	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store, serverenv.NewState())
+	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "acpitwall", "views")), false, store, serverenv.NewState())
 
 	if err != nil {
 		t.Fatal(err)
@@ -80,7 +80,7 @@ func TestRouterUnknownAPIPathIsPlainText(t *testing.T) {
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
-	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store, serverenv.NewState())
+	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "acpitwall", "views")), false, store, serverenv.NewState())
 
 	if err != nil {
 		t.Fatal(err)
@@ -111,7 +111,7 @@ func TestRouterActionRoutesArePostOnly(t *testing.T) {
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
-	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store, serverenv.NewState())
+	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "acpitwall", "views")), false, store, serverenv.NewState())
 
 	if err != nil {
 		t.Fatal(err)

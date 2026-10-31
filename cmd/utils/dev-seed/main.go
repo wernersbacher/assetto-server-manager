@@ -29,7 +29,7 @@ func main() {
 	var dir string
 	var reset bool
 
-	flag.StringVar(&dir, "dir", "", "ACPitwall working directory containing config.yml (default: . if it has a config.yml, otherwise cmd/server-manager)")
+	flag.StringVar(&dir, "dir", "", "ACPitwall working directory containing config.yml (default: . if it has a config.yml, otherwise cmd/acpitwall)")
 	flag.BoolVar(&reset, "reset", false, "remove previously seeded data, then seed again")
 	flag.Parse()
 
@@ -41,7 +41,7 @@ func main() {
 
 func resolveDir(dir string) (string, error) {
 	if dir == "" {
-		dir = "cmd/server-manager"
+		dir = "cmd/acpitwall"
 
 		if _, err := os.Stat("config.yml"); err == nil {
 			dir = "."
@@ -126,7 +126,7 @@ func openStore(conf *smconfig.Configuration) (smstore.Store, func(), error) {
 	db, err := bbolt.Open(conf.Store.Path, 0644, &bbolt.Options{Timeout: 2 * time.Second})
 
 	if err == bbolt.ErrTimeout || (err != nil && strings.Contains(err.Error(), "used by another process")) {
-		return nil, nil, fmt.Errorf("the database %s is locked, is server-manager still running? Stop it and try again", conf.Store.Path)
+		return nil, nil, fmt.Errorf("the database %s is locked, is acpitwall still running? Stop it and try again", conf.Store.Path)
 	} else if err != nil {
 		return nil, nil, err
 	}

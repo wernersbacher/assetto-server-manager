@@ -33,7 +33,7 @@ func newTestResolver(t *testing.T, config *smconfig.Configuration) (*Resolver, s
 
 	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
 
-	resolver, err := NewResolver(config, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "server-manager", "views")), false, store, serverenv.NewState())
+	resolver, err := NewResolver(config, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "acpitwall", "views")), false, store, serverenv.NewState())
 
 	if err != nil {
 		t.Fatal(err)

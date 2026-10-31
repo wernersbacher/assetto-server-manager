@@ -303,6 +303,6 @@ championships:
 ################################################################################
 lua:
   # lua plugins allow you to run custom lua scripts through hooks with server
-  # manager! If you're interested have a look at the server-manager/plugins
+  # manager! If you're interested have a look at the acpitwall/plugins
   # folder to see some examples!
   enabled: false

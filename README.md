@@ -32,7 +32,7 @@ ACPitwall is based on [JustaPenguin/assetto-server-manager](https://github.com/J
    - Copy the server folder from your Assetto Corsa install into the directory you configured in config.yml, or
    - Make sure that you have [steamcmd](https://developer.valvesoftware.com/wiki/SteamCMD) installed and in your $PATH 
      and have configured the steam username and password in the config.yml file.
-5. Start the server using `./server-manager` (on Linux) or by running `server-manager.exe` (on Windows)
+5. Start the server using `./acpitwall` (on Linux) or by running `acpitwall.exe` (on Windows)
 
 
 ### Docker
@@ -46,7 +46,7 @@ content, AC server installed once via steamcmd) see [Several servers](#several-s
 **Note**: if you are using a directory volume for the server install (as is shown below), be sure to make 
 the directory before running `docker-compose up` - otherwise its permissions may be incorrect. 
 
-You will need a [config.yml](https://github.com/wernersbacher/ACPitwall/blob/main/cmd/server-manager/config.example.yml) file to mount into the docker container.
+You will need a [config.yml](https://github.com/wernersbacher/ACPitwall/blob/main/cmd/acpitwall/config.example.yml) file to mount into the docker container.
 
 An example docker-compose.yml looks like this:
 
@@ -54,7 +54,7 @@ An example docker-compose.yml looks like this:
 version: "3"
 
 services:
-  server-manager:
+  acpitwall:
     image: ghcr.io/wernersbacher/acpitwall:latest
     ports:
     # the port that ACPitwall runs on
@@ -68,10 +68,10 @@ services:
     volumes: 
     # volume mount the entire server install so that 
     # content etc persists across restarts
-    - ./server-install:/home/assetto/server-manager/assetto
+    - ./server-install:/home/assetto/acpitwall/assetto
     
     # volume mount the config
-    - ./config.yml:/home/assetto/server-manager/config.yml
+    - ./config.yml:/home/assetto/acpitwall/config.yml
 ```
 
 ### Several servers

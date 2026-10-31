@@ -13,7 +13,7 @@ Right! With that let's begin setting up the server.
 Installation Steps:
 -------------------
 
-1. Unzip the server-manager.zip to your preferred location.
+1. Unzip the acpitwall.zip to your preferred location.
 2. Open the config.yml file in your favourite editor. This is important, some things do need configuring here.
 3. Read the config.yml file carefully. The most important part of this is the 'steam' section. At the very minimum,
    you must change the 'install_path' setting. You should make this point to your Assetto Corsa Server install.
@@ -28,7 +28,7 @@ Installation Steps:
    After configuring this, feel free to read the rest of the configuration file and change things as you see fit. We've
    tried our best to make the defaults be as sensible as possible, but you can tune things to your liking here.
 
-4. Run the 'server-manager' executable. On Windows, this will open your browser window. If you're on Linux, you'll
+4. Run the 'acpitwall' executable. On Windows, this will open your browser window. If you're on Linux, you'll
    need to manually open the URL: http://localhost:8772 in your browser.
 
 5. Log in to ACPitwall. You can do this with the "Login" link underneath the Person icon in the navigation. You'll
