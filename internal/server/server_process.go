@@ -444,7 +444,7 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 
 			response = fmt.Sprintf("127.0.0.1:%d", sp.forwardListenPort)
 		} else {
-			logrus.Infof("sTracker and Real Penalty both enabled. Using plugin forwarding method: [Server Manager] <-> [sTracker] <-> [Real Penalty]")
+			logrus.Infof("sTracker and Real Penalty both enabled. Using plugin forwarding method: [ACPitwall] <-> [sTracker] <-> [Real Penalty]")
 
 			// connect to stracker's proxy port
 			port = strackerOptions.ACPlugin.ProxyPluginPort
@@ -520,13 +520,13 @@ func (sp *AssettoServerProcess) startRaceEvent(raceEvent smmodel.RaceEvent) erro
 
 		if realPenaltyEnabled && realPenaltyOptions != nil {
 			// realPenalty is enabled, use its relay port
-			logrus.Infof("Real Penalty and KissMyRank both enabled. Using plugin forwarding method: [Previous Plugin/Server Manager] <-> [Real Penalty] <-> [KissMyRank]")
+			logrus.Infof("Real Penalty and KissMyRank both enabled. Using plugin forwarding method: [Previous Plugin/ACPitwall] <-> [Real Penalty] <-> [KissMyRank]")
 
 			kissMyRankOptions.ACServerPluginLocalPort = smweb.FormValueAsInt(realPenaltyOptions.RealPenaltyAppConfig.PluginsRelay.UDPPort)
 			kissMyRankOptions.ACServerPluginAddressPort = smweb.FormValueAsInt(strings.Split(realPenaltyOptions.RealPenaltyAppConfig.PluginsRelay.OtherUDPPlugin, ":")[1])
 		} else if strackerEnabled {
 			// stracker is enabled, use its forwarding port
-			logrus.Infof("sTracker and KissMyRank both enabled. Using plugin forwarding method: [Server Manager] <-> [sTracker] <-> [KissMyRank]")
+			logrus.Infof("sTracker and KissMyRank both enabled. Using plugin forwarding method: [ACPitwall] <-> [sTracker] <-> [KissMyRank]")
 			kissMyRankOptions.ACServerPluginLocalPort = strackerOptions.ACPlugin.ProxyPluginLocalPort
 			kissMyRankOptions.ACServerPluginAddressPort = strackerOptions.ACPlugin.ProxyPluginPort
 		} else {

@@ -19,7 +19,7 @@ type HTTPErrorHandler struct {
 const httpErrorMessage = `!!! An Error Occurred !!!
 -------------------------
 
-Failed to initialise server manager. 
+Failed to initialise ACPitwall. 
 
 Your configuration file is probably incorrect, or you haven't followed the instructions in the README properly. 
 Please carefully check that your options are set correctly.

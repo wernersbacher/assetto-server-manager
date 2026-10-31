@@ -45,9 +45,9 @@ run:
 	$(MAKE) -C cmd/server-manager run
 
 docker:
-	docker build --build-arg SM_VERSION=${VERSION} -t seejy/assetto-server-manager:${VERSION} .
-	docker push seejy/assetto-server-manager:${VERSION}
+	docker build --build-arg SM_VERSION=${VERSION} -t ghcr.io/wernersbacher/acpitwall:${VERSION} .
+	docker push ghcr.io/wernersbacher/acpitwall:${VERSION}
 ifneq ("${VERSION}", "unstable")
-	docker tag seejy/assetto-server-manager:${VERSION} seejy/assetto-server-manager:latest
-	docker push seejy/assetto-server-manager:latest
+	docker tag ghcr.io/wernersbacher/acpitwall:${VERSION} ghcr.io/wernersbacher/acpitwall:latest
+	docker push ghcr.io/wernersbacher/acpitwall:latest
 endif

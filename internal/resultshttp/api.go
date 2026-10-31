@@ -48,7 +48,7 @@ type APIResultSummary struct {
 	ChampionshipID string `json:",omitempty"`
 	RaceWeekendID  string `json:",omitempty"`
 
-	// Server is the server the result came from. It is only set if the server manager has several servers.
+	// Server is the server the result came from. It is only set if ACPitwall has several servers.
 	Server *api.Server `json:",omitempty"`
 }
 

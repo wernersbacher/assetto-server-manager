@@ -74,7 +74,7 @@ func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowe
 
 			if !account.HasGroupPrivilege(serverID, requiredGroup) {
 				if account.GroupFor(serverID) == smmodel.GroupNoAccess {
-					smweb.AddErrorFlash(w, r, "You do not have permission to access this Server Manager instance.")
+					smweb.AddErrorFlash(w, r, "You do not have permission to access this ACPitwall instance.")
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
 				}

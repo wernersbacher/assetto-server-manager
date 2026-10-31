@@ -310,7 +310,7 @@ func writeResults(res *smresults.SessionResults) (string, error) {
 }
 
 // emit simulates a session, optionally lets enhance attach championship/race weekend information to it, writes it
-// to disk and loads it back the same way server manager does, so that the stored object is identical to the file.
+// to disk and loads it back the same way ACPitwall does, so that the stored object is identical to the file.
 func emit(rng *rand.Rand, spec sessionSpec, files *[]string, enhance func(*smresults.SessionResults)) (*smresults.SessionResults, error) {
 	res := simulate(rng, spec)
 

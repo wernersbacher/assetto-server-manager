@@ -160,7 +160,7 @@ var ErrCustomRaceNotFound = errors.New("servermanager: custom race not found")
 
 const serverIDMetaKey = "server_id"
 
-// InitServerID loads the id of this server manager instance from the store. If the instance does not have an id yet
+// InitServerID loads the id of this ACPitwall instance from the store. If the instance does not have an id yet
 // a new one is created and stored.
 func InitServerID(store Store) (smmodel.ServerID, error) {
 	var serverID smmodel.ServerID

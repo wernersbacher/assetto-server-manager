@@ -29,7 +29,7 @@ func main() {
 	var dir string
 	var reset bool
 
-	flag.StringVar(&dir, "dir", "", "server manager working directory containing config.yml (default: . if it has a config.yml, otherwise cmd/server-manager)")
+	flag.StringVar(&dir, "dir", "", "ACPitwall working directory containing config.yml (default: . if it has a config.yml, otherwise cmd/server-manager)")
 	flag.BoolVar(&reset, "reset", false, "remove previously seeded data, then seed again")
 	flag.Parse()
 

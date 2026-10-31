@@ -51,7 +51,7 @@ type RendererOptions struct {
 	// Reload makes the renderer reload the templates on every request.
 	Reload bool
 
-	// Funcs are template functions which depend on the rest of the server manager. They are added to (and may replace)
+	// Funcs are template functions which depend on the rest of ACPitwall. They are added to (and may replace)
 	// the functions the renderer provides itself.
 	Funcs template.FuncMap
 }

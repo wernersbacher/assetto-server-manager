@@ -25,7 +25,7 @@ const (
 type Kind int
 
 const (
-	// KindServer is a port of the acServer itself (and of the UDP plugin ports Server Manager sets up for it). Two
+	// KindServer is a port of the acServer itself (and of the UDP plugin ports ACPitwall sets up for it). Two
 	// running servers can't share it.
 	KindServer Kind = iota
 

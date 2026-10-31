@@ -41,7 +41,7 @@ type ServerAdministrationHandler struct {
 
 // Logs is what the administration needs from the process wide state which is not part of the serverenv.Env.
 type Logs struct {
-	// Manager and Plugins buffer the output of the server manager and of the plugins.
+	// Manager and Plugins buffer the output of ACPitwall and of the plugins.
 	Manager, Plugins *smserver.LogBuffer
 }
 

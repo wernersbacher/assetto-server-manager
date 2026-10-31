@@ -20,7 +20,7 @@ import (
 // schedule, tracks, cars) in a stable JSON format, so that other systems can read it. Entrants, sign up responses,
 // passwords and server configuration are intentionally left out.
 
-// Server is a server of the server manager, as results and championships refer to it.
+// Server is a server of ACPitwall, as results and championships refer to it.
 type Server struct {
 	ID   string
 	Name string

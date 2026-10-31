@@ -23,7 +23,7 @@ const (
 
 // MigrationEnv carries the process wide values which migrations depend on.
 type MigrationEnv struct {
-	// BuildVersion is the version of the running server manager.
+	// BuildVersion is the version of the running ACPitwall.
 	BuildVersion string
 
 	// InstallPath returns the installation path of the assetto corsa server. It is a function because the path is

@@ -51,7 +51,7 @@ func InitLogging() {
 	if err == nil {
 		logMultiWriter = io.MultiWriter(os.Stdout, logOutput, logFile)
 	} else {
-		logrus.WithError(err).Errorf("Could not create server manager log file")
+		logrus.WithError(err).Errorf("Could not create ACPitwall log file")
 		logMultiWriter = io.MultiWriter(os.Stdout, logOutput)
 	}
 

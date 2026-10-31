@@ -1,6 +1,6 @@
 # Multiserver setup with Docker Compose
 
-ONE Server Manager (one UI, one login, one database) which hosts two Assetto Corsa servers, `a` and `b`, so that e.g.
+ONE ACPitwall (one UI, one login, one database) which hosts two Assetto Corsa servers, `a` and `b`, so that e.g.
 a championship can run on one server while a custom race runs on the other. The AC server is installed once into a
 volume and every server gets its own copy of it (`cfg/`, `results/`, ...). The cars and tracks are shared.
 
@@ -152,7 +152,7 @@ Open `http://localhost:8772` (or `http://<vps-ip>:<SM_WEB_PORT>`) and log in as 
    in the top bar to switch between Server A and Server B. Every new server starts with the default ports 9600 / 8081,
    so set server A to the published ports (UDP port, TCP port and HTTP port, defaults 9600 / 8081) and server B to
    9601 / 8082 (or the values of your `.env`). Without it the acServer listens on ports that are not published
-   (observed), and Server Manager warns about port conflicts between the servers (`Port 9600 (udp) is used by ... and
+   (observed), and ACPitwall warns about port conflicts between the servers (`Port 9600 (udp) is used by ... and
    by ...`; it also refuses to start an event on ports that a running server uses). Plugin ports (stracker,
    KissMyRank, Real Penalty) must differ per server as well; publish them in `compose.yaml` if you use them.
 2. **Upload cars and tracks** on the Cars and Tracks pages (Content in the sidebar, "Upload cars" / "Upload

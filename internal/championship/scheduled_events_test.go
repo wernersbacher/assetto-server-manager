@@ -137,7 +137,7 @@ func TestChampionshipManager_StartScheduledEventInterruptsPractice(t *testing.T)
 	}
 }
 
-// Every scheduled championship event needs a start timer after a server manager restart, not only the first one.
+// Every scheduled championship event needs a start timer after an ACPitwall restart, not only the first one.
 func TestChampionshipManager_InitScheduledChampionships(t *testing.T) {
 	cm, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
 	defer cleanup()

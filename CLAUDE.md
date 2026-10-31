@@ -2,9 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Assetto Server Manager is a Go web app (chi router, server-rendered Go templates, TypeScript frontend) that manages
+ACPitwall is a Go web app (chi router, server-rendered Go templates, TypeScript frontend) that manages
 an Assetto Corsa dedicated server (`acServer`): race configuration, championships, race weekends, live timing,
-results and content upload. This is a fork of JustaPenguin/assetto-server-manager that is being developed further.
+results and content upload. ACPitwall (formerly Assetto Server Manager) is based on the fork JustaPenguin/assetto-server-manager (MIT) and is developed further.
 
 ## Working Agreement
 

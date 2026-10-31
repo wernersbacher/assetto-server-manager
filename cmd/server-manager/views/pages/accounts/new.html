@@ -5,7 +5,7 @@
 {{ end }}
 
 {{ define "content" }}
-    <div class="page-header"><div><h1>{{ if $.IsEditing }}Edit{{ else }}Add{{ end }} an Account</h1><p>Accounts decide what a person may do in Server Manager.</p></div></div>
+    <div class="page-header"><div><h1>{{ if $.IsEditing }}Edit{{ else }}Add{{ end }} an Account</h1><p>Accounts decide what a person may do in ACPitwall.</p></div></div>
 
     <div class="form-page"><div class="card admin-card">
         <div class="card-header">
@@ -43,7 +43,7 @@
                             <option value="no_access" {{ if eq (AccountGroup .Account) "no_access" }}selected="selected"{{ end }}>No Access - user cannot access anything.</option>
                         </select>
 
-                        <small>Please note that Groups are per Server Manager instance. In a Multi-Server environment, you can set different groups for users per server.</small>
+                        <small>Please note that Groups are per ACPitwall instance. In a Multi-Server environment, you can set different groups for users per server.</small>
                     </div>
                 </div>
 

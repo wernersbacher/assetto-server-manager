@@ -1,7 +1,7 @@
-Assetto Server Manager Installation Instructions
+ACPitwall Installation Instructions
 ================================================
 
-Hi! Welcome to Assetto Server Manager! We hope you can get it set up OK.
+Hi! Welcome to ACPitwall! We hope you can get it set up OK.
 
 However, if you have any problems, please don't hesitate to ask on GitHub:
 
@@ -31,14 +31,14 @@ Installation Steps:
 4. Run the 'server-manager' executable. On Windows, this will open your browser window. If you're on Linux, you'll
    need to manually open the URL: http://localhost:8772 in your browser.
 
-5. Log in to Server Manager. You can do this with the "Login" link underneath the Person icon in the navigation. You'll
+5. Log in to ACPitwall. You can do this with the "Login" link underneath the Person icon in the navigation. You'll
    need the default username and password to get in, they are:
 
        username: admin
        password: servermanager
 
    When you log in, you will be immediately prompted to change your password. You can add new accounts at any time from
-   the server manager web interface.
+   ACPitwall web interface.
 
 
 Forgotten Password:

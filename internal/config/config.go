@@ -1,4 +1,4 @@
-// Package config holds the server manager configuration (config.yml).
+// Package config holds ACPitwall configuration (config.yml).
 package config
 
 import (

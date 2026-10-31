@@ -1,23 +1,23 @@
 ################################################################################
 #
-#                      Assetto Server Manager Configuration
+#                      ACPitwall Configuration
 #             https://github.com/wernersbacher/ACPitwall
 #
-#                       Thanks for using server manager!
+#                       Thanks for using ACPitwall!
 #
 #
-# note that changes to this file require a restart of server manager to work! :)
+# note that changes to this file require a restart of ACPitwall to work! :)
 #
 #
 # The below file is in YAML configuration format. Spacing is important within
-# YAML, and can cause server manager not to launch correctly. You can validate
+# YAML, and can cause ACPitwall not to launch correctly. You can validate
 # this file online at: http://www.yamllint.com/
 #
 ################################################################################
 
 ################################################################################
 #
-#  steam settings - server manager can install the assetto corsa
+#  steam settings - ACPitwall can install the assetto corsa
 #                   server for you using steamcmd (if you'd like)
 #
 ################################################################################
@@ -26,10 +26,10 @@ steam:
   # steamguard disabled to use this application. Assetto Corsa Server is FREE
   # so you don't need to worry about purchasing it again.
   #
-  # server manager uses this information ONLY to install the
+  # ACPitwall uses this information ONLY to install the
   # assetto corsa server.
   #
-  # however, if you do not wish to provide server manager with this information,
+  # however, if you do not wish to provide ACPitwall with this information,
   # leave it blank and install assetto corsa server to the path you specified in
   # install_path (default: 'assetto')
   username: foobar
@@ -41,12 +41,12 @@ steam:
   # the path to the executable to run. relative to the install_path by default
   executable_path: acServer
 
-  # set this to true to force an install every time the server manager is loaded
+  # set this to true to force an install every time ACPitwall is loaded
   force_update: false
 
 ################################################################################
 #
-#  servers - run several assetto corsa servers from this server manager
+#  servers - run several assetto corsa servers from this ACPitwall
 #
 ################################################################################
 # optional. if this list is empty (default), ONE server is used, which is
@@ -54,8 +54,8 @@ steam:
 #
 # every entry is an assetto corsa server with its own folder (cfg, results,
 # setups...). ids must be unique and not empty, install paths must be different
-# (relative paths are relative to the server manager's working directory).
-# server manager installs missing servers with steamcmd, using the steam
+# (relative paths are relative to ACPitwall's working directory).
+# ACPitwall installs missing servers with steamcmd, using the steam
 # credentials above. content (cars, tracks, weather) is managed through the
 # install_path of the FIRST entry, so share the content folder of the others
 # with it (volume, junction, symlink).
@@ -90,14 +90,14 @@ steam:
 ################################################################################
 http:
   # hostname is the hostname the HTTP server should listen on.
-  # change '0.0.0.0' to 'localhost' if you don't want server manager to be
+  # change '0.0.0.0' to 'localhost' if you don't want ACPitwall to be
   # available on the web.
   hostname: 0.0.0.0:8772
 
   # session key is used to encrypt the http session
   session_key: RANDOMLY_GENERATE_THIS
 
-  # server manager base URL is the URL that the server manager is accessible on
+  # ACPitwall base URL is the URL that ACPitwall is accessible on
   # used for links in the championship welcome message in game
   # you can leave this blank if not required
   # example: https://acserver.example.com <-- requires https:// or
@@ -115,8 +115,8 @@ http:
   session_store_path: ""
 
   tls:
-    # TLS configuration. Server Manager supports TLS v1.2 upwards. As of 12/03/2020,
-    # the Server Manager configuration yields a perfect score from SSL Labs.
+    # TLS configuration. ACPitwall supports TLS v1.2 upwards. As of 12/03/2020,
+    # ACPitwall configuration yields a perfect score from SSL Labs.
     # If you enable this, you likely want the hostname (above) to listen on port 443.
     enabled: false
     # the path to the SSL certificate file.
@@ -140,7 +140,7 @@ monitoring:
 
 ################################################################################
 #
-#  data storage - where server manager keeps your data!
+#  data storage - where ACPitwall keeps your data!
 #
 ################################################################################
 store:
@@ -153,16 +153,16 @@ store:
   # boltdb is recommended for most users.
   type: boltdb
 
-  # where to save the server manager data
+  # where to save ACPitwall data
   path: server_manager.db
 
-  # shared data path: Set the same directory for multiple AC Server Manager
+  # shared data path: Set the same directory for multiple ACPitwall
   # instances to share accounts, race weekend, championship, entrants and custom
   # events across them. Leave blank to use the same path as the one set up here.
   # works only with JSON database
   shared_data_path:
 
-  # check for new scheduled races not created by server manager on a loop. this is an experimental
+  # check for new scheduled races not created by ACPitwall on a loop. this is an experimental
   # feature, and should not be used by most people. formats look like, e.g. 15s, 1m, 2h
   # 0s == disabled. recommended values are 5m and above.
   scheduled_event_check_loop: 0s
@@ -215,20 +215,20 @@ server:
   # usage.
   performance_mode: false
 
-  # set this to 'true' if you don't want server manager to open a browser window
+  # set this to 'true' if you don't want ACPitwall to open a browser window
   # on launch on windows
   dont_open_browser: false
 
-  # set this to 'true' if you want server manager to scan content folders for
+  # set this to 'true' if you want ACPitwall to scan content folders for
   # changes every 15 seconds and update the search index with changes
   # this is useful for multi-server setups with a shared content folder so that
-  # each server manager instance can see added/removed cars as they change
+  # each ACPitwall instance can see added/removed cars as they change
   scan_content_folder_for_changes: false
 
-  # when use_car_name_cache is enabled, server manager will scan the cars in the
+  # when use_car_name_cache is enabled, ACPitwall will scan the cars in the
   # content folder and save their names to memory. this will lead to more
   # accurate car names, at the cost of slightly increased memory usage and slightly
-  # longer 'boot time' of server manager. I recommend it though!
+  # longer 'boot time' of ACPitwall. I recommend it though!
   use_car_name_cache: true
 
   # the following option aims to prevent the loss of results files for sessions
@@ -244,19 +244,19 @@ server:
   # list of commands to run on server start and kill on server stop. this should
   # contain the full command with arguments to run the given program.
   #
-  # note: if you are looking for stracker support, Server Manager supports it via
-  # the UI! Go to the "STracker" page in Server Manager for more instructions.
+  # note: if you are looking for stracker support, ACPitwall supports it via
+  # the UI! Go to the "STracker" page in ACPitwall for more instructions.
   #
-  # note #2: if you are looking for KissMyRank support, Server Manager supports it
-  # via the UI! Go to the "KissMyRank" page in Server Manager for more instructions.
+  # note #2: if you are looking for KissMyRank support, ACPitwall supports it
+  # via the UI! Go to the "KissMyRank" page in ACPitwall for more instructions.
   #
-  # you can use additional plugins with AC Server Manager, but while configuring
-  # them you have to ignore the ports that AC Server Manager writes in the 
-  # server_cfg.ini, as the Server Manager provides an interface to the plugins
+  # you can use additional plugins with ACPitwall, but while configuring
+  # them you have to ignore the ports that ACPitwall writes in the 
+  # server_cfg.ini, as ACPitwall provides an interface to the plugins
   # instead. The plugin ports in the Server Options page are the ones that must
   # be used for the plugin configuration.
   #
-  # Note that AC Server Manager provides an interface for a single plugin only, 
+  # Note that ACPitwall provides an interface for a single plugin only, 
   # as the AC game server does. If you want to chain multiple plugins, please
   # follow the documentation of the plugins you're using. Plugins usually 
   # feature interfaces so additional plugins can be chained between themselves.

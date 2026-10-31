@@ -11,7 +11,7 @@ import (
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
-// ServerID is the id of the server manager instance in tests.
+// ServerID is the id of ACPitwall instance in tests.
 const ServerID smmodel.ServerID = "test-server"
 
 // New returns an Env for the Assetto Corsa installation in installPath, with the ServerID, no fallback sorting and a

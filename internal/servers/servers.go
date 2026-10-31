@@ -1,4 +1,4 @@
-// Package servers holds the server slots of the server manager: every slot is one Assetto Corsa server with its own
+// Package servers holds the server slots of ACPitwall: every slot is one Assetto Corsa server with its own
 // working directory and its own runtime stack (server process, race control, race, championship and race weekend
 // managers). The Registry looks the slots up. The package sits above raceweekend, so the handler packages, which
 // cannot import it, get small provider functions from the resolver instead.

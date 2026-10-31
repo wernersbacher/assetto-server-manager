@@ -49,7 +49,7 @@ func (t Track) GetImagePath() string {
 	return filepath.ToSlash(filepath.Join("content", "tracks", t.Name, "ui", t.Layouts[0], "preview.png"))
 }
 
-// LoadTrackMetaDataFromName loads the Server Manager meta data (notes, download URL) of a track.
+// LoadTrackMetaDataFromName loads ACPitwall meta data (notes, download URL) of a track.
 func LoadTrackMetaDataFromName(installPath, name string) (*TrackMetaData, error) {
 	metaDataFile := filepath.Join(installPath, "content", "tracks", name, "ui")
 

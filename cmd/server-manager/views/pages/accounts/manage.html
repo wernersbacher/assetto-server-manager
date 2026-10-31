@@ -52,9 +52,9 @@
 
     <div class="dashboard-grid">
         <div class="card admin-card">
-            <div class="card-header"><h2>Open Server Manager</h2></div>
+            <div class="card-header"><h2>Open ACPitwall</h2></div>
             <div class="card-body">
-                <p>An Open Server Manager allows read access to anyone without an account.</p>
+                <p>An Open ACPitwall allows read access to anyone without an account.</p>
 
                 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
                     {{ if $.ServerReadIsOpen }}
@@ -71,7 +71,7 @@
         <div class="card admin-card">
             <div class="card-header"><h2>Public driver statistics</h2></div>
             <div class="card-body">
-                <p>Driver profiles, leaderboards and lap records. If off, they are only visible to logged in accounts, even on an Open Server Manager.</p>
+                <p>Driver profiles, leaderboards and lap records. If off, they are only visible to logged in accounts, even on an Open ACPitwall.</p>
 
                 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
                     {{ if $.PublicStats }}
@@ -116,7 +116,7 @@
                     </tr>
                 </table>
             </div>
-            <div class="card-body pt-2 text-muted small">Accounts in the "No access" group cannot use Server Manager at all.</div>
+            <div class="card-body pt-2 text-muted small">Accounts in the "No access" group cannot use ACPitwall at all.</div>
         </div>
     </div>
 {{ end }}

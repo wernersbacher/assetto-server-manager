@@ -47,7 +47,7 @@ type championshipListTemplateVars struct {
 	ActiveChampionships, CompletedChampionships []*smmodel.Championship
 }
 
-// lists all available Championships known to Server Manager
+// lists all available Championships known to ACPitwall
 func (ch *ChampionshipsHandler) List(w http.ResponseWriter, r *http.Request) {
 	cm, ok := ch.manager(w, r)
 

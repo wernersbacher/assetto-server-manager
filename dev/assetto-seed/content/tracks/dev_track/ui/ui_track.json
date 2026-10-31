@@ -2,7 +2,7 @@
   "name": "Dev Track",
   "city": "Devtown",
   "country": "Germany",
-  "description": "Fake single-layout track for local server manager development.",
+  "description": "Fake single-layout track for local ACPitwall development.",
   "length": "3500m",
   "pitboxes": "24",
   "run": "clockwise",

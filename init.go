@@ -37,7 +37,7 @@ func InitWithResolver(resolver *Resolver) error {
 
 	accountManager.Init(id)
 
-	logrus.Infof("Server manager instance identifies as: %s", id)
+	logrus.Infof("ACPitwall instance identifies as: %s", id)
 
 	registry := resolver.Servers()
 
@@ -165,7 +165,7 @@ func (r *Resolver) stopSlotOnInterrupt(slot *servers.Slot) {
 	}
 }
 
-// restartLastEvent starts the event which ran on a slot when the server manager was stopped, if the options of the
+// restartLastEvent starts the event which ran on a slot when ACPitwall was stopped, if the options of the
 // slot ask for it.
 func (r *Resolver) restartLastEvent(slot *servers.Slot) {
 	store := r.slotStore(slot)

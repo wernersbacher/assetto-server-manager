@@ -28,7 +28,7 @@ type ServerPlugin struct {
 type ServerDetails struct {
 	*ServerSummary
 
-	// Ports are the acServer ports (and the UDP plugin and Content Manager wrapper ports Server Manager sets up).
+	// Ports are the acServer ports (and the UDP plugin and Content Manager wrapper ports ACPitwall sets up).
 	Ports   []ServerPort
 	Plugins []ServerPlugin
 

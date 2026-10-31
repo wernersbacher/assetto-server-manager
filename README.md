@@ -1,7 +1,9 @@
-Assetto Server Manager
+ACPitwall
 ======================
 
 A web interface to manage an Assetto Corsa Server.
+
+ACPitwall is based on [JustaPenguin/assetto-server-manager](https://github.com/JustaPenguin/assetto-server-manager) (MIT license, see [LICENSE](LICENSE)) and is developed further in this repository.
 
 ## Features
 
@@ -12,7 +14,7 @@ A web interface to manage an Assetto Corsa Server.
 * Content Management - Upload tracks, weather and cars
 * Sol Integration - Sol weather is compatible, including 24 hour time cycles (session start may advance/reverse time really fast before it syncs up - requires drivers to launch from content manager)
 * Championship mode - configure multiple race events and keep track of driver, class and team points
-* Race Weekends - a group of sequential sessions that can be run at any time. For example, you could set up a Qualifying session to run on a Saturday, then the Race to follow it on a Sunday. Server Manager handles the starting grid for you, and lets you organise Entrants into splits based on their results and other factors!
+* Race Weekends - a group of sequential sessions that can be run at any time. For example, you could set up a Qualifying session to run on a Saturday, then the Race to follow it on a Sunday. ACPitwall handles the starting grid for you, and lets you organise Entrants into splits based on their results and other factors!
 * Automatic event looping
 * Server Logs / Options Editing
 * Accounts system with different permissions levels
@@ -35,10 +37,10 @@ A web interface to manage an Assetto Corsa Server.
 
 ### Docker
 
-A docker image is available under the name `seejy/assetto-server-manager`. We recommend using docker-compose
-to set up a docker environment for the server manager. This docker image has steamcmd pre-installed.
+A docker image is available under the name `ghcr.io/wernersbacher/acpitwall`. We recommend using docker-compose
+to set up a docker environment for ACPitwall. This docker image has steamcmd pre-installed.
 
-See [Manual](#Manual) to set up server manager without Docker. For ONE server manager with several AC servers (shared
+See [Manual](#Manual) to set up ACPitwall without Docker. For ONE ACPitwall with several AC servers (shared
 content, AC server installed once via steamcmd) see [Several servers](#several-servers) and [deploy/multiserver](deploy/multiserver/README.md).
 
 **Note**: if you are using a directory volume for the server install (as is shown below), be sure to make 
@@ -53,11 +55,11 @@ version: "3"
 
 services:
   server-manager:
-    image: seejy/assetto-server-manager:latest
+    image: ghcr.io/wernersbacher/acpitwall:latest
     ports:
-    # the port that the server manager runs on
+    # the port that ACPitwall runs on
     - "8772:8772"
-    # the port that the assetto server runs on (may vary depending on your configuration inside server manager)
+    # the port that the assetto server runs on (may vary depending on your configuration inside ACPitwall)
     - "9600:9600"
     - "9600:9600/udp"
     # the port that the assetto server HTTP API runs on.
@@ -74,7 +76,7 @@ services:
 
 ### Several servers
 
-One Server Manager can run several Assetto Corsa servers at once (e.g. a Championship event on one and a custom race on
+One ACPitwall can run several Assetto Corsa servers at once (e.g. a Championship event on one and a custom race on
 the other), with one UI, login and database. List the servers in `config.yml`; without a `servers:` list one server is
 used, from `steam.install_path`:
 
@@ -100,7 +102,7 @@ servers:
   the plugin options (stracker, KissMyRank, Real Penalty) are per server.
 - **Ports**: every server stores its own ports in its Server Options and starts with the default ports (9600 / 8081),
   so change them for each additional server (e.g. 9601 / 8082) and publish them in Docker. Plugin ports must differ
-  between servers too. Server Manager warns about conflicts and refuses to start an event on ports that a running server
+  between servers too. ACPitwall warns about conflicts and refuses to start an event on ports that a running server
   already uses.
 - **Starting and scheduling**: events start on the selected server; scheduling forms have a "Server" field
   (`event-schedule-server`) to pick the server an event is scheduled for. A server which already runs an event rejects a
@@ -111,28 +113,28 @@ A ready-made Docker Compose setup with two servers is in [deploy/multiserver](de
 
 ### Post Installation
 
-We recommend uploading your entire Assetto Corsa `content/tracks` folder to get the full features of Server Manager. 
+We recommend uploading your entire Assetto Corsa `content/tracks` folder to get the full features of ACPitwall. 
 This includes things like track images, all the correct layouts and any mod tracks you may have installed.
 
-Also, we recommend installing Sol locally and uploading your Sol weather files to Server Manager as well so you can try out Day/Night cycles and cool weather!
+Also, we recommend installing Sol locally and uploading your Sol weather files to ACPitwall as well so you can try out Day/Night cycles and cool weather!
 
 ### Updating
 
-Follow the steps below to update Server Manager:
+Follow the steps below to update ACPitwall:
 
-1. Back up your current Server Manager database and config.yml.
-2. Download the [latest version of Server Manager](https://github.com/wernersbacher/ACPitwall/releases)
+1. Back up your current ACPitwall database and config.yml.
+2. Download the [latest version of ACPitwall](https://github.com/wernersbacher/ACPitwall/releases)
 3. Extract the zip file.
 4. Open the Changelog, read the entries between your current version and the new version. 
    There may be configuration changes that you need to make!
 5. Make any necessary configuration changes.
-6. Find the Server Manager executable for your operating system. Replace your current Server Manager
+6. Find ACPitwall executable for your operating system. Replace your current ACPitwall
    executable with it.
-7. Start the new Server Manager executable.
+7. Start the new ACPitwall executable.
 
 ## Build From Source Process
 
-See [DEVELOPMENT.md](DEVELOPMENT.md) for building Server Manager from source and running it locally, natively or with
+See [DEVELOPMENT.md](DEVELOPMENT.md) for building ACPitwall from source and running it locally, natively or with
 Docker, without needing a real Assetto Corsa server.
 
 ## API
@@ -189,7 +191,7 @@ Results can be read in the same way, with the same access rules as the results p
   championship tables link to it.
 
 The three driver statistics APIs (`/api/track-records`, `/api/driver/{guid}`, `/api/leaderboard`) and their pages need a
-logged in account with read access, even on an open Server Manager, unless "Public driver statistics" is enabled on the
+logged in account with read access, even on an open ACPitwall, unless "Public driver statistics" is enabled on the
 Accounts page (default off). Anonymous requests are redirected to `/login` (302), like on other protected APIs.
 
 All times and durations are in milliseconds, as Assetto Corsa stores them. Driver names are shortened if the server
@@ -225,12 +227,13 @@ With several servers (see [Several servers](#several-servers)) the APIs know abo
 
 ## Credits & Thanks
 
-Assetto Corsa Server Manager would not have been possible without the following people:
+ACPitwall would not have been possible without the following people:
 
 * Henry Spencer - [Twitter](https://twitter.com/HWSpencer) / [GitHub](https://github.com/Hecrer)
 * Callum Jones - [Twitter](https://twitter.com/icj_) / [GitHub](https://github.com/cj123)
 * Joseph Elton
 * The Pizzabab Championship
+* The authors of [JustaPenguin/assetto-server-manager](https://github.com/JustaPenguin/assetto-server-manager), on which ACPitwall is based
 * [ACServerManager](https://github.com/Pringlez/ACServerManager) and its authors, for 
 inspiration and reference on understanding the AC configuration files
 

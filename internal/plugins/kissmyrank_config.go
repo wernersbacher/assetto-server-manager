@@ -69,7 +69,7 @@ func DefaultKissMyRankConfig() *KissMyRankConfig {
 		MaxCollisionsPer100km:                   30,
 		MaxCollisionsPer100kmMinDistance:        100,
 		MacCollisionsPer100kmRechargeHours:      6,
-		CustomChatDriverWelcomeMessages:         "Welcome to this KissMyRank+Server Manager Enabled Server!\nHave a good race!",
+		CustomChatDriverWelcomeMessages:         "Welcome to this KissMyRank+ACPitwall Enabled Server!\nHave a good race!",
 		ReverseGearMaxDistance:                  30,
 		CollisionMinimumDamageWithEnvironment:   0.001,
 		CollisionMinimumDamageBetweenCars:       0.001,
@@ -314,7 +314,7 @@ type KissMyRankConfig struct {
 	WebStatsInterface             formulate.BoolNumber   `json:"web_stats_interface" help:"Whether to enable the web stats interface (required for Race Control and Race Director collision moderation)."`
 	WebStatsServerAddress         string                 `json:"web_stats_server_address" help:"Stats Web Server Address (change this if you want to listen only on a certain interface, not recommended)."`
 	WebStatsServerPort            int                    `json:"web_stats_server_port" help:"Stats Web Server Port. For linux read the troubleshooting section of the readme.txt help file."`
-	WebStatsPublicURL             string                 `json:"web_stats_public_url" help:"<strong>Please set up this value if you are using the web stats port!</strong> This should be set to the URL that anyone can access. This link will be displayed on Server Manager's Live Timings page so that anybody can view the KMR interface. If this is left blank, no link will be shown on the Live Timings page!"`
+	WebStatsPublicURL             string                 `json:"web_stats_public_url" help:"<strong>Please set up this value if you are using the web stats port!</strong> This should be set to the URL that anyone can access. This link will be displayed on ACPitwall's Live Timings page so that anybody can view the KMR interface. If this is left blank, no link will be shown on the Live Timings page!"`
 	WebStatsDriversPerPage        int                    `json:"web_stats_drivers_per_page" help:"Web Stats Drivers per page. Sets how many drivers per page will show on the Web Stats Drivers list."`
 	WebStatsCacheTime             int                    `json:"web_stats_cache_time" help:"Time to cache the stats in seconds (decreasing might increase CPU usage)"`
 	WebStatsOverridePublicAddress string                 `json:"web_stats_override_public_address" help:"Set this to your server public Web Stats address if you wish to override the plugin public address autodetection."`
@@ -477,7 +477,7 @@ type KissMyRankConfig struct {
 
 	MaxPlayers int `json:"max_players" show:"-" help:"Number of server slots."`
 
-	// Track Rotation is not supported with Server Manager.
+	// Track Rotation is not supported with ACPitwall.
 	TrackList               []interface{} `json:"track_list" help:"" show:"-"`
 	TrackRotationMaxPlayers int           `json:"track_rotation_max_players" help:"" show:"-"`
 

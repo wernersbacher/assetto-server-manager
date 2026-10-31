@@ -17,7 +17,7 @@ import (
 
 var LaunchTime = time.Now()
 
-// HealthCheck serves the health of the server manager as JSON.
+// HealthCheck serves the health of ACPitwall as JSON.
 type HealthCheck struct {
 	slotFor      SlotFor
 	buildVersion string

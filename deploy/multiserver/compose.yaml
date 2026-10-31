@@ -1,4 +1,4 @@
-# ONE Server Manager with two acServers (slots a and b), see README.md in this directory.
+# ONE ACPitwall with two acServers (slots a and b), see README.md in this directory.
 
 name: assetto-multiserver
 
@@ -100,7 +100,7 @@ volumes:
   # the install copy (cfg, results, ...) of each server
   assetto-a:
   assetto-b:
-  # working directory of the Server Manager (database, logs)
+  # working directory of ACPitwall (database, logs)
   data:
 
 secrets:

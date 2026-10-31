@@ -1,4 +1,4 @@
-// Package lua runs the Lua plugin scripts of the server manager ("./plugins/*.lua"). Lua is optional: the plugins are only
+// Package lua runs the Lua plugin scripts of ACPitwall ("./plugins/*.lua"). Lua is optional: the plugins are only
 // active after Init has been called, which happens when Lua is enabled in the configuration.
 package lua
 

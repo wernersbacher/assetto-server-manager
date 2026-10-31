@@ -29,7 +29,7 @@ var (
 
 func init() {
 	flag.StringVar(&dir, "dir", "", "cars directory to upload")
-	flag.StringVar(&baseURL, "url", "", "server manager base url")
+	flag.StringVar(&baseURL, "url", "", "ACPitwall base url")
 	flag.StringVar(&username, "username", "", "")
 	flag.StringVar(&password, "password", "", "")
 	flag.IntVar(&maxUpload, "max", 30, "max number of cars to upload at once")

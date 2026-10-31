@@ -188,7 +188,7 @@ type StrackerInstanceConfiguration struct {
 	PerformChecksumComparisons   bool   `ini:"perform_checksum_comparisons" help:"Set to ON if you want stracker to compare the players checksums."`
 	PtrackerConnectionMode       string `ini:"ptracker_connection_mode" help:"Configure which ptracker instances shall be allowed to connect: Valid values are 'any', 'newer' or 'none'."`
 	ServerName                   string `ini:"server_name" help:"Name for the server; sessions in the database will be tagged with that name; useful when more than one server is running in parallel on the same database"`
-	TeeToStdout                  bool   `ini:"tee_to_stdout" help:"Set to ON if you want the messages appear on stdout (in Server Manager's plugin logs)"`
+	TeeToStdout                  bool   `ini:"tee_to_stdout" help:"Set to ON if you want the messages appear on stdout (in ACPitwall's plugin logs)"`
 }
 
 type StrackerSwearFilter struct {
@@ -230,7 +230,7 @@ type StrackerHTTPConfiguration struct {
 	Enabled       bool   `ini:"enabled"`
 	ListenAddress string `ini:"listen_addr" help:"Listening address of the http server (normally there is no need to change the default value 0.0.0.0 which means that the whole internet can connect to the server)"`
 	ListenPort    int    `ini:"listen_port" help:"TCP listening port of the http server"`
-	PublicURL     string `ini:"-" help:"This allows you to manually specify the URL on which the sTracker web interface is running. This link will be displayed on Server Manager's Live Timings page so that anybody can view the sTracker interface. If this is left blank, an older and <em>unrecommended</em> Server Manager proxying method will be used to display the sTracker interface!"`
+	PublicURL     string `ini:"-" help:"This allows you to manually specify the URL on which the sTracker web interface is running. This link will be displayed on ACPitwall's Live Timings page so that anybody can view the sTracker interface. If this is left blank, an older and <em>unrecommended</em> ACPitwall proxying method will be used to display the sTracker interface!"`
 
 	AdminUsername string `ini:"admin_username" help:"Username for the stracker admin pages. Leaving empty results in disabled admin pages"`
 	AdminPassword string `ini:"admin_password" type:"password" help:"Password for the stracker admin pages. Leaving empty results in disabled admin pages"`

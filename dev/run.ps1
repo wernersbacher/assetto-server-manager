@@ -1,13 +1,13 @@
 <#
 .SYNOPSIS
-    Builds and starts Server Manager locally for development, without a real Assetto Corsa server.
+    Builds and starts ACPitwall locally for development, without a real Assetto Corsa server.
 
 .DESCRIPTION
     - builds the frontend (TypeScript/SCSS) if it hasn't been built yet, or when -Frontend is given
     - generates the embedded asset files (esc) and builds the Go binary
     - on first run, copies dev/config.yml and the fake AC install (dev/assetto-seed) into cmd/server-manager
       (twice: server a in assetto, server b in assetto-b, whose content folder is a junction to that of a)
-    - starts Server Manager with templates/static files served from disk (FILESYSTEM_HTML=true),
+    - starts ACPitwall with templates/static files served from disk (FILESYSTEM_HTML=true),
       so changes to views/ only need a browser refresh.
 
     Login: http://localhost:8772 with admin / admin
@@ -130,7 +130,7 @@ if ($Seed) {
 
 if ($NoRun) { return }
 
-Write-Host '==> Starting Server Manager on http://localhost:8772 (login: admin / admin)' -ForegroundColor Green
+Write-Host '==> Starting ACPitwall on http://localhost:8772 (login: admin / admin)' -ForegroundColor Green
 Push-Location $appDir
 try {
     $env:FILESYSTEM_HTML = 'true'

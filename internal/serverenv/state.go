@@ -56,7 +56,7 @@ func (s *State) SetInstallPath(installPath string) error {
 	return nil
 }
 
-// ServerID identifies this server manager instance.
+// ServerID identifies this ACPitwall instance.
 func (s *State) ServerID() smmodel.ServerID {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -64,7 +64,7 @@ func (s *State) ServerID() smmodel.ServerID {
 	return s.serverID
 }
 
-// SetServerID sets the id of this server manager instance.
+// SetServerID sets the id of this ACPitwall instance.
 func (s *State) SetServerID(id smmodel.ServerID) {
 	s.mu.Lock()
 	defer s.mu.Unlock()

@@ -3,7 +3,7 @@
   "brand": "Devmotors",
   "class": "race",
   "country": "Germany",
-  "description": "Fake car for local server manager development.",
+  "description": "Fake car for local ACPitwall development.",
   "tags": ["#GT3", "rwd", "semislicks"],
   "specs": {"bhp": "500bhp", "torque": "550Nm", "weight": "1250kg", "topspeed": "290km/h", "acceleration": "3.6s 0-100", "pwratio": "2.50kg/hp"},
   "author": "dev",

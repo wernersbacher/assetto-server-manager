@@ -1,4 +1,4 @@
-# Server Manager config for local development (native via dev/run.ps1 and via compose.yaml).
+# ACPitwall config for local development (native via dev/run.ps1 and via compose.yaml).
 # Two servers (slots) a and b, both on a copy of the fake install; the content of b is linked to that of a.
 # Copied to cmd/server-manager/config.yml on first run (native) - edit that copy, not this file.
 # See cmd/server-manager/config.example.yml for all options and their documentation.
@@ -11,7 +11,7 @@ steam:
   executable_path: acServer
   force_update: false
 
-# two servers in one Server Manager, a and b: their working directories are fake installs (dev/assetto-seed). Content is
+# two servers in one ACPitwall, a and b: their working directories are fake installs (dev/assetto-seed). Content is
 # managed through the first one; run.ps1 and compose.yaml link the content folder of b to it. Both servers start with the
 # default acServer ports (9600/8081); change them in Server Options of a server before running both at once.
 servers:

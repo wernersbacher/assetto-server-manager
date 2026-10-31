@@ -165,8 +165,8 @@ type GlobalServerConfig struct {
 	UDPPort                   int                  `ini:"UDP_PORT" min:"0" max:"65535" help:"UDP port number: open this port on your server's firewall"`
 	TCPPort                   int                  `ini:"TCP_PORT" min:"0" max:"65535" help:"TCP port number: open this port on your server's firewall"`
 	HTTPPort                  int                  `ini:"HTTP_PORT" min:"0" max:"65535" help:"Lobby port number: open these ports (both UDP and TCP) on your server's firewall"`
-	UDPPluginLocalPort        int                  `ini:"UDP_PLUGIN_LOCAL_PORT" min:"0" max:"65535" help:"The port on which to listen for UDP messages from a plugin. Please note that Server Manager proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
-	UDPPluginAddress          string               `ini:"UDP_PLUGIN_ADDRESS" help:"The address of the plugin to which UDP messages are sent.  Please note that Server Manager proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
+	UDPPluginLocalPort        int                  `ini:"UDP_PLUGIN_LOCAL_PORT" min:"0" max:"65535" help:"The port on which to listen for UDP messages from a plugin. Please note that ACPitwall proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
+	UDPPluginAddress          string               `ini:"UDP_PLUGIN_ADDRESS" help:"The address of the plugin to which UDP messages are sent.  Please note that ACPitwall proxies UDP ports so that it can use them as well, for things such as Championships, Live Timings and the Map. This means that the UDP ports you see in the server_cfg.ini will be different to the ones you specify here. This is not an issue, and messages will be correctly sent/received on the UDP ports you specify here as well."`
 	AuthPluginAddress         string               `ini:"AUTH_PLUGIN_ADDRESS" help:"The address of the auth plugin"`
 	RegisterToLobby           formulate.BoolNumber `ini:"REGISTER_TO_LOBBY" help:"Register the AC Server to the main lobby"`
 	ClientSendIntervalInHertz int                  `ini:"CLIENT_SEND_INTERVAL_HZ" help:"Refresh rate of packet sending by the server. 10Hz = ~100ms. Higher number = higher MP quality = higher bandwidth resources needed. Really high values can create connection issues"`
@@ -185,28 +185,28 @@ type GlobalServerConfig struct {
 	FreeUDPPluginAddress   string `ini:"-" show:"-"`
 
 	ServerName                formfields.FormHeading `ini:"-" json:"-"`
-	ShowRaceNameInServerLobby formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager append the Custom Race or Championship name to the Server name in the lobby."`
+	ShowRaceNameInServerLobby formulate.BoolNumber   `ini:"-" help:"When on, this option will make ACPitwall append the Custom Race or Championship name to the Server name in the lobby."`
 	ServerNameTemplate        string                 `ini:"-" help:"You can enter anything you like in here. If you put <code>{{ .ServerName }}</code> in, the Server Name will replace it. If you put <code>{{ .EventName }}</code>, then the Event Name will replace it. Note this only works if 'Show Race Name In Server Lobby' (above) is enabled."`
 
 	Theme     formfields.FormHeading `ini:"-" json:"-"`
-	DarkTheme formulate.BoolNumber   `ini:"-" help:"Enable Server Manager's Dark Theme by default"`
-	CustomCSS string                 `ini:"-" elem:"textarea" help:"Customise the style of Server Manager!"`
+	DarkTheme formulate.BoolNumber   `ini:"-" help:"Enable ACPitwall's Dark Theme by default"`
+	CustomCSS string                 `ini:"-" elem:"textarea" help:"Customise the style of ACPitwall!"`
 	OGImage   string                 `ini:"-" help:"Link to an image on the web here to set it as your default Open Graph image (will show in links)"`
 
 	ContentManagerIntegration   formfields.FormHeading `ini:"-" json:"-"`
-	EnableContentManagerWrapper formulate.BoolNumber   `ini:"-" help:"When on, this option makes Server Manager provide extra information to Content Manager. This includes more detail about connected clients, event descriptions and download links. A side-effect of this is that your server name will contain a new piece of information (an 'i' character followed by a port - which Content Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality provided by <a href='https://freegeoip.app''>freegeoip.app</a>."`
+	EnableContentManagerWrapper formulate.BoolNumber   `ini:"-" help:"When on, this option makes ACPitwall provide extra information to Content Manager. This includes more detail about connected clients, event descriptions and download links. A side-effect of this is that your server name will contain a new piece of information (an 'i' character followed by a port - which Content Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality provided by <a href='https://freegeoip.app''>freegeoip.app</a>."`
 	ContentManagerWrapperPort   int                    `ini:"-" min:"0" max:"65535" help:"The port on which to serve Content Manager with the above information. Please make sure this port is open on your firewall."`
-	ShowContentManagerJoinLink  formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager display Content Manager join links on the Live Timing page and (if enabled) in Discord race start notifications."`
+	ShowContentManagerJoinLink  formulate.BoolNumber   `ini:"-" help:"When on, this option will make ACPitwall display Content Manager join links on the Live Timing page and (if enabled) in Discord race start notifications."`
 	ContentManagerIPOverride    string                 `ini:"-" help:"When set, this overrides the IP address detected by the GeoIP service used for the Content Manager join link. This must be an IPv4 address."`
 	//ContentManagerWrapperContentRequiresPassword formulate.BoolNumber `ini:"-" help:"When on a user will require the server password in order to download linked content through the Content Manager Wrapper."`
 
 	Miscellaneous                     formfields.FormHeading `ini:"-" json:"-"`
-	UseShortenedDriverNames           formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager hide driver's last names, for example 'John Smith' becomes 'John S.'"`
+	UseShortenedDriverNames           formulate.BoolNumber   `ini:"-" help:"When on, this option will make ACPitwall hide driver's last names, for example 'John Smith' becomes 'John S.'"`
 	FallBackResultsSorting            formulate.BoolNumber   `ini:"-" help:"When on results will use a fallback method of sorting. Only enable this if you are experiencing results that are in the wrong order in the json file."`
-	UseMPH                            formulate.BoolNumber   `ini:"-" help:"When on, this option will make Server Manager use MPH instead of Km/h for all speed values."`
+	UseMPH                            formulate.BoolNumber   `ini:"-" help:"When on, this option will make ACPitwall use MPH instead of Km/h for all speed values."`
 	PreventWebCrawlers                formulate.BoolNumber   `ini:"-" help:"When on, robots will be prohibited from indexing this manager by the robots.txt. Please note this will only deter well behaved bots, and not malware/spam bots etc."`
-	RestartEventOnServerManagerLaunch formulate.BoolNumber   `ini:"-" help:"When on, if Server Manager is stopped while there is an event in progress, Server Manager will try to restart the event when Server Manager is restarted."`
-	LogACServerOutputToFile           bool                   `ini:"-" help:"When on, Server Manager will output each Assetto Corsa session into a log file in the logs folder."`
+	RestartEventOnServerManagerLaunch formulate.BoolNumber   `ini:"-" help:"When on, if ACPitwall is stopped while there is an event in progress, ACPitwall will try to restart the event when ACPitwall is restarted."`
+	LogACServerOutputToFile           bool                   `ini:"-" help:"When on, ACPitwall will output each Assetto Corsa session into a log file in the logs folder."`
 	NumberOfACServerLogsToKeep        int                    `ini:"-" help:"The number of AC Server logs to keep in the logs folder. (Oldest files will be deleted first. 0 = keep all files)"`
 	ShowEventDetailsPopup             bool                   `ini:"-" help:"Allows all users to view a popup that describes in detail the setup of Custom Races, Championship Events and Race Weekend Sessions."`
 

@@ -58,7 +58,7 @@ func main() {
 	store, err := servermanager.BuildStore(&config.Store, state.InstallPath)
 
 	if err != nil {
-		ServeHTTPWithError(config.HTTP.Hostname, "Open server manager storage (bolt or json)", err)
+		ServeHTTPWithError(config.HTTP.Hostname, "Open ACPitwall storage (bolt or json)", err)
 		return
 	}
 
@@ -158,7 +158,7 @@ func main() {
 	err = servermanager.InitWithResolver(resolver)
 
 	if err != nil {
-		ServeHTTPWithError(config.HTTP.Hostname, "Initialise server manager (internal error)", err)
+		ServeHTTPWithError(config.HTTP.Hostname, "Initialise ACPitwall (internal error)", err)
 		return
 	}
 
@@ -169,7 +169,7 @@ func main() {
 		return
 	}
 
-	logrus.Infof("starting assetto server manager on: %s", config.HTTP.Hostname)
+	logrus.Infof("starting ACPitwall on: %s", config.HTTP.Hostname)
 
 	if !config.Server.DisableWindowsBrowserOpen && runtime.GOOS == "windows" {
 		_ = browser.OpenURL("http://" + strings.Replace(config.HTTP.Hostname, "0.0.0.0", "127.0.0.1", 1))
@@ -227,7 +227,7 @@ func checkMemValue(key string) {
 		redln("-------------------------------------------------------------------")
 
 		red("System %s value is too small! UDP messages are \n", key)
-		redln("more likely to be lost and the stability of various Server Manager")
+		redln("more likely to be lost and the stability of various ACPitwall")
 		redln("systems will be greatly affected.")
 		redln()
 

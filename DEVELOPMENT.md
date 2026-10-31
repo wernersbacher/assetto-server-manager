@@ -1,7 +1,7 @@
 # Development
 
-Server Manager can be run locally without Steam or a real Assetto Corsa server. `dev/assetto-seed` contains a fake
-AC install (two cars, two tracks, some results). Because it contains a `system/` folder, Server Manager skips the
+ACPitwall can be run locally without Steam or a real Assetto Corsa server. `dev/assetto-seed` contains a fake
+AC install (two cars, two tracks, some results). Because it contains a `system/` folder, ACPitwall skips the
 steamcmd install on startup. Starting an actual race doesn't work, as there is no `acServer` executable.
 
 In both setups you log in at http://localhost:8772 as `admin` / `admin` (set via `accounts.admin_password_override`

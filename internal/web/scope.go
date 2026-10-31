@@ -1,6 +1,6 @@
 // Package web is the web infrastructure shared by all HTTP handlers: the per-request scope (sessions, server identity,
 // account), access checks, flash messages and the template renderer. It does not depend on the managers and handlers
-// of the server manager itself.
+// of ACPitwall itself.
 package web
 
 import (

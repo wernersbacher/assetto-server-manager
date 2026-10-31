@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-// BuildVersion is the time Server Manager was built at
+// BuildVersion is the time ACPitwall was built at
 var BuildVersion string
 
 func driverInitials(name string) string {
@@ -50,7 +50,7 @@ func weatherName(installPath, key string) string {
 	return prettifyName(key, false)
 }
 
-// serverTemplateFuncs returns the template functions which depend on the server manager's own state and domain code.
+// serverTemplateFuncs returns the template functions which depend on ACPitwall's own state and domain code.
 // They are added to the functions which the web renderer provides itself.
 func serverTemplateFuncs(env *serverenv.Env) template.FuncMap {
 	return template.FuncMap{

@@ -1,7 +1,7 @@
 ##A Vaguely Acceptable Lua Plugin Guide
 ######*Written by Hecrer*
 
-Welcome to my short guide on using Lua script plugins with Server Manager. If you're
+Welcome to my short guide on using Lua script plugins with ACPitwall. If you're
 at all accustomed to Lua then you probably already know it better than I do, if not
 you may find this document useful!
 
@@ -25,7 +25,7 @@ lua:
   enabled: true
 ```
 
-Once you've got the basics down we can have a look at how Server Manager (SM) interacts with our Lua plugins. 
+Once you've got the basics down we can have a look at how ACPitwall (SM) interacts with our Lua plugins. 
 It's worth noting that SM automatically adds the ```server-manager/plugins``` folder to your ```LUA_PATH``` when it initialises.
 If you want to import Lua files from other locations then you can add them to your ```LUA_PATH``` manually.
 

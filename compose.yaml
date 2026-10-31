@@ -49,7 +49,7 @@ services:
       - ./dev/config.yml:/home/assetto/server-manager/config.yml:ro
 
 volumes:
-  # server manager working directory (database, logs)
+  # ACPitwall working directory (database, logs)
   data:
   # the (fake) Assetto Corsa installs of server a and b; a is declared as a volume by the image
   assetto:

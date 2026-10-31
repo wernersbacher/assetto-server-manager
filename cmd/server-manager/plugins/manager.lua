@@ -4,7 +4,7 @@ utils = require "utils"
 -- there are some example functions here to give you an idea of what is possible, feel free to write your own!
 -- if you do and think other people would be interested in them consider making a pull request at https://github.com/wernersbacher/ACPitwall
 
--- called whenever Server Manager is started
+-- called whenever ACPitwall is started
 function onManagerStart()
 
     -- Function block NOTE: this hook doesn't block, so it can run constantly alongside the manager if required
