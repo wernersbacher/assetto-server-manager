@@ -219,7 +219,7 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string, r *http.R
 
 		trackInfoMap[layout] = trackInfo
 
-		results, err := th.resultsForLayout(track.Name, layout)
+		results, err := th.resultsForLayout(track.Name, layout, th.records.hideFunc(r))
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Couldn't load results for layout: %s, track: %s", layout, track.Name)
@@ -240,7 +240,7 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string, r *http.R
 	}, nil
 }
 
-func (th *TracksHandler) resultsForLayout(trackName, layout string) ([]smresults.SessionResults, error) {
+func (th *TracksHandler) resultsForLayout(trackName, layout string, hide smresults.HideFunc) ([]smresults.SessionResults, error) {
 	results, err := th.env.Results().ListAll()
 
 	if err != nil {
@@ -250,6 +250,10 @@ func (th *TracksHandler) resultsForLayout(trackName, layout string) ([]smresults
 	var out []smresults.SessionResults
 
 	for _, result := range results {
+		if hide != nil && hide(result.SessionFile, result.ChampionshipID, result.RaceWeekendID) {
+			continue
+		}
+
 		if result.TrackName == trackName && result.TrackConfig == layout {
 			out = append(out, result)
 		}

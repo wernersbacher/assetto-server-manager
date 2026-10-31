@@ -35,6 +35,9 @@ type DriverHandler struct {
 	index      *stats.Index
 	servers    smweb.ServersFunc
 	managerFor smchampionship.ManagerFor
+
+	// Hide gives the filter for results of hidden championships and race weekends per request (nil: nothing is hidden).
+	Hide smweb.HideFuncFor
 }
 
 // NewDriverHandler creates the handler. servers and managerFor may be nil (nothing is attributed to a server, the
@@ -125,7 +128,7 @@ func (dh *DriverHandler) load(r *http.Request) (*profile, bool) {
 		return nil, false
 	}
 
-	driver, ok := dh.index.Driver(guid)
+	driver, ok := dh.index.DriverVisible(guid, dh.Hide.For(r))
 
 	if !ok {
 		return nil, false

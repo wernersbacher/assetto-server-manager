@@ -37,6 +37,9 @@ type LeaderboardHandler struct {
 	servers     smweb.ServersFunc
 	installPath func() string
 
+	// Hide gives the filter for results of hidden championships and race weekends per request (nil: nothing is hidden).
+	Hide smweb.HideFuncFor
+
 	// now is the clock, replaced in tests.
 	now func() time.Time
 }
@@ -61,6 +64,7 @@ type query struct {
 	perCar        bool
 	filterServer  string
 	dir           string // results dir of filterServer
+	hide          smresults.HideFunc
 }
 
 // parse validates the request parameters. The error text is for the client.
@@ -71,6 +75,7 @@ func (lh *LeaderboardHandler) parse(r *http.Request) (*query, error) {
 		layout:      values.Get("layout"),
 		period:      values.Get("period"),
 		sessionType: strings.ToLower(values.Get("sessionType")),
+		hide:        lh.Hide.For(r),
 	}
 
 	// the page form submits track and layout as one select value
@@ -144,7 +149,7 @@ func (lh *LeaderboardHandler) parse(r *http.Request) (*query, error) {
 
 // filter is the index filter without the cars.
 func (lh *LeaderboardHandler) filter(q *query) stats.Filter {
-	f := stats.Filter{Dir: q.dir}
+	f := stats.Filter{Dir: q.dir, Hide: q.hide}
 
 	switch q.period {
 	case Period30Days:
@@ -253,7 +258,7 @@ func (lh *LeaderboardHandler) trackOptions(f stats.Filter, track, layout string)
 		return nil, nil
 	}
 
-	for _, ref := range lh.index.TrackSummaries(stats.Filter{Dir: f.Dir}) {
+	for _, ref := range lh.index.TrackSummaries(stats.Filter{Dir: f.Dir, Hide: f.Hide}) {
 		options = append(options, TrackOption{
 			Track:  ref.Track,
 			Layout: ref.Layout,

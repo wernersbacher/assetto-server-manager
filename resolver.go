@@ -424,6 +424,7 @@ func (r *Resolver) resolveRecords() *contenthttp.Records {
 	}
 
 	r.contentRecords = contenthttp.NewRecords(r.resolveStatsIndex(), r.resultsServers)
+	r.contentRecords.Hide = resultshttp.HideFuncFor(r.ResolveStore())
 
 	return r.contentRecords
 }
@@ -497,6 +498,7 @@ func (r *Resolver) resolveDriverHandler() *statshttp.DriverHandler {
 	}
 
 	r.driverHandler = statshttp.NewDriverHandler(r.resolveBaseHandler(), r.resolveStatsIndex(), r.resultsServers, r.championshipManagerFor)
+	r.driverHandler.Hide = resultshttp.HideFuncFor(r.ResolveStore())
 
 	return r.driverHandler
 }
@@ -696,6 +698,7 @@ func (r *Resolver) resolveLeaderboardHandler() *statshttp.LeaderboardHandler {
 	}
 
 	r.leaderboardHandler = statshttp.NewLeaderboardHandler(r.resolveBaseHandler(), r.resolveStatsIndex(), r.resultsServers, r.resolveEnv().InstallPath)
+	r.leaderboardHandler.Hide = resultshttp.HideFuncFor(r.ResolveStore())
 
 	return r.leaderboardHandler
 }

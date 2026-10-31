@@ -24,6 +24,9 @@ type fileStats struct {
 	sessionType string
 	date        time.Time
 
+	championshipID string
+	raceWeekendID  string
+
 	drivers map[string]*fileDriver // by GUID
 }
 
@@ -123,7 +126,11 @@ func buildFileStats(r *results.SessionResults, name, dir string, size int64, mod
 		layout:      r.TrackConfig,
 		sessionType: string(r.Type),
 		date:        r.Date,
-		drivers:     make(map[string]*fileDriver),
+
+		championshipID: r.ChampionshipID,
+		raceWeekendID:  r.RaceWeekendID,
+
+		drivers: make(map[string]*fileDriver),
 	}
 
 	carByID := make(map[int]*results.SessionCar)

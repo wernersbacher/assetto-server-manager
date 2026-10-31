@@ -480,3 +480,53 @@ func TestConcurrentQueries(t *testing.T) {
 
 	wg.Wait()
 }
+
+func TestHideFilter(t *testing.T) {
+	dirs, cleanup := tempDirs(t, 1)
+	defer cleanup()
+
+	write(t, dirs[0], "2020_1_1_10_0_RACE.json", session("RACE", "monza", "", []lapSpec{{"1", "Alice", "ferrari", 90000, 0}}, "1"))
+	write(t, dirs[0], "2020_1_2_10_0_RACE.json", session("RACE", "monza", "", []lapSpec{{"2", "Bob", "ferrari", 80000, 0}}, "2"))
+
+	idx := newIndex(dirs)
+	hide := func(name, championshipID, raceWeekendID string) bool { return name == "2020_1_2_10_0_RACE.json" }
+
+	if rec := idx.TrackRecords("monza", "", Filter{Hide: hide}); len(rec) != 1 || rec[0].DriverGUID != "1" {
+		t.Fatalf("hidden session in track records: %+v", rec)
+	}
+
+	if rec := idx.CarRecords("ferrari", Filter{Hide: hide}); len(rec) != 1 || rec[0].DriverGUID != "1" {
+		t.Fatalf("hidden session in car records: %+v", rec)
+	}
+
+	if lb := idx.Leaderboard("monza", "", Filter{Hide: hide}); len(lb) != 1 || lb[0].DriverGUID != "1" {
+		t.Fatalf("hidden session in leaderboard: %+v", lb)
+	}
+
+	if refs := idx.TrackSummaries(Filter{Hide: hide}); len(refs) != 1 {
+		t.Fatalf("unexpected summaries: %+v", refs)
+	}
+
+	if _, ok := idx.DriverVisible("2", hide); ok {
+		t.Fatal("driver of a hidden session only must be unknown")
+	}
+
+	if d, ok := idx.DriverVisible("1", hide); !ok || len(d.Results) != 1 {
+		t.Fatalf("visible driver is missing: %+v", d)
+	}
+
+	if _, ok := idx.Driver("2"); !ok {
+		t.Fatal("Driver without a filter must see everything")
+	}
+
+	// the championship and race weekend ids stored in the file reach the filter
+	write(t, dirs[0], "2020_1_3_10_0_RACE.json", strings.Replace(session("RACE", "monza", "", []lapSpec{{"3", "Carl", "ferrari", 70000, 0}}, "3"), `{`, `{"ChampionshipID":"c1","RaceWeekendID":"w1",`, 1))
+
+	byID := func(_, championshipID, raceWeekendID string) bool {
+		return championshipID == "c1" || raceWeekendID == "w9"
+	}
+
+	if _, ok := idx.DriverVisible("3", byID); ok {
+		t.Fatal("session of a hidden championship must be hidden by its stored id")
+	}
+}

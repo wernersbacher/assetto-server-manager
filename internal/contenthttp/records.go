@@ -26,6 +26,10 @@ const filterServerParam = "filterServer"
 type Records struct {
 	index   *stats.Index
 	servers ServersFunc
+
+	// Hide gives the filter for results of hidden championships and race weekends per request (nil: nothing is
+	// hidden). The resolver sets it.
+	Hide smweb.HideFuncFor
 }
 
 // NewRecords returns the records source. servers may be nil (nothing is attributed to a server).
@@ -52,7 +56,7 @@ func (rs *Records) attributedServers() []ServerDir {
 // filter reads filterServer from the request. It returns the filter and the server id as given. An unknown id matches
 // nothing.
 func (rs *Records) filter(r *http.Request) (stats.Filter, string) {
-	var filter stats.Filter
+	filter := stats.Filter{Hide: rs.hideFunc(r)}
 
 	id := r.URL.Query().Get(filterServerParam)
 	servers := rs.attributedServers()
@@ -165,4 +169,13 @@ func newAPIRecord(rs *Records, servers []ServerDir, record stats.Record, prettyC
 	}
 
 	return out
+}
+
+// hideFunc is the filter for results of hidden championships and race weekends for the request.
+func (rs *Records) hideFunc(r *http.Request) smresults.HideFunc {
+	if rs == nil {
+		return nil
+	}
+
+	return rs.Hide.For(r)
 }

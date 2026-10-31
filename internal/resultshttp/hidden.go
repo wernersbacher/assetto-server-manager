@@ -160,3 +160,19 @@ func (rh *ResultsHandler) denyHiddenResult(w http.ResponseWriter, r *http.Reques
 
 	return true
 }
+
+// HideFuncFor returns the provider of the results filter of a request for handlers of other packages. If the hidden
+// entries cannot be determined everything is hidden from requesters who may not see hidden entries.
+func HideFuncFor(store smstore.Store) smweb.HideFuncFor {
+	return func(r *http.Request) smresults.HideFunc {
+		hidden, err := NewHiddenResultsFor(r, store)
+
+		if err != nil {
+			logHiddenError(err)
+
+			return func(string, string, string) bool { return true }
+		}
+
+		return hidden.HideFunc()
+	}
+}

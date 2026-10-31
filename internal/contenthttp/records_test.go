@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-chi/chi"
 
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -196,5 +197,34 @@ func TestRecordRowsServerBadge(t *testing.T) {
 
 	if len(none.rows(none.forTrack("barbagallo", "", stats.Filter{}))) != 0 || len(none.forCar("x", stats.Filter{})) != 0 {
 		t.Fatal("a nil Records has no records")
+	}
+}
+
+func TestHiddenResultsAreFilteredFromRecordsAndResults(t *testing.T) {
+	th, rs, cleanup := recordsSetup(t)
+	defer cleanup()
+
+	rs.Hide = func(*http.Request) smresults.HideFunc {
+		return func(string, string, string) bool { return true }
+	}
+
+	_, all := getRecords(t, th, "/api/track-records?track=barbagallo")
+
+	if len(all.Records) != 0 {
+		t.Fatalf("records of hidden results are exposed: %+v", all.Records)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+
+	results, err := th.resultsForLayout("barbagallo", "", rs.hideFunc(req))
+
+	if err != nil || len(results) != 0 {
+		t.Fatalf("hidden results listed for the layout: %v %v", len(results), err)
+	}
+
+	rs.Hide = nil
+
+	if results, err := th.resultsForLayout("barbagallo", "", rs.hideFunc(req)); err != nil || len(results) == 0 {
+		t.Fatalf("results must be listed without a filter: %v %v", len(results), err)
 	}
 }

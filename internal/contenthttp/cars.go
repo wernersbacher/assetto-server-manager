@@ -342,7 +342,7 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string, r *http.Request
 		return nil, err
 	}
 
-	results, err := ch.resultsForCar(carName)
+	results, err := ch.resultsForCar(carName, ch.records.hideFunc(r))
 
 	if err != nil {
 		return nil, err
@@ -373,7 +373,7 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string, r *http.Request
 }
 
 // resultsForCar finds results for a given car.
-func (ch *CarsHandler) resultsForCar(car string) ([]smresults.SessionResults, error) {
+func (ch *CarsHandler) resultsForCar(car string, hide smresults.HideFunc) ([]smresults.SessionResults, error) {
 	results, err := ch.env.Results().ListAll()
 
 	if err != nil {
@@ -383,6 +383,10 @@ func (ch *CarsHandler) resultsForCar(car string) ([]smresults.SessionResults, er
 	var out []smresults.SessionResults
 
 	for _, result := range results {
+		if hide != nil && hide(result.SessionFile, result.ChampionshipID, result.RaceWeekendID) {
+			continue
+		}
+
 		hasCar := false
 
 		for _, driver := range result.Result {

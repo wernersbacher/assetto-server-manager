@@ -4,6 +4,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 // Filter narrows down the laps and sessions a query looks at. Empty fields do not filter.
@@ -12,6 +14,9 @@ type Filter struct {
 	Since        time.Time // sessions from this date on
 	SessionTypes []string  // e.g. "practice", "qualify", "race" (case-insensitive; "race" includes RACEx2)
 	Dir          string    // results directory (server slot), as reported in Record.Dir
+
+	// Hide, if set, excludes the sessions it returns true for (results of hidden championships and race weekends).
+	Hide results.HideFunc
 
 	// PerCar makes Leaderboard list the best lap of every driver and car instead of one per driver.
 	PerCar bool
@@ -32,9 +37,14 @@ func (f Filter) matchesCar(model string) bool {
 }
 
 func (f Filter) matchesFile(s *fileStats) bool {
-	return (f.Dir == "" || cleanDir(f.Dir) == cleanDir(s.dir)) &&
+	return !f.hides(s) &&
+		(f.Dir == "" || cleanDir(f.Dir) == cleanDir(s.dir)) &&
 		(f.Since.IsZero() || !s.date.Before(f.Since)) &&
 		sessionTypeMatches(s.sessionType, f.SessionTypes)
+}
+
+func (f Filter) hides(s *fileStats) bool {
+	return f.Hide != nil && f.Hide(s.name, s.championshipID, s.raceWeekendID)
 }
 
 func cleanDir(dir string) string {
@@ -300,6 +310,12 @@ type DriverStats struct {
 
 // Driver returns the statistics of the driver with the GUID. ok is false if the driver is not in any results.
 func (i *Index) Driver(guid string) (*DriverStats, bool) {
+	return i.DriverVisible(guid, nil)
+}
+
+// DriverVisible is Driver without the sessions hide (may be nil) returns true for. A driver who only appears in
+// hidden sessions is unknown.
+func (i *Index) DriverVisible(guid string, hide results.HideFunc) (*DriverStats, bool) {
 	if guid == "" {
 		return nil, false
 	}
@@ -307,7 +323,7 @@ func (i *Index) Driver(guid string) (*DriverStats, bool) {
 	var files []*fileStats
 
 	for _, s := range i.snapshot() {
-		if _, ok := s.drivers[guid]; ok {
+		if _, ok := s.drivers[guid]; ok && !(Filter{Hide: hide}).hides(s) {
 			files = append(files, s)
 		}
 	}
