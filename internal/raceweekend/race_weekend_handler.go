@@ -15,6 +15,7 @@ import (
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
@@ -229,6 +230,22 @@ func (rwh *RaceWeekendHandler) SubmitSessionConfiguration(w http.ResponseWriter,
 	}
 
 	raceWeekend, session, edited, err := rwm.SaveRaceWeekendSession(r)
+
+	var validationErrors smrace.ValidationErrors
+
+	if errors.As(err, &validationErrors) {
+		opts, err := rwm.BuildRaceWeekendSessionOptsFromSubmission(r, validationErrors)
+
+		if err != nil {
+			logrus.WithError(err).Errorf("couldn't build race weekend session form with errors")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		rwh.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", opts)
+		return
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build race weekend session")

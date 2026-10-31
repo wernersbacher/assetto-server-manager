@@ -201,3 +201,27 @@ func TestSetupCustomRaceInvalidScheduleDate(t *testing.T) {
 		t.Fatalf("the race must not be saved with a bad date, got %d", len(races))
 	}
 }
+
+func TestValidateEventSetup(t *testing.T) {
+	config := serverconfig.ConfigIniDefault().CurrentRaceConfig
+	config.Track = "monza"
+	config.Cars = "" // comes from the championship or race weekend
+
+	if errs := ValidateEventSetup(&config); len(errs) != 0 {
+		t.Fatalf("a valid event setup without cars must pass, got %v", errs)
+	}
+
+	config.Track = ""
+	config.MaxClients = 0
+
+	errs := ValidateEventSetup(&config)
+	fields := map[string]bool{}
+
+	for _, e := range errs {
+		fields[e.Field] = true
+	}
+
+	if !fields["Track"] || !fields["MaxClients"] || fields["Cars"] || fields["CustomRaceName"] {
+		t.Fatalf("unexpected fields: %v", errs)
+	}
+}

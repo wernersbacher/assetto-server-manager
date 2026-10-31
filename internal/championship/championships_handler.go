@@ -3,6 +3,7 @@ package championship
 import (
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/steam"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -457,6 +458,22 @@ func (ch *ChampionshipsHandler) SubmitEventConfiguration(w http.ResponseWriter, 
 	}
 
 	championship, event, edited, err := cm.SaveChampionshipEvent(r)
+
+	var validationErrors smrace.ValidationErrors
+
+	if errors.As(err, &validationErrors) {
+		opts, err := cm.BuildChampionshipEventOptsFromSubmission(r, validationErrors)
+
+		if err != nil {
+			logrus.WithError(err).Errorf("couldn't build championship event form with errors")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		ch.ViewRenderer.MustLoadTemplate(w, r, "custom-race/new.html", opts)
+		return
+	}
 
 	if err != nil {
 		logrus.WithError(err).Errorf("couldn't build championship race")

@@ -1,13 +1,20 @@
 package raceweekend
 
 import (
+	"context"
+	"errors"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
@@ -23,6 +30,8 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
 
 // The tests of the race weekend manager need a championship manager. They are temporarily duplicating the test
@@ -255,4 +264,49 @@ func TestRaceWeekendManager_DeScheduleSessionStopsReminders(t *testing.T) {
 
 func testEnv(installPath string) *serverenv.Env {
 	return envtest.New(installPath)
+}
+
+func TestRaceWeekendManager_SaveRaceWeekendSessionInvalidForm(t *testing.T) {
+	slots, store := newTestSlots(t, smmodel.ServerID("a"))
+	manager := slots["a"].manager
+
+	raceWeekend, _ := newSlotTestRaceWeekend(t, store)
+	sessionCount := len(raceWeekend.Sessions)
+
+	values := url.Values{"Track": {""}, "MaxClients": {"12"}, "SessionType": {"Race"}, "Race.Enabled": {"1"}, "Race.Laps": {"3"}}
+
+	newRequest := func() *http.Request {
+		r := httptest.NewRequest(http.MethodPost, "/race-weekend/x/session/submit", strings.NewReader(values.Encode()))
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("raceWeekendID", raceWeekend.ID.String())
+
+		return smweb.WithScope(r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx)), webtest.RequestScope())
+	}
+
+	_, _, _, err := manager.SaveRaceWeekendSession(newRequest())
+
+	var validationErrors smrace.ValidationErrors
+
+	if !errors.As(err, &validationErrors) || validationErrors[0].Field != "Track" {
+		t.Fatalf("expected a track error, got %v", err)
+	}
+
+	if loaded, _ := store.LoadRaceWeekend(raceWeekend.ID.String()); len(loaded.Sessions) != sessionCount {
+		t.Fatal("an invalid session must not be saved")
+	}
+
+	r := newRequest()
+	_ = r.ParseForm()
+
+	opts, err := manager.BuildRaceWeekendSessionOptsFromSubmission(r, validationErrors)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !opts.IsRaceWeekend || len(opts.FormErrors) != len(validationErrors) || opts.Current.MaxClients != 12 {
+		t.Fatalf("form input was not kept: %+v", opts)
+	}
 }

@@ -239,6 +239,13 @@ func (rm *RaceManager) BuildRaceOptsFromSubmission(r *http.Request, errs Validat
 		return nil, err
 	}
 
+	return opts, rm.ApplySubmission(r, opts, errs)
+}
+
+// ApplySubmission replaces the values of opts (built for the page the form was submitted from, so the championship
+// or race weekend context stays) with the input of a submitted, invalid form and sets the errors. The cars of opts
+// are kept if the form has none, because championship events and race weekend sessions do not submit them.
+func (rm *RaceManager) ApplySubmission(r *http.Request, opts *RaceTemplateVars, errs ValidationErrors) error {
 	opts.FormErrors = errs
 	opts.EditingID = r.FormValue("Editing")
 	opts.IsEditing = opts.EditingID != ""
@@ -252,7 +259,11 @@ func (rm *RaceManager) BuildRaceOptsFromSubmission(r *http.Request, errs Validat
 	raceConfig, err := rm.BuildCustomRaceFromForm(r)
 
 	if err != nil {
-		return opts, nil
+		return nil
+	}
+
+	if raceConfig.Cars == "" {
+		raceConfig.Cars = opts.Current.Cars
 	}
 
 	opts.Current = *raceConfig
@@ -263,9 +274,5 @@ func (rm *RaceManager) BuildRaceOptsFromSubmission(r *http.Request, errs Validat
 		}
 	}
 
-	if err := rm.ApplyCurrentRaceSetupToOptions(opts, opts.Current); err != nil {
-		return nil, err
-	}
-
-	return opts, nil
+	return rm.ApplyCurrentRaceSetupToOptions(opts, opts.Current)
 }

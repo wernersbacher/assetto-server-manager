@@ -63,6 +63,15 @@ func newTestSlots(t *testing.T, ids ...smmodel.ServerID) (map[smmodel.ServerID]*
 		config := &smconfig.Configuration{}
 		notifications := &notificationtest.Dummy{}
 		carManager := smcontent.NewCarManager(installPath, false, false)
+		for _, sub := range []string{"cars", "tracks", "weather", "setups"} {
+			_ = os.MkdirAll(filepath.Join(installPath, "content", sub), 0755)
+		}
+
+		t.Cleanup(func() { _ = carManager.CloseSearchIndex() })
+
+		if err := carManager.CreateOrOpenSearchIndex(); err != nil {
+			t.Fatal(err)
+		}
 
 		raceManager := smrace.NewRaceManager(
 			config,

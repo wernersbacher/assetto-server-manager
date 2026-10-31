@@ -120,6 +120,21 @@ func ValidateCustomRace(config *serverconfig.CurrentRaceConfig, entryList server
 	return errs
 }
 
+// ValidateEventSetup checks the race config of a championship event or race weekend session. The cars come from
+// the championship or race weekend and the entry list and name are not part of the form, so only the
+// track, sessions and server settings are checked.
+func ValidateEventSetup(config *serverconfig.CurrentRaceConfig) ValidationErrors {
+	var errs ValidationErrors
+
+	for _, e := range ValidateCustomRace(config, nil, url.Values{}) {
+		if e.Field != "Cars" {
+			errs = append(errs, e)
+		}
+	}
+
+	return errs
+}
+
 // validateQuickRace checks the fields of the quick race form. The parse errors belong to the numbers next to them.
 func validateQuickRace(cars []string, qualifyingTime int64, qualifyingErr error, raceTime int64, raceTimeErr error, raceLaps int64, raceLapsErr error) ValidationErrors {
 	var errs ValidationErrors

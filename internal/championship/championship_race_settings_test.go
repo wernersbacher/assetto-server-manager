@@ -3,10 +3,14 @@ package championship
 import (
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -379,6 +383,7 @@ func TestChampionshipManager_SaveChampionshipEventSavesFlag(t *testing.T) {
 		values.Set("Race.Enabled", "1")
 		values.Set("Race.Laps", "3")
 		values.Set("FuelRate", "10")
+		values.Set("MaxClients", "10")
 
 		r := httptest.NewRequest(http.MethodPost, "/championship/x/event/submit", strings.NewReader(values.Encode()))
 		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -456,5 +461,57 @@ func TestChampionship_EffectiveRaceWeekendSessionSetup(t *testing.T) {
 
 	if got := none.EffectiveRaceWeekendSessionSetup(raceWeekendID, raw); !reflect.DeepEqual(got, raw) {
 		t.Error("no championship must not change the config")
+	}
+}
+
+func TestChampionshipManager_SaveChampionshipEventInvalidForm(t *testing.T) {
+	cm, store, cleanup := setupScheduledEventTest(t, &servertest.Interruptible{})
+	defer cleanup()
+
+	if err := os.MkdirAll(filepath.Join(cm.env.InstallPath(), "content", "cars"), 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	championship := smmodel.NewChampionship("Invalid")
+
+	if err := store.UpsertChampionship(championship); err != nil {
+		t.Fatal(err)
+	}
+
+	values := url.Values{"Track": {""}, "MaxClients": {"12"}, "Race.Enabled": {"1"}, "Race.Laps": {"3"}}
+
+	newRequest := func() *http.Request {
+		r := httptest.NewRequest(http.MethodPost, "/championship/x/event/submit", strings.NewReader(values.Encode()))
+		r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("championshipID", championship.ID.String())
+
+		return smweb.WithScope(r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx)), webtest.RequestScope())
+	}
+
+	_, _, _, err := cm.SaveChampionshipEvent(newRequest())
+
+	var validationErrors smrace.ValidationErrors
+
+	if !errors.As(err, &validationErrors) || validationErrors[0].Field != "Track" {
+		t.Fatalf("expected a track error, got %v", err)
+	}
+
+	if loaded, _ := store.LoadChampionship(championship.ID.String()); len(loaded.Events) != 0 {
+		t.Fatal("an invalid event must not be saved")
+	}
+
+	r := newRequest()
+	_ = r.ParseForm()
+
+	opts, err := cm.BuildChampionshipEventOptsFromSubmission(r, validationErrors)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !opts.IsChampionship || len(opts.FormErrors) != len(validationErrors) || opts.Current.MaxClients != 12 {
+		t.Fatalf("form input was not kept: %+v", opts)
 	}
 }

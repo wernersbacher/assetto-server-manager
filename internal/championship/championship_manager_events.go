@@ -94,6 +94,17 @@ func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*smr
 	return opts, nil
 }
 
+// BuildChampionshipEventOptsFromSubmission builds the event form from a submitted, invalid form.
+func (cm *ChampionshipManager) BuildChampionshipEventOptsFromSubmission(r *http.Request, errs smrace.ValidationErrors) (*smrace.RaceTemplateVars, error) {
+	opts, err := cm.BuildChampionshipEventOpts(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return opts, cm.ApplySubmission(r, opts, errs)
+}
+
 func (cm *ChampionshipManager) SaveChampionshipEvent(r *http.Request) (championship *smmodel.Championship, event *smmodel.ChampionshipEvent, edited bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, nil, false, err
@@ -112,6 +123,10 @@ func (cm *ChampionshipManager) SaveChampionshipEvent(r *http.Request) (champions
 	}
 
 	raceConfig.Cars = strings.Join(championship.ValidCarIDs(), ";")
+
+	if errs := smrace.ValidateEventSetup(raceConfig); len(errs) > 0 {
+		return nil, nil, false, errs
+	}
 
 	entryList, err := cm.BuildEntryList(r, 0, len(r.Form["EntryList.Name"]))
 

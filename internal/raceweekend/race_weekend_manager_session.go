@@ -109,6 +109,17 @@ func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*sm
 	return opts, nil
 }
 
+// BuildRaceWeekendSessionOptsFromSubmission builds the session form from a submitted, invalid form.
+func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOptsFromSubmission(r *http.Request, errs smrace.ValidationErrors) (*smrace.RaceTemplateVars, error) {
+	opts, err := rwm.BuildRaceWeekendSessionOpts(r)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return opts, rwm.raceManager.ApplySubmission(r, opts, errs)
+}
+
 func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeekend *smmodel.RaceWeekend, session *smmodel.RaceWeekendSession, edited bool, err error) {
 	if err := r.ParseForm(); err != nil {
 		return nil, nil, edited, err
@@ -135,6 +146,10 @@ func (rwm *RaceWeekendManager) SaveRaceWeekendSession(r *http.Request) (raceWeek
 		if session.String() != activeSession {
 			delete(raceConfig.Sessions, session)
 		}
+	}
+
+	if errs := smrace.ValidateEventSetup(raceConfig); len(errs) > 0 {
+		return nil, nil, edited, errs
 	}
 
 	if sessionID := r.FormValue("Editing"); sessionID != "" {
