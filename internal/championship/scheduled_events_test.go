@@ -1,19 +1,19 @@
 package championship
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/notification/notificationtest"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	racecontrol "github.com/wernersbacher/ACPitwall/internal/racecontrol"
+	"github.com/wernersbacher/ACPitwall/internal/reminder"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 
 	"io/ioutil"
 	"os"
@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 // setupScheduledEventTest builds a ChampionshipManager on top of a temporary store and fake server install.

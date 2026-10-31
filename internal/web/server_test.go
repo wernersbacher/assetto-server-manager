@@ -11,8 +11,8 @@ import (
 
 	"github.com/cj123/sessions"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // serve sends a request through the server selection middleware and returns the slot the handler saw, or the status

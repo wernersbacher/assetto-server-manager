@@ -12,11 +12,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 type RaceWeekendHandler struct {

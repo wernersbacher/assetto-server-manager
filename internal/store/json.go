@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
 )
 
 const (

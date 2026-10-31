@@ -1,6 +1,6 @@
 package results
 
-import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+import "github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 
 // Combine merges results of the same track and session type into one.
 func Combine(results []*SessionResults) *SessionResults {

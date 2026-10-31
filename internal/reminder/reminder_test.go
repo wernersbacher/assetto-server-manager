@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 func TestReminderTimers(t *testing.T) {

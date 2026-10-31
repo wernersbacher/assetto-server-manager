@@ -1,6 +1,6 @@
 package results
 
-import "github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+import "github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 
 // AssignEntrantFromResult sets the entrant's properties from a session result and car.
 func AssignEntrantFromResult(e *serverconfig.Entrant, result *SessionResult, car *SessionCar) {

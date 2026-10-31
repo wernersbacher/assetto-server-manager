@@ -1,19 +1,19 @@
 package raceweekend
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/notification"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/notification"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	"github.com/wernersbacher/ACPitwall/internal/reminder"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 
 	"encoding/json"
 	"net/http"
@@ -21,7 +21,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 type RaceWeekendManager struct {

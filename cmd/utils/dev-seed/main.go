@@ -6,7 +6,7 @@
 package main
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 
 	"flag"
 	"fmt"
@@ -17,10 +17,10 @@ import (
 	"strings"
 	"time"
 
-	servermanager "github.com/wernersbacher/assetto-server-manager"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	servermanager "github.com/wernersbacher/ACPitwall"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 
 	"github.com/etcd-io/bbolt"
 )

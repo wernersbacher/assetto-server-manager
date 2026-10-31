@@ -5,7 +5,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 // CanInterruptForSchedule decides if a scheduled start may end the event which currently runs on the server. It may

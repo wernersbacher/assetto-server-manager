@@ -11,9 +11,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // The championship API exposes the information that is publicly visible on the championship pages (events,

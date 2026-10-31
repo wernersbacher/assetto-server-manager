@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 // NewChampionship creates a Championship with a given name, creating a UUID for the championship as well.

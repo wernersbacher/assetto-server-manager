@@ -5,13 +5,13 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 // The server status API exposes what the live timing page shows about the running event (track, session and the

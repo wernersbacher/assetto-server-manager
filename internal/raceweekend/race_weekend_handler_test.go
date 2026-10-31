@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 func TestRaceWeekendListSplit(t *testing.T) {

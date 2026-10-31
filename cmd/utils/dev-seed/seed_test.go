@@ -1,7 +1,7 @@
 package main
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 
 	"bytes"
 	"io/ioutil"
@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 const testConfig = `

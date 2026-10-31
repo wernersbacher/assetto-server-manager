@@ -11,10 +11,10 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 )
 
 func setupResultsAPITest(t *testing.T) func() {

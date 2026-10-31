@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 // TrackSummaryFunc returns the display name of a track and layout.

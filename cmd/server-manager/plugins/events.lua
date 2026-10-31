@@ -7,7 +7,7 @@ local contentPath = "./assetto/content" -- depends on assetto server location
 
 -- these are lua hooks related to the manager itself, for help please view lua_readme.md!
 -- there are some example functions here to give you an idea of what is possible, feel free to write your own!
--- if you do and think other people would be interested in them consider making a pull request at https://github.com/wernersbacher/assetto-server-manager
+-- if you do and think other people would be interested in them consider making a pull request at https://github.com/wernersbacher/ACPitwall
 
 -- called when any event (including championships/race weekends) is started (for championships this is called AFTER onChampionshipEventStart)
 function onEventStart(encodedRaceConfig, encodedServerOpts, encodedEntryList)

@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
+	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
 
 	"golang.org/x/net/publicsuffix"
 )

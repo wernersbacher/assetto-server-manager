@@ -5,9 +5,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 // Slot is the part of a server slot the live timing handlers work with.

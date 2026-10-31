@@ -10,11 +10,11 @@ import (
 
 	"github.com/cj123/ini"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 )
 
 type FilterError string

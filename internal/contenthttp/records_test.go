@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	"github.com/wernersbacher/assetto-server-manager/internal/stats"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // recordsSetup places a race on server a and a qualifying on server b (both barbagallo).

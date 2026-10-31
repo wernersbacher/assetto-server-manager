@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
 )
 
 func serverOptions(udp, tcp, http int) *serverconfig.GlobalServerConfig {

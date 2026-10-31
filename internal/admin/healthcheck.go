@@ -9,10 +9,10 @@ import (
 	"runtime"
 	"time"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	"github.com/wernersbacher/assetto-server-manager/internal/steam"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/steam"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 var LaunchTime = time.Now()

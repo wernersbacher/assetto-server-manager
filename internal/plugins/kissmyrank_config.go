@@ -7,7 +7,7 @@ import (
 
 	"github.com/cj123/formulate"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/formfields"
+	"github.com/wernersbacher/ACPitwall/internal/formfields"
 )
 
 func DefaultKissMyRankConfig() *KissMyRankConfig {

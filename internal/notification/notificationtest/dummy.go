@@ -5,8 +5,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // Dummy is a notification dispatcher which does nothing and has no reminders configured.

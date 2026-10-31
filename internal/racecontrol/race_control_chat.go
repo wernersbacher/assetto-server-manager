@@ -5,9 +5,9 @@ import (
 
 	"github.com/mitchellh/go-wordwrap"
 	"github.com/sirupsen/logrus"
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 	lua "github.com/yuin/gopher-lua"
 )
 

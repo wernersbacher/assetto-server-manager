@@ -1,12 +1,12 @@
 package server
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"bytes"
 	"context"
@@ -24,13 +24,13 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 
 	"github.com/google/uuid"
 	"github.com/jaytaylor/html2text"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 const (

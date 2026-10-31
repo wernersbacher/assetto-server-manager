@@ -1,7 +1,7 @@
 package main
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 
 	"crypto/tls"
 	"net"
@@ -12,14 +12,14 @@ import (
 	"strconv"
 	"strings"
 
-	servermanager "github.com/wernersbacher/assetto-server-manager"
-	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/static"
-	"github.com/wernersbacher/assetto-server-manager/cmd/server-manager/views"
-	"github.com/wernersbacher/assetto-server-manager/internal/changelog"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/internal/steam"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	servermanager "github.com/wernersbacher/ACPitwall"
+	"github.com/wernersbacher/ACPitwall/cmd/server-manager/static"
+	"github.com/wernersbacher/ACPitwall/cmd/server-manager/views"
+	"github.com/wernersbacher/ACPitwall/internal/changelog"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/steam"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"

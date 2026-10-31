@@ -3,9 +3,9 @@ package admin
 import (
 	"testing"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 func TestServerDetailsListsPortsPluginsAndWarnings(t *testing.T) {

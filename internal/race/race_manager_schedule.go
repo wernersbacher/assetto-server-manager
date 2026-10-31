@@ -5,10 +5,10 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 func (rm *RaceManager) ScheduleRace(uuid string, date time.Time, action string, recurrence string) error {

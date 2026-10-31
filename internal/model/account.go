@@ -137,5 +137,5 @@ const (
 func init() {
 	// Register the Account struct with gob so that it can be stored in a session. The name is the one the type had
 	// when it lived in the root package, so that already stored sessions can still be decoded.
-	gob.RegisterName("github.com/wernersbacher/assetto-server-manager.Account", Account{})
+	gob.RegisterName("github.com/wernersbacher/ACPitwall.Account", Account{})
 }

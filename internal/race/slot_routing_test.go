@@ -12,15 +12,15 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
-	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/notification/notificationtest"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
 
 type testSlot struct {

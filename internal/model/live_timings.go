@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 type CollisionType string

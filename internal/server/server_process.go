@@ -1,13 +1,13 @@
 package server
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"bytes"
 	"context"
@@ -26,7 +26,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 const MaxLogSizeBytes = 1e6

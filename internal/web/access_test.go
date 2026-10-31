@@ -6,7 +6,7 @@ import (
 
 	"github.com/cj123/sessions"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 func TestReadAccess(t *testing.T) {

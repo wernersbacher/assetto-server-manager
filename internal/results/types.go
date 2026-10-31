@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 type SessionResult struct {

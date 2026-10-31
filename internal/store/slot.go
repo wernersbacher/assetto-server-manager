@@ -1,9 +1,9 @@
 package store
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
 )
 
 // slotStore is a Store whose server options, plugin options, live timings and last race event are those of one server

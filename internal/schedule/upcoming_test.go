@@ -1,13 +1,13 @@
 package schedule
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"encoding/json"
 	"io/ioutil"

@@ -26,7 +26,7 @@ This is a runbook from zero (fresh Linux VPS or a local Windows machine). Run al
 ## 2. Get the code and build the image
 
 ```bash
-git clone https://github.com/wernersbacher/assetto-server-manager.git
+git clone https://github.com/wernersbacher/ACPitwall.git
 cd assetto-server-manager/deploy/multiserver
 docker compose build
 ```

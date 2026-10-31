@@ -12,11 +12,11 @@ import (
 
 	"github.com/go-chi/chi"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
-	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
 
 // twoServers sets up two server slots: "a" holds a race and a qualifying, "b" a practice session.

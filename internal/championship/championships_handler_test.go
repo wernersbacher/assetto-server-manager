@@ -8,12 +8,12 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
-	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
 
 func TestChampionshipsHandler_ModifyEntrantStatus_AcceptIntoFullChampionship(t *testing.T) {

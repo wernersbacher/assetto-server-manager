@@ -23,7 +23,7 @@ A web interface to manage an Assetto Corsa Server.
 
 ### Manual
 
-1. Download the latest release from the [releases page](https://github.com/wernersbacher/assetto-server-manager/releases)
+1. Download the latest release from the [releases page](https://github.com/wernersbacher/ACPitwall/releases)
 2. Extract the release
 3. Edit the config.yml to suit your preferences
 4. Either:
@@ -44,7 +44,7 @@ content, AC server installed once via steamcmd) see [Several servers](#several-s
 **Note**: if you are using a directory volume for the server install (as is shown below), be sure to make 
 the directory before running `docker-compose up` - otherwise its permissions may be incorrect. 
 
-You will need a [config.yml](https://github.com/wernersbacher/assetto-server-manager/blob/master/cmd/server-manager/config.example.yml) file to mount into the docker container.
+You will need a [config.yml](https://github.com/wernersbacher/ACPitwall/blob/master/cmd/server-manager/config.example.yml) file to mount into the docker container.
 
 An example docker-compose.yml looks like this:
 
@@ -121,7 +121,7 @@ Also, we recommend installing Sol locally and uploading your Sol weather files t
 Follow the steps below to update Server Manager:
 
 1. Back up your current Server Manager database and config.yml.
-2. Download the [latest version of Server Manager](https://github.com/wernersbacher/assetto-server-manager/releases)
+2. Download the [latest version of Server Manager](https://github.com/wernersbacher/ACPitwall/releases)
 3. Extract the zip file.
 4. Open the Changelog, read the entries between your current version and the new version. 
    There may be configuration changes that you need to make!
@@ -236,4 +236,4 @@ inspiration and reference on understanding the AC configuration files
 
 ## Screenshots
 
-Check out the [screenshots folder](https://github.com/wernersbacher/assetto-server-manager/tree/master/misc/screenshots)!
+Check out the [screenshots folder](https://github.com/wernersbacher/ACPitwall/tree/master/misc/screenshots)!

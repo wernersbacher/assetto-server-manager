@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 )
 
 // the template functions which wrap methods of the domain types are only called when a page is rendered, so a changed

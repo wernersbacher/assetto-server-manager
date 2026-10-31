@@ -3,8 +3,8 @@ package raceweekend
 import (
 	"fmt"
 
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 type RaceWeekendGridPreview struct {

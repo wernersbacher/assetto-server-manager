@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 // DefaultChampionshipPoints is the Formula 1 points system.

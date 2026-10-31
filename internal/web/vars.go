@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-chi/chi"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 type TemplateVars interface {

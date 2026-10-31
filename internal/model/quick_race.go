@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 type QuickRace struct {

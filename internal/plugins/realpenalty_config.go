@@ -5,7 +5,7 @@ import (
 
 	"github.com/cj123/ini"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/formfields"
+	"github.com/wernersbacher/ACPitwall/internal/formfields"
 )
 
 const (

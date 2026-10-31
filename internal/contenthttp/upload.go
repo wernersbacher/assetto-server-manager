@@ -1,10 +1,10 @@
 package contenthttp
 
 import (
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"encoding/base64"
 	"encoding/json"

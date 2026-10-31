@@ -1,12 +1,12 @@
 package championship
 
 import (
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
-	"github.com/wernersbacher/assetto-server-manager/internal/schedule"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	"github.com/wernersbacher/ACPitwall/internal/reminder"
+	"github.com/wernersbacher/ACPitwall/internal/schedule"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 
 	"fmt"
 	"io"
@@ -15,7 +15,7 @@ import (
 	"github.com/cj123/caldav-go/icalendar"
 	"github.com/cj123/caldav-go/icalendar/components"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 func (cm *ChampionshipManager) ScheduleEvent(championshipID string, eventID string, date time.Time, action string, recurrence string) error {

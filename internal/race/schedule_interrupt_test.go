@@ -9,11 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 	logrustest "github.com/sirupsen/logrus/hooks/test"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/racecontrol"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 func TestCanInterruptForSchedule(t *testing.T) {

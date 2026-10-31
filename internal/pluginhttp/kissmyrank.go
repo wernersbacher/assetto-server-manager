@@ -6,8 +6,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 type kissMyRankConfigurationTemplateVars struct {

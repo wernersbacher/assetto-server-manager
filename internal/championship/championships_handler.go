@@ -1,13 +1,13 @@
 package championship
 
 import (
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/steam"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/steam"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 
 	"encoding/csv"
 	"encoding/json"

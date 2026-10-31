@@ -12,12 +12,12 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	"github.com/wernersbacher/assetto-server-manager/internal/stats"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // driverSetup places a race on server a and a qualifying on server b.

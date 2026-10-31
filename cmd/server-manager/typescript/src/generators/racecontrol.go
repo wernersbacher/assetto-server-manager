@@ -1,4 +1,4 @@
-// this file was automatically generated using struct2ts github.com/wernersbacher/assetto-server-manager.RaceControl
+// this file was automatically generated using struct2ts github.com/wernersbacher/ACPitwall.RaceControl
 // +build ignore
 
 package main
@@ -9,7 +9,7 @@ import (
 	"log"
 	"os"
 
-	servermanager "github.com/wernersbacher/assetto-server-manager"
+	servermanager "github.com/wernersbacher/ACPitwall"
 	"github.com/OneOfOne/struct2ts"
 )
 

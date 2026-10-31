@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ManagerFor returns the championship manager of the server slot a request is for. The resolver provides it, as the

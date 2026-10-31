@@ -8,16 +8,16 @@ import (
 	"fmt"
 	"path/filepath"
 
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	"github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	"github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	"github.com/wernersbacher/ACPitwall/internal/racecontrol"
+	smraceweekend "github.com/wernersbacher/ACPitwall/internal/raceweekend"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 // Slot is one Assetto Corsa server and its runtime stack. NewRegistry fills the configuration and the Env; the

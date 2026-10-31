@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 )
 
 func TestRemoveWeatherPreset(t *testing.T) {

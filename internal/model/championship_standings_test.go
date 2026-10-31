@@ -3,7 +3,7 @@ package model
 import (
 	"testing"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 func TestChampionshipClass_Standings_ResultsWithoutLaps(t *testing.T) {

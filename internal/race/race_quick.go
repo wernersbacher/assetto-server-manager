@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/sirupsen/logrus"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 type QuickRaceHandler struct {

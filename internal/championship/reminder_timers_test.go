@@ -1,14 +1,14 @@
 package championship
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
-	"github.com/wernersbacher/assetto-server-manager/internal/reminder"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/internal/notification/notificationtest"
+	"github.com/wernersbacher/ACPitwall/internal/reminder"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
 
 	"testing"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 // reminderNotificationManager has notification reminders configured.

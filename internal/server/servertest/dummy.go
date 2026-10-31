@@ -2,8 +2,8 @@
 package servertest
 
 import (
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 // Dummy is a server process which is always running, an active championship, and does nothing.

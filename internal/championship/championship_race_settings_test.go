@@ -1,10 +1,10 @@
 package championship
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 
 	"context"
 	"net/http"

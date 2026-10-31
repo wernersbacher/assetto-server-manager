@@ -10,7 +10,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 // DefaultRefreshInterval is the minimum time between two scans of the results directories done by queries.

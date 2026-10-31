@@ -13,7 +13,7 @@ import (
 
 	"github.com/cj123/sessions"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // ServerParam is the query or form parameter which selects the server slot a request is for.

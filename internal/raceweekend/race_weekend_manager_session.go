@@ -14,12 +14,12 @@ import (
 	"github.com/google/uuid"
 	"github.com/mattn/go-zglob"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 func (rwm *RaceWeekendManager) BuildRaceWeekendSessionOpts(r *http.Request) (*smrace.RaceTemplateVars, error) {

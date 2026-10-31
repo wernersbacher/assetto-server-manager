@@ -9,7 +9,7 @@ import (
 	"sort"
 	"testing"
 
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 func writeResultsFixtures(t *testing.T, resultsDir string, names ...string) {

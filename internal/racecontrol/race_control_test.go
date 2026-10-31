@@ -1,18 +1,18 @@
 package racecontrol
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 
 	"math/rand"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 var testStore, removeTestStore = envtest.TempJSONStore()

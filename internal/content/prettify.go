@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 var nameRegex = regexp.MustCompile(`^[A-Za-z]{0,5}[0-9]+`)

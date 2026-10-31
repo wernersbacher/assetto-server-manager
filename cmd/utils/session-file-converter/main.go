@@ -9,7 +9,7 @@ import (
 
 	"github.com/etcd-io/bbolt"
 	"github.com/google/uuid"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp/replay"
+	"github.com/wernersbacher/ACPitwall/pkg/udp/replay"
 )
 
 var filename string

@@ -5,10 +5,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/stats"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ServerDir is a server slot together with its results directory.

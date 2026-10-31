@@ -1,7 +1,7 @@
 package servermanager
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/web/webtest"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,15 +11,15 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/admin"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/internal/servers"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/internal/admin"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/servers"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 func newTestResolver(t *testing.T, config *smconfig.Configuration) (*Resolver, smstore.Store, func()) {

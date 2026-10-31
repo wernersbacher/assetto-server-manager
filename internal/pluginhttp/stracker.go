@@ -15,9 +15,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/html"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 type StrackerHandler struct {

@@ -5,13 +5,13 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	"github.com/wernersbacher/ACPitwall/internal/racecontrol"
+	smraceweekend "github.com/wernersbacher/ACPitwall/internal/raceweekend"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 // Slot is the part of a server slot the administration handlers work with.

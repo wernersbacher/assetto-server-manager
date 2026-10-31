@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/etcd-io/bbolt"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 // BuildStore opens the Store configured in StoreConfig and runs migrations. installPath returns the install path of

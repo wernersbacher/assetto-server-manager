@@ -34,7 +34,7 @@ COPY . .
 COPY --from=frontend /src/cmd/server-manager/static/ cmd/server-manager/static/
 RUN go generate ./... && \
     CGO_ENABLED=0 go build -trimpath \
-        -ldflags="-s -w -X github.com/wernersbacher/assetto-server-manager.BuildVersion=${SM_VERSION}" \
+        -ldflags="-s -w -X github.com/wernersbacher/ACPitwall.BuildVersion=${SM_VERSION}" \
         -o /out/server-manager ./cmd/server-manager
 
 # ---------------------------------------------------------------------------------------------------------------------

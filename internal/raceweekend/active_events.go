@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ManagerFor returns the race weekend manager of the server slot a request is for. The resolver provides it, as the

@@ -5,7 +5,7 @@ Hi! Welcome to Assetto Server Manager! We hope you can get it set up OK.
 
 However, if you have any problems, please don't hesitate to ask on GitHub:
 
-GitHub issues: https://github.com/wernersbacher/assetto-server-manager/issues
+GitHub issues: https://github.com/wernersbacher/ACPitwall/issues
 
 
 Right! With that let's begin setting up the server.

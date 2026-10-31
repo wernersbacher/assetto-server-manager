@@ -7,10 +7,10 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/pluginhttp"
-	"github.com/wernersbacher/assetto-server-manager/internal/portcheck"
-	"github.com/wernersbacher/assetto-server-manager/internal/servers"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/pluginhttp"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
+	"github.com/wernersbacher/ACPitwall/internal/servers"
 )
 
 // pluginSlotFor looks up the server slot of a request for the plugin handlers.

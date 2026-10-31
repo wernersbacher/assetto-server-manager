@@ -5,9 +5,9 @@ import (
 	"sync"
 	"time"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
 
 func NewRaceControlDriver(carInfo udp.SessionCarInfo) *smmodel.RaceControlDriver {

@@ -13,8 +13,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 type vec struct {

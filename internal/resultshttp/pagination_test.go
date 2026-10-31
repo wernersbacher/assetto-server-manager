@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 func TestListResultsPagination(t *testing.T) {

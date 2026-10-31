@@ -7,10 +7,10 @@ package serverenv
 import (
 	"path/filepath"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 // Env is the environment of the managers. All fields have to be set, except ResultsDirs.

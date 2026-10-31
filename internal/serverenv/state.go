@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // DefaultInstallPath is the install path before State.SetInstallPath was called.

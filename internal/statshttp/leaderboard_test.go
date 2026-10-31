@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-chi/chi"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/stats"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
 )
 
 func leaderboardSetup(t *testing.T, servers bool) (lh *LeaderboardHandler, track, layout string, cleanup func()) {

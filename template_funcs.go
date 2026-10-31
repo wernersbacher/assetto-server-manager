@@ -1,13 +1,13 @@
 package servermanager
 
 import (
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	"github.com/wernersbacher/assetto-server-manager/internal/contenthttp"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smraceweekend "github.com/wernersbacher/ACPitwall/internal/raceweekend"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 
 	"html/template"
 	"strings"

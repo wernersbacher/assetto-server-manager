@@ -5,8 +5,8 @@ import (
 	"sync"
 
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 func (c *Championship) ClearEntrant(entrantGUID string) {

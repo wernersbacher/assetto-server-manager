@@ -8,10 +8,10 @@ import (
 	"strconv"
 	"strings"
 
-	defaultcontent "github.com/wernersbacher/assetto-server-manager/fixtures/default-content"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	defaultcontent "github.com/wernersbacher/ACPitwall/fixtures/default-content"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"

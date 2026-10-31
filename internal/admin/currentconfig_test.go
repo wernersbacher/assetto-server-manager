@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 )
 
 func tempInstall(t *testing.T) (string, func()) {

@@ -1,8 +1,8 @@
 package servermanager
 
 import (
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	racecontrol "github.com/wernersbacher/ACPitwall/internal/racecontrol"
 
 	glua "github.com/yuin/gopher-lua"
 )

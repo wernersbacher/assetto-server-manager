@@ -2,7 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
 // ChampionshipRaceSettings are race settings which are configured once for a whole Championship instead of on every

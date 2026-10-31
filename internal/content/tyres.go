@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/pkg/acd"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/pkg/acd"
 
 	"github.com/cj123/ini"
 	"github.com/sirupsen/logrus"

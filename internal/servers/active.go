@@ -3,8 +3,8 @@ package servers
 import (
 	"github.com/google/uuid"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // activeEvent returns the event the process of the slot is running, if there is one.

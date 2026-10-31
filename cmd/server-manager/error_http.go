@@ -34,7 +34,7 @@ The error more specifically is: %s
 
 If you need support, please open an issue and copy the above errors into it.
 
-	Issues: https://github.com/wernersbacher/assetto-server-manager/issues
+	Issues: https://github.com/wernersbacher/ACPitwall/issues
 
 `
 

@@ -10,9 +10,9 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // WeatherHandler serves the weather presets.

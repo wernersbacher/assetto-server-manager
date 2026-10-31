@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"path/filepath"
 
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ServerDir is a server slot together with its results directory.

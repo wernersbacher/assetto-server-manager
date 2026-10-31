@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 )
 
 func TestEnvResultsDirs(t *testing.T) {

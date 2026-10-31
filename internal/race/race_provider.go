@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ManagerFor returns the race manager of the server slot a request is for. The resolver provides it, as the handlers

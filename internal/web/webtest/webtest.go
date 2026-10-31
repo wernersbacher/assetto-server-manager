@@ -4,7 +4,7 @@ package webtest
 import (
 	"github.com/cj123/sessions"
 
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // RequestScope returns a request scope with a cookie session store, as the handlers need it to flash messages.

@@ -11,12 +11,12 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/stats"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // Periods the leaderboard can be restricted to.

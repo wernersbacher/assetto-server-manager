@@ -1,7 +1,7 @@
 package content
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
 
 	"errors"
 	"io"

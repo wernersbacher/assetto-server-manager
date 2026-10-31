@@ -1,9 +1,9 @@
 package contenthttp
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"encoding/json"
 	"fmt"
@@ -17,8 +17,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
 // CarsHandler serves the car list, the car details, the car metadata and the skins.

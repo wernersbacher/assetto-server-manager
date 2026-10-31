@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // entryListFormFields are the per-entrant form fields that smrace.RaceManager.BuildEntryList indexes unconditionally.

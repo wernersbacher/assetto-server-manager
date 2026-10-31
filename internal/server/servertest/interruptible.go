@@ -1,7 +1,7 @@
 package servertest
 
 import (
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // Interruptible behaves like the AssettoServerProcess when it comes to starting events: starting an event while

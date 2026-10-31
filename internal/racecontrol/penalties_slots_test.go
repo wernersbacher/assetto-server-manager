@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 )
 
 // The penalties manager holds the Env of the default slot. A penalty for a result which another slot's acServer wrote

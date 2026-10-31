@@ -67,7 +67,7 @@ The root package `servermanager` is only the wiring layer (about 1.6k lines incl
   (`InitWithResolver`: startup, signal handling, scheduled events, last event restart, all per slot), `servermanager_config.go` (`BuildStore`),
   `monitoring.go` (Prometheus, panic capture), `lua.go`. `cmd/server-manager/main.go` only wires config, store,
   migrations, UDP and HTTP together. The root stays the wiring package because `main.go`, `cmd/utils/*` and the
-  `-X github.com/wernersbacher/assetto-server-manager.BuildVersion` ldflags (Makefile, Dockerfile, `dev/run.ps1`)
+  `-X github.com/wernersbacher/ACPitwall.BuildVersion` ldflags (Makefile, Dockerfile, `dev/run.ps1`)
   reference it.
 - **Dependency direction** (roughly bottom to top; a package imports only packages listed before it, no cycles):
   `pkg/*`, `acserver/serverconfig`, `plainname`, `formfields`, `lua`, `results`; `model`, `content`, `plugins`; `store`,

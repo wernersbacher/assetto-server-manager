@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 )
 
 func (cm *ChampionshipManager) BuildChampionshipEventOpts(r *http.Request) (*smrace.RaceTemplateVars, error) {

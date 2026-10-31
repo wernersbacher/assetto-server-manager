@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/pkg/udp"
+	"github.com/wernersbacher/ACPitwall/pkg/udp"
 
 	"github.com/etcd-io/bbolt"
 	"github.com/sirupsen/logrus"

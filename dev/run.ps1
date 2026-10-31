@@ -78,7 +78,7 @@ try {
     $version = 'dev-' + (Get-Date -Format 'yy.MM.dd-HH-mm')
     $out = Join-Path $appDir 'server-manager.exe'
     Invoke-Checked 'Building server-manager' {
-        go build -o $out -ldflags "-X github.com/wernersbacher/assetto-server-manager.BuildVersion=$version" ./cmd/server-manager
+        go build -o $out -ldflags "-X github.com/wernersbacher/ACPitwall.BuildVersion=$version" ./cmd/server-manager
     }
 } finally {
     Pop-Location

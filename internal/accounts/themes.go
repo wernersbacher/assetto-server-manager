@@ -1,6 +1,6 @@
 package accounts
 
-import smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+import smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 
 type themeDetails struct {
 	Theme smmodel.Theme

@@ -13,11 +13,11 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/stats"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ResultsPerPage is the number of results listed on a page of the driver profile.

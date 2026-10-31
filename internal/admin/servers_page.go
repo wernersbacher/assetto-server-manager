@@ -5,8 +5,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/portcheck"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ServerPort is one port a server uses, for the Servers page.

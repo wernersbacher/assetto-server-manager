@@ -10,19 +10,19 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/notification/notificationtest"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	racecontrol "github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	smserver "github.com/wernersbacher/assetto-server-manager/internal/server"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv/envtest"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/notification/notificationtest"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	racecontrol "github.com/wernersbacher/ACPitwall/internal/racecontrol"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 // The tests of the race weekend manager need a championship manager. They are temporarily duplicating the test

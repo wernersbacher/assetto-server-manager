@@ -3,8 +3,8 @@ package statshttp
 import (
 	"strings"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // guidMatches tells if the GUID (which may be several GUIDs of a driver swap, joined) contains the driver's.

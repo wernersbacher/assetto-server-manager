@@ -8,8 +8,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 
 	"github.com/sirupsen/logrus"
 )

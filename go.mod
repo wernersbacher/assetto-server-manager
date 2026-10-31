@@ -1,4 +1,4 @@
-module github.com/wernersbacher/assetto-server-manager
+module github.com/wernersbacher/ACPitwall
 
 require (
 	4d63.com/embedfiles v1.0.0 // indirect

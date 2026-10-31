@@ -1,10 +1,10 @@
 package servermanager
 
 import (
-	smconfig "github.com/wernersbacher/assetto-server-manager/internal/config"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"io/ioutil"
 	"net/http"

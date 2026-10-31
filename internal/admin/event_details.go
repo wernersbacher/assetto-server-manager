@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // EventDetailsHandler renders the popup with the details of a custom race, a championship event or a race weekend

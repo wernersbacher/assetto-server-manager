@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	smlua "github.com/wernersbacher/assetto-server-manager/internal/lua"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	smlua "github.com/wernersbacher/ACPitwall/internal/lua"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 func (rwm *RaceWeekendManager) WatchForScheduledSessions() error {

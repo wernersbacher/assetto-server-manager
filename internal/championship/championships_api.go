@@ -6,8 +6,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 // listAPI returns all championships in the API format.

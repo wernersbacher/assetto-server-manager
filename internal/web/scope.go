@@ -9,7 +9,7 @@ import (
 
 	"github.com/cj123/sessions"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // Scope carries the server wide state which request helpers (sessions, access checks) need. It is attached to every

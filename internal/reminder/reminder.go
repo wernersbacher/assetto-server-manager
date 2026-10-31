@@ -2,7 +2,7 @@
 package reminder
 
 import (
-	"github.com/wernersbacher/assetto-server-manager/pkg/when"
+	"github.com/wernersbacher/ACPitwall/pkg/when"
 )
 
 // Timers holds the notification reminder timers of scheduled events, keyed by event ID. An event has one

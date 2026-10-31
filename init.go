@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/servers"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/servers"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
 func init() {

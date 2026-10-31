@@ -10,12 +10,12 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	"github.com/wernersbacher/assetto-server-manager/internal/plainname"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // TracksHandler serves the track list, the track details, the track metadata and the track previews.

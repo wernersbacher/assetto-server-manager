@@ -3,8 +3,8 @@ package admin
 import (
 	"net/http"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // NamedSlot is a server slot together with how templates refer to it.

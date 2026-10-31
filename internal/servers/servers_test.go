@@ -2,14 +2,14 @@ package servers_test
 
 import (
 	"github.com/google/uuid"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	"github.com/wernersbacher/assetto-server-manager/internal/server/servertest"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/server/servertest"
 	"path/filepath"
 	"testing"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/config"
-	"github.com/wernersbacher/assetto-server-manager/internal/serverenv"
-	"github.com/wernersbacher/assetto-server-manager/internal/servers"
+	"github.com/wernersbacher/ACPitwall/internal/config"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/servers"
 )
 
 func newRegistry(t *testing.T, state *serverenv.State, slots ...config.Slot) *servers.Registry {

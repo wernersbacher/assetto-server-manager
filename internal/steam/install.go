@@ -9,7 +9,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 )
 
 // assettoServerSteamID is the ID of the server on steam.

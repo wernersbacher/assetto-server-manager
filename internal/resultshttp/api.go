@@ -9,11 +9,11 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	"github.com/wernersbacher/assetto-server-manager/internal/api"
-	smcontent "github.com/wernersbacher/assetto-server-manager/internal/content"
-	smresults "github.com/wernersbacher/assetto-server-manager/internal/results"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/api"
+	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // The results API exposes the information that is publicly visible on the results pages (session, track, drivers,

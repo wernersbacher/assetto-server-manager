@@ -9,8 +9,8 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/acserver/serverconfig"
-	smplugins "github.com/wernersbacher/assetto-server-manager/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
 )
 
 // Protocol is the transport protocol of a port. A TCP and a UDP port with the same number do not conflict.

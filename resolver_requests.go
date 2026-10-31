@@ -5,14 +5,14 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/wernersbacher/assetto-server-manager/internal/admin"
-	smchampionship "github.com/wernersbacher/assetto-server-manager/internal/championship"
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smrace "github.com/wernersbacher/assetto-server-manager/internal/race"
-	"github.com/wernersbacher/assetto-server-manager/internal/racecontrol"
-	smraceweekend "github.com/wernersbacher/assetto-server-manager/internal/raceweekend"
-	"github.com/wernersbacher/assetto-server-manager/internal/servers"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/admin"
+	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smrace "github.com/wernersbacher/ACPitwall/internal/race"
+	"github.com/wernersbacher/ACPitwall/internal/racecontrol"
+	smraceweekend "github.com/wernersbacher/ACPitwall/internal/raceweekend"
+	"github.com/wernersbacher/ACPitwall/internal/servers"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // The handler packages cannot import internal/servers, so they get functions which look up the server slot a request

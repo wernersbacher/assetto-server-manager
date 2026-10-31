@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-const modulePath = "github.com/wernersbacher/assetto-server-manager"
+const modulePath = "github.com/wernersbacher/ACPitwall"
 
 // arity is the number of parameters of a template function.
 type arity struct {

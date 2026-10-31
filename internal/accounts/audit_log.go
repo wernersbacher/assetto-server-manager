@@ -7,9 +7,9 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	smmodel "github.com/wernersbacher/assetto-server-manager/internal/model"
-	smstore "github.com/wernersbacher/assetto-server-manager/internal/store"
-	smweb "github.com/wernersbacher/assetto-server-manager/internal/web"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 var ignoredURLs = [5]string{
