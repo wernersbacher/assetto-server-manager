@@ -179,6 +179,8 @@ func Router(
 		// teams: everybody who can read sees the public teams, the actions need a login (checked by the handler,
 		// the permissions inside of a team by the team manager)
 		r.Get("/teams", teamsHandler.List)
+		r.Get("/api/teams", teamsHandler.ListAPI)
+		r.Get("/api/team/{teamID}", teamsHandler.ViewAPI)
 		r.Post("/teams/new", teamsHandler.Create)
 		r.Get("/teams/invite/{token}", teamsHandler.InvitePage)
 		r.Post("/teams/invite/{token}", teamsHandler.AcceptInvite)

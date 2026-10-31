@@ -36,6 +36,7 @@ servers:
   - url: /
 tags:
   - name: Championships
+  - name: Teams
   - name: Results
   - name: Driver statistics
   - name: Server
@@ -113,6 +114,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChampionshipStandings"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/teams:
+    get:
+      tags: [Teams]
+      summary: List the teams
+      description: |
+        The teams the requester may see: all public teams, and private teams for their members and for accounts with
+        write access. Account ids, invites and invite tokens are never part of the API. Teams are shared by all
+        servers. Access: read.
+      operationId: listTeams
+      responses:
+        "200":
+          description: The visible teams, sorted by name.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Team"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+  /api/team/{teamID}:
+    get:
+      tags: [Teams]
+      summary: A single team with its members
+      description: |
+        A private team does not exist (404) for people who are not its members and have no write access, the same
+        as a team that was deleted. Access: read.
+      operationId: getTeam
+      parameters:
+        - name: teamID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The team.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeamDetail"
         "302":
           $ref: "#/components/responses/LoginRedirect"
         "404":
@@ -627,6 +674,47 @@ components:
           type: string
         Name:
           type: string
+    Team:
+      type: object
+      properties:
+        ID:
+          type: string
+          format: uuid
+        Name:
+          type: string
+        URL:
+          type: string
+          description: Optional. Address of the team page, only if the base URL of the server is configured.
+        Visibility:
+          type: string
+          enum: [public, private]
+        MemberCount:
+          type: integer
+        Owner:
+          type: string
+          description: Optional. Driver name (or account name) of the owner.
+    TeamMember:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: Driver name of the account, or its account name if it has none.
+        Role:
+          type: string
+          enum: [owner, admin, member]
+        Joined:
+          type: string
+          format: date-time
+    TeamDetail:
+      description: A team with its members, the owner first, then the admins, then the members in the order they joined.
+      allOf:
+        - $ref: "#/components/schemas/Team"
+        - type: object
+          properties:
+            Members:
+              type: array
+              items:
+                $ref: "#/components/schemas/TeamMember"
     Championship:
       type: object
       properties:

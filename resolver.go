@@ -725,7 +725,7 @@ func (r *Resolver) resolveTeamsHandler() *teams.Handler {
 		return r.teamsHandler
 	}
 
-	r.teamsHandler = teams.NewHandler(r.resolveBaseHandler(), r.resolveTeamManager(), r.store)
+	r.teamsHandler = teams.NewHandler(r.resolveBaseHandler(), r.resolveTeamManager(), r.store, r.config.HTTP.BaseURL)
 
 	return r.teamsHandler
 }

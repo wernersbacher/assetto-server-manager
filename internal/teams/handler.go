@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	"github.com/wernersbacher/ACPitwall/internal/api"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -23,10 +24,13 @@ type Handler struct {
 
 	manager *Manager
 	store   smstore.Store
+
+	// baseURL is the address of the server (config http.base_url), for the links in the API. It may be empty.
+	baseURL string
 }
 
-func NewHandler(baseHandler *smweb.BaseHandler, manager *Manager, store smstore.Store) *Handler {
-	return &Handler{BaseHandler: baseHandler, manager: manager, store: store}
+func NewHandler(baseHandler *smweb.BaseHandler, manager *Manager, store smstore.Store, baseURL string) *Handler {
+	return &Handler{BaseHandler: baseHandler, manager: manager, store: store, baseURL: baseURL}
 }
 
 // actorFor returns who is acting. ok is false for visitors who are not logged in (the dummy account of an open
@@ -311,8 +315,13 @@ func (h *Handler) buildView(actor Actor, loggedIn bool, team *smmodel.Team) (*vi
 		})
 	}
 
+	// owner, admins, members; people of the same role in the order they joined
 	sort.SliceStable(vars.Members, func(i, j int) bool {
-		return roleOrder(vars.Members[i].Role) < roleOrder(vars.Members[j].Role)
+		if a, b := roleOrder(vars.Members[i].Role), roleOrder(vars.Members[j].Role); a != b {
+			return a < b
+		}
+
+		return vars.Members[i].Joined.Before(vars.Members[j].Joined)
 	})
 
 	// only people who manage the team see its invites (the tokens are secret links)
@@ -607,4 +616,64 @@ func (h *Handler) AcceptInvite(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.done(w, r, nil, "You joined the team.", "/teams/"+team.ID.String())
+}
+
+// ListAPI lists the teams the requester may see in the API format.
+func (h *Handler) ListAPI(w http.ResponseWriter, r *http.Request) {
+	actor, _ := actorFor(r)
+
+	teams, err := h.manager.List(actor)
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't list teams")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+
+	names, err := h.accountNames()
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't list accounts")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+
+	out := make([]*api.Team, 0, len(teams))
+
+	for _, team := range teams {
+		out = append(out, api.NewTeam(team, names, h.baseURL))
+	}
+
+	api.WriteJSON(w, out)
+}
+
+// ViewAPI returns a team with its members in the API format. A private team does not exist for people who may not
+// see it.
+func (h *Handler) ViewAPI(w http.ResponseWriter, r *http.Request) {
+	actor, _ := actorFor(r)
+
+	team, err := h.manager.Get(actor, chi.URLParam(r, "teamID"))
+
+	if err == smmodel.ErrTeamNotFound {
+		http.NotFound(w, r)
+		return
+	} else if err != nil {
+		logrus.WithError(err).Error("couldn't load team")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+
+	names, err := h.accountNames()
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't list accounts")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+
+		return
+	}
+
+	api.WriteJSON(w, api.NewTeamDetail(team, names, h.baseURL))
 }

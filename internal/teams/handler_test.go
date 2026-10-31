@@ -20,7 +20,7 @@ import (
 )
 
 func (e *testEnv) handler() *Handler {
-	return NewHandler(&smweb.BaseHandler{}, e.manager, e.store)
+	return NewHandler(&smweb.BaseHandler{}, e.manager, e.store, "https://acp.example")
 }
 
 // in returns a logged in account that is in the given group of the test server.

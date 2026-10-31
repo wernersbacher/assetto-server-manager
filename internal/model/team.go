@@ -140,6 +140,15 @@ func NewTeam(name string, visibility TeamVisibility, owner uuid.UUID, now time.T
 	}, nil
 }
 
+// GetURL is the address of the team page, or an empty string if the base URL of the server is not known.
+func (t *Team) GetURL(baseURL string) string {
+	if baseURL != "" {
+		return baseURL + "/teams/" + t.ID.String()
+	}
+
+	return ""
+}
+
 func (t *Team) IsDeleted() bool {
 	return !t.Deleted.IsZero()
 }
