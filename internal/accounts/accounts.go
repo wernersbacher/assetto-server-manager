@@ -49,6 +49,9 @@ type ServerAccountOptions struct {
 	// MaxOwnedTeams is how many teams one account may own. 0 means the default of the teams package, a negative
 	// number is unlimited.
 	MaxOwnedTeams int
+
+	// Skins are the settings for skin uploads of users.
+	Skins smmodel.SkinSettings
 }
 
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
@@ -294,6 +297,54 @@ func (ah *AccountHandler) SetTeamOptions(w http.ResponseWriter, r *http.Request)
 		o.DisableTeamCreation = disable
 		o.MaxOwnedTeams = max
 	})
+}
+
+// SkinSettings returns the current skin upload settings.
+func (ah *AccountHandler) SkinSettings() smmodel.SkinSettings {
+	return ah.accountManager.options.Skins
+}
+
+// SetSkinSettings sets the skin options from the form values "uploads" and "global" (on or off) and the
+// whole numbers "max_files", "max_skin_mb", "user_quota_mb" and "min_free_mb" (0 is the default).
+func (ah *AccountHandler) SetSkinSettings(w http.ResponseWriter, r *http.Request) {
+	var settings smmodel.SkinSettings
+
+	for _, f := range []struct {
+		name string
+		dest *bool
+	}{{"uploads", &settings.UserUploads}, {"global", &settings.GlobalShare}} {
+		switch r.FormValue(f.name) {
+		case "on":
+			*f.dest = true
+		case "off":
+			*f.dest = false
+		default:
+			http.Error(w, "unknown value for "+f.name, http.StatusBadRequest)
+			return
+		}
+	}
+
+	for _, f := range []struct {
+		name string
+		max  int
+		dest *int
+	}{
+		{"max_files", 100000, &settings.MaxFiles},
+		{"max_skin_mb", 100000, &settings.MaxSkinMB},
+		{"user_quota_mb", 1000000, &settings.UserQuotaMB},
+		{"min_free_mb", 1000000, &settings.MinFreeMB},
+	} {
+		n, err := strconv.Atoi(strings.TrimSpace(r.FormValue(f.name)))
+
+		if err != nil || n < 0 || n > f.max {
+			http.Error(w, fmt.Sprintf("%s must be a whole number between 0 and %d", f.name, f.max), http.StatusBadRequest)
+			return
+		}
+
+		*f.dest = n
+	}
+
+	ah.toggleOption(w, r, "Skin options", func(o *ServerAccountOptions) { o.Skins = settings })
 }
 
 func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, name string, toggle func(*ServerAccountOptions)) {
@@ -739,6 +790,9 @@ type manageAccountsTemplateVars struct {
 
 	TeamCreationEnabled bool
 	MaxOwnedTeams       int
+
+	Skins        smmodel.SkinSettings
+	SkinDefaults smmodel.SkinSettings
 }
 
 func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request) {
@@ -758,6 +812,14 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 
 		TeamCreationEnabled: !ah.accountManager.options.DisableTeamCreation,
 		MaxOwnedTeams:       ah.accountManager.options.MaxOwnedTeams,
+
+		Skins: ah.accountManager.options.Skins,
+		SkinDefaults: smmodel.SkinSettings{
+			MaxFiles:    smmodel.DefaultSkinMaxFiles,
+			MaxSkinMB:   smmodel.DefaultSkinMaxMB,
+			UserQuotaMB: smmodel.DefaultSkinUserQuotaMB,
+			MinFreeMB:   smmodel.DefaultSkinMinFreeMB,
+		},
 	})
 }
 

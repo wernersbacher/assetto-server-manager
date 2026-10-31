@@ -436,6 +436,7 @@ func Router(
 		r.Post("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
 		r.Post("/accounts/download-access", accountHandler.SetDownloadAccess)
 		r.Post("/accounts/team-options", accountHandler.SetTeamOptions)
+		r.Post("/accounts/skin-options", accountHandler.SetSkinSettings)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
 

@@ -104,6 +104,55 @@ func (s *UserSkin) SetVisibility(v SkinVisibility, team uuid.UUID, now time.Time
 	return nil
 }
 
+// Defaults for SkinSettings fields that are 0 (not set).
+const (
+	DefaultSkinMaxFiles    = 500
+	DefaultSkinMaxMB       = 100
+	DefaultSkinUserQuotaMB = 500
+	DefaultSkinMinFreeMB   = 2048
+)
+
+// SkinSettings are the server options for skin uploads. The zero value allows only what was possible before user
+// skins: nobody but accounts with write access uploads, and only globally.
+type SkinSettings struct {
+	// UserUploads lets every logged in account upload skins.
+	UserUploads bool
+	// GlobalShare lets users make their skins global themselves. Accounts with write access always can.
+	GlobalShare bool
+
+	// The limits count 0 as "use the default"; there is no unlimited setting, so the disk cannot be filled.
+	MaxFiles    int // files in one skin
+	MaxSkinMB   int // size of one skin
+	UserQuotaMB int // all skins of one user together
+	MinFreeMB   int // free disk space that must remain after an upload
+}
+
+// SkinLimits are the resolved limits in bytes and files.
+type SkinLimits struct {
+	MaxFiles       int
+	MaxSkinBytes   int64
+	UserQuotaBytes int64
+	MinFreeBytes   int64
+}
+
+// Limits resolves the defaults.
+func (s SkinSettings) Limits() SkinLimits {
+	pick := func(v, def int) int64 {
+		if v <= 0 {
+			v = def
+		}
+
+		return int64(v)
+	}
+
+	return SkinLimits{
+		MaxFiles:       int(pick(s.MaxFiles, DefaultSkinMaxFiles)),
+		MaxSkinBytes:   pick(s.MaxSkinMB, DefaultSkinMaxMB) << 20,
+		UserQuotaBytes: pick(s.UserQuotaMB, DefaultSkinUserQuotaMB) << 20,
+		MinFreeBytes:   pick(s.MinFreeMB, DefaultSkinMinFreeMB) << 20,
+	}
+}
+
 // UsableBy reports whether the account may pick the skin, given the ids of the teams it is a member of.
 func (s *UserSkin) UsableBy(account uuid.UUID, teams []uuid.UUID) bool {
 	if s.Normalized() == SkinGlobal {

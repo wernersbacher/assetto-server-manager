@@ -125,6 +125,48 @@
         </div>
 
         <div class="card admin-card">
+            <div class="card-header"><h2>Car skins</h2></div>
+            <div class="card-body">
+                <p>Accounts can upload skins for cars and keep them private, share them with a team or make them global. Accounts with write access always upload global skins. The limits protect the disk: there is no unlimited setting, 0 uses the default shown in brackets.</p>
+
+                <form method="post" action="/accounts/skin-options" class="m-0">
+                    <div class="form-group">
+                        <label for="skin-uploads">Skin uploads by users</label>
+                        <select name="uploads" id="skin-uploads" class="form-control" style="max-width: 360px">
+                            <option value="off" {{ if not $.Skins.UserUploads }}selected{{ end }}>Only accounts with write access</option>
+                            <option value="on" {{ if $.Skins.UserUploads }}selected{{ end }}>Every logged in account can upload skins</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="skin-global">Making skins global</label>
+                        <select name="global" id="skin-global" class="form-control" style="max-width: 360px">
+                            <option value="off" {{ if not $.Skins.GlobalShare }}selected{{ end }}>Only accounts with write access</option>
+                            <option value="on" {{ if $.Skins.GlobalShare }}selected{{ end }}>Users can share their skins globally</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="skin-max-files">Files per skin (default {{ $.SkinDefaults.MaxFiles }})</label>
+                        <input type="number" name="max_files" id="skin-max-files" class="form-control" style="max-width: 160px" min="0" max="100000" value="{{ $.Skins.MaxFiles }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="skin-max-mb">Size of one skin in MB (default {{ $.SkinDefaults.MaxSkinMB }})</label>
+                        <input type="number" name="max_skin_mb" id="skin-max-mb" class="form-control" style="max-width: 160px" min="0" max="100000" value="{{ $.Skins.MaxSkinMB }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="skin-quota-mb">Skin storage per user in MB (default {{ $.SkinDefaults.UserQuotaMB }})</label>
+                        <input type="number" name="user_quota_mb" id="skin-quota-mb" class="form-control" style="max-width: 160px" min="0" max="1000000" value="{{ $.Skins.UserQuotaMB }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="skin-min-free-mb">Free disk space to keep in MB (default {{ $.SkinDefaults.MinFreeMB }})</label>
+                        <input type="number" name="min_free_mb" id="skin-min-free-mb" class="form-control" style="max-width: 160px" min="0" max="1000000" value="{{ $.Skins.MinFreeMB }}">
+                        <small>An upload is refused if less than this would remain free on the disk.</small>
+                    </div>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card admin-card">
             <div class="card-header"><h2>What each group can do</h2></div>
             <div class="table-responsive">
                 <table class="table role-matrix mb-0">
