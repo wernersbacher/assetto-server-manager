@@ -70,9 +70,10 @@
         <div class="tab-content championship-tab-content">
 
             <div class="tab-pane" id="pane-entrylist" role="tabpanel" aria-labelledby="tab-entrylist">
-                <div class="card mt-3 border-secondary race-setup hidden-open-championship">
+                <div class="card mt-3 border-secondary race-setup spectator-card{{ if $f.OpenEntrants }} is-unavailable{{ end }}">
                     <div class="card-header">
                         <strong>Spectator Car</strong>
+                        <span class="text-muted ml-2 visible-open-championship" {{ if not $f.OpenEntrants }} style="display: none" {{ end }}>Not available for open championships</span>
                     </div>
 
                     <div class="d-none">
@@ -81,7 +82,8 @@
                         <input type="hidden" name="NumAvailableSpectatorCars" value="{{ len $.CarOpts }}">
                     </div>
 
-                    <div class="card-body" id="entrants">
+                    {{/* not "disabled": disabled fields are not submitted and the server reads the spectator entrant first in EntryList.*; the card is only made read-only (inert) for open championships */}}
+                    <div class="card-body spectator-body" id="entrants" {{ if $f.OpenEntrants }} inert {{ end }}>
                         <p>
                             A Spectator Car is added to the back of the Entry List of every event and ignored for
                             Championship Points.
@@ -95,24 +97,20 @@
                                        class="spectator-toggle"
                                        id="ChampionshipSpectatorCarEnabled"
                                        name="Championship.SpectatorCar.Enabled"
-                                        {{ if $.Championship.HasSpectatorCar }}
+                                        {{ if $.Championship.SpectatorCarEnabled }}
                                             checked="checked"
                                         {{ end }}
                                 >
                             </div>
                         </div>
 
-                        <div class="visible-spectator-enabled" {{ if not $.Championship.HasSpectatorCar }} style="display: none" {{ end }}>
+                        <div class="visible-spectator-enabled" {{ if not $.Championship.SpectatorCarEnabled }} style="display: none" {{ end }}>
                             <div class="entrant">
                                 {{ template "entrant" dict "Entrant" $.Championship.SpectatorCar "IsChampionshipEvent" false "IsEditing" $.IsEditing "IsChampionship" true "IsSpectatorCar" true }}
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <p class="text-muted mt-3 visible-open-championship">
-                    The Entry List of an Open Championship is filled by the drivers who join its events, so there is no Spectator Car.
-                </p>
 
                 {{/* the entrants of the classes come after the spectator car, see the comment in partials/championships/class.html */}}
                 <div class="template" style="display: none;" data-class-template="entrants">
@@ -175,38 +173,190 @@
             </div>
 
             <div class="tab-pane" id="pane-participation" role="tabpanel" aria-labelledby="tab-participation">
+                {{ $mode := "fixed" }}
+                {{ if $f.OpenEntrants }}{{ $mode = "open" }}{{ else if $f.SignUpForm.Enabled }}{{ $mode = "signup" }}{{ end }}
+                {{ $maxDrivers := $f.SignUpForm.MaxDriversPerTeam }}
+
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Open Championship</strong>
+                        <strong>How do drivers get into the entry list?</strong>
                     </div>
 
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <label for="ChampionshipOpenEntrants" class="col-sm-3 col-form-label">Open Championship</label>
+                    <div class="card-body participation-modes">
+                        <div class="participation-mode">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="ParticipationMode" id="ParticipationModeFixed" value="fixed" {{ if eq $mode "fixed" }} checked="checked" {{ end }}>
+                                <label class="custom-control-label" for="ParticipationModeFixed"><strong>Fixed entry list</strong></label>
+                            </div>
+                            <small class="form-text text-muted participation-mode-help">
+                                You fill in the drivers yourself (Entry List tab, or the Autofill per entrant).
+                            </small>
+                        </div>
 
-                            <div class="col-sm-9">
-                                <input type="checkbox" id="ChampionshipOpenEntrants" name="ChampionshipOpenEntrants"
-                                       {{ if $f.OpenEntrants }} checked="checked" {{ end }}>
+                        <div class="participation-mode">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="ParticipationMode" id="ParticipationModeOpen" value="open" {{ if eq $mode "open" }} checked="checked" {{ end }}>
+                                <label class="custom-control-label" for="ParticipationModeOpen"><strong>Open</strong></label>
+                            </div>
+                            <small class="form-text text-muted participation-mode-help">
+                                Any driver who joins the server takes a free slot of a class. Slots can be edited (e.g. to assign teams) when editing the Championship.
+                            </small>
 
-                                <small class="form-text text-muted">
-                                    Anyone can join an event while the Championship still has empty entrant slots; new
-                                    entrants fill the slots. Slots can be edited (e.g. to assign teams) when editing the Championship.
-                                </small>
+                            <div class="participation-nested visible-open-championship" {{ if ne $mode "open" }} style="display: none" {{ end }}>
+                                <div class="form-group row mb-0">
+                                    <label for="ChampionshipPersistOpenEntrants" class="col-sm-4 col-form-label">Keep joined drivers</label>
+
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" id="ChampionshipPersistOpenEntrants" name="ChampionshipPersistOpenEntrants"
+                                               {{ if $f.PersistOpenEntrants }} checked="checked" {{ end }}>
+
+                                        <small class="form-text text-muted">
+                                            On (the default): drivers who join are added to the Entry List. Off: every event starts
+                                            with an empty Entry List, which suits many changing drivers. <strong>Results still
+                                            persist to the Championship</strong> either way.
+                                        </small>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="form-group row visible-open-championship">
-                            <label for="ChampionshipPersistOpenEntrants" class="col-sm-3 col-form-label">Persist Open Championship Entrants</label>
+                        <div class="participation-mode">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" class="custom-control-input" name="ParticipationMode" id="ParticipationModeSignUp" value="signup" {{ if eq $mode "signup" }} checked="checked" {{ end }}>
+                                <label class="custom-control-label" for="ParticipationModeSignUp"><strong>Sign-up form</strong></label>
+                            </div>
+                            <small class="form-text text-muted participation-mode-help">
+                                Drivers register on the website; you can approve them.
+                            </small>
 
-                            <div class="col-sm-9">
-                                <input type="checkbox" id="ChampionshipPersistOpenEntrants" name="ChampionshipPersistOpenEntrants"
-                                       {{ if $f.PersistOpenEntrants }} checked="checked" {{ end }}>
+                            <div class="participation-nested show-signup-form-enabled" {{ if ne $mode "signup" }} style="display: none" {{ end }}>
+                                <div class="form-group row">
+                                    <label for="Championship.SignUpForm.RequiresApproval" class="col-sm-4 col-form-label">Require approval</label>
 
-                                <small class="form-text text-muted">
-                                    On (the default): drivers who join are added to the Entry List. Off: every event starts
-                                    with an empty Entry List, which suits many changing drivers. <strong>Results still
-                                    persist to the Championship</strong> either way.
-                                </small>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" id="Championship.SignUpForm.RequiresApproval" name="Championship.SignUpForm.RequiresApproval"
+                                                {{ if $f.SignUpForm.RequiresApproval }} checked="checked" {{ end }}>
+
+                                        <small class="form-text text-muted">
+                                            An admin/write user accepts or rejects every application on a separate page.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="Championship.SignUpForm.AskForEmail" class="col-sm-4 col-form-label">Ask for email</label>
+
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" id="Championship.SignUpForm.AskForEmail" name="Championship.SignUpForm.AskForEmail"
+                                                {{ if $f.SignUpForm.AskForEmail }} checked="checked" {{ end }}>
+
+                                        <small class="form-text text-muted">
+                                            Lets you contact drivers with event details.
+                                        </small>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="Championship.SignUpForm.AskForTeam" class="col-sm-4 col-form-label">Ask for team</label>
+
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" id="Championship.SignUpForm.AskForTeam" name="Championship.SignUpForm.AskForTeam"
+                                                {{ if $f.SignUpForm.AskForTeam }} checked="checked" {{ end }}>
+
+                                        <small class="form-text text-muted">
+                                            Drivers can specify their team.
+                                        </small>
+
+                                        <div class="participation-nested show-signup-ask-team mt-3" {{ if not $f.SignUpForm.AskForTeam }} style="display: none" {{ end }}>
+                                            <div class="form-group">
+                                                <label for="Championship.SignUpForm.TeamMode">How do users choose their team</label>
+
+                                                <select class="form-control" id="Championship.SignUpForm.TeamMode" name="Championship.SignUpForm.TeamMode">
+                                                    <option value="" {{ if eq (print $f.SignUpForm.TeamMode) "" }}selected="selected"{{ end }}>They type a team name</option>
+                                                    <option value="select" {{ if eq (print $f.SignUpForm.TeamMode) "select" }}selected="selected"{{ end }}>They pick one of the teams they are a member of</option>
+                                                    <option value="both" {{ if eq (print $f.SignUpForm.TeamMode) "both" }}selected="selected"{{ end }}>Both: pick a team or type a name that is not a team</option>
+                                                </select>
+
+                                                <small class="form-text text-muted">
+                                                    Teams are created on the <a href="/teams">Teams</a> page.
+                                                </small>
+                                            </div>
+
+                                            <div class="form-group mb-0">
+                                                <label for="SignUpMaxDriversPerTeamInput">Drivers per team</label>
+
+                                                {{/* the submitted value is the hidden field: the number, or -1 when Unlimited is on (see initConfigureSignUpForm) */}}
+                                                <input type="hidden" id="Championship.SignUpForm.MaxDriversPerTeam" name="Championship.SignUpForm.MaxDriversPerTeam" value="{{ $maxDrivers }}">
+
+                                                <div class="d-flex align-items-center">
+                                                    <input type="number" class="form-control mr-3" style="max-width: 160px" id="SignUpMaxDriversPerTeamInput"
+                                                           min="1" max="1000" placeholder="2 (default)"
+                                                           {{ if gt $maxDrivers 0 }} value="{{ $maxDrivers }}" {{ end }}
+                                                           {{ if lt $maxDrivers 0 }} disabled="disabled" {{ end }}>
+
+                                                    <label class="mb-0 mr-2" for="SignUpMaxDriversPerTeamUnlimited">Unlimited</label>
+                                                    <input type="checkbox" id="SignUpMaxDriversPerTeamUnlimited" {{ if lt $maxDrivers 0 }} checked="checked" {{ end }}>
+                                                </div>
+
+                                                <small class="form-text text-muted">
+                                                    Drivers one team can register. Only an admin/write user can change a team after registration.
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="Championship.SignUpForm.HideCarChoice" class="col-sm-4 col-form-label">Let drivers choose car and skin</label>
+
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" id="Championship.SignUpForm.HideCarChoice" name="Championship.SignUpForm.HideCarChoice"
+                                                {{ if not $f.SignUpForm.HideCarChoice }} checked="checked" {{ end }}>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="Championship.SignUpForm.ExtraFields" class="col-sm-4 col-form-label">Extra Questions</label>
+
+                                    <div class="col-sm-8">
+
+                                        <div id="Questions">
+                                            {{ range $index, $question := $f.SignUpForm.ExtraFields }}
+                                                <div class="championship-signup-question row">
+                                                    <div class="col-sm-11">
+                                                        <input type="text" class="form-control championshipExtraField" name="Championship.SignUpForm.ExtraFields"
+                                                               placeholder="e.g. What is your discord username?" value="{{ $question }}">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <a href="#" class="text-danger btn-delete-question"><i class="fas fa-trash"></i></a>
+                                                    </div>
+                                                </div>
+                                            {{ else }}
+                                                <div class="championship-signup-question row">
+                                                    <div class="col-sm-11">
+                                                        <input type="text" class="form-control championshipExtraField" name="Championship.SignUpForm.ExtraFields"
+                                                               placeholder="e.g. What is your discord username?">
+                                                    </div>
+                                                    <div class="col-sm-1">
+                                                        <a href="#" class="text-danger btn-delete-question"><i class="fas fa-trash"></i></a>
+                                                    </div>
+                                                </div>
+                                            {{ end }}
+                                        </div>
+
+                                        <div class="mt-2">
+                                            <button class="btn btn-info float-right" id="AddSignUpFormQuestion">Add another question</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <p class="text-muted mb-0">
+                                    {{ with $.RecaptchaSiteKey }}
+                                        reCAPTCHA is configured: drivers complete a CAPTCHA before their registration is submitted.
+                                    {{ else }}
+                                        reCAPTCHA is not configured: drivers are not asked for a CAPTCHA. You can enable it in your config.yml.
+                                    {{ end }}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -214,150 +364,7 @@
 
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Sign Up Form</strong>
-                    </div>
-
-                    <div class="card-body">
-                        <div class="form-group row">
-                            <label for="ChampionshipSignUpFormEnabled" class="col-sm-3 col-form-label">Enabled</label>
-
-                            <div class="col-sm-9">
-                                <input type="checkbox" id="ChampionshipSignUpFormEnabled" name="Championship.SignUpForm.Enabled"
-                                        {{ if $f.SignUpForm.Enabled }} checked="checked" {{ end }}>
-
-                                <small class="form-text text-muted">
-                                    Anyone can register on a Sign Up page to be added to the Entry List.
-                                </small>
-                            </div>
-                        </div>
-
-                        <div class="show-signup-form-enabled" {{ if not $f.SignUpForm.Enabled}} style="display: none" {{ end }}>
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.RequiresApproval" class="col-sm-3 col-form-label">Require approval</label>
-
-                                <div class="col-sm-9">
-                                    <input type="checkbox" id="Championship.SignUpForm.RequiresApproval" name="Championship.SignUpForm.RequiresApproval"
-                                            {{ if $f.SignUpForm.RequiresApproval }} checked="checked" {{ end }}>
-
-                                    <small class="form-text text-muted">
-                                        An admin/write user accepts or rejects every application on a separate page.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.AskForEmail" class="col-sm-3 col-form-label">Ask for email</label>
-
-                                <div class="col-sm-9">
-                                    <input type="checkbox" id="Championship.SignUpForm.AskForEmail" name="Championship.SignUpForm.AskForEmail"
-                                            {{ if $f.SignUpForm.AskForEmail }} checked="checked" {{ end }}>
-
-                                    <small class="form-text text-muted">
-                                        Lets you contact drivers with event details.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.AskForTeam" class="col-sm-3 col-form-label">Ask for team</label>
-
-                                <div class="col-sm-9">
-                                    <input type="checkbox" id="Championship.SignUpForm.AskForTeam" name="Championship.SignUpForm.AskForTeam"
-                                            {{ if $f.SignUpForm.AskForTeam }} checked="checked" {{ end }}>
-
-                                    <small class="form-text text-muted">
-                                        Drivers can specify their team.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.TeamMode" class="col-sm-3 col-form-label">Team selection</label>
-
-                                <div class="col-sm-9">
-                                    <select class="form-control" id="Championship.SignUpForm.TeamMode" name="Championship.SignUpForm.TeamMode">
-                                        <option value="" {{ if eq (print $f.SignUpForm.TeamMode) "" }}selected="selected"{{ end }}>They type a team name</option>
-                                        <option value="select" {{ if eq (print $f.SignUpForm.TeamMode) "select" }}selected="selected"{{ end }}>They pick one of the teams they are a member of</option>
-                                        <option value="both" {{ if eq (print $f.SignUpForm.TeamMode) "both" }}selected="selected"{{ end }}>Both: pick a team or type a name that is not a team</option>
-                                    </select>
-
-                                    <small class="form-text text-muted">
-                                        Teams are created on the <a href="/teams">Teams</a> page. Only "Ask for team" decides whether the team is asked at all.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.MaxDriversPerTeam" class="col-sm-3 col-form-label">Drivers per team</label>
-
-                                <div class="col-sm-9">
-                                    <input type="number" class="form-control" style="max-width: 160px" id="Championship.SignUpForm.MaxDriversPerTeam" name="Championship.SignUpForm.MaxDriversPerTeam"
-                                           min="-1" max="1000" value="{{ $f.SignUpForm.MaxDriversPerTeam }}">
-
-                                    <small class="form-text text-muted">
-                                        Drivers one team can register: 0 is the default of 2, -1 is unlimited. Only an admin/write user can change a team after registration.
-                                    </small>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.HideCarChoice" class="col-sm-3 col-form-label">Let drivers choose car and skin</label>
-
-                                <div class="col-sm-9">
-                                    <input type="checkbox" id="Championship.SignUpForm.HideCarChoice" name="Championship.SignUpForm.HideCarChoice"
-                                            {{ if not $f.SignUpForm.HideCarChoice }} checked="checked" {{ end }}>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="Championship.SignUpForm.ExtraFields" class="col-sm-3 col-form-label">Extra Questions</label>
-
-                                <div class="col-sm-9">
-
-                                    <div id="Questions">
-                                        {{ range $index, $question := $f.SignUpForm.ExtraFields }}
-                                            <div class="championship-signup-question row">
-                                                <div class="col-sm-11">
-                                                    <input type="text" class="form-control championshipExtraField" name="Championship.SignUpForm.ExtraFields"
-                                                           placeholder="e.g. What is your discord username?" value="{{ $question }}">
-                                                </div>
-                                                <div class="col-sm-1">
-                                                    <a href="#" class="text-danger btn-delete-question"><i class="fas fa-trash"></i></a>
-                                                </div>
-                                            </div>
-                                        {{ else }}
-                                            <div class="championship-signup-question row">
-                                                <div class="col-sm-11">
-                                                    <input type="text" class="form-control championshipExtraField" name="Championship.SignUpForm.ExtraFields"
-                                                           placeholder="e.g. What is your discord username?">
-                                                </div>
-                                                <div class="col-sm-1">
-                                                    <a href="#" class="text-danger btn-delete-question"><i class="fas fa-trash"></i></a>
-                                                </div>
-                                            </div>
-                                        {{ end }}
-                                    </div>
-
-                                    <div class="mt-2">
-                                        <button class="btn btn-info float-right" id="AddSignUpFormQuestion">Add another question</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <p class="text-muted mb-0">
-                                {{ with $.RecaptchaSiteKey }}
-                                    reCAPTCHA is configured: drivers complete a CAPTCHA before their registration is submitted.
-                                {{ else }}
-                                    reCAPTCHA is not configured: drivers are not asked for a CAPTCHA. You can enable it in your config.yml.
-                                {{ end }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mt-3 border-secondary">
-                    <div class="card-header">
-                        <strong>Server Password</strong>
+                        <strong>Access</strong>
                     </div>
 
                     <div class="card-body">

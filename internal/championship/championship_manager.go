@@ -201,7 +201,7 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	}
 
 	championship.Name = r.FormValue("ChampionshipName")
-	championship.OpenEntrants = r.FormValue("ChampionshipOpenEntrants") == "on" || r.FormValue("ChampionshipOpenEntrants") == "1"
+	championship.OpenEntrants, championship.SignUpForm.Enabled = parseParticipationMode(r)
 	dropWorstResults, err := parseDropWorstResults(r.FormValue("ChampionshipDropWorstResults"))
 
 	if err != nil {
@@ -212,7 +212,6 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	championship.RaceSettings = ParseChampionshipRaceSettings(r)
 	championship.PersistOpenEntrants = r.FormValue("ChampionshipPersistOpenEntrants") == "on" || r.FormValue("ChampionshipPersistOpenEntrants") == "1"
 	championship.Hidden = r.FormValue("ChampionshipHidden") == "on" || r.FormValue("ChampionshipHidden") == "1"
-	championship.SignUpForm.Enabled = r.FormValue("Championship.SignUpForm.Enabled") == "on" || r.FormValue("Championship.SignUpForm.Enabled") == "1"
 	championship.SignUpForm.AskForEmail = r.FormValue("Championship.SignUpForm.AskForEmail") == "on" || r.FormValue("Championship.SignUpForm.AskForEmail") == "1"
 	championship.SignUpForm.AskForTeam = r.FormValue("Championship.SignUpForm.AskForTeam") == "on" || r.FormValue("Championship.SignUpForm.AskForTeam") == "1"
 	championship.SignUpForm.TeamMode, championship.SignUpForm.MaxDriversPerTeam = parseSignUpTeamSettings(
@@ -414,4 +413,31 @@ func parseDropWorstResults(value string) (int, error) {
 	}
 
 	return n, nil
+}
+
+// Values of the ParticipationMode form field: how drivers get into the entry list.
+const (
+	participationFixed  = "fixed"
+	participationOpen   = "open"
+	participationSignUp = "signup"
+)
+
+// parseParticipationMode reads whether the Championship is open and whether its sign up form is enabled. The two are
+// exclusive (the sign up form has no effect on an open Championship, see ChampionshipManager.BuildEntryList), so the
+// form offers one choice, ParticipationMode. Forms without it (older clients, API posts) use the two separate fields.
+func parseParticipationMode(r *http.Request) (open, signUp bool) {
+	switch r.FormValue("ParticipationMode") {
+	case participationOpen:
+		return true, false
+	case participationSignUp:
+		return false, true
+	case participationFixed:
+		return false, false
+	}
+
+	isOn := func(name string) bool {
+		return r.FormValue(name) == "on" || r.FormValue(name) == "1"
+	}
+
+	return isOn("ChampionshipOpenEntrants"), isOn("Championship.SignUpForm.Enabled")
 }

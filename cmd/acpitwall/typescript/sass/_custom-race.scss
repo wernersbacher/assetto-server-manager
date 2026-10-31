@@ -429,3 +429,28 @@ button.dropdown-item {
     margin-top: 0;
   }
 }
+
+// championship participation mode: one radio per way of filling the entry list, the options of the mode nested below
+.participation-modes {
+  .participation-mode + .participation-mode {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border, #dee2e6);
+  }
+
+  .participation-mode-help {
+    margin-left: 1.5rem;
+  }
+
+  .participation-nested {
+    margin: 1rem 0 0 1.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border, #dee2e6);
+  }
+}
+
+// the spectator car of an open championship: still shown, but read-only (see setOpenChampionshipOptions)
+.spectator-card.is-unavailable .spectator-body {
+  opacity: 0.5;
+  pointer-events: none;
+}

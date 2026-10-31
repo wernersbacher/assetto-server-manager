@@ -2328,45 +2328,81 @@ let championships = {
         championships.initOpenChampionshipWatcher();
     },
 
+    // initOpenChampionshipWatcher follows the participation mode (fixed entry list / open / sign-up form) of the
+    // Participation tab: it shows the options of the chosen mode and makes the spectator car read-only for open championships.
     initOpenChampionshipWatcher: function() {
-        let $openChampionshipSwitch = $("#ChampionshipOpenEntrants");
+        let $modes = $("input[name='ParticipationMode']");
 
-        if (!$openChampionshipSwitch.length) {
+        if (!$modes.length) {
             return;
         }
 
-        this.setOpenChampionshipOptions($openChampionshipSwitch.bootstrapSwitch('state'));
-
         let that = this;
 
-        $openChampionshipSwitch.on("switchChange.bootstrapSwitch", function( event, state) {
-            that.setOpenChampionshipOptions(state);
-        });
+        let update = function () {
+            let mode = $modes.filter(":checked").val();
+
+            that.setOpenChampionshipOptions(mode === "open");
+
+            let $signUp = $(".show-signup-form-enabled");
+
+            if (mode === "signup") {
+                $signUp.show();
+            } else {
+                $signUp.hide();
+            }
+        };
+
+        $modes.on("change", update);
+        update();
     },
 
     setOpenChampionshipOptions: function(enabled) {
-        let $visibleOpenChampionship = $(".visible-open-championship");
-        let $hiddenOpenChampionship = $(".hidden-open-championship");
+        // the spectator car is not available for open championships: its fields stay in the form (and are submitted as
+        // before, the server reads the spectator entrant first), the card is only shown as read-only
+        let $spectatorCard = $(".spectator-card");
+        let $spectatorBody = $spectatorCard.find(".spectator-body");
 
         if (enabled) {
-            $visibleOpenChampionship.show();
-            $hiddenOpenChampionship.hide();
+            $(".visible-open-championship").show();
+            $spectatorCard.addClass("is-unavailable");
+            $spectatorBody.attr("inert", "");
         } else {
-            $visibleOpenChampionship.hide();
-            $hiddenOpenChampionship.show();
+            $(".visible-open-championship").hide();
+            $spectatorCard.removeClass("is-unavailable");
+            $spectatorBody.removeAttr("inert");
         }
     },
 
     initConfigureSignUpForm: function () {
-        let $showWhenSignUpEnabled = $(".show-signup-form-enabled");
+        // team options are only relevant when the team is asked for
+        let $showWhenAskForTeam = $(".show-signup-ask-team");
 
-        $("#ChampionshipSignUpFormEnabled").on('switchChange.bootstrapSwitch', function (event, state) {
+        $(document.getElementById("Championship.SignUpForm.AskForTeam")).on('switchChange.bootstrapSwitch', function (event, state) {
             if (state) {
-                $showWhenSignUpEnabled.show();
+                $showWhenAskForTeam.show();
             } else {
-                $showWhenSignUpEnabled.hide();
+                $showWhenAskForTeam.hide();
             }
         });
+
+        // drivers per team: the hidden field is submitted, a number or -1 (unlimited); empty is 0, the default of 2
+        let $maxDrivers = $(document.getElementById("Championship.SignUpForm.MaxDriversPerTeam"));
+        let $maxDriversInput = $("#SignUpMaxDriversPerTeamInput");
+        let $unlimited = $("#SignUpMaxDriversPerTeamUnlimited");
+
+        let syncMaxDrivers = function () {
+            if ($unlimited.bootstrapSwitch('state')) {
+                $maxDriversInput.prop("disabled", true);
+                $maxDrivers.val("-1");
+            } else {
+                $maxDriversInput.prop("disabled", false);
+                $maxDrivers.val($maxDriversInput.val() || "0");
+            }
+        };
+
+        $unlimited.on('switchChange.bootstrapSwitch', syncMaxDrivers);
+        $maxDriversInput.on("input change", syncMaxDrivers);
 
         let $clonedQuestion = $(".championship-signup-question").first().clone();
 

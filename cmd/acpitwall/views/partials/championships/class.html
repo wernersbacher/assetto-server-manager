@@ -22,12 +22,22 @@
     <div class="card-body">
         <input type="hidden" name="ClassID" id="ClassID" {{ with $class.ID }}value="{{ .String }}"{{ end }}>
 
-        <div class="form-group row">
-            <label for="ClassName" class="col-sm-3 col-form-label">Class Name</label>
+        <div class="form-row">
+            <div class="form-group col-md-8">
+                <label for="ClassName">Class Name</label>
 
-            <div class="col-sm-9">
                 <input type="text" class="form-control" id="ClassName" name="ClassName"
                        placeholder="My awesome class" {{ with $class.Name }} value="{{.}}" {{ end }}>
+            </div>
+
+            <div class="form-group col-md-4">
+                <label>Slots</label>
+
+                {{/* no name: only a view on the number of entrants of the class, EntryList.NumEntrants is submitted */}}
+                <input type="number" class="form-control class-slots" style="max-width: 120px;" min="0" step="1"
+                       value="{{ with $class.Entrants }}{{ len $class.Entrants }}{{ else }}{{ if $.IsEditing }}0{{ else }}1{{ end }}{{ end }}">
+
+                <small class="form-text text-warning class-slots-hint" style="display: none;"></small>
             </div>
         </div>
 
@@ -44,18 +54,11 @@
         </div>
 
         <div class="form-group row mb-0">
-            <label class="col-sm-3 col-form-label">Slots</label>
-
-            <div class="col-sm-9">
-                {{/* no name: only a view on the number of entrants of the class, EntryList.NumEntrants is submitted */}}
-                <input type="number" class="form-control class-slots" style="max-width: 120px;" min="0" step="1"
-                       value="{{ with $class.Entrants }}{{ len $class.Entrants }}{{ else }}{{ if $.IsEditing }}0{{ else }}1{{ end }}{{ end }}">
-
+            <div class="col-12">
                 <small class="form-text text-muted">
-                    Entrants of this class. Open slots are filled by the drivers who join (open Championship, Sign Up Form or
+                    Slots are the entrants of this class. Open slots are filled by the drivers who join (open Championship, Sign Up Form or
                     Autofill); assign drivers to slots in the Entry List tab.
                 </small>
-                <small class="form-text text-warning class-slots-hint" style="display: none;"></small>
             </div>
         </div>
     </div>
