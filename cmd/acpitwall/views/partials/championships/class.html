@@ -14,7 +14,7 @@
 {{ $class := .Class }}
 <div class="card mt-3 mb-3 border-primary class-block" data-class-key="{{ .Key }}">
     <div class="card-header">
-        <strong>Class</strong>
+        <strong>Class: <span class="class-name-label">{{ or $class.Name "Unnamed class" }}</span></strong>
 
         <a class="text-danger btn-delete-class float-right" href="#"><i class="fas fa-trash"></i></a>
     </div>

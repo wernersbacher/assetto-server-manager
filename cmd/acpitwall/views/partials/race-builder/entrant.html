@@ -32,14 +32,14 @@
                     </div>
 
                     <div class="{{ if not $.IsChampionship }}col-md-5{{ else }}col-md-8{{ end }}" {{ if $.IsSpectatorCar }}style="display: none"{{ end }}>
-                        <div class="float-right">
+                        <div class="float-right d-flex align-items-center">
                             {{ if and $.IsChampionship $.IsEditing }}
-                                <div class="d-inline-block mr-4">
-                                    <span data-toggle="tooltip" title="Overwrite all Championship Event specific settings (skin, restrictor, ballast, setup) with the settings defined in this entrant" class="pr-3">
-                                        <small>Overwrite All Event Settings?</small>
-                                    </span>
-
-                                    <input type="checkbox" name="EntryList.OverwriteAllEvents">
+                                {{/* only shown when car, skin, ballast, restrictor or setup differ from the loaded values */}}
+                                <div class="mr-4 overwrite-all-events" style="display: none">
+                                    <label class="small mb-0">
+                                        <input type="checkbox" class="entrant-edit-option mr-1" name="EntryList.OverwriteAllEvents">
+                                        Apply car, skin, ballast, restrictor and setup to all events of this championship
+                                    </label>
                                 </div>
                             {{ end }}
 
@@ -81,9 +81,12 @@
 
 
                             {{ if and $.IsChampionship $.IsEditing }}
-                                <div class="col-12 points-transfer">
-                                    <label for="TransferTeamPoints" class="">Transfer Points from previous team?</label>
-                                    <input type="checkbox" name="EntryList.TransferTeamPoints">
+                                {{/* only shown when the team differs from the loaded value */}}
+                                <div class="col-12 points-transfer" style="display: none">
+                                    <label class="small mb-0">
+                                        <input type="checkbox" class="entrant-edit-option mr-1" name="EntryList.TransferTeamPoints">
+                                        Move this driver's points to the new team
+                                    </label>
                                 </div>
                             {{ end }}
                         </div>

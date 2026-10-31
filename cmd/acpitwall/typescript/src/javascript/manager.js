@@ -18,7 +18,7 @@ export function EntryPoint() {
     $.fn.bootstrapSwitch.defaults.size = 'small';
     $.fn.bootstrapSwitch.defaults.animate = false;
     $.fn.bootstrapSwitch.defaults.onColor = "success";
-    $document.find("input[type='checkbox']:not(input[name='EntryList.OverwriteAllEvents']:hidden):not(input[name='session-start-after-parent']:hidden)").bootstrapSwitch();
+    $document.find("input[type='checkbox']:not(.entrant-edit-option):not(input[name='EntryList.OverwriteAllEvents']:hidden):not(input[name='session-start-after-parent']:hidden)").bootstrapSwitch();
 
     championships.init();
     $document.find(".race-setup").each(function (index, elem) {
@@ -1178,7 +1178,7 @@ class RaceSetup {
                 }
 
                 let $elem = $clonedTemplate.clone();
-                $elem.find("input[type='checkbox']").bootstrapSwitch();
+                $elem.find("input[type='checkbox']:not(.entrant-edit-option)").bootstrapSwitch();
                 $elem.appendTo(that.$parent.find(".entrants-block"));
                 $elem.find(".entryListCar").change(onEntryListCarChange);
                 $elem.find(".btn-delete-entrant").click(deleteEntrant);
@@ -2302,7 +2302,7 @@ let championships = {
             for (let i = numPoints; i < numEntrants; i++) {
                 // add points up to the numEntrants we have
                 let $newPoints = $pointsTemplate.clone();
-                $newPoints.find("label").text(ordinalSuffix(i + 1) + " Place");
+                $newPoints.find("label").text(ordinalSuffix(i + 1));
 
                 let pointsVal = 0;
 
@@ -2311,7 +2311,7 @@ let championships = {
                     pointsVal = defaultPoints.Places[i];
                 }
 
-                $newPoints.find("input").attr({"value": pointsVal});
+                $newPoints.find("input").attr({"value": pointsVal}).val(pointsVal);
                 $pointsParent.append($newPoints);
             }
 
@@ -2319,8 +2319,16 @@ let championships = {
             $savedNumPoints.val(liveItems($raceSetup.find(".points-place")).length);
         });
 
+        // fill the places with the default points; places beyond the defaults get 0 (places are never removed)
+        $document.on("click", ".btn-reset-points", function () {
+            $(this).closest(".points-editor").find(".points-place input").each(function (i, input) {
+                $(input).val(i < defaultPoints.Places.length ? defaultPoints.Places[i] : 0);
+            });
+        });
+
         championships.initClassSetup();
         championships.initClassSlots();
+        championships.initEntrantEditOptions();
         championships.initSummerNote();
         championships.initDisplayOrder();
         championships.initConfigureSignUpForm();
@@ -2564,9 +2572,6 @@ let championships = {
             classBlocks($(this)).find(".class-name-label").text($(this).val().trim() || "Unnamed class");
         });
 
-        $document.on("input", ".entrant-team", function () {
-            $(this).closest(".entrant").find(".points-transfer").show();
-        });
 
         $(".Cars").each(function(index, element) {
             let $target = $(element);
@@ -2579,6 +2584,58 @@ let championships = {
 
             classBlocks($target).find("input[name='NumCars']").val($target.val().length);
         });
+    },
+
+    // initEntrantEditOptions shows the options "move points to the new team" and "apply to all events" of the entrants of
+    // an edited championship only when the team, respectively the car setup, differs from what the entrant had on load.
+    // The server pairs the checkbox values with the entrants by position; hidden options stay in the form unchecked and
+    // are submitted as 0 by the generic form submit handler, so the pairing is kept.
+    initEntrantEditOptions: function () {
+        function snapshot($entrant) {
+            return {
+                team: $entrant.find("[name='EntryList.Team']").val(),
+                setup: setupOf($entrant),
+            };
+        }
+
+        function setupOf($entrant) {
+            return ["EntryList.Car", "EntryList.Skin", "EntryList.Ballast", "EntryList.Restrictor", "EntryList.FixedSetup"].map(function (name) {
+                return String($entrant.find("[name='" + name + "']").val() || "");
+            }).join("|");
+        }
+
+        function update($entrant) {
+            let initial = $entrant.data("initialEntrant");
+
+            if (!initial) {
+                return;
+            }
+
+            let toggle = function ($option, show) {
+                $option.toggle(show);
+
+                if (!show) {
+                    $option.find("input[type='checkbox']").prop("checked", false);
+                }
+            };
+
+            toggle($entrant.find(".points-transfer"), $entrant.find("[name='EntryList.Team']").val() !== initial.team);
+            toggle($entrant.find(".overwrite-all-events"), setupOf($entrant) !== initial.setup);
+        }
+
+        // entrants that exist on load (not the template and not entrants added later)
+        $(".entrant").not("#entrantTemplate").each(function (i, elem) {
+            let $entrant = $(elem);
+
+            if ($entrant.find(".entrant-edit-option").length) {
+                $entrant.data("initialEntrant", snapshot($entrant));
+            }
+        });
+
+        $document.on("input change", ".entrant input, .entrant select", function () {
+            update($(this).closest(".entrant"));
+        });
+
     },
 
     // initClass sets the counters of a class: the number of points and the slots follow what the blocks hold

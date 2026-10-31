@@ -363,3 +363,18 @@
     opacity: 0.6;
   }
 }
+
+// compact points editor: one small input per place
+.points-editor .points-parent {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+
+  @media (min-width: 576px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
