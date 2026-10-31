@@ -3,7 +3,7 @@ Unreleased
 
 Changed:
 
-* The championship create and edit page is split into tabs (General, Participation & Access, Entry List, Scoring, Race Settings, Info & Display) with shorter help texts. Tabs with errors or edits are marked, the tab of an invalid field opens on save and the last tab is remembered. When creating a championship the buttons are called "Save & add first Event" and "Save & add Race Weekend".
+* The championship create and edit page is split into tabs (General, Participation & Access, Entry List, Scoring, Race Settings, Info & Display) with shorter help texts. Tabs with errors or edits are marked, the tab of an invalid field opens on save and the last tab is remembered. Each class is set up on the General tab (name, cars and the number of slots, i.e. entrants, of the class; open slots are filled by Open Championship, sign up or Autofill), its entrants are on the Entry List tab and its points on the Scoring tab. When creating a championship the buttons are called "Save & add first Event" and "Save & add Race Weekend".
 
 * The quick race form is split into section cards (Track & Cars, Qualifying, Race) with the section index and sticky bar, like the custom race form.
 

@@ -1,14 +1,25 @@
-{{ define "championship-class" }}
-<div class="card mt-3 mb-3 border-primary race-setup">
+{{/*
+    A championship class is rendered as three blocks that belong to different tabs of the form: the class basics with the
+    number of slots (General), the entrants (Entry List) and the points (Scoring). The blocks are linked by the
+    data-class-key attribute (see classBlocks() in manager.js).
+
+    IMPORTANT, field order: the server reads ClassID, ClassName, NumCars, EntryList.NumEntrants and NumPoints as one
+    value per class and slices Cars, EntryList.* and Points.* consecutively per class, all in document order. Every pane
+    therefore has to render the classes in the same order, with exactly one hidden counter per class and block. The
+    Entry List pane (with the spectator car, which must come first in EntryList.* and Cars) comes before the General pane
+    in the document, see pages/championships/new.html.
+*/}}
+
+{{ define "championship-class-general" }}
+{{ $class := .Class }}
+<div class="card mt-3 mb-3 border-primary class-block" data-class-key="{{ .Key }}">
     <div class="card-header">
         <strong>Class</strong>
 
         <a class="text-danger btn-delete-class float-right" href="#"><i class="fas fa-trash"></i></a>
     </div>
 
-    {{ $class := .Class }}
-
-    <div class="card-body" id="entrants">
+    <div class="card-body">
         <input type="hidden" name="ClassID" id="ClassID" {{ with $class.ID }}value="{{ .String }}"{{ end }}>
 
         <div class="form-group row">
@@ -32,8 +43,33 @@
             <input type="hidden" name="NumCars" value="{{ len $class.ValidCarIDs }}">
         </div>
 
-        <hr>
+        <div class="form-group row mb-0">
+            <label class="col-sm-3 col-form-label">Slots</label>
 
+            <div class="col-sm-9">
+                {{/* no name: only a view on the number of entrants of the class, EntryList.NumEntrants is submitted */}}
+                <input type="number" class="form-control class-slots" style="max-width: 120px;" min="0" step="1"
+                       value="{{ with $class.Entrants }}{{ len $class.Entrants }}{{ else }}{{ if $.IsEditing }}0{{ else }}1{{ end }}{{ end }}">
+
+                <small class="form-text text-muted">
+                    Entrants of this class. Open slots are filled by the drivers who join (open Championship, Sign Up Form or
+                    Autofill); assign drivers to slots in the Entry List tab.
+                </small>
+                <small class="form-text text-warning class-slots-hint" style="display: none;"></small>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}
+
+{{ define "championship-class-entrants" }}
+{{ $class := .Class }}
+<div class="card mt-3 mb-3 border-primary class-block" data-class-key="{{ .Key }}">
+    <div class="card-header">
+        <strong><span class="class-name-label">{{ or $class.Name "Unnamed class" }}</span> &ndash; Entrants</strong>
+    </div>
+
+    <div class="card-body" id="entrants">
         <div class="entrants-block">
             <div id="entrantTemplate" class="entrant">
                 {{ template "entrant" dict "IsEditing" $.IsEditing "IsChampionship" true }}
@@ -66,11 +102,19 @@
         <div class="clearfix"></div>
 
         <input type="hidden" class="totalNumEntrants" name="EntryList.NumEntrants" value="{{ with $class.Entrants }}{{ len $class.Entrants }}{{ else }}{{ if $.IsEditing }}0{{ else }}1{{ end }}{{ end }}">
+    </div>
+</div>
+{{ end }}
 
-        <h3>Points</h3>
+{{ define "championship-class-points" }}
+{{ $class := .Class }}
+<div class="card mt-3 mb-3 border-primary class-block" data-class-key="{{ .Key }}">
+    <div class="card-header">
+        <strong><span class="class-name-label">{{ or $class.Name "Unnamed class" }}</span> &ndash; Points</strong>
+    </div>
 
+    <div class="card-body">
         {{ template "points" dict "Points" $class.Points "DefaultPoints" $.DefaultPoints "IsEditing" $.IsEditing "IsRaceWeekend" false }}
     </div>
 </div>
-
 {{ end }}

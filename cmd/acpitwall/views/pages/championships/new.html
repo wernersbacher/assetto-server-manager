@@ -113,6 +113,17 @@
                 <p class="text-muted mt-3 visible-open-championship">
                     The Entry List of an Open Championship is filled by the drivers who join its events, so there is no Spectator Car.
                 </p>
+
+                {{/* the entrants of the classes come after the spectator car, see the comment in partials/championships/class.html */}}
+                <div class="template" style="display: none;" data-class-template="entrants">
+                    {{ template "championship-class-entrants" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-template" "Class" $.DefaultClass }}
+                </div>
+
+                {{ range $classIndex, $class := $f.Classes }}
+                    {{ template "championship-class-entrants" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" (print "class-" $classIndex) "Class" $class }}
+                {{ else }}
+                    {{ template "championship-class-entrants" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-0" "Class" $.DefaultClass }}
+                {{ end }}
             </div>
 
             <div class="tab-pane show active" id="pane-general" role="tabpanel" aria-labelledby="tab-general">
@@ -147,14 +158,14 @@
                     </div>
                 </div>
 
-                <div id="class-template" style="display: none;">
-                    {{ template "championship-class" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "Class" $.DefaultClass "DefaultPoints" $.DefaultPoints }}
+                <div class="template" style="display: none;" data-class-template="general">
+                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-template" "Class" $.DefaultClass }}
                 </div>
 
                 {{ range $classIndex, $class := $f.Classes }}
-                    {{ template "championship-class" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "Class" $class "DefaultPoints" $.DefaultPoints }}
+                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" (print "class-" $classIndex) "Class" $class }}
                 {{ else }}
-                    {{ template "championship-class" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "Class" $.DefaultClass "DefaultPoints" $.DefaultPoints }}
+                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-0" "Class" $.DefaultClass }}
                 {{ end }}
 
                 <div class="mt-3">
@@ -406,6 +417,16 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="template" style="display: none;" data-class-template="points">
+                    {{ template "championship-class-points" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-template" "Class" $.DefaultClass }}
+                </div>
+
+                {{ range $classIndex, $class := $f.Classes }}
+                    {{ template "championship-class-points" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" (print "class-" $classIndex) "Class" $class }}
+                {{ else }}
+                    {{ template "championship-class-points" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-0" "Class" $.DefaultClass }}
+                {{ end }}
             </div>
 
             <div class="tab-pane" id="pane-racesettings" role="tabpanel" aria-labelledby="tab-racesettings">

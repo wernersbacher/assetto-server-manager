@@ -25,6 +25,11 @@ export function EntryPoint() {
         new RaceSetup($(elem));
     });
 
+    // the blocks of a championship class (in different tabs) are one RaceSetup
+    championships.classKeys().forEach(function (key) {
+        new RaceSetup(championships.blocksOfClass(key));
+    });
+
     $document.find("#open-in-simres").each(function (index, elem) {
         let query = window.location.search;
         let link = window.location.href.replace(query, "").split("#")[0].replace("results", "results/download") + ".json" + query;
@@ -259,6 +264,19 @@ function liveItems($items) {
 
         return live;
     });
+}
+
+// classBlocks returns the elements that make up the class setup of $el: the three blocks of a championship class (class
+// basics in General, entrants in Entry List, points in Scoring) share a data-class-key, so a jQuery object with all of
+// them lets RaceSetup find elements across the tabs. Everywhere else it is the .race-setup the element is in.
+function classBlocks($el) {
+    let $block = $el.closest("[data-class-key]");
+
+    if ($block.length) {
+        return $("[data-class-key='" + $block.attr("data-class-key") + "']");
+    }
+
+    return $el.closest(".race-setup");
 }
 
 function makeCarString(cars) {
@@ -1077,16 +1095,15 @@ class RaceSetup {
         function deleteEntrant(e) {
             e.preventDefault();
 
-            let $raceSetup = $(this).closest(".race-setup");
+            let $raceSetup = classBlocks($(this));
 
             $(this).closest(".entrant").remove();
-
 
             let $savedNumEntrants = $raceSetup.find(".totalNumEntrants");
             $savedNumEntrants.val(liveItems($raceSetup.find(".entrant")).length);
 
-
             that.toggleAlreadyAutocompletedDrivers();
+            $raceSetup.first().trigger("entrantsChanged");
         }
 
         function populateEntryListCars() {
@@ -1139,16 +1156,9 @@ class RaceSetup {
         that.$carsDropdown.change(populateEntryListCars);
         that.$parent.find(".btn-delete-entrant").click(deleteEntrant);
 
-        that.$parent.find(".addEntrant").click(function (e) {
-            e.preventDefault();
-
-            let $numEntrantsField = $(this).parent().find(".numEntrantsToAdd");
-            let numEntrantsToAdd = 1;
-
-            if ($numEntrantsField.length > 0) {
-                numEntrantsToAdd = $numEntrantsField.val();
-            }
-
+        // addEntrants adds numEntrantsToAdd entrants like the Add Entrant(s) button does (also used by the slots input
+        // of a championship class, see championships.initClassSlots).
+        function addEntrants(numEntrantsToAdd) {
             let maxClients = $("#MaxClients").val();
 
             let $clonedTemplate = $entrantTemplate.clone();
@@ -1219,6 +1229,23 @@ class RaceSetup {
             $savedNumEntrants.val(liveItems(that.$parent.find(".entrant")).length);
 
             that.toggleAlreadyAutocompletedDrivers();
+            that.$parent.first().trigger("entrantsChanged");
+        }
+
+        that.addEntrants = addEntrants;
+        that.$parent.data("raceSetup", that);
+
+        that.$parent.find(".addEntrant").click(function (e) {
+            e.preventDefault();
+
+            let $numEntrantsField = $(this).parent().find(".numEntrantsToAdd");
+            let numEntrantsToAdd = 1;
+
+            if ($numEntrantsField.length > 0) {
+                numEntrantsToAdd = $numEntrantsField.val();
+            }
+
+            addEntrants(numEntrantsToAdd);
         });
     }
 
@@ -2252,17 +2279,16 @@ let championships = {
     init: function () {
         let $pointsTemplate = $document.find(".points-place").last().clone();
 
-        $(".race-setup").each(function (index, elem) {
+        $(".race-setup, .class-block").each(function (index, elem) {
             // init totalNumPoints val to be equal to the number of .points-place's visible in the class.
             let $raceSetup = $(elem);
             let $savedNumPoints = $raceSetup.find(".totalNumPoints");
             $savedNumPoints.val(liveItems($raceSetup.find(".points-place")).length);
         });
 
-        $document.on("click", ".addEntrant", function (e) {
-            e.preventDefault();
-
-            let $raceSetup = $(this).closest(".race-setup");
+        // the entrants of a class changed: add point places up to the number of entrants (places are never removed)
+        $document.on("entrantsChanged", "[data-class-key]", function (e) {
+            let $raceSetup = classBlocks($(e.currentTarget));
             let $pointsParent = $raceSetup.find(".points-parent");
 
             if (!$pointsParent.length) {
@@ -2294,6 +2320,7 @@ let championships = {
         });
 
         championships.initClassSetup();
+        championships.initClassSlots();
         championships.initSummerNote();
         championships.initDisplayOrder();
         championships.initConfigureSignUpForm();
@@ -2417,34 +2444,88 @@ let championships = {
         });
     },
 
-    $classTemplate: null,
+    // the three blocks of the class template (class basics, entrants, points), cloned when a class is added
+    $classTemplates: [],
+    classCounter: 0,
+
+    classKeys: function () {
+        let keys = [];
+
+        $("[data-class-key]").each(function () {
+            let key = $(this).attr("data-class-key");
+
+            if (keys.indexOf(key) < 0) {
+                keys.push(key);
+            }
+        });
+
+        return keys;
+    },
+
+    blocksOfClass: function (key) {
+        return $("[data-class-key='" + key + "']");
+    },
 
     initClassSetup: function () {
         let $addClassButton = $document.find("#addClass");
-        let $tmpl = $document.find("#class-template");
-        championships.$classTemplate = $tmpl.clone();
 
-        $tmpl.remove();
+        // the templates are not part of the form (their fields must not be submitted), so they are taken out
+        // of the page and cloned from memory
+        $document.find("[data-class-template]").each(function () {
+            let $tmpl = $(this);
+
+            championships.$classTemplates.push({
+                pane: $tmpl.closest(".tab-pane")[0],
+                kind: $tmpl.attr("data-class-template"),
+                $block: $tmpl.children(".class-block").first().clone()
+            });
+
+            $tmpl.remove();
+        });
 
         $addClassButton.click(function (e) {
             e.preventDefault();
 
-            let $cloned = championships.$classTemplate.clone().show();
+            let key = "class-new-" + (++championships.classCounter);
+            let $allBlocks = $();
 
-            $(this).before($cloned);
-            new RaceSetup($cloned);
-            new CarSearch($cloned);
+            // every pane gets its block after the last class of that pane, so all panes keep the same class order:
+            // the server reads the repeated fields of the classes by their position in the form
+            championships.$classTemplates.forEach(function (tmpl) {
+                let $cloned = tmpl.$block.clone().attr("data-class-key", key);
+                let $last = $(tmpl.pane).find("[data-class-key]").last();
+
+                if ($last.length) {
+                    $last.after($cloned);
+                } else if (tmpl.kind === "general") {
+                    $addClassButton.parent().before($cloned);
+                } else {
+                    $(tmpl.pane).append($cloned);
+                }
+
+                $allBlocks = $allBlocks.add($cloned);
+            });
+
+            new RaceSetup($allBlocks);
+            new CarSearch($allBlocks);
 
             let maxClients = $("#MaxClients").val();
 
             if (liveItems($(".entrant")).length >= maxClients) {
-                liveItems($cloned.find(".entrant")).remove();
+                liveItems($allBlocks.find(".entrant")).remove();
             }
+
+            championships.initClass($allBlocks);
         });
 
         $document.on("click", ".btn-delete-class", function (e) {
             e.preventDefault();
-            $(this).closest(".race-setup").remove();
+            classBlocks($(this)).remove();
+        });
+
+        // the class name is shown in the titles of the entrants and points cards
+        $document.on("input", "[data-class-key] input[name='ClassName']", function () {
+            classBlocks($(this)).find(".class-name-label").text($(this).val().trim() || "Unnamed class");
         });
 
         $document.on("input", ".entrant-team", function () {
@@ -2454,14 +2535,92 @@ let championships = {
         $(".Cars").each(function(index, element) {
             let $target = $(element);
 
-            $target.closest(".race-setup").find("input[name='NumCars']").val($target.val().length);
+            classBlocks($target).find("input[name='NumCars']").val($target.val().length);
         });
 
         $document.on("change", ".Cars", function(e) {
             let $target = $(e.currentTarget);
 
-            $target.closest(".race-setup").find("input[name='NumCars']").val($target.val().length);
+            classBlocks($target).find("input[name='NumCars']").val($target.val().length);
         });
+    },
+
+    // initClass sets the counters of a class: the number of points and the slots follow what the blocks hold
+    initClass: function ($blocks) {
+        $blocks.find(".totalNumPoints").val(liveItems($blocks.find(".points-place")).length);
+        $blocks.find(".totalNumEntrants").val(liveItems($blocks.find(".entrant")).length);
+        championships.showSlots($blocks);
+    },
+
+    // showSlots shows the number of entrants of a class in its Slots input
+    showSlots: function ($blocks) {
+        $blocks.find(".class-slots").val(liveItems($blocks.find(".entrant")).length);
+    },
+
+    // initClassSlots connects the Slots input of the classes (General tab) with their entrants (Entry List tab).
+    initClassSlots: function () {
+        // adding or deleting entrants anywhere updates the slots (and clears the hint about the last change)
+        $document.on("entrantsChanged", "[data-class-key]", function (e) {
+            let $blocks = classBlocks($(e.currentTarget));
+
+            championships.showSlots($blocks);
+            $blocks.find(".class-slots-hint").hide();
+        });
+
+        $document.on("change", ".class-slots", function (e) {
+            let $blocks = classBlocks($(e.currentTarget));
+            let $hint = $blocks.find(".class-slots-hint");
+            let wanted = parseInt($(e.currentTarget).val(), 10);
+            let current = liveItems($blocks.find(".entrant")).length;
+
+            $hint.hide();
+
+            if (isNaN(wanted) || wanted < 0) {
+                championships.showSlots($blocks);
+                return;
+            }
+
+            if (wanted > current) {
+                let raceSetup = $blocks.first().data("raceSetup");
+
+                if (raceSetup) {
+                    raceSetup.addEntrants(wanted - current);
+                }
+            } else if (wanted < current) {
+                // only entrants without a driver are removed, from the last one on
+                let $entrants = liveItems($blocks.find(".entrant"));
+
+                for (let i = $entrants.length - 1; i >= 0 && current > wanted; i--) {
+                    let $entrant = $entrants.eq(i);
+
+                    if (!championships.entrantHasDriver($entrant)) {
+                        $entrant.remove();
+                        current--;
+                    }
+                }
+
+                $blocks.find(".totalNumEntrants").val(current);
+                $blocks.first().trigger("entrantsChanged");
+
+                if (current > wanted) {
+                    let withDriver = current;
+
+                    $hint.text(withDriver + (withDriver === 1 ? " slot has a driver" : " slots have drivers") +
+                        " assigned \u2013 remove them in the Entry List tab").show();
+                }
+            }
+
+            championships.showSlots($blocks);
+        });
+
+        championships.classKeys().forEach(function (key) {
+            championships.initClass(championships.blocksOfClass(key));
+        });
+    },
+
+    entrantHasDriver: function ($entrant) {
+        return $.trim($entrant.find("[name='EntryList.Name']").val() || "") !== "" ||
+            $.trim($entrant.find("[name='EntryList.GUID']").val() || "") !== "";
     },
 
     $linkTemplate: null,

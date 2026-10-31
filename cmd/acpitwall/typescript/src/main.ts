@@ -50,6 +50,18 @@ $(() => {
     $(".race-setup").each(function (index, elem) {
         new CarSearch($(elem));
     });
+
+    // the blocks of a championship class (one per tab) share a key and are searched as one
+    const classKeys: string[] = [];
+
+    $("[data-class-key]").each(function (index, elem) {
+        const key = $(elem).attr("data-class-key") as string;
+
+        if (classKeys.indexOf(key) < 0 && !$(elem).closest("[data-class-template]").length) {
+            classKeys.push(key);
+            new CarSearch($("[data-class-key='" + key + "']"));
+        }
+    });
 });
 
 declare global {
