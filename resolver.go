@@ -204,6 +204,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 	processConfig.Server.Plugins = slotConfig.Plugins
 
 	slot.ContentManagerWrapper = smserver.NewContentManagerWrapper(r.config, store, r.resolveCarManager(), r.resolveTrackManager(), slot.Env)
+	slot.ContentManagerWrapper.SetSkinDownloads(r.resolveDownloadSigner(), func() downloads.Access { return r.resolveAccountHandler().DownloadAccess() })
 	process := smserver.NewAssettoServerProcess(&processConfig, r.slotUDPCallback(slot), store, slot.ContentManagerWrapper, slot.Env, pluginsOutput)
 	process.SetStartCheck(func() error { return r.checkPorts(slot) })
 	slot.Process = process

@@ -3,6 +3,8 @@ package server
 import (
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/downloads"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -17,6 +19,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -80,12 +84,23 @@ type CMContent struct {
 	Cars  map[string]ContentURL `json:"cars"`
 	Track ContentURL            `json:"track"`
 
-	// @TODO not functional
+	// Password is the "password" flag of content.json. The wrapper (gro-ove/ac-server-wrapper) has no such field in
+	// its documented content.json (it uses downloadPasswordOnly in cm_wrapper_params.json for its own download
+	// server), and downloads here are protected by signed URLs instead, so it is always false.
 	Password bool `json:"password"`
 }
 
+// ContentURL is a downloadable car or track. Skins (cars only) are keyed by skin id; per the ac-server-wrapper
+// documentation each skin has either "url" (external download) or "file" and an optional "version".
 type ContentURL struct {
-	URL string `json:"url"`
+	URL   string               `json:"url"`
+	Skins map[string]SkinEntry `json:"skins,omitempty"`
+}
+
+// SkinEntry is one skin in content.json.
+type SkinEntry struct {
+	URL     string `json:"url"`
+	Version string `json:"version"`
 }
 
 type ACHTTPPlayers struct {
@@ -122,6 +137,68 @@ type ContentManagerWrapper struct {
 	srv         *http.Server
 	description string
 	mutex       sync.Mutex
+
+	skinSigner *downloads.Signer
+	skinAccess func() downloads.Access
+}
+
+// SetSkinDownloads enables the skins section of content.json: the skins of the entry list are offered as signed
+// download URLs (see downloads.Signer), unless the download access is Off.
+func (cmw *ContentManagerWrapper) SetSkinDownloads(signer *downloads.Signer, access func() downloads.Access) {
+	cmw.skinSigner = signer
+	cmw.skinAccess = access
+}
+
+// skinEntries returns the skins of the entry list per car model, with signed URL and version. Skins without a skin
+// directory (random skins, entries with an empty skin) are left out.
+func (cmw *ContentManagerWrapper) skinEntries(now time.Time) map[string]map[string]SkinEntry {
+	if cmw.skinSigner == nil || cmw.config == nil || cmw.config.HTTP.BaseURL == "" {
+		return nil
+	}
+
+	if cmw.skinAccess != nil && cmw.skinAccess() == downloads.Off {
+		return nil
+	}
+
+	result := make(map[string]map[string]SkinEntry)
+
+	for _, entrant := range cmw.entryList.AsSlice() {
+		if !plainname.Valid(entrant.Model) || !plainname.Valid(entrant.Skin) {
+			continue
+		}
+
+		if _, ok := result[entrant.Model][entrant.Skin]; ok {
+			continue
+		}
+
+		skinDir := filepath.Join(cmw.env.InstallPath(), "content", "cars", entrant.Model, "skins", entrant.Skin)
+
+		if info, err := os.Lstat(skinDir); err != nil || !info.IsDir() {
+			continue
+		}
+
+		version, err := downloads.SkinVersion(skinDir)
+
+		if err != nil {
+			logrus.WithError(err).Warnf("Could not hash skin %s of %s for the CM Wrapper", entrant.Skin, entrant.Model)
+			continue
+		}
+
+		skinURL, err := cmw.skinSigner.SkinURL(cmw.config.HTTP.BaseURL, entrant.Model, entrant.Skin, now.Add(downloads.DefaultTTL))
+
+		if err != nil {
+			logrus.WithError(err).Warn("Could not sign skin download URL for the CM Wrapper")
+			return result
+		}
+
+		if result[entrant.Model] == nil {
+			result[entrant.Model] = make(map[string]SkinEntry)
+		}
+
+		result[entrant.Model][entrant.Skin] = SkinEntry{URL: skinURL, Version: version}
+	}
+
+	return result
 }
 
 func NewContentManagerWrapper(config *smconfig.Configuration, store smstore.Store, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env) *ContentManagerWrapper {
@@ -147,6 +224,13 @@ func (cmw *ContentManagerWrapper) NewCMContent(cars []string, trackName string, 
 		}
 
 		carsMap[car.Name] = ContentURL{URL: car.Details.DownloadURL}
+	}
+
+	for model, skins := range cmw.skinEntries(time.Now()) {
+		if entry, ok := carsMap[model]; ok {
+			entry.Skins = skins
+			carsMap[model] = entry
+		}
 	}
 
 	trackMeta, err := smcontent.LoadTrackMetaDataFromName(cmw.env.InstallPath(), trackName)
@@ -528,7 +612,7 @@ func (cmw *ContentManagerWrapper) buildContentManagerDetails(guid string) (*Cont
 
 	description += cmw.description
 
-	// @TODO ContentManagerWrapperContentRequiresPassword from config_ini.go
+	// the password flag stays false, see CMContent.Password
 	cmContent, err := cmw.NewCMContent(sessionInfo.Cars, race.Track, false)
 
 	if err != nil {
