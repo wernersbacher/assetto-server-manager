@@ -1,0 +1,126 @@
+package model
+
+import (
+	"encoding/gob"
+	"errors"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+func init() {
+	gob.RegisterName("github.com/wernersbacher/ACPitwall.UserSkin", UserSkin{})
+}
+
+var (
+	ErrUserSkinNotFound = errors.New("servermanager: skin not found")
+	ErrSkinVisibility   = errors.New("servermanager: invalid skin visibility")
+)
+
+// SkinVisibility decides who can pick and download an uploaded skin.
+type SkinVisibility string
+
+const (
+	// SkinPrivate skins are only usable by their owner (and visible to admins). It is the zero value, the safe default.
+	SkinPrivate SkinVisibility = "private"
+	// SkinTeam skins are usable by the members of the team named in UserSkin.TeamID.
+	SkinTeam SkinVisibility = "team"
+	// SkinGlobal skins are usable by everybody; they live in the regular skins directory of the car.
+	SkinGlobal SkinVisibility = "global"
+)
+
+// ParseSkinVisibility converts a form value ("private", "team", "global"). An empty value is private.
+func ParseSkinVisibility(s string) (SkinVisibility, error) {
+	switch SkinVisibility(s) {
+	case "", SkinPrivate:
+		return SkinPrivate, nil
+	case SkinTeam:
+		return SkinTeam, nil
+	case SkinGlobal:
+		return SkinGlobal, nil
+	}
+
+	return SkinPrivate, ErrSkinVisibility
+}
+
+// UserSkin is the metadata of an uploaded car skin. The skin files themselves live on disk, in the skins directory
+// of the car (global) or in the user skins directory (private, team); see the skins manager.
+type UserSkin struct {
+	ID    uuid.UUID
+	Car   string
+	Name  string // name of the skin folder as uploaded
+	Owner uuid.UUID
+
+	Visibility SkinVisibility
+	// TeamID is only set for SkinTeam skins.
+	TeamID uuid.UUID
+
+	Files int
+	Size  int64
+
+	Created time.Time
+	Updated time.Time
+}
+
+// NewUserSkin creates the record of a freshly uploaded, private skin.
+func NewUserSkin(car, name string, owner uuid.UUID, files int, size int64, now time.Time) *UserSkin {
+	return &UserSkin{
+		ID:         uuid.New(),
+		Car:        car,
+		Name:       name,
+		Owner:      owner,
+		Visibility: SkinPrivate,
+		Files:      files,
+		Size:       size,
+		Created:    now,
+		Updated:    now,
+	}
+}
+
+// Normalized returns the visibility with the zero value resolved to SkinPrivate.
+func (s *UserSkin) Normalized() SkinVisibility {
+	if s.Visibility == "" {
+		return SkinPrivate
+	}
+
+	return s.Visibility
+}
+
+// SetVisibility changes who may use the skin. A team skin needs a team, other visibilities drop it.
+func (s *UserSkin) SetVisibility(v SkinVisibility, team uuid.UUID, now time.Time) error {
+	switch v {
+	case SkinPrivate, SkinGlobal:
+		team = uuid.Nil
+	case SkinTeam:
+		if team == uuid.Nil {
+			return ErrSkinVisibility
+		}
+	default:
+		return ErrSkinVisibility
+	}
+
+	s.Visibility, s.TeamID, s.Updated = v, team, now
+
+	return nil
+}
+
+// UsableBy reports whether the account may pick the skin, given the ids of the teams it is a member of.
+func (s *UserSkin) UsableBy(account uuid.UUID, teams []uuid.UUID) bool {
+	if s.Normalized() == SkinGlobal {
+		return true
+	}
+
+	if account != uuid.Nil && account == s.Owner {
+		return true
+	}
+
+	if s.Normalized() == SkinTeam {
+		for _, team := range teams {
+			if team == s.TeamID {
+				return true
+			}
+		}
+	}
+
+	return false
+}

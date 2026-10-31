@@ -104,6 +104,13 @@ type Store interface {
 	ListTeams() ([]*smmodel.Team, error)
 	DeleteTeam(team *smmodel.Team) error
 
+	// User skins (metadata of uploaded car skins) are shared by all server slots. A missing skin gives
+	// smmodel.ErrUserSkinNotFound; DeleteUserSkin removes the record for good.
+	UpsertUserSkin(skin *smmodel.UserSkin) error
+	FindUserSkinByID(id string) (*smmodel.UserSkin, error)
+	ListUserSkins() ([]*smmodel.UserSkin, error)
+	DeleteUserSkin(id string) error
+
 	// Audit Log
 	GetAuditEntries() ([]*smmodel.AuditEntry, error)
 	AddAuditEntry(entry *smmodel.AuditEntry) error
