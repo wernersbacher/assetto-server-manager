@@ -187,35 +187,58 @@ type TrackRef struct {
 	Layout string
 }
 
+// TrackSummary is a track layout with valid laps and the date of the newest session with one.
+type TrackSummary struct {
+	TrackRef
+	Latest time.Time
+}
+
 // Tracks lists the tracks and layouts with at least one valid lap, ordered by name.
 func (i *Index) Tracks() []TrackRef {
-	seen := make(map[TrackRef]bool)
+	summaries := i.TrackSummaries(Filter{})
+	refs := make([]TrackRef, 0, len(summaries))
 
-	for _, s := range i.snapshot() {
-		for _, d := range s.drivers {
-			for _, c := range d.cars {
-				if c.best != nil {
-					seen[TrackRef{s.track, s.layout}] = true
-				}
-			}
-		}
+	for _, s := range summaries {
+		refs = append(refs, s.TrackRef)
 	}
-
-	refs := make([]TrackRef, 0, len(seen))
-
-	for ref := range seen {
-		refs = append(refs, ref)
-	}
-
-	sort.Slice(refs, func(a, b int) bool {
-		if refs[a].Track != refs[b].Track {
-			return refs[a].Track < refs[b].Track
-		}
-
-		return refs[a].Layout < refs[b].Layout
-	})
 
 	return refs
+}
+
+// TrackSummaries lists the tracks and layouts with at least one valid lap in the sessions matching the filter (Dir,
+// Since and SessionTypes; Cars is ignored), ordered by name, with the date of their newest session. It scans the index
+// once, unlike calling TrackRecords per track.
+func (i *Index) TrackSummaries(f Filter) []TrackSummary {
+	f.Cars = nil
+	seen := make(map[TrackRef]time.Time)
+
+	for _, s := range i.snapshot() {
+		if !f.matchesFile(s) || !s.hasValidLap() {
+			continue
+		}
+
+		ref := TrackRef{s.track, s.layout}
+
+		if latest, ok := seen[ref]; !ok || s.date.After(latest) {
+			seen[ref] = s.date
+		}
+	}
+
+	out := make([]TrackSummary, 0, len(seen))
+
+	for ref, latest := range seen {
+		out = append(out, TrackSummary{TrackRef: ref, Latest: latest})
+	}
+
+	sort.Slice(out, func(a, b int) bool {
+		if out[a].Track != out[b].Track {
+			return out[a].Track < out[b].Track
+		}
+
+		return out[a].Layout < out[b].Layout
+	})
+
+	return out
 }
 
 func sortedByTrack(m map[string]Record) []Record {

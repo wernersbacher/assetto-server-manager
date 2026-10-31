@@ -167,6 +167,16 @@ func TestRecordsExcludeCutsAndFilter(t *testing.T) {
 	if tr := idx.Tracks(); len(tr) != 2 || tr[0] != (TrackRef{"monza", ""}) || tr[1] != (TrackRef{"monza", "gp"}) {
 		t.Fatalf("tracks: %+v", tr)
 	}
+
+	summaries := idx.TrackSummaries(Filter{})
+
+	if len(summaries) != 2 || summaries[0].Latest.IsZero() || summaries[1].Latest.IsZero() {
+		t.Fatalf("track summaries: %+v", summaries)
+	}
+
+	if got := len(idx.TrackSummaries(Filter{Dir: dirs[1], SessionTypes: []string{"practice"}})); got != 0 {
+		t.Fatalf("filtered track summaries: %d", got)
+	}
 }
 
 func TestDriverProfile(t *testing.T) {

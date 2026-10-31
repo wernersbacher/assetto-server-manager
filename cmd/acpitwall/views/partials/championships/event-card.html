@@ -137,7 +137,7 @@
                                                         {{ with $result }}
                                                             <li>
                                                                 <strong>{{ $class.Name }} Winner</strong><br>
-                                                                {{ driverName $result.DriverName }}
+                                                                {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                                             </li>
                                                         {{ end }}
                                                     {{ end }}
@@ -155,7 +155,7 @@
 
                                                                 <li>
                                                                     <strong>{{ $posInt }}{{ ordinal $posInt }}</strong>:
-                                                                    {{ driverName $result.DriverName }}
+                                                                    {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                                                 </li>
                                                             {{ end }}
                                                         {{ end }}
@@ -178,7 +178,7 @@
                                                         {{ range $pos, $result := (slice ($class.ResultsForClass $sessionDetails.Results.Result $championship) 0 1) }}
                                                             <li>
                                                                 <strong>{{ $class.Name }} Winner</strong><br>
-                                                                {{ driverName $result.DriverName }}
+                                                                {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                                             </li>
                                                         {{ end }}
                                                     {{ end }}
@@ -194,7 +194,7 @@
 
                                                                 <li>
                                                                     <strong>{{ $posInt }}{{ ordinal $posInt }}</strong>:
-                                                                    {{ driverName $result.DriverName }}
+                                                                    {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                                                 </li>
                                                             {{ end }}
                                                         {{ end }}
@@ -223,12 +223,12 @@
                                                     {{ range $classIndex, $class := $championship.Classes }}
                                                         {{ with ($session.Results.FastestLapInClass $class.ID) }}
                                                             <br>
-                                                            {{ $class.Name }}: {{ driverName .DriverName }}
+                                                            {{ $class.Name }}: {{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}
                                                         {{ end }}
                                                     {{ end }}
                                                 </span>
                                             {{ else }}
-                                                {{ with $session.Results.FastestLap }}{{ driverName .DriverName }}{{ end }}
+                                                {{ with $session.Results.FastestLap }}{{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}{{ end }}
                                             {{ end }}
                                         </span><br>
                                     {{ else if eq $sessionName "RACEx2" }}
@@ -240,12 +240,12 @@
                                                     {{ range $classIndex, $class := $championship.Classes }}
                                                         {{ with ($session.Results.FastestLapInClass $class.ID) }}
                                                             <br>
-                                                            {{ $class.Name }}: {{ driverName .DriverName }}
+                                                            {{ $class.Name }}: {{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}
                                                         {{ end }}
                                                     {{ end }}
                                                 </span>
                                             {{ else }}
-                                                {{ with $session.Results.FastestLap }}{{ driverName .DriverName }}{{ end }}
+                                                {{ with $session.Results.FastestLap }}{{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}{{ end }}
                                             {{ end }}
                                         </span><br>
                                     {{ else if eq $sessionName "QUALIFY" }}
@@ -257,12 +257,12 @@
                                                     {{ range $classIndex, $class := $championship.Classes }}
                                                         {{ with ($session.Results.FastestLapInClass $class.ID) }}
                                                             <br>
-                                                            {{ $class.Name }}: {{ driverName .DriverName }}
+                                                            {{ $class.Name }}: {{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}
                                                         {{ end }}
                                                     {{ end }}
                                                 </span>
                                             {{ else }}
-                                                {{ with $session.Results.FastestLap }}{{ driverName .DriverName }}{{ end }}
+                                                {{ with $session.Results.FastestLap }}{{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}{{ end }}
                                             {{ end }}
                                         </span><br>
                                     {{ end }}

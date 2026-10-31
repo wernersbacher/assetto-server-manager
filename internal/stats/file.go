@@ -77,6 +77,19 @@ func validLap(lap *results.SessionLap) bool {
 	return lap.Cuts == 0 && lap.LapTime > 0
 }
 
+// hasValidLap tells if any driver has a valid lap in the session.
+func (f *fileStats) hasValidLap() bool {
+	for _, d := range f.drivers {
+		for _, c := range d.cars {
+			if c.best != nil {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (f *fileStats) driver(guid string) *fileDriver {
 	d, ok := f.drivers[guid]
 

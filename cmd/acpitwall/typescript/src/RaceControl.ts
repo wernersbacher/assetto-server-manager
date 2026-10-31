@@ -610,6 +610,15 @@ class LiveMap implements WebsocketHandler {
 
 const DriverGUIDDataKey = "driver-guid";
 
+// driverNameElement is the name of a driver, linked to the driver profile if the GUID can have one.
+function driverNameElement(guid: string, name: string): JQuery<HTMLElement> {
+    if (!/^[0-9A-Za-z_-]{1,64}$/.test(guid)) {
+        return $("<span/>").text(name);
+    }
+
+    return $("<a class='driver-profile-link'/>").attr("href", "/driver/" + guid).text(name);
+}
+
 enum SessionType {
     Race = 3,
     Qualifying = 2,
@@ -827,7 +836,7 @@ class LiveTimings implements WebsocketHandler {
         });
 
         const $tdName = $tr.find(".driver-name");
-        $tdName.text(driver.CarInfo.DriverName);
+        $tdName.empty().append(driverNameElement(driver.CarInfo.DriverGUID, driver.CarInfo.DriverName));
 
         if (addingToConnectedTable) {
             // driver dot
@@ -1068,6 +1077,11 @@ class LiveTimings implements WebsocketHandler {
     }
 
     private toggleDriverSpeed(e: ClickEvent): void {
+        // the driver profile link navigates on its own
+        if ($(e.target).closest("a").length) {
+            return;
+        }
+
         const $target = $(e.currentTarget);
         const driverGUID = $target.data(DriverGUIDDataKey);
         const $driverDot = this.liveMap.getDotForDriverGUID(driverGUID);

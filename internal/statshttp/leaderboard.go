@@ -253,27 +253,14 @@ func (lh *LeaderboardHandler) trackOptions(f stats.Filter, track, layout string)
 		return nil, nil
 	}
 
-	for _, ref := range lh.index.Tracks() {
-		records := lh.index.TrackRecords(ref.Track, ref.Layout, stats.Filter{Dir: f.Dir})
-
-		if len(records) == 0 {
-			continue
-		}
-
-		option := TrackOption{
+	for _, ref := range lh.index.TrackSummaries(stats.Filter{Dir: f.Dir}) {
+		options = append(options, TrackOption{
 			Track:  ref.Track,
 			Layout: ref.Layout,
 			Name:   api.TrackName(lh.installPath(), ref.Track, ref.Layout),
 			Value:  ref.Track + "|" + ref.Layout,
-		}
-
-		for _, record := range records {
-			if record.Date.After(option.Latest) {
-				option.Latest = record.Date
-			}
-		}
-
-		options = append(options, option)
+			Latest: ref.Latest,
+		})
 	}
 
 	sort.SliceStable(options, func(a, b int) bool {

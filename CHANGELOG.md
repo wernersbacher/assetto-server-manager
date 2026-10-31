@@ -14,6 +14,8 @@ Fixed:
 
 Added:
 
+* Driver names in live timing and the winners of championship event cards link to the driver profile.
+
 * API documentation: the JSON API is described by an OpenAPI 3 specification (`/api/openapi.yaml`) with an embedded Swagger UI at `/api/docs`, which replaces the API section of the README. New endpoint `GET /api/championship/{championshipID}/standings` returns the driver and team standings of a championship.
 
 * Hotlap leaderboards (`/leaderboards`, in the Racing menu): the fastest valid lap of every driver on a track layout with gap to the leader, sectors (best sector highlighted), tyre, date and a link to the result and the driver profile. The track, cars, period (all time, 30 days, 7 days), session type and server can be filtered, and the table can show one row per driver and car instead of per driver. The track page links to its layout's leaderboard. Also available as JSON from `GET /api/leaderboard`, see the API documentation at `/api/docs`.
