@@ -15,12 +15,14 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/blevesearch/bleve"
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 )
 
@@ -32,15 +34,31 @@ type CarsHandler struct {
 	trackManager *smcontent.TrackManager
 	env          *serverenv.Env
 	records      *Records
+	signer       *downloads.Signer
+
+	// zipSlots limits the skin zips that are built at the same time
+	zipSlots chan struct{}
 }
 
-func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env, records *Records) *CarsHandler {
+const (
+	// MaxSkinZipFiles and MaxSkinZipBytes limit the size of the skin zip that is built on the fly; a skin directory
+	// beyond that (a whole car pack placed in a skin folder, for example) is refused instead of streamed.
+	MaxSkinZipFiles = 500
+	MaxSkinZipBytes = 100 << 20
+
+	// maxConcurrentSkinZips is the number of skin zips that may be built at the same time.
+	maxConcurrentSkinZips = 4
+)
+
+func NewCarsHandler(baseHandler *smweb.BaseHandler, carManager *smcontent.CarManager, trackManager *smcontent.TrackManager, env *serverenv.Env, records *Records, signer *downloads.Signer) *CarsHandler {
 	return &CarsHandler{
 		BaseHandler:  baseHandler,
 		carManager:   carManager,
 		trackManager: trackManager,
 		env:          env,
 		records:      records,
+		signer:       signer,
+		zipSlots:     make(chan struct{}, maxConcurrentSkinZips),
 	}
 }
 
@@ -401,12 +419,46 @@ func (ch *CarsHandler) DownloadSkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	files, size, err := downloads.SkinStats(skinDir)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("could not read skin %s of car %s", skin, car)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if files > MaxSkinZipFiles || size > MaxSkinZipBytes {
+		http.Error(w, "this skin is too large to download", http.StatusRequestEntityTooLarge)
+		return
+	}
+
+	if ch.zipSlots != nil {
+		select {
+		case ch.zipSlots <- struct{}{}:
+			defer func() { <-ch.zipSlots }()
+		default:
+			w.Header().Set("Retry-After", "5")
+			http.Error(w, "too many skin downloads at the moment, try again shortly", http.StatusServiceUnavailable)
+			return
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/zip")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", car+"_"+skin+".zip"))
 
 	if err := writeSkinZip(w, skinDir, path.Join("content", "cars", car, "skins", skin)); err != nil {
 		logrus.WithError(err).Errorf("could not zip skin %s of car %s", skin, car)
 	}
+}
+
+// ValidSkinSignature reports whether the request carries a valid, unexpired signature (expires and sig query values)
+// for the car and skin of its URL. Such a request may download without a login.
+func (ch *CarsHandler) ValidSkinSignature(r *http.Request) bool {
+	if ch.signer == nil {
+		return false
+	}
+
+	return ch.signer.VerifySkin(r.URL.Query(), chi.URLParam(r, "car_id"), chi.URLParam(r, "skin"), time.Now())
 }
 
 func writeSkinZip(w io.Writer, skinDir, prefix string) error {

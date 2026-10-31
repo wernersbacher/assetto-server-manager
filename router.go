@@ -7,6 +7,7 @@ import (
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
+	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	"github.com/wernersbacher/ACPitwall/internal/pluginhttp"
 	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	racecontrol "github.com/wernersbacher/ACPitwall/internal/racecontrol"
@@ -156,7 +157,6 @@ func Router(
 		r.Get("/cars", carsHandler.List)
 		r.Get("/cars/search.json", carsHandler.SearchJSON)
 		r.Get("/car/{car_id}", carsHandler.View)
-		r.Get("/car/{car_id}/skin/{skin}/download", carsHandler.DownloadSkin)
 		r.Get("/tracks", tracksHandler.List)
 		r.Get("/track/{track_id}", tracksHandler.View)
 		r.Get("/weather", weatherHandler.List)
@@ -222,8 +222,29 @@ func Router(
 		}))
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
-		FileServer(r, "/content", noDirListing{http.Dir(filepath.Join(installPath, "content"))}, true)
-		FileServer(r, "/setups/download", noDirListing{http.Dir(filepath.Join(installPath, "setups"))}, true)
+		// downloads: content (except the pictures the pages show) and setups follow the download access option
+		r.Group(func(r chi.Router) {
+			r.Use(func(next http.Handler) http.Handler {
+				gated := accountHandler.DownloadAccessMiddleware(next)
+
+				return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+					if downloads.IsUIAsset(req.URL.Path) {
+						next.ServeHTTP(w, req)
+						return
+					}
+
+					gated.ServeHTTP(w, req)
+				})
+			})
+
+			FileServer(r, "/content", noDirListing{http.Dir(filepath.Join(installPath, "content"))}, true)
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(accountHandler.DownloadAccessMiddleware)
+
+			FileServer(r, "/setups/download", noDirListing{http.Dir(filepath.Join(installPath, "setups"))}, true)
+		})
 
 		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
 		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
@@ -390,6 +411,7 @@ func Router(
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
 		r.Post("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
 		r.Post("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
+		r.Post("/accounts/download-access", accountHandler.SetDownloadAccess)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
 		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
 
@@ -405,6 +427,19 @@ func Router(
 		r.HandleFunc("/kissmyrank/options", kissMyRankHandler.Options)
 		r.HandleFunc("/realpenalty/options", realPenaltyHandler.Options)
 		r.HandleFunc("/realpenalty/logs", realPenaltyHandler.DownloadLogs)
+	})
+
+	// skin zips: a valid signature (as in the Content Manager content.json) works without a login, everything else
+	// needs read access and the download access option
+	skinDownload := accountHandler.ReadAccessMiddleware(accountHandler.DownloadAccessMiddleware(http.HandlerFunc(carsHandler.DownloadSkin)))
+
+	r.Get("/car/{car_id}/skin/{skin}/download", func(w http.ResponseWriter, req *http.Request) {
+		if accountHandler.DownloadAccess() != downloads.Off && carsHandler.ValidSkinSignature(req) {
+			carsHandler.DownloadSkin(w, req)
+			return
+		}
+
+		skinDownload.ServeHTTP(w, req)
 	})
 
 	FileServer(r, "/static", fs, false)

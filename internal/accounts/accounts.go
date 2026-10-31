@@ -15,6 +15,7 @@ import (
 	"github.com/sethvargo/go-diceware/diceware"
 	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/steam"
@@ -34,6 +35,10 @@ type ServerAccountOptions struct {
 	// PublicStats makes driver profiles, leaderboards and lap records visible to anonymous visitors of an open
 	// server. If false, they need a login even on an open server.
 	PublicStats bool
+
+	// DownloadAccess restricts the downloads of the content directory (cars, tracks, ...), setups and car skin
+	// zips. Pictures shown on the pages stay readable. The zero value (Public) keeps the previous behaviour.
+	DownloadAccess downloads.Access
 }
 
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
@@ -47,6 +52,41 @@ func (ah *AccountHandler) StatsAccessMiddleware(next http.Handler) http.Handler 
 	return ah.mustLogin(smmodel.GroupRead, func() bool {
 		return ah.accountManager.options.IsOpen && ah.accountManager.options.PublicStats
 	}, next)
+}
+
+// DownloadAccess returns the current download access rule.
+func (ah *AccountHandler) DownloadAccess() downloads.Access {
+	return ah.accountManager.options.DownloadAccess
+}
+
+// DownloadAccessMiddleware applies the download access option on top of read access (use it inside a read group):
+// Public lets everybody through, LoggedIn turns away the anonymous visitors of an open server and Off lets only
+// admins download.
+func (ah *AccountHandler) DownloadAccessMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		account := smweb.AccountFromRequest(r)
+		anonymous := account == nil || account.Name == smmodel.OpenAccountName
+
+		switch ah.DownloadAccess() {
+		case downloads.Public:
+			next.ServeHTTP(w, r)
+		case downloads.LoggedIn:
+			if anonymous {
+				smweb.AddErrorFlash(w, r, "Please log in to download content.")
+				http.Redirect(w, r, "/login", http.StatusFound)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		default:
+			if anonymous || !account.HasGroupPrivilege(ah.accountManager.serverID, smmodel.GroupAdmin) {
+				http.Error(w, "downloads are disabled", http.StatusForbidden)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		}
+	})
 }
 
 // mustLogin is MustLoginMiddleware with the condition under which anonymous visitors may read.
@@ -190,6 +230,18 @@ func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.
 // TogglePublicStats switches the "public driver statistics" option.
 func (ah *AccountHandler) TogglePublicStats(w http.ResponseWriter, r *http.Request) {
 	ah.toggleOption(w, r, "Public driver statistics", func(o *ServerAccountOptions) { o.PublicStats = !o.PublicStats })
+}
+
+// SetDownloadAccess sets the "downloads" option from the form value "access" (public, login or off).
+func (ah *AccountHandler) SetDownloadAccess(w http.ResponseWriter, r *http.Request) {
+	access, ok := downloads.ParseAccess(r.FormValue("access"))
+
+	if !ok {
+		http.Error(w, "unknown download access", http.StatusBadRequest)
+		return
+	}
+
+	ah.toggleOption(w, r, "Download access", func(o *ServerAccountOptions) { o.DownloadAccess = access })
 }
 
 func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, name string, toggle func(*ServerAccountOptions)) {
@@ -625,6 +677,7 @@ type manageAccountsTemplateVars struct {
 	Accounts         []*smmodel.Account
 	ServerReadIsOpen bool
 	PublicStats      bool
+	DownloadAccess   string
 }
 
 func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request) {
@@ -640,6 +693,7 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 		Accounts:         accounts,
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 		PublicStats:      ah.accountManager.options.PublicStats,
+		DownloadAccess:   ah.accountManager.options.DownloadAccess.String(),
 	})
 }
 

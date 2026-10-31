@@ -143,6 +143,7 @@ func TestRouterActionRoutesArePostOnly(t *testing.T) {
 		"/custom/loop/{uuid}",
 		"/accounts/toggle-open",
 		"/accounts/toggle-public-stats",
+		"/accounts/download-access",
 		"/championship/{championshipID}/duplicate",
 		"/championship/{championshipID}/event/{eventID}/start",
 		"/championship/{championshipID}/event/{eventID}/practice",

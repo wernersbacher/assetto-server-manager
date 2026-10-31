@@ -8,6 +8,7 @@ import (
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
+	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/notification"
 	"github.com/wernersbacher/ACPitwall/internal/pluginhttp"
@@ -65,6 +66,7 @@ type Resolver struct {
 	accountHandler              *smaccounts.AccountHandler
 	auditLogHandler             *smaccounts.AuditLogHandler
 	carsHandler                 *contenthttp.CarsHandler
+	downloadSigner              *downloads.Signer
 	tracksHandler               *contenthttp.TracksHandler
 	statsIndex                  *stats.Index
 	contentRecords              *contenthttp.Records
@@ -373,7 +375,7 @@ func (r *Resolver) resolveCarsHandler() *contenthttp.CarsHandler {
 		return r.carsHandler
 	}
 
-	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv(), r.resolveRecords())
+	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv(), r.resolveRecords(), r.resolveDownloadSigner())
 
 	return r.carsHandler
 }
@@ -695,4 +697,13 @@ func (r *Resolver) resolveLeaderboardHandler() *statshttp.LeaderboardHandler {
 	r.leaderboardHandler = statshttp.NewLeaderboardHandler(r.resolveBaseHandler(), r.resolveStatsIndex(), r.resultsServers, r.resolveEnv().InstallPath)
 
 	return r.leaderboardHandler
+}
+
+// resolveDownloadSigner returns the signer of the signed skin download URLs (one secret for all slots).
+func (r *Resolver) resolveDownloadSigner() *downloads.Signer {
+	if r.downloadSigner == nil {
+		r.downloadSigner = downloads.NewSigner(r.store)
+	}
+
+	return r.downloadSigner
 }

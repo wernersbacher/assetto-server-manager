@@ -3,6 +3,10 @@ Unreleased
 
 Changed:
 
+* New option "Content downloads" on the Accounts page (Public, Logged in accounts only, Off for admins only) for the downloads of the content directory (cars, tracks, ...), setups and car skin zips. The default is Public, which is the previous behaviour; pictures and ui json files shown on the pages stay visible with any setting. Skin zips are limited to 500 files and 100 MiB and to 4 zips built at the same time (413 / 503 otherwise).
+
+* The Content Manager wrapper content info now lists the skins of the entry list (`cars.<model>.skins.<skin>` with `url` and `version`), so Content Manager can download missing skins from ACPitwall. The urls are signed and valid for 6 hours (HMAC with a secret stored in the database), so they work without a login even when downloads are restricted, but not when downloads are Off.
+
 * The directory listings of `/content` and `/setups/download` are no longer served (files can still be downloaded by their exact path), so an open server does not hand out a browsable index of the content and setups.
 
 * Assetto Server Manager is now called ACPitwall and has its own repository (https://github.com/wernersbacher/ACPitwall). The Docker image is published as `ghcr.io/wernersbacher/acpitwall`. The binary is now called `acpitwall` (`acpitwall.exe`) and the source folder `cmd/acpitwall`; the Docker volume and service names in the compose files changed accordingly. config.yml, the data formats and the environment variables are unchanged.
