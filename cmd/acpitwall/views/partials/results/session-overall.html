@@ -98,7 +98,7 @@
                                     </button>
 
                                     <div id="popover-content-result-{{ sha1sum $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}" style="display: none;">
-                                        <form action='/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}' method='POST'>
+                                        <form action="{{ if $server }}/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}&amp;server={{ $server.ID }}{{ else }}{{ serverURL (printf "/penalties/%s/%s?model=%s" $sessionResults.SessionFile $result.DriverGUID $result.CarModel) }}{{ end }}" method='POST'>
                                             <div class='form-group'>
                                                 <label for='time-penalty'>Time Penalty (seconds)</label>
                                                 <input type='number' class='form-control' name='time-penalty' id='time-penalty' placeholder='0' step='0.1'>
@@ -193,7 +193,7 @@
                                     >Penalties</button>
 
                                     <div id="popover-content-result-{{ $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}" style="display: none;">
-                                        <form action='/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}' method='POST'>
+                                        <form action="{{ if $server }}/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}&amp;server={{ $server.ID }}{{ else }}{{ serverURL (printf "/penalties/%s/%s?model=%s" $sessionResults.SessionFile $result.DriverGUID $result.CarModel) }}{{ end }}" method='POST'>
                                             <div class='form-group'>
                                                 <label for='time-penalty'>Time Penalty (seconds)</label>
                                                 <input type='number' class='form-control' name='time-penalty' id='time-penalty' placeholder='0' step='0.1'>
@@ -290,7 +290,7 @@
                                     >Penalties</button>
 
                                     <div id="popover-content-result-{{ $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}" style="display: none;">
-                                        <form action='/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}' method='POST'>
+                                        <form action="{{ if $server }}/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}&amp;server={{ $server.ID }}{{ else }}{{ serverURL (printf "/penalties/%s/%s?model=%s" $sessionResults.SessionFile $result.DriverGUID $result.CarModel) }}{{ end }}" method='POST'>
                                             <div class='form-group'>
                                                 <label for='time-penalty'>Time Penalty (seconds)</label>
                                                 <input type='number' class='form-control' name='time-penalty' id='time-penalty' placeholder='0' step='0.1'>
