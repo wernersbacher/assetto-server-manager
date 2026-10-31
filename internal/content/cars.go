@@ -2,14 +2,10 @@ package content
 
 import (
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math/rand"
-	"mime"
-	"mime/multipart"
 	"net/http"
 	"os"
-	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -361,65 +357,6 @@ func (cm *CarManager) UpdateCarMetadata(carName string, r *http.Request) error {
 	car.Details.DownloadURL = r.FormValue("DownloadURL")
 
 	return car.Details.Save(cm.installPath, carName)
-}
-
-func (cm *CarManager) UploadSkin(carName string, files map[string][]*multipart.FileHeader) error {
-	carDirectory := filepath.Join(cm.installPath, "content", "cars", carName, "skins")
-
-	for _, files := range files {
-		for _, fh := range files {
-			if err := cm.uploadSkinFile(carDirectory, fh); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func (cm *CarManager) uploadSkinFile(carDirectory string, header *multipart.FileHeader) error {
-	r, err := header.Open()
-
-	if err != nil {
-		return err
-	}
-
-	defer r.Close()
-
-	filePath := filepath.Join(carDirectory, skinUploadFilePath(header))
-
-	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
-		return err
-	}
-
-	w, err := os.Create(filePath)
-
-	if err != nil {
-		return err
-	}
-
-	defer w.Close()
-
-	_, err = io.Copy(w, r)
-
-	return err
-}
-
-// skinUploadFilePath returns the path of an uploaded skin file relative to the car's skins directory, e.g.
-// "my_skin/livery.png". Browsers send the skin folder as part of the file name, but since Go 1.17
-// multipart.FileHeader.Filename only contains the base name, so the full name is read from the
-// Content-Disposition header. The path is cleaned so that it can't point outside of the skins directory.
-func skinUploadFilePath(header *multipart.FileHeader) string {
-	filename := header.Filename
-
-	if _, params, err := mime.ParseMediaType(header.Header.Get("Content-Disposition")); err == nil && params["filename"] != "" {
-		filename = params["filename"]
-	}
-
-	// cleaning the path as an absolute path removes any leading "../"
-	cleaned := path.Clean("/" + strings.ReplaceAll(filename, "\\", "/"))
-
-	return filepath.FromSlash(strings.TrimPrefix(cleaned, "/"))
 }
 
 func (cm *CarManager) DeleteSkin(car, skin string) error {

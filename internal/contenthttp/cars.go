@@ -37,6 +37,7 @@ type CarsHandler struct {
 	records      *Records
 	signer       *downloads.Signer
 	userSkins    *skins.Manager
+	skinInfo     SkinInfo
 
 	// zipSlots limits the skin zips that are built at the same time
 	zipSlots chan struct{}
@@ -246,33 +247,6 @@ func (ch *CarsHandler) SaveMetadata(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
-func (ch *CarsHandler) UploadSkin(w http.ResponseWriter, r *http.Request) {
-	if !plainname.Valid(chi.URLParam(r, "name")) {
-		http.NotFound(w, r)
-		return
-	}
-
-	err := r.ParseMultipartForm(32 << 20)
-
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	car := chi.URLParam(r, "name")
-
-	err = ch.carManager.UploadSkin(car, r.MultipartForm.File)
-
-	if err != nil {
-		logrus.WithError(err).Errorf("could not upload car skin for %s", car)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	smweb.AddFlash(w, r, "Car skin uploaded successfully!")
-	http.Redirect(w, r, r.Referer(), http.StatusFound)
-}
-
 func (ch *CarsHandler) DeleteSkin(w http.ResponseWriter, r *http.Request) {
 	car := chi.URLParam(r, "name")
 	skin := r.FormValue("skin-delete")
@@ -291,6 +265,12 @@ func (ch *CarsHandler) DeleteSkin(w http.ResponseWriter, r *http.Request) {
 	if info, err := os.Lstat(filepath.Join(ch.env.InstallPath(), "content", "cars", car, "skins", skin)); err != nil || !info.IsDir() {
 		http.NotFound(w, r)
 		return
+	}
+
+	if ch.userSkins != nil {
+		if err := ch.userSkins.ForgetFolder(car, skin); err != nil {
+			logrus.WithError(err).Errorf("could not drop the record of car skin %s for %s", skin, car)
+		}
 	}
 
 	if err := ch.carManager.DeleteSkin(car, skin); err != nil {
@@ -328,6 +308,9 @@ type carDetailsTemplateVars struct {
 	Records []RecordRow
 	// FilterServer is the id of the server the records are restricted to, empty for all.
 	FilterServer string
+
+	// Skins is the skin upload and the skins of users, nil if they are not available.
+	Skins *CarSkins
 }
 
 // loadCarDetailsForTemplate loads all necessary items to generate the car details template.
@@ -364,6 +347,12 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string, r *http.Request
 
 	recordsFilter, filterServer := ch.records.filter(r)
 
+	carSkins, err := ch.carSkins(r, carName)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return &carDetailsTemplateVars{
 		Car:          car,
 		Results:      results,
@@ -371,6 +360,7 @@ func (ch *CarsHandler) loadCarDetailsForTemplate(carName string, r *http.Request
 		TrackOpts:    tracks,
 		Records:      ch.records.rows(ch.records.forCar(carName, recordsFilter)),
 		FilterServer: filterServer,
+		Skins:        carSkins,
 	}, nil
 }
 

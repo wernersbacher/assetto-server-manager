@@ -245,6 +245,12 @@ func Router(
 		}))
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
+		// skins of users: every logged in account may upload and manage its own skins (checked in the handlers, which
+		// also apply the skin options of the server)
+		r.Post("/car/{name}/skin", carsHandler.UploadSkin)
+		r.Post("/car/{name}/skin/visibility", carsHandler.SetSkinVisibility)
+		r.Post("/car/{name}/skin/remove", carsHandler.RemoveSkin)
+
 		// downloads: content (except the pictures the pages show) and setups follow the download access option
 		r.Group(func(r chi.Router) {
 			r.Use(func(next http.Handler) http.Handler {
@@ -296,7 +302,6 @@ func Router(
 		r.Post("/setups/upload", setupsHandler.Upload)
 		r.HandleFunc("/car/{name}/tags", carsHandler.Tags)
 		r.Post("/car/{name}/metadata", carsHandler.SaveMetadata)
-		r.Post("/car/{name}/skin", carsHandler.UploadSkin)
 		r.Post("/track/{name}/metadata", tracksHandler.SaveMetadata)
 		r.Post("/results/upload", resultsHandler.UploadHandler)
 		r.HandleFunc("/results/combine", resultsHandler.CombineResults)

@@ -279,6 +279,104 @@
             </div>
         </div>
 
+        {{ with $.Skins }}
+            <div class="card mb-3" id="user-skins">
+                <div class="card-header"><strong>Skins</strong></div>
+                <div class="card-body">
+                    {{ if .CanUpload }}
+                        <form method="post" action="/car/{{ $.Car.Name }}/skin" id="skin-upload" enctype="multipart/form-data">
+                            <div class="form-group row">
+                                <label for="input-folder-skin" class="col-sm-3 col-form-label">Skin Upload</label>
+
+                                <div class="col-sm-9">
+                                    <div class="btn-file btn btn-secondary d-inline-block align-top">
+                                        Choose a Skin
+                                        <input id="input-folder-skin" name="input-folder-skin[]" type="file"
+                                               multiple webkitdirectory value="Choose Folder"/>
+                                    </div>
+                                    <small class="d-block text-muted">Pick the skin folder. At most {{ .MaxFiles }} files and {{ .MaxSkinMB }} MB per skin.{{ if .QuotaMB }} You use {{ .UsedMB }} of {{ .QuotaMB }} MB.{{ end }}</small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="skin-visibility" class="col-sm-3 col-form-label">Who can use it</label>
+
+                                <div class="col-sm-9 d-flex flex-wrap align-items-center" style="gap: 12px">
+                                    <select name="visibility" id="skin-visibility" class="form-control" style="max-width: 260px">
+                                        <option value="private" {{ if eq .DefaultVisibility "private" }}selected{{ end }}>Only me</option>
+                                        {{ if .Teams }}<option value="team">My team</option>{{ end }}
+                                        {{ if .CanGlobal }}<option value="global" {{ if eq .DefaultVisibility "global" }}selected{{ end }}>Everybody (global)</option>{{ end }}
+                                    </select>
+
+                                    {{ if .Teams }}
+                                        <select name="team" id="skin-team" class="form-control" style="max-width: 260px" title="Team for a team skin">
+                                            {{ range .Teams }}<option value="{{ .ID }}">{{ .Name }}</option>{{ end }}
+                                        </select>
+                                    {{ end }}
+
+                                    <button type="submit" class="btn btn-primary" id="upload-skin" style="display: none;">Upload</button>
+                                </div>
+                            </div>
+                        </form>
+                    {{ else }}
+                        <p class="text-muted mb-0">Uploading skins is not enabled for your account.</p>
+                    {{ end }}
+
+                    {{ if .Rows }}
+                        <hr>
+                        <p class="text-muted">Skins uploaded by accounts. Private and team skins show for you and your team only.</p>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                <tr><th></th><th>Skin</th><th>Owner</th><th>Visible for</th><th>Size</th><th></th></tr>
+                                </thead>
+                                {{ range .Rows }}
+                                    <tr>
+                                        <td style="width: 90px"><img src="{{ .PreviewURL }}" alt="" class="img-fluid" loading="lazy" onerror="this.style.display='none'"></td>
+                                        <td>{{ .Skin.Name }}</td>
+                                        <td>{{ with .OwnerName }}{{ . }}{{ else }}<span class="text-muted">unknown</span>{{ end }}</td>
+                                        <td>
+                                            {{ if eq (printf "%s" .Skin.Visibility) "global" }}<span class="badge badge-success">Everybody</span>
+                                            {{ else if eq (printf "%s" .Skin.Visibility) "team" }}<span class="badge badge-info">Team{{ with .TeamName }}: {{ . }}{{ end }}</span>
+                                            {{ else }}<span class="badge badge-secondary">Only owner</span>{{ end }}
+                                        </td>
+                                        <td>{{ .Skin.Files }} files, {{ .SizeLabel }}</td>
+                                        <td class="text-right">
+                                            <a href="{{ .DownloadURL }}" class="btn btn-sm btn-secondary" title="Download skin"><i class="fas fa-download"></i></a>
+
+                                            {{ if .Manage }}
+                                                <form method="post" action="/car/{{ $.Car.Name }}/skin/visibility" class="d-inline-flex align-items-center" style="gap: 4px">
+                                                    <input type="hidden" name="skin" value="{{ .Skin.ID }}">
+                                                    <select name="visibility" class="form-control form-control-sm" style="width: auto">
+                                                        <option value="private" {{ if eq (printf "%s" .Skin.Visibility) "private" }}selected{{ end }}>Only owner</option>
+                                                        {{ if $.Skins.Teams }}<option value="team" {{ if eq (printf "%s" .Skin.Visibility) "team" }}selected{{ end }}>Team</option>{{ end }}
+                                                        {{ if .CanGlobal }}<option value="global" {{ if eq (printf "%s" .Skin.Visibility) "global" }}selected{{ end }}>Everybody</option>{{ end }}
+                                                    </select>
+                                                    {{ if $.Skins.Teams }}
+                                                        <select name="team" class="form-control form-control-sm" style="width: auto" title="Team for a team skin">
+                                                            {{ $skinTeam := .Skin.TeamID.String }}
+                                                            {{ range $.Skins.Teams }}<option value="{{ .ID }}" {{ if eq .ID.String $skinTeam }}selected{{ end }}>{{ .Name }}</option>{{ end }}
+                                                        </select>
+                                                    {{ end }}
+                                                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                                                </form>
+
+                                                <form method="post" action="/car/{{ $.Car.Name }}/skin/remove" class="d-inline" data-confirm-delete="Delete skin {{ .Skin.Name }}?" data-confirm-detail="The skin and its files are removed permanently." data-confirm-label="Delete skin">
+                                                    <input type="hidden" name="skin" value="{{ .Skin.ID }}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" title="Delete skin"><i class="fas fa-trash"></i></button>
+                                                </form>
+                                            {{ end }}
+                                        </td>
+                                    </tr>
+                                {{ end }}
+                            </table>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        {{ end }}
+
         <div class="row mb-3">
             <div class="col-12">
 
@@ -328,54 +426,36 @@
                         </div>
                     </form>
 
+                    {{ if DeleteAccess }}
                     <div class="card mt-3 border-secondary mb-3">
                         <div class="card-header bg-secondary">
-                            <strong>Skins</strong>
+                            <strong>Skin folders</strong>
                         </div>
                         <div class="card-body">
-                            <form method="post" action="/car/{{ $.Car.Name }}/skin" id="skin-upload" enctype="multipart/form-data">
-                                <div class="form-group row">
-                                    <label for="input-folder-skin" class="col-sm-3 col-form-label">Skin Upload</label>
+                            <p>Skins of this car in its skins directory. Uploads are in the skins section above.</p>
 
-                                    <div class="col-sm-9">
-                                        <div class="btn-file btn btn-secondary d-inline-block align-top">
-                                            Choose a Skin
-                                            <input id="input-folder-skin" name="input-folder-skin[]" type="file"
-                                                   multiple webkitdirectory value="Choose Folder"/>
+                            <form action="/car/{{ $.Car.Name }}/skin/delete" method="post" data-confirm-delete="Delete the selected skin?" data-confirm-detail="The skin folder is removed from this car permanently." data-confirm-label="Delete skin">
+                                <div class="form-group row">
+                                    <label for="skin-delete" class="col-sm-3 col-form-label">Delete Skin</label>
+
+                                    <div class="col-sm-9 row">
+                                        <div class="col-8">
+                                            <select class="form-control" name="skin-delete">
+                                                {{ range $index, $skin := $.Car.Skins }}
+                                                    <option value="{{ $skin }}">{{ prettify $skin true }}</option>
+                                                {{ end }}
+                                            </select>
                                         </div>
 
-                                        <button type="submit" class="btn btn-primary" id="upload-skin" style="display: none;">
-                                            Upload
-                                        </button>
+                                        <div class="col-4">
+                                            <button type="submit" class="btn btn-danger">Delete Skin</button>
+                                        </div>
                                     </div>
                                 </div>
                             </form>
-
-                            {{ if DeleteAccess }}
-                                <hr>
-
-                                <form action="/car/{{ $.Car.Name }}/skin/delete" method="post" data-confirm-delete="Delete the selected skin?" data-confirm-detail="The skin folder is removed from this car permanently." data-confirm-label="Delete skin">
-                                    <div class="form-group row">
-                                        <label for="skin-delete" class="col-sm-3 col-form-label">Delete Skin</label>
-
-                                        <div class="col-sm-9 row">
-                                            <div class="col-8">
-                                                <select class="form-control" name="skin-delete">
-                                                    {{ range $index, $skin := $.Car.Skins }}
-                                                        <option value="{{ $skin }}">{{ prettify $skin true }}</option>
-                                                    {{ end }}
-                                                </select>
-                                            </div>
-
-                                            <div class="col-4">
-                                                <button type="submit" class="btn btn-danger">Delete Skin</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            {{ end }}
                         </div>
                     </div>
+                    {{ end }}
                 {{ end }}
 
                 {{ if DeleteAccess }}

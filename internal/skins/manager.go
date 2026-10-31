@@ -137,6 +137,12 @@ func (m *Manager) Dir(skin *smmodel.UserSkin) string {
 
 // Find returns a skin by its id.
 func (m *Manager) Find(id string) (*smmodel.UserSkin, error) {
+	id, err := canonicalID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
 	return m.store.FindUserSkinByID(id)
 }
 
@@ -540,6 +546,12 @@ func (m *Manager) SetVisibility(actor Actor, id string, vis smmodel.SkinVisibili
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
 
+	id, err := canonicalID(id)
+
+	if err != nil {
+		return err
+	}
+
 	skin, err := m.store.FindUserSkinByID(id)
 
 	if err != nil {
@@ -595,6 +607,12 @@ func (m *Manager) SetVisibility(actor Actor, id string, vis smmodel.SkinVisibili
 func (m *Manager) Delete(actor Actor, id string) error {
 	m.mutex.Lock()
 	defer m.mutex.Unlock()
+
+	id, err := canonicalID(id)
+
+	if err != nil {
+		return err
+	}
 
 	skin, err := m.store.FindUserSkinByID(id)
 
@@ -727,4 +745,82 @@ func (m *Manager) ListForCar(car string, actor Actor) ([]*smmodel.UserSkin, erro
 	}
 
 	return result, nil
+}
+
+// Settings returns the current skin options.
+func (m *Manager) Settings() smmodel.SkinSettings {
+	return m.settings()
+}
+
+// CanUpload reports why an actor cannot upload skins at all, nil if they can.
+func (m *Manager) CanUpload(actor Actor) error {
+	if actor.ID == uuid.Nil {
+		return ErrNotAllowed
+	}
+
+	if !actor.Writer && !m.settings().UserUploads {
+		return ErrUploadsDisabled
+	}
+
+	return nil
+}
+
+// CanShareGlobal reports whether the actor may make skins global.
+func (m *Manager) CanShareGlobal(actor Actor) bool {
+	return actor.ID != uuid.Nil && (actor.Writer || m.settings().GlobalShare && m.settings().UserUploads)
+}
+
+// UploadCap is the most bytes of one upload request the server reads for the actor: what the limits allow, plus room
+// for the form.
+func (m *Manager) UploadCap(actor Actor) int64 {
+	limits := m.settings().Limits()
+	capacity := limits.MaxSkinBytes * maxSkinsPerUpload
+
+	if !actor.Writer && limits.UserQuotaBytes < capacity {
+		capacity = limits.UserQuotaBytes
+	}
+
+	return capacity + 1<<20
+}
+
+// Quota returns how many bytes the actor uses, and how many they may use (0 if there is no quota: writers).
+func (m *Manager) Quota(actor Actor) (used, quota int64, err error) {
+	used, err = m.Usage(actor.ID)
+
+	if err != nil || actor.Writer {
+		return used, 0, err
+	}
+
+	return used, m.settings().Limits().UserQuotaBytes, nil
+}
+
+// Message turns an error of the manager into text for the user, without the package prefix.
+func Message(err error) string {
+	return strings.TrimPrefix(err.Error(), "skins: ")
+}
+
+// IsUserError tells whether err is a refusal the user can understand and fix (as opposed to a failure of the server).
+func IsUserError(err error) bool {
+	for _, e := range []error{
+		ErrUploadsDisabled, ErrGlobalDisabled, ErrNotAllowed, ErrNotTeamMember, ErrInvalidSkin, ErrTooManyFiles,
+		ErrSkinTooLarge, ErrQuotaExceeded, ErrDiskFull, ErrNameTaken, smmodel.ErrSkinVisibility, smmodel.ErrUserSkinNotFound,
+	} {
+		if errors.Is(err, e) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// canonicalID turns the id of a skin from the outside into the form the stores use. The stores build file names from
+// ids, so only real UUIDs get through.
+func canonicalID(id string) (string, error) {
+	parsed, err := uuid.Parse(strings.TrimSpace(id))
+
+	if err != nil {
+		return "", smmodel.ErrUserSkinNotFound
+	}
+
+	return parsed.String(), nil
 }

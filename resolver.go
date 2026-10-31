@@ -386,6 +386,7 @@ func (r *Resolver) resolveCarsHandler() *contenthttp.CarsHandler {
 
 	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv(), r.resolveRecords(), r.resolveDownloadSigner())
 	r.carsHandler.SetUserSkins(r.resolveSkinManager())
+	r.carsHandler.SetSkinInfo(skinInfo{r})
 
 	return r.carsHandler
 }
