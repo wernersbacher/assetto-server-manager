@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The quick race form is split into section cards (Track & Cars, Qualifying, Race) with the section index and sticky bar, like the custom race form.
+
 * New server option "Content Manager Wrapper Content Requires Password": when on and the server has a password, the content info for Content Manager is flagged as password protected.
 
 * New option "Content downloads" on the Accounts page (Public, Logged in accounts only, Off for admins only) for the downloads of the content directory (cars, tracks, ...), setups and car skin zips. The default is Public, which is the previous behaviour; pictures and ui json files shown on the pages stay visible with any setting. Skin zips are limited to 500 files and 100 MiB and to 4 zips built at the same time (413 / 503 otherwise).
