@@ -97,6 +97,13 @@ type Store interface {
 	FindAccountByID(id string) (*smmodel.Account, error)
 	DeleteAccount(id string) error
 
+	// Teams are shared by all server slots. DeleteTeam is a soft delete: the team disappears from ListTeams but can
+	// still be found by its id (registrations refer to it). A missing team gives smmodel.ErrTeamNotFound.
+	UpsertTeam(team *smmodel.Team) error
+	FindTeamByID(id string) (*smmodel.Team, error)
+	ListTeams() ([]*smmodel.Team, error)
+	DeleteTeam(team *smmodel.Team) error
+
 	// Audit Log
 	GetAuditEntries() ([]*smmodel.AuditEntry, error)
 	AddAuditEntry(entry *smmodel.AuditEntry) error
