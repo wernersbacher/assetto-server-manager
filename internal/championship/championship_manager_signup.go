@@ -89,6 +89,10 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		return signUpResponse, false, err
 	}
 
+	if err := cm.checkSignUpSkin(signUpResponse, skinAccountID(r)); err != nil {
+		return signUpResponse, false, err
+	}
+
 	if !championship.SignUpForm.RequiresApproval {
 		// check to see if there is room in the entrylist for the user in their specific car
 		foundSlot, _, err = cm.AddEntrantFromSessionData(championship, signUpResponse, true, championship.SignUpForm.HideCarChoice)

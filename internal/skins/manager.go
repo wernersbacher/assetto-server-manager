@@ -627,3 +627,104 @@ func (m *Manager) ForgetFolder(car, folder string) error {
 
 	return m.store.DeleteUserSkin(skin.ID.String())
 }
+
+// UsableSkins returns, per car, the folder names of the private and team skins that the account can use (its own and
+// those of its teams). Global skins are not listed: they are in the skins directory of the car. A zero id has none.
+func (m *Manager) UsableSkins(account uuid.UUID) (map[string][]string, error) {
+	result := make(map[string][]string)
+
+	if account == uuid.Nil {
+		return result, nil
+	}
+
+	skins, err := m.store.ListUserSkins()
+
+	if err != nil {
+		return nil, err
+	}
+
+	teams := m.teams(account)
+
+	for _, skin := range skins {
+		if skin.Normalized() != smmodel.SkinGlobal && skin.UsableBy(account, teams) {
+			result[skin.Car] = append(result[skin.Car], skin.Folder)
+		}
+	}
+
+	return result, nil
+}
+
+func (m *Manager) teams(account uuid.UUID) []uuid.UUID {
+	if m.teamsOf == nil {
+		return nil
+	}
+
+	return m.teamsOf(account)
+}
+
+// CheckUsable returns ErrNotAllowed if the skin is a private or team skin that the account may not use. Skins
+// without a record (global skins, skins placed by hand, random or empty skins) are fine.
+func (m *Manager) CheckUsable(car, skin string, account uuid.UUID) error {
+	if skin == "" || !plainname.Valid(skin) {
+		return nil
+	}
+
+	record, err := m.ByFolder(car, skin)
+
+	if err != nil || record == nil {
+		return err
+	}
+
+	if !record.UsableBy(account, m.teams(account)) {
+		return ErrNotAllowed
+	}
+
+	return nil
+}
+
+// CanAccess reports whether the actor may see and download the skin: whoever can use it, and accounts with write access.
+func (m *Manager) CanAccess(skin *smmodel.UserSkin, actor Actor) bool {
+	return actor.Writer && actor.ID != uuid.Nil || skin.UsableBy(actor.ID, m.teams(actor.ID))
+}
+
+// Resolve finds the directory of a skin that is not in the skins directory of the car: a private or team skin. It
+// returns nil if the car has no such skin (or its files are gone).
+func (m *Manager) Resolve(car, folder string) (*smmodel.UserSkin, string, error) {
+	if !plainname.Valid(car) || !plainname.Valid(folder) {
+		return nil, "", nil
+	}
+
+	skin, err := m.ByFolder(car, folder)
+
+	if err != nil || skin == nil || skin.Normalized() == smmodel.SkinGlobal {
+		return nil, "", err
+	}
+
+	dir := m.Dir(skin)
+
+	if info, err := os.Lstat(dir); err != nil || !info.IsDir() {
+		return nil, "", nil
+	}
+
+	return skin, dir, nil
+}
+
+// ListForCar returns all skin records of a car: the accounts' own skins, those of their teams and the global ones.
+// Accounts with write access see everything.
+func (m *Manager) ListForCar(car string, actor Actor) ([]*smmodel.UserSkin, error) {
+	skins, err := m.store.ListUserSkins()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*smmodel.UserSkin
+
+	for _, skin := range skins {
+		if skin.Car == car && (skin.Normalized() == smmodel.SkinGlobal || m.CanAccess(skin, actor)) {
+			result = append(result, skin)
+		}
+	}
+
+	return result, nil
+}

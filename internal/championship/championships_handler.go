@@ -900,7 +900,10 @@ func (ch *ChampionshipsHandler) TeamPenalty(w http.ResponseWriter, r *http.Reque
 type championshipSignUpFormTemplateVars struct {
 	*ChampionshipTemplateVars
 
-	FormData        *smmodel.ChampionshipSignUpResponse
+	FormData *smmodel.ChampionshipSignUpResponse
+
+	// AvailableCars are the skins per car the driver can choose: the skins of the car and their own and team skins.
+	AvailableCars   map[string][]string
 	ValidationError string
 	LockSteamGUID   bool
 
@@ -1001,6 +1004,12 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		}
+	}
+
+	if opts.AvailableCars, err = cm.SignUpCars(opts.CarOpts.AsMap(), skinAccountID(r)); err != nil {
+		logrus.WithError(err).Error("couldn't load the skins of the account")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	ch.ViewRenderer.MustLoadTemplate(w, r, "championships/sign-up.html", opts)

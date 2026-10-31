@@ -129,3 +129,61 @@ func TestCMContentSkins(t *testing.T) {
 		t.Errorf("expected no skins without base URL, got %+v", got)
 	}
 }
+
+func TestCMContentUserSkins(t *testing.T) {
+	dir, err := ioutil.TempDir("", "cmw-user-skins")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	userSkin := filepath.Join(dir, "content", "user-skins", "car_a", "u1234_mine")
+
+	if err := os.MkdirAll(userSkin, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ioutil.WriteFile(filepath.Join(userSkin, "ui_skin.json"), []byte("{}"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	config := &smconfig.Configuration{}
+	config.HTTP.BaseURL = "https://pit.example"
+
+	cmw := NewContentManagerWrapper(config, nil, nil, nil, &serverenv.Env{
+		InstallPath: func() string { return dir },
+		ServerID:    func() smmodel.ServerID { return "srv" },
+	})
+
+	cmw.SetSkinDownloads(downloads.NewSignerWithSecret([]byte("0123456789abcdef0123456789abcdef")), func() downloads.Access { return downloads.Public })
+
+	e := serverconfig.NewEntrant()
+	e.Model, e.Skin = "car_a", "u1234_mine"
+	cmw.entryList = serverconfig.EntryList{"CAR_0": e}
+
+	if skins := cmw.skinEntries(time.Now()); len(skins) != 0 {
+		t.Fatalf("without a locator a skin outside of the skins directory is not offered: %v", skins)
+	}
+
+	cmw.SetUserSkinDirs(func(car, skin string) string {
+		if car == "car_a" && skin == "u1234_mine" {
+			return userSkin
+		}
+
+		return ""
+	})
+
+	entry, ok := cmw.skinEntries(time.Now())["car_a"]["u1234_mine"]
+
+	if !ok || entry.Version == "" {
+		t.Fatalf("a user skin of the entry list must be offered with a version: %+v", entry)
+	}
+
+	u, err := url.Parse(entry.URL)
+
+	if err != nil || u.Path != "/car/car_a/skin/u1234_mine/download" || u.Query().Get("sig") == "" {
+		t.Errorf("unexpected signed URL %q (%v)", entry.URL, err)
+	}
+}

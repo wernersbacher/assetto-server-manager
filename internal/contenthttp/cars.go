@@ -24,6 +24,7 @@ import (
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/skins"
 )
 
 // CarsHandler serves the car list, the car details, the car metadata and the skins.
@@ -35,6 +36,7 @@ type CarsHandler struct {
 	env          *serverenv.Env
 	records      *Records
 	signer       *downloads.Signer
+	userSkins    *skins.Manager
 
 	// zipSlots limits the skin zips that are built at the same time
 	zipSlots chan struct{}
@@ -419,8 +421,14 @@ func (ch *CarsHandler) DownloadSkin(w http.ResponseWriter, r *http.Request) {
 	skinDir := filepath.Join(ch.env.InstallPath(), "content", "cars", car, "skins", skin)
 
 	if info, err := os.Lstat(skinDir); err != nil || !info.IsDir() {
-		http.NotFound(w, r)
-		return
+		// not a global skin: a private or team skin is only for who can use it, or who holds a signed URL (the
+		// entry list of a race hands them to the drivers)
+		var ok bool
+
+		if skinDir, ok = ch.userSkinDir(r, car, skin, ch.ValidSkinSignature(r)); !ok {
+			http.NotFound(w, r)
+			return
+		}
 	}
 
 	files, size, err := downloads.SkinStats(skinDir)
@@ -453,6 +461,53 @@ func (ch *CarsHandler) DownloadSkin(w http.ResponseWriter, r *http.Request) {
 	if err := writeSkinZip(w, skinDir, path.Join("content", "cars", car, "skins", skin)); err != nil {
 		logrus.WithError(err).Errorf("could not zip skin %s of car %s", skin, car)
 	}
+}
+
+// SetUserSkins enables the private and team skins of users in the skin downloads and previews.
+func (ch *CarsHandler) SetUserSkins(manager *skins.Manager) {
+	ch.userSkins = manager
+}
+
+// userSkinDir returns the directory of a private or team skin if the request may see it: with a valid signature, as
+// the owner or team member, or as an account with write access.
+func (ch *CarsHandler) userSkinDir(r *http.Request, car, skin string, signed bool) (string, bool) {
+	if ch.userSkins == nil {
+		return "", false
+	}
+
+	record, dir, err := ch.userSkins.Resolve(car, skin)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("could not look up skin %s of car %s", skin, car)
+		return "", false
+	}
+
+	if record == nil || !signed && !ch.userSkins.CanAccess(record, smweb.SkinActorFromRequest(r)) {
+		return "", false
+	}
+
+	return dir, true
+}
+
+// SkinPreview serves the preview picture of a private or team skin (the previews of global skins are served with
+// the content directory). It is only visible to who can use the skin.
+func (ch *CarsHandler) SkinPreview(w http.ResponseWriter, r *http.Request) {
+	dir, ok := ch.userSkinDir(r, chi.URLParam(r, "car_id"), chi.URLParam(r, "skin"), false)
+
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	preview := filepath.Join(dir, "preview.jpg")
+
+	if info, err := os.Lstat(preview); err != nil || !info.Mode().IsRegular() {
+		http.NotFound(w, r)
+		return
+	}
+
+	w.Header().Set("Cache-Control", "private, max-age=300")
+	http.ServeFile(w, r, preview)
 }
 
 // ValidSkinSignature reports whether the request carries a valid, unexpired signature (expires and sig query values)

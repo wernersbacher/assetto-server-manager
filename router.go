@@ -467,6 +467,9 @@ func Router(
 		skinDownload.ServeHTTP(w, req)
 	})
 
+	// previews of private and team skins are only for who can use the skin (checked in the handler)
+	r.Get("/car/{car_id}/skin/{skin}/preview.jpg", accountHandler.ReadAccessMiddleware(http.HandlerFunc(carsHandler.SkinPreview)).ServeHTTP)
+
 	FileServer(r, "/static", fs, false)
 
 	return prometheusMonitoringWrapper(r)

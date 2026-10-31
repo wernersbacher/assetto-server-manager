@@ -140,10 +140,18 @@ type ContentManagerWrapper struct {
 
 	skinSigner *downloads.Signer
 	skinAccess func() downloads.Access
+
+	// userSkinDir finds the directory of a private or team skin (not in the skins directory of the car), or "".
+	userSkinDir func(car, skin string) string
 }
 
 // SetSkinDownloads enables the skins section of content.json: the skins of the entry list are offered as signed
 // download URLs (see downloads.Signer), unless the download access is Off.
+// SetUserSkinDirs lets the skins section also offer private and team skins that are in the entry list.
+func (cmw *ContentManagerWrapper) SetUserSkinDirs(find func(car, skin string) string) {
+	cmw.userSkinDir = find
+}
+
 func (cmw *ContentManagerWrapper) SetSkinDownloads(signer *downloads.Signer, access func() downloads.Access) {
 	cmw.skinSigner = signer
 	cmw.skinAccess = access
@@ -174,7 +182,15 @@ func (cmw *ContentManagerWrapper) skinEntries(now time.Time) map[string]map[stri
 		skinDir := filepath.Join(cmw.env.InstallPath(), "content", "cars", entrant.Model, "skins", entrant.Skin)
 
 		if info, err := os.Lstat(skinDir); err != nil || !info.IsDir() {
-			continue
+			skinDir = ""
+
+			if cmw.userSkinDir != nil {
+				skinDir = cmw.userSkinDir(entrant.Model, entrant.Skin)
+			}
+
+			if skinDir == "" {
+				continue
+			}
 		}
 
 		version, err := downloads.SkinVersion(skinDir)

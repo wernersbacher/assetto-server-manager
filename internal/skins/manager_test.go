@@ -441,3 +441,98 @@ func TestUpload_PathTraversalStaysInside(t *testing.T) {
 		t.Error("the file must stay inside the user skins directory")
 	}
 }
+
+func TestUsableSkinsAndChecks(t *testing.T) {
+	e := newTestEnv(t)
+	defer e.cleanup()
+
+	e.settings = smmodel.SkinSettings{UserUploads: true, GlobalShare: true}
+	owner, mate, stranger := Actor{ID: uuid.New()}, uuid.New(), uuid.New()
+	team := uuid.New()
+	e.teams[owner.ID] = []uuid.UUID{team}
+	e.teams[mate] = []uuid.UUID{team}
+
+	mine, _ := e.m.Upload(owner, "ferrari", smmodel.SkinPrivate, uuid.Nil, skinFiles("mine", 10))
+	shared, _ := e.m.Upload(owner, "ferrari", smmodel.SkinTeam, team, skinFiles("shared", 10))
+	public, _ := e.m.Upload(owner, "ferrari", smmodel.SkinGlobal, uuid.Nil, skinFiles("public", 10))
+
+	for who, want := range map[uuid.UUID][]string{
+		owner.ID: {mine[0].Folder, shared[0].Folder},
+		mate:     {shared[0].Folder},
+		stranger: nil,
+		uuid.Nil: nil,
+	} {
+		usable, err := e.m.UsableSkins(who)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		got := usable["ferrari"]
+
+		if len(got) != len(want) {
+			t.Errorf("%v: usable %v, want %v", who, got, want)
+		}
+
+		for _, folder := range want {
+			found := false
+
+			for _, g := range got {
+				found = found || g == folder
+			}
+
+			if !found {
+				t.Errorf("%v: %s missing from %v", who, folder, got)
+			}
+		}
+	}
+
+	// global skins live in the skins directory and are not listed as extra skins
+	if usable, _ := e.m.UsableSkins(owner.ID); len(usable["ferrari"]) != 2 {
+		t.Errorf("global skins must not be listed: %v", usable)
+	}
+
+	for _, c := range []struct {
+		skin    string
+		account uuid.UUID
+		ok      bool
+	}{
+		{mine[0].Folder, owner.ID, true},
+		{mine[0].Folder, mate, false},
+		{mine[0].Folder, uuid.Nil, false},
+		{shared[0].Folder, mate, true},
+		{shared[0].Folder, stranger, false},
+		{public[0].Folder, stranger, true},
+		{"unknown_skin_from_disk", stranger, true},
+		{"", stranger, true},
+		{"../x", stranger, true},
+	} {
+		if err := e.m.CheckUsable("ferrari", c.skin, c.account); (err == nil) != c.ok {
+			t.Errorf("CheckUsable(%q, %v) = %v, want ok=%v", c.skin, c.account, err, c.ok)
+		}
+	}
+
+	// Resolve only finds private and team skins with files
+	if rec, dir, _ := e.m.Resolve("ferrari", mine[0].Folder); rec == nil || !exists(dir) {
+		t.Error("Resolve must find a private skin")
+	}
+
+	if rec, _, _ := e.m.Resolve("ferrari", public[0].Folder); rec != nil {
+		t.Error("Resolve must not return global skins")
+	}
+
+	if rec, _, _ := e.m.Resolve("ferrari", "../mine"); rec != nil {
+		t.Error("Resolve must refuse bad names")
+	}
+
+	// the list for the car page
+	list, _ := e.m.ListForCar("ferrari", Actor{ID: stranger})
+
+	if len(list) != 1 || list[0].Folder != public[0].Folder {
+		t.Errorf("a stranger sees the global skins only: %v", list)
+	}
+
+	if list, _ := e.m.ListForCar("ferrari", Actor{ID: uuid.New(), Writer: true}); len(list) != 3 {
+		t.Errorf("a writer sees all skins: %d", len(list))
+	}
+}

@@ -36,6 +36,7 @@ type ChampionshipManager struct {
 	env                 *serverenv.Env
 	notificationManager notification.Dispatcher
 	teams               TeamDirectory
+	skins               SkinDirectory
 
 	activeChampionship *smmodel.ActiveChampionship
 	mutex              sync.Mutex

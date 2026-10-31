@@ -20,6 +20,7 @@ import (
 	smserver "github.com/wernersbacher/ACPitwall/internal/server"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	"github.com/wernersbacher/ACPitwall/internal/servers"
+	"github.com/wernersbacher/ACPitwall/internal/skins"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 	"github.com/wernersbacher/ACPitwall/internal/statshttp"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -88,6 +89,7 @@ type Resolver struct {
 	kissMyRankHandler           *pluginhttp.KissMyRankHandler
 	realPenaltyHandler          *pluginhttp.RealPenaltyHandler
 	teamManager                 *teams.Manager
+	skinManager                 *skins.Manager
 	teamsHandler                *teams.Handler
 }
 
@@ -208,6 +210,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 
 	slot.ContentManagerWrapper = smserver.NewContentManagerWrapper(r.config, store, r.resolveCarManager(), r.resolveTrackManager(), slot.Env)
 	slot.ContentManagerWrapper.SetSkinDownloads(r.resolveDownloadSigner(), func() downloads.Access { return r.resolveAccountHandler().DownloadAccess() })
+	slot.ContentManagerWrapper.SetUserSkinDirs(r.userSkinDir)
 	process := smserver.NewAssettoServerProcess(&processConfig, r.slotUDPCallback(slot), store, slot.ContentManagerWrapper, slot.Env, pluginsOutput)
 	process.SetStartCheck(func() error { return r.checkPorts(slot) })
 	slot.Process = process
@@ -245,6 +248,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 		r.resolveNotificationManager(),
 	)
 	slot.ChampionshipManager.SetTeamDirectory(r.resolveTeamManager())
+	slot.ChampionshipManager.SetSkinDirectory(r.resolveSkinManager())
 
 	slot.RaceWeekendManager = smraceweekend.NewRaceWeekendManager(
 		r.config,
@@ -381,6 +385,7 @@ func (r *Resolver) resolveCarsHandler() *contenthttp.CarsHandler {
 	}
 
 	r.carsHandler = contenthttp.NewCarsHandler(r.resolveBaseHandler(), r.resolveCarManager(), r.resolveTrackManager(), r.resolveEnv(), r.resolveRecords(), r.resolveDownloadSigner())
+	r.carsHandler.SetUserSkins(r.resolveSkinManager())
 
 	return r.carsHandler
 }
