@@ -15,6 +15,9 @@ import (
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
 
 func setupResultsAPITest(t *testing.T) func() {
@@ -66,14 +69,14 @@ func resetResultSummaryCache() {
 func getResultsAPI(t *testing.T, target string) *httptest.ResponseRecorder {
 	t.Helper()
 
-	rh := &ResultsHandler{env: testEnv()}
+	rh := &ResultsHandler{env: testEnv(), store: smstore.NewJSONStore(filepath.Join(testInstallPath, "store"), filepath.Join(testInstallPath, "store-shared"))}
 
 	r := chi.NewRouter()
 	r.Get("/api/results", rh.ListAPI)
 	r.Get("/api/results/{fileName}", rh.ViewAPI)
 
 	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, target, nil))
+	r.ServeHTTP(rec, smweb.WithScope(httptest.NewRequest(http.MethodGet, target, nil), webtest.RequestScope()))
 
 	return rec
 }

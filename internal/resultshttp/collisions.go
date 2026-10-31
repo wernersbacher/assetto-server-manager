@@ -47,6 +47,10 @@ func (rh *ResultsHandler) RenderCollisions(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	if rh.denyHiddenResult(w, r, fileName, result) {
+		return
+	}
+
 	collisions := r.URL.Query().Get("collisions")
 
 	if collisions == "all" {

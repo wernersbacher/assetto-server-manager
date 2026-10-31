@@ -82,6 +82,14 @@ func (rh *ResultsHandler) resultsListQuery(r *http.Request) (int, smresults.Filt
 func (rh *ResultsHandler) List(w http.ResponseWriter, r *http.Request) {
 	page, filter, servers, filterServer := rh.resultsListQuery(r)
 
+	hidden, ok := rh.hiddenResults(w, r)
+
+	if !ok {
+		return
+	}
+
+	filter.Hide = hidden.HideFunc()
+
 	results, pages, err := rh.env.Results().List(page, filter)
 
 	if err == smresults.ErrPageNotFound {
@@ -287,6 +295,10 @@ func (rh *ResultsHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if rh.denyHiddenResult(w, r, fileName, result) {
+		return
+	}
+
 	serverOpts, err := rh.store.LoadServerOptions()
 
 	if err != nil {
@@ -330,6 +342,10 @@ func (rh *ResultsHandler) File(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		logrus.WithError(err).Errorf("could not get result")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if rh.denyHiddenResult(w, r, fileName, result) {
 		return
 	}
 

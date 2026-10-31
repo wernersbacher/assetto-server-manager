@@ -185,6 +185,14 @@ func NewAPIResult(installPath string, result *smresults.SessionResults) *APIResu
 func (rh *ResultsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
 	page, filter, servers, _ := rh.resultsListQuery(r)
 
+	hidden, ok := rh.hiddenResults(w, r)
+
+	if !ok {
+		return
+	}
+
+	filter.Hide = hidden.HideFunc()
+
 	results, pages, err := rh.env.Results().List(page, filter)
 
 	if err == smresults.ErrPageNotFound {
@@ -233,6 +241,10 @@ func (rh *ResultsHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 	} else if err != nil {
 		logrus.WithError(err).Errorf("could not get result")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if rh.denyHiddenResult(w, r, fileName, result) {
 		return
 	}
 

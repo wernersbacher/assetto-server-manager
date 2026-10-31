@@ -20,7 +20,7 @@ func TestListRecentResults(t *testing.T) {
 	}
 
 	t.Run("newest first, limited", func(t *testing.T) {
-		results, err := testEnv().Results().ListRecent(2)
+		results, err := testEnv().Results().ListRecent(2, nil)
 
 		if err != nil {
 			t.Fatal(err)
@@ -36,7 +36,7 @@ func TestListRecentResults(t *testing.T) {
 	})
 
 	t.Run("fewer results than requested", func(t *testing.T) {
-		results, err := testEnv().Results().ListRecent(10)
+		results, err := testEnv().Results().ListRecent(10, nil)
 
 		if err != nil {
 			t.Fatal(err)

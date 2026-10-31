@@ -15,6 +15,7 @@ import (
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
@@ -86,7 +87,7 @@ func getAPI(t *testing.T, rh *ResultsHandler, target string) *httptest.ResponseR
 	r.Get("/api/results/{fileName}", rh.ViewAPI)
 
 	rec := httptest.NewRecorder()
-	r.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, target, nil))
+	r.ServeHTTP(rec, smweb.WithScope(httptest.NewRequest(http.MethodGet, target, nil), webtest.RequestScope()))
 
 	return rec
 }
@@ -237,7 +238,7 @@ func TestResultsSingleServerUnchanged(t *testing.T) {
 			return []ServerDir{{ServerRef: smweb.ServerRef{ID: "a", Name: "Only"}, ResultsDir: filepath.Join(testInstallPath, "results")}}
 		},
 	} {
-		rh := &ResultsHandler{env: testEnv(), servers: servers}
+		rh := &ResultsHandler{env: testEnv(), servers: servers, store: smstore.NewJSONStore(filepath.Join(testInstallPath, "store"), filepath.Join(testInstallPath, "store-shared"))}
 
 		rec := getAPI(t, rh, "/api/results")
 

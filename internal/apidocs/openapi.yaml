@@ -18,7 +18,8 @@ info:
     **Hidden championships.** A championship or race weekend can be marked as hidden. Hidden ones are left out of the
     championship list, the standings and the schedule endpoints (`/api/championships`, `/api/upcoming-races`) and
     answer 404 for their own endpoints, unless the request carries the session of a logged in account (an open server
-    does not count as logged in).
+    does not count as logged in). The results of their sessions (`/api/results`, `/api/results/{fileName}`) are treated in
+    the same way.
 
     **Conventions.** Field names are capitalised (`DriverName`). Fields marked as optional are left out when empty.
     All times and durations are in milliseconds, as Assetto Corsa stores them, unless noted otherwise; dates are RFC 3339.

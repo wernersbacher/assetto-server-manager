@@ -76,7 +76,7 @@ func TestLoaderListAllMergesDirs(t *testing.T) {
 		t.Errorf("expected the file of the primary dir, got track %q", results[2].TrackName)
 	}
 
-	recent, err := l.ListRecent(2)
+	recent, err := l.ListRecent(2, nil)
 
 	if err != nil {
 		t.Fatal(err)
@@ -212,7 +212,7 @@ func TestListRecentSkipsFilesWithoutSessionData(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	recent, err := l.ListRecent(5)
+	recent, err := l.ListRecent(5, nil)
 
 	if err != nil {
 		t.Fatal(err)

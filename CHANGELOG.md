@@ -20,7 +20,7 @@ Fixed:
 
 Added:
 
-* Championships and standalone race weekends can be marked as hidden (checkbox "Hidden" in the edit form). Hidden ones are only visible to logged in accounts: on an open server anonymous visitors do not see them in the lists, the calendar, the calendar feeds (`events.ics`, championship ics), the upcoming races and championship API, the driver profile, and get "not found" for their pages, exports and API endpoints. Existing championships and race weekends stay visible.
+* Championships and standalone race weekends can be marked as hidden (checkbox "Hidden" in the edit form). Hidden ones are only visible to logged in accounts: on an open server anonymous visitors do not see them in the lists, the calendar, the calendar feeds (`events.ics`, championship ics), the upcoming races and championship API, the driver profile, and get "not found" for their pages, exports and API endpoints. This includes the results of their sessions (results list, results page, collisions, download, `/api/results`, recent results on the overview). Existing championships and race weekends stay visible.
 
 * Car skins can be downloaded as a zip (`/car/{car_id}/skin/{skin}/download`, layout `content/cars/<car>/skins/<skin>/`) from the car page, so drivers can install them or use the link as a Content Manager download URL.
 

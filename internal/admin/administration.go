@@ -6,6 +6,7 @@ import (
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
+	"github.com/wernersbacher/ACPitwall/internal/resultshttp"
 	"github.com/wernersbacher/ACPitwall/internal/schedule"
 	smserver "github.com/wernersbacher/ACPitwall/internal/server"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
@@ -110,7 +111,19 @@ func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Requ
 		logrus.WithError(err).Error("couldn't load upcoming races for the overview")
 	}
 
-	recentResults, err := slot.Env.Results().ListRecent(homeRecentResults)
+	hidden, hiddenErr := resultshttp.NewHiddenResultsFor(r, slot.Store)
+
+	if hiddenErr != nil {
+		logrus.WithError(hiddenErr).Error("couldn't determine hidden results for the overview")
+
+	}
+
+	var recentResults []*smresults.SessionResults
+
+	// better to show no results than to leak hidden ones
+	if hiddenErr == nil {
+		recentResults, err = slot.Env.Results().ListRecent(homeRecentResults, hidden.HideFunc())
+	}
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't load recent results for the overview")

@@ -33,7 +33,14 @@ type Filter struct {
 
 	// Dir restricts the list to the results which are found in this results directory (the one of a server slot).
 	Dir string
+
+	// Hide, if set, removes the results for which it returns true.
+	Hide HideFunc
 }
+
+// HideFunc decides from the file name (with extension) and the championship and race weekend id stored in a results
+// file whether the results are to be left out.
+type HideFunc func(fileName, championshipID, raceWeekendID string) bool
 
 func (f Filter) IsActive() bool {
 	return f.Type != "" || f.Track != "" || f.Driver != "" || f.Dir != ""
@@ -41,7 +48,7 @@ func (f Filter) IsActive() bool {
 
 // needsLoading is true if the filter can only be evaluated by looking into the results files.
 func (f Filter) needsLoading() bool {
-	return f.Track != "" || f.Driver != ""
+	return f.Track != "" || f.Driver != "" || f.Hide != nil
 }
 
 // matchesFileName applies the session type filter, which can be decided from the file name alone.
@@ -70,12 +77,19 @@ type resultSummary struct {
 	size    int64
 	modTime time.Time
 
+	championshipID string
+	raceWeekendID  string
+
 	track   string // lowercased track names and layout, as shown in the list and as stored
 	drivers []string
 	guids   map[string]bool
 }
 
-func (s *resultSummary) matches(f Filter) bool {
+func (s *resultSummary) matches(f Filter, fileName string) bool {
+	if f.Hide != nil && f.Hide(fileName, s.championshipID, s.raceWeekendID) {
+		return false
+	}
+
 	if f.Track != "" && !strings.Contains(s.track, strings.ToLower(f.Track)) {
 		return false
 	}
@@ -132,8 +146,10 @@ func (l *Loader) getResultSummary(info os.FileInfo) (*resultSummary, error) {
 	}
 
 	summary = &resultSummary{
-		size:    info.Size(),
-		modTime: info.ModTime(),
+		size:           info.Size(),
+		modTime:        info.ModTime(),
+		championshipID: result.ChampionshipID,
+		raceWeekendID:  result.RaceWeekendID,
 		track: strings.ToLower(strings.Join([]string{
 			result.TrackName, l.prettify(result.TrackName), result.TrackConfig, l.prettify(result.TrackConfig),
 		}, " ")),
@@ -199,7 +215,7 @@ func (l *Loader) List(page int, filter Filter) ([]SessionResults, []int, error) 
 				continue
 			}
 
-			if summary.matches(filter) {
+			if summary.matches(filter, resultFile.Name()) {
 				matching = append(matching, resultFile)
 			}
 		}
@@ -275,8 +291,8 @@ func (l *Loader) ListAll() ([]SessionResults, error) {
 	return results, nil
 }
 
-// ListRecent returns the newest n results, newest first. Results that can't be loaded or contain no session data are skipped.
-func (l *Loader) ListRecent(n int) ([]*SessionResults, error) {
+// ListRecent returns the newest n results, newest first, without those which hide (may be nil) selects. Results that can't be loaded or contain no session data are skipped.
+func (l *Loader) ListRecent(n int, hide HideFunc) ([]*SessionResults, error) {
 	resultFiles, err := l.readDirs()
 
 	if err != nil {
@@ -305,6 +321,10 @@ func (l *Loader) ListRecent(n int) ([]*SessionResults, error) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not load results file: %s", resultFile.Name())
+			continue
+		}
+
+		if hide != nil && hide(resultFile.Name(), result.ChampionshipID, result.RaceWeekendID) {
 			continue
 		}
 
