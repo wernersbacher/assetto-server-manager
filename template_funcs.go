@@ -8,6 +8,7 @@ import (
 	smraceweekend "github.com/wernersbacher/ACPitwall/internal/raceweekend"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"html/template"
 	"strings"
@@ -52,7 +53,7 @@ func weatherName(installPath, key string) string {
 
 // serverTemplateFuncs returns the template functions which depend on ACPitwall's own state and domain code.
 // They are added to the functions which the web renderer provides itself.
-func serverTemplateFuncs(env *serverenv.Env) template.FuncMap {
+func serverTemplateFuncs(env *serverenv.Env, servers smweb.ServersFunc) template.FuncMap {
 	return template.FuncMap{
 		"weatherName":              func(key string) string { return weatherName(env.InstallPath(), key) },
 		"carList":                  smcontent.CarList,
@@ -65,7 +66,21 @@ func serverTemplateFuncs(env *serverenv.Env) template.FuncMap {
 		"raceWeekendTrackOverview": func(rw *smmodel.RaceWeekend) string { return smraceweekend.TrackOverview(env, rw) },
 		"EventName":                func(e smmodel.RaceEvent) string { return e.EventName(env.TrackSummary) },
 		"EventIsLooping":           func(e smmodel.RaceEvent) bool { return e.IsLooping(env.ServerID()) },
+		"resultServer":             func(fileName string) *smweb.ServerRef { return resultServer(env, servers, fileName) },
 		"driverInitials":           driverInitials,
 		"ChangelogHTML":            changelogHTML,
 	}
+}
+
+// resultServer returns the server whose results directory holds the results file, so that penalty and blacklist forms
+// act on the server the results come from. It is nil (the forms use the current server) if there are fewer than two
+// servers or the file is not found in a server's directory.
+func resultServer(env *serverenv.Env, servers smweb.ServersFunc, fileName string) *smweb.ServerRef {
+	attributed := servers.Attributed()
+
+	if len(attributed) == 0 || fileName == "" {
+		return nil
+	}
+
+	return smweb.ServerOfDir(attributed, env.Results().DirOf(fileName))
 }

@@ -167,7 +167,7 @@
                                                 <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">View detailed results breakdown for this Session</a>
                                             </p>
 
-                                            {{ template "session-overall" dict "sessionResults" $session.Results "account" $account }}
+                                            {{ template "session-overall" dict "sessionResults" $session.Results "account" $account "server" (resultServer $session.Results.SessionFile) }}
                                         {{ else if $session.InProgress }}
                                             <p class="text-center mt-5 pb-2"><strong>Session in Progress</strong>: Looks like there aren't any results yet. Check back later.</p>
                                         {{ else }}

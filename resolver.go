@@ -147,7 +147,7 @@ func (r *Resolver) initViewRenderer() error {
 		BuildVersion: BuildVersion,
 		Debug:        Debug,
 		Reload:       r.reloadTemplates,
-		Funcs:        serverTemplateFuncs(r.resolveEnv()),
+		Funcs:        serverTemplateFuncs(r.resolveEnv(), r.resultsServers),
 	})
 
 	if err != nil {
