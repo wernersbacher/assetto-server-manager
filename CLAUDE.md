@@ -16,14 +16,13 @@ These rules override the conservative git defaults of the Beads block below.
 - **Commit after every finished feature/task**: tests green, bead closed, then commit. One logical change per
   commit, imperative English subject in the style of the history (e.g. "Add read-only championship API").
   **Do not push** (git or `bd dolt push`) unless asked.
-- User-facing changes go into `CHANGELOG.md` (embedded and shown in the UI); API changes into the API section of
-  `README.md`.
+- User-facing changes go into `CHANGELOG.md` (embedded and shown in the UI); API changes into `internal/apidocs/openapi.yaml` (the API reference; the router test fails if it drifts from the `/api` routes)
 
 ## Build & Test
 
 `go.mod` targets Go 1.13 with pinned, old dependencies — don't bump them as a side effect.
 
-The root package imports generated, gitignored embed files (`cmd/acpitwall/{static,views}/static_embed.go`,
+The root package imports generated, gitignored embed files (`cmd/acpitwall/{static,views}/static_embed.go`, `internal/apidocs/apidocs_embed.go`,
 `internal/changelog/changelog_embed.go`), so run `go generate` on a fresh checkout and after changing
 `CHANGELOG.md` or static files, otherwise nothing compiles:
 
