@@ -400,3 +400,32 @@ button.dropdown-item {
 .race-save-bar .race-discard {
   margin-right: auto;
 }
+
+// championship form tabs: the edit button sits at the right end of the tab bar
+.championship-tabbar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border, #dee2e6);
+
+  .nav-tabs {
+    flex: 1 1 auto;
+    border-bottom: 0;
+    flex-wrap: wrap;
+  }
+
+  .championship-tabbar-save {
+    margin: 0 0 4px 12px;
+  }
+}
+
+.form-subheading {
+  margin: 1.25rem 0 0.75rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border, #dee2e6);
+  font-weight: 600;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}

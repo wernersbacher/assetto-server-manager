@@ -236,6 +236,31 @@ export function initMultiSelect($element) {
 
 let $entrantTemplate = null;
 
+// liveItems filters out the items of a form that are not really part of it: the hidden templates (note that the
+// cloned class template keeps its #class-template id, so that cannot be used) and anything that is
+// switched off with display:none or d-none (e.g. the spectator car while it is disabled). Unlike :visible it still
+// counts items in a tab pane that is not the active one (the championship form is split into tabs), where every
+// element has no layout and is therefore never ":visible".
+function liveItems($items) {
+    return $items.filter(function () {
+        let $el = $(this);
+
+        if ($el.closest("#entrantTemplate, .template").length) {
+            return false;
+        }
+
+        let live = true;
+
+        $el.parentsUntil(".tab-pane").addBack().each(function () {
+            if (this.style.display === "none" || $(this).hasClass("d-none")) {
+                live = false;
+            }
+        });
+
+        return live;
+    });
+}
+
 function makeCarString(cars) {
     let out = "";
 
@@ -1058,7 +1083,7 @@ class RaceSetup {
 
 
             let $savedNumEntrants = $raceSetup.find(".totalNumEntrants");
-            $savedNumEntrants.val($raceSetup.find(".entrant:visible").length);
+            $savedNumEntrants.val(liveItems($raceSetup.find(".entrant")).length);
 
 
             that.toggleAlreadyAutocompletedDrivers();
@@ -1136,7 +1161,7 @@ class RaceSetup {
             let restrictor = $lastElement.find("[name='EntryList.Restrictor']").val();
 
             for (let i = 0; i < numEntrantsToAdd; i++) {
-                let $visibleEntrants = $(".entrant:visible");
+                let $visibleEntrants = liveItems($(".entrant"));
 
                 if ($visibleEntrants.length >= maxClients) {
                     continue;
@@ -1191,7 +1216,7 @@ class RaceSetup {
             }
 
             let $savedNumEntrants = that.$parent.find(".totalNumEntrants");
-            $savedNumEntrants.val(that.$parent.find(".entrant:visible").length);
+            $savedNumEntrants.val(liveItems(that.$parent.find(".entrant")).length);
 
             that.toggleAlreadyAutocompletedDrivers();
         });
@@ -2231,7 +2256,7 @@ let championships = {
             // init totalNumPoints val to be equal to the number of .points-place's visible in the class.
             let $raceSetup = $(elem);
             let $savedNumPoints = $raceSetup.find(".totalNumPoints");
-            $savedNumPoints.val($raceSetup.find(".points-place:visible").length);
+            $savedNumPoints.val(liveItems($raceSetup.find(".points-place")).length);
         });
 
         $document.on("click", ".addEntrant", function (e) {
@@ -2245,7 +2270,7 @@ let championships = {
             }
 
             let $points = $raceSetup.find(".points-place");
-            let numEntrants = $raceSetup.find(".entrant:visible").length;
+            let numEntrants = liveItems($raceSetup.find(".entrant")).length;
             let numPoints = $points.length;
 
             for (let i = numPoints; i < numEntrants; i++) {
@@ -2265,7 +2290,7 @@ let championships = {
             }
 
             let $savedNumPoints = $raceSetup.find(".totalNumPoints");
-            $savedNumPoints.val($raceSetup.find(".points-place:visible").length);
+            $savedNumPoints.val(liveItems($raceSetup.find(".points-place")).length);
         });
 
         championships.initClassSetup();
@@ -2412,8 +2437,8 @@ let championships = {
 
             let maxClients = $("#MaxClients").val();
 
-            if ($(".entrant:visible").length >= maxClients) {
-                $cloned.find(".entrant:visible").remove();
+            if (liveItems($(".entrant")).length >= maxClients) {
+                liveItems($cloned.find(".entrant")).remove();
             }
         });
 

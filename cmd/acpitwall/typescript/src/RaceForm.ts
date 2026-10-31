@@ -1,6 +1,8 @@
 // RaceForm enhances the long race setup forms (custom race, championship event, race weekend session, quick race,
 // championship and race weekend settings). The existing top level cards are kept as they are (so all the scripts
 // that find fields inside them keep working) and are marked as sections. On top of that it adds
+//  - on forms with Bootstrap tabs (the championship form) no section index: the tabs are the navigation, they get the
+//    status markers instead, and the tab with an invalid field or a server error is opened,
 //  - a sticky section index (a horizontally scrolling strip, so it also works on phones) with status markers
 //    (error / edited / complete) per section,
 //  - a sticky save bar that repeats the submit buttons of the form. The bar buttons just click the original
@@ -77,7 +79,9 @@ export class RaceForm {
         });
 
         this.buildCollapsible($form, sections, "sm-form-sections:" + RaceForm.formType($form));
-        const refresh = this.buildIndex($form, sections);
+        const $tabs = $form.find("ul.nav-tabs").first();
+        const tabs = $tabs.length && $form.find(".tab-content").length ? this.buildTabs($form, $tabs, sections) : null;
+        const refresh = tabs ? tabs.refresh : this.buildIndex($form, sections);
         this.buildErrorSummary($form, sections, refresh);
         this.buildServerErrors($form, sections, refresh);
         this.buildSaveBar($form);
@@ -90,6 +94,11 @@ export class RaceForm {
         const rebase = () => setTimeout(() => {
             if (!touched) {
                 sections.forEach((s) => s.baseline = RaceForm.signature(s.$card));
+
+                if (tabs) {
+                    tabs.rebase();
+                }
+
                 $form.trigger("change");
             }
         }, 400);
@@ -241,6 +250,85 @@ export class RaceForm {
 
             RaceForm.setOpen(s, stored[s.title] === true);
         });
+    }
+
+    // showTabOf opens the tab pane that holds the element (no-op without tabs). Panes switch synchronously (no fade),
+    // so the element is displayed again right away and the browser can focus it.
+    private static showTabOf(el: HTMLElement) {
+        const $pane = $(el).closest(".tab-pane");
+
+        if ($pane.length && !$pane.hasClass("active") && $pane.attr("id")) {
+            $("a[data-toggle=tab][href=\"#" + $pane.attr("id") + "\"]").first().tab("show");
+        }
+    }
+
+    // buildTabs adds the status markers (error / edited / complete) to the tab links, and remembers the active tab per
+    // page, so a reload or a round trip to the server (validation errors) returns to it.
+    private buildTabs($form: JQuery, $tabs: JQuery, sections: Section[]): { refresh: () => void, rebase: () => void } {
+        const links = $tabs.find("a[data-toggle=tab]").toArray();
+        const key = "sm-form-tab:" + window.location.pathname + "#" + ($form.attr("id") || "form");
+        const baselines: string[] = [];
+        const markers = links.map((l) => {
+            const $marker = $("<span>").addClass("form-index-mark");
+
+            $(l).prepend($marker);
+
+            return $marker;
+        });
+
+        const paneOf = (l: HTMLElement) => $($(l).attr("href") || "");
+
+        const rebase = () => links.forEach((l, i) => baselines[i] = RaceForm.signature(paneOf(l)));
+        const refresh = () => {
+            links.forEach((l, i) => {
+                const $pane = paneOf(l);
+                let status = "";
+                let text = "";
+
+                if ($pane.find(".has-error, [aria-invalid=true]").length) {
+                    status = "error";
+                    text = "has errors";
+                } else if (RaceForm.signature($pane) !== baselines[i]) {
+                    status = "edited";
+                    text = "edited";
+                }
+
+                markers[i].attr("data-status", status).empty();
+
+                if (text) {
+                    markers[i].append($("<span>").addClass("sr-only").text(text + ": "));
+                }
+            });
+        };
+
+        rebase();
+
+        try {
+            const stored = sessionStorage.getItem(key);
+            const $link = stored ? $tabs.find("a[data-toggle=tab][href=\"" + stored.replace(/"/g, "") + "\"]") : $();
+
+            if ($link.length) {
+                $link.first().tab("show");
+            }
+        } catch (e) {
+            // storage can be unavailable: the first tab is shown
+        }
+
+        $tabs.on("shown.bs.tab", (e: any) => {
+            try {
+                sessionStorage.setItem(key, $(e.target).attr("href") || "");
+            } catch (err) {
+                // see above
+            }
+
+            // widgets that measure their layout (switches, editors) get a chance to update
+            $(window).trigger("resize");
+        });
+
+        $form.on("input change", () => setTimeout(refresh, 150));
+        refresh();
+
+        return {refresh, rebase};
     }
 
     private buildIndex($form: JQuery, sections: Section[]): () => void {
@@ -402,6 +490,11 @@ export class RaceForm {
             const el = e.target as HTMLElement;
             const s = sectionOf(el);
 
+            // the first invalid field decides which tab is shown (the browser focuses the first invalid field)
+            if (!batchOpen) {
+                RaceForm.showTabOf(el);
+            }
+
             if (!batchOpen) {
                 batchOpen = true;
                 clear();
@@ -428,6 +521,7 @@ export class RaceForm {
                     RaceForm.setOpen(s, true);
                 }
 
+                RaceForm.showTabOf(el);
                 el.scrollIntoView({block: "center"});
                 el.focus({preventScroll: true});
             });
@@ -473,6 +567,8 @@ export class RaceForm {
 
         $summary.addClass("form-error-summary");
 
+        let tabShown = false;
+
         $summary.find("li[data-field]").each((_, li) => {
             const $li = $(li);
             const name = $li.attr("data-field") || "";
@@ -492,6 +588,11 @@ export class RaceForm {
                 s.$card.addClass("has-error");
             }
 
+            if (!tabShown) {
+                tabShown = true;
+                RaceForm.showTabOf(el);
+            }
+
             $a.on("click", (ev) => {
                 ev.preventDefault();
 
@@ -499,6 +600,7 @@ export class RaceForm {
                     RaceForm.setOpen(s, true);
                 }
 
+                RaceForm.showTabOf(el);
                 el.scrollIntoView({block: "center"});
                 el.focus({preventScroll: true});
             });

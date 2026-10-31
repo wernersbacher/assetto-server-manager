@@ -244,7 +244,8 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 	previousNumPoints := 0
 	previousNumCars := 0
 
-	// spectator car, the first entrant in the form
+	// spectator car, the first entrant in the form (the Entry List pane of views/pages/championships/new.html comes
+	// before the General pane in the document on purpose, see the comment there)
 	if len(r.Form["EntryList.Name"]) > previousNumEntrants {
 		entrants, err := cm.BuildEntryList(r, previousNumEntrants, 1)
 

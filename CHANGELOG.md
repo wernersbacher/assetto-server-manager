@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The championship create and edit page is split into tabs (General, Participation & Access, Entry List, Scoring, Race Settings, Info & Display) with shorter help texts. Tabs with errors or edits are marked, the tab of an invalid field opens on save and the last tab is remembered. When creating a championship the buttons are called "Save & add first Event" and "Save & add Race Weekend".
+
 * The quick race form is split into section cards (Track & Cars, Qualifying, Race) with the section index and sticky bar, like the custom race form.
 
 * New server option "Content Manager Wrapper Content Requires Password": when on and the server has a password, the content info for Content Manager is flagged as password protected.
