@@ -612,6 +612,11 @@ const DriverGUIDDataKey = "driver-guid";
 
 // driverNameElement is the name of a driver, linked to the driver profile if the GUID can have one.
 function driverNameElement(guid: string, name: string): JQuery<HTMLElement> {
+    // the page tells whether the viewer may open driver profiles (statistics access), otherwise they would get a 403
+    if ($("#event-title").attr("data-driver-links") !== "1") {
+        return $("<span/>").text(name);
+    }
+
     if (!/^[0-9A-Za-z_-]{1,64}$/.test(guid)) {
         return $("<span/>").text(name);
     }
