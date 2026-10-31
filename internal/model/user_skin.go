@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/gob"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -48,7 +49,10 @@ func ParseSkinVisibility(s string) (SkinVisibility, error) {
 type UserSkin struct {
 	ID    uuid.UUID
 	Car   string
-	Name  string // name of the skin folder as uploaded
+	Name  string // name of the skin as uploaded, shown to users
+	// Folder is the name of the skin directory (and the skin name in entry lists). It never changes. For skins of
+	// users it carries a prefix of the owner id, so that names of different users cannot collide.
+	Folder string
 	Owner uuid.UUID
 
 	Visibility SkinVisibility
@@ -68,6 +72,7 @@ func NewUserSkin(car, name string, owner uuid.UUID, files int, size int64, now t
 		ID:         uuid.New(),
 		Car:        car,
 		Name:       name,
+		Folder:     name,
 		Owner:      owner,
 		Visibility: SkinPrivate,
 		Files:      files,
@@ -75,6 +80,11 @@ func NewUserSkin(car, name string, owner uuid.UUID, files int, size int64, now t
 		Created:    now,
 		Updated:    now,
 	}
+}
+
+// UserSkinFolder is the directory name of a skin that a user uploaded: the name with a prefix of the owner id.
+func UserSkinFolder(owner uuid.UUID, name string) string {
+	return fmt.Sprintf("u%x_%s", owner[:4], name)
 }
 
 // Normalized returns the visibility with the zero value resolved to SkinPrivate.
