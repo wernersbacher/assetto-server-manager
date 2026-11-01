@@ -174,7 +174,7 @@ func (am *AccountManager) createSteamAccount(steamID string, group smmodel.Group
 		return nil, err
 	}
 
-	if _, err := am.store.FindAccountByName(steamAccountName(steamID)); err == nil {
+	if steamAccountNameTaken(am.store, steamID) {
 		return nil, ErrSteamIDInUse
 	}
 

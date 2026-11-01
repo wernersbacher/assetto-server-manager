@@ -1,6 +1,7 @@
 package accounts
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -103,29 +104,107 @@ func TestLoginWithSteam_NewAccount(t *testing.T) {
 	}
 }
 
-func TestLoginWithSteam_DeletedAccount(t *testing.T) {
-	ah, _, cleanup := newTestHandler(t)
-	defer cleanup()
-
-	ah.accountManager.options.SteamSignup = true
+func deletedSteamAccount(t *testing.T, ah *AccountHandler) *smmodel.Account {
+	t.Helper()
 
 	deleted := smmodel.NewAccount(testServerID, "test")
 	deleted.Name = "steam-" + testSteamID
 	deleted.GUID = testSteamID
+	deleted.DriverName = "Old Name"
+	deleted.Groups[testServerID] = smmodel.GroupWrite
 	deleted.Deleted = time.Now()
 
 	if err := ah.store.UpsertAccount(deleted); err != nil {
 		t.Fatal(err)
 	}
 
+	return deleted
+}
+
+func TestLoginWithSteam_DeletedAccountSignupOff(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	deletedSteamAccount(t, ah)
+
 	req := steamRequest(ah)
 
-	if _, _, err := ah.accountManager.loginWithSteam(req, httptest.NewRecorder(), testSteamID); err == nil {
-		t.Fatal("a deleted account must not log in")
+	if _, _, err := ah.accountManager.loginWithSteam(req, httptest.NewRecorder(), testSteamID); err != ErrSteamSignupDisabled {
+		t.Fatalf("expected ErrSteamSignupDisabled, got %v", err)
 	}
 
 	if sessionAccount(t, ah, req) != "" {
 		t.Error("no session for a deleted account")
+	}
+}
+
+func TestLoginWithSteam_DeletedAccountRegistersAgain(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	ah.accountManager.options.SteamSignup = true
+	deleted := deletedSteamAccount(t, ah)
+
+	req := steamRequest(ah)
+	account, created, err := ah.accountManager.loginWithSteam(req, httptest.NewRecorder(), testSteamID)
+
+	if err != nil || !created {
+		t.Fatalf("created %v err %v", created, err)
+	}
+
+	if account.ID == deleted.ID {
+		t.Error("the new account needs a fresh ID")
+	}
+
+	if account.DriverName != "" || account.Groups[testServerID] != smmodel.GroupRead || !account.Deleted.IsZero() {
+		t.Errorf("no leftovers of the deleted account: %+v", account)
+	}
+
+	if sessionAccount(t, ah, req) != account.ID.String() {
+		t.Error("session must hold the new account id")
+	}
+
+	accounts, err := ah.store.ListAccounts()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	n := 0
+
+	for _, a := range accounts {
+		if a.GUID == testSteamID {
+			n++
+		}
+	}
+
+	if n != 1 {
+		t.Errorf("%d accounts for the SteamID, want 1", n)
+	}
+
+	if _, err := ah.store.FindAccountByID(deleted.ID.String()); err == nil {
+		t.Error("the old ID must not resolve any more")
+	}
+}
+
+func TestLoginWithSteam_DeletedAccountRateLimited(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	now := time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)
+	ah.accountManager.now = func() time.Time { return now }
+	ah.accountManager.options.SteamSignup = true
+
+	for i := 0; i < steamSignupsLimit; i++ {
+		if _, _, err := ah.accountManager.loginWithSteam(steamRequest(ah), httptest.NewRecorder(), fmt.Sprintf("765611980000%05d", i)); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	deletedSteamAccount(t, ah)
+
+	if _, _, err := ah.accountManager.loginWithSteam(steamRequest(ah), httptest.NewRecorder(), testSteamID); err != ErrSteamSignupLimit {
+		t.Fatalf("expected ErrSteamSignupLimit, got %v", err)
 	}
 }
 

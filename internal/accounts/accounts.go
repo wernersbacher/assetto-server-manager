@@ -635,6 +635,15 @@ func steamAccountName(steamID string) string {
 	return "steam-" + steamID
 }
 
+// steamAccountNameTaken tells whether a live account blocks the name of the Steam account of steamID. A soft deleted
+// account does not: both stores key accounts by name, so the new account replaces the deleted record (fresh ID, no
+// leftovers), which lets a deleted user register again.
+func steamAccountNameTaken(store smstore.Store, steamID string) bool {
+	existing, err := store.FindAccountByName(steamAccountName(steamID))
+
+	return err == nil && existing.Deleted.IsZero()
+}
+
 // loginWithSteam logs in the account whose GUID is the (already verified) steamID and starts the session. If there
 // is none, an account is created if the Steam sign up is allowed. created tells whether this happened.
 func (am *AccountManager) loginWithSteam(r *http.Request, w http.ResponseWriter, steamID string) (account *smmodel.Account, created bool, err error) {
@@ -655,7 +664,7 @@ func (am *AccountManager) loginWithSteam(r *http.Request, w http.ResponseWriter,
 			return nil, false, ErrSteamSignupDisabled
 		}
 
-		if _, err := am.store.FindAccountByName(steamAccountName(steamID)); err == nil {
+		if steamAccountNameTaken(am.store, steamID) {
 			return nil, false, fmt.Errorf("an account named %q exists already", steamAccountName(steamID))
 		}
 

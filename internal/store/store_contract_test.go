@@ -423,6 +423,33 @@ func TestStoreContract_Accounts(t *testing.T) {
 		if err := store.DeleteAccount(uuid.New().String()); err != ErrAccountNotFound {
 			t.Errorf("expected ErrAccountNotFound deleting a missing account, got: %v", err)
 		}
+
+		// a new account with the name of a soft-deleted one replaces the record (accounts are keyed by name in
+		// both stores), so a deleted user can register again
+		again := smmodel.NewAccount(testServerID, testBuildVersion)
+		again.Name = "user"
+
+		if err := store.UpsertAccount(again); err != nil {
+			t.Fatal(err)
+		}
+
+		found, err := store.FindAccountByName("user")
+
+		if err != nil || found.ID != again.ID || !found.Deleted.IsZero() {
+			t.Errorf("expected the replacement account by name, got %v, %v", found, err)
+		}
+
+		if _, err := store.FindAccountByID(user.ID.String()); err != ErrAccountNotFound {
+			t.Errorf("expected the old ID gone, got: %v", err)
+		}
+
+		accounts, err = store.ListAccounts()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		assertStringSet(t, "accounts after re-register", accountNames(accounts), "admin", "user")
 	})
 }
 
