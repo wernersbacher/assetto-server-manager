@@ -204,7 +204,6 @@ championships:
     choose_team: Wähle eines deiner Teams oder <a href="{url}">erstelle ein Team bzw. tritt einem bei</a>.
     team_limit: Ein Team kann bis zu {count} Fahrer anmelden.
     no_team_change: Nach der Anmeldung kannst du dein Team nicht mehr ändern.
-    sign_in_for_teams: <a href="{url}">Melde dich an</a>, um dich mit einem deiner Teams anzumelden.
     team_placeholder: Das schnelle Team
     free_team_help: Ohne eigenes Team kannst du stattdessen einen Teamnamen eingeben, aber nicht den Namen eines bestehenden Teams.
     team_optional: Du kannst den Teamnamen leer lassen.

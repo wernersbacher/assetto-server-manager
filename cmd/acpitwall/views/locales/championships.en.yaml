@@ -204,7 +204,6 @@ championships:
     choose_team: Choose one of your teams, or <a href="{url}">create or join a team</a> first.
     team_limit: A team can register up to {count} drivers.
     no_team_change: You cannot change your team after registering.
-    sign_in_for_teams: <a href="{url}">Sign in</a> to register with one of your teams.
     team_placeholder: The Fast Team
     free_team_help: Without a team of your own you can type a team name instead, but not the name of an existing team.
     team_optional: You may leave the team name blank.

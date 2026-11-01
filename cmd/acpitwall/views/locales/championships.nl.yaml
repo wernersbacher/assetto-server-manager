@@ -204,7 +204,6 @@ championships:
     choose_team: Kies een van je teams, of <a href="{url}">maak eerst een team of sluit je aan bij een team</a>.
     team_limit: Een team kan maximaal {count} rijders inschrijven.
     no_team_change: Na het inschrijven kun je je team niet meer wijzigen.
-    sign_in_for_teams: <a href="{url}">Log in</a> om je met een van je teams in te schrijven.
     team_placeholder: Het snelle team
     free_team_help: Zonder eigen team kun je in plaats daarvan een teamnaam typen, maar niet de naam van een bestaand team.
     team_optional: Je mag de teamnaam leeg laten.

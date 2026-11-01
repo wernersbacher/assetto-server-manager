@@ -204,7 +204,6 @@ championships:
     choose_team: Vælg et af dine teams, eller <a href="{url}">opret eller bliv medlem af et team</a> først.
     team_limit: Et team kan tilmelde op til {count} kørere.
     no_team_change: Du kan ikke skifte team efter tilmeldingen.
-    sign_in_for_teams: <a href="{url}">Log ind</a> for at tilmelde dig med et af dine teams.
     team_placeholder: Det hurtige team
     free_team_help: Uden dit eget team kan du i stedet skrive et teamnavn, men ikke navnet på et eksisterende team.
     team_optional: Du kan lade teamnavnet stå tomt.

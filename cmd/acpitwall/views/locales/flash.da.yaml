@@ -91,6 +91,7 @@ flash:
     team_penalty_modified: Teamstraffen er ændret
     signed_up_pending: Tak for din tilmelding til mesterskabet! Din tilmelding skal først godkendes af en administrator.
     signed_up: Tak for din tilmelding til mesterskabet!
+    sign_up_login_required: Log ind for at tilmelde dig et mesterskab.
     entrant_already_accepted: Denne deltager er allerede godkendt.
     entrant_accepted: Deltageren er godkendt!
     no_slots: Der er ikke flere ledige pladser til denne deltager og bil. Tjek mesterskabets konfiguration.

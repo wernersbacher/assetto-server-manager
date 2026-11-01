@@ -91,6 +91,7 @@ flash:
     team_penalty_modified: Teamstrafe erfolgreich geändert
     signed_up_pending: Danke für deine Anmeldung zur Meisterschaft! Deine Anmeldung muss noch von einem Administrator bestätigt werden.
     signed_up: Danke für deine Anmeldung zur Meisterschaft!
+    sign_up_login_required: Bitte melde dich an, um dich für eine Meisterschaft anzumelden.
     entrant_already_accepted: Dieser Teilnehmer wurde bereits angenommen.
     entrant_accepted: Der Teilnehmer wurde erfolgreich angenommen!
     no_slots: Für diesen Teilnehmer und dieses Auto sind keine Plätze mehr frei. Bitte prüfe die Konfiguration der Meisterschaft.

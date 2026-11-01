@@ -91,6 +91,7 @@ flash:
     team_penalty_modified: Teamstraf gewijzigd
     signed_up_pending: Bedankt voor je inschrijving voor het kampioenschap! Je inschrijving moet nog door een beheerder worden goedgekeurd.
     signed_up: Bedankt voor je inschrijving voor het kampioenschap!
+    sign_up_login_required: Log in om je in te schrijven voor een kampioenschap.
     entrant_already_accepted: Deze deelnemer is al geaccepteerd.
     entrant_accepted: De deelnemer is geaccepteerd!
     no_slots: Er zijn geen plekken meer vrij voor deze deelnemer en auto. Controleer de configuratie van het kampioenschap.

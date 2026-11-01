@@ -91,6 +91,7 @@ flash:
     team_penalty_modified: Team penalty successfully modified
     signed_up_pending: Thanks for registering for the championship! Your registration is pending approval by an administrator.
     signed_up: Thanks for registering for the championship!
+    sign_up_login_required: Please log in to register for a championship.
     entrant_already_accepted: This entrant has already been accepted.
     entrant_accepted: The entrant was successfully accepted!
     no_slots: There are no more slots available for the given entrant and car. Please check the Championship configuration.

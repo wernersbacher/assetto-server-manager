@@ -6,7 +6,6 @@ import (
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
-	"github.com/wernersbacher/ACPitwall/internal/steam"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
@@ -27,7 +26,6 @@ import (
 
 type ChampionshipsHandler struct {
 	*smweb.BaseHandler
-	steam.LoginHandler
 
 	config     *smconfig.Configuration
 	managerFor ManagerFor
@@ -958,7 +956,7 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 	// only accounts connected to Steam can register: anonymous visitors log in first
 	if err := CheckSignUpAccount(r); err != nil {
 		if !signUpLoggedIn(r) {
-			smweb.AddErrorFlash(w, r, smweb.ErrorText(r, err))
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.sign_up_login_required"))
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}

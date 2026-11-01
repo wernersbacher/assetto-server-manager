@@ -75,7 +75,6 @@
                                 <small>{{ t "championships.signup.team_locked" }}</small>
                             {{ else }}
                                 {{ if $championship.SignUpForm.UsesTeamSelection }}
-                                    {{ if $.LoggedIn }}
                                         <select class="form-control" id="TeamID" name="TeamID">
                                             <option value="">{{ t "championships.signup.no_team" }}</option>
                                             {{ range $option := $.TeamOptions }}
@@ -92,9 +91,6 @@
                                             {{ if $.TeamLimited }}{{ t "championships.signup.team_limit" "count" $.TeamLimit }}{{ end }}
                                             {{ t "championships.signup.no_team_change" }}
                                         </small>
-                                    {{ else }}
-                                        <small>{{ tHTML "championships.signup.sign_in_for_teams" "url" "/login" }}</small>
-                                    {{ end }}
                                 {{ end }}
 
                                 {{ if $championship.SignUpForm.AllowsFreeTextTeam }}
