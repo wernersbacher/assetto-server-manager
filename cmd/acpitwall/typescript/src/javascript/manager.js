@@ -19,7 +19,7 @@ export function EntryPoint() {
     $.fn.bootstrapSwitch.defaults.size = 'small';
     $.fn.bootstrapSwitch.defaults.animate = false;
     $.fn.bootstrapSwitch.defaults.onColor = "success";
-    $document.find("input[type='checkbox']:not(.entrant-edit-option):not(input[name='EntryList.OverwriteAllEvents']:hidden):not(input[name='session-start-after-parent']:hidden)").bootstrapSwitch();
+    $document.find("input[type='checkbox']:not(.entrant-edit-option):not(.car-class-checkbox):not(input[name='EntryList.OverwriteAllEvents']:hidden):not(input[name='session-start-after-parent']:hidden)").bootstrapSwitch();
 
     championships.init();
     $document.find(".race-setup").each(function (index, elem) {
@@ -2622,6 +2622,11 @@ let championships = {
     // syncCarClasses writes the checked car classes of the class of $el into its hidden ClassCarClasses field and makes
     // the single cars optional while a car class is chosen.
     syncCarClasses: function ($el) {
+        // only the Cars select of a class (not the one of the spectator car, whose card has no car classes)
+        if (!$el.closest("[data-class-key]").length) {
+            return;
+        }
+
         let $blocks = classBlocks($el);
         let ids = [];
 
