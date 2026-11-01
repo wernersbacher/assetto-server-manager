@@ -12,8 +12,8 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
-	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -63,7 +63,7 @@ type Renderer struct {
 	// templates holds the templates of every language by language code and view, each set with the translation
 	// functions of its language bound, because a template's functions can't be changed safely per request.
 	templates map[string]map[string]*viewTemplate
-	bundle   *i18n.Bundle
+	bundle    *i18n.Bundle
 
 	mutex sync.Mutex
 }

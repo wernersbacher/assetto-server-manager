@@ -126,6 +126,23 @@ start_target:
 port_warnings:
   title: Port conflict with another server.
   detail: Servers on the same machine can't use the same ports.
+  conflict: "Port {port} ({protocol}) is used by the {own} and by the {other} of server \"{server}\". Change one of them."
+
+port:
+  acserver_udp: acServer UDP port
+  acserver_tcp: acServer TCP port
+  acserver_http: acServer HTTP port
+  udp_plugin_local: UDP plugin local port
+  udp_plugin_address: UDP plugin address
+  cm_wrapper: Content Manager wrapper port
+  stracker_listening: stracker listening port
+  stracker_http: stracker HTTP port
+  stracker_proxy_local: stracker proxy plugin local port
+  stracker_proxy: stracker proxy plugin port
+  kmr_web_stats: KissMyRank web stats port
+  kmr_web_auth: KissMyRank web auth port
+  rp_app_tcp: Real Penalty app TCP port
+  rp_app_udp: Real Penalty app UDP port
 
 login:
   title: Login

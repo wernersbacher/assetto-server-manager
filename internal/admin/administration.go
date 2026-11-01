@@ -5,6 +5,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/api"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/resultshttp"
 	"github.com/wernersbacher/ACPitwall/internal/schedule"
@@ -268,7 +269,7 @@ type serverOptionsTemplateVars struct {
 	Form template.HTML
 
 	// PortWarnings are the ports this server shares with other servers.
-	PortWarnings []string
+	PortWarnings []portcheck.Warning
 }
 
 func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.Request) {

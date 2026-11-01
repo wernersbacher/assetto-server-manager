@@ -64,15 +64,15 @@ func (r *Resolver) portSlots() []portcheck.Slot {
 
 // portWarnings returns the warnings about the ports the server with the id shares with other servers, for the options
 // pages.
-func (r *Resolver) portWarnings(id smmodel.ServerID) []string {
+func (r *Resolver) portWarnings(id smmodel.ServerID) []portcheck.Warning {
 	if r.registry.Len() < 2 {
 		return nil
 	}
 
-	var warnings []string
+	var warnings []portcheck.Warning
 
 	for _, conflict := range portcheck.ConflictsFor(r.portSlots(), string(id)) {
-		warnings = append(warnings, conflict.Message(string(id)))
+		warnings = append(warnings, conflict.Warning(string(id)))
 	}
 
 	return warnings

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
@@ -35,9 +36,9 @@ func TestServerDetailsListsPortsPluginsAndWarnings(t *testing.T) {
 
 	handler := &ServerAdministrationHandler{
 		slotsFunc: func() []NamedSlot { return slots },
-		portWarnings: func(id smmodel.ServerID) []string {
+		portWarnings: func(id smmodel.ServerID) []portcheck.Warning {
 			if id == "b" {
-				return []string{"Port 9600 (udp) is used by the acServer UDP port and by the acServer UDP port of server \"a\". Change one of them."}
+				return []portcheck.Warning{{Port: 9600, Protocol: portcheck.UDP}}
 			}
 
 			return nil
@@ -50,7 +51,7 @@ func TestServerDetailsListsPortsPluginsAndWarnings(t *testing.T) {
 		t.Errorf("unexpected summary %+v", a.ServerSummary)
 	}
 
-	if len(a.Ports) == 0 || a.Ports[0].What != "acServer UDP port" || a.Ports[0].Port != 9600 {
+	if len(a.Ports) == 0 || a.Ports[0].What != "acServer UDP port" || a.Ports[0].Key != "port.acserver_udp" || a.Ports[0].Port != 9600 {
 		t.Errorf("expected the acServer ports with the default UDP port first, got %+v", a.Ports)
 	}
 

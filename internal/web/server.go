@@ -14,6 +14,7 @@ import (
 	"github.com/cj123/sessions"
 
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
 )
 
 // ServerParam is the query or form parameter which selects the server slot a request is for.
@@ -256,10 +257,10 @@ func DirOfServer(servers []ServerDir, id string) (string, bool) {
 // PortWarnings returns what is shown to the user about the ports the server slot with the id shares with other server
 // slots (see the portcheck package), one message per conflict. The handler packages can't know the slots, so the
 // resolver provides it.
-type PortWarnings func(id smmodel.ServerID) []string
+type PortWarnings func(id smmodel.ServerID) []portcheck.Warning
 
 // For returns the warnings of the slot, none if there is no function.
-func (p PortWarnings) For(id smmodel.ServerID) []string {
+func (p PortWarnings) For(id smmodel.ServerID) []portcheck.Warning {
 	if p == nil {
 		return nil
 	}

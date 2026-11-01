@@ -53,8 +53,10 @@ type Use struct {
 	SlotID   string
 	SlotName string
 
-	// What is the setting the port comes from, e.g. "acServer UDP port" or "stracker HTTP port".
+	// What is the setting the port comes from in English (for logs), e.g. "acServer UDP port" or "stracker HTTP
+	// port"; Key is its message key for the UI (port.<name>, see the catalogs of the views).
 	What     string
+	Key      string
 	Port     int
 	Protocol Protocol
 	Kind     Kind
@@ -94,60 +96,100 @@ func (c Conflict) Own(slotID string) Use {
 	return c.B
 }
 
-// Message describes the conflict for the slot with the id, for the warning shown to the user.
+// Message describes the conflict for the slot with the id in English, for the logs.
 func (c Conflict) Message(slotID string) string {
 	own, other := c.Own(slotID), c.Other(slotID)
 
 	return fmt.Sprintf("Port %d (%s) is used by the %s and by the %s. Change one of them.", c.Port, c.Protocol, own.What, other)
 }
 
+// Warning is a conflict as seen from one slot, for the warnings shown to the user (translated by the templates).
+type Warning struct {
+	Port     int
+	Protocol Protocol
+	Own      Use
+	Other    Use
+}
+
+// Warning returns the conflict as seen from the slot with the id.
+func (c Conflict) Warning(slotID string) Warning {
+	return Warning{Port: c.Port, Protocol: c.Protocol, Own: c.Own(slotID), Other: c.Other(slotID)}
+}
+
+// Keys are the message keys of all ports (Use.Key), English text by key.
+var Keys = map[string]string{}
+
+func key(name, what string) string {
+	k := "port." + name
+	Keys[k] = what
+
+	return k
+}
+
+var (
+	keyACServerUDP       = key("acserver_udp", "acServer UDP port")
+	keyACServerTCP       = key("acserver_tcp", "acServer TCP port")
+	keyACServerHTTP      = key("acserver_http", "acServer HTTP port")
+	keyUDPPluginLocal    = key("udp_plugin_local", "UDP plugin local port")
+	keyUDPPluginAddress  = key("udp_plugin_address", "UDP plugin address")
+	keyCMWrapper         = key("cm_wrapper", "Content Manager wrapper port")
+	keyStrackerListening = key("stracker_listening", "stracker listening port")
+	keyStrackerHTTP      = key("stracker_http", "stracker HTTP port")
+	keyStrackerProxyLoc  = key("stracker_proxy_local", "stracker proxy plugin local port")
+	keyStrackerProxy     = key("stracker_proxy", "stracker proxy plugin port")
+	keyKMRWebStats       = key("kmr_web_stats", "KissMyRank web stats port")
+	keyKMRWebAuth        = key("kmr_web_auth", "KissMyRank web auth port")
+	keyRPAppTCP          = key("rp_app_tcp", "Real Penalty app TCP port")
+	keyRPAppUDP          = key("rp_app_udp", "Real Penalty app UDP port")
+)
+
 // Uses lists the host ports a slot uses. Ports which are 0 or negative (unset, chosen by the plugin) are left out, and
 // so are plugins which are not enabled.
 func Uses(slot Slot) []Use {
 	var uses []Use
 
-	add := func(kind Kind, what string, protocol Protocol, port int) {
+	add := func(kind Kind, key string, protocol Protocol, port int) {
 		if port <= 0 || port > 65535 {
 			return
 		}
 
-		uses = append(uses, Use{SlotID: slot.ID, SlotName: slot.Name, What: what, Port: port, Protocol: protocol, Kind: kind})
+		uses = append(uses, Use{SlotID: slot.ID, SlotName: slot.Name, What: Keys[key], Key: key, Port: port, Protocol: protocol, Kind: kind})
 	}
 
 	if so := slot.Server; so != nil {
-		add(KindServer, "acServer UDP port", UDP, so.UDPPort)
-		add(KindServer, "acServer TCP port", TCP, so.TCPPort)
-		add(KindServer, "acServer HTTP port", TCP, so.HTTPPort)
-		add(KindServer, "UDP plugin local port", UDP, so.UDPPluginLocalPort)
+		add(KindServer, keyACServerUDP, UDP, so.UDPPort)
+		add(KindServer, keyACServerTCP, TCP, so.TCPPort)
+		add(KindServer, keyACServerHTTP, TCP, so.HTTPPort)
+		add(KindServer, keyUDPPluginLocal, UDP, so.UDPPluginLocalPort)
 
 		if port, ok := localPort(so.UDPPluginAddress); ok {
-			add(KindServer, "UDP plugin address", UDP, port)
+			add(KindServer, keyUDPPluginAddress, UDP, port)
 		}
 
 		if so.EnableContentManagerWrapper == 1 {
-			add(KindPlugin, "Content Manager wrapper port", TCP, so.ContentManagerWrapperPort)
+			add(KindPlugin, keyCMWrapper, TCP, so.ContentManagerWrapperPort)
 		}
 	}
 
 	if st := slot.Stracker; st != nil && st.EnableStracker {
-		add(KindPlugin, "stracker listening port", TCP, st.InstanceConfiguration.ListeningPort)
+		add(KindPlugin, keyStrackerListening, TCP, st.InstanceConfiguration.ListeningPort)
 
 		if st.HTTPConfiguration.Enabled {
-			add(KindPlugin, "stracker HTTP port", TCP, st.HTTPConfiguration.ListenPort)
+			add(KindPlugin, keyStrackerHTTP, TCP, st.HTTPConfiguration.ListenPort)
 		}
 
-		add(KindPlugin, "stracker proxy plugin local port", UDP, st.ACPlugin.ProxyPluginLocalPort)
-		add(KindPlugin, "stracker proxy plugin port", UDP, st.ACPlugin.ProxyPluginPort)
+		add(KindPlugin, keyStrackerProxyLoc, UDP, st.ACPlugin.ProxyPluginLocalPort)
+		add(KindPlugin, keyStrackerProxy, UDP, st.ACPlugin.ProxyPluginPort)
 	}
 
 	if kmr := slot.KissMyRank; kmr != nil && kmr.EnableKissMyRank {
-		add(KindPlugin, "KissMyRank web stats port", TCP, kmr.WebStatsServerPort)
-		add(KindPlugin, "KissMyRank web auth port", TCP, kmr.WebAuthServerPort)
+		add(KindPlugin, keyKMRWebStats, TCP, kmr.WebStatsServerPort)
+		add(KindPlugin, keyKMRWebAuth, TCP, kmr.WebAuthServerPort)
 	}
 
 	if rp := slot.RealPenalty; rp != nil && rp.RealPenaltyAppConfig.General.EnableRealPenalty {
-		add(KindPlugin, "Real Penalty app TCP port", TCP, rp.RealPenaltyAppConfig.General.AppTCPPort)
-		add(KindPlugin, "Real Penalty app UDP port", UDP, rp.RealPenaltyAppConfig.General.AppUDPPort)
+		add(KindPlugin, keyRPAppTCP, TCP, rp.RealPenaltyAppConfig.General.AppTCPPort)
+		add(KindPlugin, keyRPAppUDP, UDP, rp.RealPenaltyAppConfig.General.AppUDPPort)
 	}
 
 	return uses

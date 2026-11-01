@@ -12,6 +12,7 @@ import (
 // ServerPort is one port a server uses, for the Servers page.
 type ServerPort struct {
 	What     string
+	Key      string
 	Port     int
 	Protocol string
 }
@@ -33,7 +34,7 @@ type ServerDetails struct {
 	Plugins []ServerPlugin
 
 	// Warnings are the ports this server shares with other servers.
-	Warnings []string
+	Warnings []portcheck.Warning
 }
 
 type serversTemplateVars struct {
@@ -46,7 +47,7 @@ func serverPorts(uses []portcheck.Use) []ServerPort {
 	ports := make([]ServerPort, 0, len(uses))
 
 	for _, use := range uses {
-		ports = append(ports, ServerPort{What: use.What, Port: use.Port, Protocol: string(use.Protocol)})
+		ports = append(ports, ServerPort{What: use.What, Key: use.Key, Port: use.Port, Protocol: string(use.Protocol)})
 	}
 
 	return ports

@@ -14,6 +14,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -34,7 +35,7 @@ type realPenaltyConfigurationTemplateVars struct {
 	Form                        template.HTML
 	IsRealPenaltyInstalled      bool
 	RealPenaltySupportedVersion string
-	PortWarnings                []string
+	PortWarnings                []portcheck.Warning
 }
 
 func (rph *RealPenaltyHandler) Options(w http.ResponseWriter, r *http.Request) {

@@ -125,6 +125,23 @@ start_target:
 port_warnings:
   title: Poortconflict met een andere server.
   detail: Servers op dezelfde machine kunnen niet dezelfde poorten gebruiken.
+  conflict: "Poort {port} ({protocol}) wordt dubbel gebruikt: hier als {own}, op server ‘{server}’ als {other}. Wijzig een van beide."
+
+port:
+  acserver_udp: UDP-poort van acServer
+  acserver_tcp: TCP-poort van acServer
+  acserver_http: HTTP-poort van acServer
+  udp_plugin_local: lokale poort van de UDP-plugin
+  udp_plugin_address: adres van de UDP-plugin
+  cm_wrapper: poort van de Content Manager-wrapper
+  stracker_listening: luisterpoort van stracker
+  stracker_http: HTTP-poort van stracker
+  stracker_proxy_local: lokale proxy-pluginpoort van stracker
+  stracker_proxy: proxy-pluginpoort van stracker
+  kmr_web_stats: webstats-poort van KissMyRank
+  kmr_web_auth: webauth-poort van KissMyRank
+  rp_app_tcp: app-TCP-poort van Real Penalty
+  rp_app_udp: app-UDP-poort van Real Penalty
 
 login:
   title: Inloggen

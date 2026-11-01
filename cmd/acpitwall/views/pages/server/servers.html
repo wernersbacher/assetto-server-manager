@@ -39,7 +39,7 @@
                         <strong>{{ t "port_warnings.title" }}</strong>
                         <ul class="mb-0">
                             {{ range $warning := $server.Warnings }}
-                                <li>{{ $warning }}</li>
+                                <li>{{ t "port_warnings.conflict" "port" $warning.Port "protocol" $warning.Protocol "own" (t $warning.Own.Key) "other" (t $warning.Other.Key) "server" $warning.Other.SlotName }}</li>
                             {{ end }}
                         </ul>
                     </div>
@@ -48,7 +48,7 @@
                 <h4 class="h6">{{ t "server.servers.ports" }}</h4>
                 <ul class="server-ports mb-3">
                     {{ range $port := $server.Ports }}
-                        <li><span>{{ $port.What }}</span><span class="port-number">{{ $port.Port }} / {{ $port.Protocol }}</span></li>
+                        <li><span>{{ t $port.Key }}</span><span class="port-number">{{ $port.Port }} / {{ $port.Protocol }}</span></li>
                     {{ else }}
                         <li class="text-muted">{{ t "server.servers.no_ports" }}</li>
                     {{ end }}

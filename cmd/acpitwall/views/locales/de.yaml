@@ -125,6 +125,23 @@ start_target:
 port_warnings:
   title: Portkonflikt mit einem anderen Server.
   detail: Server auf demselben Rechner können nicht dieselben Ports verwenden.
+  conflict: "Port {port} ({protocol}) wird doppelt verwendet: hier als {own}, auf dem Server „{server}“ als {other}. Ändere einen davon."
+
+port:
+  acserver_udp: acServer-UDP-Port
+  acserver_tcp: acServer-TCP-Port
+  acserver_http: acServer-HTTP-Port
+  udp_plugin_local: lokaler Port des UDP-Plugins
+  udp_plugin_address: Adresse des UDP-Plugins
+  cm_wrapper: Port des Content Manager Wrappers
+  stracker_listening: Listening-Port von stracker
+  stracker_http: HTTP-Port von stracker
+  stracker_proxy_local: lokaler Proxy-Plugin-Port von stracker
+  stracker_proxy: Proxy-Plugin-Port von stracker
+  kmr_web_stats: Web-Stats-Port von KissMyRank
+  kmr_web_auth: Web-Auth-Port von KissMyRank
+  rp_app_tcp: App-TCP-Port von Real Penalty
+  rp_app_udp: App-UDP-Port von Real Penalty
 
 login:
   title: Anmelden

@@ -17,6 +17,7 @@ import (
 
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -40,7 +41,7 @@ type strackerConfigurationTemplateVars struct {
 
 	Form                template.HTML
 	IsStrackerInstalled bool
-	PortWarnings        []string
+	PortWarnings        []portcheck.Warning
 }
 
 // initReverseProxy (re-)creates the proxy to the stracker web interface of the slot, with the address from its options.

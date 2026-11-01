@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	smplugins "github.com/wernersbacher/ACPitwall/internal/plugins"
+	"github.com/wernersbacher/ACPitwall/internal/portcheck"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -15,7 +16,7 @@ type kissMyRankConfigurationTemplateVars struct {
 
 	Form           template.HTML
 	IsKMRInstalled bool
-	PortWarnings   []string
+	PortWarnings   []portcheck.Warning
 }
 
 type KissMyRankHandler struct {

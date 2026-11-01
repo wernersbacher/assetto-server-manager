@@ -321,7 +321,7 @@ func TestResolverChecksPortsOfSlots(t *testing.T) {
 		}
 	}
 
-	if warnings := resolver.portWarnings("b"); len(warnings) == 0 || !strings.Contains(warnings[0], "KissMyRank") {
+	if warnings := resolver.portWarnings("b"); len(warnings) == 0 || !strings.HasPrefix(warnings[0].Own.Key, "port.kmr_") {
 		t.Errorf("expected a warning about the KissMyRank ports, got %v", warnings)
 	}
 
@@ -459,7 +459,7 @@ func TestResolverServersPageShowsPortConflicts(t *testing.T) {
 		t.Fatalf("expected the page to render, got %d %q", rec.Code, body)
 	}
 
-	for _, expected := range []string{"Server A", "Server B", "Port conflict with another server", "acServer UDP port", "9600", "/stracker/options?server=a", "/server-options?server=b"} {
+	for _, expected := range []string{"Server A", "Server B", "Port conflict with another server", "acServer UDP port", "9600", "Port 9600 (udp) is used by the acServer UDP port and by the acServer UDP port of server", "/stracker/options?server=a", "/server-options?server=b"} {
 		if !strings.Contains(body, expected) {
 			t.Errorf("expected the servers page to contain %q", expected)
 		}

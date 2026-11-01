@@ -125,6 +125,23 @@ start_target:
 port_warnings:
   title: Portkonflikt med en anden server.
   detail: Servere på samme maskine kan ikke bruge de samme porte.
+  conflict: "Port {port} ({protocol}) bruges to steder: her som {own}, på serveren »{server}« som {other}. Skift en af dem."
+
+port:
+  acserver_udp: acServers UDP-port
+  acserver_tcp: acServers TCP-port
+  acserver_http: acServers HTTP-port
+  udp_plugin_local: UDP-pluginnets lokale port
+  udp_plugin_address: UDP-pluginnets adresse
+  cm_wrapper: Content Manager-wrapperens port
+  stracker_listening: strackers lytteport
+  stracker_http: strackers HTTP-port
+  stracker_proxy_local: strackers lokale proxy-pluginport
+  stracker_proxy: strackers proxy-pluginport
+  kmr_web_stats: KissMyRanks web stats-port
+  kmr_web_auth: KissMyRanks web auth-port
+  rp_app_tcp: Real Penaltys app-TCP-port
+  rp_app_udp: Real Penaltys app-UDP-port
 
 login:
   title: Log ind
