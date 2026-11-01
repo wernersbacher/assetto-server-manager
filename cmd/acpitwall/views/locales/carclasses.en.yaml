@@ -1,0 +1,24 @@
+# Administration of the global car classes (pages/car-classes).
+carclasses:
+  intro: Car classes are named groups of cars. Championship classes can use them, so a change here applies to every championship that uses the class.
+  new: New car class
+  empty: There are no car classes yet.
+  back: Back to the car classes
+  name: Name
+  name_placeholder: e.g. GT3
+  name_help: The name must be unique among the car classes.
+  cars: Cars
+  cars_used_help: Cars that are in use in a championship (entrants, registrations or results) cannot be removed from this class.
+  used_by: Used by
+  unused: Not used
+  championships_count:
+    one: "{count} championship"
+    other: "{count} championships"
+  usage_title: Usage
+  usage_help: "This car class is used by these championships. A change of the cars applies to all of them:"
+  usage_class: "class {name}"
+  unused_help: No championship uses this car class.
+  delete: Delete car class
+  delete_blocked: This car class cannot be deleted while a championship uses it. Remove it from the championships listed above first.
+  delete_confirm: Delete the car class {name}?
+  delete_detail: The car class is removed permanently.

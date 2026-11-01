@@ -1,0 +1,82 @@
+{{/* gotype: github.com/wernersbacher/ACPitwall/internal/carclasses.classFormVars */}}
+
+{{ define "title" }}{{ if $.Class }}{{ $.Class.Name }}{{ else }}{{ t "carclasses.new" }}{{ end }}{{ end }}
+
+{{ define "content" }}
+    <div class="page-header">
+        <div>
+            <h1>{{ if $.Class }}{{ $.Class.Name }}{{ else }}{{ t "carclasses.new" }}{{ end }}</h1>
+            <p><a href="/car-classes">{{ t "carclasses.back" }}</a></p>
+        </div>
+    </div>
+
+    {{ if $.FormError }}
+        <div class="alert alert-danger">{{ $.FormError }}</div>
+    {{ end }}
+
+    {{ if $.Class }}
+        <div class="card mb-4">
+            <div class="card-header"><h2>{{ t "carclasses.usage_title" }}</h2></div>
+            <div class="card-body">
+                {{ if $.Usages }}
+                    <p>{{ t "carclasses.usage_help" }}</p>
+                    <ul class="mb-0">
+                        {{ range $usage := $.Usages }}
+                            <li><a href="/championship/{{ $usage.ChampionshipID.String }}">{{ $usage.ChampionshipName }}</a>, {{ t "carclasses.usage_class" "name" $usage.ClassName }}</li>
+                        {{ end }}
+                    </ul>
+                {{ else }}
+                    <p class="mb-0">{{ t "carclasses.unused_help" }}</p>
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
+
+    {{ if WriteAccess }}
+        <form method="post" action="{{ if $.Class }}/car-classes/{{ $.Class.ID.String }}{{ else }}/car-classes/new{{ end }}" data-car-class-form data-safe-submit>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="car-class-name">{{ t "carclasses.name" }}</label>
+                        <input type="text" class="form-control" id="car-class-name" name="Name" required maxlength="80" value="{{ $.Name }}" placeholder="{{ t "carclasses.name_placeholder" }}">
+                        <small class="form-text text-muted">{{ t "carclasses.name_help" }}</small>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label for="Cars">{{ t "carclasses.cars" }}</label>
+                        {{ template "cars" dict "CarOpts" $.CarOpts "Current" nil "ValidCarIDs" $.ValidCarIDs }}
+                        {{ if $.Class }}{{ if $.Usages }}<small class="form-text text-warning">{{ t "carclasses.cars_used_help" }}</small>{{ end }}{{ end }}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success">{{ t "common.save" }}</button>
+        </form>
+    {{ else }}
+        <div class="card mb-4">
+            <div class="card-header"><h2>{{ t "carclasses.cars" }}</h2></div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    {{ range $car := $.ValidCarIDs }}<li>{{ prettify $car true }}</li>{{ end }}
+                </ul>
+            </div>
+        </div>
+    {{ end }}
+
+    {{ if and $.Class (DeleteAccess) }}
+        <div class="card mt-4 border-danger">
+            <div class="card-header"><h2>{{ t "content.danger_zone" }}</h2></div>
+            <div class="card-body">
+                {{ if $.Usages }}
+                    <p class="text-muted">{{ t "carclasses.delete_blocked" }}</p>
+                    <button type="button" class="btn btn-danger" disabled>{{ t "carclasses.delete" }}</button>
+                {{ else }}
+                    <form method="post" action="/car-classes/{{ $.Class.ID.String }}/delete"
+                          data-confirm-delete="{{ t "carclasses.delete_confirm" "name" $.Class.Name }}" data-confirm-detail="{{ t "carclasses.delete_detail" }}" data-confirm-label="{{ t "carclasses.delete" }}">
+                        <button type="submit" class="btn btn-danger">{{ t "carclasses.delete" }}</button>
+                    </form>
+                {{ end }}
+            </div>
+        </div>
+    {{ end }}
+{{ end }}

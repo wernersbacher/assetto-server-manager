@@ -81,6 +81,7 @@ nav:
   content: Content
   tracks: Tracks
   cars_setups: Cars & Setups
+  car_classes: Car classes
   weather: Weather
   server: Server
   servers: Servers

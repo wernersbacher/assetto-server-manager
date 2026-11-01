@@ -1,0 +1,39 @@
+{{/* gotype: github.com/wernersbacher/ACPitwall/internal/carclasses.classListVars */}}
+
+{{ define "title" }}{{ t "nav.car_classes" }}{{ end }}
+
+{{ define "content" }}
+    <div class="page-header">
+        <div>
+            <h1>{{ t "nav.car_classes" }}</h1>
+            <p>{{ t "carclasses.intro" }}</p>
+        </div>
+
+        {{ if WriteAccess }}
+            <a href="/car-classes/new" class="btn btn-primary">{{ t "carclasses.new" }}</a>
+        {{ end }}
+    </div>
+
+    {{ if not $.Classes }}
+        {{ if WriteAccess }}
+            {{ template "empty-state" dict "Icon" "car" "Text" (t "carclasses.empty") "Href" "/car-classes/new" "Label" (t "carclasses.new") }}
+        {{ else }}
+            {{ template "empty-state" dict "Icon" "car" "Text" (t "carclasses.empty") }}
+        {{ end }}
+    {{ else }}
+        <div class="table-card mb-4">
+            <table class="table">
+                <thead>
+                <tr><th>{{ t "carclasses.name" }}</th><th>{{ t "carclasses.cars" }}</th><th>{{ t "carclasses.used_by" }}</th></tr>
+                </thead>
+                {{ range $item := $.Classes }}
+                    <tr>
+                        <td><a href="/car-classes/{{ $item.Class.ID.String }}">{{ $item.Class.Name }}</a></td>
+                        <td>{{ len $item.Class.Cars }}</td>
+                        <td>{{ if $item.Championships }}{{ tn "carclasses.championships_count" $item.Championships }}{{ else }}<span class="text-muted">{{ t "carclasses.unused" }}</span>{{ end }}</td>
+                    </tr>
+                {{ end }}
+            </table>
+        </div>
+    {{ end }}
+{{ end }}

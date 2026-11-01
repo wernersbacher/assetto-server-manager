@@ -179,7 +179,8 @@
             <div class="nav-group">
                 <div class="nav-group-title">{{ t "nav.content" }}</div>
                 <a class="nav-item-link {{ if hasPrefix "/track" $path }}active{{ end }}" href="/tracks">{{ template "icon" "track" }}{{ t "nav.tracks" }}</a>
-                <a class="nav-item-link {{ if hasPrefix "/car" $path }}active{{ end }}" href="/cars">{{ template "icon" "car" }}{{ t "nav.cars_setups" }}</a>
+                <a class="nav-item-link {{ if and (hasPrefix "/car" $path) (not (hasPrefix "/car-classes" $path)) }}active{{ end }}" href="/cars">{{ template "icon" "car" }}{{ t "nav.cars_setups" }}</a>
+                <a class="nav-item-link {{ if hasPrefix "/car-classes" $path }}active{{ end }}" href="/car-classes">{{ template "icon" "car" }}{{ t "nav.car_classes" }}</a>
                 <a class="nav-item-link {{ if hasPrefix "/weather" $path }}active{{ end }}" href="/weather">{{ template "icon" "weather" }}{{ t "nav.weather" }}</a>
             </div>
 

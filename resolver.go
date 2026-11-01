@@ -92,6 +92,7 @@ type Resolver struct {
 	teamManager                 *teams.Manager
 	skinManager                 *skins.Manager
 	carClassManager             *carclasses.Manager
+	carClassHandler             *carclasses.Handler
 	teamsHandler                *teams.Handler
 }
 
@@ -701,6 +702,7 @@ func (r *Resolver) ResolveRouter(fs http.FileSystem) http.Handler {
 		r.resolveDriverHandler(),
 		r.resolveLeaderboardHandler(),
 		r.resolveTeamsHandler(),
+		r.resolveCarClassHandler(),
 	)
 }
 

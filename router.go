@@ -4,6 +4,7 @@ import (
 	smaccounts "github.com/wernersbacher/ACPitwall/internal/accounts"
 	"github.com/wernersbacher/ACPitwall/internal/admin"
 	"github.com/wernersbacher/ACPitwall/internal/apidocs"
+	"github.com/wernersbacher/ACPitwall/internal/carclasses"
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
@@ -91,6 +92,7 @@ func Router(
 	driverHandler *statshttp.DriverHandler,
 	leaderboardHandler *statshttp.LeaderboardHandler,
 	teamsHandler *teams.Handler,
+	carClassHandler *carclasses.Handler,
 ) http.Handler {
 	r := chi.NewRouter()
 
@@ -166,6 +168,8 @@ func Router(
 		r.Get("/cars", carsHandler.List)
 		r.Get("/cars/search.json", carsHandler.SearchJSON)
 		r.Get("/car/{car_id}", carsHandler.View)
+		r.Get(carclasses.ListPath, carClassHandler.List)
+		r.Get(carclasses.ListPath+"/{classID}", carClassHandler.View)
 		r.Get("/tracks", tracksHandler.List)
 		r.Get("/track/{track_id}", tracksHandler.View)
 		r.Get("/weather", weatherHandler.List)
@@ -304,6 +308,11 @@ func Router(
 		// content
 		r.Post("/setups/upload", setupsHandler.Upload)
 		r.HandleFunc("/car/{name}/tags", carsHandler.Tags)
+
+		// car classes (the form for a new class is here, too: it only makes sense for who can save it)
+		r.Get(carclasses.NewPath, carClassHandler.New)
+		r.Post(carclasses.NewPath, carClassHandler.Create)
+		r.Post(carclasses.ListPath+"/{classID}", carClassHandler.Update)
 		r.Post("/car/{name}/metadata", carsHandler.SaveMetadata)
 		r.Post("/track/{name}/metadata", tracksHandler.SaveMetadata)
 		r.Post("/results/upload", resultsHandler.UploadHandler)
@@ -412,6 +421,7 @@ func Router(
 
 		r.Post("/track/{name}/delete", tracksHandler.Delete)
 		r.Post("/car/{name}/delete", carsHandler.Delete)
+		r.Post(carclasses.ListPath+"/{classID}/delete", carClassHandler.Delete)
 		r.Post("/car/{name}/skin/delete", carsHandler.DeleteSkin)
 		r.Post("/weather/delete/{key}", weatherHandler.Delete)
 		r.Post("/setups/delete/{car}/{track}/{setup}", setupsHandler.Delete)

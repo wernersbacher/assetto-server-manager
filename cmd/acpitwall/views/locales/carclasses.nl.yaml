@@ -1,0 +1,24 @@
+# Beheer van de globale autoklassen (pages/car-classes).
+carclasses:
+  intro: Autoklassen zijn benoemde groepen auto's. Kampioenschapsklassen kunnen ze gebruiken, dus een wijziging hier geldt voor elk kampioenschap dat de klasse gebruikt.
+  new: Nieuwe autoklasse
+  empty: Er zijn nog geen autoklassen.
+  back: Terug naar de autoklassen
+  name: Naam
+  name_placeholder: bijv. GT3
+  name_help: De naam moet uniek zijn onder de autoklassen.
+  cars: Auto's
+  cars_used_help: Auto's die in een kampioenschap worden gebruikt (deelnemers, inschrijvingen of resultaten) kunnen niet uit deze klasse worden verwijderd.
+  used_by: Gebruikt door
+  unused: Niet gebruikt
+  championships_count:
+    one: "{count} kampioenschap"
+    other: "{count} kampioenschappen"
+  usage_title: Gebruik
+  usage_help: "Deze autoklasse wordt gebruikt door deze kampioenschappen. Een wijziging van de auto's geldt voor alle:"
+  usage_class: "klasse {name}"
+  unused_help: Geen enkel kampioenschap gebruikt deze autoklasse.
+  delete: Autoklasse verwijderen
+  delete_blocked: Deze autoklasse kan niet worden verwijderd zolang een kampioenschap haar gebruikt. Verwijder haar eerst uit de hierboven genoemde kampioenschappen.
+  delete_confirm: De autoklasse {name} verwijderen?
+  delete_detail: De autoklasse wordt permanent verwijderd.

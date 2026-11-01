@@ -1,0 +1,24 @@
+# Verwaltung der globalen Fahrzeugklassen (pages/car-classes).
+carclasses:
+  intro: Fahrzeugklassen sind benannte Gruppen von Autos. Championship-Klassen können sie verwenden, eine Änderung hier gilt daher für jede Championship, die die Klasse nutzt.
+  new: Neue Fahrzeugklasse
+  empty: Es gibt noch keine Fahrzeugklassen.
+  back: Zurück zu den Fahrzeugklassen
+  name: Name
+  name_placeholder: z. B. GT3
+  name_help: Der Name muss unter den Fahrzeugklassen eindeutig sein.
+  cars: Autos
+  cars_used_help: Autos, die in einer Championship verwendet werden (Teilnehmer, Anmeldungen oder Ergebnisse), können nicht aus dieser Klasse entfernt werden.
+  used_by: Verwendet von
+  unused: Nicht verwendet
+  championships_count:
+    one: "{count} Championship"
+    other: "{count} Championships"
+  usage_title: Verwendung
+  usage_help: "Diese Fahrzeugklasse wird von diesen Championships verwendet. Eine Änderung der Autos gilt für alle:"
+  usage_class: "Klasse {name}"
+  unused_help: Keine Championship verwendet diese Fahrzeugklasse.
+  delete: Fahrzeugklasse löschen
+  delete_blocked: Diese Fahrzeugklasse kann nicht gelöscht werden, solange eine Championship sie verwendet. Entferne sie zuerst aus den oben genannten Championships.
+  delete_confirm: Die Fahrzeugklasse {name} löschen?
+  delete_detail: Die Fahrzeugklasse wird dauerhaft entfernt.

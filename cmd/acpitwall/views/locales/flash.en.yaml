@@ -232,3 +232,8 @@ flash:
     role_changed: Role changed.
     ownership_transferred: Ownership transferred.
     deleted: Team deleted. Registrations of championships keep its name.
+
+  carclass:
+    created: "Car class {name} created."
+    updated: "Car class {name} saved."
+    deleted: "Car class {name} deleted."

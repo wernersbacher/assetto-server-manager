@@ -232,3 +232,8 @@ flash:
     role_changed: Rol gewijzigd.
     ownership_transferred: Eigendom overgedragen.
     deleted: Team verwijderd. Inschrijvingen voor kampioenschappen behouden de naam.
+
+  carclass:
+    created: "Autoklasse {name} aangemaakt."
+    updated: "Autoklasse {name} opgeslagen."
+    deleted: "Autoklasse {name} verwijderd."

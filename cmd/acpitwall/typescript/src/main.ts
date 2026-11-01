@@ -6,7 +6,7 @@ import "multiselect";
 import "moment";
 import "moment-timezone";
 import "./i18n";
-import {EntryPoint} from "./javascript/manager";
+import {EntryPoint, initMultiSelect} from "./javascript/manager";
 import "./Font";
 import "./Calendar";
 
@@ -51,6 +51,12 @@ $(() => {
     new SpectatorCar();
 
     $(".race-setup").each(function (index, elem) {
+        new CarSearch($(elem));
+    });
+
+    // the form of a car class: a car selection with search, nothing else of the race forms
+    $("[data-car-class-form]").each(function (index, elem) {
+        initMultiSelect($(elem).find(".Cars"));
         new CarSearch($(elem));
     });
 

@@ -232,3 +232,8 @@ flash:
     role_changed: Rolle ændret.
     ownership_transferred: Ejerskab overdraget.
     deleted: Team slettet. Tilmeldinger til mesterskaber beholder dets navn.
+
+  carclass:
+    created: "Bilklasse {name} oprettet."
+    updated: "Bilklasse {name} gemt."
+    deleted: "Bilklasse {name} slettet."
