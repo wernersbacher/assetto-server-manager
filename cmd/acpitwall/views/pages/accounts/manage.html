@@ -13,12 +13,20 @@
         <a class="btn btn-success" href="/accounts/new">{{ template "icon" "plus" }} {{ t "accounts.add_account" }}</a>
     </div>
 
+    <form method="get" action="/accounts" class="content-search mb-3">
+        <input name="q" placeholder="{{ t "accounts.search_placeholder" }}" aria-label="{{ t "accounts.search_placeholder" }}" class="form-control" value="{{ $.Query }}" autocomplete="off">
+        <button type="submit" class="btn btn-primary">{{ t "content.search.submit" }}</button>
+    </form>
+
+    {{ if not .Accounts }}
+        {{ template "empty-state" dict "Icon" "accounts" "Text" (t "accounts.no_match") }}
+    {{ else }}
     <div class="table-card">
         <table class="table accounts-table">
             <thead>
             <tr>
                 <th>{{ t "accounts.name" }}</th>
-                <th>{{ t "accounts.group" }}</th>
+                <th class="d-none d-md-table-cell">{{ t "accounts.group" }}</th>
                 <th class="text-right">{{ t "common.actions" }}</th>
             </tr>
             </thead>
@@ -29,9 +37,10 @@
                         <span class="d-inline-flex align-items-center" style="gap: 10px">
                             <span class="avatar">{{ substr 0 1 $account.Name }}</span>
                             <span>{{ $account.Name }}{{ if $account.GUID }}<br><small class="text-muted">{{ if $account.IsPasswordless }}{{ t "accounts.steam_account" }} - {{ end }}{{ $account.GUID }}</small>{{ end }}</span>
+                            <span class="d-md-none">{{ template "roleBadge" (print (AccountGroup $account)) }}</span>
                         </span>
                     </td>
-                    <td>{{ template "roleBadge" (print (AccountGroup $account)) }}</td>
+                    <td class="d-none d-md-table-cell">{{ template "roleBadge" (print (AccountGroup $account)) }}</td>
                     <td class="text-right text-nowrap">
                         {{ if ne $account.Name "admin" }}
                             <a class="btn btn-warning" href="/accounts/edit/{{ $account.ID.String }}">
@@ -49,6 +58,7 @@
             {{ end }}
         </table>
     </div>
+    {{ end }}
 
     <div class="dashboard-grid">
         <div class="card admin-card">

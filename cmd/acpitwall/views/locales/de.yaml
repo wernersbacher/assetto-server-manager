@@ -191,6 +191,8 @@ accounts:
   group: Gruppe
   manage_title: Konten verwalten
   manage_intro: Lege fest, wer sich anmelden darf und was erlaubt ist.
+  search_placeholder: Konten nach Name oder Steam-ID suchen
+  no_match: Keine Konten entsprechen deiner Suche.
   add_account: Konto hinzufügen
   add_title: Konto hinzufügen
   edit_title: Konto bearbeiten

@@ -49,3 +49,22 @@ func TestPaginateAuditEntries(t *testing.T) {
 		t.Fatalf("unexpected empty page")
 	}
 }
+
+func TestFilterAccounts(t *testing.T) {
+	accounts := []*smmodel.Account{
+		{Name: "Alice", GUID: "76561190000000001"},
+		{Name: "bob"},
+	}
+
+	if got := filterAccounts(accounts, " "); len(got) != 2 {
+		t.Fatalf("empty query keeps all, got %d", len(got))
+	}
+
+	if got := filterAccounts(accounts, "ALI"); len(got) != 1 || got[0].Name != "Alice" {
+		t.Fatalf("name search, got %v", got)
+	}
+
+	if got := filterAccounts(accounts, "0000001"); len(got) != 1 {
+		t.Fatalf("guid search, got %v", got)
+	}
+}

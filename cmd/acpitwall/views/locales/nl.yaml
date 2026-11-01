@@ -191,6 +191,8 @@ accounts:
   group: Groep
   manage_title: Accounts beheren
   manage_intro: Bepaal wie kan inloggen en wat ze mogen doen.
+  search_placeholder: Zoek accounts op naam of Steam-ID
+  no_match: Geen accounts komen overeen met je zoekopdracht.
   add_account: Account toevoegen
   add_title: Account toevoegen
   edit_title: Account bewerken

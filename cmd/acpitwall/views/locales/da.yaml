@@ -191,6 +191,8 @@ accounts:
   group: Gruppe
   manage_title: Administrer konti
   manage_intro: Bestem, hvem der kan logge ind, og hvad de må.
+  search_placeholder: Søg efter konti på navn eller Steam-ID
+  no_match: Ingen konti svarer til din søgning.
   add_account: Tilføj konto
   add_title: Tilføj en konto
   edit_title: Rediger en konto

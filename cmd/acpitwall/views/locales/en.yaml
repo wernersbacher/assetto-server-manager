@@ -192,6 +192,8 @@ accounts:
   group: Group
   manage_title: Manage Accounts
   manage_intro: Manage who can log in and what they are allowed to do.
+  search_placeholder: Search for accounts by name or Steam ID
+  no_match: No accounts match your search.
   add_account: Add Account
   add_title: Add an Account
   edit_title: Edit an Account

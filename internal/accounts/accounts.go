@@ -1022,6 +1022,7 @@ type manageAccountsTemplateVars struct {
 	smweb.BaseTemplateVars
 
 	Accounts         []*smmodel.Account
+	Query            string
 	ServerReadIsOpen bool
 	PublicStats      bool
 	SteamSignup      bool
@@ -1034,6 +1035,25 @@ type manageAccountsTemplateVars struct {
 	SkinDefaults smmodel.SkinSettings
 }
 
+// filterAccounts returns the accounts whose name or GUID contains the query (case insensitive).
+func filterAccounts(accounts []*smmodel.Account, query string) []*smmodel.Account {
+	query = strings.ToLower(strings.TrimSpace(query))
+
+	if query == "" {
+		return accounts
+	}
+
+	var filtered []*smmodel.Account
+
+	for _, account := range accounts {
+		if strings.Contains(strings.ToLower(account.Name), query) || strings.Contains(strings.ToLower(account.GUID), query) {
+			filtered = append(filtered, account)
+		}
+	}
+
+	return filtered
+}
+
 func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request) {
 	accounts, err := ah.store.ListAccounts()
 
@@ -1043,8 +1063,11 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	query := r.URL.Query().Get("q")
+
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/manage.html", &manageAccountsTemplateVars{
-		Accounts:         accounts,
+		Accounts:         filterAccounts(accounts, query),
+		Query:            strings.TrimSpace(query),
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 		PublicStats:      ah.accountManager.options.PublicStats,
 		SteamSignup:      !ah.accountManager.options.SteamSignupDisabled,

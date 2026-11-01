@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The Accounts page has a search field (name or Steam ID), hides the permission group column on small screens (it is shown below the name instead) and shows a message when nothing matches.
+
 * The Calendar page has a heading with a description and the subscribe link in the page header, and the server filter uses the same style as the results filter.
 
 * The results list has a table header including an Actions column, and the date of each result is a real link (keyboard accessible).
