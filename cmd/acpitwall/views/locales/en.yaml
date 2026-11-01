@@ -311,6 +311,7 @@ home:
   no_results: No results yet.
 
 calendar:
+  intro: Scheduled races and events of all servers.
   all_servers: All servers
   filter: Filter
   subscribe: Subscribe to Calendar Feed

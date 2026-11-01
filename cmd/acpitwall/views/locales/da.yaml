@@ -310,6 +310,7 @@ home:
   no_results: Ingen resultater endnu.
 
 calendar:
+  intro: Planlagte løb og begivenheder på alle servere.
   all_servers: Alle servere
   filter: Filtrer
   subscribe: Abonner på kalenderfeed

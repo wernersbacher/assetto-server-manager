@@ -310,6 +310,7 @@ home:
   no_results: Nog geen uitslagen.
 
 calendar:
+  intro: Geplande races en evenementen van alle servers.
   all_servers: Alle servers
   filter: Filteren
   subscribe: Abonneren op kalenderfeed

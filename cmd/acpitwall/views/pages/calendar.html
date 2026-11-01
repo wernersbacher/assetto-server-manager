@@ -3,10 +3,20 @@
 {{ define "title" }}{{ t "nav.calendar" }}{{ end }}
 
 {{ define "content" }}
+    <div class="page-header">
+        <div>
+            <h1>{{ t "nav.calendar" }}</h1>
+            <p>{{ t "calendar.intro" }}</p>
+        </div>
+
+        <a href="/events.ics{{ with .FilterServer }}?filterServer={{ . }}{{ end }}" class="btn btn-outline btn-with-icon">
+            <i class="fas fa-calendar"></i> {{ t "calendar.subscribe" }}
+        </a>
+    </div>
+
     {{ if gt (len .Servers) 1 }}
-        <form method="get" action="/calendar" class="form-inline mb-3">
-            <label for="filterServer" class="mr-2">{{ t "nav.server" }}</label>
-            <select class="form-control mr-2" name="filterServer" id="filterServer" onchange="this.form.submit()">
+        <form method="get" action="/calendar" class="results-filter">
+            <select class="form-control" name="filterServer" id="filterServer" aria-label="{{ t "nav.server" }}" onchange="this.form.submit()">
                 <option value="">{{ t "calendar.all_servers" }}</option>
                 {{ range $server := .Servers }}
                     <option value="{{ $server.ID }}" {{ if eq $server.ID $.FilterServer }}selected{{ end }}>{{ $server.Name }}</option>
@@ -17,10 +27,4 @@
     {{ end }}
 
     <div id="calendar"></div>
-
-    <div class="d-block mt-3">
-        <a href="/events.ics{{ with .FilterServer }}?filterServer={{ . }}{{ end }}">
-            <i class="fas fa-calendar"></i> {{ t "calendar.subscribe" }}
-        </a>
-    </div>
 {{ end }}

@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The Calendar page has a heading with a description and the subscribe link in the page header, and the server filter uses the same style as the results filter.
+
 * The results list has a table header including an Actions column, and the date of each result is a real link (keyboard accessible).
 
 * The Teams page has a search field (team name or owner), shows the other teams in pages of 25, hides less important columns on small screens and opens the create form with a button in the page header.

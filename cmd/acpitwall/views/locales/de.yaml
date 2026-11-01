@@ -310,6 +310,7 @@ home:
   no_results: Noch keine Ergebnisse.
 
 calendar:
+  intro: Geplante Rennen und Events aller Server.
   all_servers: Alle Server
   filter: Filtern
   subscribe: Kalender-Feed abonnieren
