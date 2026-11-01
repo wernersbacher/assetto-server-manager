@@ -47,7 +47,7 @@ func TestUserSkinsAreOnlyServedToWhoCanUseThem(t *testing.T) {
 	members := map[uuid.UUID][]uuid.UUID{teamMate.ID: {teamID}, owner.ID: {teamID}}
 
 	manager := skins.NewManager(store, func() string { return install },
-		func() smmodel.SkinSettings { return smmodel.SkinSettings{UserUploads: true} },
+		func() smmodel.SkinSettings { return smmodel.SkinSettings{} },
 		func(a uuid.UUID) []uuid.UUID { return members[a] })
 
 	file := func(name string) skins.File {

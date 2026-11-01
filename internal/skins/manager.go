@@ -197,7 +197,7 @@ func (m *Manager) authorize(actor Actor, vis smmodel.SkinVisibility, team uuid.U
 
 	settings := m.settings()
 
-	if !actor.Writer && !settings.UserUploads {
+	if !actor.Writer && !settings.UploadsEnabled() {
 		return ErrUploadsDisabled
 	}
 
@@ -759,7 +759,7 @@ func (m *Manager) CanUpload(actor Actor) error {
 		return ErrNotAllowed
 	}
 
-	if !actor.Writer && !m.settings().UserUploads {
+	if !actor.Writer && !m.settings().UploadsEnabled() {
 		return ErrUploadsDisabled
 	}
 
@@ -768,7 +768,7 @@ func (m *Manager) CanUpload(actor Actor) error {
 
 // CanShareGlobal reports whether the actor may make skins global.
 func (m *Manager) CanShareGlobal(actor Actor) bool {
-	return actor.ID != uuid.Nil && (actor.Writer || m.settings().GlobalShare && m.settings().UserUploads)
+	return actor.ID != uuid.Nil && (actor.Writer || m.settings().GlobalShare && m.settings().UploadsEnabled())
 }
 
 // UploadCap is the most bytes of one upload request the server reads for the actor: what the limits allow, plus room

@@ -85,11 +85,13 @@ func TestUpload_Permissions(t *testing.T) {
 		t.Errorf("anonymous: %v", err)
 	}
 
+	e.settings.UserUploadsDisabled = true
+
 	if _, err := e.m.Upload(user, "ferrari", smmodel.SkinPrivate, uuid.Nil, skinFiles("blue", 10)); err != ErrUploadsDisabled {
 		t.Errorf("uploads off: %v", err)
 	}
 
-	e.settings.UserUploads = true
+	e.settings.UserUploadsDisabled = false
 
 	if _, err := e.m.Upload(user, "ferrari", smmodel.SkinGlobal, uuid.Nil, skinFiles("blue", 10)); err != ErrGlobalDisabled {
 		t.Errorf("global off: %v", err)
@@ -136,7 +138,7 @@ func TestUpload_Validation(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true, MaxFiles: 3, MaxSkinMB: 1}
+	e.settings = smmodel.SkinSettings{MaxFiles: 3, MaxSkinMB: 1}
 	user := Actor{ID: uuid.New()}
 
 	for name, files := range map[string][]File{
@@ -189,7 +191,7 @@ func TestUpload_QuotaAndReplace(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true, UserQuotaMB: 1}
+	e.settings = smmodel.SkinSettings{UserQuotaMB: 1}
 	user, other := Actor{ID: uuid.New()}, Actor{ID: uuid.New()}
 
 	if _, err := e.m.Upload(user, "ferrari", smmodel.SkinPrivate, uuid.Nil, skinFiles("a", 600<<10)); err != nil {
@@ -245,7 +247,7 @@ func TestUpload_FreeDiskReserve(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true, MinFreeMB: 100}
+	e.settings = smmodel.SkinSettings{MinFreeMB: 100}
 	user := Actor{ID: uuid.New()}
 
 	e.free = 100<<20 + 1000
@@ -287,7 +289,7 @@ func TestSetVisibilityMovesFiles(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true}
+	e.settings = smmodel.SkinSettings{}
 	owner, stranger := Actor{ID: uuid.New()}, Actor{ID: uuid.New()}
 	admin := Actor{ID: uuid.New(), Writer: true}
 	team := uuid.New()
@@ -348,7 +350,7 @@ func TestSetVisibilityMovesFiles(t *testing.T) {
 	}
 
 	// a collision at the target blocks the move and keeps everything
-	e.settings = smmodel.SkinSettings{UserUploads: true, GlobalShare: true}
+	e.settings = smmodel.SkinSettings{GlobalShare: true}
 
 	if err := os.MkdirAll(globalDir, 0755); err != nil {
 		t.Fatal(err)
@@ -382,7 +384,7 @@ func TestDelete(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true}
+	e.settings = smmodel.SkinSettings{}
 	owner, stranger := Actor{ID: uuid.New()}, Actor{ID: uuid.New()}
 
 	skins, err := e.m.Upload(owner, "ferrari", smmodel.SkinPrivate, uuid.Nil, skinFiles("mine", 10))
@@ -426,7 +428,7 @@ func TestUpload_PathTraversalStaysInside(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true}
+	e.settings = smmodel.SkinSettings{}
 
 	files := []File{{Path: "../../../evil/livery.dds", Size: 1, Open: func() (io.ReadCloser, error) {
 		return ioutil.NopCloser(bytes.NewReader([]byte("x"))), nil
@@ -447,7 +449,7 @@ func TestUsableSkinsAndChecks(t *testing.T) {
 	e := newTestEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true, GlobalShare: true}
+	e.settings = smmodel.SkinSettings{GlobalShare: true}
 	owner, mate, stranger := Actor{ID: uuid.New()}, uuid.New(), uuid.New()
 	team := uuid.New()
 	e.teams[owner.ID] = []uuid.UUID{team}
@@ -546,7 +548,7 @@ func TestForgetCar(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	e.settings = smmodel.SkinSettings{UserUploads: true}
+	e.settings = smmodel.SkinSettings{}
 	user := Actor{ID: uuid.New()}
 
 	ferrari, _ := e.m.Upload(user, "ferrari", smmodel.SkinPrivate, uuid.Nil, skinFiles("a", 10))

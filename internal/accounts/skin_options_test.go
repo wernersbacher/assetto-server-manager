@@ -36,14 +36,14 @@ func skinForm(overrides map[string]string) url.Values {
 	return form
 }
 
-func TestSkinSettings_DefaultIsRestrictive(t *testing.T) {
+func TestSkinSettings_Default(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
 	s := ah.SkinSettings()
 
-	if s.UserUploads || s.GlobalShare {
-		t.Errorf("by default users cannot upload or share skins: %+v", s)
+	if !s.UploadsEnabled() || s.GlobalShare {
+		t.Errorf("by default users can upload but not share skins globally: %+v", s)
 	}
 
 	l := s.Limits()
@@ -61,7 +61,7 @@ func TestSetSkinSettings(t *testing.T) {
 		t.Fatalf("expected a redirect, got %d: %s", rec.Code, rec.Body.String())
 	}
 
-	want := smmodel.SkinSettings{UserUploads: true, GlobalShare: true, MaxFiles: 10, MaxSkinMB: 20, UserQuotaMB: 300, MinFreeMB: 4096}
+	want := smmodel.SkinSettings{GlobalShare: true, MaxFiles: 10, MaxSkinMB: 20, UserQuotaMB: 300, MinFreeMB: 4096}
 
 	if got := ah.SkinSettings(); got != want {
 		t.Errorf("got %+v, want %+v", got, want)
@@ -107,7 +107,7 @@ func TestSetSkinSettings_RejectsBadInput(t *testing.T) {
 		}
 	}
 
-	if got := ah.SkinSettings(); got.MaxFiles != 10 || !got.UserUploads {
+	if got := ah.SkinSettings(); got.MaxFiles != 10 || got.UserUploadsDisabled {
 		t.Errorf("the previous settings must stay, got %+v", got)
 	}
 }
@@ -125,6 +125,19 @@ func TestSkinSettings_OldOptionsReadAsDefault(t *testing.T) {
 	}
 
 	if ah.SkinSettings() != (smmodel.SkinSettings{}) {
-		t.Errorf("old options must read as the restrictive default: %+v", ah.SkinSettings())
+		t.Errorf("old options must read as the default (uploads on, no global sharing): %+v", ah.SkinSettings())
+	}
+}
+
+func TestSetSkinSettings_UploadsOff(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	if rec := postSkinOptions(ah, skinForm(map[string]string{"uploads": "off"})); rec.Code != http.StatusFound {
+		t.Fatalf("expected a redirect, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	if s := ah.SkinSettings(); s.UploadsEnabled() || !s.UserUploadsDisabled || s.GlobalShare {
+		t.Errorf("uploads must be off: %+v", s)
 	}
 }

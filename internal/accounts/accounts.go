@@ -373,12 +373,13 @@ func (ah *AccountHandler) SetSkinSettings(w http.ResponseWriter, r *http.Request
 	for _, f := range []struct {
 		name string
 		dest *bool
-	}{{"uploads", &settings.UserUploads}, {"global", &settings.GlobalShare}} {
+	}{{"uploads", &settings.UserUploadsDisabled}, {"global", &settings.GlobalShare}} {
+		on := f.name == "global" // "uploads" is stored inverted
 		switch r.FormValue(f.name) {
 		case "on":
-			*f.dest = true
+			*f.dest = on
 		case "off":
-			*f.dest = false
+			*f.dest = !on
 		default:
 			http.Error(w, "unknown value for "+f.name, http.StatusBadRequest)
 			return

@@ -150,8 +150,8 @@
                     <div class="form-group">
                         <label for="skin-uploads">{{ t "accounts.skins.uploads" }}</label>
                         <select name="uploads" id="skin-uploads" class="form-control" style="max-width: 360px">
-                            <option value="off" {{ if not $.Skins.UserUploads }}selected{{ end }}>{{ t "accounts.only_write_access" }}</option>
-                            <option value="on" {{ if $.Skins.UserUploads }}selected{{ end }}>{{ t "accounts.skins.uploads_everyone" }}</option>
+                            <option value="off" {{ if not $.Skins.UploadsEnabled }}selected{{ end }}>{{ t "accounts.only_write_access" }}</option>
+                            <option value="on" {{ if $.Skins.UploadsEnabled }}selected{{ end }}>{{ t "accounts.skins.uploads_everyone" }}</option>
                         </select>
                     </div>
                     <div class="form-group">

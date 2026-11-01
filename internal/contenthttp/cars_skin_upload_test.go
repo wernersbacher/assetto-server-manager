@@ -162,7 +162,7 @@ func TestUploadSkinByUsers(t *testing.T) {
 
 	// switched off: nothing is stored, anonymous visitors cannot upload in any case
 	for name, acc := range map[string]*smmodel.Account{"off": user, "anonymous": nil} {
-		e.settings = smmodel.SkinSettings{UserUploads: name == "anonymous"}
+		e.settings = smmodel.SkinSettings{UserUploadsDisabled: name != "anonymous"}
 
 		if rec := e.upload(e.handler.UploadSkin, acc, files, nil); rec.Code != http.StatusFound {
 			t.Errorf("%s: expected a redirect with an error message, got %d", name, rec.Code)
@@ -173,7 +173,7 @@ func TestUploadSkinByUsers(t *testing.T) {
 		}
 	}
 
-	e.settings = smmodel.SkinSettings{UserUploads: true}
+	e.settings = smmodel.SkinSettings{}
 
 	// users upload private by default and cannot ask for global
 	if rec := e.upload(e.handler.UploadSkin, user, files, nil); rec.Code != http.StatusFound {
@@ -257,7 +257,7 @@ func TestUploadSkinLimitsAreAppliedToTheBody(t *testing.T) {
 	e := newSkinUploadEnv(t)
 	defer e.cleanup()
 
-	e.settings = smmodel.SkinSettings{UserUploads: true, MaxSkinMB: 1, UserQuotaMB: 1}
+	e.settings = smmodel.SkinSettings{MaxSkinMB: 1, UserQuotaMB: 1}
 	user := account(smmodel.GroupRead)
 
 	big := strings.Repeat("x", 3<<20)
@@ -271,7 +271,7 @@ func TestUploadSkinLimitsAreAppliedToTheBody(t *testing.T) {
 	}
 
 	// not enough free disk space: refused before the body is read
-	e.settings = smmodel.SkinSettings{UserUploads: true, MinFreeMB: 1 << 30}
+	e.settings = smmodel.SkinSettings{MinFreeMB: 1 << 30}
 
 	e.upload(e.handler.UploadSkin, user, map[string]string{"small/livery.png": "x"}, nil)
 

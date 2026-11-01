@@ -122,11 +122,12 @@ const (
 	DefaultSkinMinFreeMB   = 2048
 )
 
-// SkinSettings are the server options for skin uploads. The zero value allows only what was possible before user
-// skins: nobody but accounts with write access uploads, and only globally.
+// SkinSettings are the server options for skin uploads. The zero value lets every logged in account upload private
+// and team skins (also in already stored options); making skins global is then only possible with write access.
 type SkinSettings struct {
-	// UserUploads lets every logged in account upload skins.
-	UserUploads bool
+	// UserUploadsDisabled turns off uploads by accounts without write access. It is stored inverted so that the zero
+	// value allows uploads.
+	UserUploadsDisabled bool
 	// GlobalShare lets users make their skins global themselves. Accounts with write access always can.
 	GlobalShare bool
 
@@ -136,6 +137,9 @@ type SkinSettings struct {
 	UserQuotaMB int // all skins of one user together
 	MinFreeMB   int // free disk space that must remain after an upload
 }
+
+// UploadsEnabled reports whether accounts without write access may upload skins.
+func (s SkinSettings) UploadsEnabled() bool { return !s.UserUploadsDisabled }
 
 // SkinLimits are the resolved limits in bytes and files.
 type SkinLimits struct {
