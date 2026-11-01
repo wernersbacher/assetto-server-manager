@@ -13,6 +13,7 @@ flash:
     steam_failed: Steam-login mislykkedes eller blev annulleret. Prøv igen.
     openness_changed: Serverens åbenhed er ændret
     public_stats_changed: Offentlig kørerstatistik er ændret
+    steam_signup_changed: Registrering med Steam er ændret
     download_access_changed: Downloadadgang er ændret
     team_options_changed: Teamindstillinger er ændret
     skin_options_changed: Skin-indstillinger er ændret

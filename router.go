@@ -440,6 +440,7 @@ func Router(
 		r.HandleFunc("/motd", serverAdministrationHandler.MOTD)
 		r.HandleFunc("/current-config", serverAdministrationHandler.CurrentConfig)
 		r.HandleFunc("/audit-logs", auditLogHandler.ViewLogs)
+		r.Post("/accounts/toggle-steam-signup", accountHandler.ToggleSteamSignup)
 		r.HandleFunc("/accounts/new", accountHandler.CreateOrEditAccount)
 		r.HandleFunc("/accounts/edit/{id}", accountHandler.CreateOrEditAccount)
 		r.Post("/accounts/delete/{id}", accountHandler.DeleteAccount)

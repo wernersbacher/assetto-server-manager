@@ -13,6 +13,7 @@ flash:
     steam_failed: The Steam login failed or was cancelled. Please try again.
     openness_changed: Server openness successfully changed
     public_stats_changed: Public driver statistics successfully changed
+    steam_signup_changed: Registration with Steam changed
     download_access_changed: Download access successfully changed
     team_options_changed: Team options successfully changed
     skin_options_changed: Skin options successfully changed

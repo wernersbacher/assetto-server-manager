@@ -221,6 +221,13 @@ accounts:
     private: Privat
     make_public: Öffentlich machen
     make_private: Privat machen
+  steam_signup:
+    title: Registrierung mit Steam
+    intro: Besucher können sich selbst ein Konto anlegen, indem sie sich mit Steam anmelden. Das neue Konto erhält nur Lesezugriff. Wenn aus, können sich nur Fahrer mit bestehendem Konto (über ihre Steam-ID zugeordnet) mit Steam anmelden.
+    "on": Aktiviert
+    "off": Deaktiviert
+    enable: Aktivieren
+    disable: Deaktivieren
   downloads:
     title: Downloads von Inhalten
     intro: Wer Autos, Strecken, Setups und Skins herunterladen darf (die Bilder auf den Seiten bleiben sichtbar). Content Manager bekommt signierte, zeitlich begrenzte Skin-Links und funktioniert daher auch bei eingeschränkten Downloads.

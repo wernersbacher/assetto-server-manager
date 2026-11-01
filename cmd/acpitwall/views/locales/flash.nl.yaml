@@ -13,6 +13,7 @@ flash:
     steam_failed: De Steam-login is mislukt of geannuleerd. Probeer het opnieuw.
     openness_changed: Openheid van de server gewijzigd
     public_stats_changed: Openbare rijdersstatistieken gewijzigd
+    steam_signup_changed: Registratie met Steam gewijzigd
     download_access_changed: Downloadtoegang gewijzigd
     team_options_changed: Teamopties gewijzigd
     skin_options_changed: Skinopties gewijzigd

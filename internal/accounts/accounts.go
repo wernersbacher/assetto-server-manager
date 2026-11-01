@@ -309,6 +309,11 @@ func (ah *AccountHandler) TogglePublicStats(w http.ResponseWriter, r *http.Reque
 	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.public_stats_changed"), func(o *ServerAccountOptions) { o.PublicStats = !o.PublicStats })
 }
 
+// ToggleSteamSignup switches the "registration with Steam" option.
+func (ah *AccountHandler) ToggleSteamSignup(w http.ResponseWriter, r *http.Request) {
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.steam_signup_changed"), func(o *ServerAccountOptions) { o.SteamSignup = !o.SteamSignup })
+}
+
 // SetDownloadAccess sets the "downloads" option from the form value "access" (public, login or off).
 func (ah *AccountHandler) SetDownloadAccess(w http.ResponseWriter, r *http.Request) {
 	access, ok := downloads.ParseAccess(r.FormValue("access"))
@@ -914,6 +919,7 @@ type manageAccountsTemplateVars struct {
 	Accounts         []*smmodel.Account
 	ServerReadIsOpen bool
 	PublicStats      bool
+	SteamSignup      bool
 	DownloadAccess   string
 
 	TeamCreationEnabled bool
@@ -936,6 +942,7 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 		Accounts:         accounts,
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 		PublicStats:      ah.accountManager.options.PublicStats,
+		SteamSignup:      ah.accountManager.options.SteamSignup,
 		DownloadAccess:   ah.accountManager.options.DownloadAccess.String(),
 
 		TeamCreationEnabled: !ah.accountManager.options.DisableTeamCreation,

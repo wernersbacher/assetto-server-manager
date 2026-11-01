@@ -86,6 +86,23 @@
         </div>
 
         <div class="card admin-card">
+            <div class="card-header"><h2>{{ t "accounts.steam_signup.title" }}</h2></div>
+            <div class="card-body">
+                <p>{{ t "accounts.steam_signup.intro" }}</p>
+
+                <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
+                    {{ if $.SteamSignup }}
+                        <span class="role-badge role-read">{{ t "accounts.steam_signup.on" }}</span>
+                        <form method="post" action="/accounts/toggle-steam-signup" class="m-0"><button type="submit" class="btn btn-danger">{{ t "accounts.steam_signup.disable" }}</button></form>
+                    {{ else }}
+                        <span class="role-badge role-no_access">{{ t "accounts.steam_signup.off" }}</span>
+                        <form method="post" action="/accounts/toggle-steam-signup" class="m-0"><button type="submit" class="btn btn-success">{{ t "accounts.steam_signup.enable" }}</button></form>
+                    {{ end }}
+                </div>
+            </div>
+        </div>
+
+        <div class="card admin-card">
             <div class="card-header"><h2>{{ t "accounts.downloads.title" }}</h2></div>
             <div class="card-body">
                 <p>{{ t "accounts.downloads.intro" }}</p>

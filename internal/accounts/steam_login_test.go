@@ -172,3 +172,36 @@ func TestSteamLogin_Redirects(t *testing.T) {
 		t.Errorf("cancel: status %d location %q", rec.Code, rec.Header().Get("Location"))
 	}
 }
+
+func TestToggleSteamSignup(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	if ah.accountManager.options.SteamSignup {
+		t.Fatal("the Steam sign up must be off by default")
+	}
+
+	for i, want := range []bool{true, false} {
+		req := httptest.NewRequest(http.MethodPost, "/accounts/toggle-steam-signup", nil)
+		req.Header.Set("Referer", "/accounts")
+		req = smweb.WithScope(req, &smweb.Scope{SessionStore: ah.accountManager.sessionStore})
+
+		rec := httptest.NewRecorder()
+		ah.ToggleSteamSignup(rec, req)
+
+		if rec.Code != http.StatusFound {
+			t.Fatalf("toggle %d: expected a redirect, got %d", i, rec.Code)
+		}
+
+		if ah.accountManager.options.SteamSignup != want {
+			t.Errorf("toggle %d: expected %v", i, want)
+		}
+
+		// the option is persisted
+		var stored ServerAccountOptions
+
+		if err := ah.store.GetMeta(serverAccountOptionsMetaKey, &stored); err != nil || stored.SteamSignup != want {
+			t.Errorf("toggle %d: stored option is %v (err %v), expected %v", i, stored.SteamSignup, err, want)
+		}
+	}
+}

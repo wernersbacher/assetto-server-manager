@@ -13,6 +13,7 @@ flash:
     steam_failed: Die Steam-Anmeldung ist fehlgeschlagen oder wurde abgebrochen. Bitte versuche es erneut.
     openness_changed: Offenheit des Servers erfolgreich geändert
     public_stats_changed: Öffentliche Fahrerstatistiken erfolgreich geändert
+    steam_signup_changed: Registrierung mit Steam erfolgreich geändert
     download_access_changed: Download-Zugriff erfolgreich geändert
     team_options_changed: Team-Optionen erfolgreich geändert
     skin_options_changed: Skin-Optionen erfolgreich geändert

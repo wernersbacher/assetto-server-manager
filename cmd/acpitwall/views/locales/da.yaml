@@ -221,6 +221,13 @@ accounts:
     private: Privat
     make_public: Gør offentlig
     make_private: Gør privat
+  steam_signup:
+    title: Registrering med Steam
+    intro: Besøgende kan selv oprette en konto ved at logge ind med Steam. Den nye konto får kun læseadgang. Hvis slået fra, kan kun kørere med en eksisterende konto (matchet via deres Steam-ID) logge ind med Steam.
+    "on": Aktiveret
+    "off": Deaktiveret
+    enable: Aktivér
+    disable: Deaktivér
   downloads:
     title: Download af indhold
     intro: Hvem der må downloade biler, baner, setups og skins (billederne på siderne forbliver synlige). Content Manager får signerede, tidsbegrænsede skin-links og virker derfor stadig, når downloads er begrænset.

@@ -222,6 +222,13 @@ accounts:
     private: Private
     make_public: Make Public
     make_private: Make Private
+  steam_signup:
+    title: Registration with Steam
+    intro: Visitors can create an account themselves by signing in with Steam. The new account gets read access only. If off, only drivers with an existing account (matched by their Steam ID) can sign in with Steam.
+    "on": Enabled
+    "off": Disabled
+    enable: Enable
+    disable: Disable
   downloads:
     title: Content downloads
     intro: Who may download cars, tracks, setups and car skins (the pictures shown on the pages stay visible). Content Manager gets signed, time limited skin links, so it keeps working when downloads are restricted.
