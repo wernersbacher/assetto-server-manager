@@ -393,7 +393,6 @@ func Router(
 		// race weekend
 		r.Get("/race-weekends/new", raceWeekendHandler.CreateOrEdit)
 		r.Post("/race-weekends/new/submit", raceWeekendHandler.Submit)
-		r.Post("/race-weekend/{raceWeekendID}/delete", raceWeekendHandler.Delete)
 		r.Get("/race-weekend/{raceWeekendID}/edit", raceWeekendHandler.CreateOrEdit)
 		r.Get("/race-weekend/{raceWeekendID}/session", raceWeekendHandler.SessionConfiguration)
 		r.Post("/race-weekend/{raceWeekendID}/session/submit", raceWeekendHandler.SubmitSessionConfiguration)
@@ -435,6 +434,7 @@ func Router(
 		r.Post("/autofill-entrants/delete/{entrantID}", serverAdministrationHandler.AutoFillEntrantDelete)
 
 		// race weekend
+		r.Post("/race-weekend/{raceWeekendID}/delete", raceWeekendHandler.Delete)
 		r.Post("/race-weekend/{raceWeekendID}/session/{sessionID}/delete", raceWeekendHandler.DeleteSession)
 	})
 

@@ -32,6 +32,8 @@ Changed:
 
 Fixed:
 
+* Deleting a race weekend now needs Delete access like every other delete (the button was already disabled without it, but the request itself was only checked for Write access).
+
 * Saving a race weekend session (and a championship event) failed with "The maximum number of clients must be at least 1." because the session form has no such field; the number is set from the entry list when the session starts.
 
 * Saving a championship no longer shuffles the order of the entrants: the pit boxes of the entrants were overwritten in a random order while the entries were collected for autofill, so the entry list of a class came back in a different order after saving (and new events got a random grid order). The entry list now keeps the order of the form, also after deleting and adding entrants. In the custom race form, an entrant added after deleting one in the middle no longer takes the Grid/Pit ID of another entrant (and replaces it); it gets the next free ID.

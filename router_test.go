@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -201,5 +202,65 @@ func TestNoDirListing(t *testing.T) {
 		if rec.Code != want {
 			t.Errorf("%s: expected %d, got %d", target, want, rec.Code)
 		}
+	}
+}
+
+// deleting a race weekend needs delete access like every other delete, so its route must be
+// in the same middleware group as the session delete and not in the write group
+func TestRouterRaceWeekendDeleteNeedsDeleteAccess(t *testing.T) {
+	dir, err := ioutil.TempDir("", "router-test")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	store := smstore.NewJSONStore(filepath.Join(dir, "store"), filepath.Join(dir, "shared"))
+
+	resolver, err := NewResolver(&smconfig.Configuration{}, smweb.NewFilesystemTemplateLoader(filepath.Join("cmd", "acpitwall", "views")), false, store, serverenv.NewState())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	router, ok := resolver.ResolveRouter(http.Dir(dir)).(chi.Routes)
+
+	if !ok {
+		t.Fatal("router does not implement chi.Routes")
+	}
+
+	chains := make(map[string][]uintptr)
+
+	err = chi.Walk(router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		if method == http.MethodPost {
+			var ptrs []uintptr
+
+			for _, mw := range middlewares {
+				ptrs = append(ptrs, reflect.ValueOf(mw).Pointer())
+			}
+
+			chains[route] = ptrs
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	weekend, ok := chains["/race-weekend/{raceWeekendID}/delete"]
+
+	if !ok {
+		t.Fatal("race weekend delete route is not registered")
+	}
+
+	if session := chains["/race-weekend/{raceWeekendID}/session/{sessionID}/delete"]; !reflect.DeepEqual(weekend, session) {
+		t.Errorf("race weekend delete is not in the delete access group (middlewares %v, session delete %v)", weekend, session)
+	}
+
+	if write := chains["/race-weekends/new/submit"]; reflect.DeepEqual(weekend, write) {
+		t.Errorf("race weekend delete is in the write access group")
 	}
 }
