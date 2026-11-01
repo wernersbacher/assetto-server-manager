@@ -1,7 +1,6 @@
 package championship
 
 import (
-	"fmt"
 	"net/http"
 	"sort"
 	"strconv"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
@@ -146,7 +146,7 @@ func (cm *ChampionshipManager) resolveSignUpTeam(championship *smmodel.Champions
 
 	if rawID := strings.TrimSpace(r.FormValue("TeamID")); rawID != "" {
 		if !form.UsesTeamSelection() {
-			return ValidationError("This championship does not offer a team selection.")
+			return ValidationError{i18n.Msg("validation.championship.no_team_selection", "This championship does not offer a team selection.")}
 		}
 
 		team, err := cm.memberTeam(r, rawID, form.Response(response.GUID))
@@ -181,7 +181,7 @@ func (cm *ChampionshipManager) resolveSignUpTeam(championship *smmodel.Champions
 		}
 
 		if taken {
-			return ValidationError(fmt.Sprintf("%q is the name of a team. Please choose it from the list of your teams.", name))
+			return ValidationError{i18n.Msg("validation.championship.team_name_taken", "\"{team}\" is the name of a team. Please choose it from the list of your teams.", "team", name)}
 		}
 	}
 
@@ -197,17 +197,17 @@ func (cm *ChampionshipManager) memberTeam(r *http.Request, rawID string, existin
 	account := smweb.AccountFromRequest(r)
 
 	if !smweb.LoggedIn(r)() || account.ID == uuid.Nil {
-		return nil, ValidationError("Please log in to register with a team.")
+		return nil, ValidationError{i18n.Msg("validation.championship.team_login", "Please log in to register with a team.")}
 	}
 
 	if cm.teams == nil {
-		return nil, ValidationError("Teams are not available.")
+		return nil, ValidationError{i18n.Msg("validation.championship.teams_unavailable", "Teams are not available.")}
 	}
 
 	id, err := uuid.Parse(rawID)
 
 	if err != nil {
-		return nil, ValidationError("Please choose a team from the list.")
+		return nil, ValidationError{i18n.Msg("validation.championship.team_choose", "Please choose a team from the list.")}
 	}
 
 	team, err := cm.teams.Lookup(id.String())
@@ -226,11 +226,11 @@ func (cm *ChampionshipManager) memberTeam(r *http.Request, rawID string, existin
 	}
 
 	if err == smmodel.ErrTeamNotFound || team.IsDeleted() {
-		return nil, ValidationError("This team does not exist anymore.")
+		return nil, ValidationError{i18n.Msg("validation.championship.team_gone", "This team does not exist anymore.")}
 	}
 
 	if !team.IsMember(account.ID) {
-		return nil, ValidationError("You are not a member of this team.")
+		return nil, ValidationError{i18n.Msg("validation.championship.team_not_member", "You are not a member of this team.")}
 	}
 
 	return team, nil
@@ -247,18 +247,18 @@ func (cm *ChampionshipManager) checkSignUpTeam(championship *smmodel.Championshi
 	case nil:
 		return nil
 	case smmodel.ErrSignUpTeamLocked:
-		return ValidationError("You are already registered for this championship with a different team. The team cannot be changed, please ask an administrator.")
+		return ValidationError{i18n.Msg("validation.championship.team_locked", "You are already registered for this championship with a different team. The team cannot be changed, please ask an administrator.")}
 	case smmodel.ErrSignUpTeamFull:
-		return ValidationError(teamFullMessage(championship, response))
+		return ValidationError{teamFullMessage(championship, response)}
 	default:
 		return err
 	}
 }
 
-func teamFullMessage(championship *smmodel.Championship, response *smmodel.ChampionshipSignUpResponse) string {
+func teamFullMessage(championship *smmodel.Championship, response *smmodel.ChampionshipSignUpResponse) i18n.Message {
 	limit, _ := championship.SignUpForm.TeamLimit()
 
-	return fmt.Sprintf("The team %q already has the maximum of %d drivers in this championship. Please choose another team.", response.Team, limit)
+	return i18n.Msg("validation.championship.team_full", "The team \"{team}\" already has the maximum of {limit} drivers in this championship. Please choose another team.", "team", response.Team, "limit", limit)
 }
 
 // CheckAcceptTeamLimit tells whether an administrator can (re)accept a rejected registration without putting more
@@ -269,7 +269,7 @@ func CheckAcceptTeamLimit(championship *smmodel.Championship, response *smmodel.
 	}
 
 	if err := championship.SignUpForm.CheckTeamLimit(response); err != nil {
-		return ValidationError(teamFullMessage(championship, response))
+		return ValidationError{teamFullMessage(championship, response)}
 	}
 
 	return nil
@@ -277,42 +277,42 @@ func CheckAcceptTeamLimit(championship *smmodel.Championship, response *smmodel.
 
 // ChangeEntrantTeam moves a registered driver to another team, which is what moderators do because drivers cannot
 // change their team themselves. The team rules do not apply, but if the team ends up with more drivers than the
-// championship allows, warning says so. teamID is a team of the team list, otherwise freeText is used as the team name
-// (empty for no team).
-func (cm *ChampionshipManager) ChangeEntrantTeam(championshipID, guid, teamID, freeText string) (warning string, err error) {
+// championship allows, warning (nil otherwise) says so. teamID is a team of the team list, otherwise freeText is used
+// as the team name (empty for no team).
+func (cm *ChampionshipManager) ChangeEntrantTeam(championshipID, guid, teamID, freeText string) (warning *i18n.Message, err error) {
 	defer LockSignUps()()
 
 	championship, err := cm.LoadChampionship(championshipID)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	response := championship.SignUpForm.Response(guid)
 
 	if response == nil {
-		return "", ValidationError("This driver is not registered for the championship.")
+		return nil, ValidationError{i18n.Msg("validation.championship.driver_not_registered", "This driver is not registered for the championship.")}
 	}
 
 	id, name := uuid.Nil, smmodel.NormalizeTeamName(freeText)
 
 	if teamID = strings.TrimSpace(teamID); teamID != "" {
 		if cm.teams == nil {
-			return "", ValidationError("Teams are not available.")
+			return nil, ValidationError{i18n.Msg("validation.championship.teams_unavailable", "Teams are not available.")}
 		}
 
 		parsed, err := uuid.Parse(teamID)
 
 		if err != nil {
-			return "", ValidationError("Unknown team.")
+			return nil, ValidationError{i18n.Msg("validation.championship.team_unknown", "Unknown team.")}
 		}
 
 		team, err := cm.teams.Lookup(parsed.String())
 
 		if err == smmodel.ErrTeamNotFound || (err == nil && team.IsDeleted()) {
-			return "", ValidationError("This team does not exist anymore.")
+			return nil, ValidationError{i18n.Msg("validation.championship.team_gone", "This team does not exist anymore.")}
 		} else if err != nil {
-			return "", err
+			return nil, err
 		}
 
 		id, name = team.ID, team.Name
@@ -323,7 +323,8 @@ func (cm *ChampionshipManager) ChangeEntrantTeam(championshipID, guid, teamID, f
 	if championship.SignUpForm.CheckTeamLimit(moved) != nil {
 		limit, _ := championship.SignUpForm.TeamLimit()
 
-		warning = fmt.Sprintf("The team %q now has more than the %d drivers this championship allows.", name, limit)
+		msg := i18n.Msg("validation.championship.team_over_limit", "The team \"{team}\" now has more than the {limit} drivers this championship allows.", "team", name, "limit", limit)
+		warning = &msg
 	}
 
 	championship.SetEntrantTeam(guid, id, name)

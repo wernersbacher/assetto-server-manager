@@ -1,11 +1,11 @@
 package championship
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -30,7 +30,7 @@ func validateChampionshipForm(r *http.Request) error {
 
 	for _, field := range classFormFields {
 		if len(r.Form[field]) < numClasses {
-			return ValidationError(fmt.Sprintf("invalid form: %d classes but %d values for %s", numClasses, len(r.Form[field]), field))
+			return ValidationError{i18n.Msg("validation.championship.form_class_values", "Invalid form: {classes} classes but {count} values for {field}.", "classes", numClasses, "count", len(r.Form[field]), "field", field)}
 		}
 	}
 
@@ -43,7 +43,7 @@ func validateChampionshipForm(r *http.Request) error {
 		numSpectatorCars := smweb.FormValueAsInt(r.FormValue("NumAvailableSpectatorCars"))
 
 		if numSpectatorCars < 0 {
-			return ValidationError("invalid form: negative number of spectator cars")
+			return ValidationError{i18n.Msg("validation.championship.form_spectator_cars", "Invalid form: negative number of spectator cars.")}
 		}
 
 		totalCars += numSpectatorCars
@@ -52,7 +52,7 @@ func validateChampionshipForm(r *http.Request) error {
 	for i := 0; i < numClasses; i++ {
 		if classID := r.Form["ClassID"][i]; classID != "" {
 			if _, err := uuid.Parse(classID); err != nil {
-				return ValidationError(fmt.Sprintf("invalid form: %q is not a valid class ID", classID))
+				return ValidationError{i18n.Msg("validation.championship.form_class_id", "Invalid form: \"{id}\" is not a valid class ID.", "id", classID)}
 			}
 		}
 
@@ -61,7 +61,7 @@ func validateChampionshipForm(r *http.Request) error {
 		numCars := smweb.FormValueAsInt(r.Form["NumCars"][i])
 
 		if numEntrants < 0 || numPoints < 0 || numCars < 0 {
-			return ValidationError("invalid form: negative number of entrants, points or cars")
+			return ValidationError{i18n.Msg("validation.championship.form_negative", "Invalid form: negative number of entrants, points or cars.")}
 		}
 
 		totalEntrants += numEntrants
@@ -70,17 +70,17 @@ func validateChampionshipForm(r *http.Request) error {
 	}
 
 	if len(r.Form["Points.Place"]) < totalPoints {
-		return ValidationError(fmt.Sprintf("invalid form: %d points places expected but %d submitted", totalPoints, len(r.Form["Points.Place"])))
+		return ValidationError{i18n.Msg("validation.championship.form_points", "Invalid form: {expected} points places expected but {count} submitted.", "expected", totalPoints, "count", len(r.Form["Points.Place"]))}
 	}
 
 	if len(r.Form["Cars"]) < totalCars {
-		return ValidationError(fmt.Sprintf("invalid form: %d cars expected but %d submitted", totalCars, len(r.Form["Cars"])))
+		return ValidationError{i18n.Msg("validation.championship.form_cars", "Invalid form: {expected} cars expected but {count} submitted.", "expected", totalCars, "count", len(r.Form["Cars"]))}
 	}
 
 	if totalEntrants > 0 {
 		for _, field := range entryListFormFields {
 			if len(r.Form[field]) < totalEntrants {
-				return ValidationError(fmt.Sprintf("invalid form: %d entrants expected but %d values for %s", totalEntrants, len(r.Form[field]), field))
+				return ValidationError{i18n.Msg("validation.championship.form_entrants", "Invalid form: {expected} entrants expected but {count} values for {field}.", "expected", totalEntrants, "count", len(r.Form[field]), "field", field)}
 			}
 		}
 	}

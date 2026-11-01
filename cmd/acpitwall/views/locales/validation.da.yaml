@@ -1,0 +1,51 @@
+# Valideringsbeskeder fra Go-koden (i18n.Msg("validation.<area>.<key>", ...)).
+validation:
+  race:
+    track: Vælg en bane.
+    cars: Vælg mindst én bil.
+    sessions: Aktivér mindst én session.
+    session_time_negative: "{session}: tiden må ikke være negativ."
+    session_laps_negative: "{session}: antallet af omgange må ikke være negativt."
+    booking_time: "{session}: angiv booking-tiden."
+    session_length: "{session}: angiv en tid eller et antal omgange."
+    max_clients: Det maksimale antal klienter skal være mindst 1.
+    pit_window: Pitvinduet må ikke slutte, før det begynder.
+    wind_speed: "Vejr {weather}: den maksimale vindhastighed må ikke være under den minimale."
+    entry_car: "Deltager {entry}: vælg en bil."
+    name: Giv dit custom race et navn.
+    quick_cars: Du skal vælge mindst én bil!
+    quick_qualifying_time: Angiv kvalifikationstiden i minutter (0 eller mere).
+    quick_race_time: Angiv løbstiden i minutter (0 eller mere).
+    quick_race_laps: Angiv antallet af løbsomgange (0 eller mere).
+    entry_list_size: "Ugyldig formular: Entry List har en negativ størrelse."
+    sol_date: Angiv en gyldig dato og tid for Sol-vejret.
+    schedule_date: Angiv en gyldig dato og tid for det planlagte løb.
+    form_arrays: "Ugyldig formular: {expected} {items} forventet, men {count} værdier for {field} indsendt."
+    form_entrants: deltagere
+    form_weather: vejrindstillinger
+
+  championship:
+    recaptcha: Gennemfør venligst reCAPTCHA.
+    steam_id: Angiv et gyldigt SteamID64.
+    email_taken: Nogen har allerede tilmeldt sig med denne e-mailadresse.
+    skin: Du kan ikke bruge det valgte skin. Vælg et andet skin.
+    no_car_slots: "Der er ikke flere ledige pladser til bilen {car}. Vælg en anden bil."
+    no_team_selection: Dette mesterskab tilbyder ikke valg af team.
+    team_name_taken: '"{team}" er navnet på et team. Vælg det fra listen over dine teams.'
+    team_login: Log ind for at tilmelde dig med et team.
+    teams_unavailable: Teams er ikke tilgængelige.
+    team_choose: Vælg et team fra listen.
+    team_gone: Dette team findes ikke længere.
+    team_not_member: Du er ikke medlem af dette team.
+    team_unknown: Ukendt team.
+    team_locked: Du er allerede tilmeldt dette mesterskab med et andet team. Teamet kan ikke ændres, kontakt en administrator.
+    team_full: Teamet "{team}" har allerede det maksimale antal på {limit} kørere i dette mesterskab. Vælg et andet team.
+    team_over_limit: Teamet "{team}" har nu flere end de {limit} kørere, som dette mesterskab tillader.
+    driver_not_registered: Denne kører er ikke tilmeldt mesterskabet.
+    form_class_values: "Ugyldig formular: {classes} klasser, men {count} værdier for {field}."
+    form_spectator_cars: "Ugyldig formular: negativt antal tilskuerbiler."
+    form_class_id: 'Ugyldig formular: "{id}" er ikke et gyldigt klasse-ID.'
+    form_negative: "Ugyldig formular: negativt antal deltagere, point eller biler."
+    form_points: "Ugyldig formular: {expected} pointplaceringer forventet, men {count} indsendt."
+    form_cars: "Ugyldig formular: {expected} biler forventet, men {count} indsendt."
+    form_entrants: "Ugyldig formular: {expected} deltagere forventet, men {count} værdier for {field}."

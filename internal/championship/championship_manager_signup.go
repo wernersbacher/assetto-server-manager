@@ -12,13 +12,18 @@ import (
 	"github.com/haisum/recaptcha"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
-type ValidationError string
+// ValidationError is a problem with the input of a form, which is shown to the user in the language of the request
+// (see smweb.ErrorText). Error returns the English text.
+type ValidationError struct {
+	i18n.Message
+}
 
 func (e ValidationError) Error() string {
-	return string(e)
+	return e.Message.String()
 }
 
 var steamGUIDRegex = regexp.MustCompile("^[0-9]{17}(;[0-9]{17})*$")
@@ -67,17 +72,17 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 		}
 
 		if !captcha.Verify(*r) {
-			return signUpResponse, false, ValidationError("Please complete the reCAPTCHA.")
+			return signUpResponse, false, ValidationError{i18n.Msg("validation.championship.recaptcha", "Please complete the reCAPTCHA.")}
 		}
 	}
 
 	if !steamGUIDRegex.MatchString(signUpResponse.GUID) {
-		return signUpResponse, false, ValidationError("Please enter a valid SteamID64.")
+		return signUpResponse, false, ValidationError{i18n.Msg("validation.championship.steam_id", "Please enter a valid SteamID64.")}
 	}
 
 	for _, entrant := range championship.SignUpForm.Responses {
 		if championship.SignUpForm.AskForEmail && entrant.Email == signUpResponse.Email && entrant.GUID != signUpResponse.GUID {
-			return signUpResponse, false, ValidationError("Someone has already registered with this email address.")
+			return signUpResponse, false, ValidationError{i18n.Msg("validation.championship.email_taken", "Someone has already registered with this email address.")}
 		}
 	}
 

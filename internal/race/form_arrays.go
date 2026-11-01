@@ -1,8 +1,9 @@
 package race
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 )
 
 // entryListFormFields are the per-entrant form fields BuildEntryList reads by index.
@@ -18,13 +19,15 @@ var weatherFormFields = []string{
 }
 
 // checkFormArrays makes sure every field has at least n values, so that indexing the form by position can't panic on
-// a manipulated or broken form. The error names the first field which is too short.
-func checkFormArrays(r *http.Request, n int, what string, fields []string) error {
+// a manipulated or broken form. The error names the first field which is too short; what names the items (e.g.
+// "entrants").
+func checkFormArrays(r *http.Request, n int, what i18n.Message, fields []string) error {
 	for _, field := range fields {
 		if len(r.Form[field]) < n {
 			return ValidationErrors{{
-				Field:   field,
-				Message: fmt.Sprintf("Invalid form: %d %s expected but %d values for %s submitted.", n, what, len(r.Form[field]), field),
+				Field: field,
+				Message: i18n.Msg("validation.race.form_arrays", "Invalid form: {expected} {items} expected but {count} values for {field} submitted.",
+					"expected", n, "items", what, "count", len(r.Form[field]), "field", field),
 			}}
 		}
 	}

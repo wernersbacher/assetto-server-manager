@@ -1,0 +1,51 @@
+# Validatiemeldingen uit de Go-code (i18n.Msg("validation.<area>.<key>", ...)).
+validation:
+  race:
+    track: Kies een circuit.
+    cars: Kies minstens één auto.
+    sessions: Schakel minstens één sessie in.
+    session_time_negative: "{session}: de tijd mag niet negatief zijn."
+    session_laps_negative: "{session}: het aantal ronden mag niet negatief zijn."
+    booking_time: "{session}: stel de bookingtijd in."
+    session_length: "{session}: stel een tijd of een aantal ronden in."
+    max_clients: Het maximale aantal clients moet minstens 1 zijn.
+    pit_window: Het pitvenster mag niet eindigen voordat het begint.
+    wind_speed: "Weer {weather}: de maximale windsnelheid mag niet lager zijn dan de minimale."
+    entry_car: "Inschrijving {entry}: kies een auto."
+    name: Geef de custom race een naam.
+    quick_cars: Je moet minstens één auto kiezen!
+    quick_qualifying_time: Voer de kwalificatietijd in minuten in (0 of meer).
+    quick_race_time: Voer de racetijd in minuten in (0 of meer).
+    quick_race_laps: Voer het aantal raceronden in (0 of meer).
+    entry_list_size: "Ongeldig formulier: de Entry List heeft een negatieve grootte."
+    sol_date: Voer een geldige datum en tijd in voor het Sol-weer.
+    schedule_date: Voer een geldige datum en tijd in voor de geplande race.
+    form_arrays: "Ongeldig formulier: {expected} {items} verwacht, maar {count} waarden voor {field} verzonden."
+    form_entrants: deelnemers
+    form_weather: weerinstellingen
+
+  championship:
+    recaptcha: Voltooi de reCAPTCHA.
+    steam_id: Voer een geldige SteamID64 in.
+    email_taken: Er heeft zich al iemand met dit e-mailadres ingeschreven.
+    skin: Je kunt de gekozen skin niet gebruiken. Kies een andere skin.
+    no_car_slots: "Er zijn geen plaatsen meer vrij voor de auto {car}. Kies een andere auto."
+    no_team_selection: Dit kampioenschap biedt geen teamkeuze.
+    team_name_taken: '"{team}" is de naam van een team. Kies het uit de lijst van je teams.'
+    team_login: Log in om je met een team in te schrijven.
+    teams_unavailable: Teams zijn niet beschikbaar.
+    team_choose: Kies een team uit de lijst.
+    team_gone: Dit team bestaat niet meer.
+    team_not_member: Je bent geen lid van dit team.
+    team_unknown: Onbekend team.
+    team_locked: Je bent al met een ander team voor dit kampioenschap ingeschreven. Het team kan niet worden gewijzigd, vraag het aan een beheerder.
+    team_full: Het team "{team}" heeft in dit kampioenschap al het maximum van {limit} rijders. Kies een ander team.
+    team_over_limit: Het team "{team}" heeft nu meer dan de {limit} rijders die dit kampioenschap toestaat.
+    driver_not_registered: Deze rijder is niet ingeschreven voor het kampioenschap.
+    form_class_values: "Ongeldig formulier: {classes} klassen, maar {count} waarden voor {field}."
+    form_spectator_cars: "Ongeldig formulier: negatief aantal toeschouwersauto's."
+    form_class_id: 'Ongeldig formulier: "{id}" is geen geldige klasse-ID.'
+    form_negative: "Ongeldig formulier: negatief aantal deelnemers, punten of auto's."
+    form_points: "Ongeldig formulier: {expected} puntenplaatsen verwacht, maar {count} verzonden."
+    form_cars: "Ongeldig formulier: {expected} auto's verwacht, maar {count} verzonden."
+    form_entrants: "Ongeldig formulier: {expected} deelnemers verwacht, maar {count} waarden voor {field}."

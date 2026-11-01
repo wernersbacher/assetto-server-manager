@@ -16,6 +16,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
@@ -145,10 +146,10 @@ func (rm *RaceManager) BuildEntryList(r *http.Request, start, length int) (serve
 	entryList := serverconfig.EntryList{}
 
 	if start < 0 || length < 0 {
-		return nil, ValidationErrors{{Field: "EntryList.Name", Message: "Invalid form: the entry list has a negative size."}}
+		return nil, ValidationErrors{{Field: "EntryList.Name", Message: i18n.Msg("validation.race.entry_list_size", "Invalid form: the entry list has a negative size.")}}
 	}
 
-	if err := checkFormArrays(r, start+length, "entrants", entryListFormFields); err != nil {
+	if err := checkFormArrays(r, start+length, i18n.Msg("validation.race.form_entrants", "entrants"), entryListFormFields); err != nil {
 		return nil, err
 	}
 
@@ -342,7 +343,7 @@ func (rm *RaceManager) BuildCustomRaceFromForm(r *http.Request) (*serverconfig.C
 	}
 
 	// weather
-	if err := checkFormArrays(r, len(r.Form["Graphics"]), "weather entries", weatherFormFields); err != nil {
+	if err := checkFormArrays(r, len(r.Form["Graphics"]), i18n.Msg("validation.race.form_weather", "weather entries"), weatherFormFields); err != nil {
 		return nil, err
 	}
 
@@ -421,7 +422,7 @@ func (rm *RaceManager) buildCustomRaceAndEntryList(r *http.Request) (*serverconf
 
 	if err != nil {
 		if errors.Is(err, errInvalidSolDate) {
-			return nil, nil, ValidationErrors{{Field: "DateUnix", Message: "Enter a valid date and time for the Sol weather."}}
+			return nil, nil, ValidationErrors{{Field: "DateUnix", Message: i18n.Msg("validation.race.sol_date", "Enter a valid date and time for the Sol weather.")}}
 		}
 
 		return nil, nil, err
@@ -512,7 +513,7 @@ func (rm *RaceManager) SetupCustomRace(r *http.Request) error {
 		scheduleDate, err = parseScheduleDate(r.FormValue("CustomRaceScheduled"), r.FormValue("CustomRaceScheduledTime"), r.FormValue("CustomRaceScheduledTimezone"))
 
 		if err != nil {
-			return ValidationErrors{{Field: "CustomRaceScheduled", Message: "Enter a valid date and time for the scheduled race."}}
+			return ValidationErrors{{Field: "CustomRaceScheduled", Message: i18n.Msg("validation.race.schedule_date", "Enter a valid date and time for the scheduled race.")}}
 		}
 	}
 

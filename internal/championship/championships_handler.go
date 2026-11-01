@@ -2,6 +2,7 @@ package championship
 
 import (
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
@@ -116,7 +117,7 @@ func (ch *ChampionshipsHandler) Submit(w http.ResponseWriter, r *http.Request) {
 
 	if _, ok := err.(ValidationError); ok {
 		logrus.WithError(err).Warn("invalid championship form")
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, smweb.ErrorText(r, err), http.StatusBadRequest)
 		return
 	} else if err != nil {
 		logrus.WithError(err).Errorf("couldn't create championship")
@@ -972,7 +973,7 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 			switch err.(type) {
 			case ValidationError:
 				opts.FormData = signUpResponse
-				opts.ValidationError = err.Error()
+				opts.ValidationError = smweb.ErrorText(r, err)
 			default:
 				logrus.WithError(err).Error("couldn't handle championship")
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -992,7 +993,7 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 			}
 
 			opts.FormData = signUpResponse
-			opts.ValidationError = fmt.Sprintf("There are no more available slots for the car: %s. Please pick a different car.", smcontent.PrettifyName(signUpResponse.GetCar(), true))
+			opts.ValidationError = smweb.TM(r, i18n.Msg("validation.championship.no_car_slots", "There are no more available slots for the car: {car}. Please pick a different car.", "car", smcontent.PrettifyName(signUpResponse.GetCar(), true)))
 		}
 	}
 
@@ -1177,7 +1178,7 @@ func (ch *ChampionshipsHandler) ModifyEntrantStatus(w http.ResponseWriter, r *ht
 
 			// accepting a rejected registration puts the driver back into the team
 			if err := CheckAcceptTeamLimit(championship, entrant); err != nil {
-				smweb.AddErrorFlash(w, r, err.Error())
+				smweb.AddErrorFlash(w, r, smweb.ErrorText(r, err))
 				break
 			}
 
@@ -1233,11 +1234,11 @@ func (ch *ChampionshipsHandler) changeEntrantTeam(w http.ResponseWriter, r *http
 	case nil:
 		smweb.AddFlash(w, r, smweb.T(r, "flash.championship.entrant_team_changed"))
 
-		if warning != "" {
-			smweb.AddErrorFlash(w, r, warning)
+		if warning != nil {
+			smweb.AddErrorFlash(w, r, smweb.TM(r, *warning))
 		}
 	case ValidationError:
-		smweb.AddErrorFlash(w, r, err.Error())
+		smweb.AddErrorFlash(w, r, smweb.ErrorText(r, err))
 	default:
 		logrus.WithError(err).Error("couldn't change the team of the entrant")
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

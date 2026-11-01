@@ -960,8 +960,8 @@ func TestChangeEntrantTeam(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !strings.Contains(warning, "more than the 2") {
-		t.Errorf("expected a warning about the limit, got %q", warning)
+	if warning == nil || !strings.Contains(warning.String(), "more than the 2") {
+		t.Errorf("expected a warning about the limit, got %v", warning)
 	}
 
 	stored := e.reload()
@@ -979,8 +979,8 @@ func TestChangeEntrantTeam(t *testing.T) {
 	}
 
 	// into a team with room: no warning
-	if warning, err := e.cm.ChangeEntrantTeam(id, guids[0], red.ID.String(), ""); err != nil || warning != "" {
-		t.Errorf("moving back: %v %q", err, warning)
+	if warning, err := e.cm.ChangeEntrantTeam(id, guids[0], red.ID.String(), ""); err != nil || warning != nil {
+		t.Errorf("moving back: %v %v", err, warning)
 	}
 
 	// free text and no team

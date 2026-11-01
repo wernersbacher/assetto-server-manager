@@ -59,7 +59,7 @@ func (qrh *QuickRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 
 	if errors.As(err, &validationErrors) {
 		for _, message := range validationErrors.Messages() {
-			smweb.AddErrorFlash(w, r, message)
+			smweb.AddErrorFlash(w, r, smweb.TM(r, message))
 		}
 
 		http.Redirect(w, r, r.Referer(), http.StatusFound)

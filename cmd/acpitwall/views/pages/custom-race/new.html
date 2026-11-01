@@ -76,7 +76,7 @@
                 <strong>{{ t "race.form.fix_fields" }}</strong>
                 <ul>
                     {{ range . }}
-                        <li data-field="{{ .Field }}">{{ .Message }}</li>
+                        <li data-field="{{ .Field }}">{{ tm .Message }}</li>
                     {{ end }}
                 </ul>
             </div>

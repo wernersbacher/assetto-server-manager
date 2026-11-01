@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
@@ -62,7 +63,7 @@ func (cm *ChampionshipManager) checkSignUpSkin(response *smmodel.ChampionshipSig
 	}
 
 	if err := cm.skins.CheckUsable(response.Car, response.Skin, account); err != nil {
-		return ValidationError("You cannot use the skin you picked. Please choose a different skin.")
+		return ValidationError{i18n.Msg("validation.championship.skin", "You cannot use the skin you picked. Please choose a different skin.")}
 	}
 
 	return nil

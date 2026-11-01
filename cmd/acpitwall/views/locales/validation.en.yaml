@@ -1,0 +1,52 @@
+# Validation messages made by domain code (i18n.Msg("validation.<area>.<key>", "English", ...)). The English text must
+# be the one of the Msg call (checked by TestMessagesMatchEnglish).
+validation:
+  race:
+    track: Choose a track.
+    cars: Choose at least one car.
+    sessions: Enable at least one session.
+    session_time_negative: "{session}: the time must not be negative."
+    session_laps_negative: "{session}: the number of laps must not be negative."
+    booking_time: "{session}: set the booking time."
+    session_length: "{session}: set a time or a number of laps."
+    max_clients: The maximum number of clients must be at least 1.
+    pit_window: The pit window must not end before it starts.
+    wind_speed: "Weather {weather}: the maximum wind speed must not be below the minimum."
+    entry_car: "Entry {entry}: choose a car."
+    name: Give the custom race a name.
+    quick_cars: You must choose at least one car!
+    quick_qualifying_time: Enter the qualifying time in minutes (0 or more).
+    quick_race_time: Enter the race time in minutes (0 or more).
+    quick_race_laps: Enter the number of race laps (0 or more).
+    entry_list_size: "Invalid form: the entry list has a negative size."
+    sol_date: Enter a valid date and time for the Sol weather.
+    schedule_date: Enter a valid date and time for the scheduled race.
+    form_arrays: "Invalid form: {expected} {items} expected but {count} values for {field} submitted."
+    form_entrants: entrants
+    form_weather: weather entries
+
+  championship:
+    recaptcha: Please complete the reCAPTCHA.
+    steam_id: Please enter a valid SteamID64.
+    email_taken: Someone has already registered with this email address.
+    skin: You cannot use the skin you picked. Please choose a different skin.
+    no_car_slots: "There are no more available slots for the car: {car}. Please pick a different car."
+    no_team_selection: This championship does not offer a team selection.
+    team_name_taken: '"{team}" is the name of a team. Please choose it from the list of your teams.'
+    team_login: Please log in to register with a team.
+    teams_unavailable: Teams are not available.
+    team_choose: Please choose a team from the list.
+    team_gone: This team does not exist anymore.
+    team_not_member: You are not a member of this team.
+    team_unknown: Unknown team.
+    team_locked: You are already registered for this championship with a different team. The team cannot be changed, please ask an administrator.
+    team_full: The team "{team}" already has the maximum of {limit} drivers in this championship. Please choose another team.
+    team_over_limit: The team "{team}" now has more than the {limit} drivers this championship allows.
+    driver_not_registered: This driver is not registered for the championship.
+    form_class_values: "Invalid form: {classes} classes but {count} values for {field}."
+    form_spectator_cars: "Invalid form: negative number of spectator cars."
+    form_class_id: 'Invalid form: "{id}" is not a valid class ID.'
+    form_negative: "Invalid form: negative number of entrants, points or cars."
+    form_points: "Invalid form: {expected} points places expected but {count} submitted."
+    form_cars: "Invalid form: {expected} cars expected but {count} submitted."
+    form_entrants: "Invalid form: {expected} entrants expected but {count} values for {field}."

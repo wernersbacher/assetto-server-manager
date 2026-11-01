@@ -1,0 +1,51 @@
+# Validierungsmeldungen aus dem Go-Code (i18n.Msg("validation.<area>.<key>", ...)).
+validation:
+  race:
+    track: Wähle eine Strecke.
+    cars: Wähle mindestens ein Auto.
+    sessions: Aktiviere mindestens eine Session.
+    session_time_negative: "{session}: Die Zeit darf nicht negativ sein."
+    session_laps_negative: "{session}: Die Anzahl der Runden darf nicht negativ sein."
+    booking_time: "{session}: Lege die Buchungszeit fest."
+    session_length: "{session}: Lege eine Zeit oder eine Anzahl Runden fest."
+    max_clients: Die maximale Anzahl an Clients muss mindestens 1 sein.
+    pit_window: Das Boxenfenster darf nicht enden, bevor es beginnt.
+    wind_speed: "Wetter {weather}: Die maximale Windgeschwindigkeit darf nicht unter der minimalen liegen."
+    entry_car: "Eintrag {entry}: Wähle ein Auto."
+    name: Gib dem Custom Race einen Namen.
+    quick_cars: Du musst mindestens ein Auto wählen!
+    quick_qualifying_time: Gib die Qualifying-Zeit in Minuten ein (0 oder mehr).
+    quick_race_time: Gib die Rennzeit in Minuten ein (0 oder mehr).
+    quick_race_laps: Gib die Anzahl der Rennrunden ein (0 oder mehr).
+    entry_list_size: "Ungültiges Formular: Die Entry List hat eine negative Größe."
+    sol_date: Gib ein gültiges Datum und eine gültige Uhrzeit für das Sol-Wetter ein.
+    schedule_date: Gib ein gültiges Datum und eine gültige Uhrzeit für das geplante Rennen ein.
+    form_arrays: "Ungültiges Formular: {expected} {items} erwartet, aber {count} Werte für {field} übermittelt."
+    form_entrants: Teilnehmer
+    form_weather: Wettereinträge
+
+  championship:
+    recaptcha: Bitte löse das reCAPTCHA.
+    steam_id: Bitte gib eine gültige SteamID64 ein.
+    email_taken: Mit dieser E-Mail-Adresse hat sich schon jemand angemeldet.
+    skin: Du kannst den gewählten Skin nicht verwenden. Bitte wähle einen anderen Skin.
+    no_car_slots: "Für das Auto {car} sind keine Plätze mehr frei. Bitte wähle ein anderes Auto."
+    no_team_selection: Diese Meisterschaft bietet keine Teamauswahl an.
+    team_name_taken: '„{team}“ ist der Name eines Teams. Bitte wähle es aus der Liste deiner Teams.'
+    team_login: Bitte melde dich an, um dich mit einem Team anzumelden.
+    teams_unavailable: Teams sind nicht verfügbar.
+    team_choose: Bitte wähle ein Team aus der Liste.
+    team_gone: Dieses Team gibt es nicht mehr.
+    team_not_member: Du bist kein Mitglied dieses Teams.
+    team_unknown: Unbekanntes Team.
+    team_locked: Du bist für diese Meisterschaft schon mit einem anderen Team angemeldet. Das Team kann nicht geändert werden, bitte wende dich an einen Administrator.
+    team_full: Das Team „{team}“ hat in dieser Meisterschaft schon die maximale Anzahl von {limit} Fahrern. Bitte wähle ein anderes Team.
+    team_over_limit: Das Team „{team}“ hat jetzt mehr als die {limit} Fahrer, die diese Meisterschaft erlaubt.
+    driver_not_registered: Dieser Fahrer ist nicht für die Meisterschaft angemeldet.
+    form_class_values: "Ungültiges Formular: {classes} Klassen, aber {count} Werte für {field}."
+    form_spectator_cars: "Ungültiges Formular: negative Anzahl an Zuschauerautos."
+    form_class_id: "Ungültiges Formular: „{id}“ ist keine gültige Klassen-ID."
+    form_negative: "Ungültiges Formular: negative Anzahl an Teilnehmern, Punkten oder Autos."
+    form_points: "Ungültiges Formular: {expected} Punkteplätze erwartet, aber {count} übermittelt."
+    form_cars: "Ungültiges Formular: {expected} Autos erwartet, aber {count} übermittelt."
+    form_entrants: "Ungültiges Formular: {expected} Teilnehmer erwartet, aber {count} Werte für {field}."

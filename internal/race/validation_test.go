@@ -56,6 +56,10 @@ func TestValidateCustomRace(t *testing.T) {
 		if len(errs) != 1 || errs[0].Field != serverconfig.SessionTypeQualifying.String()+".Time" {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
+
+		if got := errs[0].Message.String(); got != "Qualifying: set a time or a number of laps." {
+			t.Fatalf("unexpected message: %q", got)
+		}
 	})
 
 	t.Run("booking needs time", func(t *testing.T) {
@@ -84,7 +88,7 @@ func TestValidateCustomRace(t *testing.T) {
 
 		errs := ValidateCustomRace(validConfig(), list, url.Values{})
 
-		if len(errs) != 1 || errs[0].Field != "EntryList.Car" || !strings.Contains(errs[0].Message, "Entry 3") {
+		if len(errs) != 1 || errs[0].Field != "EntryList.Car" || !strings.Contains(errs[0].Message.String(), "Entry 3") {
 			t.Fatalf("unexpected errors: %v", errs)
 		}
 	})
