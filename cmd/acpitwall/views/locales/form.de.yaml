@@ -1,0 +1,2573 @@
+# German translation of form.en.yaml (generated from the struct tags of the forms).
+form:
+  GlobalServerConfig:
+    AdminPassword:
+      help: 'Das Passwort, mit dem du als Serveradministrator erkannt wirst: Trittst
+        du dem Server mit diesem Passwort bei, wirst du automatisch als Admin erkannt.
+        Gib /help im Chat des Spiels ein, um die Befehlsliste zu sehen. Achtung: Bleibt
+        das Feld leer, kann sich jeder Fahrer als Admin verbinden!'
+      label: Admin-Passwort
+    AssettoCorsaServer:
+      label: Assetto Corsa Server
+    AuthPluginAddress:
+      help: Die Adresse des Auth-Plugins
+      label: Auth-Plugin-Adresse
+    BlacklistMode:
+      help: Wie mit gesperrten Spielern umgegangen wird.
+      label: Sperrlisten-Modus
+      option:
+        "0": Normaler Kick, Spieler kann wieder beitreten
+        "1": Gekickter Spieler kann bis zum Serverneustart nicht wieder beitreten
+        "2": Spieler kicken und zu blacklist.txt hinzufügen, gekickter Spieler kann
+          erst wieder beitreten, wenn er von der Sperrliste entfernt wurde
+    ClientSendIntervalInHertz:
+      help: Aktualisierungsrate, mit der der Server Pakete sendet. 10Hz = ~100ms.
+        Höherer Wert = bessere MP-Qualität = mehr Bandbreite nötig. Sehr hohe Werte
+        können Verbindungsprobleme verursachen
+      label: Client-Sendeintervall in Hertz
+    ContentManagerIPOverride:
+      help: Wenn gesetzt, ersetzt dies die vom GeoIP-Dienst ermittelte IP-Adresse,
+        die für den Content-Manager-Beitrittslink verwendet wird. Muss eine IPv4-Adresse
+        sein.
+      label: Content-Manager-IP überschreiben
+    ContentManagerIntegration:
+      label: Content-Manager-Integration
+    ContentManagerWrapperContentRequiresPassword:
+      help: Wenn aktiviert (und der Server ein Passwort hat), wird Content Manager
+        mitgeteilt, dass die verlinkten Inhalte das Serverpasswort erfordern. Die
+        Downloads selbst sind durch signierte URLs geschützt.
+      label: 'Content Manager Wrapper: Inhalte erfordern Passwort'
+    ContentManagerWrapperPort:
+      help: Der Port, auf dem Content Manager die obigen Informationen bereitgestellt
+        werden. Stelle sicher, dass dieser Port in deiner Firewall offen ist.
+      label: Content-Manager-Wrapper-Port
+    CustomCSS:
+      help: Passe den Stil von ACPitwall an!
+      label: Eigenes CSS
+    DarkTheme:
+      help: Das dunkle Theme von ACPitwall standardmäßig aktivieren
+      label: Dunkles Theme
+    DiscordAPIToken:
+      help: Wenn gesetzt, werden Nachrichten zum Rennstart und geplante Erinnerungen
+        an die unten angegebene Discord-Kanal-ID gesendet.  Verwende das User-Token
+        deines Bots, nicht das OAuth-Token.
+      label: Discord API Token
+    DiscordChannelID:
+      help: Wenn Discord aktiviert ist, ist dies die Kanal-ID, an die Nachrichten
+        gesendet werden.  Um die Kanal-ID zu finden, aktiviere in Discord den Entwicklermodus
+        (Benutzereinstellungen, Darstellung), dann Servereinstellungen, Rollen, Rechtsklick
+        auf den Kanal und „ID kopieren“.
+      label: Discord-Kanal-ID
+    DiscordIntegration:
+      label: Discord-Integration
+    DiscordRoleCommand:
+      help: Wenn die Discord-Rollen-ID gesetzt ist, kannst du hier optional einen
+        Befehl angeben, z. B. „notify“ (ohne !-Präfix). Führt ein Nutzer ihn in Discord
+        als !-Befehl aus (allein in einer Zeile), versucht dieser Server, dem Nutzer
+        die konfigurierte Rolle zuzuweisen.  Wenn du mehrere Server mit aktiviertem
+        Discord betreibst, setze dies nur bei einem von ihnen.  Damit das funktioniert,
+        braucht dein Bot die Berechtigung „Rollen verwalten“.
+      label: Discord-Rollenbefehl
+    DiscordRoleID:
+      help: Wenn gesetzt, wird diese Rolle in allen Discord-Benachrichtigungen erwähnt.  Alle
+        Nutzer mit dieser Rolle und Zugriff auf den Kanal werden angepingt.  Um die
+        Rollen-ID zu finden, aktiviere den Entwicklermodus (siehe oben), dann Servereinstellungen,
+        Rollen, Rechtsklick auf die Rolle und „ID kopieren“.
+      label: Discord-Rollen-ID
+    EnableContentManagerWrapper:
+      help: Wenn aktiviert, stellt ACPitwall Content Manager zusätzliche Informationen
+        bereit. Dazu gehören mehr Details zu verbundenen Clients, Event-Beschreibungen
+        und Download-Links. Als Nebeneffekt enthält dein Servername eine zusätzliche
+        Information (ein „i“ gefolgt von einem Port, das Content Manager benötigt).
+        Außerdem nutzt dieser Wrapper – falls aktiviert – eine GeoIP-Funktion von
+        <a href='https://freegeoip.app''>freegeoip.app</a>.
+      label: Content Manager Wrapper aktivieren
+    FallBackResultsSorting:
+      help: Wenn aktiviert, verwenden Ergebnisse eine alternative Sortiermethode.
+        Aktiviere dies nur, wenn die Ergebnisse in der JSON-Datei in der falschen
+        Reihenfolge stehen.
+      label: Alternative Ergebnissortierung
+    HTTPPort:
+      help: 'Lobby-Port: Öffne diese Ports (UDP und TCP) in der Firewall deines Servers'
+      label: HTTP-Port
+    KickQuorum:
+      help: Prozentsatz, der nötig ist, damit eine Kick-Abstimmung erfolgreich ist
+      label: Kick-Quorum
+    LogACServerOutputToFile:
+      help: Wenn aktiviert, schreibt ACPitwall jede Assetto-Corsa-Session in eine
+        Logdatei im Ordner logs.
+      label: AC-Server-Ausgabe in Datei loggen
+    Miscellaneous:
+      label: Sonstiges
+    Name:
+      help: Servername
+      label: Name
+    NotificationReminderTimers:
+      help: Wenn Discord aktiviert ist, wird so viele Minuten vor dem Rennstart eine
+        Erinnerung gesendet.  Bei 0 oder leer werden nur Nachrichten zum Rennstart
+        gesendet.  Mehrere Erinnerungen kannst du mit einer kommagetrennten Liste
+        wie 120,15 planen.
+      label: Erinnerungszeiten für Benachrichtigungen
+    NotifyWhenScheduled:
+      help: Eine Benachrichtigung senden, wenn ein Rennen geplant (oder abgesagt)
+        wird.
+      label: Bei Planung benachrichtigen
+    NumberOfACServerLogsToKeep:
+      help: Anzahl der AC-Server-Logs, die im Ordner logs behalten werden. (Die ältesten
+        Dateien werden zuerst gelöscht. 0 = alle Dateien behalten)
+      label: Anzahl aufbewahrter AC-Server-Logs
+    NumberOfThreads:
+      help: Anzahl der zu verwendenden Threads
+      label: Anzahl Threads
+    OGImage:
+      help: Gib hier den Link zu einem Bild im Web an, um es als Standard-Open-Graph-Bild
+        zu verwenden (wird in Link-Vorschauen angezeigt)
+      label: OG-Bild
+    Password:
+      help: Serverpasswort
+      label: Passwort
+    PreventWebCrawlers:
+      help: Wenn aktiviert, verbietet die robots.txt Robotern, diesen Manager zu indexieren.
+        Beachte, dass dies nur gutartige Bots abhält, keine Malware-/Spam-Bots usw.
+      label: Webcrawler fernhalten
+    ReceiveBufferSize:
+      label: Empfangspuffergröße
+    RegisterToLobby:
+      help: Den AC-Server in der Hauptlobby registrieren
+      label: In der Lobby registrieren
+    RestartEventOnServerManagerLaunch:
+      help: Wenn aktiviert und ACPitwall gestoppt wird, während ein Event läuft, versucht
+        ACPitwall, das Event beim nächsten Start von ACPitwall neu zu starten.
+      label: Event beim Start von ACPitwall neu starten
+    SendBufferSize:
+      label: Sendepuffergröße
+    ServerName:
+      label: Servername
+    ServerNameTemplate:
+      help: Hier kannst du beliebigen Text eingeben. Wenn du <code>{{ .ServerName
+        }}</code> einfügst, wird es durch den Servernamen ersetzt. Wenn du <code>{{
+        .EventName }}</code> einfügst, wird es durch den Event-Namen ersetzt. Das
+        funktioniert nur, wenn „Rennnamen in der Serverlobby anzeigen“ (oben) aktiviert
+        ist.
+      label: Servernamen-Vorlage
+    ShowContentManagerJoinLink:
+      help: Wenn aktiviert, zeigt ACPitwall Content-Manager-Beitrittslinks auf der
+        Live-Timing-Seite und (falls aktiviert) in Discord-Benachrichtigungen zum
+        Rennstart an.
+      label: Content-Manager-Beitrittslink anzeigen
+    ShowEventDetailsPopup:
+      help: Erlaubt allen Nutzern, ein Popup zu öffnen, das die Konfiguration von
+        eigenen Rennen, Meisterschafts-Events und Rennwochenend-Sessions im Detail
+        beschreibt.
+      label: Popup mit Event-Details anzeigen
+    ShowPasswordInNotifications:
+      help: Das Serverpasswort in Benachrichtigungen zum Rennstart anzeigen.
+      label: Passwort in Benachrichtigungen anzeigen
+    ShowRaceNameInServerLobby:
+      help: Wenn aktiviert, hängt ACPitwall den Namen des eigenen Rennens oder der
+        Meisterschaft an den Servernamen in der Lobby an.
+      label: Rennnamen in der Serverlobby anzeigen
+    SleepTime:
+      help: Die genaue Wirkung dieser Einstellung ist nicht vollständig bekannt. Lass
+        den Wert auf 1, außer du weißt genau, was du tust. (Andere Werte als 1 verursachen
+        eine übermäßige CPU-Last)
+      label: Sleep Time
+    TCPPort:
+      help: 'TCP-Port: Öffne diesen Port in der Firewall deines Servers'
+      label: TCP-Port
+    Theme:
+      label: Theme
+    UDPPluginAddress:
+      help: Die Adresse des Plugins, an das UDP-Nachrichten gesendet werden.  Beachte,
+        dass ACPitwall die UDP-Ports weiterreicht (Proxy), damit es sie selbst ebenfalls
+        nutzen kann, z. B. für Meisterschaften, Live Timing und die Karte. Daher unterscheiden
+        sich die UDP-Ports in der server_cfg.ini von den hier angegebenen. Das ist
+        kein Problem, Nachrichten werden auch auf den hier angegebenen UDP-Ports korrekt
+        gesendet/empfangen.
+      label: UDP-Plugin-Adresse
+    UDPPluginLocalPort:
+      help: Der Port, auf dem auf UDP-Nachrichten eines Plugins gelauscht wird. Beachte,
+        dass ACPitwall die UDP-Ports weiterreicht (Proxy), damit es sie selbst ebenfalls
+        nutzen kann, z. B. für Meisterschaften, Live Timing und die Karte. Daher unterscheiden
+        sich die UDP-Ports in der server_cfg.ini von den hier angegebenen. Das ist
+        kein Problem, Nachrichten werden auch auf den hier angegebenen UDP-Ports korrekt
+        gesendet/empfangen.
+      label: Lokaler UDP-Plugin-Port
+    UDPPort:
+      help: 'UDP-Port: Öffne diesen Port in der Firewall deines Servers'
+      label: UDP-Port
+    UseMPH:
+      help: Wenn aktiviert, verwendet ACPitwall für alle Geschwindigkeiten MPH statt
+        km/h.
+      label: MPH verwenden
+    UseShortenedDriverNames:
+      help: Wenn aktiviert, blendet ACPitwall die Nachnamen der Fahrer aus, z. B.
+        wird aus „John Smith“ „John S.“
+      label: Abgekürzte Fahrernamen verwenden
+    VoteDuration:
+      help: Dauer einer Abstimmung in Sekunden
+      label: Abstimmungsdauer
+    VotingQuorum:
+      help: Prozentsatz, der nötig ist, damit eine Session-Abstimmung erfolgreich
+        ist
+      label: Abstimmungs-Quorum
+  KissMyRankConfig:
+    ACAppLinkUDPPort:
+      help: Der UDP-Port, über den Kissmyrank-Events an kompatible Assetto-Corsa-Apps
+        im Spiel weitergeleitet werden (0 deaktiviert diese Funktion). AC-Apps können
+        sich mit diesem Port verbinden. Die vollständige Dokumentation findest du
+        unter /applink/doc, eine Demo-App unter /applink/demo/.
+      label: AC App Link UDP-Port
+    ACChatAdminGUIDList:
+      help: Eine GUID pro Zeile. Liste der GUIDs der Fahrer, die Kissmyrank-Adminbefehle
+        über den Assetto-Corsa-Chat senden dürfen (gib „/kmr login password“ im Chat
+        ein, um dich anzumelden, und „/kmr command“, um einen der unterstützten Befehle
+        auszuführen).
+      label: GUID-Liste der Chat-Admins
+    ACChatAdminPassword:
+      help: Das Admin-Passwort für die Anmeldung über den Assetto-Corsa-Chat (gib
+        „/kmr login password“ im Spielchat ein, um dich anzumelden).
+      label: Chat-Admin-Passwort
+    AlltimeFastestLapPrize:
+      help: Wie viel ein Fahrer für die schnellste Runde aller Zeiten erhält  (in
+        Tausend). 1.5 = 1500€.
+      label: Prämie für die schnellste Runde aller Zeiten
+    AntiCheatMaxClockDeltaConsecutiveHits:
+      fieldset: 'Anticheat: aufeinanderfolgende Max-Clock-Delta-Treffer'
+    AnticheatLaptimeInvalidateMaxClockDelta:
+      help: Die maximale Differenz (in Millisekunden) zwischen den vom Assetto-Corsa-Server
+        gemeldeten und den vom Plugin (mit der Uhr des Host-Rechners) gemessenen Rundenzeiten,
+        bevor eine Rundenzeit verworfen wird (z. B. um Manipulationen der Assetto-Corsa-Rundenzeiten
+        über den CPU-Takt zu verhindern). Beachte, dass dieser Wert die natürlichen
+        Verzögerungen in der Kommunikation zwischen Plugin und Server berücksichtigen
+        muss. Setze ihn nicht zu niedrig, sonst werden Fahrer womöglich bestraft,
+        wenn dein Server unter Last steht. Verwende ihn nur, wenn dein Server genug
+        Ressourcen hat, um Pakete mit gleichmäßiger Verzögerung zu verarbeiten. 0
+        deaktiviert die Funktion.
+      label: 'Anticheat: Rundenzeit ab max. Clock-Delta verwerfen'
+    AnticheatPenalizeDriverMaxClockDeltaConsecutiveHits:
+      help: Wie oft ein Fahrer hintereinander das max_clock_delta überschreiten muss,
+        bevor er die in den Strafkosten und Strafaktionen festgelegte Strafe erhält.
+        0 deaktiviert die Funktion.
+      label: 'Anticheat: Strafe nach aufeinanderfolgenden Max-Clock-Delta-Treffern'
+    CarTowingCost:
+      help: Abschleppkosten pro km. Wie viel (in Tausend) Fahrer pro km zahlen, um
+        ihr Auto an die Box abschleppen zu lassen. 0.05 = 50€ pro km (z. B. zahlt
+        ein Fahrer beim Zurücksetzen an die Box 50€ pro km). 0 deaktiviert die Funktion
+        vollständig.
+      label: Abschleppkosten
+    ChatDriverWelcomeMessageShowRaceControlLink:
+      help: Ob beim Beitritt eines Fahrers der Race-Control-Link angezeigt wird.
+      label: 'Willkommensnachricht im Chat: Race-Control-Link anzeigen'
+    CleanLapReward:
+      help: Wie viel (in Tausend) ein Fahrer für eine saubere Runde erhält (d. h.
+        eine Runde ohne Abkürzung). Das kannst du auf Trainingsservern nutzen (da
+        Rennprämien dort nicht greifen).
+      label: Prämie für saubere Runde
+    CollisionMinimumDamageBetweenCars:
+      help: Die minimalen Schadenskosten (in Tausend), unterhalb derer Kollisionen
+        zwischen Autos nicht protokolliert werden. 0 protokolliert alle Kollisionen.
+        0.001 = Kollisionen mit der Umgebung unter 1€ nicht protokollieren.
+      label: Mindestschaden bei Kollisionen zwischen Autos
+    CollisionMinimumDamageWithEnvironment:
+      help: Die minimalen Schadenskosten (in Tausend), unterhalb derer Kollisionen
+        mit der Umgebung nicht protokolliert werden. 0 protokolliert alle Kollisionen.
+        0.001 = Kollisionen mit der Umgebung unter 1€ nicht protokollieren.
+      label: Mindestschaden bei Kollisionen mit der Umgebung
+    ConnectionOptions:
+      label: Verbindungsoptionen
+    CurrencySymbol:
+      help: Das Währungssymbol für alle Strafen und Zahlungen der Fahrer (z. B. €,$,RUB).
+      label: Währungssymbol
+    CustomChatDriverWelcomeMessages:
+      help: Eigene Chatnachrichten, die gesendet werden, wenn sich ein Fahrer verbindet.
+        Eine pro Zeile.
+      label: Eigene Willkommensnachrichten im Chat
+    CutLineYourCustomCutLine:
+      fieldset: 'Cut Line: deine eigene Cut Line'
+    CutLinesEnabled:
+      help: Cut Lines aktivieren. Setze dies auf 0, um die cut_lines-Funktion zu deaktivieren.
+        Beachte, dass Cut Lines nur funktionieren, wenn sie mit dem Cut Line Drawer
+        definiert wurden. Um die aktuellen Cut Lines zu prüfen, gib cut_line_list
+        in der Konsole ein. Mehr dazu in readme.txt.
+      label: Cut Lines aktiviert
+    DamageCostBetweenCars:
+      help: Die Kosten (in Tausend) des Schadens einer Kollision zwischen Autos bei
+        damage_cost_between_cars_base_speed. 3 = 3000€ (d. h. Fahrern werden 3000€
+        berechnet, wenn sie mit der angegebenen relativen Basisgeschwindigkeit kollidieren).
+        Beachte, dass der Schaden mit dem Quadrat der Relativgeschwindigkeit steigt.
+      label: Schadenskosten zwischen Autos
+    DamageCostBetweenCarsBaseSpeed:
+      help: Die Basisgeschwindigkeit (in km/h) für damage_cost_between_cars.
+      label: Basisgeschwindigkeit für Schadenskosten zwischen Autos
+    DamageCostWithEnvironment:
+      help: Die Kosten (in Tausend) des Schadens einer Kollision mit der Umgebung
+        bei damage_cost_with_environment_base_speed. 3 = 3000€ (d. h. Fahrern werden
+        3000€ berechnet, wenn sie mit der angegebenen relativen Basisgeschwindigkeit
+        mit der Umgebung kollidieren). Beachte, dass der Schaden mit dem Quadrat der
+        Geschwindigkeit steigt.
+      label: Schadenskosten mit der Umgebung
+    DamageCostWithEnvironmentBaseSpeed:
+      help: Die Basisgeschwindigkeit (in km/h) für damage_cost_with_environment.
+      label: Basisgeschwindigkeit für Schadenskosten mit der Umgebung
+    Database:
+      label: Datenbank
+    DatabaseSharingLocalGroupPort:
+      help: Lokaler Port zum Teilen der Datenbank mit Kissmyrank-Instanzen auf demselben
+        Rechner. Setze ihn auf eine gültige Portnummer, wenn du dieselbe Datenbank
+        zwischen verschiedenen Instanzen des Kissmyrank-Plugins auf demselben Rechner
+        teilen willst. Für alle Plugins derselben Sharing-Gruppe musst du denselben
+        Port setzen (z. B. hast du 4 Kissmyrank-Instanzen A,B,C,D und willst die Datenbank
+        paarweise teilen – A mit B sowie C mit D –, dann setzt du database_sharing_group_port
+        in der config.json von KMR A und KMR B auf 4567 und bei KMR C und KMR D auf
+        4568).
+      label: Lokaler Gruppen-Port für Datenbank-Sharing
+    DatabaseSharingRelayForNames:
+      help: 'Eine pro Zeile. Relay-Namen für Remote-Datenbank-Sharing. Achtung: Dieser
+        Schlüssel wird für normales Datenbank-Sharing nicht benötigt, sondern nur,
+        wenn du einzeln angebundene Plugins hast (d. h. Plugins, die mit einer Instanz
+        verbunden sind, aber nicht mit den anderen). Angenommen, du willst die Datenbank
+        zwischen 3 Plugins (A,B und C) teilen und hast database_sharing_unique_name
+        jeweils auf plugin_a, plugin_b, plugin_c gesetzt. Angenommen, du kannst nur
+        A<->B und B<->C verbinden, aber A nicht direkt mit C. Nachdem du alle anderen
+        Schlüssel (für A<->B und B<->C) richtig gesetzt hast, bearbeitest du die config.json
+        von plugin_b und fügst plugin_a und plugin_c zum Schlüssel database_sharing_relay_for_names
+        hinzu. Dadurch leitet Plugin B Informationen an das jeweils andere Plugin
+        weiter, sodass A<->B<->C möglich wird. Beachte, dass du in diesem Fall beim
+        Herunterfahren von B auch A und C herunterfahren musst, sonst wird die Synchronisation
+        womöglich nicht vollständig angewendet. Das funktioniert für lokale und Remote-Verbindungen,
+        solange du den eindeutigen Namen setzt. Achte darauf, keine doppelten Verbindungen
+        zwischen Plugins anzulegen, sonst bekommst du womöglich doppelte Updates.'
+      label: Relay-Namen für Datenbank-Sharing
+    DatabaseSharingRemoteConnectToAddresses:
+      help: Eine pro Zeile. Adressen für Remote-Datenbank-Sharing. Die Adressen der
+        entfernten Plugins im üblichen Format host:port (host ist die IP/Adresse des
+        Servers, auf dem das Plugin läuft, port ist der database_sharing_remote_listen_port,
+        den du für dieses Plugin gesetzt hast). Soll Plugin A die Datenbank mit Plugin
+        B teilen, musst du hostA:portA in die config.json von Plugin B und hostB:portB
+        in die config.json von Plugin A eintragen. Trage bei jedem Plugin alle Plugins
+        ein, mit denen es kommunizieren soll (natürlich nicht sich selbst, sonst entsteht
+        eine Schleife). Verbinde zwei Plugins nicht gleichzeitig per lokalem und Remote-Sharing.
+      label: Remote-Adressen für Datenbank-Sharing
+    DatabaseSharingRemoteListenAddress:
+      help: Listen-Adresse für Remote-Datenbank-Sharing (ändere sie nur, wenn du nur
+        auf einem bestimmten Interface lauschen willst; nicht empfohlen).
+      label: Remote-Listen-Adresse für Datenbank-Sharing
+    DatabaseSharingRemoteListenPort:
+      help: Listen-Port für Remote-Datenbank-Sharing. Verwende ihn nur, wenn lokales
+        Datenbank-Sharing nicht möglich ist. Setze ihn auf eine gültige Portnummer,
+        wenn du die Datenbank mit einem Plugin auf einem entfernten Rechner teilen
+        willst. Remote-Sharing kann Lag verursachen, daher empfehle ich, wann immer
+        möglich lokales Datenbank-Sharing zu verwenden.
+      label: Remote-Listen-Port für Datenbank-Sharing
+    DatabaseSharingRemoteSecretKey:
+      help: Geheimer Schlüssel für Remote-Datenbank-Sharing. Nur für Remote-Sharing
+        nötig. Muss bei allen Hosts, die Remote-Datenbank-Sharing nutzen, gleich gesetzt
+        sein.
+      label: Geheimer Schlüssel für Remote-Datenbank-Sharing
+    DatabaseSharingUniqueName:
+      help: Eindeutiger Name für Datenbank-Sharing. Setze einen eindeutigen Namen
+        für dieses Plugin, um es in den Logs besser zu erkennen. Das ist rein kosmetisch
+        und völlig optional.
+      label: Eindeutiger Name für Datenbank-Sharing
+    DriveThroughNoKick:
+      help: Ob die Kick-Strafe deaktiviert wird, wenn ein Drive-Through nicht abgeleistet
+        wird oder zwei Drive-Through-Events direkt hintereinander auftreten.
+      label: Kein Kick bei Drive-Through
+    DrivingLinePenaltyRepeatGrace:
+      help: Die Mindestzeit (in Sekunden) zwischen zwei aufeinanderfolgenden Abkürzungsstrafen
+        (Streckenbegrenzungen und Cut Lines). 6 = 6s (d. h. kürzt ein Fahrer zweimal
+        innerhalb von weniger als 6s ab, wird er nur einmal bestraft). Senke den Wert
+        nicht zu stark, um Strafen-Spam zu vermeiden.
+      label: Karenzzeit zwischen Abkürzungsstrafen
+    EnableKissMyRank:
+      label: Kiss My Rank aktivieren
+    FirstBlood:
+      fieldset: First Blood
+    HotLapProtection:
+      fieldset: Hotlap-Schutz
+    HotLappingCarCollision:
+      fieldset: Kollision mit Auto auf Hotlap
+    HotlapProtection:
+      help: Ab welchem Abstand (in Metern) ein Auto auf der Outlap die Warnung „Lass
+        das andere Auto vorbei“ erhält, wenn es gleich überholt wird.
+      label: Hotlap-Schutz
+    ImprovingQualifyLapTimeWithInfractions:
+      fieldset: Verbesserte Qualifying-Rundenzeit trotz Verstößen
+    ImprovingQualifyLaptimeWithInfractionsCutoffPercent:
+      help: Die Rundenzeit (in Prozent der Session-Bestzeit), oberhalb der eine verbesserte
+        Zeit mit Abkürzungen nicht als Missbrauch gilt. 107 = 107% (d. h. ein Fahrer,
+        der eine Zeit mit Kissmyrank-Verstößen, aber ohne AC-Verstöße fährt, die über
+        107% der schnellsten Runde der Session liegt, löst keine Strafe aus).
+      label: Grenzwert in Prozent für verbesserte Qualifying-Rundenzeit trotz Verstößen
+    JLPMoneyKillSwitch:
+      help: Setze dies auf 1, wenn du – genau wie Captain Jean-Luc Picard – das Geld-/Punktesystem
+        überhaupt nicht nutzen willst (z. B. Ligen, private Server und alle, die nur
+        an den Race-Control- und Tracking-Funktionen von Kissmyrank interessiert sind).
+        Wenn du das änderst, musst du die Datenbank zurücksetzen (d. h. das Plugin
+        neu installieren).
+      label: JLP Money Kill Switch
+    LappingCarCollision:
+      fieldset: Kollision mit überrundetem Auto
+    LappingProtection:
+      fieldset: Überrundungsschutz
+      help: Ab welchem Abstand (in Metern) ein Auto, das überrundet wird, die Warnung
+        „Blaue Flagge“ erhält, wenn es gleich überholt wird.
+      label: Überrundungsschutz
+    LaptimeChallengeBaseAverageSpeed:
+      help: Basis-Durchschnittsgeschwindigkeit der Laptime Challenge (km/h). 110=110km/h.
+        Ein Fahrer ist Level 0, wenn er eine Runde mit durchschnittlich 110 km/h fahren
+        kann, Level 1 bei 111 km/h und so weiter...
+      label: Basis-Durchschnittsgeschwindigkeit der Laptime Challenge
+    LaptimeChallengeBasePrize:
+      help: Basisprämie der Laptime Challenge (in Tausend). 0.01 = 10€. Die Prämie
+        ist Basis*Level (Level 2 erhält 20). 0 deaktiviert die Laptime Challenge.
+      label: Basisprämie der Laptime Challenge
+    LaptimeChallengeLevelAverageSpeedGap:
+      help: Der Unterschied der Durchschnittsgeschwindigkeit zwischen zwei aufeinanderfolgenden
+        Laptime-Challenge-Levels in (km/h). 1=1km/h (z. B. Level 0 => 110km/h, Level
+        1 => 111km/h).
+      label: Geschwindigkeitsabstand zwischen Laptime-Challenge-Levels
+    LiveTrackView:
+      help: Ob die Live-Streckenansicht aktiviert wird (z. B. ausschalten, um die
+        Live-Karte der Web Stats zu deaktivieren).
+      label: Live-Streckenansicht
+    MacCollisionsPer100kmRechargeHours:
+      help: Die Basiszeit (Stunden pro Kollisionseinheit), die ein Fahrer, der max_collisions_per_100km
+        überschreitet, warten muss, bevor er dem Server wieder beitreten kann (z.
+        B. muss bei max_collisions_per_100km = 30 ein Fahrer mit 31 Kollisionen pro
+        100km ab seinem letzten Verlassen des Servers 1h warten, bei 32 2 Stunden
+        und so weiter).
+      label: Wartezeit in Stunden bei max. Kollisionen pro 100 km
+    MaxCollisions:
+      fieldset: Max. Kollisionen
+      help: Die maximale Anzahl an Kollisionen, an denen ein Nutzer beteiligt sein
+        darf, bevor er die in den Maps penalty_cost und penalty_action festgelegten
+        Strafen erhält.
+      label: Max. Kollisionen
+    MaxCollisionsPer100km:
+      help: Die maximale Anzahl an Kollisionen pro 100 km, die ein Fahrer auf dem
+        Server haben darf. Gilt für Fahrer, die mehr als max_collisions_per_100km_min_distance
+        gefahren sind.
+      label: Max. Kollisionen pro 100 km
+    MaxCollisionsPer100kmMinDistance:
+      help: Die gefahrene Strecke (in km), ab der max_collisions_per_100km greift.
+      label: Mindeststrecke für max. Kollisionen pro 100 km
+    MaxInfractions:
+      fieldset: Max. Verstöße
+      help: Wie oft ein Fahrer maximal gegen die Serverregeln verstoßen darf (Abkürzen,
+        zu schnelles Fahren, Überfahren der Boxenausfahrtslinie usw.), bevor er die
+        unter Strafkosten und Strafaktionen festgelegten Strafen erhält.
+      label: Max. Verstöße
+    MaxPing:
+      help: Der maximale Ping (in ms), den ein Fahrer haben darf (das Plugin warnt,
+        wenn der aktuelle Ping darüber liegt, und kickt den Fahrer, wenn der Durchschnitt
+        der letzten 4 Messungen über dem Wert liegt). Setze ihn nicht zu niedrig,
+        sonst leidet womöglich die Auslastung des Servers. 0 deaktiviert das Ping-Limit
+        vollständig.
+      label: Max. Ping
+    MaxPingDeviation:
+      help: Die maximale Ping-Abweichung (in ms), bevor die Verbindung eines Fahrers
+        als instabil gilt (das Plugin kickt den Fahrer, wenn die Standardabweichung
+        des Pings in den letzten 4 Messungen über dem Wert liegt). Das ist ein Maß
+        für die Instabilität der Verbindung, die für MP-Rennen wichtig ist. 0 deaktiviert
+        die Funktion.
+      label: Max. Ping-Abweichung
+    MemoryMonitorEnabled:
+      help: Ob die Speicherüberwachung aktiviert wird (unter Linux wird libc6 2.14+
+        benötigt). Aktiviere sie, wenn das Plugin die Speichernutzung überwachen soll
+        (hilfreich bei der Fehlersuche, wenn Probleme mit der Speicherzuweisung zusammenhängen
+        könnten).
+      label: Speicherüberwachung aktiviert
+    MinMoney:
+      help: Mindestbetrag an Geld (in Tausend), den ein Fahrer haben muss, um auf
+        dem Server zu bleiben. 1 = 1000€ (z. B. -12 -> Fahrer mit mehr als 12000€
+        Schulden werden gekickt). Prüfe auch start_money, damit dieser Wert sinnvoll
+        ist.
+      label: Mindestgeld
+    MinimumDrivingStandard:
+      help: Maximal erlaubte Bestenlistenzeit als Anteil der schnellsten Zeit. 1.1
+        = 110% der schnellsten Zeit (d. h. ein Fahrer, der innerhalb von minimum_driving_standard_laps
+        Runden keine Zeit innerhalb von 110% der schnellsten Rundenzeit schafft, wird
+        auf dem Server nicht zugelassen).
+      label: Mindest-Fahrstandard
+    MinimumDrivingStandardLaps:
+      help: Die Anzahl gültiger Runden, die ein Fahrer fahren muss, um den Mindest-Fahrstandard
+        zu erreichen. Gemäß minimum_driving_standard_recharge_period bekommt ein Fahrer
+        nach einigen Tagen eine zweite Chance.
+      label: Runden für den Mindest-Fahrstandard
+    MinimumDrivingStandardMinPlayers:
+      help: Mindestanzahl an Spielern, ab der der Mindest-Fahrstandard durchgesetzt
+        wird. Ist der Wert ungleich 0, wird der Fahrstandard nur durchgesetzt, wenn
+        mehr als die angegebene Anzahl an Spielern auf dem Server ist.
+      label: Mindestanzahl Spieler für den Mindest-Fahrstandard
+    MinimumDrivingStandardRechargePeriod:
+      help: Die Anzahl Sekunden, nach der einem Fahrer, der den Standard nicht erfüllt,
+        eine Runde gutgeschrieben wird (z. B. legt dieser Wert bei minimum_driving_standard_laps
+        = 12 fest, wie lange ein Spieler mit 13 Runden und einer schlechten Zeit warten
+        muss, bevor er dem Server wieder beitreten kann).
+      label: Wiederaufladezeit für den Mindest-Fahrstandard
+    Miscellaneous:
+      label: Sonstiges
+    Money:
+      label: Geld
+    NoMoney:
+      help: Setze dies auf ON, wenn du Punkte statt Geld verwenden willst (no money,
+        no party :D).
+      label: Kein Geld
+    OvertakingUnderVirtualSafety:
+      fieldset: Überholen unter Virtual Safety Car
+    ParkedCarDistance:
+      help: Die Strecke (in Metern), die ein Auto in parked_car_max_seconds zurücklegen
+        muss, um die Erkennung nicht auszulösen. 24 = 24 Meter (ein Auto auf der Strecke,
+        das sich in parked_car_seconds mehr als 24 Meter bewegt, löst die Erkennung
+        nicht aus).
+      label: Strecke für Parkerkennung
+    ParkedCarMaxGrace:
+      help: Wie oft ein Fahrer die Erkennung geparkter Autos auslösen darf, bevor
+        er eine Strafe erhält. 4 = 4-mal (0 deaktiviert diese Erkennung).
+      label: Max. Toleranz für geparkte Autos
+    ParkedCarSeconds:
+      help: Die Anzahl Sekunden für die Erkennung geparkter Autos. 6 = 6s (d. h. ein
+        Fahrer nahe der Strecke, der sich in 6s nicht weiter als parked_car_distance
+        bewegt, löst die Erkennung einmal aus).
+      label: Sekunden für Parkerkennung
+    ParkingNearTrack:
+      fieldset: Parken nahe der Strecke
+    PenaltyActions:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      CutLineYourCustomCutLine:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      FirstBlood:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      HotLapProtection:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      HotLappingCarCollision:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      ImprovingQualifyLapTimeWithInfractions:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      LappingCarCollision:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      LappingProtection:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      MaxCollisions:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      MaxInfractions:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      OvertakingUnderVirtualSafety:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      ParkingNearTrack:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      PitExitLineCrossing:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      PitLaneSpeeding:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      ReverseGear:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      SlowingUnderVirtualSafetyCar:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      SpeedingUnderVirtualSafetyCar:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      TrackBoundaryCut:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      TrackRejoinMaxSpeed:
+        Practice:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Training
+        Qualify:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Qualifying
+        Race:
+          help: DT0 für einen Drive-Through vor Ende der Runde. DT1 für einen Drive-Through
+            vor Ende der folgenden Runde und so weiter. Im Qualifying und Training
+            verhängte DTs müssen im folgenden Rennen abgeleistet werden. K, um sofort
+            zu kicken. TB30 für einen temporären Bann von 30 Minuten. TB60 für einen
+            temporären Bann von 60 Minuten.
+          label: Rennen
+      fieldset: Strafaktionen
+    PenaltyCosts:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      CutLineYourCustomCutLine:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      FirstBlood:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      HotLapProtection:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      HotLappingCarCollision:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      ImprovingQualifyLapTimeWithInfractions:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      LappingCarCollision:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      LappingProtection:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      MaxCollisions:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      MaxInfractions:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      OvertakingUnderVirtualSafety:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      ParkingNearTrack:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      PitExitLineCrossing:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      PitLaneSpeeding:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      ReverseGear:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      SlowingUnderVirtualSafetyCar:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      SpeedingUnderVirtualSafetyCar:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      TrackBoundaryCut:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      TrackRejoinMaxSpeed:
+        Other:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Sonstige
+        Practice:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Training
+        Qualify:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Qualifying
+        Race:
+          help: Die Geldstrafen (in Tausend), die du für die jeweilige Situation verhängen
+            möchtest.
+          label: Rennen
+      fieldset: Strafkosten
+    PenaltyInfractionMap:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      CutLineYourCustomCutLine:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      FirstBlood:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      HotLapProtection:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      HotLappingCarCollision:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      ImprovingQualifyLapTimeWithInfractions:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      LappingCarCollision:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      LappingProtection:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      MaxCollisions:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      MaxInfractions:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      OvertakingUnderVirtualSafety:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      ParkingNearTrack:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      PitExitLineCrossing:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      PitLaneSpeeding:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      ReverseGear:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      SlowingUnderVirtualSafetyCar:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      SpeedingUnderVirtualSafetyCar:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      TrackBoundaryCut:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      TrackRejoinMaxSpeed:
+        Practice:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Training
+        Qualify:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Qualifying
+        Race:
+          help: Wie viele Verstöße du in jeder Session pro Strafe zum Verstoßzähler
+            hinzufügen möchtest.
+          label: Rennen
+      fieldset: Verstoßzähler je Strafe
+    PingCheckInterval:
+      help: Die Anzahl Sekunden zwischen zwei aufeinanderfolgenden Ping-Prüfungen
+        (ein kleinerer Wert kann zu hoher CPU-Last führen). 0 deaktiviert die Ping-Prüfung
+        vollständig.
+      label: Intervall der Ping-Prüfung
+    PitExitLineCrossing:
+      fieldset: Überfahren der Boxenausfahrtslinie
+    PitLaneSpeeding:
+      fieldset: Zu schnell in der Pitlane
+    PitSpeedLimit:
+      help: Das Tempolimit in der Pitlane (in km/h). Oberhalb dieser Geschwindigkeit
+        wird der Drive-Through abgebrochen. 80 = 80km/h (verwende ggf. 81, falls du
+        auf den Speed-Limiter-Bug stößt). Dieser Wert ist erforderlich, setze ihn
+        bitte nicht auf 0.
+      label: Tempolimit in der Pitlane
+    Protections:
+      label: Schutzfunktionen
+    QualifyTopThreeBasePrize:
+      help: Wie viel (in Tausend) die ersten drei Fahrer erhalten, wenn mehr als die
+        angegebene Anzahl an Spielern eine gültige Qualifying-Zeit gefahren hat. 0.5
+        = 500€ (z. B. erhält der Erste 1500, der Zweite 1000, der Dritte 500€).
+      label: Basisprämie für die Top 3 im Qualifying
+    QualifyTopThreePrizeMinPlayers:
+      help: Wie viele Spieler eine Zeit fahren müssen, bevor die Pole-Prämien vergeben
+        werden.
+      label: Mindestanzahl Spieler für die Qualifying-Top-3-Prämie
+    RaceControl:
+      label: Race Control
+    RaceControlCollisionReplayTime:
+      help: Legt fest, wie viele Sekunden das Plugin für jedes Auto im Kollisions-Replay
+        von Race Control zeigt.
+      label: Replay-Dauer für Kollisionen in Race Control
+    RaceControlCollisionSpace:
+      help: Legt den maximalen Abstand in Metern zwischen den beiden vom Assetto-Corsa-Server
+        gemeldeten Positionen derselben Kollision fest (um clientseitige Abweichungen
+        durch Lag auszugleichen). Erhöhe ihn, wenn Kollisionen doppelt gemeldet werden.
+      label: Kollisionsabstand in Race Control
+    RaceControlCollisionTime:
+      help: Legt die maximale Anzahl Sekunden fest, innerhalb derer der Assetto-Corsa-Server
+        Kollisionsdaten für beide Autos liefern muss. Erhöhe sie, wenn Kollisionen
+        doppelt gemeldet werden.
+      label: Kollisionszeit in Race Control
+    RaceControlCutReplayTime:
+      help: Legt fest, wie viele Sekunden das Plugin für jedes Auto im Abkürzungs-Replay
+        von Race Control zeigt.
+      label: Replay-Dauer für Abkürzungen in Race Control
+    RaceControlIncludePlayersNearerThan:
+      help: Autos innerhalb dieser Entfernung (in Metern) vom Auto, das das Race-Control-Event
+        auslöst, werden ins Replay aufgenommen. 100 = 100m (z. B. werden bei einer
+        Kollision alle Fahrer im Umkreis von 100 Metern ins Replay aufgenommen).
+      label: 'Race Control: Spieler einbeziehen, die näher sind als'
+    RaceControlLogOvertakes:
+      help: Setze dies auf 1, wenn das Plugin Überholmanöver protokollieren und im
+        Race-Control-Viewer anzeigen soll (das kann Speicher kosten und die Ansicht
+        mit Events füllen, die für Race Control nicht unbedingt nötig sind).
+      label: Überholmanöver in Race Control protokollieren
+    RaceControlMaxEvents:
+      help: Die maximale Anzahl an Events, die Race Control anzeigen soll.
+      label: Max. Events in Race Control
+    RaceControlOvertakeReplayTime:
+      help: Legt fest, wie viele Sekunden das Plugin für jedes Auto im Überhol-Replay
+        von Race Control zeigt.
+      label: Replay-Dauer für Überholmanöver in Race Control
+    RaceControlPassword:
+      help: Das Passwort, mit dem Race Directors über die Web-Stats-Seite Kollisionen
+        bewerten (muss mindestens 8 Zeichen lang sein, sonst wird die Funktion deaktiviert).
+      label: Race-Control-Passwort
+    RaceDriverEntryFee:
+      help: Wie viel ein Fahrer zahlen muss, um an einer Renn-Session auf dem Server
+        teilzunehmen (in Tausend). 0.3 = 300€ (d. h. Fahrern werden zu Beginn jedes
+        Rennens 300€ berechnet).
+      label: Startgebühr für Fahrer
+    RaceFastestLapPrize:
+      help: Wie viel ein Fahrer für die schnellste Runde des Rennens erhält (in Tausend).
+        0.15 = 150€.
+      label: Prämie für die schnellste Rennrunde
+    RaceMassAccidentCrashTime:
+      help: Die Zeit in Sekunden, über die race_mass_accident_crashed_players_percentage
+        ausgewertet wird. 30 = 30s.
+      label: Zeitfenster für Massenunfälle im Rennen
+    RaceMassAccidentCrashedPlayersPercentage:
+      help: Der Prozentsatz an Spielern, die innerhalb der angegebenen mass_accident_crash_time
+        an einer Kollision beteiligt sein müssen, bevor das Plugin die Massenunfall-Reaktion
+        auslöst (z. B. Virtual Safety Car oder automatischer Neustart). 45 = 45%.
+      label: Anteil verunfallter Spieler für Massenunfall im Rennen
+    RaceMassAccidentMinCrashedPlayers:
+      help: Die Mindestanzahl an Spielern, die verunfallen müssen, damit die Massenunfall-Reaktion
+        ausgelöst wird (z. B. damit das Virtual Safety Car auf Servern mit wenigen
+        Spielern nicht zu oft kommt).
+      label: Mindestanzahl verunfallter Spieler für Massenunfall im Rennen
+    RaceMassAccidentResponse:
+      FirstLap:
+        label: Erste Runde
+      OtherLaps:
+        label: Weitere Runden
+      fieldset: Reaktion auf Massenunfall im Rennen
+    RaceMinimumPlayers:
+      help: Mindestanzahl an Spielern für ein Rennen (muss >=2 sein, wenn du das Geldsystem
+        nutzt). Sind nicht genug Spieler da, überspringt der Server die Renn-Session.
+      label: Mindestanzahl Spieler im Rennen
+    RacePodiumAnnouncement:
+      help: Ob die ersten drei Fahrer am Ende des Rennens verkündet werden.
+      label: Podiumsansage nach dem Rennen
+    RaceSponsorCleanGainOvertakes:
+      help: Wie viele saubere Überholmanöver nötig sind, damit die Sponsoren eine
+        Prämie für Positionsgewinne zahlen (z. B. erhält ein Fahrer bei einem Wert
+        von 5 für 5 saubere Überholmanöver 1000€, bei 10 Überholmanövern 2000€ usw.)
+      label: Saubere Überholmanöver für Sponsorenprämie
+    RaceSponsorCleanGainReward:
+      help: Wie viel Sponsoren einem Fahrer zahlen, der im Rennen 5 saubere Überholmanöver
+        macht (in Tausend). 1 = 1000€. Saubere Überholmanöver sind Positionsgewinne
+        ohne Kollisionen, ausgenommen Gewinne gegenüber Fahrern, die im Rennen die
+        Verbindung trennen.
+      label: Sponsorenprämie für saubere Positionsgewinne
+    RaceSponsorEntryFee:
+      help: Wie viel ein Sponsor zahlt, damit der Fahrer am Rennen teilnimmt (in Tausend).
+        1.5 = 1500€ (d. h. zusammen mit der Startgebühr ergibt dies das gesamte Preisgeld
+        – je höher, desto höher die Rennauszahlungen).
+      label: Sponsoren-Startgeld
+    RaceSponsorRewardBaseLength:
+      help: Die Anzahl km, die nötig ist, um das volle Sponsorengeld zu erhalten (z.
+        B. bei einem Sponsorengeld von 1000€ und einem Wert von 35 zahlen die Sponsoren
+        für ein Rennen von 7 Runden auf einer 5km-Strecke 1000€ pro Auto, bei 14 Runden
+        2000€ pro Auto – so gibt es für längere Rennen höhere Preisgelder).
+      label: Basisdistanz für Sponsorenprämie
+    RaceSponsorRewardBaseTime:
+      help: Die Anzahl Minuten, die nötig ist, um das volle Sponsorengeld zu erhalten
+        (z. B. bei einem Sponsorengeld von 1000€ und einem Wert von 15 zahlen die
+        Sponsoren für ein Rennen von 15 Minuten 1000€ pro Auto, bei 30 Minuten 2000€
+        pro Auto – so gibt es für längere Rennen höhere Preisgelder).
+      label: Basiszeit für Sponsorenprämie
+    RankSortByWinStats:
+      help: Rangliste nach Siegstatistik statt nach Geld sortieren. Wenn du das änderst,
+        musst du die Datenbank zurücksetzen.
+      label: Rangliste nach Siegstatistik sortieren
+    RelativeHotlapProtection:
+      help: Ab welchem Abstand (als Anteil der gesamten Streckenlänge) ein Auto auf
+        der Outlap die Warnung „Lass das andere Auto vorbei“ erhält, wenn es gleich
+        überholt wird. Wird nur verwendet, wenn die Streckenlänge fehlt. 1 ist die
+        gesamte Streckenlänge (0.008 sind 8/1000 der gesamten Streckenlänge).
+      label: Relativer Hotlap-Schutz
+    RelativeLappingProtection:
+      help: Ab welchem Abstand (als Anteil der gesamten Streckenlänge) ein Auto, das
+        überrundet wird, die Warnung „Blaue Flagge“ erhält, wenn es gleich überholt
+        wird. Wird nur verwendet, wenn die Streckenlänge fehlt. 1 ist die gesamte
+        Streckenlänge (0.007 sind 7/1000 der gesamten Streckenlänge).
+      label: Relativer Überrundungsschutz
+    ReservedSlotsAccessKey:
+      help: Der Schlüssel, den VIP-Spieler im Kissmyrank Multiplayer Launcher Mod
+        verwenden müssen, um ihren reservierten Slot zu nutzen. Fahrer mit reserviertem
+        Slot müssen diesen Schlüssel im Eingabefeld des Kissmyrank Multiplayer Launcher
+        Mod (neben dem roten Fragezeichen-Button über der Serverliste) eingeben, bevor
+        sie ihren reservierten Slot nutzen können. Ist dieser Eintrag nicht gesetzt,
+        ist die Funktion für reservierte Slots komplett deaktiviert.
+      label: Zugangsschlüssel für reservierte Slots
+    ReservedSlotsBootPlayersAtRace:
+      help: Ob das Entfernen von Spielern zugunsten reservierter Slots während des
+        Rennens deaktiviert wird. Slots werden pro Auto vom Ende der Startaufstellung
+        her freigegeben (bei voller Startaufstellung trifft es also meist Spieler,
+        die spät beigetreten sind oder mehrere Runden zurückliegen). Setze dies auf
+        1, um reservierte Slots während der Renn-Session komplett zu deaktivieren.
+        In diesem Fall müssen VIP-Spieler warten, bis ein Slot frei wird, oder bis
+        zur nächsten Session.
+      label: 'Reservierte Slots: Spieler im Rennen entfernen'
+    ReservedSlotsGUIDList:
+      help: Eine pro Zeile. Liste der GUIDs der Fahrer, die einen reservierten Slot
+        auf dem Server haben (erfordert den Kissmyrank Multiplayer Launcher Mod).
+        Ist der Server voll und eine dieser GUIDs versucht beizutreten, wird ein Spieler
+        gekickt, um Platz zu machen.
+      label: GUID-Liste für reservierte Slots
+    ReverseGear:
+      fieldset: Rückwärtsgang
+    ReverseGearMaxDistance:
+      help: Die maximale Strecke in Metern, die ein Fahrer auf der Strecke rückwärts
+        fahren darf (0 deaktiviert die Strafe).
+      label: Max. Strecke im Rückwärtsgang
+    RightToBeForgottenChatCommand:
+      help: Ob der Chatbefehl „kmr erase_personal_data_and_ban_myself“ aktiviert wird,
+        mit dem Fahrer ihr Recht auf Vergessenwerden wahrnehmen und alle ihre Statistiken
+        löschen lassen können.
+      label: Chatbefehl für das Recht auf Vergessenwerden
+    RollingStart:
+      help: Ob der Rolling Start von Kissmyrank zu Beginn eines Rennens verwendet
+        wird.
+      label: Rolling Start
+    Rules:
+      label: Regeln
+    SessionHistoryLength:
+      help: Länge des Session-Verlaufs. Wie viele Sessions im Speicher gehalten werden.
+        Ein höherer Wert braucht mehr Speicher.
+      label: Länge des Session-Verlaufs
+    SlowingUnderVirtualSafetyCar:
+      fieldset: Zu langsam unter Virtual Safety Car
+    SpeedUnitFormat:
+      help: Die Geschwindigkeitseinheit für die öffentliche Anzeige. Erlaubte Werte
+        sind kmh und mph. Beachte, dass dies nur kosmetisch für Endnutzer ist und
+        du für alle Konfigurationszwecke weiterhin km/h verwenden musst.
+      label: Format der Geschwindigkeitseinheit
+    SpeedingUnderVirtualSafetyCar:
+      fieldset: Zu schnell unter Virtual Safety Car
+    StartMoney:
+      help: Das Geld (in Tausend), das ein Spieler ohne Rang beim ersten Beitritt
+        zum Server erhält (30=30000€). Prüfe auch min_money, damit dieser Wert sinnvoll
+        ist.
+      label: Startgeld
+    ThousandSeparator:
+      help: Das Trennzeichen für Tausender (z. B. 19,000 oder 19.000).
+      label: Tausendertrennzeichen
+    TimeBasedRaceExtraLap:
+      help: Ob bei zeitbasierten Rennen die Extrarunde in der server_cfg.ini von Assetto
+        Corsa aktiviert ist. Ist die Streckenrotation aktiv, liest das Plugin die
+        Einstellung direkt aus der server_cfg.ini und ignoriert diesen Wert.
+      label: Extrarunde bei zeitbasiertem Rennen
+    TrackBoundaryCut:
+      fieldset: Abkürzen über die Streckenbegrenzung
+    TrackBoundaryCutGainFilter:
+      help: Ob der Filter für Zeitgewinn durch Abkürzen aktiviert wird. Er vergleicht
+        den Vorteil durch die Abkürzung mit der schnellsten Runde der Session und
+        verhängt keine Strafe, wenn der Fahrer dabei Zeit verliert.
+      label: Filter für Zeitgewinn durch Abkürzen
+    TrackBoundaryCutGainFilterMinAverageSpeed:
+      help: Diese Geschwindigkeit (in km/h) legt die Untergrenze des Filters für Zeitgewinn
+        durch Abkürzen fest. 45 = 45km/h (d. h. verliert ein Spieler beim Abkürzen
+        mehr Zeit, als er für den betreffenden Streckenabschnitt bei 45km/h bräuchte,
+        wird die Abkürzung ignoriert). Das ist nur in den ersten Runden nützlich,
+        solange noch keine Vergleichsrunde vorliegt.
+      label: 'Filter für Zeitgewinn durch Abkürzen: min. Durchschnittsgeschwindigkeit'
+    TrackBoundaryCutGainFilterMinLossPercent:
+      help: Der minimale akzeptable Zeitverlust (in Prozent), ab dem der Filter für
+        Zeitgewinn durch Abkürzen die Abkürzung ignoriert. 6=6% (d. h. ein Fahrer,
+        der im Vergleich zur schnellsten Rundenzeit der Session mehr als 6% verliert,
+        erhält keine Strafe).
+      label: 'Filter für Zeitgewinn durch Abkürzen: min. Zeitverlust in Prozent'
+    TrackBoundaryCutMaxSpeed:
+      help: Die maximale Geschwindigkeit (in km/h), mit der ein Fahrer die Streckenbegrenzung
+        überfahren darf.
+      label: Max. Geschwindigkeit beim Abkürzen
+    TrackBoundaryCutMaxTime:
+      help: Die maximale Zeit (in Sekunden) zwischen Beginn und Ende der Abkürzung
+        (Abkürzungen außerhalb dieses Bereichs gelten als Ausflüge neben die Strecke).
+      label: Max. Dauer einer Abkürzung
+    TrackBoundarySameLapCutMaxSpeed:
+      help: Die maximale Geschwindigkeit (in km/h), mit der ein Fahrer nach dem ersten
+        Verstoß die Streckenbegrenzung überfahren darf (gilt sowohl für die Rückkehr
+        auf die Strecke als auch für weitere Abkürzungen).
+      label: Max. Geschwindigkeit bei weiterer Abkürzung in derselben Runde
+    TrackBoundarySampleLength:
+      help: Die Länge (in Metern) eines einzelnen Abschnitts der Streckenbegrenzung
+        (empfohlener Höchstwert ist 3). Erhöhe sie, wenn du auf Kosten der Genauigkeit
+        Speicherplatz sparen willst. Beachte, dass dieser Wert nur für neue Datensätze
+        gilt.
+      label: Abtastlänge der Streckenbegrenzung
+    TrackRejoinMaxSpeed:
+      fieldset: Max. Geschwindigkeit bei Rückkehr auf die Strecke
+      help: Die maximale Geschwindigkeit, mit der ein Fahrer auf die Strecke zurückkehren
+        darf, nachdem er in einem ausgeschlossenen Bereich von der Strecke abgekommen
+        ist oder das Auto neben der Strecke angehalten hat.
+      label: Max. Geschwindigkeit bei Rückkehr auf die Strecke
+    UDPRelay:
+      label: UDP-Relay
+    UDPReplayTo:
+      help: 'Eine pro Zeile. Verwende dies, wenn du UDP-Traffic an andere Plugins
+        weiterleiten willst (z. B. Minorating, Stracker usw.). Das funktioniert so:
+        AC Server <-> Kissmyrank Plugin <-> andere Plugins. Für jedes Plugin musst
+        du die Adresse im Format ip_address:port angeben (z. B. ersetzt du für ein
+        Plugin auf 127.0.0.1 mit Port 12003 UDP_PLUGIN_ADDRESS_1 durch 127.0.0.1:12003).
+        Damit das funktioniert, musst du das andere Plugin so einstellen, als wäre
+        das Kissmyrank Plugin der Assetto-Corsa-Server (z. B. setzt du bei der Standard-Kissmyrank-Konfiguration
+        auf Port 12000 beim anderen Plugin ac_server_plugin_port auf 12000 und ac_server_ip
+        auf die IP des Rechners, auf dem das Kissmyrank Plugin läuft). Prüfe beim
+        Start in der Konsole, ob die Adresse korrekt eingelesen wurde.'
+      label: UDP weiterleiten an
+    VSCDefaultLeaderSlowAllowOvertakeSpeed:
+      help: Legt die Geschwindigkeit in km/h fest, unterhalb der der Führende während
+        des Virtual Safety Car oder der Formationsrunde beim Rolling Start überholt
+        werden darf (damit z. B. ein geparktes Auto nicht alle blockiert).
+      label: 'VSC: Überholgeschwindigkeit für langsamen Führenden'
+    VSCDefaultSlowAndFarAllowOvertakeDistance:
+      help: Legt den Abstand zum vorderen Auto fest, ab dem ein Fahrer während des
+        Virtual Safety Car oder der Formationsrunde beim Rolling Start überholt werden
+        darf, wenn er langsamer als vsc_defalut_slow_and_far_allow_overtake_speed
+        ist.
+      label: 'VSC: Überholabstand für langsame und entfernte Fahrer'
+    VSCDefaultSlowAndFarAllowOvertakeSpeed:
+      help: Legt die Geschwindigkeit in km/h fest, unterhalb der ein Fahrer während
+        des Virtual Safety Car oder der Formationsrunde beim Rolling Start überholt
+        werden darf, wenn er weiter entfernt ist als vsc_defalut_slow_and_far_allow_overtake_distance.
+      label: 'VSC: Überholgeschwindigkeit für langsame und entfernte Fahrer'
+    VSCDefaultSpeedLimit:
+      help: Die maximale Geschwindigkeit (in km/h), die ein Spieler während eines
+        Virtual Safety Car fahren darf.
+      label: 'VSC: Tempolimit'
+    VSCFormationLapFarAllowOvertakeDistance:
+      help: Legt den Abstand zum vorderen Auto fest, ab dem ein Fahrer während der
+        Formationsrunde beim Rolling Start überholt werden darf (da die Autos in der
+        Formationsrunde nah beieinander sein müssen).
+      label: 'VSC: Überholabstand in der Formationsrunde'
+    VSCFormationLapMinSpeed:
+      help: Die Mindestgeschwindigkeit (in km/h), die ein Fahrer während der Formationsrunde
+        beim Rolling Start halten muss (0 deaktiviert dies).
+      label: 'VSC: Mindestgeschwindigkeit in der Formationsrunde'
+    VSCFormationLapSpeedLimit:
+      help: Die maximale Geschwindigkeit (in km/h), die ein Spieler während der Formationsrunde
+        beim Rolling Start fahren darf.
+      label: 'VSC: Tempolimit in der Formationsrunde'
+    VSCOvertakingMaxGrace:
+      help: Die Anzahl Sekunden, die ein Fahrer hat, um die Position zurückzugeben,
+        wenn er während eines Virtual Safety Car oder der Formationsrunde beim Rolling
+        Start ein anderes Auto überholt hat.
+      label: 'VSC: Karenzzeit beim Überholen'
+    VSCSlowingMaxGrace:
+      help: Die Anzahl Sekunden, die ein Fahrer während der Formationsrunde beim Rolling
+        Start unter die Mindestgeschwindigkeit fallen darf.
+      label: 'VSC: Karenzzeit bei zu langsamer Fahrt'
+    VSCSpeedingMaxGrace:
+      help: Die Anzahl Sekunden, die ein Fahrer während eines Virtual Safety Car oder
+        der Formationsrunde beim Rolling Start schneller als das Tempolimit fahren
+        darf.
+      label: 'VSC: Karenzzeit bei zu schneller Fahrt'
+    VirtualSafetyCar:
+      label: Virtual Safety Car
+    WarnedCarGrace:
+      help: Die Zeit in Sekunden, die jedes Auto nach der ersten Warnung hat, um Platz
+        zu machen. Erhöhe sie, um einem gewarnten Fahrer mehr Zeit zu geben, das andere
+        Auto vorbeizulassen.
+      label: Karenzzeit nach Warnung
+    WebAdminConsoleGuestPassword:
+      help: Setze dieses Passwort (mindestens 8 Zeichen), wenn du Lesezugriff auf
+        die Web-Admin-Konsole geben willst. Beachte, dass web_admin_console_password
+        gesetzt sein muss, damit die Konsole überhaupt aktiv ist. Gib dieses Passwort
+        außerdem nur vertrauenswürdigen Mitgliedern, da sie alles sehen, was in der
+        Kissmyrank-Konsole erscheint.
+      label: Gastpasswort für die Web-Admin-Konsole
+    WebAdminConsolePassword:
+      help: Passwort der Web-Admin-Konsole. Das Passwort (mindestens 12 Zeichen, sonst
+        wird die Kissmyrank-Web-Admin-Oberfläche zwangsweise deaktiviert), mit dem
+        du dich an deiner Kissmyrank-Web-Admin-Konsole unter http://yourserver/kissmyrank_admin
+        anmeldest (lautet dein Passwort „yourcomplexpassword“, musst du beim Öffnen
+        der Seite „login yourcomplexpassword“ eingeben, um Zugriff zu erhalten). Lass
+        diesen Schlüssel leer, wenn du die Kissmyrank-Web-Admin-Konsole nicht verwenden
+        willst.
+      label: Passwort der Web-Admin-Konsole
+    WebAuth:
+      label: Web-Auth
+    WebAuthCacheTime:
+      help: Wie lange das Web-Auth-Ergebnis zwischengespeichert wird, in Sekunden
+      label: Cache-Dauer für Web-Auth
+    WebAuthRelayTo:
+      help: Eine pro Zeile. Verwende dies, wenn du Nutzer zusätzlich anhand anderer
+        Plugins sperren willst. Die Werte sind dieselben, die du in der server_cfg.ini
+        von Assetto Corsa für das Drittanbieter-Plugin als AUTH_PLUGIN_ADDRESS setzen
+        würdest (z. B. ersetzt du für Minorating AUTH_PLUGIN_ADDRESS_1 durch plugin.minorating.com:805/minodata/auth/ABCN/?).  Du
+        kannst natürlich auch eine andere Instanz des Kissmyrank-Plugins für Auth
+        verwenden, um serverübergreifend zu sperren, indem du die Kissmyrank-AUTH_PLUGIN_ADDRESS
+        der anderen Plugin-Instanz verwendest. Prüfe beim Start des Plugins in der
+        Konsole, ob die Adresse korrekt eingelesen wurde.
+      label: Web-Auth weiterleiten an
+    WebAuthServerAddress:
+      help: Adresse für Stats-Web-Auth (ändere sie nur, wenn du nur auf einem bestimmten
+        Interface lauschen willst; nicht empfohlen).
+      label: Web-Auth-Serveradresse
+    WebAuthServerPort:
+      help: Port für Stats-Web-Auth. Unter Linux keine Ports unter 1024 verwenden.
+      label: Web-Auth-Serverport
+    WebInterface:
+      label: Weboberfläche
+    WebStatsCacheTime:
+      help: Wie lange die Statistiken zwischengespeichert werden, in Sekunden (ein
+        kleinerer Wert kann die CPU-Last erhöhen)
+      label: Cache-Dauer für Web Stats
+    WebStatsDriversPerPage:
+      help: Fahrer pro Seite in den Web Stats. Legt fest, wie viele Fahrer pro Seite
+        in der Fahrerliste der Web Stats angezeigt werden.
+      label: 'Web Stats: Fahrer pro Seite'
+    WebStatsInterface:
+      help: Ob die Web-Stats-Oberfläche aktiviert wird (erforderlich für Race Control
+        und die Bewertung von Kollisionen durch Race Directors).
+      label: Web-Stats-Oberfläche
+    WebStatsOverridePublicAddress:
+      help: Setze dies auf die öffentliche Web-Stats-Adresse deines Servers, wenn
+        du die automatische Erkennung der öffentlichen Adresse durch das Plugin überschreiben
+        willst.
+      label: Öffentliche Web-Stats-Adresse überschreiben
+    WebStatsOverridePublicPort:
+      help: Setze dies auf den öffentlichen Web-Stats-Port deines Servers, wenn du
+        die Standardeinstellung überschreiben willst (z. B. bei Portweiterleitung,
+        Proxy, Redirect usw.).
+      label: Öffentlichen Web-Stats-Port überschreiben
+    WebStatsPublicURL:
+      help: <strong>Bitte setze diesen Wert, wenn du den Web-Stats-Port verwendest!</strong>
+        Er sollte die URL enthalten, die jeder erreichen kann. Dieser Link wird auf
+        der Live-Timing-Seite von ACPitwall angezeigt, damit jeder die KMR-Oberfläche
+        aufrufen kann. Bleibt das Feld leer, wird auf der Live-Timing-Seite kein Link
+        angezeigt!
+      label: Öffentliche Web-Stats-URL
+    WebStatsResultsShowLapLog:
+      help: Setze dies auf 1, wenn der Rennergebnis-Viewer der Web Stats das Rundenprotokoll
+        enthalten soll (zeigt pro Runde die gefahrenen Zeiten jedes Spielers, die
+        verwendeten Reifen usw.).
+      label: 'Web Stats: Rundenprotokoll in Ergebnissen anzeigen'
+    WebStatsServerAddress:
+      help: Adresse des Stats-Webservers (ändere sie nur, wenn du nur auf einem bestimmten
+        Interface lauschen willst; nicht empfohlen).
+      label: Web-Stats-Serveradresse
+    WebStatsServerPort:
+      help: Port des Stats-Webservers. Unter Linux lies den Abschnitt zur Fehlerbehebung
+        in der Hilfedatei readme.txt.
+      label: Web-Stats-Serverport
+  RealPenaltyConfig:
+    Admin:
+      fieldset: Admin
+    App:
+      fieldset: App
+    BlueFlag:
+      fieldset: Blaue Flagge
+    Crossing:
+      fieldset: Linienüberfahrung
+    CustomShadersPatch:
+      fieldset: Custom Shaders Patch
+    Cutting:
+      fieldset: Abkürzen
+    DRS:
+      fieldset: DRS
+    General:
+      fieldset: Allgemein
+    Helicorsa:
+      fieldset: Helicorsa
+    JumpStart:
+      fieldset: Frühstart
+    NoPenalty:
+      fieldset: Keine Strafe
+    PluginsRelay:
+      fieldset: Plugin-Relay
+    RealPenaltyACSettings:
+      Admin:
+        GUIDs:
+          help: Liste von Steam-GUIDs (durch Semikolon getrennt), die über den Chat
+            Befehle an den Server senden dürfen
+          label: GUIDs
+      App:
+        CheckFrequency:
+          help: Intervall (Sekunden) für die App-Prüfung
+          label: Prüfintervall
+        Mandatory:
+          help: on = Real-Penalty-App ist Pflicht, off = Real-Penalty-App ist keine
+            Pflicht
+          label: Pflicht
+      CustomShadersPatch:
+        CheckFrequency:
+          help: Intervall (Sekunden) für die Prüfung des Custom Shaders Patch
+          label: Prüfintervall
+        Mandatory:
+          help: Setze dies auf ON, wenn alle Fahrer den Custom Shaders Patch (Version
+            0.1.46 oder neuer) haben müssen, um auf dem Server zu fahren. Wenn du
+            diese Option aktivierst, macht die App die Rundenzeit automatisch ungültig
+          label: Pflicht
+      General:
+        CarChecksum:
+          help: Setze dies auf true, wenn du die zusätzliche Auto-Prüfsumme willst
+            (data.acd + collider.kn5, falls beide Dateien auf dem Server vorhanden
+            sind)
+          label: Auto-Prüfsumme
+        CockpitCamera:
+          help: Setze dies auf true, um für alle Fahrer die Cockpitansicht vorzuschreiben.
+            Für Race Direction oder Live-Übertragungen trage die GUIDs im Abschnitt
+            [No_Penalty] ein
+          label: Cockpitkamera
+        FirstCheckTime:
+          help: Verzögerung (Sekunden) nach dem Verbinden eines neuen Fahrers bis
+            zur ersten Prüfung (App + Sol)
+          label: Zeitpunkt der ersten Prüfung
+        TrackChecksum:
+          help: Setze dies auf true, wenn du eine zusätzliche Prüfsumme der Strecke
+            willst (Modell- + kn5-Dateien, falls auf dem Server vorhanden)
+          label: Strecken-Prüfsumme
+        WeatherChecksum:
+          help: Setze dies auf true, wenn du die Wetter-Prüfsumme willst (falls das
+            Wetter auf dem Server vorhanden ist)
+          label: Wetter-Prüfsumme
+      Helicorsa:
+        CarLength:
+          help: Wie lang die Autos sind (in Metern). Leider liefert AC dazu keine
+            Daten
+          label: Autolänge
+        CarWidth:
+          help: Wie breit die Autos sind (in Metern). Leider liefert AC dazu keine
+            Daten
+          label: Autobreite
+        DistanceThreshold:
+          help: Bis zu welcher Entfernung werden Autos gezeichnet?
+          label: Entfernungsschwelle
+        FrontFadeAngle:
+          help: Wenn ein Auto vor dir ausgeblendet wird, wie weich soll es ausblenden?
+            (ebenfalls in Grad, 0 deaktiviert = an/aus)
+          label: Ausblendwinkel vorne
+        FrontFadeOutArc:
+          help: Autos vor dem Spieler in einem Bogen von X Grad ausblenden (0 deaktiviert)
+          label: Ausblendbogen vorne
+        Mandatory:
+          help: Setze dies auf true, wenn die Helicorsa-App für das Rennen Pflicht
+            ist
+          label: Pflicht
+        OpacityThreshold:
+          help: 'Deckkraft-Schwelle: Ab welcher Entfernung (in Metern) sollen die
+            Autos ausgeblendet werden?'
+          label: Deckkraft-Schwelle
+        WorldZoom:
+          help: Zoom der Weltkoordinaten bzw. wie groß die Balken sind
+          label: Welt-Zoom
+      NoPenalty:
+        GUIDs:
+          help: Liste von Steam-GUIDs (durch Semikolon getrennt), die sich ohne App
+            und Sol mit dem Server verbinden dürfen (z. B. für „Race Direction“ oder
+            „Live“)
+          label: GUIDs
+      SafetyCar:
+        CarModel:
+          help: Automodell des Safety Cars
+          label: Automodell
+        GreenLightDelay:
+          help: 'Rolling Start: Verzögerung des grünen Lichts nach dem roten Signal
+            (Sekunden)'
+          label: Verzögerung grünes Licht
+        NormalizedLightOffPosition:
+          help: 'Rolling Start: normalisierte Position (0 = Start, 1 = Ende) des ersten
+            Fahrers, an der die App das SC-Signal ausschaltet'
+          label: Normalisierte Position für Licht aus
+        NormalizedStartPosition:
+          help: 'Rolling Start: normalisierte Position (0 = Start, 1 = Ende) des ersten
+            Fahrers, an der die App das rote Signal einschaltet. START_NORMALIZED_POSITION
+            muss größer sein als LIGHT_OFF_NORMALIZED_POSITION'
+          label: Normalisierte Startposition
+        RaceStartBehindSC:
+          help: Setze dies auf true, wenn das Rennen nach der ersten Runde hinter
+            dem Safety Car startet (funktioniert mit oder ohne echtes Safety Car auf
+            dem Server)
+          label: Rennstart hinter dem SC
+      Sol:
+        CheckFrequency:
+          help: Intervall (Sekunden) für die Sol-Prüfung
+          label: Prüfintervall
+        Mandatory:
+          help: Setze dies auf true, wenn das Event mit dem Tag-Nacht-Übergang des
+            Sol-Mods gefahren wird
+          label: Pflicht
+        PerformanceModeAllowed:
+          help: Setze dies auf true, wenn der Performance-Modus von Sol erlaubt ist
+          label: Performance-Modus erlaubt
+    RealPenaltyAppConfig:
+      General:
+        AppTCPPort:
+          help: TCP-Port, auf dem für die AC-App gelauscht wird (in Firewall/Router
+            öffnen). Muss einer von 53000, 53001, 53002 bis 53020 sein oder der Port
+            aus der AC-Server-Konfiguration HTTP_PORT + 27. Die App probiert all diese
+            Ports auf der IP-Adresse des AC-Servers durch (bis die richtige Verbindung
+            gefunden ist)
+          label: App-TCP-Port
+        AppUDPPort:
+          help: UDP-Port, auf dem für die AC-App gelauscht wird (in Firewall/Router
+            öffnen). Jeder freie UDP-Port ist in Ordnung
+          label: App-UDP-Port
+        EnableRealPenalty:
+          help: Real Penalty ein- oder ausschalten
+          label: Real Penalty aktivieren
+      PluginsRelay:
+        OtherUDPPlugin:
+          help: 'Liste aller anderen UDP-Plugins, die mit dem AC-Server verbunden
+            sind (Format: IP:Ports – durch Semikolon getrennt)'
+          label: Weitere UDP-Plugins
+        UDPPort:
+          help: Liste der UDP-Ports, auf denen alle anderen verbundenen Plugins lauschen
+            (durch Semikolon getrennt)
+          label: UDP-Port
+    RealPenaltySettings:
+      BlueFlag:
+        QualifyTimeThreshold:
+          help: Zeitabstand (Sekunden), ab dem im Qualifying die blaue Flagge gezeigt
+            wird
+          label: Zeitschwelle im Qualifying
+        RaceTimeThreshold:
+          help: Zeitabstand (Sekunden), ab dem im Rennen die blaue Flagge gezeigt
+            wird
+          label: Zeitschwelle im Rennen
+      Crossing:
+        PenaltyType:
+          help: Strafart für das Überfahren der Linie. dt = Drive-Through, sgn = Stop-and-Go
+            n Sekunden, n = n Sekunden, die am Ende des Rennens addiert werden
+          label: Strafart
+      Cutting:
+        EnableTyresDirtLevel:
+          help: Verschmutzte Reifen beim Abkürzen
+          label: Reifenverschmutzung aktivieren
+        EnabledDuringSafetyCar:
+          help: Abkürzungsstrafe auch während Safety Car oder Virtual Safety Car aktiv
+          label: Während Safety Car aktiv
+        MaxCutTime:
+          help: Die maximale Dauer einer Abkürzung (in Sekunden), die eine Warnung
+            auslöst. Ist sie zu lang, können Unfälle neben der Strecke Abkürzungswarnungen
+            auslösen
+          label: Max. Abkürzungsdauer
+        MinSlowDownRatio:
+          help: Das minimale Verhältnis der Geschwindigkeit beim Verlassen der Strecke
+            zur Geschwindigkeit bei der Rückkehr auf die Strecke, das eine Warnung
+            auslöst. Ein Verhältnis darunter bedeutet, dass das Auto langsamer geworden
+            ist und jeden Vorteil wieder abgegeben hat; dann wird keine Warnung ausgelöst.
+            0.9 bedeutet, das Auto kehrt mit 90% der Geschwindigkeit auf die Strecke
+            zurück, mit der es sie verlassen hat. Ein Wert < 1 bedeutet, das Auto
+            ist während der Abkürzung langsamer geworden; ein Wert > 1, es ist schneller
+            geworden
+          label: Min. Verlangsamungsverhältnis
+        MinSpeed:
+          help: Die Mindestgeschwindigkeit in km/h, ab der eine Abkürzung gewertet
+            wird
+          label: Mindestgeschwindigkeit
+        PenaltyType:
+          help: Strafart für Abkürzen. dt = Drive-Through, sgn = Stop-and-Go n Sekunden,
+            n = n Sekunden, die am Ende des Rennens addiert werden
+          label: Strafart
+        PostCuttingTime:
+          help: Bonuszeit nach der Rückkehr auf die Strecke. Sinkt die Geschwindigkeit
+            in dieser Zeit --> keine Abkürzung! Setze 0 für Abkürzungsprüfungen wie
+            bei PLP (keine Prüfung nach der Rückkehr auf die Strecke)
+          label: Zeit nach dem Abkürzen
+        QualifyMaxSectorOutSpeed:
+          help: Anfängliche maximal erlaubte Geschwindigkeit im Qualifying auf der
+            Startlinie nach einer Abkürzung in der letzten Kurve. WICHTIG! Passe diesen
+            Wert an Strecke und Autos an!
+          label: 'Qualifying: max. Geschwindigkeit am Sektorende'
+        QualifySlowDownSpeed:
+          help: Wer auf diese Geschwindigkeit (km/h) abbremst, bei dem verschwindet
+            im Qualifying die Meldung INVALID LAP, SLOW DOWN
+          label: 'Qualifying: Abbremsgeschwindigkeit'
+        QualifySlowDownSpeedRatio:
+          help: Faktor für QUALIFY_MAX_SECTOR_OUT_SPEED. Die maximal erlaubte Geschwindigkeit
+            auf der Startlinie nach einer Abkürzung = QUALIFY_MAX_SECTOR_OUT_SPEED
+            (oder neue Höchstgeschwindigkeit des Fahrers) * QUALIFY_SLOW_DOWN_SPEED_RATIO
+          label: 'Qualifying: Faktor für Abbremsgeschwindigkeit'
+        SecondsBetweenCuts:
+          help: Nach einer Abkürzung wird so viele Sekunden lang keine weitere gewertet
+          label: Sekunden zwischen Abkürzungen
+        TotalCutWarnings:
+          help: Wie viele Warnungen erlaubt sind, bevor eine Strafe verhängt wird
+          label: Abkürzungswarnungen gesamt
+        WheelsOut:
+          help: Die maximale Anzahl an Rädern, die die Strecke verlassen dürfen
+          label: Räder neben der Strecke
+      DRS:
+        BonusTime:
+          help: Wie viele Sekunden das DRS bei jeder unerlaubten Nutzung offen bleiben
+            darf, bevor eine Strafe folgt
+          label: Bonuszeit
+        EnabledAfterLaps:
+          help: DRS ab Runde N nach dem Start freigegeben (+1 bei Rolling Start mit
+            SC – Datei ac_settings.ini)
+          label: Freigegeben nach Runden
+        EnabledDuringSafetyCar:
+          help: DRS-Strafe auch während Safety Car oder Virtual Safety Car aktiv
+          label: Während Safety Car aktiv
+        Gap:
+          help: Max. Abstand in Sekunden zum vorderen Auto
+          label: Abstand
+        MaxIllegalUses:
+          help: Wie oft ein Fahrer das DRS in jedem Sektor unerlaubt öffnen darf,
+            bevor eine Strafe folgt
+          label: Max. unerlaubte Nutzungen
+        MinSpeed:
+          help: Ist die Geschwindigkeit des Autos < MIN SPEED, gibt es keine Strafe
+            für unerlaubte DRS-Nutzung
+          label: Mindestgeschwindigkeit
+        OmitCars:
+          help: Liste der Autos ohne DRS, durch Semikolon getrennt.
+          label: Ausgenommene Autos
+        PenaltyType:
+          help: Strafart für unerlaubte DRS-Nutzung. dt = Drive-Through, sgn = Stop-and-Go
+            n Sekunden, n = n Sekunden, die am Ende des Rennens addiert werden
+          label: Strafart
+      General:
+        EnableCrossingPenalties:
+          help: Setze dies auf true, um die Strafe für das Überfahren der Linie an
+            der Boxenausfahrt zu aktivieren
+          label: Strafen für Linienüberfahrung aktivieren
+        EnableCuttingPenalties:
+          help: Setze dies auf true, um Abkürzungsstrafen zu aktivieren; false gibt
+            nur Warnungen aus
+          label: Abkürzungsstrafen aktivieren
+        EnableDRSPenalties:
+          help: Setze dies auf true, um DRS-Strafen zu aktivieren (nur für Autos mit
+            DRS)
+          label: DRS-Strafen aktivieren
+        EnableSpeedingPenalties:
+          help: Setze dies auf true, um Strafen für zu schnelles Fahren in der Pitlane
+            zu aktivieren
+          label: Geschwindigkeitsstrafen aktivieren
+        LapsToTakePenalty:
+          help: In wie vielen Runden ein Fahrer eine Strafe antreten muss. Wenn LAPS_TO_TAKE_PENALTY
+            > 2 --> Frühstart ist wegen der AC-Grenze immer 2!
+          label: Runden zum Antreten der Strafe
+        LastLapsWithoutPenalty:
+          help: Erhält ein Fahrer in den letzten N Runden eine Strafe (N = LAPS_TO_TAKE_PENALTY
+            + LAST_LAPS_WITHOUT_PENALTY), darf er bis zum Rennende fahren, ohne sie
+            anzutreten, erhält aber eine Zeitstrafe! (Drive-Through = PENALTY_SECONDS,
+            Stop & Go 10 = PENALTY_SECONDS + 10, .......)
+          label: Letzte Runden ohne Strafe
+        LastTimeWithoutPenalty:
+          help: Nur für Zeitrennen – Sekunden vor dem Ende der Renndauer (denk daran,
+            dass die optionale +1 Runde zusätzlich kommt), in denen keine Strafe mehr
+            angetreten werden muss. Alle nicht angetretenen Strafen ----> Strafsekunden,
+            die zur finalen Rennzeit addiert werden (im Chat und Log). Standard 360
+            (6 Minuten). WICHTIG! Passe diesen Wert an Strecke, Autos und die zusätzliche
+            Runde an (ca. 3/5 Runden, aber abhängig von LAPS_TO_TAKE_PENALTY)
+          label: Letzte Zeit ohne Strafe
+        PenaltySeconds:
+          help: Anzahl Sekunden, die für alle im Rennen nicht angetretenen Strafen
+            manuell zum finalen Rennergebnis addiert werden
+          label: Strafsekunden
+      JumpStart:
+        PenaltyType0:
+          help: Strafart für Frühstart. Keine Sekundenstrafe setzen! dt = Drive-Through,
+            sgn = Stop-and-Go n Sekunden, dsq = Disqualifikation --> Kick
+          label: Strafart 0
+        PenaltyType1:
+          label: Strafart 1
+        PenaltyType2:
+          label: Strafart 2
+        SpeedLimitPenalty0:
+          label: Geschwindigkeitsgrenze Strafe 0
+        SpeedLimitPenalty1:
+          help: Strafart für Frühstart. Keine Sekundenstrafe setzen! dt = Drive-Through,
+            sgn = Stop-and-Go n Sekunden, dsq = Disqualifikation --> Kick
+          label: Geschwindigkeitsgrenze Strafe 1
+        SpeedLimitPenalty2:
+          help: Strafart für Frühstart. Keine Sekundenstrafe setzen! dt = Drive-Through,
+            sgn = Stop-and-Go n Sekunden, dsq = Disqualifikation --> Kick
+          label: Geschwindigkeitsgrenze Strafe 2
+      Speeding:
+        PenaltyType0:
+          help: Strafart für zu schnelles Fahren. dt = Drive-Through, sgn = Stop-and-Go
+            n Sekunden, n = n Sekunden, die am Ende des Rennens addiert werden, dsq
+            = Disqualifikation --> Kick
+          label: Strafart 0
+        PenaltyType1:
+          help: Strafart für zu schnelles Fahren. dt = Drive-Through, sgn = Stop-and-Go
+            n Sekunden, n = n Sekunden, die am Ende des Rennens addiert werden, dsq
+            = Disqualifikation --> Kick
+          label: Strafart 1
+        PenaltyType2:
+          help: Strafart für zu schnelles Fahren. dt = Drive-Through, sgn = Stop-and-Go
+            n Sekunden, n = n Sekunden, die am Ende des Rennens addiert werden, dsq
+            = Disqualifikation --> Kick
+          label: Strafart 2
+        PitLaneSpeed:
+          help: Die Geschwindigkeit in km/h, ab der du in der Pitlane als zu schnell
+            giltst. Erhöhe sie, um bei der Einfahrt in die Pitlane mehr Toleranz zu
+            geben
+          label: Pitlane-Geschwindigkeit
+        SpeedLimitPenalty0:
+          label: Geschwindigkeitsgrenze Strafe 0
+        SpeedLimitPenalty1:
+          label: Geschwindigkeitsgrenze Strafe 1
+        SpeedLimitPenalty2:
+          label: Geschwindigkeitsgrenze Strafe 2
+    SafetyCar:
+      fieldset: Safety Car
+    Sol:
+      fieldset: Sol
+    Speeding:
+      fieldset: Zu schnelles Fahren
+  StrackerConfiguration:
+    ACPlugin:
+      ProxyPluginLocalPort:
+        help: Das AC-Serverprotokoll auf diesen Ports weiterreichen (Proxy), damit
+          mehrere Plugins verkettet werden können (entspricht UDP_PLUGIN_LOCAL_PORT
+          in server_cfg.ini)
+        label: Lokaler Proxy-Plugin-Port
+      ProxyPluginPort:
+        help: Das AC-Serverprotokoll auf diesen Ports weiterreichen (Proxy), damit
+          mehrere Plugins verkettet werden können (entspricht UDP_PLUGIN_ADDRESS in
+          server_cfg.ini)
+        label: Proxy-Plugin-Port
+      ReceivePort:
+        help: UDP-Port, von dem das Plugin empfängt. -1 bedeutet, die AC-Server-Einstellung
+          UDP_PLUGIN_ADDRESS zu verwenden
+        label: Empfangsport
+      SendPort:
+        help: UDP-Port, an den das Plugin sendet. -1 bedeutet, die AC-Server-Einstellung
+          UDP_PLUGIN_LOCAL_PORT zu verwenden
+        label: Sendeport
+      fieldset: AC-Plugin
+    Database:
+      DatabaseFile:
+        help: Nur relevant bei database_type=sqlite3. Pfad zur stracker-Datenbank.
+          Ein relativer Pfad ist relativ zur ausführbaren Datei <stracker>
+        label: Datenbankdatei
+      DatabaseType:
+        help: Gültige Werte sind 'sqlite3' und 'postgres'. Wählt die zu verwendende
+          Datenbank.
+        label: Datenbanktyp
+      PerformBackups:
+        help: 'Setze dies auf OFF, wenn stracker die Datenbank vor der Migration auf
+          eine neue DB-Version nicht sichern soll. Hinweis: Die Backups werden als
+          sqlite3-DB im aktuellen Arbeitsverzeichnis angelegt.'
+        label: Backups erstellen
+      PostgresDatabaseName:
+        help: Der Name der Postgres-Datenbank
+        label: Postgres-Datenbankname
+      PostgresHostname:
+        help: Name des Hosts, auf dem der PostgreSQL-Server läuft.
+        label: Postgres-Hostname
+      PostgresPassword:
+        help: Passwort des PostgreSQL-Benutzers
+        label: Postgres-Passwort
+      PostgresUsername:
+        help: Name des PostgreSQL-Benutzers
+        label: Postgres-Benutzername
+      fieldset: Datenbank
+    DatabaseCompression:
+      Interval:
+        help: Intervall der Datenbankkomprimierung in Minuten
+        label: Intervall
+      Mode:
+        help: Verschiedene Optionen, um die Datenbankgröße zu minimieren. Gültige
+          Werte sind 'none' (keine Komprimierung, alle verfügbaren Infos speichern),
+          'remove_slow_laps' (detaillierte Infos nur für schnelle Runden speichern)
+          und 'remove_all' (keine detaillierten Rundeninfos speichern).
+        label: Modus
+      NeedsEmptyServer:
+        help: Wenn auf ON, wird die Datenbank nur komprimiert, wenn der Server leer
+          ist.
+        label: Leeren Server voraussetzen
+      fieldset: Datenbankkomprimierung
+    EnableStracker:
+      help: Stracker ein- oder ausschalten
+      label: Stracker aktivieren
+    HTTPConfiguration:
+      AdminPassword:
+        help: Passwort für die stracker-Adminseiten. Bleibt es leer, sind die Adminseiten
+          deaktiviert
+        label: Admin-Passwort
+      AdminUsername:
+        help: Benutzername für die stracker-Adminseiten. Bleibt er leer, sind die
+          Adminseiten deaktiviert
+        label: Admin-Benutzername
+      AuthBanAnonymisedPlayers:
+        help: Anonymisierte Spieler zur Sperrliste hinzufügen.
+        label: 'Auth: anonymisierte Spieler sperren'
+      AuthLogFile:
+        help: Gib eine Datei an, in der HTTP-Authentifizierungsanfragen protokolliert
+          werden. Nützlich, um Angriffe mit externen Programmen abzuwehren (z. B.
+          fail2ban).
+        label: Auth-Logdatei
+      Banner:
+        help: Icon für die Webseiten (leer lassen für das Standard-Icon von Assetto
+          Corsa)
+        label: Banner
+      EnableSVGGeneration:
+        help: Setze dies auf OFF, wenn du keine SVG-Grafiken in der HTTP-Ausgabe willst
+          (spart Bandbreite)
+        label: SVG-Erzeugung aktivieren
+      Enabled:
+        label: Aktiviert
+      InverseNavbar:
+        help: Setze dies auf true, um die Navigationsleiste invertiert darzustellen
+          (d. h. dunkel statt hell)
+        label: Navigationsleiste invertieren
+      ItemsPerPage:
+        help: Anzahl der Einträge pro Seite
+        label: Einträge pro Seite
+      LapTimesAddColumns:
+        help: Zusätzliche Spalten in der Tabelle LapTimes (durch ein +-Zeichen getrennt).
+          Mögliche Spalten sind 'valid', 'aids', 'laps', 'date', 'grip', 'cuts', 'collisions',
+          'tyres', 'temps', 'ballast' und 'vmax'. Beachte, dass zu viele Spalten in
+          manchen Browsern Probleme verursachen können.
+        label: Zusätzliche Spalten für Rundenzeiten
+      ListenAddress:
+        help: Listen-Adresse des HTTP-Servers (normalerweise musst du den Standardwert
+          0.0.0.0 nicht ändern; er bedeutet, dass sich das ganze Internet mit dem
+          Server verbinden kann)
+        label: Listen-Adresse
+      ListenPort:
+        help: TCP-Port, auf dem der HTTP-Server lauscht
+        label: Listen-Port
+      LogRequests:
+        help: Wenn auf ON, werden HTTP-Anfragen in stracker.log protokolliert, sonst
+          nicht.
+        label: Anfragen protokollieren
+      MaximumStreamingClients:
+        help: Maximale Anzahl an Streaming-Clients (LiveMap-/Log-Nutzer), die sich
+          gleichzeitig mit diesem Server verbinden dürfen. Die Anzahl der Threads
+          für die HTTP-Auslieferung ist max(10, max_streaming_clients + 5)
+        label: Max. Streaming-Clients
+      PublicURL:
+        help: Hier kannst du die URL angeben, unter der die sTracker-Weboberfläche
+          läuft. Dieser Link wird auf der Live-Timing-Seite von ACPitwall angezeigt,
+          damit jeder die sTracker-Oberfläche aufrufen kann. Bleibt das Feld leer,
+          wird eine ältere und <em>nicht empfohlene</em> Proxy-Methode von ACPitwall
+          verwendet, um die sTracker-Oberfläche anzuzeigen!
+        label: Öffentliche URL
+      SSL:
+        help: Setze dies auf true, wenn du HTTPS verwenden willst. Dafür brauchst
+          du ein SSL-Zertifikat und einen Schlüssel. Wenn du diese Option aktivierst,
+          erreichst du stracker unter https://ip:port/ statt http://ip:port/
+        label: SSL
+      SSLCertificate:
+        help: Pfad zum SSL-Zertifikat für HTTPS. Wird nur verwendet, wenn ssl True
+          ist. Ein selbstsigniertes Zertifikat kannst du mit 'openssl req -new -x509
+          -days 365 -key privkey.pem -out cert.pem' erzeugen
+        label: SSL-Zertifikat
+      SSLPrivateKey:
+        help: Pfad zum privaten SSL-Schlüssel für HTTPS. Wird nur verwendet, wenn
+          ssl True ist. Einen privaten Schlüssel kannst du mit 'openssl genrsa -out
+          privkey.pem 2048' erzeugen
+        label: Privater SSL-Schlüssel
+      TemperatureUnit:
+        help: Gültige Werte sind 'degc' oder 'degf'
+        label: Temperatureinheit
+      VelocityUnit:
+        help: Gültige Werte sind 'kmh' oder 'mph'
+        label: Geschwindigkeitseinheit
+      fieldset: HTTP-Konfiguration
+    InstanceConfiguration:
+      ACServerAddress:
+        help: IP-Adresse oder Name des Servers, von dem Ergebnisse abgefragt werden.
+          Den Standardwert 127.0.0.1 solltest du nicht ändern
+        label: AC-Serveradresse
+      AppendLogFile:
+        help: Setze dies auf ON, wenn an Logdateien angehängt werden soll, statt sie
+          zu überschreiben. Nur sinnvoll mit externer Logrotation.
+        label: An Logdatei anhängen
+      IDBasedOnDriverNames:
+        help: Normalerweise solltest du den Standardwert (OFF) beibehalten. Anwendungsfall
+          ist eine Umgebung, in der derselbe Steam-Account von verschiedenen Fahrern
+          genutzt wird.
+        label: ID anhand der Fahrernamen
+      KeepAlivePtrackerConnections:
+        help: Setze dies auf OFF, wenn du die TCP-Option keep_alive deaktivieren willst
+          (das war das Verhalten vor 3.1.7).
+        label: Ptracker-Verbindungen aufrechterhalten (Keep-Alive)
+      ListeningPort:
+        help: Port für eingehende Verbindungen von ptracker. Muss einer von 50042,
+          50043, 54242, 54243, 60023, 60024, 62323, 62324, 42423, 42424, 23232, 23233,
+          AC-UDP-Port +42 sein; ptracker probiert all diese Ports auf der IP-Adresse
+          des AC-Servers durch (bis eine bessere Lösung gefunden ist...)
+        label: Listen-Port
+      LogFile:
+        help: Name der stracker-Logdatei (UTF-8-kodiert), alle Meldungen landen dort
+        label: Logdatei
+      LogLevel:
+        help: Gültige Werte sind 'info', 'debug' und 'dump'. Verwende 'dump' nur zur
+          Fehleranalyse, die Logdateien können sehr groß werden.
+        label: Log-Level
+      LogTimestamps:
+        help: Setze dies auf ON, wenn den Logmeldungen ein Zeitstempel vorangestellt
+          werden soll
+        label: Zeitstempel im Log
+      LowerPriority:
+        help: Setze dies auf ON, wenn stracker seine Priorität senken soll. Verwendet
+          BELOW_NORMAL unter Windows und nice(5) unter Linux.
+        label: Niedrigere Priorität
+      PerformChecksumComparisons:
+        help: Setze dies auf ON, wenn stracker die Prüfsummen der Spieler vergleichen
+          soll.
+        label: Prüfsummen vergleichen
+      PtrackerConnectionMode:
+        help: 'Lege fest, welche ptracker-Instanzen sich verbinden dürfen: Gültige
+          Werte sind ''any'', ''newer'' oder ''none''.'
+        label: Ptracker-Verbindungsmodus
+      ServerName:
+        help: Name des Servers; Sessions in der Datenbank werden mit diesem Namen
+          markiert; nützlich, wenn mehrere Server parallel dieselbe Datenbank nutzen
+        label: Servername
+      TeeToStdout:
+        help: Setze dies auf ON, wenn die Meldungen auf stdout erscheinen sollen (in
+          den Plugin-Logs von ACPitwall)
+        label: Auf stdout ausgeben (tee)
+      fieldset: Instanzkonfiguration
+    LapValidChecks:
+      InvalidateOnCarCollisions:
+        help: Wenn ON, machen Kollisionen mit anderen Autos Runden ungültig
+        label: Bei Kollisionen mit Autos ungültig
+      InvalidateOnEnvironmentCollisions:
+        help: Wenn ON, machen Kollisionen mit Objekten der Umgebung Runden ungültig
+        label: Bei Kollisionen mit der Umgebung ungültig
+      PtrackerAllowedTyresOut:
+        help: 'Bei -1: Strafeinstellung des Servers verwenden, falls vorhanden, sonst
+          2. Alle anderen Werte werden an ptracker übergeben.'
+        label: 'Ptracker: erlaubte Reifen neben der Strecke'
+      fieldset: Prüfungen für gültige Runden
+    Messages:
+      BestLapTimeBroadcastThreshold:
+        help: Rundenzeiten unter dieser Schwelle (in Prozent der Bestzeit) werden
+          allen als beste Runden mitgeteilt. Rundenzeiten darüber werden nur dem Spieler,
+          der sie gefahren hat, privat mitgeteilt.
+        label: Schwelle für Bestzeit-Broadcast
+      CarToCarCollisionMessage:
+        help: Setze dies auf ON, um private Nachrichten von Auto zu Auto zu aktivieren.
+        label: Kollisionsnachricht von Auto zu Auto
+      MessageTypesToSendOverChat:
+        help: Verfügbare Nachrichtentypen sind 'enter_leave','best_lap','checksum_errors','welcome','race_finished'
+          und 'collision'. Verbinde sie mit einem +-Zeichen ohne Leerzeichen.
+        label: Nachrichtentypen für den Chat
+      fieldset: Nachrichten
+    SessionManagement:
+      RaceOverStrategy:
+        help: 'Was passiert, wenn das Rennen vorbei ist und kein Spieler mehr aktiv
+          fährt. Gültige Werte sind: ''none'' oder ''skip''.'
+        label: Strategie nach Rennende
+      WaitSecondsBeforeSkip:
+        help: Anzahl Sekunden, die gewartet wird, bevor die Session übersprungen wird
+          (wenn die Strategie nach Rennende auf 'skip' steht)
+        label: Wartezeit vor dem Überspringen in Sekunden
+      fieldset: Session-Verwaltung
+    SwearFilter:
+      Action:
+        help: Gültige Werte sind 'none', 'kick' und 'ban'
+        label: Aktion
+      BanDuration:
+        help: Die Anzahl Tage, für die ein Spieler gesperrt wird (wenn die Aktion
+          'ban' ist)
+        label: Sperrdauer
+      NumberOfWarnings:
+        help: Die Anzahl an Warnungen, bevor der Spieler gekickt wird
+        label: Anzahl Warnungen
+      SwearFile:
+        help: Eine Datei mit Schimpfwörtern für die Filterung
+        label: Schimpfwort-Datei
+      Warning:
+        help: Die Nachricht, die ein Spieler nach Erkennung eines Schimpfworts erhält
+        label: Warnung
+      fieldset: Schimpfwortfilter
+    WelcomeMessage:
+      Line1:
+        label: Zeile 1
+      Line2:
+        label: Zeile 2
+      Line3:
+        label: Zeile 3
+      Line4:
+        label: Zeile 4
+      Line5:
+        label: Zeile 5
+      Line6:
+        label: Zeile 6
+      fieldset: Willkommensnachricht
