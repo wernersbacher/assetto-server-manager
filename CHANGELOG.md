@@ -22,6 +22,8 @@ Changed:
 
 Fixed:
 
+* The Steam login (fill in the Steam GUID on the sign-up form and the account details) did nothing after returning from Steam when ACPitwall runs behind a reverse proxy. The return address now follows `X-Forwarded-Proto` / `X-Forwarded-Host`, and a failed login shows the reason (and is logged) instead of failing silently. The unmaintained steam_go library was replaced by a built-in OpenID check; no Steam API key is needed.
+
 * Saving a race weekend session (and a championship event) failed with "The maximum number of clients must be at least 1." because the session form has no such field; the number is set from the entry list when the session starts.
 
 * Saving a championship no longer shuffles the order of the entrants: the pit boxes of the entrants were overwritten in a random order while the entries were collected for autofill, so the entry list of a class came back in a different order after saving (and new events got a random grid order). The entry list now keeps the order of the form, also after deleting and adding entrants. In the custom race form, an entrant added after deleting one in the middle no longer takes the Grid/Pit ID of another entrant (and replaces it); it gets the next free ID.

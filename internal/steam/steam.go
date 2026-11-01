@@ -2,13 +2,30 @@
 package steam
 
 import (
+	"errors"
 	"fmt"
-	"io"
+	"html"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"regexp"
+	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/solovev/steam_go"
 )
+
+const (
+	openIDNamespace  = "http://specs.openid.net/auth/2.0"
+	openIDIdentifier = "http://specs.openid.net/auth/2.0/identifier_select"
+)
+
+// loginURL is the OpenID endpoint of Steam (a variable for tests).
+var loginURL = "https://steamcommunity.com/openid/login"
+
+var claimedIDRegexp = regexp.MustCompile(`^https?://steamcommunity\.com/openid/id/([0-9]{15,25})$`)
+
+var httpClient = &http.Client{Timeout: 15 * time.Second}
 
 // LoginHandler is embedded by handlers that offer a Steam login.
 type LoginHandler struct{}
@@ -16,16 +33,16 @@ type LoginHandler struct{}
 // RedirectToSteamLogin redirects to Steam and, once validated, back to backURLFunc with the steamGUID.
 func (slh *LoginHandler) RedirectToSteamLogin(backURLFunc func(r *http.Request) string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		opID := steam_go.NewOpenId(r)
-		switch opID.Mode() {
+		query := r.URL.Query()
+
+		switch query.Get("openid.mode") {
 		case "":
-			http.Redirect(w, r, opID.AuthUrl(), http.StatusPermanentRedirect)
+			http.Redirect(w, r, authURL(r), http.StatusFound)
 		case "cancel":
 			logrus.Error("Steam authorization cancelled")
 			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-			return
 		default:
-			steamID, err := opID.ValidateAndGetId()
+			steamID, err := validate(r)
 
 			if err != nil {
 				logrus.WithError(err).Error("Could not validate steamID")
@@ -33,24 +50,121 @@ func (slh *LoginHandler) RedirectToSteamLogin(backURLFunc func(r *http.Request) 
 				return
 			}
 
-			clientSideRedirect(backURLFunc(r)+"?steamGUID="+steamID, w)
+			clientSideRedirect(backURLFunc(r)+"?steamGUID="+url.QueryEscape(steamID), w)
 		}
 	}
 }
 
+// root returns scheme and host of the request as the browser sees them, also behind a reverse proxy.
+func root(r *http.Request) string {
+	scheme := "http"
+
+	if r.TLS != nil {
+		scheme = "https"
+	}
+
+	if proto := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-Proto"), ",")[0]); proto == "http" || proto == "https" {
+		scheme = proto
+	}
+
+	host := r.Host
+
+	if forwarded := strings.TrimSpace(strings.Split(r.Header.Get("X-Forwarded-Host"), ",")[0]); forwarded != "" {
+		host = forwarded
+	}
+
+	return scheme + "://" + host
+}
+
+// returnTo is the URL of the current handler without any query.
+func returnTo(r *http.Request) string {
+	return root(r) + r.URL.Path
+}
+
+func authURL(r *http.Request) string {
+	values := url.Values{}
+	values.Set("openid.ns", openIDNamespace)
+	values.Set("openid.mode", "checkid_setup")
+	values.Set("openid.claimed_id", openIDIdentifier)
+	values.Set("openid.identity", openIDIdentifier)
+	values.Set("openid.realm", root(r))
+	values.Set("openid.return_to", returnTo(r))
+
+	return loginURL + "?" + values.Encode()
+}
+
+// validate checks the answer of Steam (return_to, signature via check_authentication) and returns the SteamID64.
+func validate(r *http.Request) (string, error) {
+	query := r.URL.Query()
+
+	if mode := query.Get("openid.mode"); mode != "id_res" {
+		return "", fmt.Errorf("unexpected openid.mode %q", mode)
+	}
+
+	if got, want := query.Get("openid.return_to"), returnTo(r); got != want {
+		return "", fmt.Errorf("openid.return_to %q does not match the URL of this request %q (check the Host / X-Forwarded-Proto / X-Forwarded-Host headers of your proxy)", got, want)
+	}
+
+	params := url.Values{}
+
+	for key, values := range query {
+		if strings.HasPrefix(key, "openid.") && len(values) > 0 {
+			params.Set(key, values[0])
+		}
+	}
+
+	params.Set("openid.mode", "check_authentication")
+
+	resp, err := httpClient.PostForm(loginURL, params)
+
+	if err != nil {
+		return "", fmt.Errorf("could not reach Steam: %w", err)
+	}
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	if err != nil {
+		return "", fmt.Errorf("could not read the answer of Steam: %w", err)
+	}
+
+	valid := false
+
+	for _, line := range strings.Split(string(body), "\n") {
+		if strings.TrimSpace(line) == "is_valid:true" {
+			valid = true
+		}
+	}
+
+	if !valid {
+		return "", errors.New("Steam did not confirm the login (is_valid is not true)")
+	}
+
+	match := claimedIDRegexp.FindStringSubmatch(query.Get("openid.claimed_id"))
+
+	if match == nil {
+		return "", fmt.Errorf("unexpected claimed_id %q", query.Get("openid.claimed_id"))
+	}
+
+	return match[1], nil
+}
+
 const clientSideRedirectHTML = `
 <!doctype html>
-<html>    
-<head>      
-<title>Redirect</title>      
-<meta http-equiv="refresh" content="0;URL='%s'" />    
-</head>    
-<body> 
-<p>If you are not redirected automatically, please <a href="%s">click here</a>.</p> 
-</body>  
-</html>     
+<html>
+<head>
+<title>Redirect</title>
+<meta http-equiv="refresh" content="0;URL='%s'" />
+</head>
+<body>
+<p>If you are not redirected automatically, please <a href="%s">click here</a>.</p>
+</body>
+</html>
 `
 
-func clientSideRedirect(url string, w io.Writer) {
-	_, _ = w.Write([]byte(fmt.Sprintf(clientSideRedirectHTML, url, url)))
+func clientSideRedirect(url string, w http.ResponseWriter) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	escaped := html.EscapeString(url)
+	_, _ = w.Write([]byte(fmt.Sprintf(clientSideRedirectHTML, escaped, escaped)))
 }
