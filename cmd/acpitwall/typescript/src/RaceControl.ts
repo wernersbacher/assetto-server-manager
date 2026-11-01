@@ -689,6 +689,15 @@ function driverNameElement(guid: string, name: string): JQuery<HTMLElement> {
     return $("<a class='driver-profile-link'/>").attr("href", "/driver/" + guid).text(name);
 }
 
+type CarLapInfo = Driver["Cars"][string];
+
+interface LiveCarData {
+    speed: number;
+    gear: number;
+    spline: number;
+    at: number;
+}
+
 enum SessionType {
     Race = 3,
     Qualifying = 2,
@@ -708,6 +717,15 @@ class LiveTimings implements WebsocketHandler {
     private readonly $connectedDriversTable: JQuery<HTMLTableElement>;
     private readonly $disconnectedDriversTable: JQuery<HTMLTableElement>;
     private readonly $storedTimes: JQuery<HTMLDivElement>;
+
+    // a car without an update for this long is shown as having no signal
+    private static readonly STALE_AFTER_MS = 5000;
+
+    private readonly liveData: Map<string, LiveCarData> = new Map<string, LiveCarData>();
+    private readonly lastLiveRender: Map<string, number> = new Map<string, number>();
+    private readonly startPositions: Map<string, number> = new Map<string, number>();
+    private readonly gaps: Map<string, {interval: string, gap: string}> = new Map<string, {interval: string, gap: string}>();
+    private sessionKey: string = "";
 
     constructor(raceControl: RaceControl, liveMap: LiveMap) {
         this.raceControl = raceControl;
@@ -809,6 +827,8 @@ class LiveTimings implements WebsocketHandler {
             const connectedDriver = new SessionCarInfo(message.Message);
 
             this.addDriverToAdminSelects(connectedDriver);
+        } else if (message.EventType === EventCarUpdate) {
+            this.handleCarUpdate(new CarUpdate(message.Message));
         }
     }
 
@@ -821,6 +841,10 @@ class LiveTimings implements WebsocketHandler {
             return;
         }
 
+        this.trackSession();
+
+        const ordered: Driver[] = [];
+
         for (const driverGUID of this.raceControl.status.ConnectedDrivers.GUIDsInPositionalOrder) {
             const driver = this.raceControl.status.ConnectedDrivers.Drivers[driverGUID];
 
@@ -828,8 +852,260 @@ class LiveTimings implements WebsocketHandler {
                 continue;
             }
 
+            ordered.push(driver);
+
+            if (driver.Position > 0 && driver.Position !== 255 && !this.startPositions.has(driverGUID)) {
+                this.startPositions.set(driverGUID, driver.Position);
+            }
+        }
+
+        this.calculateGaps(ordered);
+
+        for (const driver of ordered) {
             this.addDriverToTable(driver, this.$connectedDriversTable);
             this.populatePreviousLapsForDriver(driver);
+        }
+
+        this.reorderConnectedRows(ordered);
+    }
+
+    // trackSession forgets the start positions when a new session begins.
+    private trackSession(): void {
+        const key = this.raceControl.status.SessionInfo.Type + "|" + this.raceControl.status.SessionStartTime;
+
+        if (key !== this.sessionKey) {
+            this.sessionKey = key;
+            this.startPositions.clear();
+        }
+    }
+
+    // calculateGaps derives the interval to the car ahead and the gap to the leader from the lap data: in a race by
+    // total time (or laps behind), otherwise by best lap.
+    private calculateGaps(ordered: Driver[]): void {
+        this.gaps.clear();
+
+        const isRace = this.raceControl.status.SessionInfo.Type === SessionType.Race;
+        const cars = ordered.map((d) => d.Cars[d.CarInfo.CarModel]);
+
+        const delta = (car: CarLapInfo | undefined, ahead: CarLapInfo | undefined): string => {
+            if (!car || !ahead) {
+                return "";
+            }
+
+            if (isRace) {
+                const lapDifference = ahead.NumLaps - car.NumLaps;
+
+                if (lapDifference > 0) {
+                    return tn("live.laps_behind", lapDifference);
+                }
+
+                const ms = (car.TotalLapTime - ahead.TotalLapTime) / 1000000;
+
+                return ms > 0 ? "+" + LiveTimings.formatDelta(ms) : "";
+            }
+
+            if (car.BestLap > 0 && ahead.BestLap > 0 && car.BestLap >= ahead.BestLap) {
+                return "+" + LiveTimings.formatDelta((car.BestLap - ahead.BestLap) / 1000000);
+            }
+
+            return "";
+        };
+
+        ordered.forEach((driver, i) => {
+            this.gaps.set(driver.CarInfo.DriverGUID, {
+                interval: i === 0 ? "" : delta(cars[i], cars[i - 1]),
+                gap: i === 0 ? "" : delta(cars[i], cars[0]),
+            });
+        });
+    }
+
+    private static formatDelta(ms: number): string {
+        return ms < 60000 ? (ms / 1000).toFixed(3) : msToTime(ms);
+    }
+
+    // showPositionChange shows the positions gained or lost since the session start.
+    private showPositionChange($tr: JQuery<HTMLElement>, driver: Driver, hasPosition: boolean): void {
+        const $change = $tr.find(".pos-change");
+        const start = this.startPositions.get(driver.CarInfo.DriverGUID);
+        const change = hasPosition && start ? start - driver.Position : 0;
+
+        $change.removeClass("pos-gain pos-loss").removeAttr("title");
+
+        if (change > 0) {
+            $change.addClass("pos-gain").text("▲" + change).attr("title", tn("live.positions_gained", change));
+        } else if (change < 0) {
+            $change.addClass("pos-loss").text("▼" + -change).attr("title", tn("live.positions_lost", -change));
+        } else {
+            $change.text("");
+        }
+    }
+
+    private showCollisionCount($tr: JQuery<HTMLElement>, driver: Driver): void {
+        const count = driver.Collisions ? driver.Collisions.length : 0;
+        const $badge = $tr.find(".collision-count");
+
+        if (count === 0) {
+            $badge.hide();
+            return;
+        }
+
+        $badge.empty().append($("<i class='fa fa-exclamation-triangle'/>"), " " + count)
+            .attr("title", tn("live.collisions", count))
+            .show();
+    }
+
+    // handleCarUpdate remembers the live data of a car and shows it in its row.
+    private handleCarUpdate(update: CarUpdate): void {
+        const status = this.raceControl.status;
+
+        if (!status || !status.CarIDToGUID || !status.CarIDToGUID.hasOwnProperty(update.CarID)) {
+            return;
+        }
+
+        const guid = status.CarIDToGUID[update.CarID];
+        let speed = Math.sqrt(Math.pow(update.Velocity.X, 2) + Math.pow(update.Velocity.Z, 2)) * 3.6;
+
+        if (useMPH) {
+            speed *= 0.621371;
+        }
+
+        const now = Date.now();
+
+        this.liveData.set(guid, {speed: speed, gear: update.Gear - 1, spline: update.NormalisedSplinePos, at: now});
+
+        // car updates come in several times a second per car, the table does not need every one
+        if (now - (this.lastLiveRender.get(guid) || 0) < 150) {
+            return;
+        }
+
+        this.lastLiveRender.set(guid, now);
+
+        const row = this.$connectedDriversTable[0].querySelector("tr[data-guid='" + guid + "']");
+        const driver = status.ConnectedDrivers ? status.ConnectedDrivers.Drivers[guid] : undefined;
+
+        if (row && driver) {
+            this.renderLive($(row as HTMLElement), driver);
+        }
+    }
+
+    // renderLive shows speed, gear and the lap progress of a car, or that nothing has been heard of it for a while.
+    private renderLive($tr: JQuery<HTMLElement>, driver: Driver): void {
+        const live = this.liveData.get(driver.CarInfo.DriverGUID);
+        const lastSeen = driver.LastSeen ? new Date(driver.LastSeen as any).getTime() : 0;
+        const seenAt = Math.max(live ? live.at : 0, lastSeen > 946684800000 ? lastSeen : 0);
+
+        // a car which was never heard of is still loading
+        const stale = seenAt > 0 && Date.now() - seenAt > LiveTimings.STALE_AFTER_MS;
+
+        $tr.toggleClass("is-stale", stale);
+
+        const $speed = $tr.find(".live-speed");
+
+        $speed.toggleClass("is-stale", stale);
+
+        if (stale) {
+            $speed.attr("title", tn("live.no_signal_title", Math.round(LiveTimings.STALE_AFTER_MS / 1000)));
+            $tr.find(".speed-value").text(t("live.no_signal"));
+            $tr.find(".speed-unit, .gear-value").text("");
+            $tr.find(".lap-progress > span").css("width", "0%");
+
+            return;
+        }
+
+        $speed.removeAttr("title");
+
+        if (!live) {
+            return;
+        }
+
+        const gear = live.gear < 0 ? "R" : (live.gear === 0 ? "N" : String(live.gear));
+
+        $tr.find(".speed-value").text(Math.round(live.speed));
+        $tr.find(".speed-unit").text(useMPH ? "MPH" : "Km/h");
+        $tr.find(".gear-value").text(gear);
+        $tr.find(".lap-progress > span").css("width", (Math.min(Math.max(live.spline, 0), 1) * 100).toFixed(1) + "%");
+    }
+
+    // reorderConnectedRows puts the rows into the order of the standings. Rows which move are animated (FLIP):
+    // they are placed at the new position and then slide from where they were.
+    private reorderConnectedRows(ordered: Driver[]): void {
+        const tbody = this.$connectedDriversTable.find("tbody")[0];
+
+        if (!tbody) {
+            return;
+        }
+
+        const rows: HTMLElement[] = [];
+
+        for (const driver of ordered) {
+            const row = tbody.querySelector("tr[data-guid='" + driver.CarInfo.DriverGUID + "'][data-car-model='" + driver.CarInfo.CarModel + "']") as HTMLElement | null;
+
+            if (row) {
+                rows.push(row);
+            }
+        }
+
+        const current = Array.prototype.slice.call(tbody.querySelectorAll("tr.driver-row")).filter((row: HTMLElement) => rows.indexOf(row) !== -1);
+
+        if (current.length === rows.length && current.every((row: HTMLElement, i: number) => row === rows[i])) {
+            this.markPlaced(rows);
+            return;
+        }
+
+        const animate = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+        const before = new Map<HTMLElement, number>();
+
+        if (animate) {
+            for (const row of rows) {
+                if (row.hasAttribute("data-placed")) {
+                    before.set(row, row.getBoundingClientRect().top);
+                }
+            }
+        }
+
+        for (const row of rows) {
+            tbody.appendChild(row);
+        }
+
+        if (animate) {
+            const moves: [HTMLElement, number][] = [];
+
+            before.forEach((top, row) => {
+                const dy = top - row.getBoundingClientRect().top;
+
+                if (Math.abs(dy) >= 1) {
+                    moves.push([row, dy]);
+                }
+            });
+
+            for (const [row, dy] of moves) {
+                row.style.transition = "none";
+                row.style.transform = "translateY(" + dy + "px)";
+            }
+
+            if (moves.length) {
+                void tbody.offsetHeight; // apply the start state before the transition
+
+                for (const [row] of moves) {
+                    row.style.transition = "transform 350ms ease";
+                    row.style.transform = "";
+                }
+
+                setTimeout(() => {
+                    for (const [row] of moves) {
+                        row.style.transition = "";
+                    }
+                }, 400);
+            }
+        }
+
+        this.markPlaced(rows);
+    }
+
+    // markPlaced tells that rows have been in the table, so that new rows do not slide in from the bottom.
+    private markPlaced(rows: HTMLElement[]): void {
+        for (const row of rows) {
+            row.setAttribute("data-placed", "1");
         }
     }
 
@@ -875,16 +1151,20 @@ class LiveTimings implements WebsocketHandler {
 
     private static CONNECTED_ROW_HTML = `
         <tr class="driver-row">
-            <td class="driver-pos text-center"></td>
-            <td class="driver-name driver-link"></td>
-            <td class="driver-car"></td>
-            <td class="current-lap"></td>
+            <td class="driver-pos"><span class="pos-num"></span><span class="pos-change"></span></td>
+            <td class="driver-cell driver-link">
+                <div class="driver-name"></div>
+                <div class="driver-car"></div>
+                <div class="events"></div>
+            </td>
+            <td class="current-lap"><span class="lap-time"></span><span class="lap-progress"><span></span></span></td>
             <td class="last-lap"></td>
             <td class="best-lap"></td>
+            <td class="interval"></td>
             <td class="gap"></td>
             <td class="num-laps"></td>
+            <td class="live-speed"><span class="speed-value"></span><span class="speed-unit"></span><span class="gear-value"></span></td>
             <td class="top-speed"></td>
-            <td class="events"></td>
         </tr>
     `;
 
@@ -904,6 +1184,10 @@ class LiveTimings implements WebsocketHandler {
             "data-guid": driver.CarInfo.DriverGUID,
             "data-car-model": driver.CarInfo.CarModel,
         });
+
+        // the labels of the mobile cards (CSS shows them in front of the values)
+        $tr.find(".best-lap").attr("data-label", t("live.label.best"));
+        $tr.find(".num-laps").attr("data-label", t("live.label.laps"));
 
         const $tdName = $tr.find(".driver-name");
         $tdName.empty().append(driverNameElement(driver.CarInfo.DriverGUID, driver.CarInfo.DriverName));
@@ -925,8 +1209,8 @@ class LiveTimings implements WebsocketHandler {
                 })));
             }
 
-            $tdName.attr("class", "driver-link");
-            $tdName.data(DriverGUIDDataKey, driver.CarInfo.DriverGUID);
+            $tdName.append($("<span class='collision-count'/>").hide());
+            $tr.find(".driver-cell").data(DriverGUIDDataKey, driver.CarInfo.DriverGUID);
         }
 
         return $tr;
@@ -951,7 +1235,10 @@ class LiveTimings implements WebsocketHandler {
 
         // car position
         if (addingDriverToConnectedTable) {
-            $tr.find(".driver-pos").text(driver.Position === 255 || driver.Position === 0 ? "" : driver.Position);
+            const hasPosition = driver.Position !== 255 && driver.Position !== 0;
+
+            $tr.find(".pos-num").text(hasPosition ? driver.Position : "");
+            this.showPositionChange($tr, driver, hasPosition);
         }
 
         // car model
@@ -965,7 +1252,7 @@ class LiveTimings implements WebsocketHandler {
                 currentLapTimeText = msToTime(moment().utc().diff(moment(carInfo.LastLapCompletedTime).utc()), false);
             }
 
-            $tr.find(".current-lap").text(currentLapTimeText);
+            $tr.find(".lap-time").text(currentLapTimeText);
         }
 
         if (addingDriverToConnectedTable) {
@@ -987,8 +1274,11 @@ class LiveTimings implements WebsocketHandler {
         }
 
         if (addingDriverToConnectedTable) {
-            // gap
-            $tr.find(".gap").text(driver.Split);
+            // interval to the car ahead and gap to the leader
+            const gaps = this.gaps.get(driver.CarInfo.DriverGUID);
+
+            $tr.find(".interval").text(gaps ? gaps.interval : driver.Split);
+            $tr.find(".gap").text(gaps ? gaps.gap : "");
         }
 
         // lap number
@@ -1062,6 +1352,11 @@ class LiveTimings implements WebsocketHandler {
             }
         }
 
+        if (addingDriverToConnectedTable) {
+            this.showCollisionCount($tr, driver);
+            this.renderLive($tr, driver);
+        }
+
         if (!addingDriverToConnectedTable) {
             // if we're adding to the disconnected table, ensure we've removed this driver and car from the connected table.
             this.$connectedDriversTable.find("[data-guid='" + driver.CarInfo.DriverGUID + "'][data-car-model='" + driver.CarInfo.CarModel + "']").remove();
@@ -1076,10 +1371,6 @@ class LiveTimings implements WebsocketHandler {
 
         if (addTrToTable) {
             $table.append($tr);
-        } else {
-            if (driver.Position > 0 && addingDriverToConnectedTable) {
-                $table.find("tr").eq(driver.Position - 1).after($tr.detach());
-            }
         }
 
         if (!addingDriverToConnectedTable) {

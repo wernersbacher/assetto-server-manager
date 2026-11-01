@@ -343,6 +343,8 @@ live:
     gap: Afstand
     laps: Omgange
     top_speed: Topfart
+    interval: Interval
+    speed: Fart
     events: Hændelser
   fastest_lap: Hurtigste omgang
   personal_best: Personlig rekord

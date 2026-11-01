@@ -171,16 +171,14 @@ td .dot-inactive {
   margin-top: 4px;
 }
 
-.live-events {
-  width: 220px;
-}
-
 .live-mono,
 .live-table td.driver-pos,
 .live-table td.current-lap,
 .live-table td.last-lap,
 .live-table td.best-lap,
 .live-table td.gap,
+.live-table td.interval,
+.live-table td.live-speed,
 .live-table td.num-laps,
 .live-table td.top-speed,
 .live-table .current-lap,
@@ -188,6 +186,8 @@ td .dot-inactive {
 .live-table .best-lap,
 .live-table .gap,
 .live-table .top-speed,
+.live-table .interval,
+.live-table .live-speed,
 .live-table .num-laps,
 .live-table .driver-pos,
 .live-table-stored .best-lap,
@@ -392,6 +392,8 @@ td .dot-inactive {
 .live-table td.last-lap,
 .live-table td.best-lap,
 .live-table td.gap,
+.live-table td.interval,
+.live-table td.live-speed,
 .live-table td.num-laps,
 .live-table td.top-speed {
   font-variant-numeric: tabular-nums;
@@ -478,22 +480,131 @@ td .dot-inactive {
     border-bottom: 0;
   }
 
+  th:nth-child(n+3) {
+    text-align: right;
+  }
+
   .driver-pos {
-    width: 40px;
+    width: 44px;
     font-weight: 700;
     text-align: center;
   }
 
-  .driver-name {
-    font-weight: 600;
+  .pos-num {
+    display: block;
   }
 
-  .current-lap, .last-lap, .best-lap, .gap, .top-speed, .num-laps {
+  // positions gained or lost since the session start
+  .pos-change {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+
+    &.pos-gain { color: var(--success-foreground); }
+    &.pos-loss { color: var(--destructive, #dc3545); }
+  }
+
+  .driver-cell {
+    min-width: 160px;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .driver-name {
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .driver-cell .driver-car {
+    font-size: 11px;
+    line-height: 1.2;
+    color: var(--muted-foreground);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .collision-count {
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--destructive, #dc3545);
+  }
+
+  .events {
+    white-space: normal;
+
+    &:empty { display: none; }
+  }
+
+  .current-lap, .last-lap, .best-lap, .gap, .interval, .live-speed, .top-speed, .num-laps {
     text-align: right;
   }
 
-  th.live-events {
-    width: auto;
+  .interval {
+    color: var(--muted-foreground);
+  }
+
+  // current lap time with a thin progress bar (position on the lap) below it
+  .current-lap {
+    min-width: 84px;
+  }
+
+  .lap-time {
+    display: block;
+    min-height: 1.3em;
+  }
+
+  .lap-progress {
+    display: block;
+    height: 3px;
+    margin-top: 2px;
+    border-radius: 2px;
+    background: var(--border);
+    overflow: hidden;
+
+    > span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--primary, #0d6efd);
+      transition: width .2s linear;
+    }
+  }
+
+  .live-speed {
+    min-width: 96px;
+  }
+
+  .speed-unit {
+    margin: 0 6px 0 3px;
+    font-size: 10px;
+    color: var(--muted-foreground);
+  }
+
+  .gear-value {
+    display: inline-block;
+    min-width: 1.4em;
+    padding: 0 3px;
+    border-radius: 3px;
+    background: var(--table-header);
+    text-align: center;
+    font-weight: 700;
+
+    &:empty { display: none; }
+  }
+
+  // no update from the car for a while
+  tr.is-stale td {
+    opacity: .55;
+  }
+
+  td.live-speed.is-stale .speed-value {
+    font-family: var(--font-sans-stack, inherit);
+    font-size: 11px;
+    font-style: italic;
   }
 
   .lap-fastest {
@@ -507,8 +618,22 @@ td .dot-inactive {
   }
 }
 
-.live-events {
-  min-width: 140px;
+@media (prefers-reduced-motion: reduce) {
+  .live-table tr.driver-row {
+    transition: none !important;
+  }
+
+  .live-table .lap-progress > span {
+    transition: none;
+  }
+}
+
+// Secondary columns make room for the map next to the standings
+@media screen and (min-width: 1200px) and (max-width: 1499.98px) {
+  #live-table .col-secondary,
+  #live-table .top-speed {
+    display: none;
+  }
 }
 
 // Admin drawer
@@ -722,6 +847,10 @@ body.live-drawer-open {
       font-weight: 700;
     }
 
+    .pos-num, .pos-change {
+      display: block;
+    }
+
     .driver-name {
       grid-column: 2 / span 2;
       grid-row: 1;
@@ -735,11 +864,51 @@ body.live-drawer-open {
       color: var(--muted-foreground);
     }
 
-    .gap {
+    // the driver cell of the standings holds name, car and events
+    .driver-cell {
+      grid-column: 2 / span 2;
+      grid-row: 1 / span 2;
+      max-width: none;
+
+      .driver-name, .driver-car {
+        grid-column: auto;
+        grid-row: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .events {
+        white-space: normal;
+
+        &:empty { display: none; }
+      }
+    }
+
+    .collision-count {
+      margin-left: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--destructive, #dc3545);
+    }
+
+    .pos-change {
+      font-size: 10px;
+      font-weight: 600;
+
+      &.pos-gain { color: var(--success-foreground); }
+      &.pos-loss { color: var(--destructive, #dc3545); }
+    }
+
+    // a card shows the interval to the car ahead
+    .interval {
       grid-column: 4;
       grid-row: 1;
       text-align: right;
       font-weight: 600;
+    }
+
+    .gap {
+      display: none;
     }
 
     .last-lap {
@@ -749,8 +918,40 @@ body.live-drawer-open {
       font-size: 13px;
     }
 
+    // the card only shows the progress bar of the lap
     .current-lap {
-      display: none;
+      grid-column: 2 / -1;
+      grid-row: 4;
+      overflow: visible;
+
+      .lap-time { display: none; }
+
+      .lap-progress {
+        height: 3px;
+        margin: 4px 0 0;
+        border-radius: 2px;
+        background: var(--border);
+        overflow: hidden;
+
+        > span {
+          display: block;
+          width: 0;
+          height: 100%;
+          background: var(--primary, #0d6efd);
+        }
+      }
+    }
+
+    .live-speed {
+      grid-column: 4;
+      grid-row: 3;
+      text-align: right;
+      font-size: 12px;
+      color: var(--muted-foreground);
+
+      .speed-unit { margin: 0 4px 0 2px; font-size: 10px; }
+      .gear-value { display: inline-block; padding: 0 3px; border-radius: 3px; background: var(--table-header); font-weight: 700; }
+      .gear-value:empty { display: none; }
     }
 
     .best-lap, .num-laps, .top-speed {
@@ -761,19 +962,16 @@ body.live-drawer-open {
       &::before {
         font-family: var(--font-sans-stack, inherit);
         margin-right: 4px;
+        content: attr(data-label);
       }
     }
 
     .best-lap {
       grid-column: 2;
-
-      &::before { content: "Best"; }
     }
 
     .num-laps {
       grid-column: 3;
-
-      &::before { content: "Laps"; }
     }
 
     .top-speed {
@@ -783,13 +981,14 @@ body.live-drawer-open {
       &:empty { display: none; }
     }
 
-    .events {
-      grid-column: 2 / -1;
-      grid-row: 4;
-      white-space: normal !important;
-
-      &:empty { display: none; }
+    tr.is-stale td {
+      opacity: .6;
     }
+  }
+
+  // the card of the standings shows the live speed instead of the top speed
+  #live-table .top-speed {
+    display: none;
   }
 
   #live-table .last-lap.lap-fastest, #live-table .best-lap.lap-fastest { color: var(--tertiary); }

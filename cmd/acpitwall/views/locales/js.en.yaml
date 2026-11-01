@@ -18,6 +18,25 @@ js:
     loaded: Loaded
     crash_with_car: "Crash with {driver} at {speed}"
     crash_with_environment: "Crash with environment at {speed}"
+    laps_behind:
+      one: "+{count} lap"
+      other: "+{count} laps"
+    positions_gained:
+      one: "{count} position gained since the session start"
+      other: "{count} positions gained since the session start"
+    positions_lost:
+      one: "{count} position lost since the session start"
+      other: "{count} positions lost since the session start"
+    collisions:
+      one: "{count} collision"
+      other: "{count} collisions"
+    no_signal: No signal
+    no_signal_title:
+      one: "No update from this car for {count} second"
+      other: "No update from this car for {count} seconds"
+    label:
+      best: Best
+      laps: Laps
   race_form:
     field:
       abs: ABS

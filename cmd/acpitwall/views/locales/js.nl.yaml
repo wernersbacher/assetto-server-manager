@@ -18,6 +18,25 @@ js:
     loaded: Geladen
     crash_with_car: "Crash met {driver} bij {speed}"
     crash_with_environment: "Crash met de omgeving bij {speed}"
+    laps_behind:
+      one: "+{count} ronde"
+      other: "+{count} ronden"
+    positions_gained:
+      one: "{count} plaats gewonnen sinds de start van de sessie"
+      other: "{count} plaatsen gewonnen sinds de start van de sessie"
+    positions_lost:
+      one: "{count} plaats verloren sinds de start van de sessie"
+      other: "{count} plaatsen verloren sinds de start van de sessie"
+    collisions:
+      one: "{count} botsing"
+      other: "{count} botsingen"
+    no_signal: Geen signaal
+    no_signal_title:
+      one: "Al {count} seconde geen update van deze auto"
+      other: "Al {count} seconden geen update van deze auto"
+    label:
+      best: Snelste
+      laps: Ronden
   race_form:
     field:
       abs: ABS

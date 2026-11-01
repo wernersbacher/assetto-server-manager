@@ -343,6 +343,8 @@ live:
     gap: Gat
     laps: Ronden
     top_speed: Topsnelheid
+    interval: Interval
+    speed: Snelheid
     events: Gebeurtenissen
   fastest_lap: Snelste ronde
   personal_best: Persoonlijk record

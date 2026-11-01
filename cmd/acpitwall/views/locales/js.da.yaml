@@ -18,6 +18,25 @@ js:
     loaded: Indlæst
     crash_with_car: "Kollision med {driver} ved {speed}"
     crash_with_environment: "Kollision med omgivelserne ved {speed}"
+    laps_behind:
+      one: "+{count} omgang"
+      other: "+{count} omgange"
+    positions_gained:
+      one: "{count} plads vundet siden sessionens start"
+      other: "{count} pladser vundet siden sessionens start"
+    positions_lost:
+      one: "{count} plads tabt siden sessionens start"
+      other: "{count} pladser tabt siden sessionens start"
+    collisions:
+      one: "{count} kollision"
+      other: "{count} kollisioner"
+    no_signal: Intet signal
+    no_signal_title:
+      one: "Ingen opdatering fra denne bil i {count} sekund"
+      other: "Ingen opdatering fra denne bil i {count} sekunder"
+    label:
+      best: Bedste
+      laps: Omgange
   race_form:
     field:
       abs: ABS

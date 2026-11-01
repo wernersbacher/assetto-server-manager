@@ -343,6 +343,8 @@ live:
     gap: Abstand
     laps: Runden
     top_speed: Höchstgeschw.
+    interval: Intervall
+    speed: Geschw.
     events: Ereignisse
   fastest_lap: Schnellste Runde
   personal_best: Persönliche Bestzeit

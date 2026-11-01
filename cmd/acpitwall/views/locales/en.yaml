@@ -344,6 +344,8 @@ live:
     gap: Gap
     laps: "# Laps"
     top_speed: Top Speed
+    interval: Interval
+    speed: Speed
     events: Events
   fastest_lap: Fastest lap
   personal_best: Personal best
