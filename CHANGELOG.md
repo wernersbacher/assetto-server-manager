@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The Teams page has a search field (team name or owner), shows the other teams in pages of 25, hides less important columns on small screens and opens the create form with a button in the page header.
+
 * The audit log is split into pages of 100 entries and can be filtered by user, method and date range.
 
 * The Weather page uses the same table style as the other lists, shows a message when no presets are installed and its delete buttons have a label.

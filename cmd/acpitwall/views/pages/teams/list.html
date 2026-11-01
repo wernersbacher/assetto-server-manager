@@ -8,6 +8,12 @@
             <h1>{{ t "nav.teams" }}</h1>
             <p>{{ t "teams.intro" }}</p>
         </div>
+
+        {{ if $.CanCreate }}
+            <button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#team-create-panel" aria-expanded="false" aria-controls="team-create-panel">
+                {{ t "teams.create_title" }}
+            </button>
+        {{ end }}
     </div>
 
     {{ if not $.LoggedIn }}
@@ -17,28 +23,34 @@
     {{ end }}
 
     {{ if $.CanCreate }}
-        <div class="card mb-4">
-            <div class="card-header"><h2>{{ t "teams.create_title" }}</h2></div>
-            <div class="card-body">
-                <form method="post" action="/teams/new" class="d-flex flex-wrap align-items-end" style="gap: 12px" data-safe-submit>
-                    <div class="form-group mb-0">
-                        <label for="team-name">{{ t "teams.name" }}</label>
-                        <input type="text" class="form-control" id="team-name" name="name" required minlength="2" maxlength="40" placeholder="{{ t "teams.name_placeholder" }}">
-                    </div>
+        <div class="collapse" id="team-create-panel">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="post" action="/teams/new" class="d-flex flex-wrap align-items-end" style="gap: 12px" data-safe-submit>
+                        <div class="form-group mb-0">
+                            <label for="team-name">{{ t "teams.name" }}</label>
+                            <input type="text" class="form-control" id="team-name" name="name" required minlength="2" maxlength="40" placeholder="{{ t "teams.name_placeholder" }}">
+                        </div>
 
-                    <div class="form-group mb-0">
-                        <label for="team-visibility">{{ t "teams.visibility" }}</label>
-                        <select class="form-control" id="team-visibility" name="visibility">
-                            <option value="public">{{ t "teams.visibility_public_help" }}</option>
-                            <option value="private">{{ t "teams.visibility_private_help" }}</option>
-                        </select>
-                    </div>
+                        <div class="form-group mb-0">
+                            <label for="team-visibility">{{ t "teams.visibility" }}</label>
+                            <select class="form-control" id="team-visibility" name="visibility">
+                                <option value="public">{{ t "teams.visibility_public_help" }}</option>
+                                <option value="private">{{ t "teams.visibility_private_help" }}</option>
+                            </select>
+                        </div>
 
-                    <button type="submit" class="btn btn-success">{{ t "teams.create" }}</button>
-                </form>
+                        <button type="submit" class="btn btn-success">{{ t "teams.create" }}</button>
+                    </form>
+                </div>
             </div>
         </div>
     {{ end }}
+
+    <form method="get" action="/teams" class="content-search mb-3">
+        <input name="q" placeholder="{{ t "teams.search_placeholder" }}" aria-label="{{ t "teams.search_placeholder" }}" class="form-control" value="{{ $.Query }}" autocomplete="off">
+        <button type="submit" class="btn btn-primary">{{ t "content.search.submit" }}</button>
+    </form>
 
     {{ if $.Invitations }}
         <h2 class="mt-4">{{ t "teams.invitations" }}</h2>
@@ -74,15 +86,15 @@
         <div class="table-card mb-4">
             <table class="table">
                 <thead>
-                <tr><th>{{ t "teams.team" }}</th><th>{{ t "teams.visibility" }}</th><th>{{ t "teams.members" }}</th><th>{{ t "teams.your_role" }}</th><th>{{ t "teams.owner" }}</th></tr>
+                <tr><th>{{ t "teams.team" }}</th><th class="d-none d-md-table-cell">{{ t "teams.visibility" }}</th><th>{{ t "teams.members" }}</th><th class="d-none d-md-table-cell">{{ t "teams.your_role" }}</th><th class="d-none d-md-table-cell">{{ t "teams.owner" }}</th></tr>
                 </thead>
                 {{ range $summary := $.MyTeams }}
                     <tr>
                         <td><a href="/teams/{{ $summary.Team.ID.String }}">{{ $summary.Team.Name }}</a></td>
-                        <td>{{ if $summary.Team.IsPrivate }}{{ t "teams.private" }}{{ else }}{{ t "teams.public" }}{{ end }}</td>
+                        <td class="d-none d-md-table-cell">{{ if $summary.Team.IsPrivate }}{{ t "teams.private" }}{{ else }}{{ t "teams.public" }}{{ end }}</td>
                         <td>{{ $summary.Members }}</td>
-                        <td>{{ t (printf "teams.role.%s" $summary.Role) }}</td>
-                        <td>{{ $summary.Owner }}</td>
+                        <td class="d-none d-md-table-cell">{{ t (printf "teams.role.%s" $summary.Role) }}</td>
+                        <td class="d-none d-md-table-cell">{{ $summary.Owner }}</td>
                     </tr>
                 {{ end }}
             </table>
@@ -92,19 +104,19 @@
     <h2 class="mt-4">{{ t "teams.all_teams" }}</h2>
 
     {{ if not $.OtherTeams }}
-        {{ template "empty-state" dict "Icon" "accounts" "Text" (t "teams.no_other_teams") }}
+        {{ template "empty-state" dict "Icon" "accounts" "Text" (t (ternary "teams.no_match" "teams.no_other_teams" (ne $.Query ""))) }}
     {{ else }}
         <div class="table-card">
             <table class="table">
                 <thead>
-                <tr><th>{{ t "teams.team" }}</th><th>{{ t "teams.visibility" }}</th><th>{{ t "teams.members" }}</th><th>{{ t "teams.owner" }}</th><th class="text-right">{{ t "common.actions" }}</th></tr>
+                <tr><th>{{ t "teams.team" }}</th><th class="d-none d-md-table-cell">{{ t "teams.visibility" }}</th><th>{{ t "teams.members" }}</th><th class="d-none d-md-table-cell">{{ t "teams.owner" }}</th><th class="text-right">{{ t "common.actions" }}</th></tr>
                 </thead>
                 {{ range $summary := $.OtherTeams }}
                     <tr>
                         <td><a href="/teams/{{ $summary.Team.ID.String }}">{{ $summary.Team.Name }}</a></td>
-                        <td>{{ if $summary.Team.IsPrivate }}{{ t "teams.private" }}{{ else }}{{ t "teams.public" }}{{ end }}</td>
+                        <td class="d-none d-md-table-cell">{{ if $summary.Team.IsPrivate }}{{ t "teams.private" }}{{ else }}{{ t "teams.public" }}{{ end }}</td>
                         <td>{{ $summary.Members }}</td>
-                        <td>{{ $summary.Owner }}</td>
+                        <td class="d-none d-md-table-cell">{{ $summary.Owner }}</td>
                         <td class="text-right text-nowrap">
                             {{ if and $.LoggedIn (not $summary.Team.IsPrivate) }}
                                 <form method="post" action="/teams/{{ $summary.Team.ID.String }}/join" class="d-inline">
@@ -117,4 +129,6 @@
             </table>
         </div>
     {{ end }}
+
+    {{ template "pagination" dict "CurrentPage" $.CurrentPage "NumPages" $.NumPages "Request" $.Request }}
 {{ end }}

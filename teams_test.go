@@ -206,10 +206,10 @@ func TestTeamsPagesRender(t *testing.T) {
 	// list
 	expectBody(t, "list, anonymous", list(nil), http.StatusOK,
 		[]string{"&lt;b&gt;Loud&lt;/b&gt; Public", "Sign in"},
-		[]string{"Quiet Private", "<b>Loud</b>", "<h2>Create a team</h2>"})
+		[]string{"Quiet Private", "<b>Loud</b>", "team-create-panel"})
 
 	expectBody(t, "list, stranger", list(strangerAccount), http.StatusOK,
-		[]string{"<h2>Create a team</h2>", "&lt;b&gt;Loud&lt;/b&gt; Public", "You are not in a team yet"},
+		[]string{"team-create-panel", "&lt;b&gt;Loud&lt;/b&gt; Public", "You are not in a team yet"},
 		[]string{"Quiet Private"})
 
 	expectBody(t, "list, owner", list(ownerAccount), http.StatusOK,

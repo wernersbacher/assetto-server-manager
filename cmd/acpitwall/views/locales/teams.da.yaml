@@ -4,6 +4,8 @@ teams:
   sign_in_to_create: <a href="{url}">Log ind</a> for at oprette et team eller blive medlem af et.
   sign_in_to_join: <a href="{url}">Log ind</a> for at blive medlem af et team.
   create_title: Opret et team
+  search_placeholder: Søg efter hold
+  no_match: Ingen hold svarer til din søgning.
   name: Navn
   name_placeholder: Det Hurtige Team
   visibility: Synlighed

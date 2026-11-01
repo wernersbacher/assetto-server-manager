@@ -4,6 +4,8 @@ teams:
   sign_in_to_create: <a href="{url}">Log in</a> om een team op te richten of lid te worden van een team.
   sign_in_to_join: <a href="{url}">Log in</a> om lid te worden van een team.
   create_title: Team oprichten
+  search_placeholder: Zoek teams
+  no_match: Geen teams komen overeen met je zoekopdracht.
   name: Naam
   name_placeholder: Het Snelle Team
   visibility: Zichtbaarheid

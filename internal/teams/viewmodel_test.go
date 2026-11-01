@@ -413,3 +413,32 @@ func TestBuildList_CanCreate(t *testing.T) {
 		t.Error("moderators can still create teams")
 	}
 }
+
+func TestListApplyQuery(t *testing.T) {
+	summary := func(name, owner string) *teamSummary {
+		return &teamSummary{Team: &smmodel.Team{Name: name}, Owner: owner}
+	}
+
+	vars := &listTemplateVars{
+		MyTeams:    []*teamSummary{summary("Alpha", "x")},
+		OtherTeams: []*teamSummary{summary("Beta Racing", "carl"), summary("Gamma", "Beta")},
+	}
+
+	vars.applyQuery(" beta ", 5)
+
+	if len(vars.MyTeams) != 0 || len(vars.OtherTeams) != 2 || vars.CurrentPage != 0 || vars.NumPages != 1 {
+		t.Fatalf("unexpected result %+v", vars)
+	}
+
+	many := &listTemplateVars{}
+
+	for i := 0; i < teamsPageSize+3; i++ {
+		many.OtherTeams = append(many.OtherTeams, summary("Team", ""))
+	}
+
+	many.applyQuery("", 9)
+
+	if many.NumPages != 2 || many.CurrentPage != 1 || len(many.OtherTeams) != 3 {
+		t.Fatalf("unexpected pagination %d %d %d", many.NumPages, many.CurrentPage, len(many.OtherTeams))
+	}
+}

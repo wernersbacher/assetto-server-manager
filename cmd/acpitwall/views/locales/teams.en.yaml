@@ -4,6 +4,8 @@ teams:
   sign_in_to_create: <a href="{url}">Sign in</a> to create a team or to join one.
   sign_in_to_join: <a href="{url}">Sign in</a> to join a team.
   create_title: Create a team
+  search_placeholder: Search for teams
+  no_match: No teams match your search.
   name: Name
   name_placeholder: The Fast Team
   visibility: Visibility

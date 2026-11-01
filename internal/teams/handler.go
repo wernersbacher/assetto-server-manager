@@ -164,6 +164,61 @@ type listTemplateVars struct {
 	MyTeams     []*teamSummary
 	Invitations []*teamSummary
 	OtherTeams  []*teamSummary
+
+	// Query is the search text, it filters all lists by team name. OtherTeams is paginated.
+	Query       string
+	CurrentPage int
+	NumPages    int
+}
+
+// teamsPageSize is the number of teams on one page of the list of all teams.
+const teamsPageSize = 25
+
+func filterSummaries(summaries []*teamSummary, query string) []*teamSummary {
+	query = strings.ToLower(strings.TrimSpace(query))
+
+	if query == "" {
+		return summaries
+	}
+
+	var filtered []*teamSummary
+
+	for _, summary := range summaries {
+		if strings.Contains(strings.ToLower(summary.Team.Name), query) || strings.Contains(strings.ToLower(summary.Owner), query) {
+			filtered = append(filtered, summary)
+		}
+	}
+
+	return filtered
+}
+
+// applyQuery filters the lists by the search text and shows one (zero based) page of the other teams.
+func (v *listTemplateVars) applyQuery(query string, page int) {
+	v.Query = strings.TrimSpace(query)
+	v.MyTeams = filterSummaries(v.MyTeams, query)
+	v.Invitations = filterSummaries(v.Invitations, query)
+	v.OtherTeams = filterSummaries(v.OtherTeams, query)
+
+	v.NumPages = (len(v.OtherTeams) + teamsPageSize - 1) / teamsPageSize
+
+	if page >= v.NumPages {
+		page = v.NumPages - 1
+	}
+
+	if page < 0 {
+		page = 0
+	}
+
+	v.CurrentPage = page
+
+	start := page * teamsPageSize
+	end := start + teamsPageSize
+
+	if end > len(v.OtherTeams) {
+		end = len(v.OtherTeams)
+	}
+
+	v.OtherTeams = v.OtherTeams[start:end]
 }
 
 func summarise(team *smmodel.Team, viewer uuid.UUID, names map[uuid.UUID]string) *teamSummary {
@@ -234,6 +289,8 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
+
+	vars.applyQuery(r.URL.Query().Get("q"), smweb.FormValueAsInt(r.URL.Query().Get("page")))
 
 	h.ViewRenderer.MustLoadTemplate(w, r, "teams/list.html", vars)
 }
