@@ -2,7 +2,7 @@
      Takes: Servers ([]ServerRef), Selected (the id of the preselected server: the one of the page), Id (unique id for the label). */}}
 {{ define "schedule-target" }}
     {{ if gt (len $.Servers) 1 }}
-        <label for="event-schedule-server-{{ $.Id }}" class="col-form-label">Server</label>
+        <label for="event-schedule-server-{{ $.Id }}" class="col-form-label">{{ t "nav.server" }}</label>
         <select class="form-control" name="event-schedule-server" id="event-schedule-server-{{ $.Id }}">
             {{ range $server := $.Servers }}
                 <option value="{{ $server.ID }}" {{ if eq $server.ID $.Selected }}selected{{ end }}>{{ $server.Name }}</option>

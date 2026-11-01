@@ -2,13 +2,13 @@
      Takes: Path (the start URL, without server parameter), Servers ([]ServerRef), Class (button classes). */}}
 {{ define "start-target" }}
     {{ if gt (len $.Servers) 1 }}
-        <button type="button" class="btn {{ $.Class }} dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Choose the server to start on">
-            <span class="sr-only">Choose server</span>
+        <button type="button" class="btn {{ $.Class }} dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{ t "start_target.title" }}">
+            <span class="sr-only">{{ t "start_target.choose" }}</span>
         </button>
         <div class="dropdown-menu">
             {{ range $server := $.Servers }}
                 <form method="post" action="{{ $.Path }}?server={{ $server.ID }}">
-                    <button type="submit" class="dropdown-item">Start on {{ $server.Name }}</button>
+                    <button type="submit" class="dropdown-item">{{ t "start_target.start_on" "name" $server.Name }}</button>
                 </form>
             {{ end }}
         </div>

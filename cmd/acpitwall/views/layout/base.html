@@ -1,18 +1,18 @@
 {{ define "ServerEventType" }}
-    {{- if .IsChampionship }}Championship{{ if .IsPractice }} practice{{ end -}}
-    {{ else if .IsRaceWeekend }}Race Weekend{{ if .IsPractice }} practice{{ end -}}
-    {{ else if EventIsLooping . }}Looping event
-    {{- else if .IsTimeAttack }}Time attack
-    {{- else }}Running{{ end -}}
+    {{- if .IsChampionship }}{{ if .IsPractice }}{{ t "event_type.championship_practice" }}{{ else }}{{ t "event_type.championship" }}{{ end -}}
+    {{ else if .IsRaceWeekend }}{{ if .IsPractice }}{{ t "event_type.race_weekend_practice" }}{{ else }}{{ t "event_type.race_weekend" }}{{ end -}}
+    {{ else if EventIsLooping . }}{{ t "event_type.looping" }}
+    {{- else if .IsTimeAttack }}{{ t "event_type.time_attack" }}
+    {{- else }}{{ t "event_type.running" }}{{ end -}}
 {{ end }}
 
 {{/* Attributes for the confirm dialog of a form that stops or restarts a running event (see DeleteConfirm.ts). */}}
 {{ define "ServerStopConfirm" }}
     {{- if not .IsPractice -}}
         {{- if .IsChampionship -}}
-            data-confirm-delete="Cancel the current championship event?" data-confirm-detail="All progress of the running event will be permanently lost." data-confirm-label="Cancel event"
+            data-confirm-delete="{{ t "stop_confirm.championship.title" }}" data-confirm-detail="{{ t "stop_confirm.championship.detail" }}" data-confirm-label="{{ t "stop_confirm.championship.label" }}"
         {{- else if .IsRaceWeekend -}}
-            data-confirm-delete="Cancel the current race weekend session?" data-confirm-detail="All progress of the running session will be permanently lost." data-confirm-label="Cancel session"
+            data-confirm-delete="{{ t "stop_confirm.race_weekend.title" }}" data-confirm-detail="{{ t "stop_confirm.race_weekend.detail" }}" data-confirm-label="{{ t "stop_confirm.race_weekend.label" }}"
         {{- end -}}
     {{- end -}}
 {{ end }}
@@ -55,6 +55,7 @@
 
         <script type="text/javascript">
             var ShowUpgradePopup = {{ .ShowUpgradePopup }};
+            var I18N = {lang: {{ lang }}, messages: {{ jsMessages }}};
         </script>
 
     </head>
@@ -62,7 +63,7 @@
 
     <header class="app-topbar">
         {{ if ReadAccess }}
-            <button type="button" class="btn-icon app-sidebar-toggle" data-sidebar-toggle aria-label="Open navigation" aria-controls="app-sidebar" aria-expanded="false">
+            <button type="button" class="btn-icon app-sidebar-toggle" data-sidebar-toggle aria-label="{{ t "topbar.open_navigation" }}" aria-controls="app-sidebar" aria-expanded="false">
                 {{ template "icon" "menu" }}
             </button>
         {{ end }}
@@ -77,17 +78,17 @@
 
         {{ if gt (len $.Servers) 1 }}
             <div class="dropdown server-selector">
-                <button type="button" class="btn-outline dropdown-toggle" id="server-selector" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Switch server, current server: {{ $.CurrentServer.Name }}" title="Switch server">
+                <button type="button" class="btn-outline dropdown-toggle" id="server-selector" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{{ t "topbar.switch_server_current" "name" $.CurrentServer.Name }}" title="{{ t "topbar.switch_server" }}">
                     <span class="server-dot {{ if $.ServerStatus }}is-running{{ end }}" aria-hidden="true"></span>
                     <span class="server-selector-name">{{ $.CurrentServer.Name }}</span>
                 </button>
                 <div class="dropdown-menu" aria-labelledby="server-selector">
-                    <h6 class="dropdown-header">Servers</h6>
+                    <h6 class="dropdown-header">{{ t "topbar.servers" }}</h6>
                     {{ range $server := $.Servers }}
                         <a class="dropdown-item server-selector-item {{ if eq $server.ID $.CurrentServer.ID }}active{{ end }}" href="{{ $path }}?server={{ $server.ID }}" {{ if eq $server.ID $.CurrentServer.ID }}aria-current="true"{{ end }}>
                             <span class="server-dot {{ if $server.Running }}is-running{{ end }}" aria-hidden="true"></span>
                             <span class="server-selector-name">{{ $server.Name }}</span>
-                            <span class="server-selector-state">{{ if $server.Running }}Running{{ else }}Idle{{ end }}</span>
+                            <span class="server-selector-state">{{ if $server.Running }}{{ t "topbar.running" }}{{ else }}{{ t "topbar.idle" }}{{ end }}</span>
                         </a>
                     {{ end }}
                 </div>
@@ -103,20 +104,20 @@
                 {{ if WriteAccess }}
                     <form method="post" action="{{ serverURL "/process/stop" }}" class="d-inline-flex m-0" {{ template "ServerStopConfirm" $.ServerEvent }}>
                         <button type="submit" class="btn-outline is-danger">
-                            {{ template "icon" "stop" }}<span class="d-none d-md-inline">Stop</span>
+                            {{ template "icon" "stop" }}<span class="d-none d-md-inline">{{ t "topbar.stop" }}</span>
                         </button>
                     </form>
                     <form method="post" action="{{ serverURL "/process/restart" }}" class="d-inline-flex m-0" {{ template "ServerStopConfirm" $.ServerEvent }}>
-                        <button type="submit" class="btn-outline btn-outline-icon" aria-label="Restart server" title="Restart server">
+                        <button type="submit" class="btn-outline btn-outline-icon" aria-label="{{ t "topbar.restart_server" }}" title="{{ t "topbar.restart_server" }}">
                             {{ template "icon" "restart" }}
                         </button>
                     </form>
                 {{ end }}
             {{ else }}
-                <span class="server-status" role="status"><span class="server-status-text">Stopped</span></span>
+                <span class="server-status" role="status"><span class="server-status-text">{{ t "topbar.stopped" }}</span></span>
             {{ end }}
 
-            <button type="button" class="btn-icon" data-theme-toggle aria-label="Toggle dark mode" title="Toggle dark mode">
+            <button type="button" class="btn-icon" data-theme-toggle aria-label="{{ t "topbar.toggle_dark" }}" title="{{ t "topbar.toggle_dark" }}">
                 <span class="theme-icon-dark">{{ template "icon" "moon" }}</span>
                 <span class="theme-icon-light">{{ template "icon" "sun" }}</span>
             </button>
@@ -137,20 +138,20 @@
             </div>
 
             {{ if not LoggedIn }}
-                <a href="/login" class="btn-outline">Sign in</a>
+                <a href="/login" class="btn-outline">{{ t "topbar.sign_in" }}</a>
             {{ else }}
                 <div class="dropdown">
-                    <button type="button" class="btn-ghost app-account-toggle dropdown-toggle" id="account-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Account menu">
+                    <button type="button" class="btn-ghost app-account-toggle dropdown-toggle" id="account-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{{ t "topbar.account_menu" }}">
                         <span class="avatar" aria-hidden="true">{{ substr 0 2 .User.Name }}</span>
-                        <span class="app-account-role text-capitalize">{{ AccountGroup .User }}</span>
+                        <span class="app-account-role">{{ t (printf "group.%s" (AccountGroup .User)) }}</span>
                     </button>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="account-menu">
-                        <h6 class="dropdown-header">Signed in as {{ .User.Name }}</h6>
-                        <a class="dropdown-item" href="/accounts/update">Update details</a>
-                        <a class="dropdown-item" href="/accounts/new-password">Change password</a>
+                        <h6 class="dropdown-header">{{ t "topbar.signed_in_as" "name" .User.Name }}</h6>
+                        <a class="dropdown-item" href="/accounts/update">{{ t "topbar.update_details" }}</a>
+                        <a class="dropdown-item" href="/accounts/new-password">{{ t "topbar.change_password" }}</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="/logout">Sign out</a>
+                        <a class="dropdown-item" href="/logout">{{ t "topbar.sign_out" }}</a>
                     </div>
                 </div>
             {{ end }}
@@ -159,63 +160,63 @@
 
     <div class="app-body">
         {{ if ReadAccess }}
-        <nav class="app-sidebar" id="app-sidebar" aria-label="Main">
+        <nav class="app-sidebar" id="app-sidebar" aria-label="{{ t "nav.main" }}">
             <div class="nav-group">
-                <div class="nav-group-title">Racing</div>
-                <a class="nav-item-link {{ if eq $path "/" }}active{{ end }}" href="{{ serverURL "/" }}">{{ template "icon" "overview" }}Overview</a>
+                <div class="nav-group-title">{{ t "nav.racing" }}</div>
+                <a class="nav-item-link {{ if eq $path "/" }}active{{ end }}" href="{{ serverURL "/" }}">{{ template "icon" "overview" }}{{ t "nav.overview" }}</a>
                 <a class="nav-item-link {{ if hasPrefix "/live-timing" $path }}active{{ end }}" href="{{ serverURL "/live-timing" }}">
-                    {{ template "icon" "live" }}Live Timing
-                    {{ if $.ServerStatus }}<span class="nav-badge">LIVE</span>{{ end }}
+                    {{ template "icon" "live" }}{{ t "nav.live_timing" }}
+                    {{ if $.ServerStatus }}<span class="nav-badge">{{ t "nav.live" }}</span>{{ end }}
                 </a>
-                <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}Results</a>
-                {{ if StatsAccess }}<a class="nav-item-link {{ if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/leaderboards">{{ template "icon" "championship" }}Leaderboards</a>{{ end }}
-                <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}Championships</a>
-                <a class="nav-item-link {{ if hasPrefix "/teams" $path }}active{{ end }}" href="/teams">{{ template "icon" "accounts" }}Teams</a>
-                <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}Race Weekends</a>
-                <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="{{ serverURL "/custom" }}">{{ template "icon" "flag" }}Custom Races</a>
-                <a class="nav-item-link {{ if hasPrefix "/calendar" $path }}active{{ end }}" href="/calendar">{{ template "icon" "calendar" }}Calendar</a>
+                <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}{{ t "nav.results" }}</a>
+                {{ if StatsAccess }}<a class="nav-item-link {{ if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/leaderboards">{{ template "icon" "championship" }}{{ t "nav.leaderboards" }}</a>{{ end }}
+                <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}{{ t "nav.championships" }}</a>
+                <a class="nav-item-link {{ if hasPrefix "/teams" $path }}active{{ end }}" href="/teams">{{ template "icon" "accounts" }}{{ t "nav.teams" }}</a>
+                <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}{{ t "nav.race_weekends" }}</a>
+                <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="{{ serverURL "/custom" }}">{{ template "icon" "flag" }}{{ t "nav.custom_races" }}</a>
+                <a class="nav-item-link {{ if hasPrefix "/calendar" $path }}active{{ end }}" href="/calendar">{{ template "icon" "calendar" }}{{ t "nav.calendar" }}</a>
             </div>
 
             {{ if WriteAccess }}
                 <div class="nav-group">
-                    <div class="nav-group-title">Organize</div>
-                    <a class="nav-item-link {{ if hasPrefix "/quick" $path }}active{{ end }}" href="{{ serverURL "/quick" }}">{{ template "icon" "quick" }}Quick Race</a>
-                    <a class="nav-item-link {{ if eq $path "/custom/new" }}active{{ end }}" href="{{ serverURL "/custom/new" }}">{{ template "icon" "plus" }}New Custom Race</a>
-                    <a class="nav-item-link" href="/championships/new">{{ template "icon" "plus" }}New Championship</a>
-                    <a class="nav-item-link" href="/race-weekends/new">{{ template "icon" "plus" }}New Race Weekend</a>
+                    <div class="nav-group-title">{{ t "nav.organize" }}</div>
+                    <a class="nav-item-link {{ if hasPrefix "/quick" $path }}active{{ end }}" href="{{ serverURL "/quick" }}">{{ template "icon" "quick" }}{{ t "nav.quick_race" }}</a>
+                    <a class="nav-item-link {{ if eq $path "/custom/new" }}active{{ end }}" href="{{ serverURL "/custom/new" }}">{{ template "icon" "plus" }}{{ t "nav.new_custom_race" }}</a>
+                    <a class="nav-item-link" href="/championships/new">{{ template "icon" "plus" }}{{ t "nav.new_championship" }}</a>
+                    <a class="nav-item-link" href="/race-weekends/new">{{ template "icon" "plus" }}{{ t "nav.new_race_weekend" }}</a>
                 </div>
             {{ end }}
 
             <div class="nav-group">
-                <div class="nav-group-title">Content</div>
-                <a class="nav-item-link {{ if hasPrefix "/track" $path }}active{{ end }}" href="/tracks">{{ template "icon" "track" }}Tracks</a>
-                <a class="nav-item-link {{ if hasPrefix "/car" $path }}active{{ end }}" href="/cars">{{ template "icon" "car" }}Cars &amp; Setups</a>
-                <a class="nav-item-link {{ if hasPrefix "/weather" $path }}active{{ end }}" href="/weather">{{ template "icon" "weather" }}Weather</a>
+                <div class="nav-group-title">{{ t "nav.content" }}</div>
+                <a class="nav-item-link {{ if hasPrefix "/track" $path }}active{{ end }}" href="/tracks">{{ template "icon" "track" }}{{ t "nav.tracks" }}</a>
+                <a class="nav-item-link {{ if hasPrefix "/car" $path }}active{{ end }}" href="/cars">{{ template "icon" "car" }}{{ t "nav.cars_setups" }}</a>
+                <a class="nav-item-link {{ if hasPrefix "/weather" $path }}active{{ end }}" href="/weather">{{ template "icon" "weather" }}{{ t "nav.weather" }}</a>
             </div>
 
             {{ if WriteAccess }}
                 <div class="nav-group">
-                    <div class="nav-group-title">Server</div>
+                    <div class="nav-group-title">{{ t "nav.server" }}</div>
                     {{ if AdminAccess }}
-                        {{ if gt (len $.Servers) 1 }}<a class="nav-item-link {{ if eq $path "/servers" }}active{{ end }}" href="/servers">{{ template "icon" "config" }}Servers</a>{{ end }}
-                        <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="{{ serverURL "/server-options" }}">{{ template "icon" "options" }}Options</a>
-                        <a class="nav-item-link {{ if hasPrefix "/accounts" $path }}active{{ end }}" href="/accounts">{{ template "icon" "accounts" }}Accounts</a>
-                        <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="{{ serverURL "/blacklist" }}">{{ template "icon" "blacklist" }}Blacklist</a>
-                        <a class="nav-item-link {{ if hasPrefix "/motd" $path }}active{{ end }}" href="{{ serverURL "/motd" }}">{{ template "icon" "message" }}Messages</a>
+                        {{ if gt (len $.Servers) 1 }}<a class="nav-item-link {{ if eq $path "/servers" }}active{{ end }}" href="/servers">{{ template "icon" "config" }}{{ t "nav.servers" }}</a>{{ end }}
+                        <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="{{ serverURL "/server-options" }}">{{ template "icon" "options" }}{{ t "nav.options" }}</a>
+                        <a class="nav-item-link {{ if hasPrefix "/accounts" $path }}active{{ end }}" href="/accounts">{{ template "icon" "accounts" }}{{ t "nav.accounts" }}</a>
+                        <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="{{ serverURL "/blacklist" }}">{{ template "icon" "blacklist" }}{{ t "nav.blacklist" }}</a>
+                        <a class="nav-item-link {{ if hasPrefix "/motd" $path }}active{{ end }}" href="{{ serverURL "/motd" }}">{{ template "icon" "message" }}{{ t "nav.messages" }}</a>
                     {{ end }}
                     {{ if DeleteAccess }}
-                        <a class="nav-item-link {{ if hasPrefix "/autofill-entrants" $path }}active{{ end }}" href="{{ serverURL "/autofill-entrants" }}">{{ template "icon" "autofill" }}AutoFill Entrants</a>
+                        <a class="nav-item-link {{ if hasPrefix "/autofill-entrants" $path }}active{{ end }}" href="{{ serverURL "/autofill-entrants" }}">{{ template "icon" "autofill" }}{{ t "nav.autofill" }}</a>
                     {{ end }}
-                    <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="{{ serverURL "/logs" }}">{{ template "icon" "logs" }}Logs</a>
+                    <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="{{ serverURL "/logs" }}">{{ template "icon" "logs" }}{{ t "nav.logs" }}</a>
                     {{ if AdminAccess }}
-                        <a class="nav-item-link {{ if hasPrefix "/audit-logs" $path }}active{{ end }}" href="/audit-logs">{{ template "icon" "audit" }}Audit Logs</a>
-                        <a class="nav-item-link {{ if hasPrefix "/current-config" $path }}active{{ end }}" href="{{ serverURL "/current-config" }}">{{ template "icon" "config" }}Current Config</a>
+                        <a class="nav-item-link {{ if hasPrefix "/audit-logs" $path }}active{{ end }}" href="/audit-logs">{{ template "icon" "audit" }}{{ t "nav.audit_logs" }}</a>
+                        <a class="nav-item-link {{ if hasPrefix "/current-config" $path }}active{{ end }}" href="{{ serverURL "/current-config" }}">{{ template "icon" "config" }}{{ t "nav.current_config" }}</a>
                     {{ end }}
                 </div>
 
                 {{ if AdminAccess }}
                     <div class="nav-group">
-                        <div class="nav-group-title">Plugins</div>
+                        <div class="nav-group-title">{{ t "nav.plugins" }}</div>
                         <a class="nav-item-link {{ if hasPrefix "/stracker" $path }}active{{ end }}" href="{{ serverURL "/stracker/options" }}">{{ template "icon" "plugin" }}sTracker</a>
                         <a class="nav-item-link {{ if hasPrefix "/kissmyrank" $path }}active{{ end }}" href="{{ serverURL "/kissmyrank/options" }}">{{ template "icon" "plugin" }}KissMyRank</a>
                         <a class="nav-item-link {{ if hasPrefix "/realpenalty" $path }}active{{ end }}" href="{{ serverURL "/realpenalty/options" }}">{{ template "icon" "plugin" }}Real Penalty</a>
@@ -224,8 +225,8 @@
             {{ end }}
 
             <div class="app-sidebar-footer">
-                <a href="/changelog">Changelog</a>
-                <span>Version {{ Version }}</span>
+                <a href="/changelog">{{ t "nav.changelog" }}</a>
+                <span>{{ t "nav.version" "version" Version }}</span>
             </div>
         </nav>
 
@@ -239,9 +240,9 @@
 
                 <footer class="app-footer">
                     <span>ACPitwall {{ Version }}</span>
-                    {{ if ReadAccess }}<a href="/changelog">Changelog</a>{{ end }}
+                    {{ if ReadAccess }}<a href="/changelog">{{ t "nav.changelog" }}</a>{{ end }}
                     <a href="https://github.com/wernersbacher/ACPitwall">GitHub</a>
-                    <a href="https://github.com/wernersbacher/ACPitwall/issues">Report a bug</a>
+                    <a href="https://github.com/wernersbacher/ACPitwall/issues">{{ t "footer.report_bug" }}</a>
                 </footer>
             </div>
         </main>
@@ -251,7 +252,7 @@
         {{ range $i, $message := .Messages }}
             <div class="alert alert-success alert-dismissible" role="alert">
                 {{ $message }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <button type="button" class="close" data-dismiss="alert" aria-label="{{ t "common.close" }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -260,7 +261,7 @@
         {{ range $i, $error := .Errors }}
             <div class="alert alert-danger alert-dismissible" role="alert">
                 {{ $error }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <button type="button" class="close" data-dismiss="alert" aria-label="{{ t "common.close" }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -272,13 +273,13 @@
                     <div class="modal-body">
                         <span class="delete-dialog-icon" aria-hidden="true"><span class="delete-dialog-icon-delete">{{ template "icon" "trash" }}</span><span class="delete-dialog-icon-action">{{ template "icon" "alert" }}</span></span>
                         <div>
-                            <h2 class="delete-dialog-title" id="delete-confirm-title">Delete this item?</h2>
-                            <p class="delete-dialog-detail" id="delete-confirm-detail">This cannot be undone.</p>
+                            <h2 class="delete-dialog-title" id="delete-confirm-title">{{ t "dialog.delete_title" }}</h2>
+                            <p class="delete-dialog-detail" id="delete-confirm-detail">{{ t "dialog.delete_detail" }}</p>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline" data-dismiss="modal" id="delete-confirm-cancel">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="delete-confirm-ok">Delete</button>
+                        <button type="button" class="btn btn-outline" data-dismiss="modal" id="delete-confirm-cancel">{{ t "common.cancel" }}</button>
+                        <button type="button" class="btn btn-danger" id="delete-confirm-ok">{{ t "common.delete" }}</button>
                     </div>
                 </div>
             </div>
@@ -290,23 +291,20 @@
             <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">ACPitwall was upgraded to {{ Version }}!</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <h5 class="modal-title">{{ t "upgrade.title" "version" Version }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="{{ t "common.close" }}">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>
-                            Welcome to this new version of ACPitwall! We update ACPitwall regularly with cool
-                            new features and bug fixes! Please read below to find out the changes in the new release.
-                        </p>
+                        <p>{{ t "upgrade.intro" }}</p>
 
                         <div id="changelog-text">
                             {{ ChangelogHTML }}
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">{{ t "common.close" }}</button>
                     </div>
                 </div>
             </div>

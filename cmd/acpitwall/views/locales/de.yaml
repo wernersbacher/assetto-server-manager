@@ -1,3 +1,5 @@
+# German catalog. The UI addresses the user informally ("du"). Assetto Corsa terms which German players use in English
+# (Session, Setup, Skin, Entry List, Pit, Ballast, Restrictor, ...) stay English.
 language:
   name: Deutsch
   label: Sprache
@@ -7,3 +9,116 @@ language:
 common:
   "yes": "Ja"
   "no": "Nein"
+  close: Schließen
+  cancel: Abbrechen
+  delete: Löschen
+
+group:
+  no_access: Kein Zugriff
+  read: Lesen
+  write: Schreiben
+  delete: Löschen
+  admin: Admin
+
+event_type:
+  championship: Meisterschaft
+  championship_practice: Meisterschaftstraining
+  race_weekend: Rennwochenende
+  race_weekend_practice: Rennwochenend-Training
+  looping: Endlos-Event
+  time_attack: Zeitfahren
+  running: Läuft
+
+stop_confirm:
+  championship:
+    title: Aktuelles Meisterschafts-Event abbrechen?
+    detail: Der gesamte Fortschritt des laufenden Events geht unwiderruflich verloren.
+    label: Event abbrechen
+  race_weekend:
+    title: Aktuelle Session des Rennwochenendes abbrechen?
+    detail: Der gesamte Fortschritt der laufenden Session geht unwiderruflich verloren.
+    label: Session abbrechen
+
+topbar:
+  open_navigation: Navigation öffnen
+  switch_server: Server wechseln
+  switch_server_current: "Server wechseln, aktueller Server: {name}"
+  servers: Server
+  running: Läuft
+  idle: Frei
+  stop: Stoppen
+  restart_server: Server neu starten
+  stopped: Gestoppt
+  toggle_dark: Dunkelmodus umschalten
+  sign_in: Anmelden
+  account_menu: Kontomenü
+  signed_in_as: Angemeldet als {name}
+  update_details: Profil bearbeiten
+  change_password: Passwort ändern
+  sign_out: Abmelden
+
+nav:
+  main: Hauptnavigation
+  racing: Rennen
+  overview: Übersicht
+  live_timing: Live-Timing
+  live: LIVE
+  results: Ergebnisse
+  leaderboards: Bestenlisten
+  championships: Meisterschaften
+  teams: Teams
+  race_weekends: Rennwochenenden
+  custom_races: Eigene Rennen
+  calendar: Kalender
+  organize: Organisieren
+  quick_race: Schnelles Rennen
+  new_custom_race: Neues eigenes Rennen
+  new_championship: Neue Meisterschaft
+  new_race_weekend: Neues Rennwochenende
+  content: Inhalte
+  tracks: Strecken
+  cars_setups: Autos & Setups
+  weather: Wetter
+  server: Server
+  servers: Server
+  options: Optionen
+  accounts: Konten
+  blacklist: Sperrliste
+  messages: Nachrichten
+  autofill: AutoFill-Teilnehmer
+  logs: Logs
+  audit_logs: Audit-Logs
+  current_config: Aktuelle Konfiguration
+  plugins: Plugins
+  changelog: Änderungen
+  version: Version {version}
+
+footer:
+  report_bug: Fehler melden
+
+dialog:
+  delete_title: Diesen Eintrag löschen?
+  delete_detail: Das kann nicht rückgängig gemacht werden.
+
+upgrade:
+  title: ACPitwall wurde auf {version} aktualisiert!
+  intro: Willkommen in der neuen Version von ACPitwall! Wir aktualisieren ACPitwall regelmäßig mit neuen Funktionen und Fehlerbehebungen. Unten steht, was sich in dieser Version geändert hat (auf Englisch).
+
+pagination:
+  label: Seitennavigation
+  first: Erste Seite
+  previous: Vorherige Seite
+  next: Nächste Seite
+  last: Letzte Seite
+
+server_context:
+  badge: "Server: {name}"
+
+start_target:
+  title: Server zum Starten wählen
+  choose: Server wählen
+  start_on: Auf {name} starten
+
+port_warnings:
+  title: Portkonflikt mit einem anderen Server.
+  detail: Server auf demselben Rechner können nicht dieselben Ports verwenden.

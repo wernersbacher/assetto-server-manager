@@ -1,6 +1,6 @@
 # English is the reference catalog: every key used by the templates or the TypeScript code has to be here.
 # Other catalogs fall back to it for keys they miss. Placeholders look like {name}; plurals have the sub keys one/other.
-# Keys below js. are handed to the browser (see Messages.ts / i18n.ts).
+# Keys below js. are handed to the browser (window.I18N, see i18n.ts). Quote keys like "yes", "no", "on" and "off".
 language:
   name: English
   label: Language
@@ -10,3 +10,116 @@ language:
 common:
   "yes": "Yes"
   "no": "No"
+  close: Close
+  cancel: Cancel
+  delete: Delete
+
+group:
+  no_access: No access
+  read: Read
+  write: Write
+  delete: Delete
+  admin: Admin
+
+event_type:
+  championship: Championship
+  championship_practice: Championship practice
+  race_weekend: Race Weekend
+  race_weekend_practice: Race Weekend practice
+  looping: Looping event
+  time_attack: Time attack
+  running: Running
+
+stop_confirm:
+  championship:
+    title: Cancel the current championship event?
+    detail: All progress of the running event will be permanently lost.
+    label: Cancel event
+  race_weekend:
+    title: Cancel the current race weekend session?
+    detail: All progress of the running session will be permanently lost.
+    label: Cancel session
+
+topbar:
+  open_navigation: Open navigation
+  switch_server: Switch server
+  switch_server_current: "Switch server, current server: {name}"
+  servers: Servers
+  running: Running
+  idle: Idle
+  stop: Stop
+  restart_server: Restart server
+  stopped: Stopped
+  toggle_dark: Toggle dark mode
+  sign_in: Sign in
+  account_menu: Account menu
+  signed_in_as: Signed in as {name}
+  update_details: Update details
+  change_password: Change password
+  sign_out: Sign out
+
+nav:
+  main: Main
+  racing: Racing
+  overview: Overview
+  live_timing: Live Timing
+  live: LIVE
+  results: Results
+  leaderboards: Leaderboards
+  championships: Championships
+  teams: Teams
+  race_weekends: Race Weekends
+  custom_races: Custom Races
+  calendar: Calendar
+  organize: Organize
+  quick_race: Quick Race
+  new_custom_race: New Custom Race
+  new_championship: New Championship
+  new_race_weekend: New Race Weekend
+  content: Content
+  tracks: Tracks
+  cars_setups: Cars & Setups
+  weather: Weather
+  server: Server
+  servers: Servers
+  options: Options
+  accounts: Accounts
+  blacklist: Blacklist
+  messages: Messages
+  autofill: AutoFill Entrants
+  logs: Logs
+  audit_logs: Audit Logs
+  current_config: Current Config
+  plugins: Plugins
+  changelog: Changelog
+  version: Version {version}
+
+footer:
+  report_bug: Report a bug
+
+dialog:
+  delete_title: Delete this item?
+  delete_detail: This cannot be undone.
+
+upgrade:
+  title: ACPitwall was upgraded to {version}!
+  intro: Welcome to this new version of ACPitwall! We update ACPitwall regularly with new features and bug fixes. Read below to find out what changed in the new release.
+
+pagination:
+  label: Page navigation
+  first: First page
+  previous: Previous page
+  next: Next page
+  last: Last page
+
+server_context:
+  badge: "Server: {name}"
+
+start_target:
+  title: Choose the server to start on
+  choose: Choose server
+  start_on: Start on {name}
+
+port_warnings:
+  title: Port conflict with another server.
+  detail: Servers on the same machine can't use the same ports.
