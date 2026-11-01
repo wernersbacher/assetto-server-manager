@@ -11,33 +11,60 @@
 //  - collapsible advanced sections (see COLLAPSIBLE) that show a one line summary of their values while collapsed,
 //  - an error summary for fields the browser refuses to submit, which links to (and opens) the affected sections.
 // Collapsing only hides the card body with CSS: the fields stay in the DOM, so scripts and submission still see them.
+import {t} from "./i18n";
 
 type SummaryField = { name: string, label: string };
-type Section = { id: string, title: string, $card: JQuery, baseline: string, collapsible: boolean };
+type Section = { id: string, title: string, $card: JQuery, baseline: string, collapsible: boolean, group: string };
 
 // The advanced sections that most users leave at their defaults, with the fields shown in the collapsed summary.
-const COLLAPSIBLE: { [title: string]: SummaryField[] } = {
-    "Assists": [
-        {name: "ABSAllowed", label: "ABS"}, {name: "TractionControlAllowed", label: "TC"},
-        {name: "StabilityControlAllowed", label: "Stability"}, {name: "AutoClutchAllowed", label: "Autoclutch"},
-        {name: "TyreBlanketsAllowed", label: "Tyre blankets"},
-    ],
-    "Realism": [
-        {name: "FuelRate", label: "Fuel"}, {name: "DamageMultiplier", label: "Damage"},
-        {name: "TyreWearRate", label: "Tyre wear"}, {name: "ForceVirtualMirror", label: "Virtual mirror"},
-        {name: "SurfacePreset", label: "Surface"}, {name: "SessionStart", label: "Grip at start"},
-    ],
-    "Rules": [
-        {name: "MaxBallastKilograms", label: "Max ballast"}, {name: "AllowedTyresOut", label: "Tyres out"},
-        {name: "MaxContactsPerKilometer", label: "Contacts/km"}, {name: "StartRule", label: "Start rule"},
-        {name: "LoopMode", label: "Loop"}, {name: "ResultScreenTime", label: "Result screen"},
-        {name: "DisableDRSZones", label: "No DRS zones"},
-    ],
-    "Server Options": [
-        {name: "OverridePassword", label: "Replace password"}, {name: "ForceStopTime", label: "Force stop"},
-        {name: "ForceStopWithDrivers", label: "Stop with drivers"},
-    ],
-};
+// The group names are only ids (also used to remember the collapsed state); a card belongs to a group when it
+// contains most of the group's fields, because the card titles are translated.
+let collapsibleGroups: { [group: string]: SummaryField[] } | null = null;
+
+function collapsible(): { [group: string]: SummaryField[] } {
+    if (!collapsibleGroups) {
+        collapsibleGroups = {
+            "Assists": [
+                {name: "ABSAllowed", label: t("race_form.field.abs")}, {name: "TractionControlAllowed", label: t("race_form.field.tc")},
+                {name: "StabilityControlAllowed", label: t("race_form.field.stability")}, {name: "AutoClutchAllowed", label: t("race_form.field.autoclutch")},
+                {name: "TyreBlanketsAllowed", label: t("race_form.field.tyre_blankets")},
+            ],
+            "Realism": [
+                {name: "FuelRate", label: t("race_form.field.fuel")}, {name: "DamageMultiplier", label: t("race_form.field.damage")},
+                {name: "TyreWearRate", label: t("race_form.field.tyre_wear")}, {name: "ForceVirtualMirror", label: t("race_form.field.virtual_mirror")},
+                {name: "SurfacePreset", label: t("race_form.field.surface")}, {name: "SessionStart", label: t("race_form.field.grip_at_start")},
+            ],
+            "Rules": [
+                {name: "MaxBallastKilograms", label: t("race_form.field.max_ballast")}, {name: "AllowedTyresOut", label: t("race_form.field.tyres_out")},
+                {name: "MaxContactsPerKilometer", label: t("race_form.field.contacts_per_km")}, {name: "StartRule", label: t("race_form.field.start_rule")},
+                {name: "LoopMode", label: t("race_form.field.loop")}, {name: "ResultScreenTime", label: t("race_form.field.result_screen")},
+                {name: "DisableDRSZones", label: t("race_form.field.no_drs_zones")},
+            ],
+            "Server Options": [
+                {name: "OverridePassword", label: t("race_form.field.replace_password")}, {name: "ForceStopTime", label: t("race_form.field.force_stop")},
+                {name: "ForceStopWithDrivers", label: t("race_form.field.stop_with_drivers")},
+            ],
+        };
+    }
+
+    return collapsibleGroups;
+}
+
+// collapsibleGroup returns the group of the card, or "" if it is not one of the collapsible sections.
+function collapsibleGroup($card: JQuery): string {
+    const groups = collapsible();
+
+    for (const group in groups) {
+        const fields = groups[group];
+        const found = fields.filter((f) => $card.find("[name='" + f.name + "']").length > 0).length;
+
+        if (found * 2 > fields.length) {
+            return group;
+        }
+    }
+
+    return "";
+}
 
 export class RaceForm {
     public constructor() {
@@ -64,11 +91,12 @@ export class RaceForm {
             }
 
             const id = "form-section-" + sections.length;
+            const group = collapsibleGroup($card);
 
             $card.addClass("form-section").attr("data-section", id);
             sections.push({
-                id, title, $card, baseline: "",
-                collapsible: !!COLLAPSIBLE[title] && $card.children(".card-body").length > 0,
+                id, title, $card, baseline: "", group,
+                collapsible: !!group && $card.children(".card-body").length > 0,
             });
         });
 
@@ -172,10 +200,10 @@ export class RaceForm {
             const el = $field[0] as any;
 
             if (el.type === "checkbox") {
-                parts.push(f.label + (el.checked ? " on" : " off"));
+                parts.push(el.checked ? t("race_form.summary.on", {label: f.label}) : t("race_form.summary.off", {label: f.label}));
             } else if (el.tagName === "SELECT") {
                 const selected = Array.from(el.selectedOptions as HTMLOptionElement[]).map((o) => o.text.trim());
-                const text = el.multiple ? (selected.length ? selected.length + " selected" : "none selected") : selected.join(", ");
+                const text = el.multiple ? (selected.length ? t("race_form.summary.selected", {count: selected.length}) : t("race_form.summary.none_selected")) : selected.join(", ");
 
                 if (text) {
                     parts.push(f.label + ": " + text);
@@ -197,7 +225,7 @@ export class RaceForm {
 
         s.$card.toggleClass("is-collapsed", !open);
         s.$card.find(".form-section-toggle").attr("aria-expanded", String(open))
-            .find(".form-section-toggle-text").text(open ? "Hide" : "Show");
+            .find(".form-section-toggle-text").text(open ? t("race_form.hide") : t("race_form.show"));
 
         if (open && wasCollapsed) {
             // widgets that measure their layout (select pickers, charts) get a chance to update
@@ -215,18 +243,18 @@ export class RaceForm {
             s.$card.children(".card-body").first().attr("id", bodyId);
 
             const $summary = $("<div>").addClass("form-section-summary");
-            const $edited = $("<span>").addClass("badge badge-secondary form-section-edited").text("edited").hide();
+            const $edited = $("<span>").addClass("badge badge-secondary form-section-edited").text(t("race_form.edited")).hide();
             const $toggle = $("<button>").attr({type: "button", "aria-expanded": "true", "aria-controls": bodyId})
                 .addClass("form-section-toggle btn btn-sm btn-outline")
-                .attr("aria-label", "Show or hide " + s.title)
-                .append($("<span>").addClass("form-section-toggle-text").text("Hide"));
+                .attr("aria-label", t("race_form.toggle_label", {section: s.title}))
+                .append($("<span>").addClass("form-section-toggle-text").text(t("race_form.hide")));
             const $strong = $header.children("strong").first();
             const $heading = $("<div>").addClass("form-section-heading").append($("<div>").append($strong).append($edited)).append($summary);
 
             $header.addClass("form-section-header").empty().append($heading).append($toggle);
 
             const update = () => {
-                $summary.text(RaceForm.summarise(s.$card, COLLAPSIBLE[s.title]));
+                $summary.text(RaceForm.summarise(s.$card, collapsible()[s.group]));
                 $edited.toggle(RaceForm.signature(s.$card) !== s.baseline);
             };
 
@@ -237,7 +265,7 @@ export class RaceForm {
                 const open = s.$card.hasClass("is-collapsed");
 
                 RaceForm.setOpen(s, open);
-                stored[s.title] = open;
+                stored[s.group] = open;
                 RaceForm.save(storageKey, stored);
             };
 
@@ -248,7 +276,7 @@ export class RaceForm {
                 }
             });
 
-            RaceForm.setOpen(s, stored[s.title] === true);
+            RaceForm.setOpen(s, stored[s.group] === true);
         });
     }
 
@@ -287,10 +315,10 @@ export class RaceForm {
 
                 if ($pane.find(".has-error, [aria-invalid=true]").length) {
                     status = "error";
-                    text = "has errors";
+                    text = t("race_form.status.has_errors");
                 } else if (RaceForm.signature($pane) !== baselines[i]) {
                     status = "edited";
-                    text = "edited";
+                    text = t("race_form.edited");
                 }
 
                 markers[i].attr("data-status", status).empty();
@@ -336,7 +364,7 @@ export class RaceForm {
             return () => undefined;
         }
 
-        const $index = $("<nav>").addClass("form-index").attr("aria-label", "Sections");
+        const $index = $("<nav>").addClass("form-index").attr("aria-label", t("race_form.sections"));
         const $list = $("<ul>");
         const markers: JQuery[] = [];
 
@@ -359,13 +387,13 @@ export class RaceForm {
 
                 if (s.$card.hasClass("has-error")) {
                     status = "error";
-                    text = "has errors";
+                    text = t("race_form.status.has_errors");
                 } else if (RaceForm.signature(s.$card) !== s.baseline) {
                     status = "edited";
-                    text = "edited";
+                    text = t("race_form.edited");
                 } else if ($required.length && $required.toArray().every((el: any) => el.checkValidity())) {
                     status = "complete";
-                    text = "complete";
+                    text = t("race_form.status.complete");
                 }
 
                 markers[i].attr("data-status", status).empty();
@@ -429,7 +457,7 @@ export class RaceForm {
                 text = $(el).closest(".form-group, td").find("label").first().text().trim();
             }
 
-            return text || el.getAttribute("name") || "Field";
+            return text || el.getAttribute("name") || t("race_form.field_fallback");
         };
 
         const clear = () => {
@@ -451,7 +479,7 @@ export class RaceForm {
 
         const show = () => {
             $summary = $("<div>").addClass("form-error-summary alert alert-danger").attr({role: "alert", tabindex: "-1"})
-                .append($("<strong>").text("Please fix these fields before saving:"));
+                .append($("<strong>").text(t("race_form.fix_fields")));
             const $list = $("<ul>");
 
             errors.forEach((e) => $list.append(e.$li));
@@ -649,14 +677,14 @@ export class RaceForm {
         }
 
         const $bar = $("<div>").addClass("save-bar race-save-bar");
-        const $text = $("<span>").addClass("save-bar-text").text("No changes yet");
+        const $text = $("<span>").addClass("save-bar-text").text(t("race_form.no_changes"));
         $bar.append($text);
 
         let dirty = false;
         let submitted = false;
 
         // Discard throws the edits away by loading the page again; the shared dialog asks first when there are edits
-        const $discard = $("<button>").attr("type", "button").addClass("btn btn-outline race-discard").text("Discard changes");
+        const $discard = $("<button>").attr("type", "button").addClass("btn btn-outline race-discard").text(t("race_form.discard_changes"));
         const reload = () => {
             window.onbeforeunload = null;
             window.location.assign(window.location.href.split("#")[0]);
@@ -670,9 +698,9 @@ export class RaceForm {
                 return;
             }
 
-            $("#delete-confirm-title").text("Discard your changes?");
-            $("#delete-confirm-detail").text("The form is reset to the last saved values.");
-            $("#delete-confirm-ok").text("Discard").one("click.discard", reload);
+            $("#delete-confirm-title").text(t("race_form.discard_title"));
+            $("#delete-confirm-detail").text(t("race_form.discard_detail"));
+            $("#delete-confirm-ok").text(t("race_form.discard")).one("click.discard", reload);
             $modal.one("hidden.bs.modal", () => $("#delete-confirm-ok").off("click.discard"));
             $modal.modal("show");
         });
@@ -712,7 +740,7 @@ export class RaceForm {
             }
 
             dirty = true;
-            $text.text("Unsaved changes").addClass("is-dirty");
+            $text.text(t("race_form.unsaved_changes")).addClass("is-dirty");
         });
 
         $form.on("input change click keyup", () => setTimeout(sync, 0));

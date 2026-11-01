@@ -1,0 +1,116 @@
+# Messages of the browser code (cmd/acpitwall/typescript/src), used with t("area.key") / tn("area.key", count).
+# js.confirm, js.calendar and js.messages live in de.yaml.
+js:
+  live:
+    event_title: "{session} auf {track}"
+    session:
+      booking: Booking
+      practice: Training
+      qualifying: Qualifying
+      race: Rennen
+      unknown: Unbekannte Session
+    days_plus:
+      one: "{count} Tag + {time}"
+      other: "{count} Tage + {time}"
+    laps_remaining:
+      one: "noch {count} Runde"
+      other: "noch {count} Runden"
+    road_temp: "Asphalttemperatur: {temp}°C"
+    ambient_temp: "Lufttemperatur: {temp}°C"
+    current_weather: "Aktuelles Wetter: {weather}"
+    loaded: Geladen
+    crash_with_car: "Unfall mit {driver} bei {speed}"
+    crash_with_environment: "Unfall mit der Umgebung bei {speed}"
+  race_form:
+    field:
+      abs: ABS
+      tc: TC
+      stability: Stabilität
+      autoclutch: Autokupplung
+      tyre_blankets: Reifenwärmer
+      fuel: Sprit
+      damage: Schaden
+      tyre_wear: Reifenverschleiß
+      virtual_mirror: Virtueller Spiegel
+      surface: Streckenzustand
+      grip_at_start: Grip zu Beginn
+      max_ballast: Max. Ballast
+      tyres_out: Reifen außerhalb
+      contacts_per_km: Kontakte/km
+      start_rule: Startregel
+      loop: Endlosschleife
+      result_screen: Ergebnisanzeige
+      no_drs_zones: Keine DRS-Zonen
+      replace_password: Passwort ersetzen
+      force_stop: Zwangsstopp
+      stop_with_drivers: Stopp mit Fahrern
+    summary:
+      "on": "{label} an"
+      "off": "{label} aus"
+      selected: "{count} ausgewählt"
+      none_selected: nichts ausgewählt
+    show: Anzeigen
+    hide: Ausblenden
+    toggle_label: "{section} ein- oder ausblenden"
+    edited: geändert
+    status:
+      has_errors: fehlerhaft
+      complete: vollständig
+    sections: Abschnitte
+    field_fallback: Feld
+    fix_fields: "Bitte korrigiere diese Felder vor dem Speichern:"
+    no_changes: Noch keine Änderungen
+    unsaved_changes: Ungespeicherte Änderungen
+    discard_changes: Änderungen verwerfen
+    discard_title: Deine Änderungen verwerfen?
+    discard_detail: Das Formular wird auf die zuletzt gespeicherten Werte zurückgesetzt.
+    discard: Verwerfen
+  form:
+    leave_unsaved: Willst du die Seite wirklich verlassen? Ungespeicherte Änderungen an diesem Setup gehen dabei verloren.
+  entrant:
+    preview_image: Vorschaubild
+    random_skin: "<zufälliger Skin>"
+    no_fixed_setup: Kein festes Setup
+    any_car: Beliebiges verfügbares Auto
+  upload:
+    uploading: Wird hochgeladen...
+    sent: "Upload gesendet ({size}), der Server verarbeitet die Dateien..."
+    progress: "Wird hochgeladen: {percent} % ({loaded} von {total})"
+    finished: Upload abgeschlossen. Seite wird neu geladen...
+    reading:
+      one: "{count} Datei wird gelesen..."
+      other: "{count} Dateien werden gelesen..."
+    no_files: Es gibt keine Dateien zum Hochladen.
+    reading_progress: "Dateien werden gelesen ({count} von {total})..."
+    read_failed: "{file} konnte nicht gelesen werden."
+    failed: "Der Upload ist fehlgeschlagen ({error}). Bitte versuche es noch einmal oder lade weniger Dateien auf einmal hoch."
+    network_error: Netzwerkfehler
+    preview: "Vorschau: {name}"
+    weather_preview: Wettervorschau
+    livery: "Lackierung: {name}"
+    layout: "Layout: {name}"
+    default_layout: Standard
+    content_preview: Inhaltsvorschau
+    incompatible_weather: Die hochgeladenen Dateien scheinen leider kein kompatibles Wetter-Preset zu sein!
+    incompatible_car: Die hochgeladenen Dateien scheinen leider kein kompatibles Auto zu sein!
+    incompatible_track: Die hochgeladenen Dateien scheinen leider keine kompatible Strecke zu sein!
+    upload_weather: Wetter-Preset(s) hochladen
+    upload_cars: Auto(s) hochladen
+    upload_tracks: Strecke(n) hochladen
+    not_a_car: Das war wohl leider kein Auto!
+    not_a_track: Das war wohl leider keine Strecke!
+  championship:
+    unnamed_class: Unbenannte Klasse
+    slots_with_drivers:
+      one: "{count} Platz hat einen Fahrer zugewiesen – entferne ihn im Tab „Entry List“"
+      other: "{count} Plätze haben Fahrer zugewiesen – entferne sie im Tab „Entry List“"
+    info_placeholder: In diesem Feld kannst du Links zu Strecken, Autos oder anderen Ressourcen teilen, die Regeln der Meisterschaft beschreiben und alles andere, was du den Teilnehmern deiner Meisterschaft mitteilen möchtest! Du kannst es auch leer lassen, wenn du keine Infos brauchst. Große Bilder verlängern die Ladezeit dieser Bearbeitungsseite, die Ansichtsseite sollte davon aber kaum betroffen sein.
+  points:
+    ordinal:
+      one: "{n}."
+      two: "{n}."
+      few: "{n}."
+      other: "{n}."
+  content:
+    car_notes_placeholder: In diesem Feld kannst du Notizen zu jedem Auto hinterlegen!
+    track_notes_placeholder: In diesem Feld kannst du Notizen zu jeder Strecke hinterlegen!

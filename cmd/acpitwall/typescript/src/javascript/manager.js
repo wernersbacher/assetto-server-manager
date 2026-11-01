@@ -3,6 +3,7 @@
 import {CarSearch} from "../CarSearch";
 import {Form} from "../Form";
 import {SummernoteWrapper} from "../forms/SummernoteWrapper";
+import {t, tn} from "../i18n";
 
 let $document;
 
@@ -155,7 +156,7 @@ export function EntryPoint() {
                 return;
             }
 
-            return "Are you sure you want to navigate away? You'll lose unsaved changes to this setup if you do.";
+            return t("form.leave_unsaved");
         };
     }
 
@@ -972,7 +973,7 @@ class RaceSetup {
             let $preview = $this.closest(".entrant").find(".entryListCarPreview");
 
             if (currentCar === "any_car_model") {
-                $preview.attr({"src": fallBackImage, "alt": "Preview Image"});
+                $preview.attr({"src": fallBackImage, "alt": t("entrant.preview_image")});
                 return;
             }
 
@@ -990,7 +991,7 @@ class RaceSetup {
                     }).fail(function () {
                     // preview doesn't exist, load default fall back image
                     path = fallBackImage;
-                    $preview.attr({"src": path, "alt": "Preview Image"})
+                    $preview.attr({"src": path, "alt": t("entrant.preview_image")})
                 });
             }
         }
@@ -1035,7 +1036,7 @@ class RaceSetup {
 
             $skinsDropdown.empty();
 
-            $("<option value='random_skin'>&lt;random skin&gt;</option>").appendTo($skinsDropdown);
+            $("<option value='random_skin'>").text(t("entrant.random_skin")).appendTo($skinsDropdown);
 
             try {
 
@@ -1062,7 +1063,7 @@ class RaceSetup {
 
             $fixedSetupDropdown.empty();
 
-            $("<option>").val("").text("No Fixed Setup").appendTo($fixedSetupDropdown);
+            $("<option>").val("").text(t("entrant.no_fixed_setup")).appendTo($fixedSetupDropdown);
 
             try {
                 if (car in fixedSetups && fixedSetups[car] !== null) {
@@ -1113,7 +1114,7 @@ class RaceSetup {
             that.$parent.find(".entryListCar").each(function (index, val) {
                 let $val = $(val);
                 let selected = $val.find("option:selected").val();
-                let $anyCar = $("<option value='any_car_model'>Any Available Car</option>");
+                let $anyCar = $("<option value='any_car_model'>").text(t("entrant.any_car"));
 
                 if (!selected || !cars.has(selected)) {
                     if (selected === 'any_car_model' || cars.size < 1) {
@@ -1512,7 +1513,7 @@ function postWithProgressBar(path, data, onSuccess, onFail, $progressBar) {
     $("#upload-progress").show();
     $progressBar.removeClass("bg-success bg-danger").addClass("progress-bar-striped progress-bar-animated");
     setUploadProgress($progressBar, 0);
-    setUploadStatus("Uploading...");
+    setUploadStatus(t("upload.uploading"));
 
     function showProgress(evt) {
         if (evt.lengthComputable) {
@@ -1520,9 +1521,9 @@ function postWithProgressBar(path, data, onSuccess, onFail, $progressBar) {
             setUploadProgress($progressBar, percentComplete);
 
             if (percentComplete >= 100) {
-                setUploadStatus("Upload sent (" + formatBytes(evt.total) + "), the server is processing the files...");
+                setUploadStatus(t("upload.sent", {size: formatBytes(evt.total)}));
             } else {
-                setUploadStatus("Uploading " + percentComplete + "% (" + formatBytes(evt.loaded) + " of " + formatBytes(evt.total) + ")");
+                setUploadStatus(t("upload.progress", {percent: percentComplete, loaded: formatBytes(evt.loaded), total: formatBytes(evt.total)}));
             }
         }
     }
@@ -1539,7 +1540,7 @@ function postWithProgressBar(path, data, onSuccess, onFail, $progressBar) {
         success: function (data) {
             $progressBar.removeClass("progress-bar-striped progress-bar-animated").addClass("bg-success");
             setUploadProgress($progressBar, 100);
-            setUploadStatus("Upload finished. Reloading...", "success");
+            setUploadStatus(t("upload.finished"), "success");
             onSuccess(data);
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -1581,10 +1582,10 @@ function submitFiles(path) {
     $("#upload-progress").show();
     $progressBar.removeClass("bg-success bg-danger").addClass("progress-bar-striped progress-bar-animated");
     setUploadProgress($progressBar, 0);
-    setUploadStatus("Reading " + filesToUpload.length + " files...");
+    setUploadStatus(tn("upload.reading", filesToUpload.length));
 
     if (filesToUpload.length === 0) {
-        setUploadStatus("There are no files to upload.", "error");
+        setUploadStatus(t("upload.no_files"), "error");
         $buttons.prop("disabled", false);
 
         return;
@@ -1610,13 +1611,13 @@ function submitFiles(path) {
             if (count === filesToUpload.length) {
                 postWithProgressBar(path, JSON.stringify(newFiles), onSuccess, onFail, $progressBar);
             } else {
-                setUploadStatus("Reading files (" + count + " of " + filesToUpload.length + ")...");
+                setUploadStatus(t("upload.reading_progress", {count: count, total: filesToUpload.length}));
             }
         });
 
         reader.addEventListener("error", function () {
             $progressBar.removeClass("progress-bar-striped progress-bar-animated").addClass("bg-danger");
-            setUploadStatus("Could not read " + filesToUpload[x].name + ".", "error");
+            setUploadStatus(t("upload.read_failed", {file: filesToUpload[x].name}), "error");
             $buttons.prop("disabled", false);
         });
     }
@@ -1632,7 +1633,7 @@ function onSuccess(data) {
 
 function onFail(xhr, textStatus, errorThrown) {
     console.log("Content Could Not be Added");
-    setUploadStatus("The upload failed (" + (errorThrown || textStatus || "network error") + "). Please try again, or upload fewer files at once.", "error");
+    setUploadStatus(t("upload.failed", {error: errorThrown || textStatus || t("upload.network_error")}), "error");
     $("#upload-button button").prop("disabled", false);
 }
 
@@ -1705,7 +1706,7 @@ function handleWeatherFilesLoop(fileList) {
     }
 
     $weatherPanel.attr({'class': "card p-3"});
-    $title.text("Preview: " + weatherName);
+    $title.text(t("upload.preview", {name: weatherName}));
     $row.attr({'class': "card-deck"});
 
     $weatherPanel.append($title);
@@ -1724,7 +1725,7 @@ function handleWeatherFilesLoop(fileList) {
             reader.readAsDataURL(filesToUploadLocal[x]);
 
             reader.addEventListener("load", function () {
-                $row.append(buildInfoPanel(reader.result.toString(), "Weather Preview"));
+                $row.append(buildInfoPanel(reader.result.toString(), t("upload.weather_preview")));
             });
         }
     }
@@ -1734,7 +1735,7 @@ function handleWeatherFilesLoop(fileList) {
     $uploadButton.attr({'class': "d-inline"});
 
     if (filesToUploadLocal.length === 0) {
-        $uploadButton.text("Sorry, the files you uploaded don't seem to be a compatible weather preset!");
+        $uploadButton.text(t("upload.incompatible_weather"));
         $uploadButton.addClass("text-danger")
     } else {
         if (!$("#weather-upload-button").length) {
@@ -1748,7 +1749,7 @@ function handleWeatherFilesLoop(fileList) {
                 e.preventDefault();
                 submitFiles("/api/weather/upload")
             });
-            $button.text("Upload Weather Preset(s)");
+            $button.text(t("upload.upload_weather"));
 
             $uploadButton.append($button);
         }
@@ -1849,7 +1850,7 @@ function handleCarFilesLoop(fileList) {
     }
 
     $carPanel.attr({'class': "card p-3"});
-    $title.text("Preview: " + carName);
+    $title.text(t("upload.preview", {name: carName}));
     $row.attr({'class': "card-deck"});
 
     $carPanel.append($title);
@@ -1873,7 +1874,7 @@ function handleCarFilesLoop(fileList) {
             reader.readAsDataURL(filesToUploadLocal[x]);
 
             reader.addEventListener("load", function () {
-                $row.append(buildInfoPanel(reader.result.toString(), "Livery: " + skinName));
+                $row.append(buildInfoPanel(reader.result.toString(), t("upload.livery", {name: skinName})));
             });
         }
 
@@ -1905,7 +1906,7 @@ function handleCarFilesLoop(fileList) {
     $uploadButton.attr({'class': "d-inline"});
 
     if (filesToUploadLocal.length === 0) {
-        $uploadButton.text("Sorry, the files you uploaded don't seem to be a compatible car!");
+        $uploadButton.text(t("upload.incompatible_car"));
         $uploadButton.addClass("text-danger")
     } else {
         if (!$("#car-upload-button").length) {
@@ -1920,7 +1921,7 @@ function handleCarFilesLoop(fileList) {
 
                 submitFiles("/api/car/upload")
             });
-            $button.text("Upload Car(s)");
+            $button.text(t("upload.upload_cars"));
 
             $uploadButton.append($button);
         }
@@ -2111,7 +2112,7 @@ function handleTrackFilesLoop(fileList) {
     let $title = $("<h3/>");
 
     $trackPanel.attr({'class': "card p-3"});
-    $title.text("Preview: " + trackName);
+    $title.text(t("upload.preview", {name: trackName}));
     $row.attr({'class': "card-deck"});
 
     $trackPanel.append($title);
@@ -2133,7 +2134,7 @@ function handleTrackFilesLoop(fileList) {
 
                     layoutName = fileListSplit[fileListSplit.length - 2];
                 } else {
-                    layoutName = "Default";
+                    layoutName = t("upload.default_layout");
                 }
 
                 if (!layouts[layoutName]) {
@@ -2150,7 +2151,7 @@ function handleTrackFilesLoop(fileList) {
 
                     let layoutInfo = layouts[layoutName];
 
-                    $row.append(buildInfoPanel(layoutInfo.preview, "Layout: " + layoutName));
+                    $row.append(buildInfoPanel(layoutInfo.preview, t("upload.layout", {name: layoutName})));
                 });
             }
 
@@ -2172,7 +2173,7 @@ function handleTrackFilesLoop(fileList) {
     $uploadButton.attr({'class': "d-inline"});
 
     if (filesToUploadLocal.length === 0) {
-        $uploadButton.text("Sorry, the files you uploaded don't seem to be a compatible track!");
+        $uploadButton.text(t("upload.incompatible_track"));
         $uploadButton.addClass("text-danger")
     } else {
         if (!$("#track-upload-button").length) {
@@ -2187,7 +2188,7 @@ function handleTrackFilesLoop(fileList) {
                 submitFiles("/api/track/upload")
             });
 
-            $button.text("Upload Track(s)");
+            $button.text(t("upload.upload_tracks"));
 
             $uploadButton.append($button);
         }
@@ -2203,7 +2204,7 @@ function notA(thing) {
 
     $panel.show();
     $panel.attr({'class': "alert alert-danger"});
-    $panel.text("Sorry, looks like that wasn't a " + thing + "!")
+    $panel.text(thing === "car" ? t("upload.not_a_car") : t("upload.not_a_track"))
 }
 
 function buildInfoPanel(img, info) {
@@ -2213,7 +2214,7 @@ function buildInfoPanel(img, info) {
     let $cardText = $("<h5/>");
 
     $img.attr({'src': img});
-    $img.attr({'alt': "Content Preview"});
+    $img.attr({'alt': t("upload.content_preview")});
     $img.attr({'class': "card-img-top"});
 
     $cardBody.attr({'class': "card-body"});
@@ -2477,7 +2478,7 @@ let championships = {
                 })
                 .fail(function () {
                     path = "/static/img/no-preview-car.png";
-                    $carPreviewImage.attr({"src": path, "alt": "Preview Image"})
+                    $carPreviewImage.attr({"src": path, "alt": t("entrant.preview_image")})
                 })
             ;
         }
@@ -2581,7 +2582,7 @@ let championships = {
 
         // the class name is shown in the titles of the entrants and points cards
         $document.on("input", "[data-class-key] input[name='ClassName']", function () {
-            classBlocks($(this)).find(".class-name-label").text($(this).val().trim() || "Unnamed class");
+            classBlocks($(this)).find(".class-name-label").text($(this).val().trim() || t("championship.unnamed_class"));
         });
 
 
@@ -2710,8 +2711,7 @@ let championships = {
                 if (current > wanted) {
                     let withDriver = current;
 
-                    $hint.text(withDriver + (withDriver === 1 ? " slot has a driver" : " slots have drivers") +
-                        " assigned \u2013 remove them in the Entry List tab").show();
+                    $hint.text(tn("championship.slots_with_drivers", withDriver)).show();
                 }
             }
 
@@ -2745,10 +2745,7 @@ let championships = {
         }
 
         let wrapper = new SummernoteWrapper($summerNote, {
-            placeholder: 'You can use this text input to share links to tracks/cars or any other resources, outline' +
-                ' Championship rules and anything else you can think of with the entrants of your championship!' +
-                ' You can just leave this blank if you don\'t want any info! Large images will degrade the load time' +
-                ' of this edit championship page, it shouldn\'t affect the view page too much though.',
+            placeholder: t("championship.info_placeholder"),
             tabsize: 2,
             height: 400,
         }, html);
@@ -2835,14 +2832,14 @@ function ordinalSuffix(i) {
     let j = i % 10,
         k = i % 100;
     if (j === 1 && k !== 11) {
-        return i + "st";
+        return t("points.ordinal.one", {n: i});
     }
     if (j === 2 && k !== 12) {
-        return i + "nd";
+        return t("points.ordinal.two", {n: i});
     }
     if (j === 3 && k !== 13) {
-        return i + "rd";
+        return t("points.ordinal.few", {n: i});
     }
 
-    return i + "th";
+    return t("points.ordinal.other", {n: i});
 }

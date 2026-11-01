@@ -1,0 +1,116 @@
+# Messages of the browser code (cmd/acpitwall/typescript/src), used with t("area.key") / tn("area.key", count).
+# js.confirm, js.calendar and js.messages live in en.yaml.
+js:
+  live:
+    event_title: "{session} at {track}"
+    session:
+      booking: Booking
+      practice: Practice
+      qualifying: Qualifying
+      race: Race
+      unknown: Unknown session
+    days_plus:
+      one: "{count} day + {time}"
+      other: "{count} days + {time}"
+    laps_remaining:
+      one: "{count} lap remaining"
+      other: "{count} laps remaining"
+    road_temp: "Road Temp: {temp}°C"
+    ambient_temp: "Ambient Temp: {temp}°C"
+    current_weather: "Current Weather: {weather}"
+    loaded: Loaded
+    crash_with_car: "Crash with {driver} at {speed}"
+    crash_with_environment: "Crash with environment at {speed}"
+  race_form:
+    field:
+      abs: ABS
+      tc: TC
+      stability: Stability
+      autoclutch: Autoclutch
+      tyre_blankets: Tyre blankets
+      fuel: Fuel
+      damage: Damage
+      tyre_wear: Tyre wear
+      virtual_mirror: Virtual mirror
+      surface: Surface
+      grip_at_start: Grip at start
+      max_ballast: Max ballast
+      tyres_out: Tyres out
+      contacts_per_km: Contacts/km
+      start_rule: Start rule
+      loop: Loop
+      result_screen: Result screen
+      no_drs_zones: No DRS zones
+      replace_password: Replace password
+      force_stop: Force stop
+      stop_with_drivers: Stop with drivers
+    summary:
+      "on": "{label} on"
+      "off": "{label} off"
+      selected: "{count} selected"
+      none_selected: none selected
+    show: Show
+    hide: Hide
+    toggle_label: "Show or hide {section}"
+    edited: edited
+    status:
+      has_errors: has errors
+      complete: complete
+    sections: Sections
+    field_fallback: Field
+    fix_fields: "Please fix these fields before saving:"
+    no_changes: No changes yet
+    unsaved_changes: Unsaved changes
+    discard_changes: Discard changes
+    discard_title: Discard your changes?
+    discard_detail: The form is reset to the last saved values.
+    discard: Discard
+  form:
+    leave_unsaved: Are you sure you want to navigate away? You'll lose unsaved changes to this setup if you do.
+  entrant:
+    preview_image: Preview Image
+    random_skin: "<random skin>"
+    no_fixed_setup: No Fixed Setup
+    any_car: Any Available Car
+  upload:
+    uploading: Uploading...
+    sent: "Upload sent ({size}), the server is processing the files..."
+    progress: "Uploading {percent}% ({loaded} of {total})"
+    finished: Upload finished. Reloading...
+    reading:
+      one: "Reading {count} file..."
+      other: "Reading {count} files..."
+    no_files: There are no files to upload.
+    reading_progress: "Reading files ({count} of {total})..."
+    read_failed: "Could not read {file}."
+    failed: "The upload failed ({error}). Please try again, or upload fewer files at once."
+    network_error: network error
+    preview: "Preview: {name}"
+    weather_preview: Weather Preview
+    livery: "Livery: {name}"
+    layout: "Layout: {name}"
+    default_layout: Default
+    content_preview: Content Preview
+    incompatible_weather: Sorry, the files you uploaded don't seem to be a compatible weather preset!
+    incompatible_car: Sorry, the files you uploaded don't seem to be a compatible car!
+    incompatible_track: Sorry, the files you uploaded don't seem to be a compatible track!
+    upload_weather: Upload Weather Preset(s)
+    upload_cars: Upload Car(s)
+    upload_tracks: Upload Track(s)
+    not_a_car: Sorry, looks like that wasn't a car!
+    not_a_track: Sorry, looks like that wasn't a track!
+  championship:
+    unnamed_class: Unnamed class
+    slots_with_drivers:
+      one: "{count} slot has a driver assigned – remove them in the Entry List tab"
+      other: "{count} slots have drivers assigned – remove them in the Entry List tab"
+    info_placeholder: You can use this text input to share links to tracks/cars or any other resources, outline Championship rules and anything else you can think of with the entrants of your championship! You can just leave this blank if you don't want any info! Large images will degrade the load time of this edit championship page, it shouldn't affect the view page too much though.
+  points:
+    ordinal:
+      one: "{n}st"
+      two: "{n}nd"
+      few: "{n}rd"
+      other: "{n}th"
+  content:
+    car_notes_placeholder: You can use this text input to attach notes to each car!
+    track_notes_placeholder: You can use this text input to attach notes to each track!

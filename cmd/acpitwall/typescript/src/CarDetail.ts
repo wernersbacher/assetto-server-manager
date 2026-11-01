@@ -1,5 +1,6 @@
 import ClickEvent = JQuery.ClickEvent;
 import {SummernoteWrapper} from "./forms/SummernoteWrapper";
+import {t} from "./i18n";
 
 export class CarDetail {
     public constructor() {
@@ -42,7 +43,7 @@ export class CarDetail {
         }
 
         let wrapper = new SummernoteWrapper($summerNote, {
-            placeholder: 'You can use this text input to attach notes to each car!',
+            placeholder: t("content.car_notes_placeholder"),
             tabsize: 2,
             height: 200,
         }, html);

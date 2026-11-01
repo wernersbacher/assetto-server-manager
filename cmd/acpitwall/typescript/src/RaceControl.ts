@@ -7,6 +7,7 @@ import {
 import {CarUpdate, CarUpdateVec} from "./models/UDP";
 import {randomColor} from "randomcolor/randomColor";
 import {msToTime, prettifyName} from "./utils";
+import {t, tn} from "./i18n";
 import moment from "moment";
 import ReconnectingWebSocket from "reconnecting-websocket";
 import ClickEvent = JQuery.ClickEvent;
@@ -103,7 +104,7 @@ export class RaceControl {
                     this.onTrackChange(this.track, this.trackLayout);
                 }
 
-                this.$eventTitle.text(RaceControl.getSessionType(this.status.SessionInfo.Type) + " at " + this.status.TrackInfo!.name);
+                this.$eventTitle.text(t("live.event_title", {session: RaceControl.getSessionType(this.status.SessionInfo.Type), track: this.status.TrackInfo!.name}));
                 $("#track-location").text(this.status.TrackInfo.city + ", " + this.status.TrackInfo.country);
 
                 this.buildSessionInfo();
@@ -173,15 +174,15 @@ export class RaceControl {
     private static getSessionType(sessionIndex: number): string {
         switch (sessionIndex) {
             case 0:
-                return "Booking";
+                return t("live.session.booking");
             case 1:
-                return "Practice";
+                return t("live.session.practice");
             case 2:
-                return "Qualifying";
+                return t("live.session.qualifying");
             case 3:
-                return "Race";
+                return t("live.session.race");
             default:
-                return "Unknown session";
+                return t("live.session.unknown");
         }
     }
 
@@ -197,13 +198,7 @@ export class RaceControl {
             timeRemaining = msToTime(timeInMS, false, false);
 
             if (days > 0) {
-                let dayText = " day + ";
-
-                if ( days > 1) {
-                    dayText = " days + ";
-                }
-
-                timeRemaining = days + dayText + timeRemaining;
+                timeRemaining = tn("live.days_plus", days, {time: timeRemaining});
             }
         } else if (this.status.SessionInfo.Laps > 0) {
             let lapsCompleted = 0;
@@ -216,7 +211,7 @@ export class RaceControl {
                 }
             }
 
-            timeRemaining = this.status.SessionInfo.Laps - lapsCompleted + " laps remaining";
+            timeRemaining = tn("live.laps_remaining", this.status.SessionInfo.Laps - lapsCompleted);
         }
 
         let $raceTime = $("#race-time");
@@ -236,14 +231,14 @@ export class RaceControl {
     private buildSessionInfo() {
         let $roadTempWrapper = $("#road-temp-wrapper");
         $roadTempWrapper.attr("style", "background-color: " + getColorForPercentage(this.status.SessionInfo.RoadTemp / 40));
-        $roadTempWrapper.attr("data-original-title", "Road Temp: " + this.status.SessionInfo.RoadTemp + "°C");
+        $roadTempWrapper.attr("data-original-title", t("live.road_temp", {temp: this.status.SessionInfo.RoadTemp}));
 
         let $roadTempText = $("#road-temp-text");
         $roadTempText.text(this.status.SessionInfo.RoadTemp + "°C");
 
         let $ambientTempWrapper = $("#ambient-temp-wrapper");
         $ambientTempWrapper.attr("style", "background-color: " + getColorForPercentage(this.status.SessionInfo.AmbientTemp / 40));
-        $ambientTempWrapper.attr("data-original-title", "Ambient Temp: " + this.status.SessionInfo.AmbientTemp + "°C");
+        $ambientTempWrapper.attr("data-original-title", t("live.ambient_temp", {temp: this.status.SessionInfo.AmbientTemp}));
 
         let $ambientTempText = $("#ambient-temp-text");
         $ambientTempText.text(this.status.SessionInfo.AmbientTemp + "°C");
@@ -276,7 +271,7 @@ export class RaceControl {
             $currentWeather.hide();
         });
 
-        $currentWeather.attr("alt", "Current Weather: " + prettifyName(this.status.SessionInfo.WeatherGraphics, false));
+        $currentWeather.attr("alt", t("live.current_weather", {weather: prettifyName(this.status.SessionInfo.WeatherGraphics, false)}));
     }
 
     private getTrackImageURL(): string {
@@ -951,7 +946,7 @@ class LiveTimings implements WebsocketHandler {
                 // car just loaded
                 let $tag = $("<span/>").attr("id", loadedID);
                 $tag.attr({'class': 'badge badge-success live-badge'});
-                $tag.text("Loaded");
+                $tag.text(t("live.loaded"));
 
                 $tdEvents.append($tag);
 
@@ -979,11 +974,11 @@ class LiveTimings implements WebsocketHandler {
 
                         if (collision.Type === Collision.WithCar) {
                             $tag.text(
-                                "Crash with " + collision.OtherDriverName + " at " + crashSpeed.toFixed(2) + speedUnits
+                                t("live.crash_with_car", {driver: collision.OtherDriverName, speed: crashSpeed.toFixed(2) + speedUnits})
                             );
                         } else {
                             $tag.text(
-                                "Crash " + collision.Type + " at " + crashSpeed.toFixed(2) + speedUnits
+                                t("live.crash_with_environment", {speed: crashSpeed.toFixed(2) + speedUnits})
                             );
                         }
 
