@@ -12,6 +12,7 @@ This is a runbook from zero (fresh Linux VPS or a local Windows machine). Run al
 | Web UI (both servers) | 8772 (`SM_WEB_PORT`) | |
 | acServer UDP+TCP | 9600 (`SERVER_A_PORT`) | 9601 (`SERVER_B_PORT`) |
 | acServer HTTP | 8081 (`SERVER_A_HTTP_PORT`) | 8082 (`SERVER_B_HTTP_PORT`) |
+| Content Manager wrapper (TCP) | 8101 (`SERVER_A_CM_PORT`) | 8102 (`SERVER_B_CM_PORT`) |
 
 ## 1. Prerequisites
 
@@ -53,9 +54,10 @@ Verified on Windows (Docker Desktop): build and everything below except where ma
    - `servers:` lists the two servers (`a` -> `assetto-a`, `b` -> `assetto-b`); `steam.install_path` stays equal to the
      first one. Keep `steam.username` / `steam.password` empty: the AC server is installed by part 4.
 2. Ports (optional): `cp .env.example .env` and edit it (gitignored; compose reads it automatically). Variables:
-   `SM_WEB_PORT`, `SERVER_A_PORT`, `SERVER_A_HTTP_PORT`, `SERVER_B_PORT`, `SERVER_B_HTTP_PORT`. Without a `.env` the
-   defaults of the table above apply. The acServer ports are published **1:1** (host port == container port), because
-   the acServer announces its configured ports to the lobby and the clients. If you change `SM_WEB_PORT`, change
+   `SM_WEB_PORT`, `SERVER_A_PORT`, `SERVER_A_HTTP_PORT`, `SERVER_A_CM_PORT`, `SERVER_B_PORT`, `SERVER_B_HTTP_PORT`,
+   `SERVER_B_CM_PORT`. Without a `.env` the defaults of the table above apply. The acServer and Content Manager
+   wrapper ports are published **1:1** (host port == container port), because the acServer announces its configured
+   ports to the lobby and the clients, and the wrapper port is embedded in the server name for Content Manager. If you change `SM_WEB_PORT`, change
    `server_manager_base_URL` too.
 
 Verified: `docker compose config -q` is valid with and without `.env`.
@@ -155,6 +157,11 @@ Open `http://localhost:8772` (or `http://<vps-ip>:<SM_WEB_PORT>`) and log in as 
    (observed), and ACPitwall warns about port conflicts between the servers (`Port 9600 (udp) is used by ... and
    by ...`; it also refuses to start an event on ports that a running server uses). Plugin ports (stracker,
    KissMyRank, Real Penalty) must differ per server as well; publish them in `compose.yaml` if you use them.
+   The **Content Manager wrapper** (optional) is already published: if you enable "Enable Content Manager Wrapper"
+   in the options of a server, set "Content Manager Wrapper Port" to the value of `SERVER_A_CM_PORT` /
+   `SERVER_B_CM_PORT` (defaults 8101 / 8102; it is a TCP port, different per server). ACPitwall then appends the port
+   to the server name (`<name> ℹ<port>`), which is how Content Manager finds the extra information and the download
+   links. Without the published port Content Manager shows the server without them.
 2. **Upload cars and tracks** on the Cars and Tracks pages (Content in the sidebar, "Upload cars" / "Upload
    tracks"). Content is managed through server A and is the same folder for both servers. The uploads are sent
    base64-encoded in one JSON request, so upload large packs in portions.
@@ -185,11 +192,12 @@ sudo sysctl --system
 
 On Docker Desktop they stay small; ignore the warning there. (Not verified on a VPS.)
 
-Firewall. Players need, for each server, the UDP and TCP game port and the HTTP port; the web UI port only for you:
+Firewall. Players need, for each server, the UDP and TCP game port, the HTTP port and (if the Content Manager wrapper
+is enabled) the wrapper port; the web UI port only for you:
 
 ```bash
-sudo ufw allow 9600/udp && sudo ufw allow 9600/tcp && sudo ufw allow 8081/tcp   # server A
-sudo ufw allow 9601/udp && sudo ufw allow 9601/tcp && sudo ufw allow 8082/tcp   # server B
+sudo ufw allow 9600/udp && sudo ufw allow 9600/tcp && sudo ufw allow 8081/tcp && sudo ufw allow 8101/tcp   # server A
+sudo ufw allow 9601/udp && sudo ufw allow 9601/tcp && sudo ufw allow 8082/tcp && sudo ufw allow 8102/tcp   # server B
 sudo ufw allow 8772/tcp                                                         # web UI, only without a proxy (see below)
 ```
 
@@ -200,7 +208,8 @@ Web UI: the UI has its own login, but do not expose port 8772 plainly (plain HTT
 TLS reverse proxy in front: set `SM_WEB_BIND=127.0.0.1` in `.env` (the web UI is then published on localhost only;
 default `0.0.0.0`), keep `http.tls.enabled: false` in `config.yml`, then e.g. Caddy on the host (automatic Let's
 Encrypt certificate; the DNS name has to point to the VPS, with Cloudflare as "DNS only", and ports 80/443 must be
-open). Only the web UI goes behind the proxy; the acServer ports stay published directly (UDP cannot be proxied):
+open). Only the web UI goes behind the proxy; the acServer ports and the Content Manager wrapper ports stay published
+directly (UDP cannot be proxied, and Content Manager connects to the wrapper port on the server's address):
 
 ```
 acsm.example.com {
@@ -291,6 +300,7 @@ never rename the id of a server that has data. The example adds a server `c`; th
          - "${SERVER_C_PORT:-9602}:${SERVER_C_PORT:-9602}/udp"
          - "${SERVER_C_PORT:-9602}:${SERVER_C_PORT:-9602}/tcp"
          - "${SERVER_C_HTTP_PORT:-8083}:${SERVER_C_HTTP_PORT:-8083}/tcp"
+         - "${SERVER_C_CM_PORT:-8103}:${SERVER_C_CM_PORT:-8103}/tcp"
    ```
 
    d) `acpitwall`, `volumes:` - the install copy of c right after the `assetto-b` line, and the shared content
@@ -318,14 +328,15 @@ never rename the id of a server that has data. The example adds a server `c`; th
 
    `install_path` is relative to the working directory of the manager (`/home/assetto/acpitwall`), i.e. the
    mount point of d).
-3. `.env` (only if the defaults 9602 / 8083 do not suit you): `SERVER_C_PORT=9602` and `SERVER_C_HTTP_PORT=8083`
-   (commented-out lines in `.env.example`).
-4. Firewall (VPS): `sudo ufw allow 9602/udp && sudo ufw allow 9602/tcp && sudo ufw allow 8083/tcp` (see part 7).
+3. `.env` (only if the defaults 9602 / 8083 / 8103 do not suit you): `SERVER_C_PORT=9602`, `SERVER_C_HTTP_PORT=8083`
+   and `SERVER_C_CM_PORT=8103` (commented-out lines in `.env.example`).
+4. Firewall (VPS): `sudo ufw allow 9602/udp && sudo ufw allow 9602/tcp && sudo ufw allow 8083/tcp && sudo ufw allow 8103/tcp` (see part 7).
 5. Apply: `docker compose up -d`. Compose creates the volume, `seed-c` copies the install from `ac-base` (it never
    overwrites an existing copy) and the `acpitwall` container is recreated, which restarts the manager. **That
    stops running acServers**, so do it between events. The data of the other servers is kept.
 6. In the UI choose Server C in the server selector, open Server > Options and set the UDP/TCP and HTTP ports to
-   9602 / 8083 (or your `.env` values); a new server starts with the default ports 9600 / 8081 (part 6).
+   9602 / 8083 (or your `.env` values) and, if you use the Content Manager wrapper, its port to 8103; a new server
+   starts with the default ports 9600 / 8081 (part 6).
 
 Verified (temporary copy of this directory, separate compose project `acsm-test`, a copy of an install imported with
 `AC_BASE_VOLUME=acsm-test_ac-base sh import-server.sh`, other host ports): the snippets above applied literally give a
@@ -400,6 +411,8 @@ existing database between the two modes.
 - Port conflict warnings or an unreachable server: the ports in Server Options differ from the published ones (part 6, step 1).
 - `Could not update tyres for car ...`: content from the Steam download has no `data/tyres.ini`; harmless (4b).
 - Lobby `INVALID SERVER`: ports not reachable from the internet (6).
+- Content Manager shows no extra information or download links: the wrapper is not enabled in Server Options, or its
+  port differs from the published `SERVER_x_CM_PORT`, or the port is blocked by the firewall (6, 7).
 - steamcmd failure: 4a, `STEAM_STRACE=1`, otherwise 4b.
 - UDP buffer warning: host sysctl (7).
 

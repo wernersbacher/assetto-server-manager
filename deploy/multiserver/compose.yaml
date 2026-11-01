@@ -79,10 +79,13 @@ services:
       - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/udp"
       - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/tcp"
       - "${SERVER_A_HTTP_PORT:-8081}:${SERVER_A_HTTP_PORT:-8081}/tcp"
+      # Content Manager wrapper (TCP, only used when enabled in Server Options)
+      - "${SERVER_A_CM_PORT:-8101}:${SERVER_A_CM_PORT:-8101}/tcp"
       # server b
       - "${SERVER_B_PORT:-9601}:${SERVER_B_PORT:-9601}/udp"
       - "${SERVER_B_PORT:-9601}:${SERVER_B_PORT:-9601}/tcp"
       - "${SERVER_B_HTTP_PORT:-8082}:${SERVER_B_HTTP_PORT:-8082}/tcp"
+      - "${SERVER_B_CM_PORT:-8102}:${SERVER_B_CM_PORT:-8102}/tcp"
     volumes:
       # store, logs, sessions
       - data:/home/assetto/acpitwall
