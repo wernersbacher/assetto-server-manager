@@ -4,6 +4,7 @@ import (
 	smaccounts "github.com/wernersbacher/ACPitwall/internal/accounts"
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	"github.com/wernersbacher/ACPitwall/internal/admin"
+	"github.com/wernersbacher/ACPitwall/internal/carclasses"
 	smchampionship "github.com/wernersbacher/ACPitwall/internal/championship"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
@@ -90,6 +91,7 @@ type Resolver struct {
 	realPenaltyHandler          *pluginhttp.RealPenaltyHandler
 	teamManager                 *teams.Manager
 	skinManager                 *skins.Manager
+	carClassManager             *carclasses.Manager
 	teamsHandler                *teams.Handler
 }
 

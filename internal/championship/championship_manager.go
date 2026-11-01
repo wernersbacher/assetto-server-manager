@@ -81,7 +81,20 @@ func (cm *ChampionshipManager) LoadChampionship(id string) (*smmodel.Championshi
 	return cm.store.LoadChampionship(id)
 }
 
+// UpsertChampionship saves the championship. If it refers to global car classes, they are checked again against the
+// car classes as they are now, and the save is serialised with changes to car classes (LockCarClassChanges): a
+// championship that was loaded or validated before a car class changed cannot be saved into an invalid state, and a
+// car class change always sees the championships as they were saved before it.
 func (cm *ChampionshipManager) UpsertChampionship(c *smmodel.Championship) error {
+	carClassMutex.RLock()
+	defer carClassMutex.RUnlock()
+
+	if c.HasCarClassReferences() {
+		if err := cm.checkCarClasses(c); err != nil {
+			return err
+		}
+	}
+
 	err := cm.store.UpsertChampionship(c)
 
 	if err != nil {

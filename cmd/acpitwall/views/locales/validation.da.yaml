@@ -54,3 +54,16 @@ validation:
     car_class_missing: 'Klasse "{class}": bilklassen {id} findes ikke.'
     car_class_duplicate: 'Klasse "{class}" indeholder bilklassen {id} mere end én gang.'
     car_in_two_classes: 'Bilen {car} er i mere end én klasse i dette mesterskab ("{first}" og "{second}").'
+  car_class:
+    name_empty: Navnet på bilklassen må ikke være tomt.
+    name_taken: Der findes allerede en bilklasse med dette navn.
+    no_cars: Vælg mindst én bil til bilklassen.
+    empty_car: Bilklassen indeholder en tom bil.
+    duplicate_car: Bilklassen indeholder en bil mere end én gang.
+    in_use: 'Bilklassen "{class}" bruges af: {championships}. Fjern den først fra disse mesterskaber.'
+    car_in_two_classes: 'Ændringen af bilklassen "{class}" ville sætte bilen {car} i to klasser i mesterskabet "{championship}" ("{first}" og "{second}").'
+    championship_invalid: 'Ændringen af bilklassen "{class}" ville gøre mesterskabet "{championship}" ugyldigt: {reason}'
+    unknown_problem: "{error}"
+    car_in_use_entrant: 'Bilen {car} kan ikke fjernes fra bilklassen "{class}": den køres af deltagere i klassen "{championshipClass}" i mesterskabet "{championship}".'
+    car_in_use_sign_up: 'Bilen {car} kan ikke fjernes fra bilklassen "{class}": kørere har tilmeldt sig med den til klassen "{championshipClass}" i mesterskabet "{championship}".'
+    car_in_use_results: 'Bilen {car} kan ikke fjernes fra bilklassen "{class}": mesterskabet "{championship}" har resultater, der tildeler den til klassen "{championshipClass}".'

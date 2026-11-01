@@ -54,3 +54,16 @@ validation:
     car_class_missing: 'Klasse „{class}“: Die Fahrzeugklasse {id} existiert nicht.'
     car_class_duplicate: 'Klasse „{class}“ enthält die Fahrzeugklasse {id} mehrfach.'
     car_in_two_classes: 'Das Auto {car} ist in mehr als einer Klasse dieser Meisterschaft („{first}“ und „{second}“).'
+  car_class:
+    name_empty: Der Name der Fahrzeugklasse darf nicht leer sein.
+    name_taken: Es gibt bereits eine Fahrzeugklasse mit diesem Namen.
+    no_cars: Wähle mindestens ein Auto für die Fahrzeugklasse.
+    empty_car: Die Fahrzeugklasse enthält ein leeres Auto.
+    duplicate_car: Die Fahrzeugklasse enthält ein Auto mehrfach.
+    in_use: 'Die Fahrzeugklasse „{class}“ wird verwendet von: {championships}. Entferne sie zuerst aus diesen Meisterschaften.'
+    car_in_two_classes: 'Die Änderung der Fahrzeugklasse „{class}“ würde das Auto {car} in zwei Klassen der Meisterschaft „{championship}“ bringen („{first}“ und „{second}“).'
+    championship_invalid: 'Die Änderung der Fahrzeugklasse „{class}“ würde die Meisterschaft „{championship}“ ungültig machen: {reason}'
+    unknown_problem: "{error}"
+    car_in_use_entrant: 'Das Auto {car} kann nicht aus der Fahrzeugklasse „{class}“ entfernt werden: Es wird von Teilnehmern der Klasse „{championshipClass}“ in der Meisterschaft „{championship}“ gefahren.'
+    car_in_use_sign_up: 'Das Auto {car} kann nicht aus der Fahrzeugklasse „{class}“ entfernt werden: Fahrer haben sich damit für die Klasse „{championshipClass}“ in der Meisterschaft „{championship}“ angemeldet.'
+    car_in_use_results: 'Das Auto {car} kann nicht aus der Fahrzeugklasse „{class}“ entfernt werden: Die Meisterschaft „{championship}“ hat Ergebnisse, die es der Klasse „{championshipClass}“ zuordnen.'

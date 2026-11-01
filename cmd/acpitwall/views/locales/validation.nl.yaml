@@ -54,3 +54,16 @@ validation:
     car_class_missing: 'Klasse "{class}": de autoklasse {id} bestaat niet.'
     car_class_duplicate: 'Klasse "{class}" bevat de autoklasse {id} meer dan één keer.'
     car_in_two_classes: 'De auto {car} zit in meer dan één klasse van dit kampioenschap ("{first}" en "{second}").'
+  car_class:
+    name_empty: De naam van de autoklasse mag niet leeg zijn.
+    name_taken: Er bestaat al een autoklasse met deze naam.
+    no_cars: Kies minstens één auto voor de autoklasse.
+    empty_car: De autoklasse bevat een lege auto.
+    duplicate_car: De autoklasse bevat een auto meer dan één keer.
+    in_use: 'De autoklasse "{class}" wordt gebruikt door: {championships}. Verwijder haar eerst uit deze kampioenschappen.'
+    car_in_two_classes: 'De wijziging van de autoklasse "{class}" zou de auto {car} in twee klassen van het kampioenschap "{championship}" plaatsen ("{first}" en "{second}").'
+    championship_invalid: 'De wijziging van de autoklasse "{class}" zou het kampioenschap "{championship}" ongeldig maken: {reason}'
+    unknown_problem: "{error}"
+    car_in_use_entrant: 'De auto {car} kan niet uit de autoklasse "{class}" worden verwijderd: hij wordt bereden door deelnemers van de klasse "{championshipClass}" in het kampioenschap "{championship}".'
+    car_in_use_sign_up: 'De auto {car} kan niet uit de autoklasse "{class}" worden verwijderd: rijders hebben zich ermee aangemeld voor de klasse "{championshipClass}" in het kampioenschap "{championship}".'
+    car_in_use_results: 'De auto {car} kan niet uit de autoklasse "{class}" worden verwijderd: het kampioenschap "{championship}" heeft resultaten die hem aan de klasse "{championshipClass}" toewijzen.'

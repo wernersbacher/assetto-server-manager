@@ -133,6 +133,25 @@ func LockSignUps() func() {
 	return signUpMutex.Unlock
 }
 
+// carClassMutex orders changes to the global car classes against the saving of championships: every save through
+// ChampionshipManager.UpsertChampionship holds it for reading, LockCarClassChanges holds it for writing.
+var carClassMutex sync.RWMutex
+
+// LockCarClassChanges is taken by whoever creates, changes or deletes a global car class. It locks the registrations
+// of all championships (LockSignUps) first, which is the order of a sign up (registrations, then save), and then stops
+// all saves of championships until the returned function is called, so that the check of the championships that refer
+// to the car class and the change of the car class are one step.
+func LockCarClassChanges() func() {
+	unlockSignUps := LockSignUps()
+
+	carClassMutex.Lock()
+
+	return func() {
+		carClassMutex.Unlock()
+		unlockSignUps()
+	}
+}
+
 // resolveSignUpTeam sets the team of a registration from the sign up form: the chosen team of the team list or the
 // typed name, depending on the mode of the championship.
 func (cm *ChampionshipManager) resolveSignUpTeam(championship *smmodel.Championship, response *smmodel.ChampionshipSignUpResponse, r *http.Request) error {

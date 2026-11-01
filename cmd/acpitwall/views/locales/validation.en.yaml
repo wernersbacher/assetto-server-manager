@@ -55,3 +55,16 @@ validation:
     car_class_missing: 'Class "{class}": the car class {id} does not exist.'
     car_class_duplicate: 'Class "{class}" lists the car class {id} more than once.'
     car_in_two_classes: 'The car {car} is in more than one class of this championship ("{first}" and "{second}").'
+  car_class:
+    name_empty: The name of the car class must not be empty.
+    name_taken: There is already a car class with this name.
+    no_cars: Choose at least one car for the car class.
+    empty_car: The car class contains an empty car.
+    duplicate_car: The car class contains a car more than once.
+    in_use: 'The car class "{class}" is used by: {championships}. Remove it from these championships first.'
+    car_in_two_classes: 'The change of the car class "{class}" would put the car {car} into two classes of the championship "{championship}" ("{first}" and "{second}").'
+    championship_invalid: 'The change of the car class "{class}" would make the championship "{championship}" invalid: {reason}'
+    unknown_problem: "{error}"
+    car_in_use_entrant: 'The car {car} cannot be removed from the car class "{class}": it is driven by entrants of the class "{championshipClass}" in the championship "{championship}".'
+    car_in_use_sign_up: 'The car {car} cannot be removed from the car class "{class}": drivers have registered with it for the class "{championshipClass}" in the championship "{championship}".'
+    car_in_use_results: 'The car {car} cannot be removed from the car class "{class}": the championship "{championship}" has results that assign it to the class "{championshipClass}".'
