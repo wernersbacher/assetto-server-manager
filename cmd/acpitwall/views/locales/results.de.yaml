@@ -1,0 +1,140 @@
+# Ergebnisliste und -details, Bestenlisten, Fahrerprofil.
+results:
+  intro: Beendete Sessions, die der Server aufgezeichnet hat.
+  combine: Ergebnisse zusammenführen
+  combine_option: "{session} auf {track}"
+  combine_submit: Ausgewählte Ergebnisse zusammenführen
+  upload: Ergebnisdatei hochladen
+  none: Noch keine Ergebnisse. Beendete Sessions erscheinen hier.
+  track_name: Strecke
+  time_attack: Zeitfahren
+  delete_confirm: Ergebnisdatei {file} löschen?
+  delete_detail: Die Ergebnisdatei wird endgültig entfernt.
+  delete_label: Ergebnisse löschen
+  delete_results: Ergebnisse löschen
+  back: Zurück zu den Ergebnissen
+  view_championship: Meisterschaft ansehen
+  view_race_weekend: Rennwochenende ansehen
+  open_simresults: In Simresults öffnen
+  download_json: Als JSON herunterladen
+  edit_results: Ergebnisse bearbeiten
+  edit_names_help: Mit diesem Formular kannst du die Namen der Fahrer in der Ergebnisdatei ändern. Die ursprüngliche Ergebnisdatei wird dabei überschrieben.
+  driver_guid: "Fahrer-GUID: {guid}"
+  edit_names: Namen ändern
+  in_car: im
+  driver_swaps:
+    one: "{count} Fahrerwechsel"
+    other: "{count} Fahrerwechsel"
+  best: "Beste:"
+  potential: "Potenzial:"
+  lap_number: "Runde #"
+  race_position: Position im Rennen
+  lap_time: Rundenzeit
+  sector: Sektor {n}
+  cuts: Cuts
+  tyre: Reifen
+  tyre_value: "Reifen: {tyre}"
+  laps_cuts: "{laps} Runden / {cuts} Cuts"
+  time_penalty: "Zeitstrafe: {time}"
+  disqualified: Disqualifiziert
+  ballast: "Ballast:"
+  restrictor: "Restrictor:"
+  na: k. A.
+  filter:
+    session_type: Session-Typ
+    any_session_type: Jeder Session-Typ
+    practice: Training
+    qualifying: Qualifying
+    race: Rennen
+    booking: Booking
+    server: Server
+    any_server: Jeder Server
+    driver_placeholder: Fahrername oder GUID
+    reset: Zurücksetzen
+    no_match: Keine Ergebnisse passen zum Filter
+  col:
+    name: Name
+    total_race_time: Gesamte Rennzeit
+    num_laps: Runden
+    average_clean_lap: Saubere Durchschnittsrunde
+    average_clean_lap_help: In diesen Durchschnitt zählen Runden ohne Cuts, außer Runde 1, deren Zeit innerhalb von 107 % der bisherigen Durchschnittsrunde liegt
+    handicaps: Handicaps
+    crashes: Unfälle
+    penalties: Strafen
+    qualifying_time: Qualifying-Zeit
+    best_practice_lap: Beste Trainingsrunde
+    average_lap: Durchschnittsrunde
+    laps: Runden
+  penalty:
+    details: Strafdetails
+    time_seconds: Zeitstrafe (Sekunden)
+    zero_help: Bei 0 wird der Fahrer disqualifiziert.
+    add: Strafe hinzufügen
+    remove: Strafe entfernen
+    blacklist: Fahrer sperren
+  badge:
+    fastest_lap: Schnellste Runde
+    drivers_fastest_lap: Schnellste Runde des Fahrers
+    cheated: Wahrscheinlich geschummelt
+    fastest_sector: Schnellster Sektor
+    drivers_fastest_sector: Schnellster Sektor des Fahrers
+  collisions:
+    other_driver: Anderer Fahrer
+    type: Art
+    impact_speed: Aufprallgeschwindigkeit
+    relative_position: Relative Position
+    world_position: Weltposition
+    show_on_map: Auf Karte zeigen
+    with_env: Kollision mit der Umgebung
+    with_car: Kollision mit einem Auto
+    update_map: Kollisionen auf Karte aktualisieren
+    show_all: Alle Kollisionen zeigen
+    hide_all: Alle Kollisionen ausblenden
+    legend_car: Kollision mit anderem Auto
+    legend_env: Kollision mit der Umgebung
+    legend_rel: Kollision relativ
+    badge_car: Auto
+    badge_env: Umg.
+    badge_rel: Rel
+    map_alt: "Kollisionen auf {track}"
+    none: In dieser Session gab es keine Kollisionen.
+  leaderboards:
+    intro: Die schnellste gültige Runde jedes Fahrers auf einer Strecke.
+    no_match: Keine Runden passen zum Filter.
+    none: Noch keine Runden. Gültige Runden aus den Ergebnissen erscheinen hier.
+    period: Zeitraum
+    all_time: Gesamte Zeit
+    last_30_days: Letzte 30 Tage
+    last_7_days: Letzte 7 Tage
+    rows: Zeilen
+    per_driver: Eine Zeile pro Fahrer
+    per_driver_car: Eine Zeile pro Fahrer und Auto
+    track_details: Streckendetails
+    sectors: Sektoren
+    lap_record: Rundenrekord
+    best_sector: Bester Wert dieses Sektors
+  driver:
+    team: Team {team}
+    aka: Auch bekannt als
+    statistics: Statistiken
+    races: Rennen
+    wins: Siege
+    podiums: Podien
+    valid_laps: Gültige Runden
+    valid_of: "{valid} von {laps}"
+    cuts_per_100: "{cuts} pro 100 Runden"
+    collisions: Kollisionen
+    collisions_detail: "{cars} mit Autos, {env} mit der Umgebung"
+    type_sessions: "{type}-Sessions"
+    any_server: Ergebnisse und Bestzeiten aller Server
+    position: Position
+    points: Punkte
+    status: Status
+    of_entrants: von {entrants}
+    completed: Abgeschlossen
+    in_progress: Läuft
+    no_championships: Dieser Fahrer ist in keiner Meisterschaft.
+    personal_bests: Persönliche Bestzeiten
+    no_personal_bests: Noch keine persönlichen Bestzeiten. Gültige Runden erscheinen hier.
+    dsq: DSQ
+    no_results: Keine Ergebnisse für diesen Fahrer.

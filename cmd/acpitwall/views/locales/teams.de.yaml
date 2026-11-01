@@ -1,0 +1,74 @@
+# Team-Seiten.
+teams:
+  intro: Gründe ein Team oder tritt einem bei und meldet euch dann gemeinsam für Meisterschaften an. Ein Team kann beliebig viele Mitglieder haben, aber nur einige davon können in derselben Meisterschaft fahren.
+  sign_in_to_create: <a href="{url}">Melde dich an</a>, um ein Team zu gründen oder einem beizutreten.
+  sign_in_to_join: <a href="{url}">Melde dich an</a>, um einem Team beizutreten.
+  create_title: Team gründen
+  name: Name
+  name_placeholder: Das schnelle Team
+  visibility: Sichtbarkeit
+  visibility_public_help: "Öffentlich: alle können es sehen und beitreten"
+  visibility_private_help: "Privat: nur von dir eingeladene Personen können beitreten"
+  create: Team gründen
+  invitations: Einladungen
+  team: Team
+  members: Mitglieder
+  join: Beitreten
+  decline: Ablehnen
+  your_teams: Deine Teams
+  no_own_teams: Du bist noch in keinem Team.
+  your_role: Deine Rolle
+  owner: Besitzer
+  private: Privat
+  public: Öffentlich
+  role:
+    owner: Besitzer
+    admin: Admin
+    member: Mitglied
+  all_teams: Alle Teams
+  no_other_teams: Es gibt keine anderen Teams.
+  private_team: "Privates Team: nur eingeladene Personen können beitreten."
+  public_team: "Öffentliches Team: alle können beitreten."
+  member_count:
+    one: "{count} Mitglied"
+    other: "{count} Mitglieder"
+  join_team: Team beitreten
+  decline_invite: Einladung ablehnen
+  leave: Team verlassen
+  leave_confirm: „{name}“ verlassen?
+  leave_detail: Deine Anmeldungen zu Meisterschaften behalten dieses Team. Bist du der Besitzer, geht der Besitz an jemand anderen über.
+  role_label: Rolle
+  member_since: Mitglied seit
+  you: du
+  remove_admin: Admin entziehen
+  make_admin: Zum Admin machen
+  make_owner: Zum Besitzer machen
+  transfer_confirm: „{name}“ zum Besitzer machen?
+  transfer_detail: Der bisherige Besitzer wird Admin.
+  transfer_label: Besitz übertragen
+  kick: Entfernen
+  kick_confirm: „{name}“ entfernen?
+  kick_detail: Die Anmeldungen zu Meisterschaften behalten das Team.
+  kick_label: Mitglied entfernen
+  invite: Einladung
+  invite_help: Lade einen Fahrer über seinen Kontonamen ein oder lass den Namen leer, um einen Link zu erstellen, den jeder einmal benutzen kann.
+  invite_placeholder: Kontoname (optional)
+  valid_until: Gültig bis
+  no_limit: unbegrenzt
+  withdraw: Zurückziehen
+  settings: Einstellungen
+  rename: Umbenennen
+  rename_help: Der neue Name wird in den Anmeldungen von Meisterschaften verwendet, die noch nicht beendet sind.
+  private_help: Mitglieder bleiben im Team, wenn es privat wird.
+  delete: Team löschen
+  delete_confirm: „{name}“ löschen?
+  delete_detail: Anmeldungen zu Meisterschaften behalten den Namen des Teams.
+  invitation_title: Einladung zu „{name}“
+  join_name: „{name}“ beitreten
+  invited: Du wurdest eingeladen, diesem Team beizutreten.
+  has_members:
+    one: Es hat {count} Mitglied.
+    other: Es hat {count} Mitglieder.
+  already_member: Du bist bereits Mitglied dieses Teams.
+  go_to_team: Zum Team
+  sign_in_first: Bitte melde dich zuerst an und öffne dann den Einladungslink erneut.

@@ -1,0 +1,74 @@
+# Team pages.
+teams:
+  intro: Create a team or join one, then register for championships together. A team can have as many members as it likes, but only a few of them can drive the same championship.
+  sign_in_to_create: <a href="{url}">Sign in</a> to create a team or to join one.
+  sign_in_to_join: <a href="{url}">Sign in</a> to join a team.
+  create_title: Create a team
+  name: Name
+  name_placeholder: The Fast Team
+  visibility: Visibility
+  visibility_public_help: "Public: everybody can see and join it"
+  visibility_private_help: "Private: only people you invite can join"
+  create: Create team
+  invitations: Invitations
+  team: Team
+  members: Members
+  join: Join
+  decline: Decline
+  your_teams: Your teams
+  no_own_teams: You are not in a team yet.
+  your_role: Your role
+  owner: Owner
+  private: Private
+  public: Public
+  role:
+    owner: Owner
+    admin: Admin
+    member: Member
+  all_teams: All teams
+  no_other_teams: There are no other teams.
+  private_team: "Private team: only invited people can join."
+  public_team: "Public team: everybody can join."
+  member_count:
+    one: "{count} member"
+    other: "{count} members"
+  join_team: Join team
+  decline_invite: Decline invite
+  leave: Leave team
+  leave_confirm: Leave {name}?
+  leave_detail: Registrations you made for championships keep this team. Ownership moves on if you are the owner.
+  role_label: Role
+  member_since: Member since
+  you: you
+  remove_admin: Remove admin
+  make_admin: Make admin
+  make_owner: Make owner
+  transfer_confirm: Make {name} the owner?
+  transfer_detail: The current owner becomes an admin.
+  transfer_label: Transfer ownership
+  kick: Remove
+  kick_confirm: Remove {name}?
+  kick_detail: Their registrations in championships keep the team.
+  kick_label: Remove member
+  invite: Invite
+  invite_help: Invite a driver by their account name, or leave the name empty to create a link anybody can use once.
+  invite_placeholder: Account name (optional)
+  valid_until: Valid until
+  no_limit: no limit
+  withdraw: Withdraw
+  settings: Settings
+  rename: Rename
+  rename_help: The new name is used in the registrations of championships that are not finished yet.
+  private_help: Members stay in the team when it becomes private.
+  delete: Delete team
+  delete_confirm: Delete {name}?
+  delete_detail: Registrations of championships keep the name of the team.
+  invitation_title: Invitation to {name}
+  join_name: Join {name}
+  invited: You have been invited to join this team.
+  has_members:
+    one: It has {count} member.
+    other: It has {count} members.
+  already_member: You are a member of this team already.
+  go_to_team: Go to the team
+  sign_in_first: Please sign in first, then open the invite link again.

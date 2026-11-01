@@ -1,19 +1,19 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/resultshttp.combineResultsTemplateVars */}}
 
-{{ define "title" }}Combine Results{{ end }}
+{{ define "title" }}{{ t "results.combine" }}{{ end }}
 
 {{ define "content" }}
-    <h3>Combine Results</h3>
+    <h3>{{ t "results.combine" }}</h3>
 
     <form method="post" action="/results/combine">
 
         <select multiple required class="form-control" name="CombineResults" size="15">
             {{ range $i, $result := .Results }}
-                <option value="{{ $result.SessionFile }}">{{ prettify $result.Type.String false }} at {{ prettify $result.TrackName false }} {{ with $result.TrackConfig }} - {{ prettify . true }} {{ end }} ({{ $result.GetDate }})</option>
+                <option value="{{ $result.SessionFile }}">{{ t "results.combine_option" "session" (prettify $result.Type.String false) "track" (prettify $result.TrackName false) }} {{ with $result.TrackConfig }} - {{ prettify . true }} {{ end }} ({{ $result.GetDate }})</option>
             {{ end }}
         </select>
 
-        <button class="btn btn-primary float-right mt-2" type="submit">Combine Selected Results</button>
+        <button class="btn btn-primary float-right mt-2" type="submit">{{ t "results.combine_submit" }}</button>
 
     </form>
 

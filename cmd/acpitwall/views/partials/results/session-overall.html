@@ -12,21 +12,21 @@
 
                 <tr>
                     <th>#</th>
-                    <th>Name</th>
+                    <th>{{ t "results.col.name" }}</th>
                     {{ if $driversHaveTeams }}
-                        <th>Team</th>
+                        <th>{{ t "account_details.team" }}</th>
                     {{ end }}
-                    <th>Car</th>
-                    <th>Total Race Time</th>
-                    <th>Num Laps</th>
-                    <th>Best Lap</th>
-                    <th><span data-toggle="tooltip" title="Laps contribute to this average if they don't have cuts, aren't lap 1, and the lap time is within 107% of the average lap time so far">Average Clean Lap</span></th>
+                    <th>{{ t "live.col.car" }}</th>
+                    <th>{{ t "results.col.total_race_time" }}</th>
+                    <th>{{ t "results.col.num_laps" }}</th>
+                    <th>{{ t "live.col.best_lap" }}</th>
+                    <th><span data-toggle="tooltip" title="{{ t "results.col.average_clean_lap_help" }}">{{ t "results.col.average_clean_lap" }}</span></th>
                     {{ if $sessionHasHandicaps }}
-                        <th>Handicaps</th>
+                        <th>{{ t "results.col.handicaps" }}</th>
                     {{ end }}
-                    <th>Crashes</th>
+                    <th>{{ t "results.col.crashes" }}</th>
                     {{ if WriteAccess }}
-                        <th>Penalties</th>
+                        <th>{{ t "results.col.penalties" }}</th>
                     {{ end }}
                 </tr>
 
@@ -38,11 +38,11 @@
                                 {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
 
                                 {{ if $result.HasPenalty }}
-                                    <span class="badge badge-danger">Time Penalty: {{ $result.PenaltyTime }}</span>
+                                    <span class="badge badge-danger">{{ t "results.time_penalty" "time" $result.PenaltyTime }}</span>
                                 {{ end }}
 
                                 {{ if $result.Disqualified }}
-                                    <span class="badge badge-danger">Disqualified</span>
+                                    <span class="badge badge-danger">{{ t "results.disqualified" }}</span>
                                 {{ end }}
                             </td>
 
@@ -51,13 +51,12 @@
                             {{ end }}
                             <td>{{ prettify $result.CarModel true }}</td>
                             <td>{{ formatDuration ($sessionResults.GetTime $result.TotalTime $result.DriverGUID $result.CarModel true) false }}</td>
-                            <td>{{ $sessionResults.GetNumLaps $result.DriverGUID $result.CarModel }} laps /
-                                {{ $sessionResults.GetCuts $result.DriverGUID $result.CarModel }} cuts</td>
+                            <td>{{ t "results.laps_cuts" "laps" ($sessionResults.GetNumLaps $result.DriverGUID $result.CarModel) "cuts" ($sessionResults.GetCuts $result.DriverGUID $result.CarModel) }}</td>
                             <td>
                                 {{ $bestLap := $sessionResults.GetTime $result.BestLap $result.DriverGUID $result.CarModel false }}
                                 {{  formatDuration $bestLap true }}<br>
                                 {{ if gt $bestLap 0 }}
-                                    <small class="text-muted">Tyre: {{ $result.BestLapTyre $sessionResults }}</small>
+                                    <small class="text-muted">{{ t "results.tyre_value" "tyre" ($result.BestLapTyre $sessionResults) }}</small>
                                 {{ end }}
                             </td>
                             <td>{{ formatDuration ($sessionResults.GetAverageLapTime $result.DriverGUID $result.CarModel) true }}</td>
@@ -69,19 +68,19 @@
                                     <div class="small">
                                         {{ if gt $result.BallastKG 0 }}
                                             {{ $hasHandicap = true }}
-                                            Ballast:
+                                            {{ t "results.ballast" }}
                                             {{ $result.BallastKG }} kg<br>
                                         {{ end }}
 
                                         {{ if gt $result.Restrictor 0 }}
                                             {{ $hasHandicap = true }}
-                                            Restrictor:
+                                            {{ t "results.restrictor" }}
                                             {{ $result.Restrictor }}%<br>
                                         {{ end }}
                                     </div>
 
                                     {{ if not $hasHandicap }}
-                                        n/a
+                                        {{ t "results.na" }}
                                     {{ end }}
                                 </td>
                             {{ end }}
@@ -91,29 +90,29 @@
                             {{ if WriteAccess }}
                                 <td>
                                     <button type="button" class="btn btn-warning btn-sm" data-placement="left"
-                                       data-toggle="popover" title="Penalty Details" data-html="true"
+                                       data-toggle="popover" title="{{ t "results.penalty.details" }}" data-html="true"
                                         id="result-{{ sha1sum $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}"
                                     >
-                                        Penalties
+                                        {{ t "results.col.penalties" }}
                                     </button>
 
                                     <div id="popover-content-result-{{ sha1sum $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}" style="display: none;">
                                         <form action="{{ if $server }}/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}&amp;server={{ $server.ID }}{{ else }}{{ serverURL (printf "/penalties/%s/%s?model=%s" $sessionResults.SessionFile $result.DriverGUID $result.CarModel) }}{{ end }}" method='POST'>
                                             <div class='form-group'>
-                                                <label for='time-penalty'>Time Penalty (seconds)</label>
+                                                <label for='time-penalty'>{{ t "results.penalty.time_seconds" }}</label>
                                                 <input type='number' class='form-control' name='time-penalty' id='time-penalty' placeholder='0' step='0.1'>
-                                                <small class='form-text text-muted'>If set to 0 driver will be disqualified.</small>
+                                                <small class='form-text text-muted'>{{ t "results.penalty.zero_help" }}</small>
                                             </div>
 
-                                            <button type='submit' name='action' value='add' class='btn btn-warning'>Add Penalty</button>
-                                            <button type='submit' name='action' value='remove' class='btn btn-primary'>Remove Penalty</button>
+                                            <button type='submit' name='action' value='add' class='btn btn-warning'>{{ t "results.penalty.add" }}</button>
+                                            <button type='submit' name='action' value='remove' class='btn btn-primary'>{{ t "results.penalty.remove" }}</button>
                                         </form>
 
                                         {{ if AdminAccess }}
                                             <form action="{{ if $server }}/blacklist?server={{ $server.ID }}{{ else }}{{ serverURL "/blacklist" }}{{ end }}" method="POST">
                                                 <input type="text" class="d-none" name="blacklist" id="blacklist" value="{{ $result.DriverGUID }}">
 
-                                                <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>Blacklist Driver</button>
+                                                <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>{{ t "results.penalty.blacklist" }}</button>
                                             </form>
                                         {{ end }}
                                     </div>
@@ -125,19 +124,19 @@
             {{ else if eq "QUALIFY" $sessionResults.Type.OriginalString }}
                 <tr>
                     <th>#</th>
-                    <th>Name</th>
+                    <th>{{ t "results.col.name" }}</th>
                     {{ if $driversHaveTeams }}
-                        <th>Team</th>
+                        <th>{{ t "account_details.team" }}</th>
                     {{ end }}
-                    <th>Car</th>
-                    <th>Qualifying Time</th>
-                    <th>Average Lap</th>
-                    <th>Laps</th>
+                    <th>{{ t "live.col.car" }}</th>
+                    <th>{{ t "results.col.qualifying_time" }}</th>
+                    <th>{{ t "results.col.average_lap" }}</th>
+                    <th>{{ t "results.col.laps" }}</th>
                     {{ if $sessionHasHandicaps }}
-                        <th>Handicaps</th>
+                        <th>{{ t "results.col.handicaps" }}</th>
                     {{ end }}
                     {{ if WriteAccess }}
-                        <th>Penalties</th>
+                        <th>{{ t "results.col.penalties" }}</th>
                     {{ end }}
                 </tr>
 
@@ -146,8 +145,8 @@
                         <tr {{ if eq $account.GUID $result.DriverGUID }}style="font-weight: bold"{{ end }}>
                             <td>{{ add $pos 1 }}</td>
                             <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">{{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
-                                {{ if $result.HasPenalty }} <span class="badge badge-danger">Time Penalty: {{ $result.PenaltyTime }}</span> {{ end }}
-                                {{ if $result.Disqualified }} <span class="badge badge-danger">Disqualified</span> {{ end }}</td>
+                                {{ if $result.HasPenalty }} <span class="badge badge-danger">{{ t "results.time_penalty" "time" $result.PenaltyTime }}</span> {{ end }}
+                                {{ if $result.Disqualified }} <span class="badge badge-danger">{{ t "results.disqualified" }}</span> {{ end }}</td>
                             {{ if $driversHaveTeams }}
                                 <td>{{ $sessionResults.GetTeamName $result.DriverGUID }}</td>
                             {{ end }}
@@ -156,12 +155,11 @@
                                 {{ $bestLap := $sessionResults.GetTime $result.BestLap $result.DriverGUID $result.CarModel true }}
                                 {{ formatDuration $bestLap true }}<br>
                                 {{ if gt $bestLap 0 }}
-                                    <small class="text-muted">Tyre: {{ $result.BestLapTyre $sessionResults }}</small>
+                                    <small class="text-muted">{{ t "results.tyre_value" "tyre" ($result.BestLapTyre $sessionResults) }}</small>
                                 {{ end }}
                             </td>
                             <td>{{ formatDuration ($sessionResults.GetAverageLapTime $result.DriverGUID $result.CarModel) true }}</td>
-                            <td>{{ $sessionResults.GetNumLaps $result.DriverGUID $result.CarModel }} laps /
-                                {{ $sessionResults.GetCuts $result.DriverGUID $result.CarModel }} cuts</td>
+                            <td>{{ t "results.laps_cuts" "laps" ($sessionResults.GetNumLaps $result.DriverGUID $result.CarModel) "cuts" ($sessionResults.GetCuts $result.DriverGUID $result.CarModel) }}</td>
                             {{ if $sessionHasHandicaps }}
                                 <td>
                                     {{ $hasHandicap := false }}
@@ -169,46 +167,46 @@
                                     <div class="small">
                                         {{ if gt $result.BallastKG 0 }}
                                             {{ $hasHandicap = true }}
-                                            Ballast:
+                                            {{ t "results.ballast" }}
                                             {{ $result.BallastKG }} kg<br>
                                         {{ end }}
 
                                         {{ if gt $result.Restrictor 0 }}
                                             {{ $hasHandicap = true }}
-                                            Restrictor:
+                                            {{ t "results.restrictor" }}
                                             {{ $result.Restrictor }}%<br>
                                         {{ end }}
                                     </div>
 
                                     {{ if not $hasHandicap }}
-                                        n/a
+                                        {{ t "results.na" }}
                                     {{ end }}
                                 </td>
                             {{ end }}
                             {{ if WriteAccess }}
                                 <td>
                                     <button type="button" class="btn btn-warning btn-sm" data-placement="left"
-                                            data-toggle="popover" title="Penalty Details" data-html="true"
+                                            data-toggle="popover" title="{{ t "results.penalty.details" }}" data-html="true"
                                             id="result-{{ $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}"
-                                    >Penalties</button>
+                                    >{{ t "results.col.penalties" }}</button>
 
                                     <div id="popover-content-result-{{ $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}" style="display: none;">
                                         <form action="{{ if $server }}/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}&amp;server={{ $server.ID }}{{ else }}{{ serverURL (printf "/penalties/%s/%s?model=%s" $sessionResults.SessionFile $result.DriverGUID $result.CarModel) }}{{ end }}" method='POST'>
                                             <div class='form-group'>
-                                                <label for='time-penalty'>Time Penalty (seconds)</label>
+                                                <label for='time-penalty'>{{ t "results.penalty.time_seconds" }}</label>
                                                 <input type='number' class='form-control' name='time-penalty' id='time-penalty' placeholder='0' step='0.1'>
-                                                <small class='form-text text-muted'>If set to 0 driver will be disqualified.</small>
+                                                <small class='form-text text-muted'>{{ t "results.penalty.zero_help" }}</small>
                                             </div>
 
-                                            <button type='submit' name='action' value='add' class='btn btn-warning'>Add Penalty</button>
-                                            <button type='submit' name='action' value='remove' class='btn btn-primary'>Remove Penalty</button>
+                                            <button type='submit' name='action' value='add' class='btn btn-warning'>{{ t "results.penalty.add" }}</button>
+                                            <button type='submit' name='action' value='remove' class='btn btn-primary'>{{ t "results.penalty.remove" }}</button>
                                         </form>
 
                                         {{ if AdminAccess }}
                                             <form action="{{ if $server }}/blacklist?server={{ $server.ID }}{{ else }}{{ serverURL "/blacklist" }}{{ end }}" method="POST">
                                                 <input type="text" class="d-none" name="blacklist" id="blacklist" value="{{ $result.DriverGUID }}">
 
-                                                <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>Blacklist Driver</button>
+                                                <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>{{ t "results.penalty.blacklist" }}</button>
                                             </form>
                                         {{ end }}
                                     </div>
@@ -220,19 +218,19 @@
             {{ else if eq "PRACTICE" $sessionResults.Type.OriginalString }}
                 <tr>
                     <th>#</th>
-                    <th>Name</th>
+                    <th>{{ t "results.col.name" }}</th>
                     {{ if $driversHaveTeams }}
-                        <th>Team</th>
+                        <th>{{ t "account_details.team" }}</th>
                     {{ end }}
-                    <th>Car</th>
-                    <th>Best Practice Lap</th>
-                    <th>Average Lap</th>
-                    <th>Laps</th>
+                    <th>{{ t "live.col.car" }}</th>
+                    <th>{{ t "results.col.best_practice_lap" }}</th>
+                    <th>{{ t "results.col.average_lap" }}</th>
+                    <th>{{ t "results.col.laps" }}</th>
                     {{ if $sessionHasHandicaps }}
-                        <th>Handicaps</th>
+                        <th>{{ t "results.col.handicaps" }}</th>
                     {{ end }}
                     {{ if WriteAccess }}
-                        <th>Penalties</th>
+                        <th>{{ t "results.col.penalties" }}</th>
                     {{ end }}
                 </tr>
 
@@ -241,8 +239,8 @@
                         <tr {{ if eq $account.GUID $result.DriverGUID }}style="font-weight: bold"{{ end }}>
                             <td>{{ add $pos 1 }}</td>
                             <td class="driver-link" data-href="#{{ $result.DriverGUID }}-{{ $result.CarID }}">{{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
-                                {{ if $result.HasPenalty }} <span class="badge badge-danger">Time Penalty: {{ $result.PenaltyTime }}</span> {{ end }}
-                                {{ if $result.Disqualified }} <span class="badge badge-danger">Disqualified</span> {{ end }}</td>
+                                {{ if $result.HasPenalty }} <span class="badge badge-danger">{{ t "results.time_penalty" "time" $result.PenaltyTime }}</span> {{ end }}
+                                {{ if $result.Disqualified }} <span class="badge badge-danger">{{ t "results.disqualified" }}</span> {{ end }}</td>
                             {{ if $driversHaveTeams }}
                                 <td>{{ $sessionResults.GetTeamName $result.DriverGUID }}</td>
                             {{ end }}
@@ -251,12 +249,11 @@
                                 {{ $bestLap := $sessionResults.GetTime $result.BestLap $result.DriverGUID $result.CarModel true }}
                                 {{ formatDuration $bestLap true }}<br>
                                 {{ if gt $bestLap 0 }}
-                                    <small class="text-muted">Tyre: {{ $result.BestLapTyre $sessionResults }}</small>
+                                    <small class="text-muted">{{ t "results.tyre_value" "tyre" ($result.BestLapTyre $sessionResults) }}</small>
                                 {{ end }}
                             </td>
                             <td>{{ formatDuration ($sessionResults.GetAverageLapTime $result.DriverGUID $result.CarModel) true }}</td>
-                            <td>{{ $sessionResults.GetNumLaps $result.DriverGUID $result.CarModel }} laps /
-                                {{ $sessionResults.GetCuts $result.DriverGUID $result.CarModel }} cuts</td>
+                            <td>{{ t "results.laps_cuts" "laps" ($sessionResults.GetNumLaps $result.DriverGUID $result.CarModel) "cuts" ($sessionResults.GetCuts $result.DriverGUID $result.CarModel) }}</td>
 
                             {{ if $sessionHasHandicaps }}
                                 <td>
@@ -265,19 +262,19 @@
                                     <div class="small">
                                         {{ if gt $result.BallastKG 0 }}
                                             {{ $hasHandicap = true }}
-                                            Ballast:
+                                            {{ t "results.ballast" }}
                                             {{ $result.BallastKG }} kg<br>
                                         {{ end }}
 
                                         {{ if gt $result.Restrictor 0 }}
                                             {{ $hasHandicap = true }}
-                                            Restrictor:
+                                            {{ t "results.restrictor" }}
                                             {{ $result.Restrictor }}%<br>
                                         {{ end }}
                                     </div>
 
                                     {{ if not $hasHandicap }}
-                                        n/a
+                                        {{ t "results.na" }}
                                     {{ end }}
                                 </td>
                             {{ end }}
@@ -285,27 +282,27 @@
                             {{ if WriteAccess }}
                                 <td>
                                     <button type="button" class="btn btn-warning btn-sm" data-placement="left"
-                                            data-toggle="popover" title="Penalty Details" data-html="true"
+                                            data-toggle="popover" title="{{ t "results.penalty.details" }}" data-html="true"
                                             id="result-{{ $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}"
-                                    >Penalties</button>
+                                    >{{ t "results.col.penalties" }}</button>
 
                                     <div id="popover-content-result-{{ $result.DriverGUID }}-{{ $result.CarModel }}-{{ $sessionResults.SessionFile }}" style="display: none;">
                                         <form action="{{ if $server }}/penalties/{{ $sessionResults.SessionFile }}/{{ $result.DriverGUID }}?model={{ $result.CarModel }}&amp;server={{ $server.ID }}{{ else }}{{ serverURL (printf "/penalties/%s/%s?model=%s" $sessionResults.SessionFile $result.DriverGUID $result.CarModel) }}{{ end }}" method='POST'>
                                             <div class='form-group'>
-                                                <label for='time-penalty'>Time Penalty (seconds)</label>
+                                                <label for='time-penalty'>{{ t "results.penalty.time_seconds" }}</label>
                                                 <input type='number' class='form-control' name='time-penalty' id='time-penalty' placeholder='0' step='0.1'>
-                                                <small class='form-text text-muted'>If set to 0 driver will be disqualified.</small>
+                                                <small class='form-text text-muted'>{{ t "results.penalty.zero_help" }}</small>
                                             </div>
 
-                                            <button type='submit' name='action' value='add' class='btn btn-warning'>Add Penalty</button>
-                                            <button type='submit' name='action' value='remove' class='btn btn-primary'>Remove Penalty</button>
+                                            <button type='submit' name='action' value='add' class='btn btn-warning'>{{ t "results.penalty.add" }}</button>
+                                            <button type='submit' name='action' value='remove' class='btn btn-primary'>{{ t "results.penalty.remove" }}</button>
                                         </form>
 
                                         {{ if AdminAccess }}
                                             <form action="{{ if $server }}/blacklist?server={{ $server.ID }}{{ else }}{{ serverURL "/blacklist" }}{{ end }}" method="POST">
                                                 <input type="text" class="d-none" name="blacklist" id="blacklist" value="{{ $result.DriverGUID }}">
 
-                                                <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>Blacklist Driver</button>
+                                                <button type='submit' name='type' value="single" class='btn btn-danger w-100 mt-1'>{{ t "results.penalty.blacklist" }}</button>
                                             </form>
                                         {{ end }}
                                     </div>

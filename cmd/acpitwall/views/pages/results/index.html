@@ -1,21 +1,21 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/resultshttp.resultsListTemplateVars */}}
 
-{{ define "title" }}Results{{ end }}
+{{ define "title" }}{{ t "nav.results" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Results</h1>
-            <p class="text-muted mb-0">Finished sessions recorded by the server.</p>
+            <h1>{{ t "nav.results" }}</h1>
+            <p class="text-muted mb-0">{{ t "results.intro" }}</p>
         </div>
 
         {{ if WriteAccess }}
             <div class="results-actions">
-                <a href="/results/combine" class="btn btn-outline">Combine Results</a>
+                <a href="/results/combine" class="btn btn-outline">{{ t "results.combine" }}</a>
                 <form method="post" action="/results/upload" enctype="multipart/form-data">
                     <div class="custom-file">
                         <input onchange="this.form.submit();" type="file" class="custom-file-input" accept=".json, application/json" id="resultsFile" name="resultsFile" required>
-                        <label class="custom-file-label justify-content-start" for="resultsFile">Upload Results File</label>
+                        <label class="custom-file-label justify-content-start" for="resultsFile">{{ t "results.upload" }}</label>
                     </div>
                 </form>
             </div>
@@ -23,49 +23,49 @@
     </div>
 
     <form class="results-filter" method="get" action="/results">
-        <select name="type" class="form-control" aria-label="Session Type">
-            <option value="" {{ if eq .Filter.Type "" }}selected{{ end }}>Any Session Type</option>
-            <option value="practice" {{ if eq .Filter.Type "practice" }}selected{{ end }}>Practice</option>
-            <option value="qualify" {{ if eq .Filter.Type "qualify" }}selected{{ end }}>Qualifying</option>
-            <option value="race" {{ if eq .Filter.Type "race" }}selected{{ end }}>Race</option>
-            <option value="booking" {{ if eq .Filter.Type "booking" }}selected{{ end }}>Booking</option>
+        <select name="type" class="form-control" aria-label="{{ t "results.filter.session_type" }}">
+            <option value="" {{ if eq .Filter.Type "" }}selected{{ end }}>{{ t "results.filter.any_session_type" }}</option>
+            <option value="practice" {{ if eq .Filter.Type "practice" }}selected{{ end }}>{{ t "results.filter.practice" }}</option>
+            <option value="qualify" {{ if eq .Filter.Type "qualify" }}selected{{ end }}>{{ t "results.filter.qualifying" }}</option>
+            <option value="race" {{ if eq .Filter.Type "race" }}selected{{ end }}>{{ t "results.filter.race" }}</option>
+            <option value="booking" {{ if eq .Filter.Type "booking" }}selected{{ end }}>{{ t "results.filter.booking" }}</option>
         </select>
 
         {{ if gt (len .Servers) 1 }}
-            <select name="filterServer" class="form-control" aria-label="Server">
-                <option value="" {{ if eq .FilterServer "" }}selected{{ end }}>Any Server</option>
+            <select name="filterServer" class="form-control" aria-label="{{ t "results.filter.server" }}">
+                <option value="" {{ if eq .FilterServer "" }}selected{{ end }}>{{ t "results.filter.any_server" }}</option>
                 {{ range .Servers }}
                     <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
                 {{ end }}
             </select>
         {{ end }}
 
-        <input type="text" name="track" class="form-control" placeholder="Track" aria-label="Track" value="{{ .Filter.Track }}">
-        <input type="text" name="driver" class="form-control" placeholder="Driver name or GUID" aria-label="Driver" value="{{ .Filter.Driver }}">
+        <input type="text" name="track" class="form-control" placeholder="{{ t "home.track" }}" aria-label="{{ t "home.track" }}" value="{{ .Filter.Track }}">
+        <input type="text" name="driver" class="form-control" placeholder="{{ t "results.filter.driver_placeholder" }}" aria-label="{{ t "live.col.driver" }}" value="{{ .Filter.Driver }}">
 
-        <button type="submit" class="btn btn-primary">Filter</button>
+        <button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button>
 
         {{ if .Filter.IsActive }}
-            <a href="/results" class="btn btn-secondary">Reset</a>
+            <a href="/results" class="btn btn-secondary">{{ t "results.filter.reset" }}</a>
         {{ end }}
     </form>
 
     {{ if and (not .Results) (not .Filter.IsActive) }}
-        {{ template "empty-state" dict "Icon" "results" "Text" "No results yet. Finished sessions show up here." }}
+        {{ template "empty-state" dict "Icon" "results" "Text" (t "results.none") }}
     {{ else }}
     <div class="table-card"><table class="table results-table">
         <tr>
-            <th>Date</th>
-            <th>Session</th>
-            <th>Track Name</th>
-            <th class="d-none d-md-table-cell">Entrants</th>
+            <th>{{ t "home.date" }}</th>
+            <th>{{ t "home.session" }}</th>
+            <th>{{ t "results.track_name" }}</th>
+            <th class="d-none d-md-table-cell">{{ t "home.entrants" }}</th>
             {{ if DeleteAccess }}
                 <th></th>
             {{ end }}
         </tr>
         {{ if and (not .Results) .Filter.IsActive }}
             <tr>
-                <td colspan="5" class="text-center">No results match the filter</td>
+                <td colspan="5" class="text-center">{{ t "results.filter.no_match" }}</td>
             </tr>
         {{ end }}
         {{ range $i, $result := .Results }}
@@ -76,7 +76,7 @@
                 </td>
                 <td>
                     {{ if $result.IsTimeAttack }}
-                        Time Attack
+                        {{ t "results.time_attack" }}
                     {{ else }}
                         {{ $result.Type }}
                     {{ end }}
@@ -93,8 +93,8 @@
                     <td class="text-center">
                         <form method="post" action="/results/{{ $result.SessionFile }}.json/delete" class="d-inline"
                               onclick="event.stopPropagation();"
-                               data-confirm-delete="Delete results file {{ $result.SessionFile }}?" data-confirm-detail="The results file is removed permanently." data-confirm-label="Delete results">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                               data-confirm-delete="{{ t "results.delete_confirm" "file" $result.SessionFile }}" data-confirm-detail="{{ t "results.delete_detail" }}" data-confirm-label="{{ t "results.delete_label" }}">
+                            <button type="submit" class="btn btn-danger btn-sm">{{ t "common.delete" }}</button>
                         </form>
                     </td>
                 {{ end }}

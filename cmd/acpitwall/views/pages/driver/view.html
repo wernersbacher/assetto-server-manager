@@ -9,9 +9,9 @@
                 <h1>{{ driverName $.Driver.Name }}</h1>
                 <p class="text-muted mb-0">
                     {{ with $.Driver.Nation }}<span class="badge badge-secondary mr-1">{{ . }}</span>{{ end }}
-                    {{ with $.Driver.Team }}Team {{ . }}{{ end }}
+                    {{ with $.Driver.Team }}{{ t "results.driver.team" "team" . }}{{ end }}
                     {{ if gt (len $.Driver.Names) 1 }}
-                        <span class="driver-aliases">Also known as
+                        <span class="driver-aliases">{{ t "results.driver.aka" }}
                             {{ range $i, $name := $.Driver.Names }}{{ if gt $i 0 }}{{ if gt $i 1 }}, {{ end }}{{ driverName $name }}{{ end }}{{ end }}
                         </span>
                     {{ end }}
@@ -20,43 +20,43 @@
         </div>
 
         <section class="mb-4" aria-labelledby="driver-stats-heading">
-            <h2 id="driver-stats-heading" class="section-title">Statistics</h2>
+            <h2 id="driver-stats-heading" class="section-title">{{ t "results.driver.statistics" }}</h2>
 
             <div class="driver-tiles">
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Races</div>
+                    <div class="driver-tile-label">{{ t "results.driver.races" }}</div>
                     <div class="driver-tile-value">{{ $.Driver.Races }}</div>
                 </div>
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Wins</div>
+                    <div class="driver-tile-label">{{ t "results.driver.wins" }}</div>
                     <div class="driver-tile-value">{{ $.Driver.Wins }}</div>
                 </div>
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Podiums</div>
+                    <div class="driver-tile-label">{{ t "results.driver.podiums" }}</div>
                     <div class="driver-tile-value">{{ $.Driver.Podiums }}</div>
                 </div>
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Laps</div>
+                    <div class="driver-tile-label">{{ t "results.col.laps" }}</div>
                     <div class="driver-tile-value">{{ $.Driver.Laps }}</div>
                 </div>
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Valid laps</div>
+                    <div class="driver-tile-label">{{ t "results.driver.valid_laps" }}</div>
                     <div class="driver-tile-value">{{ if $.Driver.Laps }}{{ printf "%.1f" $.ValidLapPercent }}%{{ else }}-{{ end }}</div>
-                    <div class="driver-tile-sub">{{ $.Driver.ValidLaps }} of {{ $.Driver.Laps }}</div>
+                    <div class="driver-tile-sub">{{ t "results.driver.valid_of" "valid" $.Driver.ValidLaps "laps" $.Driver.Laps }}</div>
                 </div>
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Cuts</div>
+                    <div class="driver-tile-label">{{ t "results.cuts" }}</div>
                     <div class="driver-tile-value">{{ $.Driver.Cuts }}</div>
-                    <div class="driver-tile-sub">{{ printf "%.1f" $.CutsPer100 }} per 100 laps</div>
+                    <div class="driver-tile-sub">{{ t "results.driver.cuts_per_100" "cuts" (printf "%.1f" $.CutsPer100) }}</div>
                 </div>
                 <div class="driver-tile">
-                    <div class="driver-tile-label">Collisions</div>
+                    <div class="driver-tile-label">{{ t "results.driver.collisions" }}</div>
                     <div class="driver-tile-value">{{ add $.Driver.CollisionsCar $.Driver.CollisionsEnv }}</div>
-                    <div class="driver-tile-sub">{{ $.Driver.CollisionsCar }} cars, {{ $.Driver.CollisionsEnv }} environment</div>
+                    <div class="driver-tile-sub">{{ t "results.driver.collisions_detail" "cars" $.Driver.CollisionsCar "env" $.Driver.CollisionsEnv }}</div>
                 </div>
                 {{ range $.SessionCounts }}
                     <div class="driver-tile">
-                        <div class="driver-tile-label">{{ title (lower .Type) }} sessions</div>
+                        <div class="driver-tile-label">{{ t "results.driver.type_sessions" "type" (title (lower .Type)) }}</div>
                         <div class="driver-tile-value">{{ .Count }}</div>
                     </div>
                 {{ end }}
@@ -65,26 +65,26 @@
 
         {{ if gt (len $.Servers) 1 }}
             <form class="results-filter mb-3" method="get" action="/driver/{{ $.Driver.GUID }}">
-                <select name="filterServer" class="form-control" aria-label="Server" onchange="this.form.submit()">
-                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>Results and bests of any server</option>
+                <select name="filterServer" class="form-control" aria-label="{{ t "results.filter.server" }}" onchange="this.form.submit()">
+                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>{{ t "results.driver.any_server" }}</option>
                     {{ range $.Servers }}
                         <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
                     {{ end }}
                 </select>
-                <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+                <noscript><button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button></noscript>
             </form>
         {{ end }}
 
         <section class="mb-4" aria-labelledby="driver-championships-heading">
-            <h2 id="driver-championships-heading" class="section-title">Championships</h2>
+            <h2 id="driver-championships-heading" class="section-title">{{ t "nav.championships" }}</h2>
 
             {{ if $.Championships }}
                 <div class="table-card"><table class="table results-table">
                     <tr>
-                        <th>Championship</th>
-                        <th>Position</th>
-                        <th>Points</th>
-                        <th>Status</th>
+                        <th>{{ t "event_type.championship" }}</th>
+                        <th>{{ t "results.driver.position" }}</th>
+                        <th>{{ t "results.driver.points" }}</th>
+                        <th>{{ t "results.driver.status" }}</th>
                     </tr>
                     {{ range $.Championships }}
                         <tr class="row-link" data-href="/championship/{{ .ID }}">
@@ -92,27 +92,27 @@
                                 <a href="/championship/{{ .ID }}">{{ .Name }}</a>
                                 {{ with .Class }}<span class="text-muted">({{ . }})</span>{{ end }}
                             </td>
-                            <td>{{ .Position }}{{ ordinal (int64 .Position) }} <span class="text-muted">of {{ .Entrants }}</span></td>
+                            <td>{{ .Position }}{{ ordinal (int64 .Position) }} <span class="text-muted">{{ t "results.driver.of_entrants" "entrants" .Entrants }}</span></td>
                             <td>{{ printf "%g" .Points }}</td>
-                            <td>{{ if .Completed }}Completed{{ else }}In progress{{ end }}</td>
+                            <td>{{ if .Completed }}{{ t "results.driver.completed" }}{{ else }}{{ t "results.driver.in_progress" }}{{ end }}</td>
                         </tr>
                     {{ end }}
                 </table></div>
             {{ else }}
-                {{ template "empty-state" dict "Icon" "results" "Text" "This driver is not in any championship." }}
+                {{ template "empty-state" dict "Icon" "results" "Text" (t "results.driver.no_championships") }}
             {{ end }}
         </section>
 
         <section class="mb-4" aria-labelledby="driver-bests-heading">
-            <h2 id="driver-bests-heading" class="section-title">Personal bests</h2>
+            <h2 id="driver-bests-heading" class="section-title">{{ t "results.driver.personal_bests" }}</h2>
 
             {{ if $.PersonalBests }}
                 <div class="table-card"><table class="table results-table">
                     <tr>
-                        <th>Track</th>
-                        <th>Car</th>
-                        <th class="text-nowrap">Lap Time</th>
-                        <th>Date</th>
+                        <th>{{ t "home.track" }}</th>
+                        <th>{{ t "live.col.car" }}</th>
+                        <th class="text-nowrap">{{ t "results.lap_time" }}</th>
+                        <th>{{ t "home.date" }}</th>
                     </tr>
                     {{ range $.PersonalBests }}
                         <tr class="row-link" data-href="/results/{{ .ResultFile }}">
@@ -130,23 +130,23 @@
                     {{ end }}
                 </table></div>
             {{ else }}
-                {{ template "empty-state" dict "Icon" "results" "Text" "No personal bests yet. Valid laps show up here." }}
+                {{ template "empty-state" dict "Icon" "results" "Text" (t "results.driver.no_personal_bests") }}
             {{ end }}
         </section>
 
         <section class="mb-4" aria-labelledby="driver-results-heading">
-            <h2 id="driver-results-heading" class="section-title">Results <span class="text-muted">({{ $.TotalResults }})</span></h2>
+            <h2 id="driver-results-heading" class="section-title">{{ t "nav.results" }} <span class="text-muted">({{ $.TotalResults }})</span></h2>
 
             {{ if $.Results }}
                 <div class="table-card"><table class="table results-table">
                     <tr>
-                        <th>Date</th>
-                        <th>Session</th>
-                        <th>Position</th>
-                        <th>Track</th>
-                        <th class="d-none d-md-table-cell">Car</th>
-                        <th class="text-nowrap">Best Lap</th>
-                        <th class="d-none d-md-table-cell">Laps</th>
+                        <th>{{ t "home.date" }}</th>
+                        <th>{{ t "home.session" }}</th>
+                        <th>{{ t "results.driver.position" }}</th>
+                        <th>{{ t "home.track" }}</th>
+                        <th class="d-none d-md-table-cell">{{ t "live.col.car" }}</th>
+                        <th class="text-nowrap">{{ t "live.col.best_lap" }}</th>
+                        <th class="d-none d-md-table-cell">{{ t "results.col.laps" }}</th>
                     </tr>
                     {{ range $.Results }}
                         <tr class="row-link" data-href="/results/{{ .ResultFile }}">
@@ -157,7 +157,7 @@
                             <td>{{ title (lower .SessionType) }}</td>
                             <td>
                                 {{ if .Disqualified }}
-                                    <span class="badge badge-danger">DSQ</span>
+                                    <span class="badge badge-danger">{{ t "results.driver.dsq" }}</span>
                                 {{ else if gt .Position 0 }}
                                     <span class="badge {{ if eq .Position 1 }}badge-success{{ else if le .Position 3 }}badge-primary{{ else }}badge-secondary{{ end }}">P{{ .Position }}</span>
                                 {{ else }}
@@ -179,7 +179,7 @@
 
                 {{ template "pagination" dict "CurrentPage" $.CurrentPage "NumPages" $.NumPages "Request" $.Request }}
             {{ else }}
-                {{ template "empty-state" dict "Icon" "results" "Text" "No results for this driver." }}
+                {{ template "empty-state" dict "Icon" "results" "Text" (t "results.driver.no_results") }}
             {{ end }}
         </section>
     </div>

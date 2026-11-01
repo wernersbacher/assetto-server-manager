@@ -1,7 +1,7 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/resultshttp.resultsViewTemplateVars */}}
 
 {{ define "title" }}
-    {{ prettify $.Result.TrackName false }} {{ with $.Result.TrackConfig }} - {{ prettify . true }} {{ end }} Results ({{ $.Result.GetDate }})
+    {{ prettify $.Result.TrackName false }} {{ with $.Result.TrackConfig }} - {{ prettify . true }} {{ end }} {{ t "nav.results" }} ({{ $.Result.GetDate }})
 {{ end }}
 
 {{ define "content" }}
@@ -13,16 +13,16 @@
     <div class="page-header">
         <div>
             <h1>{{ prettify $sessionResults.TrackName false }} {{ with $sessionResults.TrackConfig }} - {{ prettify . true }} {{ end }}</h1>
-            <p class="text-muted mb-0">{{ if $sessionResults.IsTimeAttack }}Time Attack - {{ end }}{{ localFormat $sessionResults.Date }}{{ with $.Server }} - <span class="badge badge-secondary">{{ .Name }}</span>{{ end }}</p>
+            <p class="text-muted mb-0">{{ if $sessionResults.IsTimeAttack }}{{ t "results.time_attack" }} - {{ end }}{{ localFormat $sessionResults.Date }}{{ with $.Server }} - <span class="badge badge-secondary">{{ .Name }}</span>{{ end }}</p>
         </div>
 
         <div class="results-detail-actions">
-            <a class="btn btn-outline" href="/results">Back to Results</a>
+            <a class="btn btn-outline" href="/results">{{ t "results.back" }}</a>
 
             {{ if DeleteAccess }}
                 <form method="post" action="/results/{{ $sessionResults.SessionFile }}.json/delete"
-                       data-confirm-delete="Delete results file {{ $sessionResults.SessionFile }}?" data-confirm-detail="The results file is removed permanently." data-confirm-label="Delete results">
-                    <button type="submit" class="btn btn-danger">Delete Results</button>
+                       data-confirm-delete="{{ t "results.delete_confirm" "file" $sessionResults.SessionFile }}" data-confirm-detail="{{ t "results.delete_detail" }}" data-confirm-label="{{ t "results.delete_label" }}">
+                    <button type="submit" class="btn btn-danger">{{ t "results.delete_results" }}</button>
                 </form>
             {{ end }}
         </div>
@@ -30,18 +30,18 @@
 
     <div class="card mt-3 border-secondary">
         <div class="card-header">
-            <strong>Overview</strong>
+            <strong>{{ t "nav.overview" }}</strong>
 
             <div class="results-detail-actions">
                 {{ with $sessionResults.ChampionshipID }}
-                    <a class="btn btn-success btn-sm mr-1" href="/championship/{{ . }}">View Championship</a>
+                    <a class="btn btn-success btn-sm mr-1" href="/championship/{{ . }}">{{ t "results.view_championship" }}</a>
                 {{ end }}
 
                 {{ with $sessionResults.RaceWeekendID }}
-                    <a class="btn btn-info btn-sm mr-1" href="/race-weekend/{{ . }}">View Race Weekend</a>
+                    <a class="btn btn-info btn-sm mr-1" href="/race-weekend/{{ . }}">{{ t "results.view_race_weekend" }}</a>
                 {{ end }}
-                <a class="btn btn-warning btn-sm mr-1" href="#" target="_blank" id="open-in-simres">Open in Simresults</a>
-                <a class="btn btn-primary btn-sm" href="/results/download/{{ $sessionResults.SessionFile }}.json">Download as JSON</a>
+                <a class="btn btn-warning btn-sm mr-1" href="#" target="_blank" id="open-in-simres">{{ t "results.open_simresults" }}</a>
+                <a class="btn btn-primary btn-sm" href="/results/download/{{ $sessionResults.SessionFile }}.json">{{ t "results.download_json" }}</a>
             </div>
         </div>
         <div class="card-body">
@@ -61,7 +61,7 @@
                             <a class="nav-link" id="session-event-tab"
                                data-toggle="tab" href="#session-event"
                                role="tab"
-                               aria-controls="main" aria-selected="true"><strong>Events</strong></a>
+                               aria-controls="main" aria-selected="true"><strong>{{ t "live.col.events" }}</strong></a>
                         </li>
 
                         {{ if WriteAccess }}
@@ -69,7 +69,7 @@
                                 <a class="nav-link" id="session-admin-tab"
                                    data-toggle="tab" href="#session-admin"
                                    role="tab"
-                                   aria-controls="main" aria-selected="true"><strong>Edit Results</strong></a>
+                                   aria-controls="main" aria-selected="true"><strong>{{ t "results.edit_results" }}</strong></a>
                             </li>
                         {{ end }}
                     </ul>
@@ -93,13 +93,13 @@
                                         <table class="table table-bordered table-striped">
                                             <tr>
                                                 <th>#</th>
-                                                <th>Driver</th>
-                                                <th>Other Driver</th>
-                                                <th>Type</th>
-                                                <th>Impact Speed</th>
-                                                <th>Relative Position</th>
-                                                <th>World Position</th>
-                                                <th>Show on Map</th>
+                                                <th>{{ t "live.col.driver" }}</th>
+                                                <th>{{ t "results.collisions.other_driver" }}</th>
+                                                <th>{{ t "results.collisions.type" }}</th>
+                                                <th>{{ t "results.collisions.impact_speed" }}</th>
+                                                <th>{{ t "results.collisions.relative_position" }}</th>
+                                                <th>{{ t "results.collisions.world_position" }}</th>
+                                                <th>{{ t "results.collisions.show_on_map" }}</th>
                                             </tr>
 
                                             {{ range $pos, $event := $sessionResults.Events }}
@@ -109,9 +109,9 @@
                                                     <td class="driver-link" data-href="#{{ $event.OtherDriver.GUID }}-{{ $event.OtherCarID }}">{{ driverName $event.OtherDriver.Name }}</td>
                                                     <td>
                                                         {{ if eq $event.Type "COLLISION_WITH_ENV" }}
-                                                            Collision with environment
+                                                            {{ t "results.collisions.with_env" }}
                                                         {{ else }}
-                                                            Collision with car
+                                                            {{ t "results.collisions.with_car" }}
                                                         {{ end }}
                                                     </td>
 
@@ -127,23 +127,23 @@
                                             {{ end }}
                                         </table>
 
-                                        <button class="btn btn-success" type="submit">Update Map Collisions</button>
-                                        <button class="btn btn-info" id="show-all-collisions">Show All Collisions</button>
-                                        <button class="btn btn-warning" id="hide-all-collisions">Hide All Collisions</button>
+                                        <button class="btn btn-success" type="submit">{{ t "results.collisions.update_map" }}</button>
+                                        <button class="btn btn-info" id="show-all-collisions">{{ t "results.collisions.show_all" }}</button>
+                                        <button class="btn btn-warning" id="hide-all-collisions">{{ t "results.collisions.hide_all" }}</button>
 
                                     </form>
 
-                                    <span data-toggle="tooltip" title="Collision With Other Car" class="badge badge-danger">Car</span>
-                                    <span data-toggle="tooltip" title="Collision With Environment" class="badge badge-warning">Env</span>
-                                    <span data-toggle="tooltip" title="Collision Relative" class="badge badge-primary">Rel</span>
+                                    <span data-toggle="tooltip" title="{{ t "results.collisions.legend_car" }}" class="badge badge-danger">{{ t "results.collisions.badge_car" }}</span>
+                                    <span data-toggle="tooltip" title="{{ t "results.collisions.legend_env" }}" class="badge badge-warning">{{ t "results.collisions.badge_env" }}</span>
+                                    <span data-toggle="tooltip" title="{{ t "results.collisions.legend_rel" }}" class="badge badge-primary">{{ t "results.collisions.badge_rel" }}</span>
                                 </div>
 
                                 <div class="image-overlay">
                                     <img class="img img-fluid image-overlay-top" alt="{{ $sessionResults.TrackName }}" src="/content/tracks/{{ $sessionResults.TrackName }}/{{ with $sessionResults.TrackConfig }}{{ $sessionResults.TrackConfig }}/{{ end }}map.png">
-                                    <img class="img img-fluid image-overlay-bottom" alt="{{ $sessionResults.TrackName }} collisions" data-session-file="{{ $sessionResults.SessionFile }}" id="trackImageOverlay" src="/results/{{ $sessionResults.SessionFile }}/collisions?collisions=all">
+                                    <img class="img img-fluid image-overlay-bottom" alt="{{ t "results.collisions.map_alt" "track" $sessionResults.TrackName }}" data-session-file="{{ $sessionResults.SessionFile }}" id="trackImageOverlay" src="/results/{{ $sessionResults.SessionFile }}/collisions?collisions=all">
                                 </div>
                             {{ else }}
-                                <p>There were no collisions in this session.</p>
+                                <p>{{ t "results.collisions.none" }}</p>
                             {{ end }}
                         </div>
 
@@ -153,11 +153,11 @@
                                  aria-labelledby="session-admin-tab">
 
                                 <form method="post" action="/results/{{ $sessionResults.SessionFile}}/edit" class="mt-2">
-                                    <p>You can use this form to edit the names of the drivers in the results file. Note that the original results file will be overwritten.</p>
+                                    <p>{{ t "results.edit_names_help" }}</p>
 
                                     {{ range $index, $car := $sessionResults.Result }}
                                         <div class="form-group row">
-                                            <label for="guid:{{ $car.DriverGUID }}" class="col-sm-3 col-form-label">Driver GUID: {{ $car.DriverGUID }}</label>
+                                            <label for="guid:{{ $car.DriverGUID }}" class="col-sm-3 col-form-label">{{ t "results.driver_guid" "guid" $car.DriverGUID }}</label>
 
                                             <div class="col-sm-9">
                                                 <input
@@ -171,7 +171,7 @@
                                         </div>
                                     {{ end }}
 
-                                    <button type="submit" class="btn btn-primary float-right">Edit Names</button>
+                                    <button type="submit" class="btn btn-primary float-right">{{ t "results.edit_names" }}</button>
 
                                     <div class="clearfix"></div>
                                 </form>
@@ -196,7 +196,7 @@
 
                 {{ if eq $sessionResult.DriverGUID "76561198256908075" }} (Ey up you Southern twit){{ end }}
 
-                in
+                {{ t "results.in_car" }}
                 <strong>
                     {{ prettify $sessionResult.CarModel true }}
                 </strong>
@@ -204,13 +204,13 @@
                 <div class="float-right">
                     {{ if $resultHasMultipleDrivers }}
                         {{ $numSwaps := $sessionResults.NumberOfDriverSwaps $sessionResult.CarID }}
-                        {{ $numSwaps }} Driver Swap{{ if gt $numSwaps 1 }}s{{ end }}.
+                        {{ tn "results.driver_swaps" $numSwaps }}.
                     {{ end }}
 
-                    Best: {{ $bestLap := $sessionResults.GetTime $sessionResult.BestLap $sessionResult.DriverGUID $sessionResult.CarModel false }}
+                    {{ t "results.best" }} {{ $bestLap := $sessionResults.GetTime $sessionResult.BestLap $sessionResult.DriverGUID $sessionResult.CarModel false }}
                     {{ formatDuration $bestLap true }},
 
-                    Potential: {{formatDuration ( $sessionResults.GetPotentialLap $sessionResult.DriverGUID $sessionResult.CarModel ) true }}
+                    {{ t "results.potential" }} {{formatDuration ( $sessionResults.GetPotentialLap $sessionResult.DriverGUID $sessionResult.CarModel ) true }}
                 </div>
             </div>
             <div class="card-body">
@@ -221,21 +221,21 @@
                             <table class="table table-bordered table-striped">
 
                                 <tr>
-                                    <th>Lap #</th>
+                                    <th>{{ t "results.lap_number" }}</th>
                                     {{ if eq "RACE" $sessionResults.Type.OriginalString }}
-                                        <th>Race Position</th>
+                                        <th>{{ t "results.race_position" }}</th>
                                     {{ end }}
                                     {{ if $resultHasMultipleDrivers }}
-                                        <th>Driver</th>
+                                        <th>{{ t "live.col.driver" }}</th>
                                     {{ end }}
-                                    <th>Lap Time</th>
+                                    <th>{{ t "results.lap_time" }}</th>
 
                                     {{ range $z, $null := $sessionResults.GetNumSectors }}
-                                        <th>Sector {{ add $z 1 }}</th>
+                                        <th>{{ t "results.sector" "n" (add $z 1) }}</th>
                                     {{ end }}
 
-                                    <th>Cuts</th>
-                                    <th>Tyre</th>
+                                    <th>{{ t "results.cuts" }}</th>
+                                    <th>{{ t "results.tyre" }}</th>
                                 </tr>
 
                                 {{ $lapCount := 0}}
@@ -257,19 +257,19 @@
 
                                                 {{ if $sessionResults.IsFastestLap $sessionLap.LapTime $sessionLap.Cuts }}
                                                     <div class="float-right mr-1">
-                                                        <span data-toggle="tooltip" title="Fastest Lap" class="badge badge-best">L</span>
+                                                        <span data-toggle="tooltip" title="{{ t "results.badge.fastest_lap" }}" class="badge badge-best">L</span>
                                                     </div>
                                                 {{ end }}
 
                                                 {{ if $sessionResults.IsDriversFastestLap $sessionLap.DriverGUID $sessionLap.CarModel $sessionLap.LapTime $sessionLap.Cuts }}
                                                     <div class="float-right mr-1">
-                                                        <span data-toggle="tooltip" title="Driver's Fastest Lap" class="badge badge-success">L</span>
+                                                        <span data-toggle="tooltip" title="{{ t "results.badge.drivers_fastest_lap" }}" class="badge badge-success">L</span>
                                                     </div>
                                                 {{ end }}
 
                                                 {{ if $sessionLap.DidCheat $averageLapTime }}
                                                     <div class="float-right mr-1">
-                                                        <span data-toggle="tooltip" title="Probably Cheated" class="badge badge-danger">C</span>
+                                                        <span data-toggle="tooltip" title="{{ t "results.badge.cheated" }}" class="badge badge-danger">C</span>
                                                     </div>
                                                 {{ end }}
                                             </td>
@@ -281,13 +281,13 @@
 
                                                     {{ if $sessionResults.IsFastestSector $x (index $sessionLap.Sectors $x) $sessionLap.Cuts }}
                                                         <div class="float-right mr-1">
-                                                            <span data-toggle="tooltip" title="Fastest Sector" class="badge badge-best">S</span>
+                                                            <span data-toggle="tooltip" title="{{ t "results.badge.fastest_sector" }}" class="badge badge-best">S</span>
                                                         </div>
                                                     {{ end }}
 
                                                     {{ if $sessionResults.IsDriversFastestSector $sessionLap.DriverGUID $sessionLap.CarModel $x (index $sessionLap.Sectors $x) $sessionLap.Cuts }}
                                                         <div class="float-right mr-1">
-                                                            <span data-toggle="tooltip" title="Driver's Fastest Sector" class="badge badge-success">S</span>
+                                                            <span data-toggle="tooltip" title="{{ t "results.badge.drivers_fastest_sector" }}" class="badge badge-success">S</span>
                                                         </div>
                                                     {{ end }}
                                                     {{ end }}

@@ -1,0 +1,140 @@
+# Results list and detail, leaderboards, driver profile.
+results:
+  intro: Finished sessions recorded by the server.
+  combine: Combine Results
+  combine_option: "{session} at {track}"
+  combine_submit: Combine Selected Results
+  upload: Upload Results File
+  none: No results yet. Finished sessions show up here.
+  track_name: Track Name
+  time_attack: Time Attack
+  delete_confirm: Delete results file {file}?
+  delete_detail: The results file is removed permanently.
+  delete_label: Delete results
+  delete_results: Delete Results
+  back: Back to Results
+  view_championship: View Championship
+  view_race_weekend: View Race Weekend
+  open_simresults: Open in Simresults
+  download_json: Download as JSON
+  edit_results: Edit Results
+  edit_names_help: You can use this form to edit the names of the drivers in the results file. Note that the original results file will be overwritten.
+  driver_guid: "Driver GUID: {guid}"
+  edit_names: Edit Names
+  in_car: in
+  driver_swaps:
+    one: "{count} Driver Swap"
+    other: "{count} Driver Swaps"
+  best: "Best:"
+  potential: "Potential:"
+  lap_number: "Lap #"
+  race_position: Race Position
+  lap_time: Lap Time
+  sector: Sector {n}
+  cuts: Cuts
+  tyre: Tyre
+  tyre_value: "Tyre: {tyre}"
+  laps_cuts: "{laps} laps / {cuts} cuts"
+  time_penalty: "Time Penalty: {time}"
+  disqualified: Disqualified
+  ballast: "Ballast:"
+  restrictor: "Restrictor:"
+  na: n/a
+  filter:
+    session_type: Session Type
+    any_session_type: Any Session Type
+    practice: Practice
+    qualifying: Qualifying
+    race: Race
+    booking: Booking
+    server: Server
+    any_server: Any Server
+    driver_placeholder: Driver name or GUID
+    reset: Reset
+    no_match: No results match the filter
+  col:
+    name: Name
+    total_race_time: Total Race Time
+    num_laps: Num Laps
+    average_clean_lap: Average Clean Lap
+    average_clean_lap_help: Laps contribute to this average if they don't have cuts, aren't lap 1, and the lap time is within 107% of the average lap time so far
+    handicaps: Handicaps
+    crashes: Crashes
+    penalties: Penalties
+    qualifying_time: Qualifying Time
+    best_practice_lap: Best Practice Lap
+    average_lap: Average Lap
+    laps: Laps
+  penalty:
+    details: Penalty Details
+    time_seconds: Time Penalty (seconds)
+    zero_help: If set to 0 driver will be disqualified.
+    add: Add Penalty
+    remove: Remove Penalty
+    blacklist: Blacklist Driver
+  badge:
+    fastest_lap: Fastest Lap
+    drivers_fastest_lap: Driver's Fastest Lap
+    cheated: Probably Cheated
+    fastest_sector: Fastest Sector
+    drivers_fastest_sector: Driver's Fastest Sector
+  collisions:
+    other_driver: Other Driver
+    type: Type
+    impact_speed: Impact Speed
+    relative_position: Relative Position
+    world_position: World Position
+    show_on_map: Show on Map
+    with_env: Collision with environment
+    with_car: Collision with car
+    update_map: Update Map Collisions
+    show_all: Show All Collisions
+    hide_all: Hide All Collisions
+    legend_car: Collision With Other Car
+    legend_env: Collision With Environment
+    legend_rel: Collision Relative
+    badge_car: Car
+    badge_env: Env
+    badge_rel: Rel
+    map_alt: "{track} collisions"
+    none: There were no collisions in this session.
+  leaderboards:
+    intro: The fastest valid lap of every driver on a track.
+    no_match: No laps match the filter.
+    none: No laps yet. Valid laps from results show up here.
+    period: Period
+    all_time: All time
+    last_30_days: Last 30 days
+    last_7_days: Last 7 days
+    rows: Rows
+    per_driver: One row per driver
+    per_driver_car: One row per driver and car
+    track_details: Track details
+    sectors: Sectors
+    lap_record: Lap record
+    best_sector: Best of this sector
+  driver:
+    team: Team {team}
+    aka: Also known as
+    statistics: Statistics
+    races: Races
+    wins: Wins
+    podiums: Podiums
+    valid_laps: Valid laps
+    valid_of: "{valid} of {laps}"
+    cuts_per_100: "{cuts} per 100 laps"
+    collisions: Collisions
+    collisions_detail: "{cars} cars, {env} environment"
+    type_sessions: "{type} sessions"
+    any_server: Results and bests of any server
+    position: Position
+    points: Points
+    status: Status
+    of_entrants: of {entrants}
+    completed: Completed
+    in_progress: In progress
+    no_championships: This driver is not in any championship.
+    personal_bests: Personal bests
+    no_personal_bests: No personal bests yet. Valid laps show up here.
+    dsq: DSQ
+    no_results: No results for this driver.

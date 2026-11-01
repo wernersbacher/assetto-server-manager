@@ -1,50 +1,50 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/statshttp.leaderboardTemplateVars */}}
 
-{{ define "title" }}Leaderboards{{ end }}
+{{ define "title" }}{{ t "nav.leaderboards" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Leaderboards</h1>
-            <p class="text-muted mb-0">The fastest valid lap of every driver on a track.</p>
+            <h1>{{ t "nav.leaderboards" }}</h1>
+            <p class="text-muted mb-0">{{ t "results.leaderboards.intro" }}</p>
         </div>
     </div>
 
     {{ if not $.Tracks }}
         {{ if $.Filtered }}
-            {{ template "empty-state" dict "Icon" "championship" "Text" "No laps match the filter." "Href" "/leaderboards" "Label" "Reset" }}
+            {{ template "empty-state" dict "Icon" "championship" "Text" (t "results.leaderboards.no_match") "Href" "/leaderboards" "Label" (t "results.filter.reset") }}
         {{ else }}
-            {{ template "empty-state" dict "Icon" "championship" "Text" "No laps yet. Valid laps from results show up here." }}
+            {{ template "empty-state" dict "Icon" "championship" "Text" (t "results.leaderboards.none") }}
         {{ end }}
     {{ else }}
         <form class="results-filter" method="get" action="/leaderboards">
-            <select name="trackLayout" class="form-control" aria-label="Track" onchange="this.form.querySelectorAll('input[name=car]').forEach(function (c) { c.checked = false; }); this.form.submit()">
+            <select name="trackLayout" class="form-control" aria-label="{{ t "home.track" }}" onchange="this.form.querySelectorAll('input[name=car]').forEach(function (c) { c.checked = false; }); this.form.submit()">
                 {{ range $.Tracks }}
                     <option value="{{ .Value }}" {{ if eq .Value $.Value }}selected{{ end }}>{{ .Name }}</option>
                 {{ end }}
             </select>
 
-            <select name="period" class="form-control" aria-label="Period" onchange="this.form.submit()">
-                <option value="all" {{ if eq $.Period "all" }}selected{{ end }}>All time</option>
-                <option value="30d" {{ if eq $.Period "30d" }}selected{{ end }}>Last 30 days</option>
-                <option value="7d" {{ if eq $.Period "7d" }}selected{{ end }}>Last 7 days</option>
+            <select name="period" class="form-control" aria-label="{{ t "results.leaderboards.period" }}" onchange="this.form.submit()">
+                <option value="all" {{ if eq $.Period "all" }}selected{{ end }}>{{ t "results.leaderboards.all_time" }}</option>
+                <option value="30d" {{ if eq $.Period "30d" }}selected{{ end }}>{{ t "results.leaderboards.last_30_days" }}</option>
+                <option value="7d" {{ if eq $.Period "7d" }}selected{{ end }}>{{ t "results.leaderboards.last_7_days" }}</option>
             </select>
 
-            <select name="sessionType" class="form-control" aria-label="Session Type" onchange="this.form.submit()">
-                <option value="" {{ if eq $.SessionType "" }}selected{{ end }}>Any Session Type</option>
-                <option value="practice" {{ if eq $.SessionType "practice" }}selected{{ end }}>Practice</option>
-                <option value="qualify" {{ if eq $.SessionType "qualify" }}selected{{ end }}>Qualifying</option>
-                <option value="race" {{ if eq $.SessionType "race" }}selected{{ end }}>Race</option>
+            <select name="sessionType" class="form-control" aria-label="{{ t "results.filter.session_type" }}" onchange="this.form.submit()">
+                <option value="" {{ if eq $.SessionType "" }}selected{{ end }}>{{ t "results.filter.any_session_type" }}</option>
+                <option value="practice" {{ if eq $.SessionType "practice" }}selected{{ end }}>{{ t "results.filter.practice" }}</option>
+                <option value="qualify" {{ if eq $.SessionType "qualify" }}selected{{ end }}>{{ t "results.filter.qualifying" }}</option>
+                <option value="race" {{ if eq $.SessionType "race" }}selected{{ end }}>{{ t "results.filter.race" }}</option>
             </select>
 
-            <select name="perCar" class="form-control" aria-label="Rows" onchange="this.form.submit()">
-                <option value="0" {{ if not $.PerCar }}selected{{ end }}>One row per driver</option>
-                <option value="1" {{ if $.PerCar }}selected{{ end }}>One row per driver and car</option>
+            <select name="perCar" class="form-control" aria-label="{{ t "results.leaderboards.rows" }}" onchange="this.form.submit()">
+                <option value="0" {{ if not $.PerCar }}selected{{ end }}>{{ t "results.leaderboards.per_driver" }}</option>
+                <option value="1" {{ if $.PerCar }}selected{{ end }}>{{ t "results.leaderboards.per_driver_car" }}</option>
             </select>
 
             {{ if gt (len $.Servers) 1 }}
-                <select name="filterServer" class="form-control" aria-label="Server" onchange="this.form.submit()">
-                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>Any Server</option>
+                <select name="filterServer" class="form-control" aria-label="{{ t "results.filter.server" }}" onchange="this.form.submit()">
+                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>{{ t "results.filter.any_server" }}</option>
                     {{ range $.Servers }}
                         <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
                     {{ end }}
@@ -53,7 +53,7 @@
 
             {{ if gt (len $.Cars) 1 }}
                 <details class="leaderboard-cars w-100">
-                    <summary>Cars</summary>
+                    <summary>{{ t "home.cars" }}</summary>
                     <div class="mt-1">
                         {{ range $.Cars }}
                             <label class="mr-3 mb-0 text-nowrap"><input type="checkbox" name="car" value="{{ .Model }}" {{ if .Selected }}checked{{ end }} onchange="this.form.submit()"> {{ .Name }}</label>
@@ -62,42 +62,42 @@
                 </details>
             {{ end }}
 
-            <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+            <noscript><button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button></noscript>
 
             {{ if $.Filtered }}
-                <a href="/leaderboards?trackLayout={{ $.Value | urlquery }}" class="btn btn-secondary">Reset</a>
+                <a href="/leaderboards?trackLayout={{ $.Value | urlquery }}" class="btn btn-secondary">{{ t "results.filter.reset" }}</a>
             {{ end }}
         </form>
 
         <section aria-labelledby="leaderboard-heading">
             <h2 id="leaderboard-heading" class="section-title">
                 {{ $.TrackName }}
-                <a class="btn btn-sm btn-outline ml-2" href="/track/{{ $.Track }}">Track details</a>
+                <a class="btn btn-sm btn-outline ml-2" href="/track/{{ $.Track }}">{{ t "results.leaderboards.track_details" }}</a>
             </h2>
 
             {{ if $.Rows }}
                 <div class="table-card"><table class="table results-table">
                     <tr>
                         <th>#</th>
-                        <th>Driver</th>
-                        <th>Car</th>
-                        <th class="text-nowrap">Lap Time</th>
-                        <th class="text-nowrap">Gap</th>
-                        <th class="d-none d-md-table-cell">Sectors</th>
-                        <th class="d-none d-md-table-cell">Tyre</th>
-                        <th>Date</th>
+                        <th>{{ t "live.col.driver" }}</th>
+                        <th>{{ t "live.col.car" }}</th>
+                        <th class="text-nowrap">{{ t "results.lap_time" }}</th>
+                        <th class="text-nowrap">{{ t "live.col.gap" }}</th>
+                        <th class="d-none d-md-table-cell">{{ t "results.leaderboards.sectors" }}</th>
+                        <th class="d-none d-md-table-cell">{{ t "results.tyre" }}</th>
+                        <th>{{ t "home.date" }}</th>
                     </tr>
                     {{ range $.Rows }}
                         <tr class="row-link {{ if eq .Position 1 }}font-weight-bold{{ end }}" data-href="/results/{{ .ResultFile }}">
                             <td>
-                                {{ if eq .Position 1 }}<span class="badge badge-success" title="Lap record">1</span>{{ else }}{{ .Position }}{{ end }}
+                                {{ if eq .Position 1 }}<span class="badge badge-success" title="{{ t "results.leaderboards.lap_record" }}">1</span>{{ else }}{{ .Position }}{{ end }}
                             </td>
                             <td>{{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}</td>
                             <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a></td>
                             <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
                             <td class="text-nowrap text-muted">{{ .GapText }}</td>
                             <td class="d-none d-md-table-cell text-nowrap">
-                                {{ $row := . }}{{ range $i, $sector := .Sectors }}{{ if $i }} / {{ end }}<span {{ if index $row.BestSectors $i }}class="text-success" title="Best of this sector"{{ end }}>{{ formatDuration $sector true }}</span>{{ end }}
+                                {{ $row := . }}{{ range $i, $sector := .Sectors }}{{ if $i }} / {{ end }}<span {{ if index $row.BestSectors $i }}class="text-success" title="{{ t "results.leaderboards.best_sector" }}"{{ end }}>{{ formatDuration $sector true }}</span>{{ end }}
                             </td>
                             <td class="d-none d-md-table-cell">{{ .Tyre }}</td>
                             <td class="text-nowrap">
@@ -108,7 +108,7 @@
                     {{ end }}
                 </table></div>
             {{ else }}
-                {{ template "empty-state" dict "Icon" "championship" "Text" "No laps match the filter." }}
+                {{ template "empty-state" dict "Icon" "championship" "Text" (t "results.leaderboards.no_match") }}
             {{ end }}
         </section>
     {{ end }}

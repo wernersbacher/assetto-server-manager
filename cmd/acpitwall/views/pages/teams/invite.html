@@ -1,27 +1,27 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/teams.inviteTemplateVars */}}
 
-{{ define "title" }}Invitation to {{ $.Team.Name }}{{ end }}
+{{ define "title" }}{{ t "teams.invitation_title" "name" $.Team.Name }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Join {{ $.Team.Name }}</h1>
-            <p>You have been invited to join this team. It has {{ len $.Team.Members }} member{{ if ne (len $.Team.Members) 1 }}s{{ end }}.</p>
+            <h1>{{ t "teams.join_name" "name" $.Team.Name }}</h1>
+            <p>{{ t "teams.invited" }} {{ tn "teams.has_members" (len $.Team.Members) }}</p>
         </div>
     </div>
 
     <div class="card">
         <div class="card-body">
             {{ if $.IsMember }}
-                <p>You are a member of this team already.</p>
-                <a class="btn btn-primary" href="/teams/{{ $.Team.ID.String }}">Go to the team</a>
+                <p>{{ t "teams.already_member" }}</p>
+                <a class="btn btn-primary" href="/teams/{{ $.Team.ID.String }}">{{ t "teams.go_to_team" }}</a>
             {{ else if $.LoggedIn }}
                 <form method="post" action="/teams/invite/{{ $.Token }}" class="m-0">
-                    <button type="submit" class="btn btn-success btn-lg">Join {{ $.Team.Name }}</button>
+                    <button type="submit" class="btn btn-success btn-lg">{{ t "teams.join_name" "name" $.Team.Name }}</button>
                 </form>
             {{ else }}
-                <p>Please sign in first, then open the invite link again.</p>
-                <a class="btn btn-primary" href="/login">Sign in</a>
+                <p>{{ t "teams.sign_in_first" }}</p>
+                <a class="btn btn-primary" href="/login">{{ t "topbar.sign_in" }}</a>
             {{ end }}
         </div>
     </div>
