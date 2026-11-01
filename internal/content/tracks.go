@@ -221,6 +221,7 @@ func NewTrackManager(installPath string) *TrackManager {
 	return &TrackManager{installPath: installPath}
 }
 
+// ListTracks lists the tracks that were uploaded. The tracks that came with the acServer install are left out.
 func (tm *TrackManager) ListTracks() ([]Track, error) {
 	tracksPath := filepath.Join(tm.installPath, "content", "tracks")
 
@@ -232,7 +233,13 @@ func (tm *TrackManager) ListTracks() ([]Track, error) {
 
 	var tracks []Track
 
+	vanilla := currentVanilla(tm.installPath)
+
 	for _, trackFile := range trackFiles {
+		if vanilla.has("tracks", trackFile.Name()) {
+			continue
+		}
+
 		track, err := tm.GetTrackFromName(trackFile.Name())
 
 		if err != nil {

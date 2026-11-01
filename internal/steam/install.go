@@ -49,6 +49,8 @@ func InstallAssettoCorsaServer(installPath, login, password string, force bool) 
 		}
 	}
 
+	before := smcontent.TakeContentSnapshot(installPath)
+
 	cmd := exec.Command(commandToUse, steamCmdArgs(installPath, login, password)...)
 
 	cmd.Stdout = os.Stdout
@@ -57,6 +59,11 @@ func InstallAssettoCorsaServer(installPath, login, password string, force bool) 
 	err = cmd.Run()
 
 	if err != nil {
+		return err
+	}
+
+	// the cars and tracks of the install are not uploaded content, the UI hides them
+	if err := smcontent.MarkVanillaContent(installPath, before); err != nil {
 		return err
 	}
 

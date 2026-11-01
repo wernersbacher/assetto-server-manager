@@ -195,6 +195,10 @@ func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType Conte
 	case ContentTypeCar:
 		// index the cars that have been uploaded.
 		for car := range uploadedCars {
+			if err := smcontent.ForgetVanillaCar(cuh.env.InstallPath(), car); err != nil {
+				return err
+			}
+
 			car, err := cuh.carManager.LoadCar(car, nil)
 
 			if err != nil {
@@ -219,7 +223,11 @@ func (cuh *ContentUploadHandler) addFiles(files []ContentFile, contentType Conte
 		}
 	case ContentTypeTrack:
 		for track := range uploadedTracks {
-			track, err := cuh.trackManager.GetTrackFromName(track)
+			if err := smcontent.ForgetVanillaTrack(cuh.env.InstallPath(), track); err != nil {
+				return err
+			}
+
+			track, err :=cuh.trackManager.GetTrackFromName(track)
 
 			if err == nil {
 				for _, layout := range track.Layouts {

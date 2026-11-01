@@ -105,7 +105,8 @@ func (c carNames) remove(car string) {
 func (cm *CarManager) initCarNames() {
 	carNameCache = make(carNames)
 
-	cars, err := cm.ListCars()
+	// including the vanilla cars: old results and entry lists still name them
+	cars, err := cm.listCars(true)
 
 	if err != nil {
 		return
@@ -186,8 +187,15 @@ func (cm *CarManager) watchForCarChanges() error {
 	return w.Start(time.Second * 15)
 }
 
+// ListCars lists the cars that were uploaded. The cars that came with the acServer install are left out.
 func (cm *CarManager) ListCars() (Cars, error) {
+	return cm.listCars(false)
+}
+
+func (cm *CarManager) listCars(withVanilla bool) (Cars, error) {
 	var cars Cars
+
+	vanilla := currentVanilla(cm.installPath)
 
 	carFiles, err := ioutil.ReadDir(filepath.Join(cm.installPath, "content", "cars"))
 
@@ -202,7 +210,7 @@ func (cm *CarManager) ListCars() (Cars, error) {
 	}
 
 	for _, carFile := range carFiles {
-		if !carFile.IsDir() {
+		if !carFile.IsDir() || (!withVanilla && vanilla.has("cars", carFile.Name())) {
 			continue
 		}
 
