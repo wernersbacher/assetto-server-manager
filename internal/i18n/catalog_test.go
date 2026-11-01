@@ -97,6 +97,7 @@ func TestCatalogsMatchEnglish(t *testing.T) {
 var (
 	templateKeyRe = regexp.MustCompile(`\b(?:t|tn|tHTML)\s+"([^"]+)"`)
 	scriptKeyRe   = regexp.MustCompile(`\b(?:t|tn)\(\s*["']([^"']+)["']`)
+	goKeyRe       = regexp.MustCompile(`smweb\.T\(\s*\w+\s*,\s*"([^"]+)"`)
 )
 
 // TestUsedKeysExist checks that every key used by a template or the TypeScript code is in the English catalog, with
@@ -143,4 +144,5 @@ func TestUsedKeysExist(t *testing.T) {
 	walk(viewsDir, ".html", templateKeyRe, "")
 	walk("../../cmd/acpitwall/typescript/src", ".ts", scriptKeyRe, "js.")
 	walk("../../cmd/acpitwall/typescript/src", ".js", scriptKeyRe, "js.")
+	walk("../../internal", ".go", goKeyRe, "")
 }
