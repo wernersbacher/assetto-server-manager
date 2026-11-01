@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The Weather page uses the same table style as the other lists, shows a message when no presets are installed and its delete buttons have a label.
+
 * The Tracks page has a search field (by name, id or layout), a message for an empty list or search and a pagination, like the Cars page.
 
 * The sidebar is shorter: the options, blacklist, messages, current config, plugin option pages (sTracker, KissMyRank, Real Penalty) and AutoFill Entrants are one "Configuration" entry now, the server logs and audit logs are one "Logs" entry, the results and leaderboards are one "Results" entry, with tabs at the top of each of these pages (same permissions as before; a single tab is not shown). the Organize group and the footer (changelog link and version) are gone from it. The create buttons are on the Custom Races, Championships and Race Weekends pages (and the overview), the Custom Races page also has a Quick Race button. The entries are more compact and the sidebar no longer scrolls on its own: it only stays in place when the window is tall enough to show it completely, otherwise it scrolls with the page.

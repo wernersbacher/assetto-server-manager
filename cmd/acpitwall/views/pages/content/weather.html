@@ -22,11 +22,14 @@
         </div>
     {{ end }}
 
-    {{ $writeAccess := WriteAccess }}
     {{ $installed := .Installed }}
 
-    <div class="card content-table"><div class="table-responsive">
-    <table class="table table-striped mb-0">
+    {{ if not .Weathers }}
+        {{ template "empty-state" dict "Icon" "weather" "Text" (t "content.weather.empty") }}
+    {{ else }}
+    <div class="table-card mb-4">
+    <table class="table">
+        <thead>
         <tr>
             <th>{{ t "content.weather.key" }}</th>
             <th>{{ t "content.weather.name" }}</th>
@@ -35,6 +38,7 @@
                 <th class="text-center">{{ t "common.delete" }}</th>
             {{ end }}
         </tr>
+        </thead>
         {{ range $i, $weather := .Weathers }}
             <tr>
                 <td>
@@ -48,7 +52,7 @@
                     <td class="text-center">
                         {{ if index $installed $i }}
                             <form method="post" action="{{ print "/weather/delete/" $i }}" class="d-inline" data-confirm-delete="{{ t "content.weather.delete_confirm" "name" $weather }}" data-confirm-detail="{{ t "content.weather.delete_detail" }}" data-confirm-label="{{ t "content.weather.delete_label" }}">
-                                <button type="submit" class="btn btn-link p-0"><i class="fas fa-trash fa text-danger"></i></button>
+                                <button type="submit" class="btn btn-icon text-danger" title="{{ t "content.weather.delete_label" }}" aria-label="{{ t "content.weather.delete_aria" "name" $weather }}"><i class="fa fa-trash"></i></button>
                             </form>
                         {{ end }}
                     </td>
@@ -56,7 +60,8 @@
             </tr>
         {{ end }}
     </table>
-    </div></div>
+    </div>
+    {{ end }}
 
     <div class="clearfix"></div>
 {{ end }}

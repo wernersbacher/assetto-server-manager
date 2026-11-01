@@ -142,6 +142,8 @@ content:
     delete_confirm: Weerpreset {name} verwijderen?
     delete_detail: De weerpreset wordt definitief van de server verwijderd.
     delete_label: Weerpreset verwijderen
+    delete_aria: Weerpreset {name} verwijderen
+    empty: Er zijn nog geen weerpresets op de server geïnstalleerd.
 
   upload:
     choose_folder: Map kiezen

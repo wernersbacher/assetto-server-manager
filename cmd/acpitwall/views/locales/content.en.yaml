@@ -142,6 +142,8 @@ content:
     delete_confirm: Delete weather preset {name}?
     delete_detail: The weather preset is removed from the server permanently.
     delete_label: Delete weather preset
+    delete_aria: Delete weather preset {name}
+    empty: No weather presets are installed on the server yet.
 
   upload:
     choose_folder: Choose a folder

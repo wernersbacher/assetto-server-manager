@@ -142,6 +142,8 @@ content:
     delete_confirm: Slet vejr-presettet {name}?
     delete_detail: Vejr-presettet bliver fjernet permanent fra serveren.
     delete_label: Slet vejr-preset
+    delete_aria: Slet vejrpreset {name}
+    empty: Der er endnu ikke installeret vejrpresets på serveren.
 
   upload:
     choose_folder: Vælg en mappe

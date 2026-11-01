@@ -142,6 +142,8 @@ content:
     delete_confirm: Wetter-Preset {name} löschen?
     delete_detail: Das Wetter-Preset wird endgültig vom Server entfernt.
     delete_label: Wetter-Preset löschen
+    delete_aria: Wetter-Preset {name} löschen
+    empty: Auf dem Server sind noch keine Wetter-Presets installiert.
 
   upload:
     choose_folder: Ordner wählen
