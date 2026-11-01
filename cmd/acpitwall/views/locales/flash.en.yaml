@@ -16,6 +16,10 @@ flash:
     steam_created: "Steam account {name} created"
     steam_linked: Your account is now connected to Steam.
     steam_already_linked: Your account is already connected to Steam.
+    steam_signup_limit: Too many accounts were created with Steam recently. Please try again later.
+    steam_rate_limited: Too many Steam login attempts. Please try again in a few minutes.
+    cannot_delete_own: This account cannot be deleted here.
+    deleted_own: Your account was deleted.
     openness_changed: Server openness successfully changed
     public_stats_changed: Public driver statistics successfully changed
     steam_signup_changed: Registration with Steam changed

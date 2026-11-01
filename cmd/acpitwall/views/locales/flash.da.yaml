@@ -16,6 +16,10 @@ flash:
     steam_created: "Steam-konto {name} oprettet"
     steam_linked: Din konto er nu forbundet med Steam.
     steam_already_linked: Din konto er allerede forbundet med Steam.
+    steam_signup_limit: For mange konti er for nylig oprettet med Steam. Prøv igen senere.
+    steam_rate_limited: For mange Steam-loginforsøg. Prøv igen om nogle minutter.
+    cannot_delete_own: Denne konto kan ikke slettes her.
+    deleted_own: Din konto er slettet.
     openness_changed: Serverens åbenhed er ændret
     public_stats_changed: Offentlig kørerstatistik er ændret
     steam_signup_changed: Registrering med Steam er ændret

@@ -170,6 +170,11 @@ account_details:
   guid: GUID
   guid_help: Je account is niet gekoppeld aan Steam. Koppel het om met Steam in te loggen en je voor kampioenschappen in te schrijven.
   connect_steam: Koppelen met Steam
+  delete_title: Account verwijderen
+  delete_intro: Verwijdert je account permanent. Je inschrijvingen in kampioenschappen blijven bestaan.
+  delete_confirm: Je account verwijderen?
+  delete_detail: Je account wordt permanent verwijderd en je wordt uitgelogd.
+  delete_label: Mijn account verwijderen
   team: Team
   theme: Thema
   theme_option:

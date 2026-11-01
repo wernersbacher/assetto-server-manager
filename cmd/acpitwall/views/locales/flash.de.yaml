@@ -16,6 +16,10 @@ flash:
     steam_created: "Steam-Konto {name} angelegt"
     steam_linked: Dein Konto ist jetzt mit Steam verbunden.
     steam_already_linked: Dein Konto ist bereits mit Steam verbunden.
+    steam_signup_limit: Zu viele Konten wurden kürzlich mit Steam angelegt. Bitte versuche es später erneut.
+    steam_rate_limited: Zu viele Steam-Anmeldeversuche. Bitte versuche es in einigen Minuten erneut.
+    cannot_delete_own: Dieses Konto kann hier nicht gelöscht werden.
+    deleted_own: Dein Konto wurde gelöscht.
     openness_changed: Offenheit des Servers erfolgreich geändert
     public_stats_changed: Öffentliche Fahrerstatistiken erfolgreich geändert
     steam_signup_changed: Registrierung mit Steam erfolgreich geändert

@@ -236,7 +236,7 @@ func NewAccountHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHa
 // SteamLogin is the public /login/steam route: it redirects to Steam, validates the answer there and starts the
 // session in the same request (the SteamID is never read from a query parameter set by the client).
 func (ah *AccountHandler) SteamLogin() http.HandlerFunc {
-	return ah.HandleLogin(func(w http.ResponseWriter, r *http.Request, steamID string) {
+	return ah.limitSteamLogins(ah.HandleLogin(func(w http.ResponseWriter, r *http.Request, steamID string) {
 		ah.finishSteamLogin(w, r, steamID)
 	}, func(w http.ResponseWriter, r *http.Request, err error) {
 		if err != steam.ErrCancelled {
@@ -245,7 +245,7 @@ func (ah *AccountHandler) SteamLogin() http.HandlerFunc {
 
 		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_failed"))
 		http.Redirect(w, r, "/login", http.StatusFound)
-	})
+	}))
 }
 
 // finishSteamLogin starts the session for a validated SteamID and sends the visitor on.
@@ -255,6 +255,11 @@ func (ah *AccountHandler) finishSteamLogin(w http.ResponseWriter, r *http.Reques
 	switch {
 	case err == ErrSteamSignupDisabled:
 		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_not_allowed"))
+		steam.ClientSideRedirect("/login", w)
+		return
+	case err == ErrSteamSignupLimit:
+		logrus.Warn("Too many accounts were created with Steam recently, refusing a new one")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_signup_limit"))
 		steam.ClientSideRedirect("/login", w)
 		return
 	case err != nil:
@@ -496,6 +501,9 @@ type updateAccountTemplateVars struct {
 
 	// CanConnectSteam is true for a real account (not the visitor of an open server) that is not connected to Steam.
 	CanConnectSteam bool
+
+	// CanDelete is true if the account may delete itself (not the admin account, not the visitor of an open server).
+	CanDelete bool
 }
 
 func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -536,6 +544,7 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 		ThemeOptions: themeOptions,
 
 		CanConnectSteam: account.GUID == "" && account.ID != uuid.Nil && account != smweb.ScopeFromRequest(r).OpenAccount,
+		CanDelete:       account.ID != uuid.Nil && account.Name != smmodel.AdminUserName && account != smweb.ScopeFromRequest(r).OpenAccount && account.Name != smmodel.OpenAccountName,
 	})
 }
 
@@ -564,6 +573,39 @@ func (ah *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) 
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
+}
+
+// DeleteOwnAccount deletes the account of the session (POST) and ends the session. The admin account and the
+// visitor of an open server cannot be deleted this way.
+func (ah *AccountHandler) DeleteOwnAccount(w http.ResponseWriter, r *http.Request) {
+	account := smweb.AccountFromRequest(r)
+
+	if account.Name == "" || account.Name == smmodel.AdminUserName || account == ah.accountManager.openAccount || account.Name == smmodel.OpenAccountName || account.ID == uuid.Nil {
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.cannot_delete_own"))
+		http.Redirect(w, r, "/accounts/update", http.StatusFound)
+		return
+	}
+
+	if err := ah.store.DeleteAccount(account.ID.String()); err != nil {
+		logrus.WithError(err).Errorf("Could not delete own account %s", account.ID)
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.not_deleted"))
+		http.Redirect(w, r, "/accounts/update", http.StatusFound)
+		return
+	}
+
+	if ah.onAccountDeleted != nil {
+		if err := ah.onAccountDeleted(account.ID); err != nil {
+			logrus.WithError(err).Errorf("Could not clean up after the deleted account %s", account.ID)
+		}
+	}
+
+	// end the session, the flash message is for the next page
+	sess := smweb.Session(r)
+	delete(sess.Values, sessionAccountID)
+	_ = sess.Save(r, w)
+
+	smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.deleted_own"))
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (ah *AccountHandler) ResetPassword(w http.ResponseWriter, r *http.Request) {
@@ -617,6 +659,10 @@ func (am *AccountManager) loginWithSteam(r *http.Request, w http.ResponseWriter,
 			return nil, false, fmt.Errorf("an account named %q exists already", steamAccountName(steamID))
 		}
 
+		if !am.allowSteamSignup() {
+			return nil, false, ErrSteamSignupLimit
+		}
+
 		account = smmodel.NewAccount(am.serverID, am.buildVersion)
 		account.Name = steamAccountName(steamID)
 		account.GUID = steamID
@@ -645,6 +691,12 @@ type AccountManager struct {
 
 	// now is the clock, nil for time.Now (set by tests).
 	now func() time.Time
+
+	// limitMutex guards the lazily created limiters: loginLimit for the requests to /login/steam per IP address,
+	// signupLimit for the accounts that Steam logins create.
+	limitMutex  sync.Mutex
+	loginLimit  *rateLimiter
+	signupLimit *rateLimiter
 
 	config *smconfig.Configuration
 

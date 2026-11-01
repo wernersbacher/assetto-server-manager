@@ -245,6 +245,7 @@ func Router(
 		r.HandleFunc("/accounts/new-password", accountHandler.NewPassword)
 		r.HandleFunc("/accounts/update", accountHandler.Update)
 		r.Get("/accounts/steam-link/finish", accountHandler.SteamLinkFinish)
+		r.Post("/accounts/delete-own", accountHandler.DeleteOwnAccount)
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
 		// skins of users: every logged in account may upload and manage its own skins (checked in the handlers, which

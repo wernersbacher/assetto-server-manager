@@ -16,6 +16,10 @@ flash:
     steam_created: "Steam-account {name} aangemaakt"
     steam_linked: Je account is nu gekoppeld aan Steam.
     steam_already_linked: Je account is al gekoppeld aan Steam.
+    steam_signup_limit: Er zijn onlangs te veel accounts met Steam aangemaakt. Probeer het later opnieuw.
+    steam_rate_limited: Te veel Steam-inlogpogingen. Probeer het over een paar minuten opnieuw.
+    cannot_delete_own: Dit account kan hier niet worden verwijderd.
+    deleted_own: Je account is verwijderd.
     openness_changed: Openheid van de server gewijzigd
     public_stats_changed: Openbare rijdersstatistieken gewijzigd
     steam_signup_changed: Registratie met Steam gewijzigd

@@ -91,5 +91,19 @@
                 </div>
             </div>
         </form>
+
+        {{ if .CanDelete }}
+            <div class="card admin-card mb-3">
+                <div class="card-header"><strong>{{ t "account_details.delete_title" }}</strong></div>
+                <div class="card-body">
+                    <p><small>{{ t "account_details.delete_intro" }}</small></p>
+
+                    <form method="post" action="/accounts/delete-own" class="m-0"
+                          data-confirm-delete="{{ t "account_details.delete_confirm" }}" data-confirm-detail="{{ t "account_details.delete_detail" }}" data-confirm-label="{{ t "account_details.delete_label" }}">
+                        <button type="submit" class="btn btn-danger">{{ t "account_details.delete_label" }}</button>
+                    </form>
+                </div>
+            </div>
+        {{ end }}
     </div>
 {{ end }}

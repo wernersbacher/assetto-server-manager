@@ -170,6 +170,11 @@ account_details:
   guid: GUID
   guid_help: Din konto er ikke forbundet med Steam. Forbind den for at logge ind med Steam og tilmelde dig mesterskaber.
   connect_steam: Forbind med Steam
+  delete_title: Slet konto
+  delete_intro: Sletter din konto permanent. Dine tilmeldinger til mesterskaber forbliver, som de er.
+  delete_confirm: Slet din konto?
+  delete_detail: Din konto fjernes permanent, og du bliver logget ud.
+  delete_label: Slet min konto
   team: Team
   theme: Tema
   theme_option:

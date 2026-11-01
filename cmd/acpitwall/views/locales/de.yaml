@@ -170,6 +170,11 @@ account_details:
   guid: GUID
   guid_help: Dein Konto ist nicht mit Steam verbunden. Verbinde es, um dich mit Steam anzumelden und für Meisterschaften zu registrieren.
   connect_steam: Mit Steam verbinden
+  delete_title: Konto löschen
+  delete_intro: Löscht dein Konto dauerhaft. Deine Anmeldungen in Meisterschaften bleiben bestehen.
+  delete_confirm: Dein Konto löschen?
+  delete_detail: Dein Konto wird dauerhaft entfernt und du wirst abgemeldet.
+  delete_label: Mein Konto löschen
   team: Team
   theme: Design
   theme_option:

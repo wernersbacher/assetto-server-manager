@@ -171,6 +171,11 @@ account_details:
   guid: GUID
   guid_help: Your account is not connected to Steam. Connect it to sign in with Steam and to register for championships.
   connect_steam: Connect with Steam
+  delete_title: Delete Account
+  delete_intro: Deletes your account permanently. Your registrations in championships stay as they are.
+  delete_confirm: Delete your account?
+  delete_detail: Your account is removed permanently and you are logged out.
+  delete_label: Delete my account
   team: Team
   theme: Theme
   theme_option:
