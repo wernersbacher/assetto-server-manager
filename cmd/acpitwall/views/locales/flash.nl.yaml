@@ -68,6 +68,8 @@ flash:
     import_failed: Sorry, het kampioenschap kon niet worden geïmporteerd! Controleer de JSON-opmaak.
     import_invalid: "Sorry, het kampioenschap kon niet worden geïmporteerd: {error}"
     imported: Kampioenschap geïmporteerd!
+    imported_classes: "Kampioenschap geïmporteerd! Aangemaakte autoklassen: {classes}."
+    import_class_differs: 'Let op: de autoklasse "{class}" bestaat al op deze server met andere auto''s. De bestaande klasse is ongewijzigd gebruikt.'
     deleted: Kampioenschap verwijderd!
     session_import_failed: De sessiebestanden konden niet worden geïmporteerd
     sessions_imported: Sessiebestanden geïmporteerd!

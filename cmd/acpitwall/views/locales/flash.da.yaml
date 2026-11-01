@@ -68,6 +68,8 @@ flash:
     import_failed: Beklager, mesterskabet kunne ikke importeres! Tjek JSON-formatet.
     import_invalid: "Beklager, mesterskabet kunne ikke importeres: {error}"
     imported: Mesterskabet er importeret!
+    imported_classes: "Mesterskabet er importeret! Oprettede bilklasser: {classes}."
+    import_class_differs: 'Bemærk: Bilklassen "{class}" findes allerede på denne server med andre biler. Den eksisterende klasse blev brugt uændret.'
     deleted: Mesterskabet er slettet!
     session_import_failed: Sessionsfilerne kunne ikke importeres
     sessions_imported: Sessionsfilerne er importeret!

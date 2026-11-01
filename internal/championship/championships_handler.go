@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
+	"strings"
 	"time"
 
 	"4d63.com/tz"
@@ -265,11 +266,19 @@ func (ch *ChampionshipsHandler) Export(w http.ResponseWriter, r *http.Request) {
 		championship.OverridePassword = false
 	}
 
+	export, err := cm.ExportChampionship(championship)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("couldn't export championship")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Add("Content-Disposition", fmt.Sprintf(`attachment; filename="%s.json"`, championship.Name))
 
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	_ = enc.Encode(championship)
+	_ = enc.Encode(export)
 }
 
 // importChampionship reads Championship data from JSON.
@@ -281,7 +290,7 @@ func (ch *ChampionshipsHandler) ImportChampionship(w http.ResponseWriter, r *htt
 	}
 
 	if r.Method == http.MethodPost {
-		championshipID, err := cm.ImportChampionship(r.FormValue("import"))
+		result, err := cm.ImportChampionship(r.FormValue("import"))
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't import championship")
@@ -293,8 +302,17 @@ func (ch *ChampionshipsHandler) ImportChampionship(w http.ResponseWriter, r *htt
 				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.import_failed"))
 			}
 		} else {
-			smweb.AddFlash(w, r, smweb.T(r, "flash.championship.imported"))
-			http.Redirect(w, r, "/championship/"+championshipID, http.StatusFound)
+			if len(result.CreatedCarClasses) > 0 {
+				smweb.AddFlash(w, r, smweb.T(r, "flash.championship.imported_classes", "classes", strings.Join(result.CreatedCarClasses, ", ")))
+			} else {
+				smweb.AddFlash(w, r, smweb.T(r, "flash.championship.imported"))
+			}
+
+			for _, warning := range result.Warnings {
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.import_class_differs", "class", warning.ClassName))
+			}
+
+			http.Redirect(w, r, "/championship/"+result.ChampionshipID, http.StatusFound)
 		}
 	}
 

@@ -68,6 +68,8 @@ flash:
     import_failed: Die Meisterschaft konnte leider nicht importiert werden! Prüfe das JSON-Format.
     import_invalid: "Die Meisterschaft konnte leider nicht importiert werden: {error}"
     imported: Meisterschaft erfolgreich importiert!
+    imported_classes: "Meisterschaft erfolgreich importiert! Angelegte Fahrzeugklassen: {classes}."
+    import_class_differs: 'Hinweis: Die Fahrzeugklasse „{class}“ existiert auf diesem Server bereits mit anderen Autos. Die vorhandene Klasse wurde unverändert verwendet.'
     deleted: Meisterschaft gelöscht!
     session_import_failed: Die Session-Dateien konnten nicht importiert werden
     sessions_imported: Session-Dateien erfolgreich importiert!

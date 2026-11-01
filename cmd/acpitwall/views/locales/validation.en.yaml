@@ -57,6 +57,9 @@ validation:
     car_class_missing: 'Class "{class}": the car class {id} does not exist.'
     car_class_duplicate: 'Class "{class}" lists the car class {id} more than once.'
     car_in_two_classes: 'The car {car} is in more than one class of this championship ("{first}" and "{second}").'
+    import_empty: The import does not contain a championship.
+    import_class_name_taken: 'The car class "{class}" of the import cannot be created: this server already has a car class with that name but a different ID.'
+    import_class_invalid: 'The car class "{class}" of the import is invalid: {reason}'
   car_class:
     name_empty: The name of the car class must not be empty.
     name_taken: There is already a car class with this name.

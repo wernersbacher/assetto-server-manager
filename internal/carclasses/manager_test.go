@@ -448,3 +448,23 @@ func TestDeletedChampionshipDoesNotBlockCarClassChanges(t *testing.T) {
 		}
 	})
 }
+
+func TestManager_ValidateImported(t *testing.T) {
+	m := NewManager(nil)
+
+	existing, _ := smmodel.NewCarClass("GT3", []string{"bmw"}, time.Now())
+
+	fresh := &smmodel.CarClass{ID: uuid.New(), Name: "GT4", Cars: []string{"audi"}}
+
+	if err := m.ValidateImported(fresh, []*smmodel.CarClass{existing}); err != nil {
+		t.Errorf("valid class refused: %v", err)
+	}
+
+	if _, ok := m.ValidateImported(&smmodel.CarClass{ID: uuid.New(), Name: " gt3", Cars: []string{"audi"}}, []*smmodel.CarClass{existing}).(Error); !ok {
+		t.Error("name collision not refused with an Error")
+	}
+
+	if _, ok := m.ValidateImported(&smmodel.CarClass{ID: uuid.New(), Name: "X"}, nil).(Error); !ok {
+		t.Error("class without cars not refused with an Error")
+	}
+}

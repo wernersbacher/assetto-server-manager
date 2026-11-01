@@ -38,6 +38,7 @@ type ChampionshipManager struct {
 	notificationManager notification.Dispatcher
 	teams               TeamDirectory
 	skins               SkinDirectory
+	carClassValidator   CarClassValidator
 
 	activeChampionship *smmodel.ActiveChampionship
 	mutex              sync.Mutex

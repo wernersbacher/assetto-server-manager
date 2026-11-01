@@ -31,6 +31,7 @@ championships:
     title: Meisterschaft importieren
     placeholder: Füge hier das JSON deiner Meisterschaft ein!
     help: Hier kannst du Meisterschaften im JSON-Format importieren (das Format entspricht dem Export einer Meisterschaft). Wir raten davon ab, diese Daten von Hand zu erstellen, da das Format recht komplex ist. Wenn du Meisterschaften aber zwischen Servern verschieben willst und keinen Dateizugriff hast, ist diese Funktion genau richtig!
+    help_classes: Verwendet die Meisterschaft Fahrzeugklassen, enthält der Export deren Definitionen. Fehlende Fahrzeugklassen werden beim Import mit derselben ID angelegt. Eine bereits vorhandene Fahrzeugklasse (gleiche ID) wird unverändert verwendet, auch wenn ihre Autos abweichen. Der Import wird abgelehnt, wenn eine andere Fahrzeugklasse denselben Namen hat oder ein Auto in zwei Klassen wäre. In diesem Fall wird nichts importiert.
     button: Importieren
   import_custom:
     title: Eigenes Rennen importieren

@@ -252,6 +252,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 	)
 	slot.ChampionshipManager.SetTeamDirectory(r.resolveTeamManager())
 	slot.ChampionshipManager.SetSkinDirectory(r.resolveSkinManager())
+	slot.ChampionshipManager.SetCarClassValidator(r.resolveCarClassManager())
 
 	slot.RaceWeekendManager = smraceweekend.NewRaceWeekendManager(
 		r.config,

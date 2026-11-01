@@ -56,6 +56,9 @@ validation:
     car_class_missing: 'Klasse "{class}": de autoklasse {id} bestaat niet.'
     car_class_duplicate: 'Klasse "{class}" bevat de autoklasse {id} meer dan één keer.'
     car_in_two_classes: 'De auto {car} zit in meer dan één klasse van dit kampioenschap ("{first}" en "{second}").'
+    import_empty: De import bevat geen kampioenschap.
+    import_class_name_taken: 'De autoklasse "{class}" van de import kan niet worden aangemaakt: deze server heeft al een autoklasse met die naam maar met een andere ID.'
+    import_class_invalid: 'De autoklasse "{class}" van de import is ongeldig: {reason}'
   car_class:
     name_empty: De naam van de autoklasse mag niet leeg zijn.
     name_taken: Er bestaat al een autoklasse met deze naam.

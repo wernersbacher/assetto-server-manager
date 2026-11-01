@@ -68,6 +68,8 @@ flash:
     import_failed: Sorry, we couldn't import that championship! Check your JSON formatting.
     import_invalid: "Sorry, we couldn't import that championship: {error}"
     imported: Championship successfully imported!
+    imported_classes: "Championship successfully imported! Created car classes: {classes}."
+    import_class_differs: 'Note: the car class "{class}" already exists on this server with different cars. The existing class was used unchanged.'
     deleted: Championship deleted!
     session_import_failed: Could not import session files
     sessions_imported: Successfully imported session files!

@@ -56,6 +56,9 @@ validation:
     car_class_missing: 'Klasse „{class}“: Die Fahrzeugklasse {id} existiert nicht.'
     car_class_duplicate: 'Klasse „{class}“ enthält die Fahrzeugklasse {id} mehrfach.'
     car_in_two_classes: 'Das Auto {car} ist in mehr als einer Klasse dieser Meisterschaft („{first}“ und „{second}“).'
+    import_empty: Der Import enthält keine Meisterschaft.
+    import_class_name_taken: 'Die Fahrzeugklasse „{class}“ des Imports kann nicht angelegt werden: Dieser Server hat bereits eine Fahrzeugklasse mit diesem Namen, aber mit einer anderen ID.'
+    import_class_invalid: 'Die Fahrzeugklasse „{class}“ des Imports ist ungültig: {reason}'
   car_class:
     name_empty: Der Name der Fahrzeugklasse darf nicht leer sein.
     name_taken: Es gibt bereits eine Fahrzeugklasse mit diesem Namen.

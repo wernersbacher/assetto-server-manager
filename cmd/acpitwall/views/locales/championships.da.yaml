@@ -31,6 +31,7 @@ championships:
     title: Importér mesterskab
     placeholder: Indsæt JSON for dit mesterskab her!
     help: Her kan du importere mesterskaber i JSON-format (samme format som når du eksporterer et mesterskab). Vi fraråder at lave disse data i hånden, da formatet er ret komplekst. Men vil du flytte mesterskaber mellem servere uden adgang til filerne, er denne funktion lige sagen!
+    help_classes: Bruger mesterskabet bilklasser, indeholder eksporten deres definitioner. Manglende bilklasser oprettes ved import med samme ID. En eksisterende bilklasse (samme ID) bruges uændret, også hvis bilerne afviger. Importen afvises, hvis en anden bilklasse har samme navn, eller hvis en bil ville være i to klasser. I så fald importeres der ikke noget.
     button: Importér
   import_custom:
     title: Importér eget løb

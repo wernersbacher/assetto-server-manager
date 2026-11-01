@@ -443,3 +443,14 @@ func translateModelError(err error) error {
 
 	return err
 }
+
+// ValidateImported checks a car class that a championship import wants to create (with the ID of the export) like
+// Create does: name and cars must be valid and the name must not be used by another class of existing. It does not
+// take the car class lock, the import holds it already (championship.CarClassValidator).
+func (m *Manager) ValidateImported(class *smmodel.CarClass, existing []*smmodel.CarClass) error {
+	if err := class.Validate(); err != nil {
+		return translateModelError(err)
+	}
+
+	return translateModelError(smmodel.CheckCarClassNameUnique(class, existing))
+}

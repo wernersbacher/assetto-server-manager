@@ -31,6 +31,7 @@ championships:
     title: Kampioenschap importeren
     placeholder: Plak hier de JSON van je kampioenschap!
     help: Hier kun je kampioenschappen in JSON-formaat importeren (hetzelfde formaat als bij het exporteren van een kampioenschap). We raden af om deze gegevens met de hand te maken, want het formaat is vrij complex. Wil je kampioenschappen naar een andere server verhuizen zonder toegang tot de bestanden, dan is deze functie precies wat je nodig hebt!
+    help_classes: Gebruikt het kampioenschap autoklassen, dan bevat de export hun definities. Ontbrekende autoklassen worden bij het importeren met dezelfde ID aangemaakt. Een bestaande autoklasse (dezelfde ID) wordt ongewijzigd gebruikt, ook als de auto's verschillen. De import wordt geweigerd als een andere autoklasse dezelfde naam heeft of een auto in twee klassen zou zitten. In dat geval wordt niets geïmporteerd.
     button: Importeren
   import_custom:
     title: Eigen race importeren

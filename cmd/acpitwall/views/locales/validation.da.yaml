@@ -56,6 +56,9 @@ validation:
     car_class_missing: 'Klasse "{class}": bilklassen {id} findes ikke.'
     car_class_duplicate: 'Klasse "{class}" indeholder bilklassen {id} mere end én gang.'
     car_in_two_classes: 'Bilen {car} er i mere end én klasse i dette mesterskab ("{first}" og "{second}").'
+    import_empty: Importen indeholder intet mesterskab.
+    import_class_name_taken: 'Bilklassen "{class}" fra importen kan ikke oprettes: Denne server har allerede en bilklasse med det navn, men med et andet ID.'
+    import_class_invalid: 'Bilklassen "{class}" fra importen er ugyldig: {reason}'
   car_class:
     name_empty: Navnet på bilklassen må ikke være tomt.
     name_taken: Der findes allerede en bilklasse med dette navn.
