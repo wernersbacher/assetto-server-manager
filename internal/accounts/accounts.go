@@ -383,6 +383,12 @@ func (ah *AccountHandler) NewPassword(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		set := true
 
+		if account.IsPasswordless() {
+			// passwordless (Steam) accounts do not set a password
+			http.Redirect(w, r, "/", http.StatusFound)
+			return
+		}
+
 		password, repeatPassword, currentPassword := r.FormValue("Password"), r.FormValue("RepeatPassword"), r.FormValue("CurrentPassword")
 
 		if !account.NeedsPasswordReset(ah.config.Accounts.AdminPasswordOverride) {
@@ -627,13 +633,18 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 				return ErrAccountNeedsPassword
 			}
 
+			if account.IsPasswordless() {
+				// e.g. Steam accounts: there is no password to compare with, whatever is entered
+				break
+			}
+
 			passwordHash, err := hashPassword([]byte(password), []byte(account.PasswordSalt))
 
 			if err != nil {
 				return err
 			}
 
-			if subtle.ConstantTimeCompare([]byte(account.PasswordHash), []byte(passwordHash)) == 1 {
+			if account.PasswordHash != "" && subtle.ConstantTimeCompare([]byte(account.PasswordHash), []byte(passwordHash)) == 1 {
 				sess := smweb.Session(r)
 				sess.Values[sessionAccountID] = account.ID.String()
 				smweb.RememberLanguage(w, account.Language)

@@ -105,6 +105,13 @@ func (a Account) NeedsPasswordReset(adminPasswordOverride string) bool {
 	return a.DefaultPassword != "" || (a.Name == AdminUserName && adminPasswordOverride != "")
 }
 
+// IsPasswordless is true for accounts that have no password and no default password to set one (e.g. Steam accounts).
+// They can only log in by other means and never by name and password. The admin account with a password override
+// is not passwordless, because the override acts as its default password.
+func (a Account) IsPasswordless() bool {
+	return a.PasswordHash == "" && a.DefaultPassword == "" && !a.NeedsPasswordReset("") && a.Name != AdminUserName
+}
+
 func (a Account) HasGroupPrivilege(serverID ServerID, g Group) bool {
 	userGroup := a.GroupFor(serverID)
 
