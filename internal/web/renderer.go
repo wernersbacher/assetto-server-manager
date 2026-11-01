@@ -1,7 +1,6 @@
 package web
 
 import (
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -63,8 +62,8 @@ type Renderer struct {
 
 	// templates holds the templates of every language by language code and view, each set with the translation
 	// functions of its language bound, because a template's functions can't be changed safely per request.
-	templates map[string]map[string]*template.Template
-	bundle    *i18n.Bundle
+	templates map[string]map[string]*viewTemplate
+	bundle   *i18n.Bundle
 
 	mutex sync.Mutex
 }
@@ -73,7 +72,7 @@ func NewRenderer(opts RendererOptions) (*Renderer, error) {
 	tr := &Renderer{
 		opts: opts,
 
-		templates: make(map[string]map[string]*template.Template),
+		templates: make(map[string]map[string]*viewTemplate),
 	}
 
 	err := tr.init()
@@ -158,17 +157,23 @@ func (tr *Renderer) init() error {
 		return err
 	}
 
-	templates := make(map[string]map[string]*template.Template)
+	templates := make(map[string]map[string]*viewTemplate)
 
 	for _, lang := range bundle.Languages() {
 		for name, f := range translationFuncs(bundle, bundle.Translator(lang.Code)) {
 			funcs[name] = f
 		}
 
-		templates[lang.Code], err = tr.opts.Loader.Templates(funcs)
+		parsed, err := tr.opts.Loader.Templates(funcs)
 
 		if err != nil {
 			return err
+		}
+
+		templates[lang.Code] = make(map[string]*viewTemplate, len(parsed))
+
+		for view, t := range parsed {
+			templates[lang.Code][view] = &viewTemplate{proto: t}
 		}
 	}
 
@@ -180,29 +185,72 @@ func (tr *Renderer) init() error {
 
 // Bundle returns the message catalogs.
 func (tr *Renderer) Bundle() *i18n.Bundle {
+	tr.mutex.Lock()
+	defer tr.mutex.Unlock()
+
 	return tr.bundle
 }
 
 // Language returns the code of the language a request is answered in: the language cookie (set by the language
 // selection), else the best match of the browser's Accept-Language header, else the default language.
 func (tr *Renderer) Language(r *http.Request) string {
-	return RequestLanguage(r, tr.bundle)
+	return RequestLanguage(r, tr.Bundle())
 }
 
 // Translator returns the translator for the language of the request.
 func (tr *Renderer) Translator(r *http.Request) *i18n.Translator {
-	return tr.bundle.Translator(tr.Language(r))
+	return tr.Bundle().Translator(tr.Language(r))
+}
+
+// viewTemplate is the template of a view in one language. The parsed template is never executed itself: every
+// request renders a clone of it, because the functions which depend on the request (access, server URLs) have to be
+// bound to the template, and changing the functions of a template shared by concurrent requests is a data race (a page
+// could be rendered with the access of another request). Clones are pooled, so that they are only escaped once.
+type viewTemplate struct {
+	proto *template.Template
+	pool  sync.Pool
+}
+
+// get returns a template for one request, which has to be given back with put after executing it.
+func (v *viewTemplate) get() (*template.Template, error) {
+	if t, ok := v.pool.Get().(*template.Template); ok {
+		return t, nil
+	}
+
+	return v.proto.Clone()
+}
+
+func (v *viewTemplate) put(t *template.Template) {
+	v.pool.Put(t)
 }
 
 // template returns the template of the view in the language of the request.
-func (tr *Renderer) template(r *http.Request, view string) (*template.Template, bool) {
-	t, ok := tr.templates[tr.Language(r)][filepath.ToSlash(view)]
+func (tr *Renderer) template(r *http.Request, view string) (*viewTemplate, bool) {
+	tr.mutex.Lock()
+	templates := tr.templates
+	tr.mutex.Unlock()
+
+	t, ok := templates[tr.Language(r)][filepath.ToSlash(view)]
 
 	return t, ok
 }
 
-// LoadTemplate reads a template from templates and renders it with data to the given io.Writer
-func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view string, vars TemplateVars) error {
+// requestFuncs are the template functions which depend on the request.
+func requestFuncs(r *http.Request) template.FuncMap {
+	return template.FuncMap{
+		"ReadAccess":   ReadAccess(r),
+		"WriteAccess":  WriteAccess(r),
+		"DeleteAccess": DeleteAccess(r),
+		"AdminAccess":  AdminAccess(r),
+		"LoggedIn":     LoggedIn(r),
+		"StatsAccess":  StatsAccess(r),
+		"driverURL":    func(guid string) string { return statsDriverURL(r, guid) },
+		"serverURL":    func(path string) string { return ServerURL(r, path) },
+	}
+}
+
+// render executes the template name ("base" or "partial") of the view for the request.
+func (tr *Renderer) render(w http.ResponseWriter, r *http.Request, view, name string, vars TemplateVars) error {
 	if tr.opts.Reload {
 		// reload templates on every request if enabled, so
 		// that we don't have to constantly restart the website
@@ -213,7 +261,7 @@ func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view st
 		}
 	}
 
-	t, ok := tr.template(r, view)
+	v, ok := tr.template(r, view)
 
 	if !ok {
 		return fmt.Errorf("unable to find template: %s", filepath.ToSlash(view))
@@ -227,18 +275,20 @@ func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view st
 		return err
 	}
 
-	t.Funcs(map[string]interface{}{
-		"ReadAccess":   ReadAccess(r),
-		"WriteAccess":  WriteAccess(r),
-		"DeleteAccess": DeleteAccess(r),
-		"AdminAccess":  AdminAccess(r),
-		"LoggedIn":     LoggedIn(r),
-		"StatsAccess":  StatsAccess(r),
-		"driverURL":    func(guid string) string { return statsDriverURL(r, guid) },
-		"serverURL":    func(path string) string { return ServerURL(r, path) },
-	})
+	t, err := v.get()
 
-	return t.ExecuteTemplate(w, "base", vars)
+	if err != nil {
+		return err
+	}
+
+	defer v.put(t)
+
+	return t.Funcs(requestFuncs(r)).ExecuteTemplate(w, name, vars)
+}
+
+// LoadTemplate reads a template from templates and renders it with data to the given io.Writer
+func (tr *Renderer) LoadTemplate(w http.ResponseWriter, r *http.Request, view string, vars TemplateVars) error {
+	return tr.render(w, r, view, "base", vars)
 }
 
 // MustLoadTemplate asserts that a LoadTemplate call must succeed or be dealt with via the http.ResponseWriter
@@ -253,44 +303,8 @@ func (tr *Renderer) MustLoadTemplate(w http.ResponseWriter, r *http.Request, vie
 }
 
 func (tr *Renderer) LoadPartial(w http.ResponseWriter, r *http.Request, partial string, vars TemplateVars) error {
-	if tr.opts.Reload {
-		// reload templates on every request if enabled, so
-		// that we don't have to constantly restart the website
-		err := tr.init()
-
-		if err != nil {
-			return err
-		}
-	}
-
-	t, ok := tr.template(r, partial)
-
-	if !ok {
-		return errors.New("partial not found")
-	}
-
-	if vars == nil {
-		vars = &BaseTemplateVars{}
-	}
-
-	if err := tr.addData(w, r, vars); err != nil {
-		return err
-	}
-
-	t.Funcs(map[string]interface{}{
-		"ReadAccess":   ReadAccess(r),
-		"WriteAccess":  WriteAccess(r),
-		"DeleteAccess": DeleteAccess(r),
-		"AdminAccess":  AdminAccess(r),
-		"LoggedIn":     LoggedIn(r),
-		"StatsAccess":  StatsAccess(r),
-		"driverURL":    func(guid string) string { return statsDriverURL(r, guid) },
-		"serverURL":    func(path string) string { return ServerURL(r, path) },
-	})
-
-	return t.ExecuteTemplate(w, "partial", vars)
+	return tr.render(w, r, partial, "partial", vars)
 }
-
 func (tr *Renderer) MustLoadPartial(w http.ResponseWriter, r *http.Request, partial string, vars TemplateVars) {
 	err := tr.LoadPartial(w, r, partial, vars)
 

@@ -68,7 +68,7 @@ func TestRendererTranslatesPerRequest(t *testing.T) {
 
 		buf := new(bytes.Buffer)
 
-		if err := page.ExecuteTemplate(buf, "base", "<Max>"); err != nil {
+		if err := page.proto.ExecuteTemplate(buf, "base", "<Max>"); err != nil {
 			t.Fatal(err)
 		}
 
