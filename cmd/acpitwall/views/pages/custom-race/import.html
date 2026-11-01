@@ -1,0 +1,14 @@
+{{ define "title" }}{{ t "race.import.title" }}{{ end }}
+
+{{ define "content" }}
+    <h1 class="text-center">{{ t "race.import.title" }}</h1>
+
+    <form method="post" action="{{ serverURL "/custom/import" }}">
+        <label for="import"></label>
+        <textarea id="import" name="import" placeholder="{{ t "race.import.placeholder" }}" class="form-control md-textarea text-area"></textarea>
+
+        <button class="btn btn-success float-right mt-2" type="submit">{{ t "race.import.button" }}</button>
+    </form>
+
+    <p><small>{{ t "race.import.help" }}</small></p>
+{{ end }}

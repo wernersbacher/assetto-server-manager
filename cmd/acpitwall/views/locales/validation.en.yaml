@@ -13,6 +13,13 @@ validation:
     pit_window: The pit window must not end before it starts.
     wind_speed: "Weather {weather}: the maximum wind speed must not be below the minimum."
     entry_car: "Entry {entry}: choose a car."
+    import_empty: The import does not contain a custom race.
+    import_name: "The name of the custom race is too long (at most {max} characters)."
+    import_force_stop: The force stop time must not be negative.
+    import_session: "The session {session} is empty."
+    import_entry_list: "The entry list has more than {max} entries."
+    import_entrant: "The entry {entry} is empty."
+    import_name_invalid: "{name} is not a valid track, layout, car, skin or setup name."
     name: Give the custom race a name.
     quick_cars: You must choose at least one car!
     quick_qualifying_time: Enter the qualifying time in minutes (0 or more).

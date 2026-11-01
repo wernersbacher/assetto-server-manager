@@ -12,6 +12,13 @@ validation:
     pit_window: Het pitvenster mag niet eindigen voordat het begint.
     wind_speed: "Weer {weather}: de maximale windsnelheid mag niet lager zijn dan de minimale."
     entry_car: "Inschrijving {entry}: kies een auto."
+    import_empty: De import bevat geen eigen race.
+    import_name: "De naam van de eigen race is te lang (maximaal {max} tekens)."
+    import_force_stop: De tijd voor geforceerd stoppen mag niet negatief zijn.
+    import_session: "De sessie {session} is leeg."
+    import_entry_list: "De deelnemerslijst heeft meer dan {max} items."
+    import_entrant: "Het item {entry} is leeg."
+    import_name_invalid: "{name} is geen geldige naam voor circuit, layout, auto, skin of setup."
     name: Geef de custom race een naam.
     quick_cars: Je moet minstens één auto kiezen!
     quick_qualifying_time: Voer de kwalificatietijd in minuten in (0 of meer).

@@ -62,6 +62,9 @@ race:
     details: Løbsdetaljer
     more: Mere
     use_as_template: Brug som skabelon
+    export: Eksportér
+    import: Importér eget løb
+    more_options: Flere muligheder
     delete_confirm: Slet løbs-setup {name}?
     delete_detail: Løbs-setuppet fjernes permanent.
     delete_label: Slet løbs-setup
@@ -79,6 +82,12 @@ race:
     loop_help: Disse egne løb kører i loop på serveren, mens den ikke er i brug! Løb i auto-loopet virker kun, hvis de må starte automatisk, så start dem ikke manuelt, hvis de skal køre i loop!
     empty_loop_hint: Auto-loopet er tomt. Tilføj et eget løb med afspilningsikonet; løb i loopet kører, mens serveren ikke er i brug.
     empty_loop: Ingen egne løb i loop endnu.
+  import:
+    title: Importér eget løb
+    placeholder: Indsæt JSON for dit egne løb her!
+    button: Importér
+    help: Her kan du importere et eget løb i JSON-format (formatet svarer til eksporten af et eget løb). Importen opretter altid et nyt eget løb, også selvom det stammer fra denne server. Tidsplan, stjerne og loop-indstillinger er ikke en del af en eksport. Løbet kontrolleres kun for en gyldig opsætning; biler og baner fra importen skal være uploadet til denne server for at kunne starte.
+
   schedule:
     title: Planlæg event
     date_help: Indtast dato og klokkeslæt for at tilføje et planlagt event.

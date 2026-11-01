@@ -137,6 +137,7 @@
                             <button type="button" class="btn btn-outline-secondary dropdown-toggle" id="race-more-{{ $.Race.UUID.String }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ t "race.list.more" }}</button>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="race-more-{{ $.Race.UUID.String }}">
                                 <a class="dropdown-item" href="/custom/new?from={{ $.Race.UUID.String }}">{{ t "race.list.use_as_template" }}</a>
+                                <a class="dropdown-item" href="{{ serverURL (printf "/custom/export/%s" $.Race.UUID.String) }}">{{ t "race.list.export" }}</a>
 
                                 {{ if DeleteAccess }}
                                     <div class="dropdown-divider"></div>
@@ -168,7 +169,16 @@
         </div>
 
         {{ if WriteAccess }}
-            <a class="btn btn-primary" href="/custom/new">{{ t "race.list.create" }}</a>
+            <div class="btn-group" role="group" aria-label="{{ t "race.list.create" }}">
+                <a class="btn btn-primary" href="/custom/new">{{ t "race.list.create" }}</a>
+
+                <div class="btn-group" role="group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{{ t "race.list.more_options" }}"></button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+                        <a href="{{ serverURL "/custom/import" }}" class="dropdown-item">{{ t "race.list.import" }}</a>
+                    </div>
+                </div>
+            </div>
             <a class="btn btn-outline-secondary" href="{{ serverURL "/quick" }}">{{ t "nav.quick_race" }}</a>
         {{ end }}
     </div>

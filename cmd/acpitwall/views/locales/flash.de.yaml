@@ -162,6 +162,9 @@ flash:
     custom_started: Eigenes Rennen gestartet!
     scheduled: Das Rennen ist für {date} geplant
     custom_deleted: Eigenes Rennen gelöscht!
+    custom_imported: Eigenes Rennen importiert!
+    custom_import_failed: Das eigene Rennen konnte leider nicht importiert werden! Prüfe die JSON-Formatierung.
+    custom_import_invalid: "Das eigene Rennen konnte leider nicht importiert werden: {error}"
     custom_starred: Eigenes Rennen markiert
     custom_looped: Eigenes Rennen zur Schleife hinzugefügt
     custom_unlooped: Eigenes Rennen aus der Schleife entfernt

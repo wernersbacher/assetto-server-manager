@@ -331,6 +331,9 @@ func Router(
 		r.Post("/custom/star/{uuid}", customRaceHandler.Star)
 		r.Post("/custom/loop/{uuid}", customRaceHandler.Loop)
 		r.Post("/custom/new/submit", customRaceHandler.Submit)
+		r.Get("/custom/import", customRaceHandler.Import)
+		r.Post("/custom/import", customRaceHandler.Import)
+		r.Get("/custom/export/{uuid}", customRaceHandler.Export)
 
 		// server management
 		r.Post("/process/{action}", serverAdministrationHandler.ServerProcess)

@@ -62,6 +62,9 @@ race:
     details: Racedetails
     more: Meer
     use_as_template: Als sjabloon gebruiken
+    export: Exporteren
+    import: Eigen race importeren
+    more_options: Meer opties
     delete_confirm: Race-setup {name} verwijderen?
     delete_detail: De race-setup wordt definitief verwijderd.
     delete_label: Race-setup verwijderen
@@ -79,6 +82,12 @@ race:
     loop_help: Deze eigen races draaien in een loop zolang de server niet in gebruik is! Races in de auto-loop werken alleen als ze automatisch mogen starten, dus start ze niet met de hand als je wilt dat ze in de loop draaien!
     empty_loop_hint: De auto-loop is leeg. Voeg een eigen race toe met het afspeelicoon; races in de loop draaien zolang de server niet in gebruik is.
     empty_loop: Nog geen eigen races in de loop.
+  import:
+    title: Eigen race importeren
+    placeholder: Plak hier de JSON van je eigen race!
+    button: Importeren
+    help: Hier kun je een eigen race in JSON-formaat importeren (dit formaat komt overeen met de export van een eigen race). De import maakt altijd een nieuwe eigen race aan, ook als die van deze server komt. Planning, ster en loop-instellingen maken geen deel uit van een export. De race wordt alleen op een geldige opzet gecontroleerd; autos en circuits van de import moeten naar deze server zijn geüpload om te kunnen starten.
+
   schedule:
     title: Event plannen
     date_help: Voer de juiste datum en tijd in om een gepland event toe te voegen.

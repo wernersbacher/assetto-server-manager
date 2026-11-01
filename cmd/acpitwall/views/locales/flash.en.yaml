@@ -162,6 +162,9 @@ flash:
     custom_started: Custom race started!
     scheduled: We have scheduled the race to begin at {date}
     custom_deleted: Custom race deleted!
+    custom_imported: Custom race imported!
+    custom_import_failed: Sorry, we could not import that custom race! Check your JSON formatting.
+    custom_import_invalid: "Sorry, we could not import that custom race: {error}"
     custom_starred: Custom race starred
     custom_looped: Custom race added to loop
     custom_unlooped: Custom race removed from loop

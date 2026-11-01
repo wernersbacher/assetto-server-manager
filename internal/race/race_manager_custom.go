@@ -10,7 +10,6 @@ import (
 	"go.etcd.io/bbolt"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
-	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smserver "github.com/wernersbacher/ACPitwall/internal/server"
 )
@@ -82,19 +81,7 @@ func (rm *RaceManager) SaveCustomRace(
 	hasCustomRaceName := true
 
 	if name == "" {
-		var trackLayout string
-
-		if config.TrackLayout != "" {
-			trackLayout = smcontent.PrettifyName(config.TrackLayout, true)
-		}
-
-		name = fmt.Sprintf("%s (%s) in %s (%d entrants)",
-			smcontent.PrettifyName(config.Track, false),
-			trackLayout,
-			smcontent.CarList(config.Cars),
-			len(entryList),
-		)
-
+		name = defaultCustomRaceName(config, entryList)
 		hasCustomRaceName = false
 	}
 

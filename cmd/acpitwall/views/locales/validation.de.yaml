@@ -12,6 +12,13 @@ validation:
     pit_window: Das Boxenfenster darf nicht enden, bevor es beginnt.
     wind_speed: "Wetter {weather}: Die maximale Windgeschwindigkeit darf nicht unter der minimalen liegen."
     entry_car: "Eintrag {entry}: Wähle ein Auto."
+    import_empty: Der Import enthält kein eigenes Rennen.
+    import_name: "Der Name des eigenen Rennens ist zu lang (höchstens {max} Zeichen)."
+    import_force_stop: Die Zeit für das erzwungene Beenden darf nicht negativ sein.
+    import_session: "Die Session {session} ist leer."
+    import_entry_list: "Die Starterliste hat mehr als {max} Einträge."
+    import_entrant: "Der Eintrag {entry} ist leer."
+    import_name_invalid: "{name} ist kein gültiger Name für Strecke, Layout, Auto, Skin oder Setup."
     name: Gib dem Custom Race einen Namen.
     quick_cars: Du musst mindestens ein Auto wählen!
     quick_qualifying_time: Gib die Qualifying-Zeit in Minuten ein (0 oder mehr).

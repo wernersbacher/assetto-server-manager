@@ -162,6 +162,9 @@ flash:
     custom_started: Eigen race gestart!
     scheduled: De race is gepland voor {date}
     custom_deleted: Eigen race verwijderd!
+    custom_imported: Eigen race geïmporteerd!
+    custom_import_failed: Sorry, die eigen race kon niet worden geïmporteerd! Controleer de JSON-opmaak.
+    custom_import_invalid: "Sorry, die eigen race kon niet worden geïmporteerd: {error}"
     custom_starred: Eigen race gemarkeerd
     custom_looped: Eigen race aan de loop toegevoegd
     custom_unlooped: Eigen race uit de loop verwijderd

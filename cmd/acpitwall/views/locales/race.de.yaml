@@ -62,6 +62,9 @@ race:
     details: Renndetails
     more: Mehr
     use_as_template: Als Vorlage verwenden
+    export: Exportieren
+    import: Eigenes Rennen importieren
+    more_options: Weitere Optionen
     delete_confirm: Renn-Setup {name} löschen?
     delete_detail: Das Renn-Setup wird endgültig entfernt.
     delete_label: Renn-Setup löschen
@@ -79,6 +82,12 @@ race:
     loop_help: Diese eigenen Rennen laufen in einer Schleife, solange der Server nicht anderweitig genutzt wird! Rennen der Auto-Schleife funktionieren nur, wenn sie automatisch starten dürfen. Starte sie also nicht von Hand, wenn sie in der Schleife laufen sollen!
     empty_loop_hint: Die Auto-Schleife ist leer. Füge ein eigenes Rennen über das Play-Symbol hinzu; Rennen der Schleife laufen, solange der Server nicht anderweitig genutzt wird.
     empty_loop: Noch keine eigenen Rennen in der Schleife.
+  import:
+    title: Eigenes Rennen importieren
+    placeholder: Füge hier das JSON deines eigenen Rennens ein!
+    button: Importieren
+    help: Hier kannst du ein eigenes Rennen im JSON-Format importieren (das Format entspricht dem Export eines eigenen Rennens). Der Import legt immer ein neues eigenes Rennen an, auch wenn es von diesem Server stammt. Zeitplan, Stern und Loop-Einstellungen sind nicht Teil eines Exports. Das Rennen wird nur auf ein gültiges Setup geprüft; Autos und Strecken des Imports müssen auf diesen Server hochgeladen sein, damit es gestartet werden kann.
+
   schedule:
     title: Event planen
     date_help: Gib Datum und Uhrzeit ein, um ein geplantes Event hinzuzufügen.

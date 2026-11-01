@@ -62,6 +62,9 @@ race:
     details: Race Details
     more: More
     use_as_template: Use as Template
+    export: Export
+    import: Import Custom Race
+    more_options: More options
     delete_confirm: Delete race setup {name}?
     delete_detail: The race setup is removed permanently.
     delete_label: Delete race setup
@@ -79,6 +82,12 @@ race:
     loop_help: These custom races will be looped on the server whilst it is inactive! Auto loop races will only work if allowed to start automatically, please don't manually start these events if you want them to loop!
     empty_loop_hint: The auto loop is empty. Use the play icon on a custom race to add it; looped races run while the server is inactive.
     empty_loop: No looping custom races yet.
+  import:
+    title: Import Custom Race
+    placeholder: Paste your custom race JSON here!
+    button: Import
+    help: Here you can import a custom race in JSON format (this format matches the format given when you export a custom race). The import always creates a new custom race, even if it came from this server. Schedule, star and loop settings are not part of an export. The race is only checked for a valid setup; cars and tracks of the import must be uploaded to this server to start it.
+
   schedule:
     title: Schedule Event
     date_help: Please enter the correct date and time to add a scheduled event.

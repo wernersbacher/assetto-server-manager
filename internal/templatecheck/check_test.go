@@ -33,6 +33,7 @@ var overrides = map[string]string{
 	"pages/accounts/login.html":                    "BaseTemplateVars",
 	"pages/championships/import-championship.html": "BaseTemplateVars",
 	"pages/race-weekend/import-raceweekend.html":   "BaseTemplateVars",
+	"pages/custom-race/import.html":                "BaseTemplateVars",
 }
 
 func report(file string, n parse.Node, format string, a ...interface{}) {

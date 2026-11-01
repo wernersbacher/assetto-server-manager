@@ -162,6 +162,9 @@ flash:
     custom_started: Eget løb startet!
     scheduled: Løbet er planlagt til {date}
     custom_deleted: Eget løb slettet!
+    custom_imported: Eget løb importeret!
+    custom_import_failed: Beklager, det egne løb kunne ikke importeres! Tjek JSON-formateringen.
+    custom_import_invalid: "Beklager, det egne løb kunne ikke importeres: {error}"
     custom_starred: Eget løb markeret
     custom_looped: Eget løb tilføjet til loopet
     custom_unlooped: Eget løb fjernet fra loopet

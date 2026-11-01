@@ -12,6 +12,13 @@ validation:
     pit_window: Pitvinduet må ikke slutte, før det begynder.
     wind_speed: "Vejr {weather}: den maksimale vindhastighed må ikke være under den minimale."
     entry_car: "Deltager {entry}: vælg en bil."
+    import_empty: Importen indeholder intet eget løb.
+    import_name: "Navnet på det egne løb er for langt (højst {max} tegn)."
+    import_force_stop: Tiden til tvungen afslutning må ikke være negativ.
+    import_session: "Sessionen {session} er tom."
+    import_entry_list: "Deltagerlisten har mere end {max} poster."
+    import_entrant: "Posten {entry} er tom."
+    import_name_invalid: "{name} er ikke et gyldigt navn på bane, layout, bil, skin eller setup."
     name: Giv dit custom race et navn.
     quick_cars: Du skal vælge mindst én bil!
     quick_qualifying_time: Angiv kvalifikationstiden i minutter (0 eller mere).
