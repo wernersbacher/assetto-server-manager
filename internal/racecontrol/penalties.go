@@ -268,7 +268,7 @@ func (pm *PenaltiesManager) applyPenalty(jsonFileName, guid, carModel string, pe
 			}
 		}
 
-		err = pm.store.UpsertChampionship(championship)
+		err = smstore.UpsertChampionshipChecked(pm.store, championship)
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Couldn't save championship with ID: %s", results.ChampionshipID)

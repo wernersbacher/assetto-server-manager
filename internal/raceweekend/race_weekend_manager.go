@@ -212,7 +212,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *sm
 
 			champ.Events = append(champ.Events, event)
 
-			if err := rwm.store.UpsertChampionship(champ); err != nil {
+			if err := smstore.UpsertChampionshipChecked(rwm.store, champ); err != nil {
 				return nil, edited, err
 			}
 		} else if champ.HasRaceSettings() {
@@ -220,7 +220,7 @@ func (rwm *RaceWeekendManager) SaveRaceWeekend(r *http.Request) (raceWeekend *sm
 			if event := champ.RaceWeekendEvent(raceWeekend.ID); event != nil && event.UseChampionshipRaceSettings != useChampionshipRaceSettings {
 				event.UseChampionshipRaceSettings = useChampionshipRaceSettings
 
-				if err := rwm.store.UpsertChampionship(champ); err != nil {
+				if err := smstore.UpsertChampionshipChecked(rwm.store, champ); err != nil {
 					return nil, edited, err
 				}
 			}

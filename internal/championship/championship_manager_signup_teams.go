@@ -11,6 +11,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -133,10 +134,6 @@ func LockSignUps() func() {
 	return signUpMutex.Unlock
 }
 
-// carClassMutex orders changes to the global car classes against the saving of championships: every save through
-// ChampionshipManager.UpsertChampionship holds it for reading, LockCarClassChanges holds it for writing.
-var carClassMutex sync.RWMutex
-
 // LockCarClassChanges is taken by whoever creates, changes or deletes a global car class. It locks the registrations
 // of all championships (LockSignUps) first, which is the order of a sign up (registrations, then save), and then stops
 // all saves of championships until the returned function is called, so that the check of the championships that refer
@@ -144,10 +141,10 @@ var carClassMutex sync.RWMutex
 func LockCarClassChanges() func() {
 	unlockSignUps := LockSignUps()
 
-	carClassMutex.Lock()
+	unlockWrites := smstore.LockCarClassWrites()
 
 	return func() {
-		carClassMutex.Unlock()
+		unlockWrites()
 		unlockSignUps()
 	}
 }

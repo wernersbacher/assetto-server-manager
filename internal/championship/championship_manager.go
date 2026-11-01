@@ -86,22 +86,13 @@ func (cm *ChampionshipManager) LoadChampionship(id string) (*smmodel.Championshi
 // championship that was loaded or validated before a car class changed cannot be saved into an invalid state, and a
 // car class change always sees the championships as they were saved before it.
 func (cm *ChampionshipManager) UpsertChampionship(c *smmodel.Championship) error {
-	carClassMutex.RLock()
-	defer carClassMutex.RUnlock()
+	err := smstore.UpsertChampionshipChecked(cm.store, c)
 
-	if c.HasCarClassReferences() {
-		if err := cm.checkCarClasses(c); err != nil {
-			return err
-		}
+	if msg, ok := err.(i18n.Message); ok {
+		return ValidationError{msg}
 	}
 
-	err := cm.store.UpsertChampionship(c)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 // checkCarClasses validates the car classes of the championship against the global car classes in the store (see
