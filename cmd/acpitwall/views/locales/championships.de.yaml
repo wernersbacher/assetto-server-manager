@@ -385,3 +385,4 @@ championships:
     default_tab_help: Der Tab, der beim Öffnen der Meisterschaftsseite angezeigt wird.
     save_add_weekend: Speichern & Rennwochenende hinzufügen
     save_add_event: Speichern & erstes Event hinzufügen
+  nth_place: "{position} Platz"

@@ -385,3 +385,4 @@ championships:
     default_tab_help: The tab shown when the Championship page is opened.
     save_add_weekend: Save & add Race Weekend
     save_add_event: Save & add first Event
+  nth_place: "{position} Place"

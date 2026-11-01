@@ -9,7 +9,7 @@
 
         <select multiple required class="form-control" name="CombineResults" size="15">
             {{ range $i, $result := .Results }}
-                <option value="{{ $result.SessionFile }}">{{ t "results.combine_option" "session" (prettify $result.Type.String false) "track" (prettify $result.TrackName false) }} {{ with $result.TrackConfig }} - {{ prettify . true }} {{ end }} ({{ $result.GetDate }})</option>
+                <option value="{{ $result.SessionFile }}">{{ t "results.combine_option" "session" (sessionName $result.Type) "track" (prettify $result.TrackName false) }} {{ with $result.TrackConfig }} - {{ prettify . true }} {{ end }} ({{ $result.GetDate }})</option>
             {{ end }}
         </select>
 

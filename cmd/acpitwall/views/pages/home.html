@@ -108,7 +108,7 @@
                         <dt>{{ t "home.sessions" }}</dt>
                         <dd>
                             {{ range $sessionType, $session := .RaceConfig.Sessions }}
-                                <span class="badge badge-secondary">{{ $sessionType.String }}</span>
+                                <span class="badge badge-secondary">{{ sessionName $sessionType }}</span>
                             {{ end }}
                         </dd>
                     </div>
@@ -228,7 +228,7 @@
                             <tr>
                                 <td class="text-nowrap text-muted">{{ localFormat .Date }}</td>
                                 <td>
-                                    <a href="/results/{{ .SessionFile }}">{{ if .IsTimeAttack }}{{ t "event_type.time_attack" }}{{ else }}{{ .Type }}{{ end }}</a>
+                                    <a href="/results/{{ .SessionFile }}">{{ if .IsTimeAttack }}{{ t "event_type.time_attack" }}{{ else }}{{ sessionName .Type }}{{ end }}</a>
                                 </td>
                                 <td>{{ prettify .TrackName false }}</td>
                                 <td>{{ if .Result }}{{ driverName (index .Result 0).DriverName }}{{ end }}</td>

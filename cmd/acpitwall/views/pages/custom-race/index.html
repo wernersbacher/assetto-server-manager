@@ -1,6 +1,6 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/race.customRaceListTemplateVars */}}
 
-{{ define "title" }}Custom Races{{ end }}
+{{ define "title" }}{{ t "nav.custom_races" }}{{ end }}
 
 {{ define "custom-race" }}
     <div class="card mt-4 mb-4">
@@ -12,19 +12,19 @@
             <div class="float-right">
                 {{ if isBefore $.Race.Scheduled }}
                     <span class="text-primary mr-1">
-                        Scheduled
+                        {{ t "race.list.scheduled" }}
 
                         {{ if ne $.Race.ScheduledServerID $.ServerID }}
-                            (on <span class="scheduled-server-id" data-server-id="{{ $.Race.ScheduledServerID }}">{{ with serverName $.Race.ScheduledServerID }}{{ . }}{{ else }}another server{{ end }}</span>)
+                            ({{ t "race.list.on_server" }} <span class="scheduled-server-id" data-server-id="{{ $.Race.ScheduledServerID }}">{{ with serverName $.Race.ScheduledServerID }}{{ . }}{{ else }}{{ t "race.list.another_server" }}{{ end }}</span>)
                         {{ end }}
 
-                        for {{ localFormat $.Race.Scheduled }}
+                        {{ tHTML "race.list.scheduled_for" "date" (localFormat $.Race.Scheduled) }}
 
                         {{ if $.Race.HasRecurrenceRule }}
                             <i class="fa fa-redo-alt ml-1" data-toggle="tooltip-div" data-tooltip-content="{{ $.Race.UUID.String }}-recurrence"></i>
 
                             <div style="display: none" id="{{ $.Race.UUID.String }}-recurrence">
-                                Recurring
+                                {{ t "home.recurring" }}
                                 <span class="rrule-text" data-rrule="{{ $.Race.Recurrence }}"></span>
                             </div>
                         {{ end }}
@@ -36,9 +36,9 @@
                 {{ end }}
 
                     {{ if $.Race.Starred }}
-                        <i class="fas fa-star ml-1 mr-1 text-success" data-toggle="tooltip" title="Starred"></i>
+                        <i class="fas fa-star ml-1 mr-1 text-success" data-toggle="tooltip" title="{{ t "race.list.starred" }}"></i>
                     {{ else }}
-                        <i class="far fa-star ml-1 mr-1 text-body" data-toggle="tooltip" title="Not Starred"></i>
+                        <i class="far fa-star ml-1 mr-1 text-body" data-toggle="tooltip" title="{{ t "race.list.not_starred" }}"></i>
                     {{ end }}
 
                 {{ if WriteAccess }}
@@ -49,12 +49,12 @@
 
                     {{ with $.Race.LoopServer }}
                         {{ if index $.Race.LoopServer $.ServerID }}
-                            <i class="fas fa-play-circle ml-1 mr-1 text-success" data-toggle="tooltip" title="Looping"></i>
+                            <i class="fas fa-play-circle ml-1 mr-1 text-success" data-toggle="tooltip" title="{{ t "race.list.looping" }}"></i>
                         {{ else }}
-                            <i class="far fa-play-circle ml-1 mr-1 text-body" data-toggle="tooltip" title="Not Looping"></i>
+                            <i class="far fa-play-circle ml-1 mr-1 text-body" data-toggle="tooltip" title="{{ t "race.list.not_looping" }}"></i>
                         {{ end }}
                     {{ else }}
-                        <i class="far fa-play-circle ml-1 mr-1 text-body" data-toggle="tooltip" title="Not Looping"></i>
+                        <i class="far fa-play-circle ml-1 mr-1 text-body" data-toggle="tooltip" title="{{ t "race.list.not_looping" }}"></i>
                     {{ end }}
 
                 {{ if WriteAccess }}
@@ -82,11 +82,11 @@
                     <div class="action-row card-actions">
                     {{ if WriteAccess }}
                         <div class="btn-group">
-                            <form method="post" action="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}" class="d-inline-flex m-0"><button type="submit" class="btn btn-primary">Start</button></form>
+                            <form method="post" action="{{ serverURL (printf "/custom/load/%s" $.Race.UUID.String) }}" class="d-inline-flex m-0"><button type="submit" class="btn btn-primary">{{ t "race.list.start" }}</button></form>
                             {{ template "start-target" dict "Path" (printf "/custom/load/%s" $.Race.UUID.String) "Servers" $.Servers "Class" "btn-primary" }}
 
                             <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split popover-external-html" data-placement="bottom"
-                                    data-toggle="popover" title="Schedule Event" data-html="true"
+                                    data-toggle="popover" title="{{ t "race.schedule.title" }}" data-html="true"
                                     id="schedule-{{ $.Race.UUID.String }}"
                             ></button>
 
@@ -98,31 +98,29 @@
                                         {{ template "schedule-target" dict "Servers" $.Servers "Selected" $.ServerID "Id" $.Race.UUID.String }}
 
                                         <small class="form-text text-muted">
-                                            Please enter the correct date and time to add a scheduled event.
-                                            This date/time is in your timezone (<span class='timezone'></span>).
+                                            {{ t "race.schedule.date_help" }}
+                                            {{ t "race.schedule.timezone_help" }} (<span class='timezone'></span>).
                                         </small>
 
-                                        <label for="event-schedule-recurrence" class="col-form-label">Recurrence Rule</label>
+                                        <label for="event-schedule-recurrence" class="col-form-label">{{ t "race.schedule.recurrence" }}</label>
                                         <input type="text" class="form-control" name="event-schedule-recurrence" id="event-schedule-recurrence">
 
                                         <small class="form-text text-muted">
-                                            Visit
-                                            <a target="_blank" href="https://www.textmagic.com/free-tools/rrule-generator">RRule Generator</a>
-                                            to generate a recurrence rule. Leave blank if not required. Only valid alongside scheduled time.
+                                            {{ tHTML "race.schedule.recurrence_help" "url" "https://www.textmagic.com/free-tools/rrule-generator" }}
                                         </small>
 
                                         <input type="hidden" name="event-schedule-timezone" class="event-schedule-timezone">
                                     </div>
 
-                                    <button type="submit" name="action" value="add" class="btn btn-sm btn-primary">Schedule</button>
+                                    <button type="submit" name="action" value="add" class="btn btn-sm btn-primary">{{ t "race.schedule.submit" }}</button>
                                     <button type="submit" formaction="/custom/schedule/{{ $.Race.UUID.String }}/remove" formnovalidate class="btn btn-sm btn-danger">
-                                        Remove Scheduled Event
+                                        {{ t "race.schedule.remove" }}
                                     </button>
                                 </form>
                             </div>
                         </div>
 
-                        <a class="btn btn-outline-secondary" href="/custom/edit/{{ $.Race.UUID.String }}">Edit</a>
+                        <a class="btn btn-outline-secondary" href="/custom/edit/{{ $.Race.UUID.String }}">{{ t "common.edit" }}</a>
                     {{ end }}
 
                     {{ if $.ShowEventDetailsPopup }}
@@ -130,21 +128,21 @@
                            href="#"
                            data-race-id="{{ $.Race.UUID.String }}"
                         >
-                            Race Details
+                            {{ t "race.list.details" }}
                         </a>
                     {{ end }}
 
                     {{ if WriteAccess }}
                         <div class="dropdown">
-                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" id="race-more-{{ $.Race.UUID.String }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</button>
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" id="race-more-{{ $.Race.UUID.String }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ t "race.list.more" }}</button>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="race-more-{{ $.Race.UUID.String }}">
-                                <a class="dropdown-item" href="/custom/new?from={{ $.Race.UUID.String }}">Use as Template</a>
+                                <a class="dropdown-item" href="/custom/new?from={{ $.Race.UUID.String }}">{{ t "race.list.use_as_template" }}</a>
 
                                 {{ if DeleteAccess }}
                                     <div class="dropdown-divider"></div>
                                     <form method="post" action="/custom/delete/{{ $.Race.UUID.String }}"
-                                           data-confirm-delete="Delete race setup {{ $.Race.Name }}?" data-confirm-detail="The race setup is removed permanently." data-confirm-label="Delete race setup">
-                                        <button type="submit" class="dropdown-item dropdown-item-danger">Delete</button>
+                                           data-confirm-delete="{{ t "race.list.delete_confirm" "name" $.Race.Name }}" data-confirm-detail="{{ t "race.list.delete_detail" }}" data-confirm-label="{{ t "race.list.delete_label" }}">
+                                        <button type="submit" class="dropdown-item dropdown-item-danger">{{ t "common.delete" }}</button>
                                     </form>
                                 {{ end }}
                             </div>
@@ -166,36 +164,31 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Custom Races</h1>
+            <h1>{{ t "nav.custom_races" }}</h1>
         </div>
 
         {{ if WriteAccess }}
-            <a class="btn btn-primary" href="/custom/new">Create a new Custom Race</a>
+            <a class="btn btn-primary" href="/custom/new">{{ t "race.list.create" }}</a>
         {{ end }}
     </div>
 
     {{ if WriteAccess }}
-        <p>
-            Custom races are fully configurable events, once you have created a custom race you can star it or add it to
-            the automatic race loop. You can use a custom race as a template for a new race, which will create a copy of the
-            custom race, or edit the custom race directly. Custom races can be run quickly on the server using the start race
-            button.
-        </p>
+        <p>{{ t "race.list.intro" }}</p>
     {{ end }}
 
     <nav>
         <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <a class="nav-item nav-link active" id="nav-recent-tab" data-toggle="tab" href="#nav-recent" role="tab" aria-controls="nav-recent" aria-selected="false">
-                <i class="fas fa-clock mr-1"></i> Recent
+                <i class="fas fa-clock mr-1"></i> {{ t "race.list.tab_recent" }}
             </a>
             <a class="nav-item nav-link" id="nav-starred-tab" data-toggle="tab" href="#nav-starred" role="tab" aria-controls="nav-starred" aria-selected="true">
-                <i class="fas fa-star mr-1"></i> Starred
+                <i class="fas fa-star mr-1"></i> {{ t "race.list.tab_starred" }}
             </a>
             <a class="nav-item nav-link" id="nav-scheduled-tab" data-toggle="tab" href="#nav-scheduled" role="tab" aria-controls="nav-scheduled" aria-selected="false">
-                <i class="fas fa-calendar mr-1"></i> Scheduled
+                <i class="fas fa-calendar mr-1"></i> {{ t "race.list.tab_scheduled" }}
             </a>
             <a class="nav-item nav-link" id="nav-autoloop-tab" data-toggle="tab" href="#nav-autoloop" role="tab" aria-controls="nav-autoloop" aria-selected="false">
-                <i class="fas fa-play-circle mr-1"></i> Auto Loop
+                <i class="fas fa-play-circle mr-1"></i> {{ t "race.list.tab_loop" }}
             </a>
         </div>
     </nav>
@@ -204,41 +197,38 @@
             {{ if gt (len .Recent) 0 }}
                 {{ template "custom-race-list" dict "Race" .Recent "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
-                {{ template "empty-state" dict "Icon" "flag" "Text" "No recent custom races yet." "Href" "/custom/new" "Label" "Create a custom race" }}
+                {{ template "empty-state" dict "Icon" "flag" "Text" (t "race.list.empty_recent") "Href" "/custom/new" "Label" (t "race.list.create_short") }}
             {{ else }}
-                {{ template "empty-state" dict "Icon" "flag" "Text" "No recent custom races yet." }}
+                {{ template "empty-state" dict "Icon" "flag" "Text" (t "race.list.empty_recent") }}
             {{ end }}
         </div>
         <div class="tab-pane fade" id="nav-starred" role="tabpanel" aria-labelledby="nav-starred-tab">
             {{ if gt (len .Starred) 0 }}
                 {{ template "custom-race-list" dict "Race" .Starred "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
-                {{ template "empty-state" dict "Icon" "flag" "Text" "No starred custom races yet. Star them in the Recent tab." }}
+                {{ template "empty-state" dict "Icon" "flag" "Text" (t "race.list.empty_starred_hint") }}
             {{ else }}
-                {{ template "empty-state" dict "Icon" "flag" "Text" "No starred custom races yet." }}
+                {{ template "empty-state" dict "Icon" "flag" "Text" (t "race.list.empty_starred") }}
             {{ end }}
         </div>
         <div class="tab-pane fade" id="nav-scheduled" role="tabpanel" aria-labelledby="nav-scheduled-tab">
             {{ if gt (len .Scheduled) 0 }}
                 {{ template "custom-race-list" dict "Race" .Scheduled "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
-                {{ template "empty-state" dict "Icon" "calendar" "Text" "No scheduled custom races." }}
+                {{ template "empty-state" dict "Icon" "calendar" "Text" (t "race.list.empty_scheduled") }}
             {{ else }}
-                {{ template "empty-state" dict "Icon" "calendar" "Text" "No scheduled custom races." }}
+                {{ template "empty-state" dict "Icon" "calendar" "Text" (t "race.list.empty_scheduled") }}
             {{ end }}
         </div>
         <div class="tab-pane fade" id="nav-autoloop" role="tabpanel" aria-labelledby="nav-autoloop-tab">
             {{ if gt (len .Loop) 0 }}
-                <p class="mt-3">
-                    These custom races will be looped on the server whilst it is inactive! Auto loop races will only
-                    work if allowed to start automatically, please don't manually start these events if you want them to loop!
-                </p>
+                <p class="mt-3">{{ t "race.list.loop_help" }}</p>
 
                 {{ template "custom-race-list" dict "Race" .Loop "ServerID" .ServerID "Servers" .Servers "ShowEventDetailsPopup" $.ShowEventDetailsPopup }}
             {{ else if WriteAccess }}
-                {{ template "empty-state" dict "Icon" "flag" "Text" "The auto loop is empty. Use the play icon on a custom race to add it; looped races run while the server is inactive." }}
+                {{ template "empty-state" dict "Icon" "flag" "Text" (t "race.list.empty_loop_hint") }}
             {{ else }}
-                {{ template "empty-state" dict "Icon" "flag" "Text" "No looping custom races yet." }}
+                {{ template "empty-state" dict "Icon" "flag" "Text" (t "race.list.empty_loop") }}
             {{ end }}
         </div>
     </div>

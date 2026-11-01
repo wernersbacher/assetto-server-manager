@@ -17,7 +17,7 @@
                     <h3 id="server-{{ $server.ID }}-heading">{{ $server.Name }} <small class="text-muted">{{ if $server.ID }}{{ $server.ID }}{{ else }}{{ t "server.servers.default" }}{{ end }}</small></h3>
 
                     {{ if $server.Running }}
-                        <span class="badge badge-success">{{ $server.EventType }}</span>
+                        <span class="badge badge-success">{{ t $server.EventTypeKey }}</span>
                     {{ else }}
                         <span class="badge badge-secondary">{{ t "topbar.idle" }}</span>
                     {{ end }}

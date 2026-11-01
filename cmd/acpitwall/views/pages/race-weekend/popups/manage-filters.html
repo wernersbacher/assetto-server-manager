@@ -78,7 +78,7 @@
                                                         {{ end }}
                                                     {{ end}}
 
-                                                    <option value="{{ $result.SessionFile }}" {{ if $selected }} selected="selected" {{ end }}>{{ t "raceweekend.result_sort_option" "type" $result.Type.String "date" (dateFormat $result.Date) "time" (timeFormat $result.Date) }}</option>
+                                                    <option value="{{ $result.SessionFile }}" {{ if $selected }} selected="selected" {{ end }}>{{ t "raceweekend.result_sort_option" "type" (sessionName $result.Type) "date" (dateFormat $result.Date) "time" (timeFormat $result.Date) }}</option>
                                                 {{ end }}
                                             </select>
                                         </div>

@@ -1,0 +1,345 @@
+# Custom race, quick race and race builder partials (cars, entrant, ...), also used by championships and race weekends.
+race:
+  track_and_cars: Track & Cars
+  track_layout: Track Layout
+  stock: Stock
+  time: Time
+  laps: Laps
+  session_length_minutes: Session length in minutes
+  laps_in_race: Number of laps in the race
+  start_race: Start Race
+  entry_list: Entry List
+  realism: Realism
+  assists: Assists
+  rules: Rules
+  dynamic_track: Dynamic Track
+  session:
+    qualifying: Qualifying
+    race: Race
+  openness:
+    o0: No join
+    o1: Free join
+    o2: Free join until 20 seconds to the green light
+  factory_assist:
+    a0: "Off"
+    a1: Factory
+    a2: "On"
+  start_rule:
+    r0: Car is Locked Until Start
+    r1: Teleport
+    r2: Drive Through
+  quick:
+    intro: Set up a quick race with sensible defaults, and start the server.
+    cars_help: Models of cars allowed in the server. Any cars you choose will be evenly distributed across the number of available pitboxes for the track when the Entry List is created. Car skins are randomly selected.
+    no_practice: Practice is disabled on Quick Races. Perhaps you want <a href="{url}">Custom Race</a> instead?
+  cars:
+    search_placeholder: Search for cars
+    search: Search
+    search_help: Search Help
+  entrant:
+    grid_pit_id: Grid/Pit ID
+    entrant: Entrant
+    autofill: Autofill
+    overwrite_all_events: Apply car, skin, ballast, restrictor and setup to all events of this championship
+    transfer_team_points: Move this driver's points to the new team
+    name: Name
+    team: Team
+    ballast: Ballast
+    restrictor: Restrictor
+    fixed_setup: Fixed Setup
+    no_fixed_setup: No Fixed Setup
+    car_skin: Car Skin
+  list:
+    scheduled: Scheduled
+    on_server: "on"
+    another_server: another server
+    scheduled_for: for {date}
+    starred: Starred
+    not_starred: Not Starred
+    looping: Looping
+    not_looping: Not Looping
+    start: Start
+    details: Race Details
+    more: More
+    use_as_template: Use as Template
+    delete_confirm: Delete race setup {name}?
+    delete_detail: The race setup is removed permanently.
+    delete_label: Delete race setup
+    create: Create a new Custom Race
+    create_short: Create a custom race
+    intro: Custom races are fully configurable events, once you have created a custom race you can star it or add it to the automatic race loop. You can use a custom race as a template for a new race, which will create a copy of the custom race, or edit the custom race directly. Custom races can be run quickly on the server using the start race button.
+    tab_recent: Recent
+    tab_starred: Starred
+    tab_scheduled: Scheduled
+    tab_loop: Auto Loop
+    empty_recent: No recent custom races yet.
+    empty_starred_hint: No starred custom races yet. Star them in the Recent tab.
+    empty_starred: No starred custom races yet.
+    empty_scheduled: No scheduled custom races.
+    loop_help: These custom races will be looped on the server whilst it is inactive! Auto loop races will only work if allowed to start automatically, please don't manually start these events if you want them to loop!
+    empty_loop_hint: The auto loop is empty. Use the play icon on a custom race to add it; looped races run while the server is inactive.
+    empty_loop: No looping custom races yet.
+  schedule:
+    title: Schedule Event
+    date_help: Please enter the correct date and time to add a scheduled event.
+    timezone_help: This date/time is in your timezone
+    recurrence: Recurrence Rule
+    recurrence_help: Visit <a target="_blank" href="{url}">RRule Generator</a> to generate a recurrence rule. Leave blank if not required. Only valid alongside scheduled time.
+    submit: Schedule
+    remove: Remove Scheduled Event
+  details:
+    title: "{name} Details"
+    pitboxes: "{count} Pit Boxes"
+    available_tyres: "Available Tyres:"
+    first: 1st
+    minutes:
+      one: "{count} minute"
+      other: "{count} minutes"
+    laps:
+      one: "{count} lap"
+      other: "{count} laps"
+    seconds:
+      one: "{count} second"
+      other: "{count} seconds"
+    plus_one_lap: + 1 lap
+    wait_time: "Wait Time:"
+    pit_window_minutes: "Pit Window: {start} minutes - {end} minutes"
+    pit_window_laps: "Pit Window: Lap #{start} - Lap #{end}"
+    gas_penalty: "Race Gas Penalty:"
+    second_race: 2nd Race
+    second_race_identical: Identical setup to Race 1 above.
+    reverse_all: Full results from 1st Race will be reversed to form starting grid.
+    reverse_top: Top {count} results from 1st race will be reversed to form starting grid.
+    loops: Server will loop after last session.
+    entrants:
+      one: "{count} entrant"
+      other: "{count} entrants"
+    locked_entry_list: "Locked Entry List:"
+    pickup_mode: "Pickup Mode:"
+    driver_swaps: "Driver Swaps:"
+    swap_min_time: "Minimum Driver Swap Time:"
+    swap_min_count: "Minimum Number of Required Swaps:"
+    sol_enabled: Sol is enabled.
+    sun_angle: "Sun Angle:"
+    time_of_day: Time of Day
+    time_multiplier: "Time Of Day Multiplier:"
+    weather_random: "Each session will randomly select from one of the below options:"
+    date: "Date:"
+    multiplier: "Multiplier:"
+    ambient: "Ambient: {temp}°C (variation {variation})"
+    road: "Road: {temp}°C (variation {variation})"
+    wind: "Wind: {min}-{max}kph at {direction}° (±{variation}°)"
+    fuel_rate: "Fuel Rate:"
+    damage: "Damage Multiplier:"
+    tyre_wear: "Tyre Wear Rate:"
+    virtual_mirror: "Forced Virtual Mirror:"
+    abs: "ABS:"
+    tc: "Traction Control:"
+    stability: "Stability Control:"
+    auto_clutch: "Auto Clutch:"
+    tyre_blankets: "Tyre Blankets:"
+    max_ballast: "Max Ballast:"
+    tyres_out: "Allowed Tyres Out:"
+    max_contacts: "Max Contacts Per Kilometer:"
+    start_rule: "Start Rule:"
+    result_screen: "Result Screen Time:"
+    drs_disabled: "DRS Zones Disabled:"
+    grip_start: "{grip}% grip at session start."
+    grip_start_random: "{grip}% grip (randomness {randomness}) at session start."
+    lap_gain: "{laps} laps add 1% of grip."
+    session_transfer: "Session Transfer of {transfer}."
+  champ_settings:
+    title: Championship Race Settings
+    use: Use championship race settings
+    help: When enabled, fuel rate, damage, tyre wear, allowed tyres out, assists, virtual mirror and dynamic track of this event are taken from the Championship (edit the Championship to change them). The values configured for this event below are kept but ignored while this is enabled.
+    note: The settings marked "set by the Championship" below are taken from the Championship.
+    badge: set by the Championship
+  champ_save:
+    title: Save Championship Race
+    identical: The setup below this panel is identical to the previous race setup that you just configured. This means that if you are happy with those settings, you can go on to create another race. If not, feel free to scroll down and change the configuration of this race.
+    added: When this race is saved, it will be added to the <strong>{name}</strong> Championship. You can add more races below, or, if you're done creating the championship, you can complete its setup here.
+    add_another: Add another Race
+    add_another_help: Save this setup and then configure another
+    finish: Finish Creating Championship
+    finish_help: Save this race setup and finish creating the championship
+  form:
+    championship_event: Championship Event
+    race_weekend_session: Race Weekend Session
+    custom_race: Custom Race
+    breadcrumb: Breadcrumb
+    new: New
+    intro_championship: Configure an Event for the <strong>{name}</strong> Championship.
+    intro_race_weekend: Configure a Session for the <strong>{name}</strong> Race Weekend.
+    intro: Track, cars, sessions, entry list and rules for this race.
+    fix_fields: "Please fix these fields before saving:"
+    save_championship_event: Save Championship Event
+    save_race_weekend_session: Save Race Weekend Session
+    save_race: Save Race
+    pit_boxes: Pit Boxes
+    too_few_pitboxes_championship: This track has fewer pit boxes than the configured number of entrants in the current Championship, and therefore is not eligible for it.
+    too_few_pitboxes_race: This track has fewer pit boxes than the configured number of entrants in the current Race, and therefore is not eligible for it.
+    time_attack_help: Time Attack events will run a looping Practice session and combine all of the results files. Forces loop mode on and disables all sessions other than Practice.
+    time_attack_locked: We strongly recommend that you run a locked entry list for a stable experience with Time Attack events.
+    session_type: Session Type
+    enabled: Enabled
+    booking_help: Enabling Booking Mode means that you cannot configure a specific EntryList. The server will start with Pickup mode disabled and Entrants must choose their car and livery during the Booking session time.
+    is_open: Is Open
+    is_open_help: Allow joining during a session, the first session of an event should not be set to no join, although subsequent ones can be in order to only allow drivers from the previous session to connect.
+    wait_time: Wait Time
+    wait_time_help: Seconds before the start of the session
+    pit_window_start: Race Pit Window Start
+    pit_window_start_help: Pit window opens at lap/minute specified
+    pit_window_end: Race Pit Window End
+    pit_window_end_help: Pit window closes at lap/minute specified
+    race_over_time: Race Over Time
+    race_over_time_help: Time remaining in seconds to finish the race from the moment the first one passes on the finish line
+    gas_penalty: Race Gas Penalty
+    gas_penalty_off: "OFF: no penalization will be forced, but cuts will be saved in the race result json."
+    gas_penalty_on: "ON: any cut will be penalized with the gas cut message."
+    reversed_grid: Reversed Grid Race Positions
+    reversed_grid_tooltip: The race session will be restarted in reversed grid order based on the standings of the previous race. Players disqualified in the first race will start from the back of the grid in the second race, regardless of their position being within the reversed grid range.
+    reversed_grid_0: 0 = no additional race
+    reversed_grid_minus1: -1 = all the positions will be reversed (Retired players will be on the last positions)
+    reversed_grid_1: 1 = A 2nd Race will take place with the grid formed from the 1st Race's results
+    reversed_grid_x: X = first X number of positions will be reversed for the 2nd race
+    extra_lap: Extra Lap
+    extra_lap_help: If the race is timed, force an extra lap after the leader has crossed the line
+    qualify_max_wait: Qualify Max Wait Percentage
+    qualify_max_wait_help: "The factor to calculate the remaining time in a qualify session after the session is ended: 120 means that 120% of the session fastest lap remains to end the current lap."
+    max_clients: Max Clients
+    max_clients_help: Maximum number of clients allowed on the server.
+    pickup_mode: Pickup Mode
+    pickup_mode_help: "If set to OFF the server starts in booking mode. Warning: in pickup mode you have to list at least one car in the entry list. Note, when Pickup Mode is OFF, sessions with Loop Mode ON or Reversed Grid Positions will require players to rejoin the server when the server loops or progresses to a second race."
+    locked_entry_list: Locked Entry List
+    locked_entry_list_help: Only players already included in the entry list can join the server.
+    locked_reverse_warning: The server will crash if a second race is active (Reverse Grid Race Positions != 0), locked entry list is on and pickup mode is off. In order to turn on locked entry list for this event turn on pickup mode too!
+    driver_swaps: Driver Swaps
+    driver_swaps_help: ACPitwall Driver Swaps will allow multiple drivers in one entrant who can perform driver swaps. Add multiple GUIDs separated by ;'s to an entrant to allow this.
+    driver_swaps_note: "Note: Driver Swaps will only yield valid results files if the timing line for a track is before or after all of the pitboxes."
+    swap_min_time: Minimum Driver Swap Time (seconds)
+    swap_min_time_help: Minimum time for a driver swap, used to avoid giving users with faster computers an advantage. If the second driver sets off before this time they will be disqualified/given a penalty based on configuration.
+    swap_dq_window: Driver Swap Disqualification Window (seconds)
+    swap_dq_window_help: Driver will be kicked from the race and disqualified if they set off this many seconds or more before the minimum time during a Driver Swap.
+    swap_penalty_window: Driver Swap Penalty Window (seconds)
+    swap_penalty_window_help: If a driver sets off this many seconds or more before the minimum time during a Driver Swap, they will be given a penalty equal to the number of seconds left in the countdown plus 5 seconds.
+    swap_min_count: Minimum Number Of Driver Swaps
+    swap_min_count_help: The number of swaps that a driver must complete. If they do not complete the required number of stops, they are penalised (see below).
+    swap_not_enough_penalty: Not Enough Driver Swaps Penalty (seconds)
+    swap_not_enough_penalty_help: The penalty in seconds that is applied to a driver for each Driver Swap under the required minimum that they missed. If set to 0, the driver is disqualified.
+    clone_entrant_help: Car, Skin, Ballast, Restrictor and Fixed Setup from the last Entrant will be cloned into new Entrants.
+    add_entrants: Add Entrant(s)
+    booking_enabled: Booking Mode is enabled. You cannot configure specific drivers in the EntryList. Pickup Mode will be disabled.
+    abs_allowed: ABS Allowed
+    tc_allowed: Traction Control Allowed
+    stability_allowed: Stability Control Allowed
+    auto_clutch_allowed: Auto Clutch Allowed
+    tyre_blankets_allowed: Tyre Blankets Allowed
+    tyre_blankets_help: At the start of the session or after a pitstop, tyres will have the optimal temperature.
+    sol: Sol Integration
+    sol_help: Allows for 24 hour time cycles. The server treats time differently if enabled. Clients also require Sol and Content Manager
+    sol_missing: Sol isn't installed. Please <a href="{url}">upload your Sol weathers</a> if you want to use Sol.
+    time_of_day: Time Of Day
+    time_of_day_help: Used to calculate the Sun Angle (below)
+    sun_angle: Sun Angle
+    sun_angle_help: Angle of the position of the sun
+    time_multiplier: Time Of Day Multiplier
+    time_multiplier_help: Multiplier for the time of day
+    weather_random: Each new session will <strong>randomly select</strong> its weather configuration from the below options.
+    weather_delete: Delete this Weather
+    sol_start: Session Start Date/Time
+    sol_multiplier: Time Progression Multiplier
+    sol_multiplier_help: E.g. at 60x 24 hours in game will pass in 24 minutes real time
+    graphics: Graphics
+    weather_context: Championship Weather Context
+    weather_any: Any Session
+    weather_practice: Championship Practice Only
+    weather_event: Championship Event Only
+    weather_context_help: Select whether weather will be used for only Championship practice sessions (started from the Championship overview page), only actual championship events, or any session
+    temp_ambient: Base Temperature Ambient
+    temp_road: Base Temperature Road
+    temp_road_help: This value will be added to the final ambient temp. Value can be negative.
+    variation_ambient: Variation Ambient
+    variation_ambient_help: Variation of the ambient's temperature. In this example final ambient's temperature can be 16 or 20
+    variation_road: Variation Road
+    variation_road_help: Variation of the road's temperature. Like the ambient one
+    wind_min: Wind Base Speed Min
+    wind_min_help: Min speed of the session possible
+    wind_max: Wind Base Speed Max
+    wind_max_help: Max speed of session possible (max 40)
+    wind_direction: Wind Base Direction
+    wind_direction_help: Base direction of the wind (wind is pointing at); 0 = North, 90 = East etc
+    wind_variation: Wind Variation Direction
+    wind_variation_help: Variation (+ or -) of the base direction
+    add_weather: Add Weather
+    legal_tyres: Legal Tyres
+    fuel_rate: Fuel Rate
+    fuel_rate_help: "Fuel usage multiplier in percent: 0 = no fuel usage, 100 = realistic, higher values increase usage"
+    damage: Damage Multiplier
+    damage_help: Damage from 0 (no damage) to 100 (full damage)
+    tyre_wear: Tyre Wear Rate
+    tyre_wear_help: "Tyre wear multiplier in percent: 0 = no tyre wear, 100 = realistic, higher values increase wear"
+    virtual_mirror: Force Virtual Mirror
+    virtual_mirror_help: Force clients to use Virtual Mirrors (does not work in VR)
+    surface_preset: Surface Preset
+    surface_preset_help: Dynamic Track Presets
+    grip_start: Session Start
+    grip_start_help: "% level of grip at session start"
+    randomness: Randomness
+    randomness_help: Level of randomness added to the start grip
+    session_transfer: Session Transfer
+    session_transfer_help: "How much of the gained grip is to be added to the next session 100 -> all the gained grip. Example: difference between starting (90) and ending (96) grip in the session = 6%, with session_transfer = 50 then the next session is going to start with 93."
+    lap_gain: Lap Gain
+    lap_gain_help: How many laps are needed to add 1% grip
+    max_ballast: Max Ballast Kilograms
+    max_ballast_help: The max total of ballast that can be added to an entrant in the entry list or through the admin command
+    tyres_out: Allowed Tyres Out
+    tyres_out_help: The number of tyres allowed outside of track limits before a penalty is applied. -1 disables.
+    max_contacts: Max Contacts Per Kilometer
+    max_contacts_help: Maximum number times you can make contact with another car in 1 kilometer. -1 = no limit. (We had mixed results using this in our testing. Use with caution.)
+    start_rule: Start Rule
+    start_rule_help: If race has 3 or less laps then the Teleport penalty is enabled.
+    loop_mode: Loop Mode
+    loop_mode_help: The server restarts from the first event after the previous event has finished
+    result_screen: Result Screen Time
+    result_screen_help: Seconds of result screen between racing sessions
+    disable_drs: Disable DRS Zones
+    disable_drs_help: When ON, the track's drs_zones.ini will temporarily be replaced with a file that disables DRS across the entire track. This is useful for tracks which do not have any clearly defined zones, or for if you want to race without DRS!
+    disable_drs_note: "Note: this changes actual track files, so if you're using a multi-server setup pointing to the same content folder, this may cause problems if you're running races at the same track simultaneously."
+    server_options: Server Options
+    override_password: Override Server Password
+    override_password_help: If enabled then the server password will be replaced for this event.
+    replacement_password: Replacement Password
+    replacement_password_help: If left empty then the server will have no password.
+    force_stop_time: Force Stop Time
+    force_stop_time_help: "Maximum number of minutes that this event will run for (across all sessions) before the server will forcibly stop. This will allow for auto loop track rotation even if there are no drivers on the server. Disabled if 0. WARNING: results files will not be written out if an event is forcibly stopped!"
+    force_stop_drivers: Force Stop With Drivers
+    force_stop_drivers_help: If enabled then the server will forcibly stop after the Force Stop Time even if there are drivers on the server.
+  champ_event:
+    overwrite: This edited setup will overwrite the {position} Event in the <strong>{name}</strong> Championship.
+    added: When this event is saved, it will be added to the <strong>{name}</strong> Championship. You can add more events below, or, if you're done creating the Championship, you can complete its setup here.
+    add_another: Add another Event
+    finish_help: Save this event setup and finish creating the championship
+    save: Save Event
+  rw:
+    parent_sessions: Parent Session(s)
+    entry_list: Race Weekend EntryList
+    parent_sessions_help: The parent session specifies the session which is used to build the EntryList for this session. The results output of the parent session (plus any applied filters) forms the starting grid for this session. If "No parent" is chosen, then all other choices will be ignored.
+    session_points: Session Points
+    session_points_help: Each Race Weekend Session and Championship Class has its own points tally. Practice and Qualifying sessions by default have 0 points, but can have points if you want.
+    overwrite: This edited setup will overwrite the {position} Session in the <strong>{name}</strong> Race Weekend.
+    added: When this Session is saved, it will be added to the <strong>{name}</strong> Race Weekend. You can add more sessions below, or, if you're done creating the Race Weekend, you can complete its setup here.
+    add_another: Add another Session
+    finish: Finish Creating Race Weekend
+    finish_help: Save this session setup and finish creating the Race Weekend
+    save: Save Session
+  save:
+    title: Save Custom Race
+    name: Custom Race Name
+    name_placeholder: Something to identify this Custom Race
+    name_help: The name above will be used on the Custom Races page.
+    scheduled: Scheduled Race
+    scheduled_help: If these fields are both populated then the race will start at a scheduled time.
+    scheduled_server: Scheduled on Server
+    scheduled_server_help: The server which runs the race when a start time is set above.
+    save_help: Save this setup without starting the race
+    start_help: Save this setup and begin the race

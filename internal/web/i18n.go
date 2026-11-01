@@ -9,6 +9,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	"github.com/wernersbacher/ACPitwall/internal/i18n"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 // LanguageCookie remembers the language which was picked in the language selection.
@@ -152,6 +153,10 @@ func translationFuncs(bundle *i18n.Bundle, tr *i18n.Translator) template.FuncMap
 			}
 
 			return s.String()
+		},
+		// {{ ordinal 2 }}: the suffix of an ordinal number in the language ("nd", in German ".")
+		"ordinal": func(x int64) string {
+			return tr.T("ordinal." + smmodel.Ordinal(x))
 		},
 		"yn": func(b bool) string {
 			if b {

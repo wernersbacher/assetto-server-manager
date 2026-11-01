@@ -500,7 +500,7 @@
                                         {{ if $championship.IsMultiClass }}
                                             <small>{{ $class.Name }}</small><br>
                                         {{ end }}
-                                        {{ add $i 1 }}{{ ordinal (add $i 1) }} Place
+                                        {{ t "championships.nth_place" "position" (printf "%d%s" (add $i 1) (ordinal (add $i 1))) }}
 
                                         <p class="mb-0">
                                             <small {{ if eq $account.GUID $entrant.Car.Driver.GUID }}style="font-weight: bold"{{ end }}>

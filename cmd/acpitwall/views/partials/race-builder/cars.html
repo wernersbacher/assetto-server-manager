@@ -1,11 +1,11 @@
 {{ define "cars" }}
     <div class="row mb-2">
         <div class="col-8 col-md-10">
-            <input name="q" placeholder="Search for cars" class="form-control car-search" autocomplete="off">
+            <input name="q" placeholder="{{ t "race.cars.search_placeholder" }}" class="form-control car-search" autocomplete="off">
         </div>
 
         <div class="col-4 col-md-2">
-            <button id="car-search" class="btn btn-primary w-100 car-search-btn">Search</button>
+            <button id="car-search" class="btn btn-primary w-100 car-search-btn">{{ t "race.cars.search" }}</button>
         </div>
     </div>
 
@@ -52,7 +52,7 @@
 
         <div class="text-black-50 d-inline">
             <div class="float-right">
-                <small><a href="#" data-toggle="collapse" data-target="#searchHelp" aria-expanded="false" aria-controls="searchHelp">Search Help</a></small>
+                <small><a href="#" data-toggle="collapse" data-target="#searchHelp" aria-expanded="false" aria-controls="searchHelp">{{ t "race.cars.search_help" }}</a></small>
             </div>
 
             <div class="clearfix"></div>

@@ -10,7 +10,7 @@
                 {{ if and (not $.IsChampionship) (not $.IsSpectatorCar) }}
                     <div class="col-md-3">
                         <div class="row form-group-row">
-                            <label class="col-sm-6 col-form-label col-form-label-sm" for="EntryList.EntrantID">Grid/Pit ID</label>
+                            <label class="col-sm-6 col-form-label col-form-label-sm" for="EntryList.EntrantID">{{ t "race.entrant.grid_pit_id" }}</label>
 
                             <div class="col-sm-6">
                                 <input type="number" name="EntryList.EntrantID" class="form-control form-control-sm entrant-id"
@@ -21,13 +21,13 @@
                 {{ end }}
 
                 <div class="col-md-1">
-                    <small>Entrant</small>
+                    <small>{{ t "race.entrant.entrant" }}</small>
                 </div>
 
                 {{ if not $IsChampionshipEvent }}
                     <div class="col-md-3" style="padding-left: 32px; padding-right: 46px;">
                         <select name="EntrantAutoFill" class="form-control form-control-sm entrant-autofill">
-                            <option value="">Autofill</option>
+                            <option value="">{{ t "race.entrant.autofill" }}</option>
                         </select>
                     </div>
 
@@ -38,7 +38,7 @@
                                 <div class="mr-4 overwrite-all-events" style="display: none">
                                     <label class="small mb-0">
                                         <input type="checkbox" class="entrant-edit-option mr-1" name="EntryList.OverwriteAllEvents">
-                                        Apply car, skin, ballast, restrictor and setup to all events of this championship
+                                        {{ t "race.entrant.overwrite_all_events" }}
                                     </label>
                                 </div>
                             {{ end }}
@@ -63,7 +63,7 @@
                         <input type="hidden" name="EntryList.InternalUUID" {{ with $entrant.InternalUUID }}value="{{ .String }}"{{ end }}>
 
                         <div class="form-group row col-md-6">
-                            <label for="Name" class="col-sm-4 col-form-label col-form-label-sm">Name</label>
+                            <label for="Name" class="col-sm-4 col-form-label col-form-label-sm">{{ t "race.entrant.name" }}</label>
 
                             <div class="col-sm-8">
                                 <input autocomplete="false" class="form-control form-control-sm entryListName" type="text" name="EntryList.Name" {{ with $entrant.Name }}value="{{ . }}"{{ end }} {{ if $IsChampionshipEvent }}readonly="readonly"{{ end }} {{ if $.NameAndGUIDRequired }}required="required"{{ end }}>
@@ -73,7 +73,7 @@
 
 
                         <div class="form-group row col-md-6">
-                            <label for="Team" class="col-sm-4 col-form-label col-form-label-sm">Team</label>
+                            <label for="Team" class="col-sm-4 col-form-label col-form-label-sm">{{ t "race.entrant.team" }}</label>
 
                             <div class="col-sm-8">
                                 <input class="form-control form-control-sm entrant-team" type="text" name="EntryList.Team" {{ with $entrant.Team }}value="{{ . }}"{{ end }} {{ if $IsChampionshipEvent }}readonly="readonly"{{ end }}>
@@ -85,7 +85,7 @@
                                 <div class="col-12 points-transfer" style="display: none">
                                     <label class="small mb-0">
                                         <input type="checkbox" class="entrant-edit-option mr-1" name="EntryList.TransferTeamPoints">
-                                        Move this driver's points to the new team
+                                        {{ t "race.entrant.transfer_team_points" }}
                                     </label>
                                 </div>
                             {{ end }}
@@ -105,7 +105,7 @@
                         </div>
 
                         <div class="form-group row col-md-6">
-                            <label for="Model" class="col-sm-4 col-form-label col-form-label-sm">Car</label>
+                            <label for="Model" class="col-sm-4 col-form-label col-form-label-sm">{{ t "live.col.car" }}</label>
 
                             <div class="col-sm-8">
 
@@ -135,7 +135,7 @@
 
 
                         <div class="form-group row col-md-6">
-                            <label for="Ballast" class="col-sm-4 col-form-label col-form-label-sm">Ballast</label>
+                            <label for="Ballast" class="col-sm-4 col-form-label col-form-label-sm">{{ t "race.entrant.ballast" }}</label>
 
                             <div class="col-sm-8">
                                 <input class="form-control form-control-sm" type="number" min="0" name="EntryList.Ballast" value="{{ with $entrant.Ballast }}{{ . }}{{ else }}0{{ end }}">
@@ -161,7 +161,7 @@
                         -->
 
                         <div class="form-group col-md-6 row">
-                            <label for="Restrictor" class="col-sm-4 col-form-label col-form-label-sm">Restrictor</label>
+                            <label for="Restrictor" class="col-sm-4 col-form-label col-form-label-sm">{{ t "race.entrant.restrictor" }}</label>
 
                             <div class="col-sm-8">
                                 <input class="form-control form-control-sm" type="number" min="0" max="100" name="EntryList.Restrictor" value="{{ with $entrant.Restrictor }}{{ . }}{{ else }}0{{ end }}">
@@ -169,11 +169,11 @@
                         </div>
 
                         <div class="form-group col-md-6 row">
-                            <label for="FixedSetup" class="col-sm-4 col-form-label col-form-label-sm">Fixed Setup</label>
+                            <label for="FixedSetup" class="col-sm-4 col-form-label col-form-label-sm">{{ t "race.entrant.fixed_setup" }}</label>
 
                             <div class="col-sm-8">
                                 <select class="form-control form-control-sm fixedSetup" name="EntryList.FixedSetup">
-                                    <option value="">No Fixed Setup</option>
+                                    <option value="">{{ t "race.entrant.no_fixed_setup" }}</option>
                                     {{ with $entrant.FixedSetup }}
                                         <option value="{{ . }}" selected="selected">{{ . }}</option>
                                     {{ end }}
@@ -186,7 +186,7 @@
 
                 <div class="col-sm-4">
                     <img src="{{ with $entrant.Skin }}{{ carSkinURL $entrant.Model $entrant.Skin }}{{ else }}/static/img/no-preview-car.png{{ end }}"
-                         alt="Car Skin"
+                         alt="{{ t "race.entrant.car_skin" }}"
                          class="entryListCarPreview img-fluid"
                     >
                 </div>

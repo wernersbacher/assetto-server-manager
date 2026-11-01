@@ -72,7 +72,7 @@
                                                 {{ t "championships.event.first_prefix" }}
                                             {{ end }}
 
-                                            {{ $sessionName.String }}
+                                            {{ sessionName $sessionName }}
                                         </strong>:
 
                                         {{ if ne $session.Time 0 }}
@@ -469,7 +469,7 @@
                                             {{ if and $eventSetup.HasMultipleRaces (eq $sessionName "RACE") }}
                                                 {{ t "championships.event.first_race" }}
                                             {{ else }}
-                                                {{ $sessionName.String }}
+                                                {{ sessionName $sessionName }}
                                             {{ end }}
                                         </a>
                                     </li>

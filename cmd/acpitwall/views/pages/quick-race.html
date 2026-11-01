@@ -1,4 +1,4 @@
-{{ define "title" }}Quick Race{{ end }}
+{{ define "title" }}{{ t "nav.quick_race" }}{{ end }}
 
 
 {{ define "track-options" }}
@@ -17,15 +17,15 @@
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Quick Race</h1>
-            <p>Set up a quick race with sensible defaults, and start the server.</p>
+            <h1>{{ t "nav.quick_race" }}</h1>
+            <p>{{ t "race.quick.intro" }}</p>
         </div>
     </div>
 
     <form method="post" action="/quick/submit" class="race-setup">
         <div class="card mt-3 border-secondary">
             <div class="card-header">
-                <strong>Track & Cars</strong>
+                <strong>{{ t "race.track_and_cars" }}</strong>
             </div>
 
             <div class="card-body">
@@ -34,7 +34,7 @@
             <div class="col-sm-8">
                 <div class="form-group row">
                     <label for="Track" class="col-sm-3 col-form-label">
-                        Track
+                        {{ t "home.track" }}
                     </label>
 
                     <div class="col-sm-9">
@@ -43,7 +43,7 @@
 
 
                             {{ with $split.Stock }}
-                                <optgroup label="Stock">
+                                <optgroup label="{{ t "race.stock" }}">
                                     {{ template "track-options" dict "Tracks" . }}
                                 </optgroup>
                             {{ end }}
@@ -66,7 +66,7 @@
 
                 <div class="form-group row" style="display: none;">
                     <label for="TrackLayout" class="col-sm-3 col-form-label">
-                        Track Layout
+                        {{ t "race.track_layout" }}
                     </label>
 
                     <div class="col-sm-9">
@@ -96,19 +96,13 @@
         </div>
         <div class="form-group row">
             <label for="Cars" class="col-sm-2 col-form-label">
-                Cars
+                {{ t "home.cars" }}
             </label>
 
             <div class="col-sm-10">
                 {{ template "cars" dict "CarOpts" $.CarOpts "Current" nil }}
 
-                <small>
-
-                    Models of cars allowed in the server. Any cars you choose will be evenly distributed across the
-                    number of available pitboxes for the track when the Entry List is created.
-
-                    Car skins are randomly selected.
-                </small>
+                <small>{{ t "race.quick.cars_help" }}</small>
             </div>
         </div>
 
@@ -117,15 +111,15 @@
 
         <div class="card mt-3 border-secondary">
             <div class="card-header">
-                <strong>Qualifying</strong>
+                <strong>{{ t "race.session.qualifying" }}</strong>
             </div>
 
             <div class="card-body">
 
-        <p>Practice is disabled on Quick Races. Perhaps you want <a href="/custom">Custom Race</a> instead?</p>
+        <p>{{ tHTML "race.quick.no_practice" "url" "/custom" }}</p>
 
         <div class="form-group row">
-            <label for="Qualifying.Time" class="col-sm-3 col-form-label">Time</label>
+            <label for="Qualifying.Time" class="col-sm-3 col-form-label">{{ t "race.time" }}</label>
 
             <div class="col-sm-9">
                 <input
@@ -139,7 +133,7 @@
                         step="1"
                 >
 
-                <small>Session length in minutes</small>
+                <small>{{ t "race.session_length_minutes" }}</small>
             </div>
         </div>
 
@@ -149,7 +143,7 @@
 
         <div class="card mt-3 border-secondary">
             <div class="card-header">
-                <strong>Race</strong>
+                <strong>{{ t "race.session.race" }}</strong>
             </div>
 
             <div class="card-body">
@@ -158,8 +152,8 @@
         <div class="form-group row">
             <div class="col-sm-3">
                 <select id="TimeOrLaps" class="form-control">
-                    <option value="Time" selected="selected">Time</option>
-                    <option value="Laps">Laps</option>
+                    <option value="Time" selected="selected">{{ t "race.time" }}</option>
+                    <option value="Laps">{{ t "race.laps" }}</option>
                 </select>
             </div>
 
@@ -175,7 +169,7 @@
                         step="1"
                 >
 
-                <small>Session length in minutes</small>
+                <small>{{ t "race.session_length_minutes" }}</small>
             </div>
 
 
@@ -191,13 +185,13 @@
                         step="1"
                 >
 
-                <small>Number of laps in the race</small>
+                <small>{{ t "race.laps_in_race" }}</small>
             </div>
         </div>
             </div>
         </div>
 
-        <button class="btn btn-success float-right mt-3" type="submit">Start Race</button>
+        <button class="btn btn-success float-right mt-3" type="submit">{{ t "race.start_race" }}</button>
 
         <div class="clearfix"></div>
     </form>

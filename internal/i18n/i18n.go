@@ -242,6 +242,11 @@ func (t *Translator) Lang() string {
 	return t.lang
 }
 
+// Lookup returns the message of the key, false if neither the language nor English has it.
+func (t *Translator) Lookup(key string) (string, bool) {
+	return t.lookup(key)
+}
+
 func (t *Translator) lookup(key string) (string, bool) {
 	if msg, ok := t.messages[key]; ok {
 		return msg, true

@@ -105,7 +105,7 @@ func (tr *Renderer) init() error {
 	funcs["htmlAttr"] = func(s string) template.HTMLAttr {
 		return template.HTMLAttr(s)
 	}
-	funcs["ordinal"] = smmodel.Ordinal
+
 	funcs["prettify"] = smcontent.PrettifyName
 	funcs["jsonEncode"] = jsonEncode
 	funcs["timeZone"] = timeZone

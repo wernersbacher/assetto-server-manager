@@ -42,7 +42,7 @@
                                 {{ end }}
 
 
-                                {{ if ne $session.Name $session.SessionType.String }}({{ $session.SessionType }}){{ end }}
+                                {{ if ne $session.Name $session.SessionType.String }}({{ sessionName $session.SessionType }}){{ end }}
 
                                 -
 

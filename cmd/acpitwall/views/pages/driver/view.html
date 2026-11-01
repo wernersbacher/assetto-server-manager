@@ -154,7 +154,7 @@
                                 <a href="/results/{{ .ResultFile }}">{{ localFormat .Date }}</a>
                                 {{ with .Server }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
                             </td>
-                            <td>{{ title (lower .SessionType) }}</td>
+                            <td>{{ sessionName .SessionType }}</td>
                             <td>
                                 {{ if .Disqualified }}
                                     <span class="badge badge-danger">{{ t "results.driver.dsq" }}</span>

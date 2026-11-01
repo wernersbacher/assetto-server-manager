@@ -4,8 +4,8 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ $.EventName }} Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title">{{ t "race.details.title" "name" $.EventName }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ t "common.close" }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -13,7 +13,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="row">
-                            <div class="col-sm-4"><strong>Track</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "home.track" }}</strong></div>
                             <div class="col-sm-8">
                                 {{ $trackInfo := trackInfo $.EventConfig.Track $.EventConfig.TrackLayout }}
 
@@ -26,7 +26,7 @@
                                 </a>
 
                                 {{ with $trackInfo }}
-                                    - {{ $trackInfo.Pitboxes }} Pit Boxes
+                                    - {{ t "race.details.pitboxes" "count" $trackInfo.Pitboxes }}
                                 {{ end }}
 
                                 <br>
@@ -39,7 +39,7 @@
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Cars</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "home.cars" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
                                     {{ range $index, $car := (varSplit $.EventConfig.Cars) }}
@@ -50,36 +50,36 @@
                                         </li>
                                     {{ end }}
 
-                                    <li>Available Tyres: {{ carList $.EventConfig.LegalTyres }}</li>
+                                    <li>{{ t "race.details.available_tyres" }} {{ carList $.EventConfig.LegalTyres }}</li>
                                 </ul>
                             </div>
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Sessions</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "home.sessions" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
                                     {{ range $sessionType, $session := $.EventConfig.Sessions }}
                                         <li>
                                             <em>
                                                 {{ if and (eq $sessionType "RACE") (ne $.EventConfig.ReversedGridRacePositions 0) }}
-                                                    1st
+                                                    {{ t "race.details.first" }}
                                                 {{ end }}
 
-                                                {{ $sessionType.String }}
+                                                {{ sessionName $sessionType }}
                                             </em>
                                             -
 
                                             {{ if gt $session.Time 0 }}
-                                                {{ $session.Time }} minutes{{ if and (eq $sessionType "RACE") (eq $.EventConfig.RaceExtraLap 1) }} + 1 lap{{ end }},
+                                                {{ tn "race.details.minutes" $session.Time }}{{ if and (eq $sessionType "RACE") (eq $.EventConfig.RaceExtraLap 1) }} {{ t "race.details.plus_one_lap" }}{{ end }},
                                             {{ else }}
-                                                {{ $session.Laps }} laps,
+                                                {{ tn "race.details.laps" $session.Laps }},
                                             {{ end }}
 
-                                            {{ $session.IsOpen.String }}
+                                            {{ t (printf "race.openness.o%d" $session.IsOpen) }}
 
                                             {{ if gt $session.WaitTime 0 }}
-                                                <br>Wait Time: {{ $session.WaitTime }} seconds
+                                                <br>{{ t "race.details.wait_time" }} {{ tn "race.details.seconds" $session.WaitTime }}
                                             {{ end }}
 
                                             {{ if eq $sessionType "RACE" }}
@@ -87,51 +87,51 @@
                                                     <br>
 
                                                     {{ if gt $session.Time 0 }}
-                                                        Pit Window: {{ $.EventConfig.RacePitWindowStart }} minutes - {{ $.EventConfig.RacePitWindowEnd }} minutes
+                                                        {{ t "race.details.pit_window_minutes" "start" $.EventConfig.RacePitWindowStart "end" $.EventConfig.RacePitWindowEnd }}
                                                     {{ else }}
-                                                        Pit Window: Lap #{{ $.EventConfig.RacePitWindowStart }} - Lap #{{ $.EventConfig.RacePitWindowEnd }}
+                                                        {{ t "race.details.pit_window_laps" "start" $.EventConfig.RacePitWindowStart "end" $.EventConfig.RacePitWindowEnd }}
                                                     {{ end }}
                                                 {{ end }}
 
-                                                <br>Race Gas Penalty: {{ yn (eq $.EventConfig.RaceGasPenaltyDisabled 0) }}
+                                                <br>{{ t "race.details.gas_penalty" }} {{ yn (eq $.EventConfig.RaceGasPenaltyDisabled 0) }}
                                             {{ end }}
                                         </li>
 
                                         {{ if and (eq $sessionType "RACE") (ne $.EventConfig.ReversedGridRacePositions 0) }}
                                             <li>
-                                                <em>2nd Race</em> - Identical setup to Race 1 above.
+                                                <em>{{ t "race.details.second_race" }}</em> - {{ t "race.details.second_race_identical" }}
 
                                                 {{ if eq $.EventConfig.ReversedGridRacePositions -1 }}
-                                                    Full results from 1st Race will be reversed to form starting grid.
+                                                    {{ t "race.details.reverse_all" }}
                                                 {{ else }}
-                                                    Top {{ $.EventConfig.ReversedGridRacePositions }} results from 1st race will be reversed to form starting grid.
+                                                    {{ t "race.details.reverse_top" "count" $.EventConfig.ReversedGridRacePositions }}
                                                 {{ end }}
                                             </li>
                                         {{ end }}
                                     {{ end }}
 
                                     {{ if and (eq $.EventConfig.LoopMode 1) (not $.IsChampionship) }}
-                                        <li>Server will loop after last session.</li>
+                                        <li>{{ t "race.details.loops" }}</li>
                                     {{ end }}
                                 </ul>
                             </div>
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Entry List</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "race.entry_list" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
-                                    <li>{{ len $.EntryList }} entrants</li>
-                                    <li>Locked Entry List: {{ yn (eq $.EventConfig.LockedEntryList 1) }}</li>
-                                    <li>Pickup Mode: {{ yn (eq $.EventConfig.PickupModeEnabled 1) }}</li>
+                                    <li>{{ tn "race.details.entrants" (len $.EntryList) }}</li>
+                                    <li>{{ t "race.details.locked_entry_list" }} {{ yn (eq $.EventConfig.LockedEntryList 1) }}</li>
+                                    <li>{{ t "race.details.pickup_mode" }} {{ yn (eq $.EventConfig.PickupModeEnabled 1) }}</li>
 
                                         <li>
-                                            Driver Swaps: {{ yn (eq $.EventConfig.DriverSwapEnabled 1) }}
+                                            {{ t "race.details.driver_swaps" }} {{ yn (eq $.EventConfig.DriverSwapEnabled 1) }}
 
                                             {{ if eq $.EventConfig.DriverSwapEnabled 1 }}
                                                 <ul>
-                                                    <li>Minimum Driver Swap Time: {{ $.EventConfig.DriverSwapMinTime }} seconds</li>
-                                                    <li>Minimum Number of Required Swaps: {{ $.EventConfig.DriverSwapMinimumNumberOfSwaps }}</li>
+                                                    <li>{{ t "race.details.swap_min_time" }} {{ tn "race.details.seconds" $.EventConfig.DriverSwapMinTime }}</li>
+                                                    <li>{{ t "race.details.swap_min_count" }} {{ $.EventConfig.DriverSwapMinimumNumberOfSwaps }}</li>
                                                 </ul>
                                             {{ end }}
                                         </li>
@@ -140,20 +140,20 @@
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Weather</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "nav.weather" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
                                     {{ if $.EventConfig.IsSol }}
-                                        <li><span class="text-success">Sol is enabled.</span></li>
+                                        <li><span class="text-success">{{ t "race.details.sol_enabled" }}</span></li>
                                     {{ else }}
-                                        <li>Sun Angle: {{ $.EventConfig.SunAngle }}</li>
-                                        <li>Time of Day {{ sunAngleToTimeOfDay $.EventConfig.SunAngle }}</li>
-                                        <li>Time Of Day Multiplier: {{ $.EventConfig.TimeOfDayMultiplier }}x</li>
+                                        <li>{{ t "race.details.sun_angle" }} {{ $.EventConfig.SunAngle }}</li>
+                                        <li>{{ t "race.details.time_of_day" }} {{ sunAngleToTimeOfDay $.EventConfig.SunAngle }}</li>
+                                        <li>{{ t "race.details.time_multiplier" }} {{ $.EventConfig.TimeOfDayMultiplier }}x</li>
                                     {{ end }}
 
                                 </ul>
 
-                                <p>Each session will randomly select from one of the below options:</p>
+                                <p>{{ t "race.details.weather_random" }}</p>
 
                                 <ol class="pl-3 ml-0">
                                     {{ range $weatherIndex, $weather := $.EventConfig.Weather }}
@@ -161,15 +161,15 @@
                                             {{ weatherName $weather.Graphics }}<br>
                                             <small>
                                                 {{ if $.EventConfig.IsSol }}
-                                                    Date: {{ localFormat ($weather.UnixToTime $weather.CMWFXDate) }}<br>
-                                                    Multiplier: {{ $weather.CMWFXTimeMulti }}x<br>
+                                                    {{ t "race.details.date" }} {{ localFormat ($weather.UnixToTime $weather.CMWFXDate) }}<br>
+                                                    {{ t "race.details.multiplier" }} {{ $weather.CMWFXTimeMulti }}x<br>
                                                 {{ end }}
 
-                                                Ambient: {{ $weather.BaseTemperatureAmbient }}&deg;C (variation {{ $weather.VariationAmbient }})<br>
-                                                Road: {{ add $weather.BaseTemperatureAmbient $weather.BaseTemperatureRoad }}&deg;C (variation {{ $weather.VariationRoad }})<br>
+                                                {{ t "race.details.ambient" "temp" $weather.BaseTemperatureAmbient "variation" $weather.VariationAmbient }}<br>
+                                                {{ t "race.details.road" "temp" (add $weather.BaseTemperatureAmbient $weather.BaseTemperatureRoad) "variation" $weather.VariationRoad }}<br>
 
 
-                                                Wind: {{ $weather.WindBaseSpeedMin }}-{{ $weather.WindBaseSpeedMax }}kph at {{ $weather.WindBaseDirection }}&deg; (&plusmn;{{ $weather.WindVariationDirection }}&deg;)
+                                                {{ t "race.details.wind" "min" $weather.WindBaseSpeedMin "max" $weather.WindBaseSpeedMax "direction" $weather.WindBaseDirection "variation" $weather.WindVariationDirection }}
                                             </small>
                                         </li>
                                     {{ end }}
@@ -181,50 +181,50 @@
 
                     <div class="col-md-6">
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Realism</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "race.realism" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
-                                    <li>Fuel Rate: {{ $.EventConfig.FuelRate }}</li>
-                                    <li>Damage Multiplier: {{ $.EventConfig.DamageMultiplier }}</li>
-                                    <li>Tyre Wear Rate: {{ $.EventConfig.TyreWearRate }}</li>
-                                    <li>Forced Virtual Mirror: {{ yn (eq $.EventConfig.ForceVirtualMirror 1) }}</li>
+                                    <li>{{ t "race.details.fuel_rate" }} {{ $.EventConfig.FuelRate }}</li>
+                                    <li>{{ t "race.details.damage" }} {{ $.EventConfig.DamageMultiplier }}</li>
+                                    <li>{{ t "race.details.tyre_wear" }} {{ $.EventConfig.TyreWearRate }}</li>
+                                    <li>{{ t "race.details.virtual_mirror" }} {{ yn (eq $.EventConfig.ForceVirtualMirror 1) }}</li>
                                 </ul>
                             </div>
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Assists</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "race.assists" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
-                                    <li>ABS: {{ $.EventConfig.ABSAllowed.String }}</li>
-                                    <li>Traction Control: {{ $.EventConfig.TractionControlAllowed.String }}</li>
-                                    <li>Stability Control: {{ yn (eq $.EventConfig.StabilityControlAllowed 1) }}</li>
-                                    <li>Auto Clutch: {{ yn (eq $.EventConfig.AutoClutchAllowed 1) }}</li>
-                                    <li>Tyre Blankets: {{ yn (eq $.EventConfig.TyreBlanketsAllowed 1) }}</li>
+                                    <li>{{ t "race.details.abs" }} {{ t (printf "race.factory_assist.a%d" $.EventConfig.ABSAllowed) }}</li>
+                                    <li>{{ t "race.details.tc" }} {{ t (printf "race.factory_assist.a%d" $.EventConfig.TractionControlAllowed) }}</li>
+                                    <li>{{ t "race.details.stability" }} {{ yn (eq $.EventConfig.StabilityControlAllowed 1) }}</li>
+                                    <li>{{ t "race.details.auto_clutch" }} {{ yn (eq $.EventConfig.AutoClutchAllowed 1) }}</li>
+                                    <li>{{ t "race.details.tyre_blankets" }} {{ yn (eq $.EventConfig.TyreBlanketsAllowed 1) }}</li>
                                 </ul>
                             </div>
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Rules</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "race.rules" }}</strong></div>
                             <div class="col-sm-8">
                                 <ul class="list-unstyled">
-                                    <li>Max Ballast: {{ $.EventConfig.MaxBallastKilograms }}kg</li>
-                                    <li>Allowed Tyres Out: {{ $.EventConfig.AllowedTyresOut }}</li>
-                                    <li>Max Contacts Per Kilometer: {{ $.EventConfig.MaxContactsPerKilometer }}</li>
-                                    <li>Start Rule: {{ $.EventConfig.StartRule.String }}</li>
-                                    <li>Result Screen Time: {{ $.EventConfig.ResultScreenTime }} seconds</li>
-                                    <li>DRS Zones Disabled: {{ yn $.EventConfig.DisableDRSZones }}</li>
+                                    <li>{{ t "race.details.max_ballast" }} {{ $.EventConfig.MaxBallastKilograms }}kg</li>
+                                    <li>{{ t "race.details.tyres_out" }} {{ $.EventConfig.AllowedTyresOut }}</li>
+                                    <li>{{ t "race.details.max_contacts" }} {{ $.EventConfig.MaxContactsPerKilometer }}</li>
+                                    <li>{{ t "race.details.start_rule" }} {{ t (printf "race.start_rule.r%d" $.EventConfig.StartRule) }}</li>
+                                    <li>{{ t "race.details.result_screen" }} {{ tn "race.details.seconds" $.EventConfig.ResultScreenTime }}</li>
+                                    <li>{{ t "race.details.drs_disabled" }} {{ yn $.EventConfig.DisableDRSZones }}</li>
                                 </ul>
                             </div>
                         </div>
 
                         <div class="row mt-2">
-                            <div class="col-sm-4"><strong>Dynamic Track</strong></div>
+                            <div class="col-sm-4"><strong>{{ t "race.dynamic_track" }}</strong></div>
                             <div class="col-sm-8">
-                                {{ $.EventConfig.DynamicTrack.SessionStart }}% grip {{ with $.EventConfig.DynamicTrack.Randomness }}(randomness {{ . }}){{ end }} at session start.<br>
-                                {{ $.EventConfig.DynamicTrack.LapGain }} laps add 1% of grip.<br>
-                                Session Transfer of {{ $.EventConfig.DynamicTrack.SessionTransfer }}.
+                                {{ with $.EventConfig.DynamicTrack.Randomness }}{{ t "race.details.grip_start_random" "grip" $.EventConfig.DynamicTrack.SessionStart "randomness" . }}{{ else }}{{ t "race.details.grip_start" "grip" $.EventConfig.DynamicTrack.SessionStart }}{{ end }}<br>
+                                {{ t "race.details.lap_gain" "laps" $.EventConfig.DynamicTrack.LapGain }}<br>
+                                {{ t "race.details.session_transfer" "transfer" $.EventConfig.DynamicTrack.SessionTransfer }}
                             </div>
                         </div>
                     </div>
@@ -232,7 +232,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ t "common.close" }}</button>
             </div>
         </div>
     </div>

@@ -1,0 +1,345 @@
+# Eigene Rennen, schnelles Rennen und Race-Builder-Partials (Autos, Teilnehmer, ...), auch von Meisterschaften und Rennwochenenden genutzt.
+race:
+  track_and_cars: Strecke & Autos
+  track_layout: Streckenlayout
+  stock: Standard
+  time: Zeit
+  laps: Runden
+  session_length_minutes: Session-Dauer in Minuten
+  laps_in_race: Anzahl der Runden im Rennen
+  start_race: Rennen starten
+  entry_list: Entry List
+  realism: Realismus
+  assists: Fahrhilfen
+  rules: Regeln
+  dynamic_track: Dynamische Strecke
+  session:
+    qualifying: Qualifying
+    race: Rennen
+  openness:
+    o0: Kein Beitritt
+    o1: Freier Beitritt
+    o2: Freier Beitritt bis 20 Sekunden vor Grün
+  factory_assist:
+    a0: Aus
+    a1: Werkseinstellung
+    a2: An
+  start_rule:
+    r0: Auto bis zum Start gesperrt
+    r1: Teleport
+    r2: Drive Through
+  quick:
+    intro: Richte ein schnelles Rennen mit sinnvollen Standardwerten ein und starte den Server.
+    cars_help: Automodelle, die auf dem Server erlaubt sind. Die gewählten Autos werden beim Erstellen der Entry List gleichmäßig auf die verfügbaren Boxen der Strecke verteilt. Die Skins werden zufällig gewählt.
+    no_practice: Bei schnellen Rennen gibt es kein Training. Vielleicht willst du lieber ein <a href="{url}">eigenes Rennen</a>?
+  cars:
+    search_placeholder: Autos suchen
+    search: Suchen
+    search_help: Suchhilfe
+  entrant:
+    grid_pit_id: Startplatz/Box-ID
+    entrant: Teilnehmer
+    autofill: Autofill
+    overwrite_all_events: Auto, Skin, Ballast, Restrictor und Setup auf alle Events dieser Meisterschaft anwenden
+    transfer_team_points: Punkte dieses Fahrers zum neuen Team übertragen
+    name: Name
+    team: Team
+    ballast: Ballast
+    restrictor: Restrictor
+    fixed_setup: Festes Setup
+    no_fixed_setup: Kein festes Setup
+    car_skin: Skin des Autos
+  list:
+    scheduled: Geplant
+    on_server: auf
+    another_server: einem anderen Server
+    scheduled_for: am {date}
+    starred: Markiert
+    not_starred: Nicht markiert
+    looping: In der Schleife
+    not_looping: Nicht in der Schleife
+    start: Starten
+    details: Renndetails
+    more: Mehr
+    use_as_template: Als Vorlage verwenden
+    delete_confirm: Renn-Setup {name} löschen?
+    delete_detail: Das Renn-Setup wird endgültig entfernt.
+    delete_label: Renn-Setup löschen
+    create: Neues eigenes Rennen erstellen
+    create_short: Eigenes Rennen erstellen
+    intro: Eigene Rennen sind frei konfigurierbare Events. Ein erstelltes eigenes Rennen kannst du markieren oder zur automatischen Rennschleife hinzufügen. Du kannst es als Vorlage für ein neues Rennen verwenden (dabei entsteht eine Kopie) oder direkt bearbeiten. Mit „Starten“ läuft ein eigenes Rennen sofort auf dem Server.
+    tab_recent: Zuletzt
+    tab_starred: Markiert
+    tab_scheduled: Geplant
+    tab_loop: Auto-Schleife
+    empty_recent: Noch keine eigenen Rennen.
+    empty_starred_hint: Noch keine markierten eigenen Rennen. Markiere sie im Tab „Zuletzt“.
+    empty_starred: Noch keine markierten eigenen Rennen.
+    empty_scheduled: Keine geplanten eigenen Rennen.
+    loop_help: Diese eigenen Rennen laufen in einer Schleife, solange der Server nicht anderweitig genutzt wird! Rennen der Auto-Schleife funktionieren nur, wenn sie automatisch starten dürfen. Starte sie also nicht von Hand, wenn sie in der Schleife laufen sollen!
+    empty_loop_hint: Die Auto-Schleife ist leer. Füge ein eigenes Rennen über das Play-Symbol hinzu; Rennen der Schleife laufen, solange der Server nicht anderweitig genutzt wird.
+    empty_loop: Noch keine eigenen Rennen in der Schleife.
+  schedule:
+    title: Event planen
+    date_help: Gib Datum und Uhrzeit ein, um ein geplantes Event hinzuzufügen.
+    timezone_help: Datum und Uhrzeit gelten in deiner Zeitzone
+    recurrence: Wiederholungsregel
+    recurrence_help: Mit dem <a target="_blank" href="{url}">RRule Generator</a> kannst du eine Wiederholungsregel erzeugen. Leer lassen, wenn nicht benötigt. Gilt nur zusammen mit einem geplanten Zeitpunkt.
+    submit: Planen
+    remove: Geplantes Event entfernen
+  details:
+    title: "{name}: Details"
+    pitboxes: "{count} Boxen"
+    available_tyres: "Verfügbare Reifen:"
+    first: "1."
+    minutes:
+      one: "{count} Minute"
+      other: "{count} Minuten"
+    laps:
+      one: "{count} Runde"
+      other: "{count} Runden"
+    seconds:
+      one: "{count} Sekunde"
+      other: "{count} Sekunden"
+    plus_one_lap: + 1 Runde
+    wait_time: "Wartezeit:"
+    pit_window_minutes: "Boxenfenster: {start} Minuten - {end} Minuten"
+    pit_window_laps: "Boxenfenster: Runde {start} - Runde {end}"
+    gas_penalty: "Gas-Strafe bei Abkürzungen:"
+    second_race: 2. Rennen
+    second_race_identical: Gleiches Setup wie Rennen 1 oben.
+    reverse_all: Das komplette Ergebnis des 1. Rennens wird für die Startaufstellung umgedreht.
+    reverse_top: Die ersten {count} Plätze des 1. Rennens werden für die Startaufstellung umgedreht.
+    loops: Der Server startet nach der letzten Session von vorn.
+    entrants:
+      one: "{count} Teilnehmer"
+      other: "{count} Teilnehmer"
+    locked_entry_list: "Gesperrte Entry List:"
+    pickup_mode: "Pickup-Modus:"
+    driver_swaps: "Fahrerwechsel:"
+    swap_min_time: "Minimale Fahrerwechselzeit:"
+    swap_min_count: "Mindestanzahl Fahrerwechsel:"
+    sol_enabled: Sol ist aktiviert.
+    sun_angle: "Sonnenwinkel:"
+    time_of_day: Tageszeit
+    time_multiplier: "Tageszeit-Multiplikator:"
+    weather_random: "Jede Session wählt zufällig eine der folgenden Optionen:"
+    date: "Datum:"
+    multiplier: "Multiplikator:"
+    ambient: "Luft: {temp} °C (Schwankung {variation})"
+    road: "Strecke: {temp} °C (Schwankung {variation})"
+    wind: "Wind: {min}-{max} km/h aus {direction}° (±{variation}°)"
+    fuel_rate: "Spritverbrauch:"
+    damage: "Schadensmultiplikator:"
+    tyre_wear: "Reifenverschleiß:"
+    virtual_mirror: "Virtueller Spiegel erzwungen:"
+    abs: "ABS:"
+    tc: "Traktionskontrolle:"
+    stability: "Stabilitätskontrolle:"
+    auto_clutch: "Automatische Kupplung:"
+    tyre_blankets: "Reifenwärmer:"
+    max_ballast: "Max. Ballast:"
+    tyres_out: "Erlaubte Reifen neben der Strecke:"
+    max_contacts: "Max. Kontakte pro Kilometer:"
+    start_rule: "Startregel:"
+    result_screen: "Anzeigedauer Ergebnisse:"
+    drs_disabled: "DRS-Zonen deaktiviert:"
+    grip_start: "{grip} % Grip zu Beginn der Session."
+    grip_start_random: "{grip} % Grip (Zufall {randomness}) zu Beginn der Session."
+    lap_gain: "{laps} Runden bringen 1 % Grip."
+    session_transfer: "Grip-Übertrag zwischen Sessions: {transfer}."
+  champ_settings:
+    title: Renneinstellungen der Meisterschaft
+    use: Renneinstellungen der Meisterschaft verwenden
+    help: Wenn aktiv, werden Spritverbrauch, Schaden, Reifenverschleiß, erlaubte Reifen neben der Strecke, Fahrhilfen, virtueller Spiegel und dynamische Strecke dieses Events aus der Meisterschaft übernommen (bearbeite die Meisterschaft, um sie zu ändern). Die unten für dieses Event eingestellten Werte bleiben erhalten, werden aber ignoriert, solange dies aktiv ist.
+    note: Die unten mit „von der Meisterschaft festgelegt“ markierten Einstellungen kommen aus der Meisterschaft.
+    badge: von der Meisterschaft festgelegt
+  champ_save:
+    title: Meisterschaftsrennen speichern
+    identical: Das Setup unter diesem Bereich entspricht dem Setup des Rennens, das du gerade konfiguriert hast. Wenn du mit diesen Einstellungen zufrieden bist, kannst du direkt ein weiteres Rennen anlegen. Wenn nicht, scrolle nach unten und passe die Konfiguration dieses Rennens an.
+    added: Beim Speichern wird dieses Rennen zur Meisterschaft <strong>{name}</strong> hinzugefügt. Du kannst unten weitere Rennen hinzufügen oder, wenn du fertig bist, die Einrichtung der Meisterschaft hier abschließen.
+    add_another: Weiteres Rennen hinzufügen
+    add_another_help: Dieses Setup speichern und ein weiteres konfigurieren
+    finish: Meisterschaft fertigstellen
+    finish_help: Dieses Renn-Setup speichern und die Meisterschaft fertigstellen
+  form:
+    championship_event: Meisterschafts-Event
+    race_weekend_session: Session des Rennwochenendes
+    custom_race: Eigenes Rennen
+    breadcrumb: Brotkrumennavigation
+    new: Neu
+    intro_championship: Konfiguriere ein Event für die Meisterschaft <strong>{name}</strong>.
+    intro_race_weekend: Konfiguriere eine Session für das Rennwochenende <strong>{name}</strong>.
+    intro: Strecke, Autos, Sessions, Entry List und Regeln für dieses Rennen.
+    fix_fields: "Bitte korrigiere diese Felder vor dem Speichern:"
+    save_championship_event: Meisterschafts-Event speichern
+    save_race_weekend_session: Session des Rennwochenendes speichern
+    save_race: Rennen speichern
+    pit_boxes: Boxen
+    too_few_pitboxes_championship: Diese Strecke hat weniger Boxen als die aktuelle Meisterschaft Teilnehmer hat und kommt deshalb dafür nicht in Frage.
+    too_few_pitboxes_race: Diese Strecke hat weniger Boxen als das aktuelle Rennen Teilnehmer hat und kommt deshalb dafür nicht in Frage.
+    time_attack_help: Zeitfahr-Events laufen als Training in einer Schleife und fassen alle Ergebnisdateien zusammen. Der Loop-Modus wird erzwungen und alle Sessions außer dem Training werden deaktiviert.
+    time_attack_locked: Wir empfehlen dringend eine gesperrte Entry List, damit Zeitfahr-Events stabil laufen.
+    session_type: Session-Typ
+    enabled: Aktiviert
+    booking_help: Mit aktiviertem Booking-Modus kannst du keine feste Entry List konfigurieren. Der Server startet mit deaktiviertem Pickup-Modus, und die Teilnehmer wählen Auto und Skin während der Booking-Session.
+    is_open: Beitritt
+    is_open_help: Erlaubt den Beitritt während einer Session. Die erste Session eines Events sollte nicht auf „Kein Beitritt“ stehen; spätere Sessions können es, damit nur Fahrer aus der vorherigen Session verbinden können.
+    wait_time: Wartezeit
+    wait_time_help: Sekunden vor dem Start der Session
+    pit_window_start: Beginn Boxenfenster
+    pit_window_start_help: Das Boxenfenster öffnet in der angegebenen Runde/Minute
+    pit_window_end: Ende Boxenfenster
+    pit_window_end_help: Das Boxenfenster schließt in der angegebenen Runde/Minute
+    race_over_time: Nachspielzeit
+    race_over_time_help: Zeit in Sekunden, um das Rennen zu beenden, nachdem der Erste die Ziellinie überquert hat
+    gas_penalty: Gas-Strafe bei Abkürzungen
+    gas_penalty_off: "AUS: Es wird nicht bestraft, Abkürzungen werden aber im Ergebnis-JSON gespeichert."
+    gas_penalty_on: "AN: Jede Abkürzung wird mit der Gas-Strafe (Gas wegnehmen) bestraft."
+    reversed_grid: Umgedrehte Startaufstellung
+    reversed_grid_tooltip: Die Renn-Session wird mit umgedrehter Startaufstellung nach dem Ergebnis des vorherigen Rennens neu gestartet. Im ersten Rennen disqualifizierte Fahrer starten im zweiten Rennen von hinten, auch wenn ihre Position im umgedrehten Bereich liegt.
+    reversed_grid_0: 0 = kein zusätzliches Rennen
+    reversed_grid_minus1: -1 = alle Positionen werden umgedreht (ausgeschiedene Fahrer stehen auf den letzten Plätzen)
+    reversed_grid_1: 1 = ein 2. Rennen findet mit der Startaufstellung aus dem Ergebnis des 1. Rennens statt
+    reversed_grid_x: X = die ersten X Positionen werden für das 2. Rennen umgedreht
+    extra_lap: Extrarunde
+    extra_lap_help: Bei zeitbasierten Rennen wird eine zusätzliche Runde gefahren, nachdem der Führende die Linie überquert hat
+    qualify_max_wait: Max. Wartezeit im Qualifying (Prozent)
+    qualify_max_wait_help: "Faktor für die Restzeit einer Qualifying-Session nach deren Ende: 120 bedeutet, dass 120 % der schnellsten Runde der Session bleiben, um die aktuelle Runde zu beenden."
+    max_clients: Max. Clients
+    max_clients_help: Maximale Anzahl an Clients auf dem Server.
+    pickup_mode: Pickup-Modus
+    pickup_mode_help: "Wenn AUS, startet der Server im Booking-Modus. Achtung: Im Pickup-Modus muss die Entry List mindestens ein Auto enthalten. Hinweis: Ist der Pickup-Modus AUS, müssen Spieler bei Sessions mit Loop-Modus oder umgedrehter Startaufstellung neu verbinden, wenn der Server von vorn startet oder zum zweiten Rennen wechselt."
+    locked_entry_list: Gesperrte Entry List
+    locked_entry_list_help: Nur Spieler aus der Entry List können dem Server beitreten.
+    locked_reverse_warning: Der Server stürzt ab, wenn ein zweites Rennen aktiv ist (umgedrehte Startaufstellung != 0), die Entry List gesperrt und der Pickup-Modus aus ist. Um die Entry List für dieses Event zu sperren, schalte auch den Pickup-Modus ein!
+    driver_swaps: Fahrerwechsel
+    driver_swaps_help: Mit den Fahrerwechseln von ACPitwall können mehrere Fahrer einen Teilnehmer teilen und sich abwechseln. Trage dazu mehrere GUIDs durch ; getrennt bei einem Teilnehmer ein.
+    driver_swaps_note: "Hinweis: Fahrerwechsel liefern nur gültige Ergebnisdateien, wenn die Zeitnahmelinie der Strecke vor oder hinter allen Boxen liegt."
+    swap_min_time: Minimale Fahrerwechselzeit (Sekunden)
+    swap_min_time_help: Mindestdauer eines Fahrerwechsels, damit Nutzer mit schnelleren Rechnern keinen Vorteil haben. Fährt der zweite Fahrer vor Ablauf dieser Zeit los, wird er je nach Konfiguration disqualifiziert oder bestraft.
+    swap_dq_window: Disqualifikationsfenster Fahrerwechsel (Sekunden)
+    swap_dq_window_help: Der Fahrer wird gekickt und disqualifiziert, wenn er beim Fahrerwechsel so viele Sekunden oder mehr vor Ablauf der Mindestzeit losfährt.
+    swap_penalty_window: Strafenfenster Fahrerwechsel (Sekunden)
+    swap_penalty_window_help: Fährt ein Fahrer beim Fahrerwechsel so viele Sekunden oder mehr vor Ablauf der Mindestzeit los, bekommt er eine Strafe in Höhe der restlichen Countdown-Sekunden plus 5 Sekunden.
+    swap_min_count: Mindestanzahl Fahrerwechsel
+    swap_min_count_help: Die Anzahl der Wechsel, die ein Fahrer absolvieren muss. Wer die nötigen Stopps nicht absolviert, wird bestraft (siehe unten).
+    swap_not_enough_penalty: Strafe für zu wenige Fahrerwechsel (Sekunden)
+    swap_not_enough_penalty_help: Strafe in Sekunden für jeden fehlenden Fahrerwechsel unter dem Minimum. Bei 0 wird der Fahrer disqualifiziert.
+    clone_entrant_help: Auto, Skin, Ballast, Restrictor und festes Setup des letzten Teilnehmers werden in neue Teilnehmer übernommen.
+    add_entrants: Teilnehmer hinzufügen
+    booking_enabled: Der Booking-Modus ist aktiv. Du kannst keine festen Fahrer in der Entry List konfigurieren. Der Pickup-Modus wird deaktiviert.
+    abs_allowed: ABS erlaubt
+    tc_allowed: Traktionskontrolle erlaubt
+    stability_allowed: Stabilitätskontrolle erlaubt
+    auto_clutch_allowed: Automatische Kupplung erlaubt
+    tyre_blankets_allowed: Reifenwärmer erlaubt
+    tyre_blankets_help: Zu Beginn der Session und nach einem Boxenstopp haben die Reifen die optimale Temperatur.
+    sol: Sol-Integration
+    sol_help: Ermöglicht 24-Stunden-Zyklen. Der Server behandelt die Zeit dann anders. Die Clients brauchen ebenfalls Sol und Content Manager
+    sol_missing: Sol ist nicht installiert. Bitte <a href="{url}">lade deine Sol-Wetter hoch</a>, wenn du Sol verwenden willst.
+    time_of_day: Tageszeit
+    time_of_day_help: Wird zur Berechnung des Sonnenwinkels (unten) verwendet
+    sun_angle: Sonnenwinkel
+    sun_angle_help: Winkel des Sonnenstands
+    time_multiplier: Tageszeit-Multiplikator
+    time_multiplier_help: Multiplikator für die Tageszeit
+    weather_random: Jede neue Session wählt ihr Wetter <strong>zufällig</strong> aus den folgenden Optionen.
+    weather_delete: Dieses Wetter löschen
+    sol_start: Startdatum/-zeit der Session
+    sol_multiplier: Zeitraffer-Multiplikator
+    sol_multiplier_help: Z. B. vergehen bei 60x 24 Stunden im Spiel in 24 Minuten Echtzeit
+    graphics: Grafik
+    weather_context: Wetter-Kontext der Meisterschaft
+    weather_any: Jede Session
+    weather_practice: Nur Meisterschaftstraining
+    weather_event: Nur Meisterschafts-Event
+    weather_context_help: Lege fest, ob das Wetter nur für Trainings der Meisterschaft (gestartet von der Übersichtsseite der Meisterschaft), nur für die eigentlichen Meisterschafts-Events oder für jede Session verwendet wird
+    temp_ambient: Lufttemperatur (Basis)
+    temp_road: Streckentemperatur (Basis)
+    temp_road_help: Dieser Wert wird zur endgültigen Lufttemperatur addiert. Er darf negativ sein.
+    variation_ambient: Schwankung Lufttemperatur
+    variation_ambient_help: Schwankung der Lufttemperatur. Im Beispiel kann die endgültige Lufttemperatur 16 oder 20 betragen
+    variation_road: Schwankung Streckentemperatur
+    variation_road_help: Schwankung der Streckentemperatur, wie bei der Lufttemperatur
+    wind_min: Windgeschwindigkeit min.
+    wind_min_help: Minimale Windgeschwindigkeit der Session
+    wind_max: Windgeschwindigkeit max.
+    wind_max_help: Maximale Windgeschwindigkeit der Session (höchstens 40)
+    wind_direction: Windrichtung
+    wind_direction_help: Grundrichtung des Windes (wohin er weht); 0 = Norden, 90 = Osten usw.
+    wind_variation: Schwankung Windrichtung
+    wind_variation_help: Schwankung (+ oder -) der Grundrichtung
+    add_weather: Wetter hinzufügen
+    legal_tyres: Erlaubte Reifen
+    fuel_rate: Spritverbrauch
+    fuel_rate_help: "Verbrauchsmultiplikator in Prozent: 0 = kein Verbrauch, 100 = realistisch, höhere Werte erhöhen den Verbrauch"
+    damage: Schadensmultiplikator
+    damage_help: Schaden von 0 (kein Schaden) bis 100 (voller Schaden)
+    tyre_wear: Reifenverschleiß
+    tyre_wear_help: "Verschleißmultiplikator in Prozent: 0 = kein Verschleiß, 100 = realistisch, höhere Werte erhöhen den Verschleiß"
+    virtual_mirror: Virtuellen Spiegel erzwingen
+    virtual_mirror_help: Zwingt die Clients, den virtuellen Spiegel zu verwenden (funktioniert nicht in VR)
+    surface_preset: Oberflächen-Preset
+    surface_preset_help: Presets für die dynamische Strecke
+    grip_start: Grip zu Beginn
+    grip_start_help: "Grip-Niveau in % zu Beginn der Session"
+    randomness: Zufall
+    randomness_help: Zufallsanteil, der zum Start-Grip addiert wird
+    session_transfer: Grip-Übertrag
+    session_transfer_help: "Wie viel des aufgebauten Grips in die nächste Session übernommen wird, 100 -> der gesamte aufgebaute Grip. Beispiel: Unterschied zwischen Start- (90) und End-Grip (96) der Session = 6 %, bei session_transfer = 50 startet die nächste Session mit 93."
+    lap_gain: Runden pro 1 % Grip
+    lap_gain_help: Wie viele Runden nötig sind, um 1 % Grip aufzubauen
+    max_ballast: Max. Ballast (kg)
+    max_ballast_help: Maximaler Gesamtballast, der einem Teilnehmer in der Entry List oder per Admin-Befehl gegeben werden kann
+    tyres_out: Erlaubte Reifen neben der Strecke
+    tyres_out_help: Anzahl der Reifen, die die Track Limits überschreiten dürfen, bevor eine Strafe folgt. -1 deaktiviert das.
+    max_contacts: Max. Kontakte pro Kilometer
+    max_contacts_help: Maximale Anzahl an Kontakten mit anderen Autos pro Kilometer. -1 = unbegrenzt. (In unseren Tests war das Ergebnis gemischt. Mit Vorsicht verwenden.)
+    start_rule: Startregel
+    start_rule_help: Hat das Rennen 3 oder weniger Runden, gilt die Teleport-Strafe.
+    loop_mode: Loop-Modus
+    loop_mode_help: Der Server startet nach dem Ende des vorherigen Events wieder mit dem ersten Event
+    result_screen: Anzeigedauer Ergebnisse
+    result_screen_help: Sekunden, die der Ergebnisbildschirm zwischen den Sessions angezeigt wird
+    disable_drs: DRS-Zonen deaktivieren
+    disable_drs_help: Wenn AN, wird die drs_zones.ini der Strecke vorübergehend durch eine Datei ersetzt, die DRS auf der ganzen Strecke deaktiviert. Nützlich für Strecken ohne klar definierte Zonen oder wenn du ohne DRS fahren willst!
+    disable_drs_note: "Hinweis: Dabei werden echte Streckendateien geändert. Wenn mehrere Server denselben Content-Ordner nutzen, kann das Probleme machen, sobald gleichzeitig Rennen auf derselben Strecke laufen."
+    server_options: Serveroptionen
+    override_password: Serverpasswort überschreiben
+    override_password_help: Wenn aktiv, wird das Serverpasswort für dieses Event ersetzt.
+    replacement_password: Ersatzpasswort
+    replacement_password_help: Bleibt das Feld leer, hat der Server kein Passwort.
+    force_stop_time: Zwangsstopp nach
+    force_stop_time_help: "Maximale Laufzeit dieses Events in Minuten (über alle Sessions), danach wird der Server zwangsweise gestoppt. So funktioniert die Streckenrotation der Auto-Schleife auch ohne Fahrer auf dem Server. 0 deaktiviert das. ACHTUNG: Bei einem Zwangsstopp werden keine Ergebnisdateien geschrieben!"
+    force_stop_drivers: Zwangsstopp auch mit Fahrern
+    force_stop_drivers_help: Wenn aktiv, wird der Server nach Ablauf der Zwangsstopp-Zeit auch dann gestoppt, wenn noch Fahrer verbunden sind.
+  champ_event:
+    overwrite: Dieses bearbeitete Setup überschreibt das {position} Event der Meisterschaft <strong>{name}</strong>.
+    added: Beim Speichern wird dieses Event zur Meisterschaft <strong>{name}</strong> hinzugefügt. Du kannst unten weitere Events hinzufügen oder, wenn du fertig bist, die Einrichtung der Meisterschaft hier abschließen.
+    add_another: Weiteres Event hinzufügen
+    finish_help: Dieses Event-Setup speichern und die Meisterschaft fertigstellen
+    save: Event speichern
+  rw:
+    parent_sessions: Vorherige Session(s)
+    entry_list: Entry List des Rennwochenendes
+    parent_sessions_help: Die vorherige Session legt fest, aus welcher Session die Entry List dieser Session gebildet wird. Das Ergebnis der vorherigen Session (plus angewendete Filter) bildet die Startaufstellung dieser Session. Wird „Keine vorherige Session“ gewählt, werden alle anderen Auswahlen ignoriert.
+    session_points: Punkte der Session
+    session_points_help: Jede Session des Rennwochenendes und jede Meisterschaftsklasse hat ihre eigene Punktewertung. Training und Qualifying haben standardmäßig 0 Punkte, können aber Punkte vergeben, wenn du willst.
+    overwrite: Dieses bearbeitete Setup überschreibt die {position} Session des Rennwochenendes <strong>{name}</strong>.
+    added: Beim Speichern wird diese Session zum Rennwochenende <strong>{name}</strong> hinzugefügt. Du kannst unten weitere Sessions hinzufügen oder, wenn du fertig bist, die Einrichtung des Rennwochenendes hier abschließen.
+    add_another: Weitere Session hinzufügen
+    finish: Rennwochenende fertigstellen
+    finish_help: Dieses Session-Setup speichern und das Rennwochenende fertigstellen
+    save: Session speichern
+  save:
+    title: Eigenes Rennen speichern
+    name: Name des eigenen Rennens
+    name_placeholder: Ein Name, an dem du dieses Rennen erkennst
+    name_help: Dieser Name wird auf der Seite „Eigene Rennen“ angezeigt.
+    scheduled: Geplantes Rennen
+    scheduled_help: Wenn beide Felder ausgefüllt sind, startet das Rennen zum geplanten Zeitpunkt.
+    scheduled_server: Geplant auf Server
+    scheduled_server_help: Der Server, auf dem das Rennen läuft, wenn oben eine Startzeit gesetzt ist.
+    save_help: Dieses Setup speichern, ohne das Rennen zu starten
+    start_help: Dieses Setup speichern und das Rennen starten

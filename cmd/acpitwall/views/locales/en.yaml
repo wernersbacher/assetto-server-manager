@@ -412,3 +412,10 @@ js:
   date:
     compact: "ddd D MMM, HH:mm"
     compact_year: "ddd D MMM YYYY, HH:mm"
+
+# suffix of ordinal numbers, by the English suffix (1st, 2nd, 3rd, 4th)
+ordinal:
+  st: "st"
+  nd: "nd"
+  rd: "rd"
+  th: "th"

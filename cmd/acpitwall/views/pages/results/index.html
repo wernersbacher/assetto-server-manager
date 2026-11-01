@@ -78,7 +78,7 @@
                     {{ if $result.IsTimeAttack }}
                         {{ t "results.time_attack" }}
                     {{ else }}
-                        {{ $result.Type }}
+                        {{ sessionName $result.Type }}
                     {{ end }}
                 </td>
                 <td>
