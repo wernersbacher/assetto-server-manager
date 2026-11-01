@@ -177,16 +177,6 @@
                 <a class="nav-item-link {{ if hasPrefix "/calendar" $path }}active{{ end }}" href="/calendar">{{ template "icon" "calendar" }}{{ t "nav.calendar" }}</a>
             </div>
 
-            {{ if WriteAccess }}
-                <div class="nav-group">
-                    <div class="nav-group-title">{{ t "nav.organize" }}</div>
-                    <a class="nav-item-link {{ if hasPrefix "/quick" $path }}active{{ end }}" href="{{ serverURL "/quick" }}">{{ template "icon" "quick" }}{{ t "nav.quick_race" }}</a>
-                    <a class="nav-item-link {{ if eq $path "/custom/new" }}active{{ end }}" href="{{ serverURL "/custom/new" }}">{{ template "icon" "plus" }}{{ t "nav.new_custom_race" }}</a>
-                    <a class="nav-item-link" href="/championships/new">{{ template "icon" "plus" }}{{ t "nav.new_championship" }}</a>
-                    <a class="nav-item-link" href="/race-weekends/new">{{ template "icon" "plus" }}{{ t "nav.new_race_weekend" }}</a>
-                </div>
-            {{ end }}
-
             <div class="nav-group">
                 <div class="nav-group-title">{{ t "nav.content" }}</div>
                 <a class="nav-item-link {{ if hasPrefix "/track" $path }}active{{ end }}" href="/tracks">{{ template "icon" "track" }}{{ t "nav.tracks" }}</a>
@@ -223,11 +213,6 @@
                     </div>
                 {{ end }}
             {{ end }}
-
-            <div class="app-sidebar-footer">
-                <a href="/changelog">{{ t "nav.changelog" }}</a>
-                <span>{{ t "nav.version" "version" Version }}</span>
-            </div>
         </nav>
 
         <div class="app-sidebar-backdrop" data-sidebar-toggle></div>

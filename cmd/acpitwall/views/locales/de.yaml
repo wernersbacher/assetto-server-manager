@@ -73,7 +73,6 @@ nav:
   race_weekends: Rennwochenenden
   custom_races: Eigene Rennen
   calendar: Kalender
-  organize: Organisieren
   quick_race: Schnelles Rennen
   new_custom_race: Neues eigenes Rennen
   new_championship: Neue Meisterschaft
@@ -94,7 +93,6 @@ nav:
   current_config: Aktuelle Konfiguration
   plugins: Plugins
   changelog: Änderungen
-  version: Version {version}
 
 footer:
   report_bug: Fehler melden

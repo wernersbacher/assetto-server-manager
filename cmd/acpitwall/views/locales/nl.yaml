@@ -73,7 +73,6 @@ nav:
   race_weekends: Raceweekenden
   custom_races: Eigen races
   calendar: Kalender
-  organize: Organiseren
   quick_race: Snelle race
   new_custom_race: Nieuwe eigen race
   new_championship: Nieuw kampioenschap
@@ -94,7 +93,6 @@ nav:
   current_config: Huidige configuratie
   plugins: Plugins
   changelog: Wijzigingen
-  version: Versie {version}
 
 footer:
   report_bug: Bug melden
