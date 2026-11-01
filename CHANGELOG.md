@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The results list has a table header including an Actions column, and the date of each result is a real link (keyboard accessible).
+
 * The Teams page has a search field (team name or owner), shows the other teams in pages of 25, hides less important columns on small screens and opens the create form with a button in the page header.
 
 * The audit log is split into pages of 100 entries and can be filtered by user, method and date range.

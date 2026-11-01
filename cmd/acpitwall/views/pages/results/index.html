@@ -66,15 +66,17 @@
         {{ template "empty-state" dict "Icon" "results" "Text" (t "results.none") }}
     {{ else }}
     <div class="table-card"><table class="table results-table">
+        <thead>
         <tr>
             <th>{{ t "home.date" }}</th>
             <th>{{ t "home.session" }}</th>
             <th>{{ t "results.track_name" }}</th>
             <th class="d-none d-md-table-cell">{{ t "home.entrants" }}</th>
             {{ if DeleteAccess }}
-                <th></th>
+                <th class="text-center">{{ t "common.actions" }}</th>
             {{ end }}
         </tr>
+        </thead>
         {{ if and (not .Results) .Filter.IsActive }}
             <tr>
                 <td colspan="5" class="text-center">{{ t "results.filter.no_match" }}</td>
@@ -83,7 +85,7 @@
         {{ range $i, $result := .Results }}
             <tr class="row-link" data-href="/results/{{ $result.SessionFile }}">
                 <td class="text-nowrap">
-                    {{ localFormat $result.Date }}
+                    <a href="/results/{{ $result.SessionFile }}">{{ localFormat $result.Date }}</a>
                     {{ with index $.ServerNames $result.SessionFile }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
                 </td>
                 <td>
