@@ -35,7 +35,7 @@ jobs:
       - run: go vet ./...
       - name: Test
         run: |
-          mkdir -p cmd/acpitwall/assetto/cfg cmd/acpitwall/assetto/results
+          mkdir -p cmd/acpitwall/assetto/cfg cmd/acpitwall/assetto/results cmd/acpitwall/assetto/content/cars cmd/acpitwall/assetto/content/tracks
           cp fixtures/results/*.json cmd/acpitwall/assetto/results
           go test -race ./...
 
