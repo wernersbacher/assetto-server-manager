@@ -130,3 +130,28 @@ func TestMatch(t *testing.T) {
 		}
 	}
 }
+
+func TestMessageIsTranslated(t *testing.T) {
+	b, err := NewBundle(map[string][]byte{
+		"en.yaml": []byte(`{entry: "Entry {n}: {problem}", car: "choose a car"}`),
+		"de.yaml": []byte(`{entry: "Eintrag {n}: {problem}", car: "wähle ein Auto"}`),
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	m := Msg("entry", "Entry {n}: {problem}", "n", 3, "problem", Msg("car", "choose a car"))
+
+	if got := m.Error(); got != "Entry 3: choose a car" {
+		t.Errorf("English: got %q", got)
+	}
+
+	if got := b.Translator("de").Message(m); got != "Eintrag 3: wähle ein Auto" {
+		t.Errorf("German: got %q", got)
+	}
+
+	if got := b.Translator("de").Message(Msg("missing", "Not in {x}", "x", "catalog")); got != "Not in catalog" {
+		t.Errorf("missing key: got %q", got)
+	}
+}

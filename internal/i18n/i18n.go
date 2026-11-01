@@ -301,6 +301,64 @@ func (t *Translator) Messages(prefix string) map[string]string {
 	return out
 }
 
+// Message is a text made by domain code (e.g. a validation error) which the UI shows in the language of the request:
+// the key and placeholders of a catalog message plus its English text, which is used outside the UI (logs, Error()) and
+// as the fallback. The catalog test checks that the English text of every Msg call is the one of the English catalog.
+type Message struct {
+	Key     string
+	English string
+	Args    []interface{}
+}
+
+// Msg returns the message with the key; args are name/value pairs for the placeholders of the message:
+// Msg("validation.race.entry_car", "Entry {entry}: choose a car.", "entry", 3) in this package.
+func Msg(key, english string, args ...interface{}) Message {
+	return Message{Key: key, English: english, Args: args}
+}
+
+// String returns the English text.
+func (m Message) String() string {
+	return fill(m.English, m.Args)
+}
+
+// Error returns the English text, so that a Message can be returned as an error.
+func (m Message) Error() string {
+	return m.String()
+}
+
+// I18nMessage returns the message itself (see Translatable).
+func (m Message) I18nMessage() Message {
+	return m
+}
+
+// Translatable is implemented by errors and values which carry a Message, e.g. types which embed one.
+type Translatable interface {
+	I18nMessage() Message
+}
+
+// Message translates a message (the English text if the catalogs miss its key). Placeholder values which are Messages
+// themselves are translated too.
+func (t *Translator) Message(m Message) string {
+	msg, ok := t.lookup(m.Key)
+
+	if !ok {
+		msg = m.English
+	}
+
+	args := make([]interface{}, len(m.Args))
+
+	for i, arg := range m.Args {
+		if inner, ok := arg.(Translatable); ok && i%2 == 1 {
+			args[i] = t.Message(inner.I18nMessage())
+			continue
+		}
+
+		args[i] = arg
+	}
+
+	return fill(msg, args)
+}
+
 // fill replaces the placeholders {name} of msg with the values of the name/value pairs in args.
 func fill(msg string, args []interface{}) string {
 	if len(args) < 2 || !strings.Contains(msg, "{") {

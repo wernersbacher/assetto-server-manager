@@ -2,6 +2,7 @@ package web
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -55,6 +56,50 @@ func T(r *http.Request, key string, args ...interface{}) string {
 	}
 
 	return bundle.Translator(RequestLanguage(r, bundle)).T(key, args...)
+}
+
+// TM translates a message made by domain code (see i18n.Message) for the language of the request.
+func TM(r *http.Request, m i18n.Message) string {
+	bundle, _ := r.Context().Value(bundleContextKey{}).(*i18n.Bundle)
+
+	if bundle == nil {
+		return m.String()
+	}
+
+	return bundle.Translator(RequestLanguage(r, bundle)).Message(m)
+}
+
+// ErrorText returns the text of an error for the user: translated if the error (or one it wraps) carries an
+// i18n.Message, else its Error().
+func ErrorText(r *http.Request, err error) string {
+	var translatable i18n.Translatable
+
+	if errors.As(err, &translatable) {
+		return TM(r, translatable.I18nMessage())
+	}
+
+	return err.Error()
+}
+
+// translateValue is the template function tm: messages (and errors carrying one) are translated, other values are
+// printed as they are.
+func translateValue(tr *i18n.Translator, v interface{}) string {
+	switch v := v.(type) {
+	case i18n.Translatable:
+		return tr.Message(v.I18nMessage())
+	case error:
+		var translatable i18n.Translatable
+
+		if errors.As(v, &translatable) {
+			return tr.Message(translatable.I18nMessage())
+		}
+
+		return v.Error()
+	case nil:
+		return ""
+	default:
+		return fmt.Sprint(v)
+	}
 }
 
 // lookupForRequest returns the message of the key in the language of the request, false if there is none (or no
@@ -122,6 +167,10 @@ func translationFuncs(bundle *i18n.Bundle, tr *i18n.Translator) template.FuncMap
 		},
 		"tHTML": func(key string, args ...interface{}) template.HTML {
 			return template.HTML(tr.T(key, escapeArgs(args)...))
+		},
+		// {{ tm .Message }}: a message made by domain code (i18n.Message, or an error carrying one)
+		"tm": func(v interface{}) string {
+			return translateValue(tr, v)
 		},
 		"lang": func() string {
 			return tr.Lang()
@@ -194,4 +243,3 @@ func escapeArgs(args []interface{}) []interface{} {
 
 	return out
 }
-
