@@ -173,6 +173,7 @@ race:
     intro: Circuit, auto's, sessies, Entry List en regels voor deze race.
     fix_fields: "Corrigeer deze velden voordat je opslaat:"
     save_championship_event: Kampioenschapsevent opslaan
+    tab_race_settings: Raceopties
     save_race_weekend_session: Sessie van raceweekend opslaan
     save_race: Race opslaan
     pit_boxes: Pitboxen

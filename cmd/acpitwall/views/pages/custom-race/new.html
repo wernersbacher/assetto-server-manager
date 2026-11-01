@@ -82,6 +82,47 @@
             </div>
         {{ end }}
 
+        <div class="championship-tabbar mt-3">
+            <ul class="nav nav-tabs" role="tablist" id="race-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" id="tab-track" data-toggle="tab" href="#pane-track" role="tab" aria-controls="pane-track" aria-selected="true">{{ if not (or .IsChampionship .IsRaceWeekend) }}{{ t "race.track_and_cars" }}{{ else }}{{ t "home.track" }}{{ end }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tab-sessions" data-toggle="tab" href="#pane-sessions" role="tab" aria-controls="pane-sessions" aria-selected="false">{{ if not .IsRaceWeekend }}{{ t "home.sessions" }}{{ else }}{{ t "home.session" }}{{ end }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tab-entrylist" data-toggle="tab" href="#pane-entrylist" role="tab" aria-controls="pane-entrylist" aria-selected="false">{{ t "race.entry_list" }}</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="tab-racesettings" data-toggle="tab" href="#pane-racesettings" role="tab" aria-controls="pane-racesettings" aria-selected="false">{{ t "race.form.tab_race_settings" }}</a>
+                </li>
+                {{ if $.ShowOverridePasswordCard }}
+                    <li class="nav-item">
+                        <a class="nav-link" id="tab-server" data-toggle="tab" href="#pane-server" role="tab" aria-controls="pane-server" aria-selected="false">{{ t "race.form.server_options" }}</a>
+                    </li>
+                {{ end }}
+            </ul>
+
+            {{ if .IsEditing }}
+                {{ if $.IsChampionship }}
+                    <button class="btn btn-success championship-tabbar-save" name="action" value="saveChampionship" type="submit">{{ t "race.form.save_championship_event" }}</button>
+                {{ else if $.IsRaceWeekend }}
+                    <button class="btn btn-success championship-tabbar-save" name="action" value="saveRaceWeekend" type="submit">{{ t "race.form.save_race_weekend_session" }}</button>
+                {{ else }}
+                    <button type="submit" class="btn btn-success championship-tabbar-save" name="action" value="justSave">{{ t "race.form.save_race" }}</button>
+                {{ end }}
+            {{ end }}
+        </div>
+
+        {{/*
+            IMPORTANT, document order: the server reads repeated fields (Cars, entrants, sessions, ...) by position, so
+            the panes keep the order of the cards they hold (track, sessions, entry list, race settings, server).
+            Only wrap cards in panes, never move a card across another one. The save cards stay below the tabs, so
+            they are always reachable.
+        */}}
+        <div class="tab-content championship-tab-content">
+            <div class="tab-pane show active" id="pane-track" role="tabpanel" aria-labelledby="tab-track">
+
         {{ if .IsChampionship }}{{ if .Championship.HasRaceSettings }}
             <div class="card mt-3 border-secondary">
                 <div class="card-header">
@@ -154,15 +195,6 @@
             <div class="card-header">
                 <strong>{{ if not (or .IsChampionship .IsRaceWeekend) }}{{ t "race.track_and_cars" }}{{ else }}{{ t "home.track" }}{{ end }}</strong>
 
-                {{ if .IsEditing }}
-                    {{ if $.IsChampionship }}
-                        <button class="btn btn-success float-right" name="action" value="saveChampionship" type="submit">{{ t "race.form.save_championship_event" }}</button>
-                    {{ else if $.IsRaceWeekend }}
-                        <button class="btn btn-success float-right" name="action" value="saveRaceWeekend" type="submit">{{ t "race.form.save_race_weekend_session" }}</button>
-                    {{ else }}
-                        <button type="submit" class="btn btn-success float-right" name="action" value="justSave">{{ t "race.form.save_race" }}</button>
-                    {{ end }}
-                {{ end }}
             </div>
 
             <div class="card-body">
@@ -290,23 +322,8 @@
             </div>
         </div>
 
-        {{ if and .IsChampionship .ChampionshipHasAtLeastOnceRace }}
-            <div class="card mt-3 border-primary">
-                <div class="card-header text-white bg-primary">
-                    <strong>{{ t "race.champ_save.title" }}</strong>
-                </div>
-                <div class="card-body">
-                    <p>{{ t "race.champ_save.identical" }}</p>
-
-                    <p>{{ tHTML "race.champ_save.added" "name" .Championship.Name }}</p>
-
-                    <div class="float-right">
-                        <button class="btn btn-primary mt-5" data-toggle="tooltip" name="action" value="addAnotherRace" type="submit" title="{{ t "race.champ_save.add_another_help" }}">{{ t "race.champ_save.add_another" }}</button>
-                        <button class="btn btn-success mt-5" data-toggle="tooltip" name="action" value="saveChampionship" type="submit" title="{{ t "race.champ_save.finish_help" }}">{{ t "race.champ_save.finish" }}</button>
-                    </div>
-                </div>
             </div>
-        {{ end }}
+            <div class="tab-pane" id="pane-sessions" role="tabpanel" aria-labelledby="tab-sessions">
 
 
         <div class="card mt-3 border-secondary">
@@ -709,6 +726,8 @@
         </div>
 
 
+            </div>
+            <div class="tab-pane" id="pane-entrylist" role="tabpanel" aria-labelledby="tab-entrylist">
         <div class="card mt-3 border-secondary">
             <div class="card-header">
                 <strong>{{ t "race.entry_list" }}</strong>
@@ -950,6 +969,8 @@
             </div>
         </div>
 
+            </div>
+            <div class="tab-pane" id="pane-racesettings" role="tabpanel" aria-labelledby="tab-racesettings">
         <div class="card mt-3 border-secondary">
             <div class="card-header">
                 <strong>{{ t "race.assists" }}</strong>
@@ -1752,89 +1773,111 @@
             </div>
         </div>
 
-        {{ if $.ShowOverridePasswordCard }}
-            <div class="card mt-3 border-secondary">
-                <div class="card-header">
-                    <strong>{{ t "race.form.server_options" }}</strong>
-                </div>
-                <div class="card-body">
-                    <div class="form-group row">
-                        <label for="OverridePassword" class="col-sm-3 col-form-label">{{ t "race.form.override_password" }}</label>
-
-                        <div class="col-sm-9">
-
-                            <input
-                                    class="form-control"
-                                    type="checkbox"
-                                    id="OverridePassword"
-                                    name="OverridePassword"
-                                    {{ if .OverridePassword }}
-                                        checked="checked"
-                                    {{ end }}
-                            ><br/>
-
-                            <small>{{ t "race.form.override_password_help" }}</small>
-                        </div>
+            </div>
+            {{ if $.ShowOverridePasswordCard }}
+            <div class="tab-pane" id="pane-server" role="tabpanel" aria-labelledby="tab-server">
+                <div class="card mt-3 border-secondary">
+                    <div class="card-header">
+                        <strong>{{ t "race.form.server_options" }}</strong>
                     </div>
-
-                    <div class="form-group row" id="ReplacementPasswordWrapper" {{ if not .OverridePassword }} style="display: none;" {{ end }}>
-                        <label for="ReplacementPassword" class="col-sm-3 col-form-label">{{ t "race.form.replacement_password" }}</label>
-
-                        <div class="col-sm-9">
-
-                            <input
-                                    class="form-control"
-                                    type="password"
-                                    autocomplete="new-password"
-                                    id="ReplacementPassword"
-                                    name="ReplacementPassword"
-                                    value="{{ .ReplacementPassword }}"
-                            >
-
-                            <small>{{ t "race.form.replacement_password_help" }}</small>
-                        </div>
-                    </div>
-
-                    {{ if and (not .IsChampionship) (not .IsRaceWeekend) }}
+                    <div class="card-body">
                         <div class="form-group row">
-                            <label for="ForceStopTime" class="col-sm-3 col-form-label">{{ t "race.form.force_stop_time" }}</label>
-
-                            <div class="col-sm-9">
-                                <input
-                                        type="number"
-                                        id="ForceStopTime"
-                                        name="ForceStopTime"
-                                        class="form-control"
-                                        {{ with .ForceStopTime }}
-                                            value="{{ . }}"
-                                        {{ end }}
-                                        min="0"
-                                >
-
-                                <small>{{ t "race.form.force_stop_time_help" }}</small>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="ForceStopWithDrivers" class="col-sm-3 col-form-label">{{ t "race.form.force_stop_drivers" }}</label>
+                            <label for="OverridePassword" class="col-sm-3 col-form-label">{{ t "race.form.override_password" }}</label>
 
                             <div class="col-sm-9">
 
                                 <input
                                         class="form-control"
                                         type="checkbox"
-                                        id="ForceStopWithDrivers"
-                                        name="ForceStopWithDrivers"
-                                        {{ if .ForceStopWithDrivers }}
+                                        id="OverridePassword"
+                                        name="OverridePassword"
+                                        {{ if .OverridePassword }}
                                             checked="checked"
                                         {{ end }}
                                 ><br/>
 
-                                <small>{{ t "race.form.force_stop_drivers_help" }}</small>
+                                <small>{{ t "race.form.override_password_help" }}</small>
                             </div>
                         </div>
-                    {{ end }}
 
+                        <div class="form-group row" id="ReplacementPasswordWrapper" {{ if not .OverridePassword }} style="display: none;" {{ end }}>
+                            <label for="ReplacementPassword" class="col-sm-3 col-form-label">{{ t "race.form.replacement_password" }}</label>
+
+                            <div class="col-sm-9">
+
+                                <input
+                                        class="form-control"
+                                        type="password"
+                                        autocomplete="new-password"
+                                        id="ReplacementPassword"
+                                        name="ReplacementPassword"
+                                        value="{{ .ReplacementPassword }}"
+                                >
+
+                                <small>{{ t "race.form.replacement_password_help" }}</small>
+                            </div>
+                        </div>
+
+                        {{ if and (not .IsChampionship) (not .IsRaceWeekend) }}
+                            <div class="form-group row">
+                                <label for="ForceStopTime" class="col-sm-3 col-form-label">{{ t "race.form.force_stop_time" }}</label>
+
+                                <div class="col-sm-9">
+                                    <input
+                                            type="number"
+                                            id="ForceStopTime"
+                                            name="ForceStopTime"
+                                            class="form-control"
+                                            {{ with .ForceStopTime }}
+                                                value="{{ . }}"
+                                            {{ end }}
+                                            min="0"
+                                    >
+
+                                    <small>{{ t "race.form.force_stop_time_help" }}</small>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label for="ForceStopWithDrivers" class="col-sm-3 col-form-label">{{ t "race.form.force_stop_drivers" }}</label>
+
+                                <div class="col-sm-9">
+
+                                    <input
+                                            class="form-control"
+                                            type="checkbox"
+                                            id="ForceStopWithDrivers"
+                                            name="ForceStopWithDrivers"
+                                            {{ if .ForceStopWithDrivers }}
+                                                checked="checked"
+                                            {{ end }}
+                                    ><br/>
+
+                                    <small>{{ t "race.form.force_stop_drivers_help" }}</small>
+                                </div>
+                            </div>
+                        {{ end }}
+
+                    </div>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+
+        {{ if and .IsChampionship .ChampionshipHasAtLeastOnceRace }}
+            <div class="card mt-3 border-primary">
+                <div class="card-header text-white bg-primary">
+                    <strong>{{ t "race.champ_save.title" }}</strong>
+                </div>
+                <div class="card-body">
+                    <p>{{ t "race.champ_save.identical" }}</p>
+
+                    <p>{{ tHTML "race.champ_save.added" "name" .Championship.Name }}</p>
+
+                    <div class="float-right">
+                        <button class="btn btn-primary mt-5" data-toggle="tooltip" name="action" value="addAnotherRace" type="submit" title="{{ t "race.champ_save.add_another_help" }}">{{ t "race.champ_save.add_another" }}</button>
+                        <button class="btn btn-success mt-5" data-toggle="tooltip" name="action" value="saveChampionship" type="submit" title="{{ t "race.champ_save.finish_help" }}">{{ t "race.champ_save.finish" }}</button>
+                    </div>
                 </div>
             </div>
         {{ end }}

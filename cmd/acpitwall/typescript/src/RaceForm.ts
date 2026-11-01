@@ -1,7 +1,7 @@
 // RaceForm enhances the long race setup forms (custom race, championship event, race weekend session, quick race,
 // championship and race weekend settings). The existing top level cards are kept as they are (so all the scripts
 // that find fields inside them keep working) and are marked as sections. On top of that it adds
-//  - on forms with Bootstrap tabs (the championship form) no section index: the tabs are the navigation, they get the
+//  - on forms with Bootstrap tabs (the championship form and the race editor) no section index: the tabs are the navigation, they get the
 //    status markers instead, and the tab with an invalid field or a server error is opened,
 //  - a sticky section index (a horizontally scrolling strip, so it also works on phones) with status markers
 //    (error / edited / complete) per section,
@@ -283,11 +283,15 @@ export class RaceForm {
     // showTabOf opens the tab pane that holds the element (no-op without tabs). Panes switch synchronously (no fade),
     // so the element is displayed again right away and the browser can focus it.
     private static showTabOf(el: HTMLElement) {
-        const $pane = $(el).closest(".tab-pane");
+        // panes can be nested (the session tabs of the race editor are inside of its Sessions pane): open the outer
+        // pane first, then the inner ones
+        $(el).parents(".tab-pane").toArray().reverse().forEach((pane) => {
+            const $pane = $(pane);
 
-        if ($pane.length && !$pane.hasClass("active") && $pane.attr("id")) {
-            $("a[data-toggle=tab][href=\"#" + $pane.attr("id") + "\"]").first().tab("show");
-        }
+            if (!$pane.hasClass("active") && $pane.attr("id")) {
+                $("a[data-toggle=tab][href=\"#" + $pane.attr("id") + "\"]").first().tab("show");
+            }
+        });
     }
 
     // buildTabs adds the status markers (error / edited / complete) to the tab links, and remembers the active tab per

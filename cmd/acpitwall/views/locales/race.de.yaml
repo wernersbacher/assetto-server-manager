@@ -173,6 +173,7 @@ race:
     intro: Strecke, Autos, Sessions, Entry List und Regeln für dieses Rennen.
     fix_fields: "Bitte korrigiere diese Felder vor dem Speichern:"
     save_championship_event: Meisterschafts-Event speichern
+    tab_race_settings: Rennoptionen
     save_race_weekend_session: Session des Rennwochenendes speichern
     save_race: Rennen speichern
     pit_boxes: Boxen

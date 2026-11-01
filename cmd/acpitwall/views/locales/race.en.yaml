@@ -173,6 +173,7 @@ race:
     intro: Track, cars, sessions, entry list and rules for this race.
     fix_fields: "Please fix these fields before saving:"
     save_championship_event: Save Championship Event
+    tab_race_settings: Race Settings
     save_race_weekend_session: Save Race Weekend Session
     save_race: Save Race
     pit_boxes: Pit Boxes

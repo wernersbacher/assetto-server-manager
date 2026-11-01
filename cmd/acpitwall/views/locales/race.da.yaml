@@ -173,6 +173,7 @@ race:
     intro: Bane, biler, sessioner, Entry List og regler for dette løb.
     fix_fields: "Ret disse felter, før du gemmer:"
     save_championship_event: Gem mesterskabsevent
+    tab_race_settings: Løbsindstillinger
     save_race_weekend_session: Gem session i løbsweekend
     save_race: Gem løb
     pit_boxes: Pitbokse

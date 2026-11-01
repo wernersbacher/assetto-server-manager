@@ -232,7 +232,10 @@ export function initMultiSelect($element) {
     $element.each(function (i, elem) {
         let $elem = $(elem);
 
-        if ($elem.is(":hidden")) {
+        // a select in an inactive tab of the race editor is not hidden on purpose, only its tab is
+        const hidden = $elem.closest(".tab-pane").length ? !liveItems($elem).length : $elem.is(":hidden");
+
+        if (hidden) {
             return true;
         }
 
@@ -484,7 +487,7 @@ class RaceSetup {
             $bookingSwitch.bootstrapSwitch('state', false);
             $bookingSwitch.bootstrapSwitch('disabled', true);
 
-            $(".tab-pane").removeClass("active show");
+            $(".sessions .tab-pane").removeClass("active show");
 
             let $sessionNavLink = $(".session-nav-link");
 
