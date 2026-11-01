@@ -1,21 +1,19 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/accounts.createAccountTemplateVars */}}
 
-{{ define "title" }}
-    {{ if $.IsEditing }}Edit{{ else }}Add{{ end }} an Account
-{{ end }}
+{{ define "title" }}{{ if $.IsEditing }}{{ t "accounts.edit_title" }}{{ else }}{{ t "accounts.add_title" }}{{ end }}{{ end }}
 
 {{ define "content" }}
-    <div class="page-header"><div><h1>{{ if $.IsEditing }}Edit{{ else }}Add{{ end }} an Account</h1><p>Accounts decide what a person may do in ACPitwall.</p></div></div>
+    <div class="page-header"><div><h1>{{ if $.IsEditing }}{{ t "accounts.edit_title" }}{{ else }}{{ t "accounts.add_title" }}{{ end }}</h1><p>{{ t "accounts.edit_intro" }}</p></div></div>
 
     <div class="form-page"><div class="card admin-card">
         <div class="card-header">
-            Account details
+            {{ t "accounts.details" }}
         </div>
 
         <div class="card-body">
             <form method="post" {{ if $.IsEditing }}action="/accounts/edit/{{ .Account.ID.String }}"{{ else }}action="/accounts/new"{{ end }}>
                 <div class="form-group row">
-                    <label for="Username" class="col-sm-3 col-form-label">Username</label>
+                    <label for="Username" class="col-sm-3 col-form-label">{{ t "accounts.username" }}</label>
 
                     <div class="col-sm-9">
                         <input
@@ -23,7 +21,7 @@
                             id="Username"
                             name="Username"
                             class="form-control"
-                            placeholder="username"
+                            placeholder="{{ t "accounts.username_placeholder" }}"
                             {{ with .Account.Name }}
                                 value="{{ . }}"
                             {{ end }}
@@ -32,25 +30,25 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="Group" class="col-sm-3 col-form-label">Group</label>
+                    <label for="Group" class="col-sm-3 col-form-label">{{ t "accounts.group" }}</label>
 
                     <div class="col-sm-9">
                         <select class="form-control" id="Group" name="Group">
-                            <option value="read" {{ if eq (AccountGroup .Account) "read" }}selected="selected"{{ end }}>Read - Read races, content, and championships</option>
-                            <option value="write" {{ if eq (AccountGroup .Account) "write" }}selected="selected"{{ end }}>Write - Read and Write races, content and championships</option>
-                            <option value="delete" {{ if eq (AccountGroup .Account) "delete" }}selected="selected"{{ end }}>Delete - Read, Write, Delete races, content and championships</option>
-                            <option value="admin" {{ if eq (AccountGroup .Account) "admin" }}selected="selected"{{ end }}>Admin - Full access</option>
-                            <option value="no_access" {{ if eq (AccountGroup .Account) "no_access" }}selected="selected"{{ end }}>No Access - user cannot access anything.</option>
+                            <option value="read" {{ if eq (AccountGroup .Account) "read" }}selected="selected"{{ end }}>{{ t "accounts.group_option.read" }}</option>
+                            <option value="write" {{ if eq (AccountGroup .Account) "write" }}selected="selected"{{ end }}>{{ t "accounts.group_option.write" }}</option>
+                            <option value="delete" {{ if eq (AccountGroup .Account) "delete" }}selected="selected"{{ end }}>{{ t "accounts.group_option.delete" }}</option>
+                            <option value="admin" {{ if eq (AccountGroup .Account) "admin" }}selected="selected"{{ end }}>{{ t "accounts.group_option.admin" }}</option>
+                            <option value="no_access" {{ if eq (AccountGroup .Account) "no_access" }}selected="selected"{{ end }}>{{ t "accounts.group_option.no_access" }}</option>
                         </select>
 
-                        <small>Please note that Groups are per ACPitwall instance. In a Multi-Server environment, you can set different groups for users per server.</small>
+                        <small>{{ t "accounts.group_help" }}</small>
                     </div>
                 </div>
 
 
                 {{ if gt (len .Account.Groups) 1 }}
                     <div class="form-group row">
-                        <label for="UpdateGroupForAllServers" class="col-sm-3 col-form-label">Update Group For All Servers?</label>
+                        <label for="UpdateGroupForAllServers" class="col-sm-3 col-form-label">{{ t "accounts.group_all_servers" }}</label>
 
                         <div class="col-sm-9">
                             <input type="checkbox"
@@ -58,7 +56,7 @@
                                    name="UpdateGroupForAllServers"
                             ><br>
 
-                            <small>If on, the group selected above will be applied to the user's account in all servers of this Multi-Server instance.</small>
+                            <small>{{ t "accounts.group_all_servers_help" }}</small>
                         </div>
                     </div>
 
@@ -68,27 +66,27 @@
 
                 {{ if $.IsEditing }}
                     <div class="form-group row">
-                        <label for="DefaultPassword" class="col-sm-3 col-form-label">Reset Password</label>
+                        <label for="DefaultPassword" class="col-sm-3 col-form-label">{{ t "accounts.reset_password" }}</label>
 
                         <div class="col-sm-9">
-                            <a class="btn btn-primary" href="/accounts/reset-password/{{ .Account.ID.String }}">Reset Password</a>
+                            <a class="btn btn-primary" href="/accounts/reset-password/{{ .Account.ID.String }}">{{ t "accounts.reset_password" }}</a>
                         </div>
                     </div>
                 {{ else }}
                     <div class="form-group row">
-                        <label for="DefaultPassword" class="col-sm-3 col-form-label">Password</label>
+                        <label for="DefaultPassword" class="col-sm-3 col-form-label">{{ t "accounts.password" }}</label>
 
                         <div class="col-sm-9">
                             <code>{{ .Account.DefaultPassword }}</code><br>
                             <input type="hidden" name="DefaultPassword" value="{{ .Account.DefaultPassword }}">
 
-                            <small>This password is autogenerated. You will need to share it with the person you are creating the account for. They will be asked to change their password when they log in the first time.</small>
+                            <small>{{ t "accounts.generated_password_help" }}</small>
                         </div>
                     </div>
                 {{ end }}
 
 
-                <button class="btn btn-success float-right" type="submit">{{ if $.IsEditing }}Edit{{ else }}Add{{ end }} User</button>
+                <button class="btn btn-success float-right" type="submit">{{ if $.IsEditing }}{{ t "accounts.save_user" }}{{ else }}{{ t "accounts.add_user" }}{{ end }}</button>
             </form>
         </div>
     </div></div>

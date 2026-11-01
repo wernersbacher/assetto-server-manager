@@ -13,6 +13,9 @@ common:
   close: Close
   cancel: Cancel
   delete: Delete
+  edit: Edit
+  save: Save
+  actions: Actions
 
 group:
   no_access: No access
@@ -123,3 +126,112 @@ start_target:
 port_warnings:
   title: Port conflict with another server.
   detail: Servers on the same machine can't use the same ports.
+
+login:
+  title: Login
+  heading: Sign in
+  intro: Log in to manage the server.
+  submit: Log in
+
+password:
+  create_title: Create a Password
+  update_title: Update Password
+  current: Current Password
+  current_placeholder: current password
+  thanks: Thanks for logging in!
+  first_login: As this is your first time logging in, you need to set your own password for future use. There are no restrictions, but try to make the password as <strong>strong</strong> as you can and make sure to save it somewhere!
+  new: New Password
+  repeat: Repeat Password
+  repeat_placeholder: repeat password
+  create_submit: Create Password
+  update_submit: Update Password
+
+account_details:
+  title: Update Account Details
+  intro: These account details are not mandatory, but are recommended. If you fill them in you will be added to the list of entrants that race organisers can add to events, and your details will be filled in for you if you register for a closed event.
+  driver_name: Driver Name
+  guid: GUID
+  guid_help: If you don't know your Steam GUID, you can <a href="{url}">sign in with Steam</a> to fill it in.
+  team: Team
+  theme: Theme
+  theme_option:
+    default: Use Default
+    light: Light
+    dark: Dark
+
+accounts:
+  username: Username
+  username_placeholder: username
+  password: Password
+  password_placeholder: password
+  name: Name
+  group: Group
+  manage_title: Manage Accounts
+  manage_intro: Manage who can log in and what they are allowed to do.
+  add_account: Add Account
+  add_title: Add an Account
+  edit_title: Edit an Account
+  edit_intro: Accounts decide what a person may do in ACPitwall.
+  details: Account details
+  group_option:
+    read: Read - Read races, content, and championships
+    write: Write - Read and write races, content and championships
+    delete: Delete - Read, write and delete races, content and championships
+    admin: Admin - Full access
+    no_access: No Access - the user cannot access anything
+  group_help: Groups are per ACPitwall instance. In a multi-server setup you can give users different groups per server.
+  group_all_servers: Update Group For All Servers?
+  group_all_servers_help: If on, the group selected above is applied to the user's account on all servers of this multi-server instance.
+  reset_password: Reset Password
+  generated_password_help: This password is generated. Share it with the person you are creating the account for. They will be asked to change it when they log in the first time.
+  add_user: Add User
+  save_user: Save User
+  delete_confirm: Delete account {name}?
+  delete_detail: The account is removed permanently.
+  delete_label: Delete account
+  only_write_access: Only accounts with write access
+  open:
+    title: Open ACPitwall
+    intro: An Open ACPitwall allows read access to anyone without an account.
+    open: Open
+    closed: Closed
+    make_open: Make Open
+    make_closed: Make Closed
+  stats:
+    title: Public driver statistics
+    intro: Driver profiles, leaderboards and lap records. If off, they are only visible to logged in accounts, even on an Open ACPitwall.
+    public: Public
+    private: Private
+    make_public: Make Public
+    make_private: Make Private
+  downloads:
+    title: Content downloads
+    intro: Who may download cars, tracks, setups and car skins (the pictures shown on the pages stay visible). Content Manager gets signed, time limited skin links, so it keeps working when downloads are restricted.
+    public: Public (everyone who can read, also anonymous on an Open ACPitwall)
+    login: Logged in accounts only
+    "off": Off (admins only)
+  teams:
+    intro: Drivers can create teams, join them and register for championships with them. Accounts with write access can always create teams and manage every team.
+    creation: Creating teams
+    creation_everyone: Every account can create teams
+    max: Teams one account can own
+    max_help: 0 is the default of 3, -1 is unlimited.
+  skins:
+    title: Car skins
+    intro: Accounts can upload skins for cars and keep them private, share them with a team or make them global. Accounts with write access always upload global skins. The limits protect the disk; there is no unlimited setting, 0 uses the default shown in brackets.
+    uploads: Skin uploads by users
+    uploads_everyone: Every logged in account can upload skins
+    global: Making skins global
+    global_everyone: Users can share their skins globally
+    max_files: Files per skin (default {default})
+    max_skin_mb: Size of one skin in MB (default {default})
+    user_quota_mb: Skin storage per user in MB (default {default})
+    min_free_mb: Free disk space to keep in MB (default {default})
+    min_free_help: An upload is refused if less than this would remain free on the disk.
+  matrix:
+    title: What each group can do
+    read: View races, results, content, championships and live timing
+    write: Create and edit races, championships and race weekends; upload content; start and stop the server; view logs
+    delete: Delete races, championships, results and content; manage AutoFill entrants
+    admin: Server options, plugins, accounts, blacklist, messages, audit logs and race control commands
+    no_access: Accounts in the "No access" group cannot use ACPitwall at all.

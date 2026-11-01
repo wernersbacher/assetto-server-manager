@@ -1,37 +1,37 @@
-{{ define "title" }}Login{{ end }}
+{{ define "title" }}{{ t "login.title" }}{{ end }}
 
 {{ define "content" }}
     <div class="auth-wrap">
         <form method="post" action="/login" class="auth-card card admin-card">
             <div class="card-body">
-                <h1 class="auth-title">Sign in</h1>
-                <p class="text-muted">Log in to manage the server.</p>
+                <h1 class="auth-title">{{ t "login.heading" }}</h1>
+                <p class="text-muted">{{ t "login.intro" }}</p>
 
                 <div class="form-group">
-                    <label for="Username">Username</label>
+                    <label for="Username">{{ t "accounts.username" }}</label>
                     <input
                             type="text"
                             id="Username"
                             name="Username"
                             class="form-control"
-                            placeholder="username"
+                            placeholder="{{ t "accounts.username_placeholder" }}"
                             autocomplete="username"
                     >
                 </div>
 
                 <div class="form-group">
-                    <label for="Password">Password</label>
+                    <label for="Password">{{ t "accounts.password" }}</label>
                     <input
                             type="password"
                             id="Password"
                             name="Password"
                             class="form-control"
-                            placeholder="password"
+                            placeholder="{{ t "accounts.password_placeholder" }}"
                             autocomplete="current-password"
                     >
                 </div>
 
-                <button class="btn btn-primary btn-block" type="submit">Login</button>
+                <button class="btn btn-primary btn-block" type="submit">{{ t "login.submit" }}</button>
             </div>
         </form>
     </div>

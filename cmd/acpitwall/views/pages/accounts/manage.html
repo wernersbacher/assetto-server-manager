@@ -1,25 +1,25 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/accounts.manageAccountsTemplateVars */}}
 
-{{ define "title" }}Manage Accounts{{ end }}
+{{ define "title" }}{{ t "accounts.manage_title" }}{{ end }}
 
-{{ define "roleBadge" }}<span class="role-badge role-{{ . }}">{{ if eq . "read" }}Read{{ else if eq . "write" }}Write{{ else if eq . "delete" }}Delete{{ else if eq . "admin" }}Admin{{ else if eq . "no_access" }}No access{{ else }}{{ . }}{{ end }}</span>{{ end }}
+{{ define "roleBadge" }}<span class="role-badge role-{{ . }}">{{ if or (eq . "read") (eq . "write") (eq . "delete") (eq . "admin") (eq . "no_access") }}{{ t (printf "group.%s" .) }}{{ else }}{{ . }}{{ end }}</span>{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Accounts</h1>
-            <p>Manage who can log in and what they are allowed to do.</p>
+            <h1>{{ t "nav.accounts" }}</h1>
+            <p>{{ t "accounts.manage_intro" }}</p>
         </div>
-        <a class="btn btn-success" href="/accounts/new">{{ template "icon" "plus" }} Add Account</a>
+        <a class="btn btn-success" href="/accounts/new">{{ template "icon" "plus" }} {{ t "accounts.add_account" }}</a>
     </div>
 
     <div class="table-card">
         <table class="table accounts-table">
             <thead>
             <tr>
-                <th>Name</th>
-                <th>Group</th>
-                <th class="text-right">Actions</th>
+                <th>{{ t "accounts.name" }}</th>
+                <th>{{ t "accounts.group" }}</th>
+                <th class="text-right">{{ t "common.actions" }}</th>
             </tr>
             </thead>
 
@@ -35,12 +35,12 @@
                     <td class="text-right text-nowrap">
                         {{ if ne $account.Name "admin" }}
                             <a class="btn btn-warning" href="/accounts/edit/{{ $account.ID.String }}">
-                                Edit
+                                {{ t "common.edit" }}
                             </a>
                             {{ if ne $.BaseTemplateVars.User.ID.String $account.ID.String }}
                                 <form method="post" action="/accounts/delete/{{ $account.ID.String }}" class="d-inline"
-                                       data-confirm-delete="Delete account {{ $account.Name }}?" data-confirm-detail="The account is removed permanently." data-confirm-label="Delete account">
-                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                       data-confirm-delete="{{ t "accounts.delete_confirm" "name" $account.Name }}" data-confirm-detail="{{ t "accounts.delete_detail" }}" data-confirm-label="{{ t "accounts.delete_label" }}">
+                                    <button type="submit" class="btn btn-danger">{{ t "common.delete" }}</button>
                                 </form>
                             {{ end }}
                         {{ end }}
@@ -52,122 +52,122 @@
 
     <div class="dashboard-grid">
         <div class="card admin-card">
-            <div class="card-header"><h2>Open ACPitwall</h2></div>
+            <div class="card-header"><h2>{{ t "accounts.open.title" }}</h2></div>
             <div class="card-body">
-                <p>An Open ACPitwall allows read access to anyone without an account.</p>
+                <p>{{ t "accounts.open.intro" }}</p>
 
                 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
                     {{ if $.ServerReadIsOpen }}
-                        <span class="role-badge role-read">Open</span>
-                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-danger">Make Closed</button></form>
+                        <span class="role-badge role-read">{{ t "accounts.open.open" }}</span>
+                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-danger">{{ t "accounts.open.make_closed" }}</button></form>
                     {{ else }}
-                        <span class="role-badge role-no_access">Closed</span>
-                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-success">Make Open</button></form>
+                        <span class="role-badge role-no_access">{{ t "accounts.open.closed" }}</span>
+                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-success">{{ t "accounts.open.make_open" }}</button></form>
                     {{ end }}
                 </div>
             </div>
         </div>
 
         <div class="card admin-card">
-            <div class="card-header"><h2>Public driver statistics</h2></div>
+            <div class="card-header"><h2>{{ t "accounts.stats.title" }}</h2></div>
             <div class="card-body">
-                <p>Driver profiles, leaderboards and lap records. If off, they are only visible to logged in accounts, even on an Open ACPitwall.</p>
+                <p>{{ t "accounts.stats.intro" }}</p>
 
                 <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
                     {{ if $.PublicStats }}
-                        <span class="role-badge role-read">Public</span>
-                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-danger">Make Private</button></form>
+                        <span class="role-badge role-read">{{ t "accounts.stats.public" }}</span>
+                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-danger">{{ t "accounts.stats.make_private" }}</button></form>
                     {{ else }}
-                        <span class="role-badge role-no_access">Private</span>
-                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-success">Make Public</button></form>
+                        <span class="role-badge role-no_access">{{ t "accounts.stats.private" }}</span>
+                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-success">{{ t "accounts.stats.make_public" }}</button></form>
                     {{ end }}
                 </div>
             </div>
         </div>
 
         <div class="card admin-card">
-            <div class="card-header"><h2>Content downloads</h2></div>
+            <div class="card-header"><h2>{{ t "accounts.downloads.title" }}</h2></div>
             <div class="card-body">
-                <p>Who may download cars, tracks, setups and car skins (the pictures shown on the pages stay visible). Content Manager gets signed, time limited skin links, so it keeps working when downloads are restricted.</p>
+                <p>{{ t "accounts.downloads.intro" }}</p>
 
                 <form method="post" action="/accounts/download-access" class="m-0 d-flex flex-wrap align-items-center" style="gap: 12px">
                     <select name="access" class="form-control" style="max-width: 360px">
-                        <option value="public" {{ if eq $.DownloadAccess "public" }}selected{{ end }}>Public (everyone who can read, also anonymous on an Open ACPitwall)</option>
-                        <option value="login" {{ if eq $.DownloadAccess "login" }}selected{{ end }}>Logged in accounts only</option>
-                        <option value="off" {{ if eq $.DownloadAccess "off" }}selected{{ end }}>Off (admins only)</option>
+                        <option value="public" {{ if eq $.DownloadAccess "public" }}selected{{ end }}>{{ t "accounts.downloads.public" }}</option>
+                        <option value="login" {{ if eq $.DownloadAccess "login" }}selected{{ end }}>{{ t "accounts.downloads.login" }}</option>
+                        <option value="off" {{ if eq $.DownloadAccess "off" }}selected{{ end }}>{{ t "accounts.downloads.off" }}</option>
                     </select>
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" class="btn btn-success">{{ t "common.save" }}</button>
                 </form>
             </div>
         </div>
 
         <div class="card admin-card">
-            <div class="card-header"><h2>Teams</h2></div>
+            <div class="card-header"><h2>{{ t "nav.teams" }}</h2></div>
             <div class="card-body">
-                <p>Drivers can create teams, join them and register for championships with them. Accounts with write access can always create teams and manage every team.</p>
+                <p>{{ t "accounts.teams.intro" }}</p>
 
                 <form method="post" action="/accounts/team-options" class="m-0">
                     <div class="form-group">
-                        <label for="team-creation">Creating teams</label>
+                        <label for="team-creation">{{ t "accounts.teams.creation" }}</label>
                         <select name="creation" id="team-creation" class="form-control" style="max-width: 360px">
-                            <option value="enabled" {{ if $.TeamCreationEnabled }}selected{{ end }}>Every account can create teams</option>
-                            <option value="disabled" {{ if not $.TeamCreationEnabled }}selected{{ end }}>Only accounts with write access</option>
+                            <option value="enabled" {{ if $.TeamCreationEnabled }}selected{{ end }}>{{ t "accounts.teams.creation_everyone" }}</option>
+                            <option value="disabled" {{ if not $.TeamCreationEnabled }}selected{{ end }}>{{ t "accounts.only_write_access" }}</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="team-max">Teams one account can own</label>
+                        <label for="team-max">{{ t "accounts.teams.max" }}</label>
                         <input type="number" name="max" id="team-max" class="form-control" style="max-width: 160px" min="-1" max="1000" value="{{ $.MaxOwnedTeams }}">
-                        <small>0 is the default of 3, -1 is unlimited.</small>
+                        <small>{{ t "accounts.teams.max_help" }}</small>
                     </div>
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" class="btn btn-success">{{ t "common.save" }}</button>
                 </form>
             </div>
         </div>
 
         <div class="card admin-card">
-            <div class="card-header"><h2>Car skins</h2></div>
+            <div class="card-header"><h2>{{ t "accounts.skins.title" }}</h2></div>
             <div class="card-body">
-                <p>Accounts can upload skins for cars and keep them private, share them with a team or make them global. Accounts with write access always upload global skins. The limits protect the disk: there is no unlimited setting, 0 uses the default shown in brackets.</p>
+                <p>{{ t "accounts.skins.intro" }}</p>
 
                 <form method="post" action="/accounts/skin-options" class="m-0">
                     <div class="form-group">
-                        <label for="skin-uploads">Skin uploads by users</label>
+                        <label for="skin-uploads">{{ t "accounts.skins.uploads" }}</label>
                         <select name="uploads" id="skin-uploads" class="form-control" style="max-width: 360px">
-                            <option value="off" {{ if not $.Skins.UserUploads }}selected{{ end }}>Only accounts with write access</option>
-                            <option value="on" {{ if $.Skins.UserUploads }}selected{{ end }}>Every logged in account can upload skins</option>
+                            <option value="off" {{ if not $.Skins.UserUploads }}selected{{ end }}>{{ t "accounts.only_write_access" }}</option>
+                            <option value="on" {{ if $.Skins.UserUploads }}selected{{ end }}>{{ t "accounts.skins.uploads_everyone" }}</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="skin-global">Making skins global</label>
+                        <label for="skin-global">{{ t "accounts.skins.global" }}</label>
                         <select name="global" id="skin-global" class="form-control" style="max-width: 360px">
-                            <option value="off" {{ if not $.Skins.GlobalShare }}selected{{ end }}>Only accounts with write access</option>
-                            <option value="on" {{ if $.Skins.GlobalShare }}selected{{ end }}>Users can share their skins globally</option>
+                            <option value="off" {{ if not $.Skins.GlobalShare }}selected{{ end }}>{{ t "accounts.only_write_access" }}</option>
+                            <option value="on" {{ if $.Skins.GlobalShare }}selected{{ end }}>{{ t "accounts.skins.global_everyone" }}</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="skin-max-files">Files per skin (default {{ $.SkinDefaults.MaxFiles }})</label>
+                        <label for="skin-max-files">{{ t "accounts.skins.max_files" "default" $.SkinDefaults.MaxFiles }}</label>
                         <input type="number" name="max_files" id="skin-max-files" class="form-control" style="max-width: 160px" min="0" max="100000" value="{{ $.Skins.MaxFiles }}">
                     </div>
                     <div class="form-group">
-                        <label for="skin-max-mb">Size of one skin in MB (default {{ $.SkinDefaults.MaxSkinMB }})</label>
+                        <label for="skin-max-mb">{{ t "accounts.skins.max_skin_mb" "default" $.SkinDefaults.MaxSkinMB }}</label>
                         <input type="number" name="max_skin_mb" id="skin-max-mb" class="form-control" style="max-width: 160px" min="0" max="100000" value="{{ $.Skins.MaxSkinMB }}">
                     </div>
                     <div class="form-group">
-                        <label for="skin-quota-mb">Skin storage per user in MB (default {{ $.SkinDefaults.UserQuotaMB }})</label>
+                        <label for="skin-quota-mb">{{ t "accounts.skins.user_quota_mb" "default" $.SkinDefaults.UserQuotaMB }}</label>
                         <input type="number" name="user_quota_mb" id="skin-quota-mb" class="form-control" style="max-width: 160px" min="0" max="1000000" value="{{ $.Skins.UserQuotaMB }}">
                     </div>
                     <div class="form-group">
-                        <label for="skin-min-free-mb">Free disk space to keep in MB (default {{ $.SkinDefaults.MinFreeMB }})</label>
+                        <label for="skin-min-free-mb">{{ t "accounts.skins.min_free_mb" "default" $.SkinDefaults.MinFreeMB }}</label>
                         <input type="number" name="min_free_mb" id="skin-min-free-mb" class="form-control" style="max-width: 160px" min="0" max="1000000" value="{{ $.Skins.MinFreeMB }}">
-                        <small>An upload is refused if less than this would remain free on the disk.</small>
+                        <small>{{ t "accounts.skins.min_free_help" }}</small>
                     </div>
-                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="submit" class="btn btn-success">{{ t "common.save" }}</button>
                 </form>
             </div>
         </div>
 
         <div class="card admin-card">
-            <div class="card-header"><h2>What each group can do</h2></div>
+            <div class="card-header"><h2>{{ t "accounts.matrix.title" }}</h2></div>
             <div class="table-responsive">
                 <table class="table role-matrix mb-0">
                     <thead>
@@ -180,24 +180,24 @@
                     </tr>
                     </thead>
                     <tr>
-                        <td>View races, results, content, championships and live timing</td>
+                        <td>{{ t "accounts.matrix.read" }}</td>
                         <td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td>
                     </tr>
                     <tr>
-                        <td>Create and edit races, championships and race weekends; upload content; start and stop the server; view logs</td>
+                        <td>{{ t "accounts.matrix.write" }}</td>
                         <td></td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td>
                     </tr>
                     <tr>
-                        <td>Delete races, championships, results and content; manage AutoFill entrants</td>
+                        <td>{{ t "accounts.matrix.delete" }}</td>
                         <td></td><td></td><td>{{ template "icon" "check" }}</td><td>{{ template "icon" "check" }}</td>
                     </tr>
                     <tr>
-                        <td>Server options, plugins, accounts, blacklist, messages, audit logs and race control commands</td>
+                        <td>{{ t "accounts.matrix.admin" }}</td>
                         <td></td><td></td><td></td><td>{{ template "icon" "check" }}</td>
                     </tr>
                 </table>
             </div>
-            <div class="card-body pt-2 text-muted small">Accounts in the "No access" group cannot use ACPitwall at all.</div>
+            <div class="card-body pt-2 text-muted small">{{ t "accounts.matrix.no_access" }}</div>
         </div>
     </div>
 {{ end }}
