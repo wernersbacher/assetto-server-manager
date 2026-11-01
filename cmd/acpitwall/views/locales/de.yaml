@@ -349,7 +349,15 @@ live:
   fastest_lap: Schnellste Runde
   personal_best: Persönliche Bestzeit
   stored_times: Gespeicherte Zeiten
-  game_chat: Spiel-Chat!
+  feed:
+    title: Ereignisse
+    filter: Ereignisse filtern
+    all: Alle
+    incidents: Vorfälle
+    laps: Runden
+    connections: Verbindungen
+    chat: Chat
+    empty: Noch keine Ereignisse.
 
 session_type:
   book: Buchung

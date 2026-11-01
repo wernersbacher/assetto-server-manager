@@ -234,8 +234,19 @@
                         </div>
 
                         <div class="live-side-block">
-                            <div class="card card-body" id="chat-container">
-                                <div class="card-text chat-message-template"><span id="chat-message-sender"></span>{{ t "live.game_chat" }}</div>
+                            <div class="live-feed" id="live-feed" data-filter="all">
+                                <div class="live-feed-header">
+                                    <h2 class="live-feed-title">{{ t "live.feed.title" }}</h2>
+                                    <div class="live-feed-filters" role="group" aria-label="{{ t "live.feed.filter" }}">
+                                        <button type="button" class="live-feed-chip active" data-feed-filter="all" aria-pressed="true">{{ t "live.feed.all" }}</button>
+                                        <button type="button" class="live-feed-chip" data-feed-filter="incidents" aria-pressed="false">{{ t "live.feed.incidents" }}</button>
+                                        <button type="button" class="live-feed-chip" data-feed-filter="laps" aria-pressed="false">{{ t "live.feed.laps" }}</button>
+                                        <button type="button" class="live-feed-chip" data-feed-filter="connections" aria-pressed="false">{{ t "live.feed.connections" }}</button>
+                                        <button type="button" class="live-feed-chip" data-feed-filter="chat" aria-pressed="false">{{ t "live.feed.chat" }}</button>
+                                    </div>
+                                </div>
+                                <ol class="live-feed-list" id="event-feed" aria-live="polite"></ol>
+                                <p class="live-feed-empty" id="event-feed-empty">{{ t "live.feed.empty" }}</p>
                             </div>
 
                             {{ if AdminAccess }}
@@ -244,8 +255,6 @@
                                 </form>
                             {{ end }}
                         </div>
-
-                        <!-- further side blocks (event feed) go here -->
                     </div>
                 </div>
             {{ end }}

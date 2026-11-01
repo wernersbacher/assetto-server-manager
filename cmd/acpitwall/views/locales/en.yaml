@@ -350,7 +350,15 @@ live:
   fastest_lap: Fastest lap
   personal_best: Personal best
   stored_times: Stored Times
-  game_chat: Game chat!
+  feed:
+    title: Event feed
+    filter: Filter events
+    all: All
+    incidents: Incidents
+    laps: Laps
+    connections: Connections
+    chat: Chat
+    empty: No events yet.
 
 session_type:
   book: Booking

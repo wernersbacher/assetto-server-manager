@@ -16,6 +16,10 @@ js:
       one: "{count} omgang tilbage"
       other: "{count} omgange tilbage"
     loaded: Indlæst
+    connected: forbundet
+    disconnected: afbrudt
+    fastest_lap: "Hurtigste omgang {time}"
+    personal_best: "Personlig rekord {time}"
     crash_with_car: "Kollision med {driver} ved {speed}"
     crash_with_environment: "Kollision med omgivelserne ved {speed}"
     laps_behind:

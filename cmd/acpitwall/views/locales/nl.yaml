@@ -349,7 +349,15 @@ live:
   fastest_lap: Snelste ronde
   personal_best: Persoonlijk record
   stored_times: Opgeslagen tijden
-  game_chat: Gamechat!
+  feed:
+    title: Gebeurtenissen
+    filter: Gebeurtenissen filteren
+    all: Alles
+    incidents: Incidenten
+    laps: Rondes
+    connections: Verbindingen
+    chat: Chat
+    empty: Nog geen gebeurtenissen.
 
 session_type:
   book: Booking

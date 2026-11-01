@@ -103,6 +103,14 @@ func TestLiveTimingRendersRunningEvent(t *testing.T) {
 				t.Errorf("%s (map %t): add frame button rendered: %t, want %t", tc.name, mapEnabled, got, tc.write)
 			}
 
+			if got := strings.Contains(body, `id="event-feed"`); got != mapEnabled {
+				t.Errorf("%s (map %t): event feed rendered: %t", tc.name, mapEnabled, got)
+			}
+
+			if got := strings.Contains(body, `id="broadcast-chat-quick-form"`); got != (mapEnabled && tc.admin) {
+				t.Errorf("%s (map %t): quick broadcast form rendered: %t", tc.name, mapEnabled, got)
+			}
+
 			if got := strings.Contains(body, `id="trackMapImage"`); got != mapEnabled {
 				t.Errorf("%s (map %t): map rendered: %t", tc.name, mapEnabled, got)
 			}

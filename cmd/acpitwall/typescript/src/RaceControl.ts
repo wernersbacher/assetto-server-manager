@@ -49,6 +49,7 @@ interface WebsocketHandler {
 export class RaceControl {
     private readonly liveMap: LiveMap = new LiveMap(this);
     private readonly liveTimings: LiveTimings = new LiveTimings(this, this.liveMap);
+    private readonly eventFeed: EventFeed = new EventFeed(this, this.liveMap);
     private readonly $eventTitle: JQuery<HTMLHeadElement>;
     public status: RaceControlData;
     private firstLoad: boolean = true;
@@ -111,57 +112,11 @@ export class RaceControl {
                 break;
             case EventNewSession:
                 break;
-            case EventChat:
-                let $chatContainer = $("#chat-container");
-
-                let chatMessage = $(".chat-message-template").first().clone();
-                let chatMessageSender = $("<span>");
-
-                let dt = new Date(message.Message.Time);
-
-                let minutes = dt.getMinutes();
-                let minutesString = "";
-
-                let hours = dt.getHours();
-                let hoursString = "";
-
-                if (minutes < 10) {
-                    minutesString = "0"+minutes;
-                } else {
-                    minutesString = minutes.toLocaleString();
-                }
-
-                if (hours < 10) {
-                    hoursString = "0"+hours;
-                } else {
-                    hoursString = hours.toLocaleString();
-                }
-
-                chatMessageSender.attr(
-                    "style", "color: " + randomColorForDriver(message.Message.DriverGUID)
-                ).text(
-                    hoursString + ":" + minutesString + " " + message.Message.DriverName + ": "
-                )
-
-                chatMessage.text(message.Message.Message);
-                chatMessage.addClass("chat-message");
-                chatMessageSender.addClass("chat-message-sender");
-
-                $chatContainer.append(chatMessageSender);
-                $chatContainer.append(chatMessage);
-
-                if ($chatContainer.find(".chat-message").length > 50) {
-                    $chatContainer.find(".chat-message").first().remove();
-                    $chatContainer.find(".chat-message-sender").first().remove();
-                }
-
-                $chatContainer.scrollTop($chatContainer.prop('scrollHeight'));
-
-                break
         }
 
         this.liveMap.handleWebsocketMessage(message);
         this.liveTimings.handleWebsocketMessage(message);
+        this.eventFeed.handleWebsocketMessage(message);
     }
 
     private static getSessionType(sessionIndex: number): string {
@@ -668,6 +623,22 @@ class LiveMap implements WebsocketHandler {
         }
     }
 
+    // highlightDot makes the dot of a driver pulse for a moment (clicked in the event feed).
+    public highlightDot(guid: string): void {
+        const $dot = this.dots.get(guid);
+
+        if (!$dot) {
+            return;
+        }
+
+        $(".dot-highlight").removeClass("dot-highlight");
+        // restart the animation if the same dot is highlighted again
+        void $dot[0].offsetWidth;
+        $dot.addClass("dot-highlight");
+
+        setTimeout(() => $dot.removeClass("dot-highlight"), 3000);
+    }
+
     public getDotForDriverGUID(guid: string): JQuery<HTMLElement> | undefined {
         return this.dots.get(guid);
     }
@@ -1155,7 +1126,6 @@ class LiveTimings implements WebsocketHandler {
             <td class="driver-cell driver-link">
                 <div class="driver-name"></div>
                 <div class="driver-car"></div>
-                <div class="events"></div>
             </td>
             <td class="current-lap"><span class="lap-time"></span><span class="lap-progress"><span></span></span></td>
             <td class="last-lap"></td>
@@ -1296,61 +1266,6 @@ class LiveTimings implements WebsocketHandler {
         }
 
         $tr.find(".top-speed").text(topSpeed ? topSpeed.toFixed(2) + speedUnits : "");
-
-        if (addingDriverToConnectedTable) {
-            // events
-            const $tdEvents = $tr.find(".events");
-            const loadedID = driver.CarInfo.DriverGUID + "-loaded";
-
-            if (moment(driver.LoadedTime).utc().add("10", "seconds").isSameOrAfter(moment().utc()) && !$("#" + loadedID).length) {
-                // car just loaded
-                let $tag = $("<span/>").attr("id", loadedID);
-                $tag.attr({'class': 'badge badge-success live-badge'});
-                $tag.text(t("live.loaded"));
-
-                $tdEvents.append($tag);
-
-                setTimeout(() => {
-                    $tag.remove();
-                }, 10000);
-            }
-
-            if (driver.Collisions) {
-                for (const collision of driver.Collisions) {
-                    const collisionID = driver.CarInfo.DriverGUID + "-collision-" + collision.ID;
-
-                    if (moment(collision.Time).utc().add("10", "seconds").isSameOrAfter(moment().utc()) && !$("#" + collisionID).length) {
-                        let $tag = $("<span/>");
-                        $tag.attr("id", collisionID);
-                        $tag.attr({'class': 'badge badge-danger live-badge'});
-
-                        let crashSpeed;
-
-                        if (useMPH) {
-                            crashSpeed = collision.Speed * 0.621371;
-                        } else {
-                            crashSpeed = collision.Speed;
-                        }
-
-                        if (collision.Type === Collision.WithCar) {
-                            $tag.text(
-                                t("live.crash_with_car", {driver: collision.OtherDriverName, speed: crashSpeed.toFixed(2) + speedUnits})
-                            );
-                        } else {
-                            $tag.text(
-                                t("live.crash_with_environment", {speed: crashSpeed.toFixed(2) + speedUnits})
-                            );
-                        }
-
-                        $tdEvents.append($tag);
-
-                        setTimeout(() => {
-                            $tag.remove();
-                        }, 10000);
-                    }
-                }
-            }
-        }
 
         if (addingDriverToConnectedTable) {
             this.showCollisionCount($tr, driver);
@@ -1507,6 +1422,332 @@ class LiveTimings implements WebsocketHandler {
     private removeDriverFromAdminSelects(carInfo: SessionCarInfo) {
         $(".kick-user option[value=" + carInfo.DriverGUID + "]").remove();
         $(".chat-user option[value=" + carInfo.DriverGUID + "]").remove();
+    }
+}
+
+type FeedKind = "incidents" | "laps" | "connections" | "chat";
+
+interface FeedEntry {
+    kind: FeedKind;
+    // the icon, which also colours the entry (collision, fastest, pb, connected, ...)
+    icon: string;
+    variant: string;
+    guid: string;
+    name: string;
+    text: string;
+    time: Date;
+}
+
+// EventFeed is the persistent list of what happens in the session (incidents, laps, connections and chat), newest on top.
+class EventFeed implements WebsocketHandler {
+    private static readonly MAX_ENTRIES = 200;
+    private static readonly STORAGE_KEY = "live-feed-filter";
+    private static readonly FILTERS = ["all", "incidents", "laps", "connections", "chat"];
+    private static readonly HIGHLIGHT_MS = 2500;
+
+    private readonly raceControl: RaceControl;
+    private readonly liveMap: LiveMap;
+    private readonly $root: JQuery<HTMLElement>;
+    private readonly $list: JQuery<HTMLElement>;
+    private readonly $empty: JQuery<HTMLElement>;
+
+    private filter: string = "all";
+    private highlightTimer: number | undefined;
+
+    // what has been seen already, so that the periodic race control snapshot only adds new things
+    private initialised: boolean = false;
+    private sessionKey: string = "";
+    private sessionFastest: number = 0;
+    private readonly seenCollisions: Set<string> = new Set<string>();
+    private readonly laps: Map<string, { laps: number, best: number }> = new Map<string, { laps: number, best: number }>();
+
+    constructor(raceControl: RaceControl, liveMap: LiveMap) {
+        this.raceControl = raceControl;
+        this.liveMap = liveMap;
+        this.$root = $("#live-feed");
+        this.$list = $("#event-feed");
+        this.$empty = $("#event-feed-empty");
+
+        if (!this.$root.length) {
+            return;
+        }
+
+        let stored: string | null = null;
+
+        try {
+            stored = window.localStorage.getItem(EventFeed.STORAGE_KEY);
+        } catch (e) {
+            // storage is not available (private window, blocked site data), the filter is just not remembered
+        }
+
+        this.setFilter(stored && EventFeed.FILTERS.indexOf(stored) !== -1 ? stored : "all", false);
+
+        this.$root.on("click", ".live-feed-chip", (e: ClickEvent) => {
+            this.setFilter(String($(e.currentTarget).data("feed-filter")), true);
+        });
+
+        this.$list.on("click", ".feed-entry[data-guid]", (e: ClickEvent) => {
+            this.highlightDriver(String($(e.currentTarget).attr("data-guid")));
+        });
+
+        this.$list.on("keydown", ".feed-entry[data-guid]", (e: JQuery.KeyDownEvent) => {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                this.highlightDriver(String($(e.currentTarget).attr("data-guid")));
+            }
+        });
+    }
+
+    private setFilter(filter: string, store: boolean): void {
+        this.filter = filter;
+        this.$root.attr("data-filter", filter);
+
+        this.$root.find(".live-feed-chip").each(function () {
+            const active = $(this).data("feed-filter") === filter;
+
+            $(this).toggleClass("active", active).attr("aria-pressed", active ? "true" : "false");
+        });
+
+        if (store) {
+            try {
+                window.localStorage.setItem(EventFeed.STORAGE_KEY, filter);
+            } catch (e) {
+                // see above
+            }
+        }
+
+        this.updateEmpty();
+    }
+
+    public handleWebsocketMessage(message: WSMessage): void {
+        if (!this.$root.length) {
+            return;
+        }
+
+        const status = this.raceControl.status;
+
+        switch (message.EventType) {
+            case EventRaceControl:
+                this.scan();
+                break;
+            case EventNewConnection:
+            case EventConnectionClosed: {
+                const info = message.Message as SessionCarInfo;
+                const connected = message.EventType === EventNewConnection;
+
+                this.add({
+                    kind: "connections",
+                    icon: connected ? "fa-sign-in" : "fa-sign-out",
+                    variant: connected ? "connected" : "disconnected",
+                    guid: info.DriverGUID,
+                    name: info.DriverName,
+                    text: t(connected ? "live.connected" : "live.disconnected"),
+                    time: new Date(),
+                });
+                break;
+            }
+            case EventClientLoaded: {
+                const guid = status && status.CarIDToGUID ? status.CarIDToGUID[message.Message as number] : undefined;
+                const driver = guid && status.ConnectedDrivers ? status.ConnectedDrivers.Drivers[guid] : undefined;
+
+                if (guid && driver) {
+                    this.add({
+                        kind: "connections",
+                        icon: "fa-check",
+                        variant: "loaded",
+                        guid: guid,
+                        name: driver.CarInfo.DriverName,
+                        text: t("live.loaded"),
+                        time: new Date(),
+                    });
+                }
+                break;
+            }
+            case EventChat:
+                this.add({
+                    kind: "chat",
+                    icon: "fa-comment-o",
+                    variant: "chat",
+                    guid: message.Message.DriverGUID,
+                    name: message.Message.DriverName,
+                    text: message.Message.Message,
+                    time: new Date(message.Message.Time),
+                });
+                break;
+        }
+    }
+
+    // scan compares the snapshot of the race control with what has been seen: new collisions and finished laps.
+    private scan(): void {
+        const status = this.raceControl.status;
+
+        if (!status || !status.ConnectedDrivers) {
+            return;
+        }
+
+        const key = status.SessionInfo.Type + "|" + status.SessionStartTime;
+
+        if (key !== this.sessionKey) {
+            this.sessionKey = key;
+            this.sessionFastest = 0;
+            this.laps.clear();
+        }
+
+        const found: FeedEntry[] = [];
+        const now = Date.now();
+
+        for (const guid in status.ConnectedDrivers.Drivers) {
+            const driver = status.ConnectedDrivers.Drivers[guid];
+
+            // whoever loaded before this page was opened
+            if (!this.initialised && driver.LoadedTime && new Date(driver.LoadedTime as any).getFullYear() > 2000) {
+                found.push({
+                    kind: "connections",
+                    icon: "fa-check",
+                    variant: "loaded",
+                    guid: guid,
+                    name: driver.CarInfo.DriverName,
+                    text: t("live.loaded"),
+                    time: new Date(driver.LoadedTime as any),
+                });
+            }
+
+            for (const collision of driver.Collisions || []) {
+                if (this.seenCollisions.has(collision.ID)) {
+                    continue;
+                }
+
+                this.seenCollisions.add(collision.ID);
+
+                const speed = (useMPH ? collision.Speed * 0.621371 : collision.Speed).toFixed(2) + (useMPH ? "MPH" : "Km/h");
+                const time = new Date(collision.Time as any);
+
+                found.push({
+                    kind: "incidents",
+                    icon: "fa-exclamation-triangle",
+                    variant: "collision",
+                    guid: guid,
+                    name: driver.CarInfo.DriverName,
+                    text: collision.Type === Collision.WithCar
+                        ? t("live.crash_with_car", {driver: collision.OtherDriverName, speed: speed})
+                        : t("live.crash_with_environment", {speed: speed}),
+                    time: time,
+                });
+
+                if (this.initialised && now - time.getTime() < 15000) {
+                    this.flashRow(guid);
+                }
+            }
+
+            for (const model in driver.Cars) {
+                const car = driver.Cars[model];
+                const carKey = guid + "|" + model;
+                const previous = this.laps.get(carKey);
+
+                if (previous && car.NumLaps > previous.laps && car.LastLap > 0 && car.LastLap === car.BestLap && (previous.best === 0 || car.LastLap < previous.best)) {
+                    const fastest = this.sessionFastest === 0 || car.LastLap < this.sessionFastest;
+
+                    found.push({
+                        kind: "laps",
+                        icon: fastest ? "fa-trophy" : "fa-clock-o",
+                        variant: fastest ? "fastest" : "pb",
+                        guid: guid,
+                        name: driver.CarInfo.DriverName,
+                        text: t(fastest ? "live.fastest_lap" : "live.personal_best", {time: msToTime(car.LastLap / 1000000)}),
+                        time: new Date(),
+                    });
+
+                    if (fastest) {
+                        this.sessionFastest = car.LastLap;
+                    }
+                }
+
+                this.laps.set(carKey, {laps: car.NumLaps || 0, best: car.BestLap || 0});
+
+                if (car.BestLap > 0 && (this.sessionFastest === 0 || car.BestLap < this.sessionFastest)) {
+                    this.sessionFastest = car.BestLap;
+                }
+            }
+        }
+
+        this.initialised = true;
+
+        // oldest first, so that the newest ends up on top
+        found.sort((a, b) => a.time.getTime() - b.time.getTime());
+
+        for (const entry of found) {
+            this.add(entry);
+        }
+    }
+
+    private static pad(n: number): string {
+        return n < 10 ? "0" + n : String(n);
+    }
+
+    private add(entry: FeedEntry): void {
+        const time = isNaN(entry.time.getTime()) ? new Date() : entry.time;
+        const $name = $("<span class='feed-driver'/>").text(entry.name).css("color", randomColorForDriver(entry.guid));
+        const $entry = $("<li class='feed-entry'/>")
+            .addClass("feed-" + entry.variant)
+            .attr("data-kind", entry.kind)
+            .append(
+                $("<span class='feed-time live-mono'/>").text([time.getHours(), time.getMinutes(), time.getSeconds()].map(EventFeed.pad).join(":")),
+                $("<i class='fa feed-icon' aria-hidden='true'/>").addClass(entry.icon),
+                $("<span class='feed-body'/>").append($name, " ", $("<span class='feed-text'/>").text(entry.text)),
+            );
+
+        if (entry.guid) {
+            $entry.attr({"data-guid": entry.guid, "tabindex": 0, "role": "button"});
+        }
+
+        this.$list.prepend($entry);
+        this.$list.children().slice(EventFeed.MAX_ENTRIES).remove();
+        this.updateEmpty();
+    }
+
+    private updateEmpty(): void {
+        const visible = this.filter === "all" ? this.$list.children().length : this.$list.children("[data-kind='" + this.filter + "']").length;
+
+        this.$empty.toggle(visible === 0);
+    }
+
+    private rowFor(guid: string): JQuery<HTMLElement> {
+        return $("#live-table tr.driver-row").filter(function () {
+            return this.getAttribute("data-guid") === guid;
+        });
+    }
+
+    // flashRow draws attention to the row of a driver after a fresh incident.
+    private flashRow(guid: string): void {
+        const $row = this.rowFor(guid);
+
+        $row.removeClass("row-alert");
+        void ($row[0] && $row[0].offsetWidth);
+        $row.addClass("row-alert");
+
+        setTimeout(() => $row.removeClass("row-alert"), 4000);
+    }
+
+    // highlightDriver scrolls the row of a driver into view and highlights it and the dot on the map.
+    private highlightDriver(guid: string): void {
+        const $row = this.rowFor(guid);
+
+        $(".row-highlight").removeClass("row-highlight");
+        window.clearTimeout(this.highlightTimer);
+
+        if ($row.length) {
+            const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+            $row[0].scrollIntoView({block: "center", behavior: reduced ? "auto" : "smooth"});
+            $row.addClass("row-highlight");
+
+            this.highlightTimer = window.setTimeout(() => $row.removeClass("row-highlight"), EventFeed.HIGHLIGHT_MS);
+        }
+
+        this.liveMap.highlightDot(guid);
+    }
+
+    public onTrackChange(track: string, trackLayout: string): void {
     }
 }
 

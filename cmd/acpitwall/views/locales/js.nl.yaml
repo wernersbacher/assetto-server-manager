@@ -16,6 +16,10 @@ js:
       one: "nog {count} ronde"
       other: "nog {count} ronden"
     loaded: Geladen
+    connected: verbonden
+    disconnected: verbinding verbroken
+    fastest_lap: "Snelste ronde {time}"
+    personal_best: "Persoonlijk record {time}"
     crash_with_car: "Crash met {driver} bij {speed}"
     crash_with_environment: "Crash met de omgeving bij {speed}"
     laps_behind:

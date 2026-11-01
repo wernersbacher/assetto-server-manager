@@ -130,17 +130,6 @@ td .dot-inactive {
   animation: cssAnimation 3s forwards;
 }
 
-#chat-container {
-  overflow-y: scroll;
-  max-height: 120px;
-  scroll-behavior: smooth;
-  padding-left: 3rem;
-}
-
-.chat-message-sender {
-  margin-left: -2.5rem;
-}
-
 @keyframes cssAnimation {
   0% {
     opacity: 1;
@@ -163,12 +152,6 @@ td .dot-inactive {
   100% {
     opacity: 0;
   }
-}
-
-.live-badge {
-  display: block !important;
-  width: fit-content;
-  margin-top: 4px;
 }
 
 .live-mono,
@@ -412,6 +395,145 @@ td .dot-inactive {
   margin: 8px 0 0;
 }
 
+// The event feed: newest entry on top, scrolls inside its own box.
+.live-feed {
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  background: var(--card);
+  overflow: hidden;
+}
+
+.live-feed-header {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--table-header);
+}
+
+.live-feed-title {
+  margin: 0 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: var(--muted-foreground);
+}
+
+.live-feed-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.live-feed-chip {
+  padding: 2px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+
+  &:hover { background: var(--secondary); }
+
+  &.active {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+.live-feed-list {
+  max-height: 260px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.live-feed-empty {
+  margin: 0;
+  padding: 14px 10px;
+  font-size: 13px;
+  color: var(--muted-foreground);
+  text-align: center;
+}
+
+.feed-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  border-bottom: 1px solid var(--table-border);
+  font-size: 13px;
+  line-height: 1.35;
+
+  &[data-guid] { cursor: pointer; }
+  &[data-guid]:hover, &[data-guid]:focus-visible { background: var(--table-hover); outline: 0; }
+  &:last-child { border-bottom: 0; }
+
+  .feed-time {
+    flex: none;
+    font-size: 11px;
+    color: var(--muted-foreground);
+  }
+
+  .feed-icon {
+    flex: none;
+    width: 14px;
+    text-align: center;
+    color: var(--muted-foreground);
+  }
+
+  .feed-body {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .feed-driver { font-weight: 600; }
+
+  &.feed-collision .feed-icon { color: var(--danger-foreground); }
+  &.feed-fastest .feed-icon { color: var(--tertiary); }
+  &.feed-pb .feed-icon, &.feed-loaded .feed-icon, &.feed-connected .feed-icon { color: var(--success-foreground); }
+  &.feed-disconnected .feed-icon { color: var(--warning-foreground); }
+}
+
+// the filter chips hide the other kinds
+.live-feed:not([data-filter="all"]) .feed-entry { display: none; }
+.live-feed[data-filter="incidents"] .feed-entry[data-kind="incidents"],
+.live-feed[data-filter="laps"] .feed-entry[data-kind="laps"],
+.live-feed[data-filter="connections"] .feed-entry[data-kind="connections"],
+.live-feed[data-filter="chat"] .feed-entry[data-kind="chat"] { display: flex; }
+
+// a row clicked in the feed, and a row with a fresh incident
+.live-table tr.row-highlight td {
+  background: var(--info) !important;
+  box-shadow: inset 0 1px 0 var(--info-solid), inset 0 -1px 0 var(--info-solid);
+}
+
+.live-table tr.row-alert td {
+  animation: live-row-alert 4s ease-out;
+}
+
+@keyframes live-row-alert {
+  0%, 60% { background: var(--danger); }
+  100% { background: transparent; }
+}
+
+.dot.dot-highlight {
+  animation: live-dot-pulse 1s ease-in-out 3;
+}
+
+@keyframes live-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, .9); }
+  50% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live-table tr.row-alert td { animation: none; background: var(--danger); }
+  .dot.dot-highlight { animation: none; box-shadow: 0 0 0 4px rgba(37, 99, 235, .9); }
+}
+
 .live-section-title {
   margin: 16px 0 8px;
   font-size: 15px;
@@ -531,12 +653,6 @@ td .dot-inactive {
     font-size: 11px;
     font-weight: 600;
     color: var(--destructive, #dc3545);
-  }
-
-  .events {
-    white-space: normal;
-
-    &:empty { display: none; }
   }
 
   .current-lap, .last-lap, .best-lap, .gap, .interval, .live-speed, .top-speed, .num-laps {
@@ -876,12 +992,6 @@ body.live-drawer-open {
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
-      .events {
-        white-space: normal;
-
-        &:empty { display: none; }
-      }
     }
 
     .collision-count {
@@ -1005,8 +1115,8 @@ body.live-drawer-open {
     .top-speed { grid-column: 3; grid-row: 3; }
   }
 
-  #chat-container {
-    max-height: 200px;
+  .live-feed-list {
+    max-height: 320px;
   }
 }
 

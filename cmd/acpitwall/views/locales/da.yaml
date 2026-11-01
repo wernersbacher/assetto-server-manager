@@ -349,7 +349,15 @@ live:
   fastest_lap: Hurtigste omgang
   personal_best: Personlig rekord
   stored_times: Gemte tider
-  game_chat: Spilchat!
+  feed:
+    title: Hændelser
+    filter: Filtrer hændelser
+    all: Alle
+    incidents: Uheld
+    laps: Omgange
+    connections: Forbindelser
+    chat: Chat
+    empty: Ingen hændelser endnu.
 
 session_type:
   book: Booking

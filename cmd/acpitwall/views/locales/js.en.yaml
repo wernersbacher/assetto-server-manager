@@ -16,6 +16,10 @@ js:
       one: "{count} lap remaining"
       other: "{count} laps remaining"
     loaded: Loaded
+    connected: connected
+    disconnected: disconnected
+    fastest_lap: "Fastest lap {time}"
+    personal_best: "Personal best {time}"
     crash_with_car: "Crash with {driver} at {speed}"
     crash_with_environment: "Crash with environment at {speed}"
     laps_behind:
