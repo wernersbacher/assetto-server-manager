@@ -310,6 +310,8 @@ live:
   remaining: Resterend
   join: Meedoen
   admin_panel: Adminpaneel
+  streams: Streams
+  close: Sluiten
   track:
     description: "Beschrijving:"
     length: "Lengte:"

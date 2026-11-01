@@ -15,9 +15,6 @@ js:
     laps_remaining:
       one: "noch {count} Runde"
       other: "noch {count} Runden"
-    road_temp: "Asphalttemperatur: {temp}°C"
-    ambient_temp: "Lufttemperatur: {temp}°C"
-    current_weather: "Aktuelles Wetter: {weather}"
     loaded: Geladen
     crash_with_car: "Unfall mit {driver} bei {speed}"
     crash_with_environment: "Unfall mit der Umgebung bei {speed}"

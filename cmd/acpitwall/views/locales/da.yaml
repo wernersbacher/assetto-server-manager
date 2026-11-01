@@ -310,6 +310,8 @@ live:
   remaining: Tilbage
   join: Deltag
   admin_panel: Adminpanel
+  streams: Streams
+  close: Luk
   track:
     description: "Beskrivelse:"
     length: "Længde:"

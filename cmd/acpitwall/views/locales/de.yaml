@@ -310,6 +310,8 @@ live:
   remaining: Verbleibend
   join: Beitreten
   admin_panel: Admin-Bereich
+  streams: Streams
+  close: Schließen
   track:
     description: "Beschreibung:"
     length: "Länge:"

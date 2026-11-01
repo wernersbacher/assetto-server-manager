@@ -76,10 +76,8 @@ export class RaceControl {
 
         this.handleIFrames();
         this.handleTabs();
+        this.handleAdminDrawer();
         setInterval(this.showEventCompletion.bind(this), 1000);
-        this.$eventTitle.on("click", function (e: ClickEvent) {
-            e.preventDefault();
-        });
     }
 
     private handleWebsocketMessage(ev: MessageEvent): void {
@@ -109,14 +107,9 @@ export class RaceControl {
 
                 this.buildSessionInfo();
 
-                if (this.firstLoad) {
-                    this.showTrackWeatherImage();
-                }
-
                 this.firstLoad = false;
                 break;
             case EventNewSession:
-                this.showTrackWeatherImage();
                 break;
             case EventChat:
                 let $chatContainer = $("#chat-container");
@@ -216,72 +209,115 @@ export class RaceControl {
 
         let $raceTime = $("#race-time");
         $raceTime.text(timeRemaining);
+
+        this.showEventProgress();
+    }
+
+    // showEventProgress fills the progress bar below the remaining time (elapsed share of the time or of the laps).
+    private showEventProgress(): void {
+        let progress = 0;
+
+        if (this.status.SessionInfo.Time > 0) {
+            const totalMS = (this.status.SessionInfo.Time * 60 * 1000) + (this.status.SessionInfo.WaitTime / 126.166667 * 1000);
+            const elapsedMS = moment.duration(moment().utc().diff(moment(this.status.SessionStartTime).utc())).asMilliseconds();
+
+            progress = totalMS > 0 ? elapsedMS / totalMS : 0;
+        } else if (this.status.SessionInfo.Laps > 0 && this.status.ConnectedDrivers && this.status.ConnectedDrivers.GUIDsInPositionalOrder.length > 0) {
+            const leader = this.status.ConnectedDrivers.Drivers[this.status.ConnectedDrivers.GUIDsInPositionalOrder[0]];
+
+            if (leader && leader.TotalNumLaps > 0) {
+                progress = leader.TotalNumLaps / this.status.SessionInfo.Laps;
+            }
+        }
+
+        const percent = Math.round(Math.min(Math.max(progress, 0), 1) * 100);
+
+        $("#race-progress").css("width", percent + "%");
+        $("#race-progress-bar").attr("aria-valuenow", percent);
     }
 
     public onTrackChange(track: string, layout: string): void {
-        $("#trackImage").attr("src", this.getTrackImageURL());
+        const info: {[key: string]: any} = {
+            "description": this.status.TrackInfo.description,
+            "length": this.status.TrackInfo["length"],
+            "pitboxes": this.status.TrackInfo.pitboxes,
+            "width": this.status.TrackInfo.width,
+            "run": this.status.TrackInfo.run,
+        };
 
-        $("#track-description").text(this.status.TrackInfo.description);
-        $("#track-length").text(this.status.TrackInfo["length"]);
-        $("#track-pitboxes").text(this.status.TrackInfo.pitboxes);
-        $("#track-width").text(this.status.TrackInfo.width);
-        $("#track-run").text(this.status.TrackInfo.run);
+        // the fixed info line only shows what the track provides
+        for (const key in info) {
+            const value = info[key];
+
+            $("#track-" + key).text(value);
+            $("#track-info [data-info='" + key + "']").toggle(value !== undefined && value !== null && value !== "");
+        }
     }
 
     private buildSessionInfo() {
-        let $roadTempWrapper = $("#road-temp-wrapper");
-        $roadTempWrapper.attr("style", "background-color: " + getColorForPercentage(this.status.SessionInfo.RoadTemp / 40));
-        $roadTempWrapper.attr("data-original-title", t("live.road_temp", {temp: this.status.SessionInfo.RoadTemp}));
-
-        let $roadTempText = $("#road-temp-text");
-        $roadTempText.text(this.status.SessionInfo.RoadTemp + "°C");
-
-        let $ambientTempWrapper = $("#ambient-temp-wrapper");
-        $ambientTempWrapper.attr("style", "background-color: " + getColorForPercentage(this.status.SessionInfo.AmbientTemp / 40));
-        $ambientTempWrapper.attr("data-original-title", t("live.ambient_temp", {temp: this.status.SessionInfo.AmbientTemp}));
-
-        let $ambientTempText = $("#ambient-temp-text");
-        $ambientTempText.text(this.status.SessionInfo.AmbientTemp + "°C");
+        $("#road-temp-text").text(this.status.SessionInfo.RoadTemp + "°C");
+        $("#ambient-temp-text").text(this.status.SessionInfo.AmbientTemp + "°C");
+        $("#weather-text").text(RaceControl.getWeatherName(this.status.SessionInfo.WeatherGraphics));
 
         $("#event-name").text(this.status.SessionInfo.Name);
         $("#event-type").text(RaceControl.getSessionType(this.status.SessionInfo.Type));
+
+        this.highlightSession();
     }
 
-    private showTrackWeatherImage(): void {
-        let $currentWeather = $("#weatherImage");
-
+    // getWeatherName is the readable name of a weather preset.
+    private static getWeatherName(weatherGraphics: string): string {
         // Fix for sol weathers with time info in this format:
         // sol_05_Broken%20Clouds_type=18_time=0_mult=20_start=1551792960/preview.jpg
-        let pathCorrected = this.status.SessionInfo.WeatherGraphics.split("_");
+        const parts = (weatherGraphics || "").split("_");
 
-        for (let i = 0; i < pathCorrected.length; i++) {
-            if (pathCorrected[i].indexOf("type=") !== -1) {
-                pathCorrected.splice(i);
+        for (let i = 0; i < parts.length; i++) {
+            if (parts[i].indexOf("type=") !== -1) {
+                parts.splice(i);
                 break;
             }
         }
 
-        let pathFinal = pathCorrected.join("_");
-
-        $.get("/content/weather/" + pathFinal + "/preview.jpg").done(function () {
-            // preview for skin exists
-            $currentWeather.attr("src", "/content/weather/" + pathFinal + "/preview.jpg").show();
-        }).fail(function () {
-            // preview doesn't exist, load default fall back image
-            $currentWeather.hide();
-        });
-
-        $currentWeather.attr("alt", t("live.current_weather", {weather: prettifyName(this.status.SessionInfo.WeatherGraphics, false)}));
+        return prettifyName(parts.join("_"), false) || "-";
     }
 
-    private getTrackImageURL(): string {
-        if (!this.status) {
-            return "";
+    // highlightSession marks the current session in the stepper and the ones before it as done.
+    private highlightSession(): void {
+        const keys = RaceControl.sessionKeys(this.status.SessionInfo.Type);
+        const $steps = $(".live-step");
+        let current = -1;
+
+        $steps.each(function (i, el) {
+            if (current === -1 && keys.indexOf(String($(el).data("session")).toUpperCase()) !== -1) {
+                current = i;
+            }
+        });
+
+        $steps.each(function (i, el) {
+            $(el).toggleClass("is-active", i === current)
+                .toggleClass("is-done", current !== -1 && i < current);
+
+            if (i === current) {
+                $(el).attr("aria-current", "step");
+            } else {
+                $(el).removeAttr("aria-current");
+            }
+        });
+    }
+
+    private static sessionKeys(sessionIndex: number): string[] {
+        switch (sessionIndex) {
+            case 0:
+                return ["BOOK"];
+            case 1:
+                return ["PRACTICE"];
+            case 2:
+                return ["QUALIFY"];
+            case 3:
+                return ["RACE", "RACEX2"];
+            default:
+                return [];
         }
-
-        const sessionInfo = this.status.SessionInfo;
-
-        return "/content/tracks/" + sessionInfo.Track + "/ui" + (!!sessionInfo.TrackConfig ? "/" + sessionInfo.TrackConfig : "") + "/preview.png";
     }
 
     private handleTabs(): void {
@@ -295,6 +331,40 @@ export class RaceControl {
 
             // the live map calculates its scale from the visible image size
             $(window).trigger("resize");
+        });
+    }
+
+    // handleAdminDrawer opens and closes the admin drawer (admins only, the button is not rendered otherwise).
+    private handleAdminDrawer(): void {
+        const $drawer = $("#admin-drawer");
+        const $backdrop = $("#admin-drawer-backdrop");
+        const $button = $("#admin-panel");
+
+        if (!$drawer.length) {
+            return;
+        }
+
+        const setOpen = (open: boolean) => {
+            $drawer.toggleClass("open", open).attr("aria-hidden", open ? "false" : "true");
+            $backdrop.prop("hidden", !open);
+            $("body").toggleClass("live-drawer-open", open);
+            $button.attr("aria-expanded", open ? "true" : "false");
+
+            if (open) {
+                $drawer.find("input, select").first().trigger("focus");
+            } else {
+                $button.trigger("focus");
+            }
+        };
+
+        $button.on("click", () => setOpen(!$drawer.hasClass("open")));
+        $("#admin-drawer-close").on("click", () => setOpen(false));
+        $backdrop.on("click", () => setOpen(false));
+
+        $(document).on("keydown", (e: JQuery.KeyDownEvent) => {
+            if (e.key === "Escape" && $drawer.hasClass("open")) {
+                setOpen(false);
+            }
         });
     }
 
@@ -652,7 +722,7 @@ class LiveTimings implements WebsocketHandler {
 
         $(document).on("click", "#countdown", this.getFromClickEvent.bind(this));
 
-        $(document).on("submit", "#broadcast-chat-form", this.processChatForm.bind(this));
+        $(document).on("submit", "#broadcast-chat-form, #broadcast-chat-quick-form", this.processChatForm.bind(this));
         $(document).on("submit", "#admin-command-form", this.processAdminCommandForm.bind(this));
         $(document).on("submit", "#kick-user-form", this.processKickUserForm.bind(this));
         $(document).on("submit", "#send-chat-form", this.processSendChatForm.bind(this));
@@ -1153,34 +1223,4 @@ function randomColorForDriver(driverGUID: string): string {
     return randomColor({
         seed: driverGUID,
     })
-}
-
-const percentColors = [
-    {pct: 0.25, color: {r: 0x00, g: 0x00, b: 0xff}},
-    {pct: 0.625, color: {r: 0x00, g: 0xff, b: 0}},
-    {pct: 1.0, color: {r: 0xff, g: 0x00, b: 0}}
-];
-
-function getColorForPercentage(pct: number): string {
-    let i;
-
-    for (i = 1; i < percentColors.length - 1; i++) {
-        if (pct < percentColors[i].pct) {
-            break;
-        }
-    }
-
-    let lower = percentColors[i - 1];
-    let upper = percentColors[i];
-    let range = upper.pct - lower.pct;
-    let rangePct = (pct - lower.pct) / range;
-    let pctLower = 1 - rangePct;
-    let pctUpper = rangePct;
-    let color = {
-        r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
-        g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
-        b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
-    };
-
-    return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
 }

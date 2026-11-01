@@ -39,157 +39,137 @@
 
     {{ with .RaceDetails }}
         <div class="live-header">
-            <div class="live-header-main">
+            <div class="live-header-top">
                 <div class="live-title">
-                    <a href="#" id="event-title" data-driver-links="{{ if StatsAccess }}1{{ else }}0{{ end }}" data-toggle="popover" data-placement="bottom"></a>
+                    <h1 id="event-title" data-driver-links="{{ if StatsAccess }}1{{ else }}0{{ end }}"></h1>
                     <div id="track-location"></div>
                 </div>
 
-                <div class="race-control-weather-info">
-                    <img class="img img-fluid d-lg-inline-block d-none" id="weatherImage" src="/static/img/no-preview-general.png" alt="{{ t "live.current_weather" }}">
+                <div class="race-control-buttons">
+                    {{ with $CMJoinLink }}
+                        <a id="cm-join-link" href="{{ . }}" class="btn btn-success btn-sm">{{ t "live.join" }}</a>
+                    {{ end }}
 
-                    <div class="d-inline-block">
-                        <div id="road-temp-wrapper" data-toggle="tooltip" data-original-title="{{ t "live.road_temp" }}">
-                            <div id="road-temp-text"></div>
-                            <img src="/static/img/temp-road.png" alt="{{ t "live.road_temp" }}" id="road-temp">
-                        </div>
-                        <div id="ambient-temp-wrapper" class="mt-1" data-toggle="tooltip" data-original-title="{{ t "live.ambient_temp" }}">
-                            <div id="ambient-temp-text"></div>
-                            <img src="/static/img/temp-ambient.png" alt="{{ t "live.ambient_temp" }}" id="ambient-temp">
-                        </div>
-                    </div>
+                    {{ if $.IsStrackerEnabled }}
+                        <a href="{{ $.STrackerInterfacePublicURL }}" class="btn btn-primary btn-sm">sTracker</a>
+                    {{ end }}
+
+                    {{ if and $.IsKissMyRankEnabled (ne $.KissMyRankWebStatsPublicURL "") }}
+                        <a href="{{ $.KissMyRankWebStatsPublicURL }}" target="_blank" class="btn btn-warning btn-sm">KissMyRank</a>
+                    {{ end }}
+
+                    {{ if AdminAccess }}
+                        <button type="button" id="admin-panel" class="btn btn-sm btn-info" aria-controls="admin-drawer" aria-expanded="false">
+                            <i class="fa fa-sliders"></i> {{ t "live.admin_panel" }}
+                        </button>
+                    {{ end }}
                 </div>
             </div>
 
-            <div class="live-tiles race-control-event-info">
-                <div class="live-tile">
-                    <div class="live-tile-label">{{ t "home.session" }}</div>
-                    <div class="live-tile-value"><span id="event-type">-</span></div>
-                    <div class="live-tile-sub">
-                        {{ range $sessionName, $session := .RaceConfig.Sessions }}
-                            <span data-toggle="tooltip" title="{{ sessionName $sessionName }}" class="badge badge-primary">{{ trunc 1 (sessionName $sessionName) }}</span>
-                        {{ end }}
-                    </div>
-                </div>
-                <div class="live-tile">
-                    <div class="live-tile-label">{{ t "live.remaining" }}</div>
-                    <div class="live-tile-value live-mono"><span id="race-time">--:--:--</span></div>
-                </div>
-                <div class="live-tile">
-                    <div class="live-tile-label">{{ t "home.entrants" }}</div>
-                    <div class="live-tile-value live-mono" data-toggle="tooltip" title="{{ entrantNames .EntryList }}">{{ len .EntryList }} <i class="fa fa-user"></i></div>
-                </div>
-            </div>
-
-            <div class="race-control-buttons">
-                {{ with $CMJoinLink }}
-                    <a id="cm-join-link" href="{{ . }}" class="btn btn-success btn-sm">{{ t "live.join" }}</a>
-                {{ end }}
-
-                {{ if AdminAccess }}
-                    <button id="admin-panel" data-toggle="popover" class="btn btn-sm btn-info" data-placement="bottom">{{ t "live.admin_panel" }}</button>
-                {{ end }}
-
-                {{ if $.IsStrackerEnabled }}
-                    <a href="{{ $.STrackerInterfacePublicURL }}" class="btn btn-primary btn-sm">sTracker</a>
-                {{ end }}
-
-                {{ if and $.IsKissMyRankEnabled (ne $.KissMyRankWebStatsPublicURL "") }}
-                    <a href="{{ $.KissMyRankWebStatsPublicURL }}" target="_blank" class="btn btn-warning btn-sm">KissMyRank</a>
-                {{ end }}
-            </div>
-        </div>
-
-        <div id="popover-content-event-title" class="d-none">
-            <img class="img img-fluid mt-2"
-                 id="trackImage"
-                 src="/static/img/no-preview-general.png"
-            >
-
-            <ul class="list-unstyled mt-2">
-                <li><strong>{{ t "live.track.description" }}</strong> <span id="track-description"></span></li>
-                <li><strong>{{ t "live.track.length" }}</strong> <span id="track-length"></span></li>
-                <li><strong>{{ t "live.track.pitboxes" }}</strong> <span id="track-pitboxes"></span></li>
-                <li><strong>{{ t "live.track.width" }}</strong> <span id="track-width"></span></li>
-                <li><strong>{{ t "live.track.run" }}</strong> <span id="track-run"></span></li>
+            <ul class="live-trackinfo" id="track-info">
+                <li data-info="length"><span class="live-info-label">{{ t "live.track.length" }}</span> <span id="track-length"></span></li>
+                <li data-info="pitboxes"><span class="live-info-label">{{ t "live.track.pitboxes" }}</span> <span id="track-pitboxes"></span></li>
+                <li data-info="width"><span class="live-info-label">{{ t "live.track.width" }}</span> <span id="track-width"></span></li>
+                <li data-info="run"><span class="live-info-label">{{ t "live.track.run" }}</span> <span id="track-run"></span></li>
+                <li data-info="description" class="live-info-description"><span class="live-info-label">{{ t "live.track.description" }}</span> <span id="track-description"></span></li>
             </ul>
-        </div>
 
-        <div id="popover-content-admin-panel" class="d-none">
-            <form class="form-inline p-1" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}">
+            <div class="live-status race-control-event-info">
+                <ol class="live-stepper" aria-label="{{ t "home.session" }}">
+                    {{ range $sessionName, $session := .RaceConfig.Sessions }}
+                        <li class="live-step" data-session="{{ $sessionName }}">{{ sessionName $sessionName }}</li>
+                    {{ end }}
+                </ol>
 
-                <div class="form-row">
-                    <label for="broadcast-chat">{{ t "live.broadcast_chat" }} </label>
+                <div class="live-remaining">
+                    <div class="live-remaining-row">
+                        <span class="live-chip-label">{{ t "live.remaining" }}</span>
+                        <span class="live-remaining-value live-mono" id="race-time">--:--:--</span>
+                    </div>
+                    <div class="live-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="race-progress-bar"><span id="race-progress"></span></div>
                 </div>
 
-                <div class="form-row">
-                    <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="{{ t "live.broadcast_placeholder" }}">
-
-                    <button class="btn btn-success btn-sm ml-1" type="submit">{{ t "live.send" }}</button>
+                <div class="live-chips">
+                    <span class="live-chip" id="weather-chip" title="{{ t "live.current_weather" }}">
+                        <i class="fa fa-cloud"></i> <span id="weather-text">-</span>
+                    </span>
+                    <span class="live-chip" id="road-temp-wrapper" title="{{ t "live.road_temp" }}">
+                        <span class="live-chip-label">{{ t "live.road_temp" }}</span> <span id="road-temp-text" class="live-mono">-</span>
+                    </span>
+                    <span class="live-chip" id="ambient-temp-wrapper" title="{{ t "live.ambient_temp" }}">
+                        <span class="live-chip-label">{{ t "live.ambient_temp" }}</span> <span id="ambient-temp-text" class="live-mono">-</span>
+                    </span>
+                    <span class="live-chip" data-toggle="tooltip" title="{{ entrantNames .EntryList }}">
+                        <i class="fa fa-user"></i> <span class="live-mono">{{ len .EntryList }}</span>
+                    </span>
                 </div>
-
-            </form>
-
-            <form class="form p-1" id="send-chat-form" name="send-chat-form" action="{{ serverURL "/send-chat" }}">
-                <div class="form-row" style="margin-bottom: -7px">
-                    <label for="send-chat">{{ t "live.send_chat" }} </label>
-                </div>
-
-                <div class="form-row mb-2">
-                    <select class="form-control-sm chat-user" name="chat-user" id="chat-user">
-                        <option value="default-driver-spacer">{{ t "live.no_drivers" }}</option>
-                        <!-- driver kick opts appended by javascript -->
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <input type="text" name="send-chat" id="send-chat" class="send-chat form-control form-control-sm admin-command-input" placeholder="{{ t "live.send_placeholder" }}">
-
-                    <button class="btn btn-success btn-sm ml-1" type="submit">{{ t "live.send" }}</button>
-                </div>
-            </form>
-
-            <form class="form-inline p-1" id="admin-command-form" name="admin-command-form" action="{{ serverURL "/admin-command" }}">
-
-                <div class="form-row">
-                    <label for="admin-command">{{ t "live.admin_command" }} </label>
-                </div>
-
-                <div class="form-row">
-                    <input type="text" name="admin-command" id="admin-command" class="admin-command form-control form-control-sm" placeholder="/ballast 2 100">
-
-                    <button class="btn btn-success btn-sm ml-1" type="submit">{{ t "live.send" }}</button>
-                </div>
-
-            </form>
-
-            <form class="form p-1" id="kick-user-form" name="kick-user-form" action="{{ serverURL "/kick-user" }}">
-                <div class="form-row" style="margin-bottom: -7px">
-                    <label for="kick-user">{{ t "live.kick_driver" }} </label>
-                </div>
-
-                <div class="form-row">
-                    <select class="form-control-sm kick-user" name="kick-user" id="kick-user">
-                        <option value="default-driver-spacer">{{ t "live.no_drivers" }}</option>
-                        <!-- driver kick opts appended by javascript -->
-                    </select>
-
-                    <button class="btn btn-danger btn-sm ml-1" type="submit">{{ t "live.kick" }}</button>
-                </div>
-            </form>
-
-            <div style="height: 43px">
-                <a id="countdown" href="{{ serverURL "/countdown" }}" class="btn btn-info btn-sm mt-3">{{ t "live.countdown" }}</a>
             </div>
-
-            <a id="next-session" href="{{ serverURL "/next-session" }}" class="btn btn-success btn-sm mt-3">{{ t "live.next_session" }}</a>
-            <a id="restart-session" href="{{ serverURL "/restart-session" }}" class="btn btn-warning btn-sm mt-3">{{ t "live.restart_session" }}</a>
-
-
-
         </div>
 
-        <div class="clearfix"></div>
+        {{ if AdminAccess }}
+            <div class="live-drawer-backdrop" id="admin-drawer-backdrop" hidden></div>
+            <aside class="live-drawer" id="admin-drawer" role="dialog" aria-modal="true" aria-labelledby="admin-drawer-title" aria-hidden="true">
+                <div class="live-drawer-header">
+                    <h2 id="admin-drawer-title">{{ t "live.admin_panel" }}</h2>
+                    <button type="button" class="live-drawer-close" id="admin-drawer-close" aria-label="{{ t "live.close" }}"><i class="fa fa-times"></i></button>
+                </div>
+
+                <div class="live-drawer-body">
+                    <form class="live-drawer-section" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}" autocomplete="off">
+                        <label for="broadcast-chat">{{ t "live.broadcast_chat" }}</label>
+                        <div class="input-group">
+                            <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control" placeholder="{{ t "live.broadcast_placeholder" }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="submit">{{ t "live.send" }}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form class="live-drawer-section" id="send-chat-form" name="send-chat-form" action="{{ serverURL "/send-chat" }}" autocomplete="off">
+                        <label for="chat-user">{{ t "live.send_chat" }}</label>
+                        <select class="form-control chat-user mb-2" name="chat-user" id="chat-user">
+                            <option value="default-driver-spacer">{{ t "live.no_drivers" }}</option>
+                            <!-- driver options appended by javascript -->
+                        </select>
+                        <div class="input-group">
+                            <input type="text" name="send-chat" id="send-chat" class="send-chat form-control" placeholder="{{ t "live.send_placeholder" }}" aria-label="{{ t "live.send_chat" }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="submit">{{ t "live.send" }}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form class="live-drawer-section" id="admin-command-form" name="admin-command-form" action="{{ serverURL "/admin-command" }}" autocomplete="off">
+                        <label for="admin-command">{{ t "live.admin_command" }}</label>
+                        <div class="input-group">
+                            <input type="text" name="admin-command" id="admin-command" class="admin-command form-control" placeholder="/ballast 2 100">
+                            <div class="input-group-append">
+                                <button class="btn btn-success" type="submit">{{ t "live.send" }}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <form class="live-drawer-section" id="kick-user-form" name="kick-user-form" action="{{ serverURL "/kick-user" }}">
+                        <label for="kick-user">{{ t "live.kick_driver" }}</label>
+                        <div class="input-group">
+                            <select class="form-control kick-user" name="kick-user" id="kick-user">
+                                <option value="default-driver-spacer">{{ t "live.no_drivers" }}</option>
+                                <!-- driver options appended by javascript -->
+                            </select>
+                            <div class="input-group-append">
+                                <button class="btn btn-danger" type="submit">{{ t "live.kick" }}</button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="live-drawer-section live-drawer-actions">
+                        <a id="countdown" href="{{ serverURL "/countdown" }}" class="btn btn-info">{{ t "live.countdown" }}</a>
+                        <a id="next-session" href="{{ serverURL "/next-session" }}" class="btn btn-success">{{ t "live.next_session" }}</a>
+                        <a id="restart-session" href="{{ serverURL "/restart-session" }}" class="btn btn-warning">{{ t "live.restart_session" }}</a>
+                    </div>
+                </div>
+            </aside>
+        {{ end }}
 
         {{ if Config.LiveMap.IsEnabled }}
             <div class="live-tabs d-xl-none" role="tablist" aria-label="{{ t "live.view" }}">
@@ -198,12 +178,12 @@
             </div>
         {{ end }}
 
-        <div class="row live-panes" data-active-tab="standings">
-            <div class="col-12 live-pane live-pane-standings">
-                <div class="table-responsive table-sm live-table-wrapper">
-                    <table id="live-table" class="table table-bordered table-striped live-table">
+        <div class="live-panes {{ if not Config.LiveMap.IsEnabled }}live-no-map{{ end }}" data-active-tab="standings">
+            <div class="live-pane live-pane-standings">
+                <div class="table-responsive live-table-wrapper">
+                    <table id="live-table" class="live-table">
                         <tr>
-                            <th class="p-1 text-center">&num;</th>
+                            <th class="text-center">&num;</th>
                             <th>{{ t "live.col.driver" }}</th>
                             <th>{{ t "live.col.car" }}</th>
                             <th>{{ t "live.col.current_lap" }}</th>
@@ -225,9 +205,9 @@
                 </div>
 
                 <div id="stored-times" style="display: none">
-                    <h4>{{ t "live.stored_times" }}</h4>
-                    <div class="table-responsive table-sm">
-                        <table id="live-table-disconnected" class="table table-bordered table-striped live-table-stored">
+                    <h2 class="live-section-title">{{ t "live.stored_times" }}</h2>
+                    <div class="table-responsive live-table-wrapper">
+                        <table id="live-table-disconnected" class="live-table live-table-stored">
                             <tr>
                                 <th>{{ t "live.col.driver" }}</th>
                                 <th>{{ t "live.col.car" }}</th>
@@ -242,50 +222,61 @@
                 </div>
             </div>
 
-            <div class="col-12 live-pane live-pane-map">
-                {{ if Config.LiveMap.IsEnabled }}
-                    <div class="map-container">
-                        <div id="map">
-                            <img src="" class="img img-fluid img-bordered" id="trackMapImage">
-                        </div>
-                    </div>
-
-                    <div class="card card-body mt-2" id="chat-container">
-                        <div class="card-text chat-message-template"><span id="chat-message-sender"></span>{{ t "live.game_chat" }}</div>
-                    </div>
-
-                    {{ if AdminAccess }}
-
-                        <form class="form mt-2" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}" autocomplete="off">
-                            <div class="form-group">
-                                <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="{{ t "live.broadcast_short" }}">
+            {{ if Config.LiveMap.IsEnabled }}
+                <div class="live-pane live-pane-map">
+                    <div class="live-side">
+                        <div class="live-side-block">
+                            <div class="map-container">
+                                <div id="map">
+                                    <img src="" class="img img-fluid img-bordered" id="trackMapImage">
+                                </div>
                             </div>
-                        </form>
+                        </div>
 
-                    {{ end }}
-                {{ end }}
-            </div>
-        </div>
+                        <div class="live-side-block">
+                            <div class="card card-body" id="chat-container">
+                                <div class="card-text chat-message-template"><span id="chat-message-sender"></span>{{ t "live.game_chat" }}</div>
+                            </div>
 
-        <form action="{{ serverURL "/live-timing/save-frames" }}" method="post" class="live-frames row mt-2">
-            <!-- Hidden, used for cloning -->
-            {{ template "iframe-block" }}
+                            {{ if AdminAccess }}
+                                <form class="live-chat-form" id="broadcast-chat-quick-form" name="broadcast-chat-quick-form" action="{{ serverURL "/broadcast-chat" }}" autocomplete="off">
+                                    <input type="text" name="broadcast-chat" id="broadcast-chat-quick" class="broadcast-chat form-control form-control-sm" placeholder="{{ t "live.broadcast_short" }}" aria-label="{{ t "live.broadcast_short" }}">
+                                </form>
+                            {{ end }}
+                        </div>
 
-            {{ with $.FrameLinks }}
-                {{ range $index, $link := $.FrameLinks }}
-                    {{ template "iframe-block" $link }}
-                {{ end }}
-            {{ end }}
-
-            <div class="clearfix"></div>
-
-            {{ if WriteAccess }}
-                <div class="col-12 mt-4">
-                    <a class="btn btn-primary text-light" id="add-live-frame">{{ t "live.add_iframe" }}</a>
-                    <button type="submit" class="btn btn-success text-light">{{ t "live.save_iframes" }}</button>
+                        <!-- further side blocks (event feed) go here -->
+                    </div>
                 </div>
             {{ end }}
-        </form>
+        </div>
+
+        {{ $frameCount := len $.FrameLinks }}
+        {{ if or WriteAccess (gt $frameCount 0) }}
+            <details class="live-streams" id="live-streams" {{ if gt $frameCount 0 }}open{{ end }}>
+                <summary>{{ t "live.streams" }} <span class="live-streams-count">{{ if gt $frameCount 0 }}({{ $frameCount }}){{ end }}</span></summary>
+
+                <form action="{{ serverURL "/live-timing/save-frames" }}" method="post" class="live-frames row">
+                    <!-- Hidden, used for cloning -->
+                    {{ template "iframe-block" }}
+
+                    {{ with $.FrameLinks }}
+                        {{ range $index, $link := $.FrameLinks }}
+                            {{ template "iframe-block" $link }}
+                        {{ end }}
+                    {{ end }}
+
+                    <div class="clearfix"></div>
+
+                    {{ if WriteAccess }}
+                        <div class="col-12 mt-3">
+                            <a class="btn btn-primary text-light" id="add-live-frame">{{ t "live.add_iframe" }}</a>
+                            <button type="submit" class="btn btn-success text-light">{{ t "live.save_iframes" }}</button>
+                        </div>
+                    {{ end }}
+                </form>
+            </details>
+        {{ end }}
 
         <script type="text/javascript">
             const useMPH = {{ $UseMPH }};

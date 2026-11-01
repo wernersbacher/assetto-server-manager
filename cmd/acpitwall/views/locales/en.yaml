@@ -311,6 +311,8 @@ live:
   remaining: Remaining
   join: Join
   admin_panel: Admin Panel
+  streams: Streams
+  close: Close
   track:
     description: "Description:"
     length: "Length:"

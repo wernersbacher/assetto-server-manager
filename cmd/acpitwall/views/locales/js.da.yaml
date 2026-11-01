@@ -15,9 +15,6 @@ js:
     laps_remaining:
       one: "{count} omgang tilbage"
       other: "{count} omgange tilbage"
-    road_temp: "Banetemperatur: {temp}°C"
-    ambient_temp: "Lufttemperatur: {temp}°C"
-    current_weather: "Aktuelt vejr: {weather}"
     loaded: Indlæst
     crash_with_car: "Kollision med {driver} ved {speed}"
     crash_with_environment: "Kollision med omgivelserne ved {speed}"
