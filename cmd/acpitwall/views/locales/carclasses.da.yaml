@@ -17,6 +17,7 @@ carclasses:
   usage_help: "Denne bilklasse bruges af disse mesterskaber. En ændring af bilerne gælder for alle:"
   usage_class: "klasse {name}"
   unused_help: Intet mesterskab bruger denne bilklasse.
+  duplicate: Duplikér
   delete: Slet bilklasse
   delete_blocked: Denne bilklasse kan ikke slettes, så længe et mesterskab bruger den. Fjern den først fra mesterskaberne ovenfor.
   delete_confirm: Slet bilklassen {name}?

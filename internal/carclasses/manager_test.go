@@ -468,3 +468,31 @@ func TestManager_ValidateImported(t *testing.T) {
 		t.Error("class without cars not refused with an Error")
 	}
 }
+
+func TestDuplicateUsesAFreeNameAndKeepsTheCars(t *testing.T) {
+	forEachStore(t, func(t *testing.T, store smstore.Store) {
+		m := NewManager(store)
+
+		source := mustCreate(t, m, "GT3", "bmw", "audi")
+
+		first, err := m.Duplicate(source.ID.String())
+
+		if err != nil || first.Name != "GT3 Duplicate" || first.ID == source.ID || strings.Join(first.Cars, ",") != "bmw,audi" {
+			t.Fatalf("first duplicate: %+v, %v", first, err)
+		}
+
+		second, err := m.Duplicate(source.ID.String())
+
+		if err != nil || second.Name != "GT3 Duplicate 2" {
+			t.Fatalf("second duplicate: %+v, %v", second, err)
+		}
+
+		if classes, _ := m.List(); len(classes) != 3 {
+			t.Fatalf("want 3 classes, got %d", len(classes))
+		}
+
+		if _, err := m.Duplicate(uuid.New().String()); !errors.Is(err, ErrNotFound) {
+			t.Fatalf("unknown class: want ErrNotFound, got %v", err)
+		}
+	})
+}

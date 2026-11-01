@@ -243,3 +243,4 @@ flash:
     created: "Car class {name} created."
     updated: "Car class {name} saved."
     deleted: "Car class {name} deleted."
+    duplicated: "Car class {source} duplicated as {name}."

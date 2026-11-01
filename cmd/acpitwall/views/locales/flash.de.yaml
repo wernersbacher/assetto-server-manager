@@ -243,3 +243,4 @@ flash:
     created: "Fahrzeugklasse {name} angelegt."
     updated: "Fahrzeugklasse {name} gespeichert."
     deleted: "Fahrzeugklasse {name} gelöscht."
+    duplicated: "Fahrzeugklasse {source} als {name} dupliziert."

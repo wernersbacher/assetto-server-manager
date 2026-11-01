@@ -243,3 +243,4 @@ flash:
     created: "Autoklasse {name} aangemaakt."
     updated: "Autoklasse {name} opgeslagen."
     deleted: "Autoklasse {name} verwijderd."
+    duplicated: "Autoklasse {source} gedupliceerd als {name}."

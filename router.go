@@ -315,6 +315,7 @@ func Router(
 		r.Get(carclasses.NewPath, carClassHandler.New)
 		r.Post(carclasses.NewPath, carClassHandler.Create)
 		r.Post(carclasses.ListPath+"/{classID}", carClassHandler.Update)
+		r.Post(carclasses.ListPath+"/{classID}/duplicate", carClassHandler.Duplicate)
 		r.Post("/car/{name}/metadata", carsHandler.SaveMetadata)
 		r.Post("/track/{name}/metadata", tracksHandler.SaveMetadata)
 		r.Post("/results/upload", resultsHandler.UploadHandler)

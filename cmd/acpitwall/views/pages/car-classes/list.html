@@ -24,13 +24,14 @@
         <div class="table-card mb-4">
             <table class="table">
                 <thead>
-                <tr><th>{{ t "carclasses.name" }}</th><th>{{ t "carclasses.cars" }}</th><th>{{ t "carclasses.used_by" }}</th></tr>
+                <tr><th>{{ t "carclasses.name" }}</th><th>{{ t "carclasses.cars" }}</th><th>{{ t "carclasses.used_by" }}</th>{{ if WriteAccess }}<th><span class="sr-only">{{ t "common.actions" }}</span></th>{{ end }}</tr>
                 </thead>
                 {{ range $item := $.Classes }}
                     <tr>
                         <td><a href="/car-classes/{{ $item.Class.ID.String }}">{{ $item.Class.Name }}</a></td>
                         <td>{{ len $item.Class.Cars }}</td>
                         <td>{{ if $item.Championships }}{{ tn "carclasses.championships_count" $item.Championships }}{{ else }}<span class="text-muted">{{ t "carclasses.unused" }}</span>{{ end }}</td>
+                        {{ if WriteAccess }}<td class="text-right"><form method="post" action="/car-classes/{{ $item.Class.ID.String }}/duplicate" class="m-0"><button type="submit" class="btn btn-sm btn-outline-secondary">{{ t "carclasses.duplicate" }}</button></form></td>{{ end }}
                     </tr>
                 {{ end }}
             </table>

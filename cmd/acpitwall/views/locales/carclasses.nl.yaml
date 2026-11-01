@@ -17,6 +17,7 @@ carclasses:
   usage_help: "Deze autoklasse wordt gebruikt door deze kampioenschappen. Een wijziging van de auto's geldt voor alle:"
   usage_class: "klasse {name}"
   unused_help: Geen enkel kampioenschap gebruikt deze autoklasse.
+  duplicate: Dupliceren
   delete: Autoklasse verwijderen
   delete_blocked: Deze autoklasse kan niet worden verwijderd zolang een kampioenschap haar gebruikt. Verwijder haar eerst uit de hierboven genoemde kampioenschappen.
   delete_confirm: De autoklasse {name} verwijderen?

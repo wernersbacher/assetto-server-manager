@@ -327,3 +327,29 @@ func (h *Handler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 
 	api.WriteJSON(w, api.NewCarClass(class))
 }
+
+// Duplicate copies the class under a free name and opens the copy.
+func (h *Handler) Duplicate(w http.ResponseWriter, r *http.Request) {
+	class, ok := h.find(w, r)
+
+	if !ok {
+		return
+	}
+
+	duplicate, err := h.manager.Duplicate(class.ID.String())
+
+	var refusal Error
+
+	switch {
+	case errors.Is(err, ErrNotFound):
+		http.NotFound(w, r)
+	case errors.As(err, &refusal):
+		smweb.AddErrorFlash(w, r, smweb.ErrorText(r, err))
+		http.Redirect(w, r, ListPath, http.StatusFound)
+	case err != nil:
+		h.serverError(w, err, "couldn't duplicate car class")
+	default:
+		smweb.AddFlash(w, r, smweb.T(r, "flash.carclass.duplicated", "name", duplicate.Name, "source", class.Name))
+		http.Redirect(w, r, ClassPath(duplicate), http.StatusFound)
+	}
+}

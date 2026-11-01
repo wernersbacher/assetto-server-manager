@@ -8,6 +8,7 @@ package carclasses
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 	"strings"
 	"time"
@@ -453,4 +454,50 @@ func (m *Manager) ValidateImported(class *smmodel.CarClass, existing []*smmodel.
 	}
 
 	return translateModelError(smmodel.CheckCarClassNameUnique(class, existing))
+}
+
+// Duplicate creates a copy of a car class with the same cars under a free name ("<name> Duplicate", then
+// "<name> Duplicate 2" and so on). The copy is not used by any championship.
+func (m *Manager) Duplicate(id string) (*smmodel.CarClass, error) {
+	defer championship.LockCarClassChanges()()
+
+	source, err := m.store.FindCarClassByID(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	classes, err := m.store.ListCarClasses()
+
+	if err != nil {
+		return nil, err
+	}
+
+	used := make(map[string]bool, len(classes))
+
+	for _, class := range classes {
+		used[smmodel.NormalizeCarClassName(class.Name)] = true
+	}
+
+	name := source.Name + " Duplicate"
+
+	for n := 2; used[smmodel.NormalizeCarClassName(name)]; n++ {
+		name = fmt.Sprintf("%s Duplicate %d", source.Name, n)
+	}
+
+	class, err := smmodel.NewCarClass(name, source.Cars, m.now())
+
+	if err != nil {
+		return nil, translateModelError(err)
+	}
+
+	if err := m.checkName(class); err != nil {
+		return nil, err
+	}
+
+	if err := m.store.UpsertCarClass(class); err != nil {
+		return nil, err
+	}
+
+	return class, nil
 }

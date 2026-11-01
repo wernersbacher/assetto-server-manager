@@ -243,3 +243,4 @@ flash:
     created: "Bilklasse {name} oprettet."
     updated: "Bilklasse {name} gemt."
     deleted: "Bilklasse {name} slettet."
+    duplicated: "Bilklasse {source} duplikeret som {name}."

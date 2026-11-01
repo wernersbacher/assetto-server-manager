@@ -17,6 +17,7 @@ carclasses:
   usage_help: "Diese Fahrzeugklasse wird von diesen Championships verwendet. Eine Änderung der Autos gilt für alle:"
   usage_class: "Klasse {name}"
   unused_help: Keine Championship verwendet diese Fahrzeugklasse.
+  duplicate: Duplizieren
   delete: Fahrzeugklasse löschen
   delete_blocked: Diese Fahrzeugklasse kann nicht gelöscht werden, solange eine Championship sie verwendet. Entferne sie zuerst aus den oben genannten Championships.
   delete_confirm: Die Fahrzeugklasse {name} löschen?

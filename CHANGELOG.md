@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* Car classes can be duplicated from the car class list (the copy gets the name "<name> Duplicate" and the same cars).
+
 * The detail pages of cars, tracks, car classes, results, teams and drivers and the account pages show a breadcrumb (parent list / current page) instead of separate back links and buttons.
 
 * The Accounts page has a search field (name or Steam ID), hides the permission group column on small screens (it is shown below the name instead) and shows a message when nothing matches.
