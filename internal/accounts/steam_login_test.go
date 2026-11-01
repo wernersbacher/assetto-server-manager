@@ -60,6 +60,8 @@ func TestLoginWithSteam_NewAccount(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
+	ah.accountManager.options.SteamSignupDisabled = true
+
 	// sign up off: no account, no session
 	req := steamRequest(ah)
 
@@ -76,7 +78,7 @@ func TestLoginWithSteam_NewAccount(t *testing.T) {
 	}
 
 	// sign up on
-	ah.accountManager.options.SteamSignup = true
+	ah.accountManager.options.SteamSignupDisabled = false
 	req = steamRequest(ah)
 	account, created, err := ah.accountManager.loginWithSteam(req, httptest.NewRecorder(), testSteamID)
 
@@ -125,6 +127,8 @@ func TestLoginWithSteam_DeletedAccountSignupOff(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
+	ah.accountManager.options.SteamSignupDisabled = true
+
 	deletedSteamAccount(t, ah)
 
 	req := steamRequest(ah)
@@ -142,7 +146,6 @@ func TestLoginWithSteam_DeletedAccountRegistersAgain(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
-	ah.accountManager.options.SteamSignup = true
 	deleted := deletedSteamAccount(t, ah)
 
 	req := steamRequest(ah)
@@ -193,7 +196,6 @@ func TestLoginWithSteam_DeletedAccountRateLimited(t *testing.T) {
 
 	now := time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)
 	ah.accountManager.now = func() time.Time { return now }
-	ah.accountManager.options.SteamSignup = true
 
 	for i := 0; i < steamSignupsLimit; i++ {
 		if _, _, err := ah.accountManager.loginWithSteam(steamRequest(ah), httptest.NewRecorder(), fmt.Sprintf("765611980000%05d", i)); err != nil {
@@ -211,8 +213,6 @@ func TestLoginWithSteam_DeletedAccountRateLimited(t *testing.T) {
 func TestLoginWithSteam_RejectsOddIDs(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
-
-	ah.accountManager.options.SteamSignup = true
 
 	for _, id := range []string{"", "abc", "123;456", testSteamID + "x"} {
 		if _, _, err := ah.accountManager.loginWithSteam(steamRequest(ah), httptest.NewRecorder(), id); err == nil {
@@ -256,11 +256,11 @@ func TestToggleSteamSignup(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
-	if ah.accountManager.options.SteamSignup {
-		t.Fatal("the Steam sign up must be off by default")
+	if ah.accountManager.options.SteamSignupDisabled {
+		t.Fatal("the Steam sign up must be on by default")
 	}
 
-	for i, want := range []bool{true, false} {
+	for i, want := range []bool{true, false} { // want = SteamSignupDisabled
 		req := httptest.NewRequest(http.MethodPost, "/accounts/toggle-steam-signup", nil)
 		req.Header.Set("Referer", "/accounts")
 		req = smweb.WithScope(req, &smweb.Scope{SessionStore: ah.accountManager.sessionStore})
@@ -272,15 +272,15 @@ func TestToggleSteamSignup(t *testing.T) {
 			t.Fatalf("toggle %d: expected a redirect, got %d", i, rec.Code)
 		}
 
-		if ah.accountManager.options.SteamSignup != want {
+		if ah.accountManager.options.SteamSignupDisabled != want {
 			t.Errorf("toggle %d: expected %v", i, want)
 		}
 
 		// the option is persisted
 		var stored ServerAccountOptions
 
-		if err := ah.store.GetMeta(serverAccountOptionsMetaKey, &stored); err != nil || stored.SteamSignup != want {
-			t.Errorf("toggle %d: stored option is %v (err %v), expected %v", i, stored.SteamSignup, err, want)
+		if err := ah.store.GetMeta(serverAccountOptionsMetaKey, &stored); err != nil || stored.SteamSignupDisabled != want {
+			t.Errorf("toggle %d: stored option is %v (err %v), expected %v", i, stored.SteamSignupDisabled, err, want)
 		}
 	}
 }

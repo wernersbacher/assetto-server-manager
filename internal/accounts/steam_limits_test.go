@@ -100,7 +100,6 @@ func TestLoginWithSteam_SignupLimit(t *testing.T) {
 
 	now := time.Date(2026, 1, 1, 12, 0, 0, 0, time.UTC)
 	ah.accountManager.now = func() time.Time { return now }
-	ah.accountManager.options.SteamSignup = true
 
 	id := func(i int) string { return fmt.Sprintf("765611980000%05d", i) }
 

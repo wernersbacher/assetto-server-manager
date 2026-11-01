@@ -57,9 +57,10 @@ type ServerAccountOptions struct {
 	// Skins are the settings for skin uploads of users.
 	Skins smmodel.SkinSettings
 
-	// SteamSignup lets visitors without an account create one by logging in with Steam. Off by default; Steam
+	// SteamSignupDisabled turns off the creation of accounts by a Steam login (the zero value, so a fresh or older
+	// stored option set allows it). Visitors without an account can create one by logging in with Steam; Steam
 	// logins of existing accounts (matched by their GUID) always work.
-	SteamSignup bool
+	SteamSignupDisabled bool
 }
 
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
@@ -316,7 +317,7 @@ func (ah *AccountHandler) TogglePublicStats(w http.ResponseWriter, r *http.Reque
 
 // ToggleSteamSignup switches the "registration with Steam" option.
 func (ah *AccountHandler) ToggleSteamSignup(w http.ResponseWriter, r *http.Request) {
-	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.steam_signup_changed"), func(o *ServerAccountOptions) { o.SteamSignup = !o.SteamSignup })
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.steam_signup_changed"), func(o *ServerAccountOptions) { o.SteamSignupDisabled = !o.SteamSignupDisabled })
 }
 
 // SetDownloadAccess sets the "downloads" option from the form value "access" (public, login or off).
@@ -660,7 +661,7 @@ func (am *AccountManager) loginWithSteam(r *http.Request, w http.ResponseWriter,
 	case err == nil && !account.Deleted.IsZero():
 		return nil, false, ErrSteamSignupDisabled
 	case err == smstore.ErrAccountNotFound:
-		if !am.options.SteamSignup {
+		if am.options.SteamSignupDisabled {
 			return nil, false, ErrSteamSignupDisabled
 		}
 
@@ -1038,7 +1039,7 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 		Accounts:         accounts,
 		ServerReadIsOpen: ah.accountManager.options.IsOpen,
 		PublicStats:      ah.accountManager.options.PublicStats,
-		SteamSignup:      ah.accountManager.options.SteamSignup,
+		SteamSignup:      !ah.accountManager.options.SteamSignupDisabled,
 		DownloadAccess:   ah.accountManager.options.DownloadAccess.String(),
 
 		TeamCreationEnabled: !ah.accountManager.options.DisableTeamCreation,
