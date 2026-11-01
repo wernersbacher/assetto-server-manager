@@ -148,7 +148,7 @@ password:
 account_details:
   title: Profiel bewerken
   intro: Deze gegevens zijn niet verplicht, maar wel aanbevolen. Als je ze invult, kom je in de lijst met deelnemers die organisatoren aan events kunnen toevoegen, en worden je gegevens automatisch ingevuld als je je inschrijft voor een gesloten event.
-  driver_name: Coureursnaam
+  driver_name: Rijdersnaam
   guid: GUID
   guid_help: Als je je Steam-GUID niet weet, kun je <a href="{url}">inloggen met Steam</a> om hem automatisch in te vullen.
   team: Team
@@ -197,8 +197,8 @@ accounts:
     make_open: Openen
     make_closed: Sluiten
   stats:
-    title: Openbare coureursstatistieken
-    intro: Coureursprofielen, ranglijsten en ronderecords. Als dit uit staat, zijn ze alleen zichtbaar voor ingelogde accounts, ook bij een open ACPitwall.
+    title: Openbare rijdersstatistieken
+    intro: Rijdersprofielen, ranglijsten en ronderecords. Als dit uit staat, zijn ze alleen zichtbaar voor ingelogde accounts, ook bij een open ACPitwall.
     public: Openbaar
     private: Privé
     make_public: Openbaar maken
@@ -210,7 +210,7 @@ accounts:
     login: Alleen ingelogde accounts
     "off": Uit (alleen admins)
   teams:
-    intro: Coureurs kunnen teams oprichten, er lid van worden en zich ermee inschrijven voor kampioenschappen. Accounts met schrijfrechten kunnen altijd teams oprichten en alle teams beheren.
+    intro: Rijders kunnen teams oprichten, er lid van worden en zich ermee inschrijven voor kampioenschappen. Accounts met schrijfrechten kunnen altijd teams oprichten en alle teams beheren.
     creation: Teams oprichten
     creation_everyone: Elk account kan teams oprichten
     max: Teams per account (als eigenaar)
@@ -240,7 +240,7 @@ home:
   guest: Je bekijkt de pagina als gast. <a href="{url}">Log in</a> om races, content en de server te beheren.
   event: Event
   no_event: Er loopt geen event
-  drivers_online: Coureurs online
+  drivers_online: Rijders online
   restart: Herstarten
   current_session: Huidige sessie
   sessions: Sessies
@@ -303,11 +303,11 @@ live:
   broadcast_placeholder: Iedereen een mooie race!
   broadcast_short: Chat naar iedereen
   send: Versturen
-  send_chat: "Chat naar coureur:"
+  send_chat: "Chat naar rijder:"
   send_placeholder: Let op de track limits!
-  no_drivers: Geen coureurs gevonden!
+  no_drivers: Geen rijders gevonden!
   admin_command: "Admincommando:"
-  kick_driver: "Coureur kicken:"
+  kick_driver: "Rijder kicken:"
   kick: Kicken
   countdown: Countdown versturen
   next_session: Volgende sessie
@@ -316,7 +316,7 @@ live:
   standings: Stand
   map_chat: Kaart & chat
   col:
-    driver: Coureur
+    driver: Rijder
     car: Auto
     current_lap: Huidige ronde
     last_lap: Laatste ronde

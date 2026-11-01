@@ -43,7 +43,7 @@ js:
       no_drs_zones: Geen DRS-zones
       replace_password: Wachtwoord vervangen
       force_stop: Geforceerd stoppen
-      stop_with_drivers: Stoppen met coureurs
+      stop_with_drivers: Stoppen met rijders
     summary:
       "on": "{label} aan"
       "off": "{label} uit"
@@ -102,8 +102,8 @@ js:
   championship:
     unnamed_class: Naamloze klasse
     slots_with_drivers:
-      one: "{count} plek heeft een coureur toegewezen – verwijder die in het tabblad Entrylist"
-      other: "{count} plekken hebben coureurs toegewezen – verwijder ze in het tabblad Entrylist"
+      one: "{count} plek heeft een rijder toegewezen – verwijder die in het tabblad Entrylist"
+      other: "{count} plekken hebben rijders toegewezen – verwijder ze in het tabblad Entrylist"
     info_placeholder: In dit veld kun je links naar circuits, auto's of andere bronnen delen, de regels van het kampioenschap beschrijven en alles wat je verder met de deelnemers van je kampioenschap wilt delen! Je kunt het ook leeg laten als je geen info nodig hebt. Grote afbeeldingen maken deze bewerkpagina trager, de weergavepagina merkt er weinig van.
   points:
     ordinal:

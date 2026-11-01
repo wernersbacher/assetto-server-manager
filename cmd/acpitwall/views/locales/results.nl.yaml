@@ -18,8 +18,8 @@ results:
   open_simresults: Openen in Simresults
   download_json: Downloaden als JSON
   edit_results: Uitslagen bewerken
-  edit_names_help: Met dit formulier kun je de namen van de coureurs in het uitslagbestand wijzigen. Het oorspronkelijke uitslagbestand wordt daarbij overschreven.
-  driver_guid: "GUID van coureur: {guid}"
+  edit_names_help: Met dit formulier kun je de namen van de rijders in het uitslagbestand wijzigen. Het oorspronkelijke uitslagbestand wordt daarbij overschreven.
+  driver_guid: "GUID van rijder: {guid}"
   edit_names: Namen bewerken
   in_car: in
   driver_swaps:
@@ -49,7 +49,7 @@ results:
     booking: Booking
     server: Server
     any_server: Elke server
-    driver_placeholder: Naam of GUID van coureur
+    driver_placeholder: Naam of GUID van rijder
     reset: Resetten
     no_match: Geen uitslagen die bij het filter passen
   col:
@@ -68,18 +68,18 @@ results:
   penalty:
     details: Strafdetails
     time_seconds: Tijdstraf (seconden)
-    zero_help: Bij 0 wordt de coureur gediskwalificeerd.
+    zero_help: Bij 0 wordt de rijder gediskwalificeerd.
     add: Straf toevoegen
     remove: Straf verwijderen
-    blacklist: Coureur op blacklist zetten
+    blacklist: Rijder op blacklist zetten
   badge:
     fastest_lap: Snelste ronde
-    drivers_fastest_lap: Snelste ronde van de coureur
+    drivers_fastest_lap: Snelste ronde van de rijder
     cheated: Waarschijnlijk vals gespeeld
     fastest_sector: Snelste sector
-    drivers_fastest_sector: Snelste sector van de coureur
+    drivers_fastest_sector: Snelste sector van de rijder
   collisions:
-    other_driver: Andere coureur
+    other_driver: Andere rijder
     type: Type
     impact_speed: Botssnelheid
     relative_position: Relatieve positie
@@ -99,7 +99,7 @@ results:
     map_alt: "Botsingen op {track}"
     none: Er waren geen botsingen in deze sessie.
   leaderboards:
-    intro: De snelste geldige ronde van elke coureur op een circuit.
+    intro: De snelste geldige ronde van elke rijder op een circuit.
     no_match: Geen ronden die bij het filter passen.
     none: Nog geen ronden. Geldige ronden uit uitslagen verschijnen hier.
     period: Periode
@@ -107,8 +107,8 @@ results:
     last_30_days: Laatste 30 dagen
     last_7_days: Laatste 7 dagen
     rows: Rijen
-    per_driver: Eén rij per coureur
-    per_driver_car: Eén rij per coureur en auto
+    per_driver: Eén rij per rijder
+    per_driver_car: Eén rij per rijder en auto
     track_details: Circuitdetails
     sectors: Sectoren
     lap_record: Ronderecord
@@ -133,8 +133,8 @@ results:
     of_entrants: van {entrants}
     completed: Afgerond
     in_progress: Bezig
-    no_championships: Deze coureur doet aan geen enkel kampioenschap mee.
+    no_championships: Deze rijder doet aan geen enkel kampioenschap mee.
     personal_bests: Persoonlijke records
     no_personal_bests: Nog geen persoonlijke records. Geldige ronden verschijnen hier.
     dsq: DSQ
-    no_results: Geen uitslagen voor deze coureur.
+    no_results: Geen uitslagen voor deze rijder.

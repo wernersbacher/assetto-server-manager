@@ -10,7 +10,7 @@ flash:
     set_password: Bedankt voor het inloggen. Stel nu een vast wachtwoord in voor je account.
     logged_in: Bedankt voor het inloggen!
     openness_changed: Openheid van de server gewijzigd
-    public_stats_changed: Openbare coureursstatistieken gewijzigd
+    public_stats_changed: Openbare rijdersstatistieken gewijzigd
     download_access_changed: Downloadtoegang gewijzigd
     team_options_changed: Teamopties gewijzigd
     skin_options_changed: Skinopties gewijzigd
@@ -73,8 +73,8 @@ flash:
     event_finished: Het event is afgesloten met de tot nu toe gereden uitslagen!
     event_not_restarted: Het kampioenschapsevent kon niet worden herstart
     event_restarted: Event herstart!
-    driver_penalty_failed: De straf van de coureur kon niet worden gewijzigd
-    driver_penalty_modified: Straf van de coureur gewijzigd
+    driver_penalty_failed: De straf van de rijder kon niet worden gewijzigd
+    driver_penalty_modified: Straf van de rijder gewijzigd
     team_penalty_failed: De teamstraf kon niet worden gewijzigd
     team_penalty_modified: Teamstraf gewijzigd
     signed_up_pending: Bedankt voor je inschrijving voor het kampioenschap! Je inschrijving moet nog door een beheerder worden goedgekeurd.
@@ -185,7 +185,7 @@ flash:
   results:
     parse_failed: Sorry, het uitslagbestand kon niet worden gelezen! Controleer of het formaat klopt.
     bad_file_name: De inhoud van je uitslagbestand klopt, maar de bestandsnaam niet! Geef het bestand een naam volgens de AC-standaard en probeer het opnieuw.
-    drivers_edited: Coureurs bewerkt
+    drivers_edited: Rijders bewerkt
     used_by_championship: Het uitslagbestand kan niet worden verwijderd, het wordt gebruikt door kampioenschap {name}
     used_by_race_weekend: Het uitslagbestand kan niet worden verwijderd, het wordt gebruikt door raceweekend {name}
     not_deleted: Het uitslagbestand kon niet worden verwijderd

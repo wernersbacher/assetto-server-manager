@@ -79,7 +79,7 @@ form:
         and download links. A side-effect of this is that your server name will contain
         a new piece of information (an 'i' character followed by a port - which Content
         Manager requires). Also - if enabled - this wrapper uses a GeoIP functionality
-        provided by <a href='https://freegeoip.app''>freegeoip.app</a>.
+        provided by <a href='https://freegeoip.app'>freegeoip.app</a>.
       label: Enable Content Manager Wrapper
     FallBackResultsSorting:
       help: When on results will use a fallback method of sorting. Only enable this

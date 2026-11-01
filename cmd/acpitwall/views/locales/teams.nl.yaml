@@ -51,7 +51,7 @@ teams:
   kick_detail: Hun inschrijvingen voor kampioenschappen behouden het team.
   kick_label: Lid verwijderen
   invite: Uitnodigen
-  invite_help: Nodig een coureur uit via zijn accountnaam, of laat de naam leeg om een link te maken die iedereen één keer kan gebruiken.
+  invite_help: Nodig een rijder uit via zijn accountnaam, of laat de naam leeg om een link te maken die iedereen één keer kan gebruiken.
   invite_placeholder: Accountnaam (optioneel)
   valid_until: Geldig tot
   no_limit: onbeperkt

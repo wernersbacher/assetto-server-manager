@@ -2,7 +2,7 @@
 form:
   GlobalServerConfig:
     AdminPassword:
-      help: "Het wachtwoord waarmee je als serverbeheerder wordt herkend: als je met dit wachtwoord op de server joint, word je automatisch als admin herkend. Typ /help in de chat van het spel om de lijst met commando's te zien. Let op: als je dit leeg laat, kan elke coureur als admin verbinden!"
+      help: "Het wachtwoord waarmee je als serverbeheerder wordt herkend: als je met dit wachtwoord op de server joint, word je automatisch als admin herkend. Typ /help in de chat van het spel om de lijst met commando's te zien. Let op: als je dit leeg laat, kan elke rijder als admin verbinden!"
       label: Adminwachtwoord
     AssettoCorsaServer:
       label: Assetto Corsa Server
@@ -139,8 +139,8 @@ form:
       help: "Als dit aan staat, gebruikt ACPitwall MPH in plaats van km/h voor alle snelheden."
       label: MPH gebruiken
     UseShortenedDriverNames:
-      help: "Als dit aan staat, verbergt ACPitwall de achternamen van coureurs, zo wordt 'John Smith' bijvoorbeeld 'John S.'"
-      label: Verkorte coureursnamen gebruiken
+      help: "Als dit aan staat, verbergt ACPitwall de achternamen van rijders, zo wordt 'John Smith' bijvoorbeeld 'John S.'"
+      label: Verkorte rijdersnamen gebruiken
     VoteDuration:
       help: "Duur van een stemming in seconden"
       label: Stemduur
@@ -189,17 +189,17 @@ form:
           help: "Frequentie (seconden) van de Custom Shaders Patch-controle"
           label: Controlefrequentie
         Mandatory:
-          help: "Zet dit op ON als alle coureurs Custom Shaders Patch (versie 0.1.46 of nieuwer) moeten hebben om op de server te rijden. Als je deze optie op true zet, maakt de app de rondetijd automatisch ongeldig"
+          help: "Zet dit op ON als alle rijders Custom Shaders Patch (versie 0.1.46 of nieuwer) moeten hebben om op de server te rijden. Als je deze optie op true zet, maakt de app de rondetijd automatisch ongeldig"
           label: Verplicht
       General:
         CarChecksum:
           help: "Zet dit op true als je de extra checksum van de auto wilt (data.acd + collider.kn5, als deze twee bestanden op de server staan)"
           label: Checksum auto
         CockpitCamera:
-          help: "Zet dit op true om de cockpitcamera voor alle coureurs verplicht te maken. Voor wedstrijdleiding of live-uitzending zet je de GUID's onder de sectie [No_Penalty]"
+          help: "Zet dit op true om de cockpitcamera voor alle rijders verplicht te maken. Voor wedstrijdleiding of live-uitzending zet je de GUID's onder de sectie [No_Penalty]"
           label: Cockpitcamera
         FirstCheckTime:
-          help: "Vertraging (seconden) na het verbinden van een nieuwe coureur tot de eerste controle (app + sol)"
+          help: "Vertraging (seconden) na het verbinden van een nieuwe rijder tot de eerste controle (app + sol)"
           label: Tijd tot eerste controle
         TrackChecksum:
           help: "Zet dit op true als je een extra checksum van het circuit wilt (model + kn5-bestanden, als die op de server staan)"
@@ -244,10 +244,10 @@ form:
           help: "Rollende start: vertraging van het groene licht na het rode signaal (seconden)"
           label: Vertraging groen licht
         NormalizedLightOffPosition:
-          help: "Rollende start: genormaliseerde positie (0 = start, 1 = einde) van de eerste coureur tijdens de rollende start waarop de app het SC-signaal uitschakelt"
+          help: "Rollende start: genormaliseerde positie (0 = start, 1 = einde) van de eerste rijder tijdens de rollende start waarop de app het SC-signaal uitschakelt"
           label: Genormaliseerde positie lichten uit
         NormalizedStartPosition:
-          help: "Rollende start: genormaliseerde positie (0 = start, 1 = einde) van de eerste coureur tijdens de rollende start waarop de app het rode signaal inschakelt. START_NORMALIZED_POSITION moet groter zijn dan LIGHT_OFF_NORMALIZED_POSITION"
+          help: "Rollende start: genormaliseerde positie (0 = start, 1 = einde) van de eerste rijder tijdens de rollende start waarop de app het rode signaal inschakelt. START_NORMALIZED_POSITION moet groter zijn dan LIGHT_OFF_NORMALIZED_POSITION"
           label: Genormaliseerde startpositie
         RaceStartBehindSC:
           help: "Zet dit op true als de race start na de eerste ronde achter de safety car (werkt met of zonder echte safety car op de server)"
@@ -321,7 +321,7 @@ form:
           help: "Als je afremt tot deze snelheid (km/h), verdwijnt de melding INVALID LAP, SLOW DOWN in de kwalificatie"
           label: Afremsnelheid kwalificatie
         QualifySlowDownSpeedRatio:
-          help: "Verhouding ten opzichte van QUALIFY_MAX_SECTOR_OUT_SPEED. De maximaal toegestane snelheid op de startlijn na een cut = QUALIFY_MAX_SECTOR_OUT_SPEED (of een andere nieuwe maximumsnelheid van de coureur) * QUALIFY_SLOW_DOWN_SPEED_RATIO"
+          help: "Verhouding ten opzichte van QUALIFY_MAX_SECTOR_OUT_SPEED. De maximaal toegestane snelheid op de startlijn na een cut = QUALIFY_MAX_SECTOR_OUT_SPEED (of een andere nieuwe maximumsnelheid van de rijder) * QUALIFY_SLOW_DOWN_SPEED_RATIO"
           label: Afremverhouding kwalificatie
         SecondsBetweenCuts:
           help: "Je krijgt pas zoveel seconden na de vorige cut een nieuwe"
@@ -346,7 +346,7 @@ form:
           help: "Maximaal gat in seconden tot de auto voor je"
           label: Gat
         MaxIllegalUses:
-          help: "Hoe vaak de coureur de DRS per sector illegaal mag openen voordat er een straf volgt"
+          help: "Hoe vaak de rijder de DRS per sector illegaal mag openen voordat er een straf volgt"
           label: Max. illegaal gebruik
         MinSpeed:
           help: "Als de snelheid van de auto < MIN SPEED is, volgt geen straf voor illegaal DRS-gebruik"
@@ -371,10 +371,10 @@ form:
           help: "Zet dit op true om straffen voor te hard rijden in de pitlane in te schakelen"
           label: Straffen voor te hard rijden inschakelen
         LapsToTakePenalty:
-          help: "Binnen hoeveel ronden een coureur een straf moet inlossen. Als LAPS_TO_TAKE_PENALTY > 2 --> valse start is altijd 2 vanwege de AC-limiet!"
+          help: "Binnen hoeveel ronden een rijder een straf moet inlossen. Als LAPS_TO_TAKE_PENALTY > 2 --> valse start is altijd 2 vanwege de AC-limiet!"
           label: Ronden om straf in te lossen
         LastLapsWithoutPenalty:
-          help: "Als een coureur in de laatste N ronden een straf krijgt (N = LAPS_TO_TAKE_PENALTY + LAST_LAPS_WITHOUT_PENALTY), mag hij de race uitrijden zonder hem in te lossen, maar krijgt hij een tijdstraf! (Drive through = PENALTY_SECONDS, Stop & GO 10 = PENALTY_SECONDS + 10, .......)"
+          help: "Als een rijder in de laatste N ronden een straf krijgt (N = LAPS_TO_TAKE_PENALTY + LAST_LAPS_WITHOUT_PENALTY), mag hij de race uitrijden zonder hem in te lossen, maar krijgt hij een tijdstraf! (Drive through = PENALTY_SECONDS, Stop & GO 10 = PENALTY_SECONDS + 10, .......)"
           label: Laatste ronden zonder straf
         LastTimeWithoutPenalty:
           help: "Alleen voor races op tijd: seconden voor het einde van de racetijd (de optionele +1 ronde komt daar nog bij) zonder verplichte straf. Alle niet ingeloste straffen ----> strafseconden die bij de uiteindelijke racetijd worden opgeteld (in chat en log). Standaard 360 (6 minuten). BELANGRIJK! Pas deze waarde aan het circuit, de auto's en de extra ronde aan (ca. 3/5 ronden, maar afhankelijk van LAPS_TO_TAKE_PENALTY)"
@@ -544,8 +544,8 @@ form:
         help: "Zet dit op ON als je aan logbestanden wilt toevoegen in plaats van ze te overschrijven. Alleen zinvol met een extern systeem voor logrotatie."
         label: Aan logbestand toevoegen
       IDBasedOnDriverNames:
-        help: "Normaal laat je dit op de standaardwaarde (OFF). Het is bedoeld voor een omgeving waarin hetzelfde Steam-account door verschillende coureurs wordt gebruikt."
-        label: ID op basis van coureursnamen
+        help: "Normaal laat je dit op de standaardwaarde (OFF). Het is bedoeld voor een omgeving waarin hetzelfde Steam-account door verschillende rijders wordt gebruikt."
+        label: ID op basis van rijdersnamen
       KeepAlivePtrackerConnections:
         help: "Zet dit op OFF als je de TCP-optie keep_alive wilt uitschakelen (het gedrag van voor 3.1.7)."
         label: Ptracker-verbindingen actief houden
@@ -646,7 +646,7 @@ form:
         demo-app vind je onder /applink/demo/.
       label: UDP-poort AC App Link
     ACChatAdminGUIDList:
-      help: Eén GUID per regel. Lijst met GUID's van de coureurs die via de Assetto
+      help: Eén GUID per regel. Lijst met GUID's van de rijders die via de Assetto
         Corsa-chat Kissmyrank-admincommando's mogen sturen (typ '/kmr login password'
         in de chat om in te loggen en '/kmr command' om een van de ondersteunde commando's
         uit te voeren).
@@ -656,7 +656,7 @@ form:
         login password' in de chat van het spel om in te loggen).
       label: Adminwachtwoord AC-chat
     AlltimeFastestLapPrize:
-      help: Hoeveel een coureur krijgt voor de snelste ronde aller tijden (in duizenden).
+      help: Hoeveel een rijder krijgt voor de snelste ronde aller tijden (in duizenden).
         1.5 = 1500€.
       label: Prijs snelste ronde aller tijden
     AntiCheatMaxClockDeltaConsecutiveHits:
@@ -667,25 +667,25 @@ form:
         een rondetijd wordt afgekeurd (bijv. om misbruik te voorkomen waarbij iemand
         Assetto Corsa-rondetijden manipuleert via de CPU-klok). Houd er rekening mee
         dat deze waarde ruimte moet laten voor de natuurlijke vertraging in de communicatie
-        tussen plugin en server. Zet hem niet te laag, anders kan hij coureurs bestraffen
+        tussen plugin en server. Zet hem niet te laag, anders kan hij rijders bestraffen
         als je server zwaar belast is. Gebruik dit alleen als je server genoeg resources
         heeft om pakketten met een constante vertraging te verwerken. 0 om uit te schakelen.
       label: 'Anticheat: rondetijd ongeldig bij max. klokafwijking'
     AnticheatPenalizeDriverMaxClockDeltaConsecutiveHits:
-      help: Hoe vaak achter elkaar een coureur de max_clock_delta moet bereiken voordat
+      help: Hoe vaak achter elkaar een rijder de max_clock_delta moet bereiken voordat
         hij de straf krijgt uit de strafkosten en strafacties. 0 om uit te schakelen.
-      label: 'Anticheat: coureur bestraffen na opeenvolgende max. klokafwijkingen'
+      label: 'Anticheat: rijder bestraffen na opeenvolgende max. klokafwijkingen'
     CarTowingCost:
-      help: Sleepkosten per km. Hoeveel (in duizenden) coureurs per km betalen om hun
-        auto naar de pits te laten slepen. 0.05 = 50€ per km (bijv. als een coureur
+      help: Sleepkosten per km. Hoeveel (in duizenden) rijders per km betalen om hun
+        auto naar de pits te laten slepen. 0.05 = 50€ per km (bijv. als een rijder
         teruggaat naar de pits, betaalt hij 50€ voor elke km). 0 om de functie helemaal
         uit te schakelen.
       label: Sleepkosten
     ChatDriverWelcomeMessageShowRaceControlLink:
-      help: Of de Race Control-link wordt getoond als een coureur joint.
+      help: Of de Race Control-link wordt getoond als een rijder joint.
       label: Race Control-link in welkomstbericht tonen
     CleanLapReward:
-      help: Hoeveel (in duizenden) een coureur krijgt voor een schone ronde (bijv. een
+      help: Hoeveel (in duizenden) een rijder krijgt voor een schone ronde (bijv. een
         ronde zonder cut). Handig op trainingsservers (omdat racebeloningen daar niet
         werken).
       label: Beloning schone ronde
@@ -702,10 +702,10 @@ form:
     ConnectionOptions:
       label: Verbindingsopties
     CurrencySymbol:
-      help: Het valutasymbool voor alle boetes en betalingen van coureurs (bijv. €,$,RUB).
+      help: Het valutasymbool voor alle boetes en betalingen van rijders (bijv. €,$,RUB).
       label: Valutasymbool
     CustomChatDriverWelcomeMessages:
-      help: Eigen chatberichten die je wilt sturen als een coureur verbindt. Eén per
+      help: Eigen chatberichten die je wilt sturen als een rijder verbindt. Eén per
         regel.
       label: Eigen welkomstberichten in de chat
     CutLineYourCustomCutLine:
@@ -718,7 +718,7 @@ form:
       label: Cut-lijnen ingeschakeld
     DamageCostBetweenCars:
       help: 'De kosten (in duizenden) van de schade bij een botsing tussen auto''s bij
-        damage_cost_between_cars_base_speed. 3 = 3000€ (bijv. coureurs betalen 3000€
+        damage_cost_between_cars_base_speed. 3 = 3000€ (bijv. rijders betalen 3000€
         als ze bij de opgegeven relatieve basissnelheid botsen). Let op: de schade groeit
         met het kwadraat van de relatieve snelheid.'
       label: Schadekosten tussen auto's
@@ -727,7 +727,7 @@ form:
       label: Basissnelheid schadekosten tussen auto's
     DamageCostWithEnvironment:
       help: 'De kosten (in duizenden) van de schade bij een botsing met de omgeving
-        bij damage_cost_with_environment_base_speed. 3 = 3000€ (bijv. coureurs betalen
+        bij damage_cost_with_environment_base_speed. 3 = 3000€ (bijv. rijders betalen
         3000€ als ze bij de opgegeven relatieve basissnelheid tegen de omgeving botsen).
         Let op: de schade groeit met het kwadraat van de snelheid.'
       label: Schadekosten met omgeving
@@ -798,7 +798,7 @@ form:
       label: Geen kick bij drive-through
     DrivingLinePenaltyRepeatGrace:
       help: De minimale tijd (in seconden) tussen twee opeenvolgende cut-straffen (baangrenzen
-        en cut-lijnen). 6 = 6s (bijv. als een coureur twee keer binnen 6s cut, wordt
+        en cut-lijnen). 6 = 6s (bijv. als een rijder twee keer binnen 6s cut, wordt
         hij maar één keer bestraft). Zet dit niet te laag, om een stortvloed aan straffen
         te voorkomen.
       label: Wachttijd tussen rijlijnstraffen
@@ -818,7 +818,7 @@ form:
       fieldset: Kwalificatietijd verbeteren met overtredingen
     ImprovingQualifyLaptimeWithInfractionsCutoffPercent:
       help: De rondetijd (in procent van de beste tijd van de sessie) waarboven een
-        verbeterde tijd met cuts niet als misbruik geldt. 107 = 107% (bijv. een coureur
+        verbeterde tijd met cuts niet als misbruik geldt. 107 = 107% (bijv. een rijder
         die een tijd met Kissmyrank-overtredingen maar zonder AC-overtredingen neerzet
         die boven 107% van de snelste ronde van de sessie ligt, krijgt geen straf).
       label: Grens (procent) kwalificatietijd verbeteren met overtredingen
@@ -837,7 +837,7 @@ form:
       label: Bescherming bij op ronde zetten
     LaptimeChallengeBaseAverageSpeed:
       help: Basis-gemiddelde snelheid van de Laptime Challenge (km/h). 110=110km/h.
-        Een coureur is level 0 als hij een ronde met gemiddeld 110 km/h kan rijden.
+        Een rijder is level 0 als hij een ronde met gemiddeld 110 km/h kan rijden.
         Level 1 bij 111 km/h enzovoort...
       label: Basis-gemiddelde snelheid Laptime Challenge
     LaptimeChallengeBasePrize:
@@ -853,9 +853,9 @@ form:
         van Web Stats wilt uitschakelen).
       label: Live Track View
     MacCollisionsPer100kmRechargeHours:
-      help: De basistijd (uren per botsingseenheid) die een coureur die max_collisions_per_100km
+      help: De basistijd (uren per botsingseenheid) die een rijder die max_collisions_per_100km
         overschrijdt moet wachten voordat hij weer op de server mag (bijv. als max_collisions_per_100km
-        op 30 staat, moet een coureur met 31 botsingen per 100km 1u wachten na de laatste
+        op 30 staat, moet een rijder met 31 botsingen per 100km 1u wachten na de laatste
         keer dat hij de server verliet, bij 32 2 uur enzovoort).
       label: Wachturen bij max. botsingen per 100 km
     MaxCollisions:
@@ -864,8 +864,8 @@ form:
         hij de straffen uit penalty_cost en penalty_action krijgt.
       label: Max. botsingen
     MaxCollisionsPer100km:
-      help: Het maximale aantal botsingen per 100 km dat een coureur op de server mag
-        hebben. Dit geldt voor coureurs die meer dan max_collisions_per_100km_min_distance
+      help: Het maximale aantal botsingen per 100 km dat een rijder op de server mag
+        hebben. Dit geldt voor rijders die meer dan max_collisions_per_100km_min_distance
         hebben gereden.
       label: Max. botsingen per 100 km
     MaxCollisionsPer100kmMinDistance:
@@ -873,20 +873,20 @@ form:
       label: Min. afstand voor max. botsingen per 100 km
     MaxInfractions:
       fieldset: Max. overtredingen
-      help: Hoe vaak een coureur de serverregels mag overtreden (cutten, te hard rijden,
+      help: Hoe vaak een rijder de serverregels mag overtreden (cutten, te hard rijden,
         de lijn bij de pituitgang overschrijden enz.) voordat hij de straffen uit de
         strafkosten en strafacties krijgt.
       label: Max. overtredingen
     MaxPing:
-      help: De maximale ping (in ms) die een coureur mag hebben (de plugin geeft een
-        waarschuwing als de actuele ping hoger is en kickt de coureur als het gemiddelde
+      help: De maximale ping (in ms) die een rijder mag hebben (de plugin geeft een
+        waarschuwing als de actuele ping hoger is en kickt de rijder als het gemiddelde
         van de laatste 4 metingen boven de opgegeven waarde ligt). Zet dit niet te laag,
         anders blijven er misschien weinig spelers over. 0 om de pinglimiet helemaal
         uit te schakelen.
       label: Max. ping
     MaxPingDeviation:
-      help: De maximale pingafwijking (in ms) die coureurs mogen hebben voordat hun
-        verbinding als instabiel geldt (de plugin kickt de coureur als de standaardafwijking
+      help: De maximale pingafwijking (in ms) die rijders mogen hebben voordat hun
+        verbinding als instabiel geldt (de plugin kickt de rijder als de standaardafwijking
         van de ping bij de laatste 4 metingen boven de opgegeven waarde ligt). Dit is
         een maat voor de instabiliteit van de verbinding, die belangrijk is voor MP-racen.
         0 om uit te schakelen.
@@ -897,20 +897,20 @@ form:
         te sporen die met geheugentoewijzing te maken kunnen hebben).
       label: Geheugenmonitor ingeschakeld
     MinMoney:
-      help: Minimaal bedrag (in duizenden) dat een coureur moet hebben om op de server
-        te blijven. 1 = 1000€ (bijv. -12 -> coureurs met meer dan 12000€ schuld worden
+      help: Minimaal bedrag (in duizenden) dat een rijder moet hebben om op de server
+        te blijven. 1 = 1000€ (bijv. -12 -> rijders met meer dan 12000€ schuld worden
         gekickt). Controleer ook start_money om zeker te weten dat deze waarde zinnig
         is.
       label: Min. geld
     MinimumDrivingStandard:
       help: Maximaal toegestane tijd in het klassement als fractie van de snelste tijd.
-        1.1 = 110% van de snelste tijd (bijv. een coureur die binnen minimum_driving_standard_laps
+        1.1 = 110% van de snelste tijd (bijv. een rijder die binnen minimum_driving_standard_laps
         ronden geen tijd binnen 110% van de snelste rondetijd neerzet, wordt niet op
         de server toegelaten).
       label: Minimaal rijniveau
     MinimumDrivingStandardLaps:
-      help: Het aantal geldige ronden waarin een coureur het minimale rijniveau moet
-        halen. Een coureur krijgt na een paar dagen een tweede kans, volgens minimum_driving_standard_recharge_period.
+      help: Het aantal geldige ronden waarin een rijder het minimale rijniveau moet
+        halen. Een rijder krijgt na een paar dagen een tweede kans, volgens minimum_driving_standard_recharge_period.
       label: Ronden voor minimaal rijniveau
     MinimumDrivingStandardMinPlayers:
       help: Minimaal aantal spelers vanaf waar het minimale rijniveau wordt afgedwongen.
@@ -918,7 +918,7 @@ form:
         dan het opgegeven aantal spelers op de server is.
       label: Min. spelers voor minimaal rijniveau
     MinimumDrivingStandardRechargePeriod:
-      help: Het aantal seconden waarna een coureur die niet aan het niveau voldoet één
+      help: Het aantal seconden waarna een rijder die niet aan het niveau voldoet één
         ronde terugkrijgt (bijv. als minimum_driving_standard_laps op 12 staat, bepaalt
         deze waarde hoe lang een speler met 13 ronden en een slechte tijd moet wachten
         voordat hij weer op de server mag).
@@ -939,12 +939,12 @@ form:
         parked_car_seconds meer dan 24 meter rijdt, activeert de detectie niet).
       label: Afstand geparkeerde auto
     ParkedCarMaxGrace:
-      help: Hoe vaak een coureur de detectie van geparkeerde auto's mag activeren voordat
+      help: Hoe vaak een rijder de detectie van geparkeerde auto's mag activeren voordat
         hij een straf krijgt. 4 = 4 keer (0 om deze detectie uit te schakelen).
       label: Max. coulance geparkeerde auto
     ParkedCarSeconds:
       help: Het aantal seconden voor de detectie van geparkeerde auto's. 6 = 6s (bijv.
-        een coureur die bij de baan staat en binnen 6s niet meer dan parked_car_distance
+        een rijder die bij de baan staat en binnen 6s niet meer dan parked_car_distance
         rijdt, activeert de detectie één keer).
       label: Seconden geparkeerde auto
     ParkingNearTrack:
@@ -1884,7 +1884,7 @@ form:
     Protections:
       label: Beschermingen
     QualifyTopThreeBasePrize:
-      help: Hoeveel (in duizenden) de eerste drie coureurs krijgen als meer dan het
+      help: Hoeveel (in duizenden) de eerste drie rijders krijgen als meer dan het
         opgegeven aantal spelers een geldige kwalificatietijd heeft neergezet. 0.5 =
         500€ (bijv. de eerste krijgt 1500, de tweede 1000, de derde 500€).
       label: Basisprijs top drie kwalificatie
@@ -1913,7 +1913,7 @@ form:
     RaceControlIncludePlayersNearerThan:
       help: Auto's binnen deze afstand (in meters) van de auto die het Race Control-event
         veroorzaakt, komen in de replay. 100 = 100m (bijv. als een auto met een andere
-        botst, komen alle coureurs binnen 100 meter in de replay).
+        botst, komen alle rijders binnen 100 meter in de replay).
       label: 'Race Control: spelers meenemen dichter dan'
     RaceControlLogOvertakes:
       help: Zet dit op 1 als de plugin inhaalacties moet loggen en in de Race Control-viewer
@@ -1931,12 +1931,12 @@ form:
         Stats-pagina (minstens 8 tekens, anders wordt de functie uitgeschakeld).
       label: Race Control-wachtwoord
     RaceDriverEntryFee:
-      help: Hoeveel een coureur moet betalen om aan een racesessie op de server deel
-        te nemen (in duizenden). 0.3 = 300€ (bijv. coureurs betalen 300€ aan het begin
+      help: Hoeveel een rijder moet betalen om aan een racesessie op de server deel
+        te nemen (in duizenden). 0.3 = 300€ (bijv. rijders betalen 300€ aan het begin
         van elke race).
-      label: Inschrijfgeld coureur
+      label: Inschrijfgeld rijder
     RaceFastestLapPrize:
-      help: Hoeveel een coureur krijgt voor de snelste ronde van de race (in duizenden).
+      help: Hoeveel een rijder krijgt voor de snelste ronde van de race (in duizenden).
         0.15 = 150€.
       label: Prijs snelste ronde race
     RaceMassAccidentCrashTime:
@@ -1964,21 +1964,21 @@ form:
         gebruikt). Zijn er niet genoeg spelers, dan slaat de server de racesessie over.
       label: Min. spelers voor race
     RacePodiumAnnouncement:
-      help: Of de eerste drie coureurs aan het einde van de race worden aangekondigd.
+      help: Of de eerste drie rijders aan het einde van de race worden aangekondigd.
       label: Podium aankondigen
     RaceSponsorCleanGainOvertakes:
       help: Hoeveel schone inhaalacties nodig zijn voordat de sponsors één beloning
-        voor schone winst uitkeren (bijv. als je dit op 5 zet en de coureur 5 keer schoon
+        voor schone winst uitkeren (bijv. als je dit op 5 zet en de rijder 5 keer schoon
         inhaalt, krijgt hij 1000€, bij 10 inhaalacties 2000€ enz.)
       label: Schone inhaalacties voor sponsorbeloning
     RaceSponsorCleanGainReward:
-      help: Hoeveel sponsors een coureur belonen die tijdens de race 5 keer schoon inhaalt
+      help: Hoeveel sponsors een rijder belonen die tijdens de race 5 keer schoon inhaalt
         (in duizenden). 1 = 1000€. Schone inhaalacties zijn posities die zonder botsingen
-        zijn gewonnen, zonder posities gewonnen op coureurs die tijdens de race de verbinding
+        zijn gewonnen, zonder posities gewonnen op rijders die tijdens de race de verbinding
         verbreken.
       label: Sponsorbeloning voor schone winst
     RaceSponsorEntryFee:
-      help: Hoeveel een sponsor betaalt om de coureur aan de race te laten deelnemen
+      help: Hoeveel een sponsor betaalt om de rijder aan de race te laten deelnemen
         (in duizenden). 1.5 = 1500€ (dit vormt samen met het inschrijfgeld het totale
         prijzengeld; hoe hoger, hoe hoger de uitbetalingen van de race).
       label: Sponsorbijdrage inschrijving
@@ -2012,7 +2012,7 @@ form:
       label: Relatieve bescherming bij op ronde zetten
     ReservedSlotsAccessKey:
       help: De sleutel die VIP-spelers in de Kissmyrank Multiplayer Launcher Mod gebruiken
-        om hun gereserveerde slot te krijgen. Coureurs met een gereserveerd slot typen
+        om hun gereserveerde slot te krijgen. Rijders met een gereserveerd slot typen
         deze sleutel in het invoerveld van de Kissmyrank Multiplayer Launcher Mod (bij
         de rode vraagteken-knop boven de serverlijst) voordat ze hun gereserveerde slot
         kunnen gebruiken. Als dit niet is ingesteld, worden gereserveerde slots helemaal
@@ -2027,7 +2027,7 @@ form:
         wachten tot er een slot vrijkomt of tot de volgende sessie.
       label: Spelers verwijderen voor gereserveerde slots in de race
     ReservedSlotsGUIDList:
-      help: Eén per regel. Lijst met GUID's van de coureurs die een gereserveerd slot
+      help: Eén per regel. Lijst met GUID's van de rijders die een gereserveerd slot
         op de server hebben (vereist de Kissmyrank Multiplayer Launcher Mod). Als de
         server vol is en een van deze GUID's probeert te joinen, wordt een speler gekickt
         om plaats te maken.
@@ -2035,12 +2035,12 @@ form:
     ReverseGear:
       fieldset: Achteruit
     ReverseGearMaxDistance:
-      help: De maximale afstand in meters die een coureur op de baan achteruit mag rijden
+      help: De maximale afstand in meters die een rijder op de baan achteruit mag rijden
         (0 om de straf uit te schakelen).
       label: Max. afstand achteruit
     RightToBeForgottenChatCommand:
       help: Of het chatcommando 'kmr erase_personal_data_and_ban_myself' is ingeschakeld,
-        waarmee coureurs hun recht om vergeten te worden gebruiken en al hun statistieken
+        waarmee rijders hun recht om vergeten te worden gebruiken en al hun statistieken
         laten verwijderen.
       label: Chatcommando recht om vergeten te worden
     RollingStart:
@@ -2079,7 +2079,7 @@ form:
     TrackBoundaryCutGainFilter:
       help: Of het winstfilter voor cuts over de baangrens is ingeschakeld. Dat vergelijkt
         het voordeel van de cut met de snelste ronde van de sessie en geeft geen straf
-        als de coureur daarbij tijd verliest.
+        als de rijder daarbij tijd verliest.
       label: Winstfilter cut over baangrens
     TrackBoundaryCutGainFilterMinAverageSpeed:
       help: Deze snelheid (in km/h) is de ondergrens van het winstfilter voor cuts over
@@ -2090,18 +2090,18 @@ form:
       label: 'Winstfilter cut over baangrens: min. gemiddelde snelheid'
     TrackBoundaryCutGainFilterMinLossPercent:
       help: Het minimale tijdverlies (in procent) waarbij het winstfilter voor cuts
-        over de baangrens de cut negeert. 6=6% (bijv. een coureur die meer dan 6% verliest
+        over de baangrens de cut negeert. 6=6% (bijv. een rijder die meer dan 6% verliest
         ten opzichte van de snelste rondetijd van de sessie, krijgt geen straf).
       label: 'Winstfilter cut over baangrens: min. verlies in procent'
     TrackBoundaryCutMaxSpeed:
-      help: De maximale snelheid (in km/h) waarmee een coureur de baangrens mag overschrijden.
+      help: De maximale snelheid (in km/h) waarmee een rijder de baangrens mag overschrijden.
       label: Max. snelheid cut over baangrens
     TrackBoundaryCutMaxTime:
       help: De maximale tijd (in seconden) tussen begin en einde van een cut (cuts daarbuiten
         gelden als momenten naast de baan).
       label: Max. tijd cut over baangrens
     TrackBoundarySameLapCutMaxSpeed:
-      help: De maximale snelheid (in km/h) waarmee een coureur na de eerste overtreding
+      help: De maximale snelheid (in km/h) waarmee een rijder na de eerste overtreding
         de baangrens mag overschrijden (dit geldt zowel voor het terugkeren op de baan
         als voor verdere cuts).
       label: Max. snelheid cut over baangrens in dezelfde ronde
@@ -2112,7 +2112,7 @@ form:
       label: Meetlengte baangrens
     TrackRejoinMaxSpeed:
       fieldset: Max. snelheid bij terugkeren op de baan
-      help: De maximale snelheid waarmee een coureur op de baan mag terugkeren nadat
+      help: De maximale snelheid waarmee een rijder op de baan mag terugkeren nadat
         hij in een uitgesloten zone van de baan is gegaan of de auto naast de baan heeft
         stilgezet.
       label: Max. snelheid bij terugkeren op de baan
@@ -2135,12 +2135,12 @@ form:
         geparkeerde auto niet iedereen blokkeert).
       label: 'VSC: inhaalsnelheid bij langzame leider'
     VSCDefaultSlowAndFarAllowOvertakeDistance:
-      help: De afstand tot de vorige auto waarboven een coureur tijdens de Virtual Safety
+      help: De afstand tot de vorige auto waarboven een rijder tijdens de Virtual Safety
         Car of de formatieronde van de rollende start mag worden ingehaald als hij langzamer
         is dan vsc_defalut_slow_and_far_allow_overtake_speed.
       label: 'VSC: inhaalafstand bij langzaam en ver weg'
     VSCDefaultSlowAndFarAllowOvertakeSpeed:
-      help: De snelheid in km/h waaronder een coureur tijdens de Virtual Safety Car
+      help: De snelheid in km/h waaronder een rijder tijdens de Virtual Safety Car
         of de formatieronde van de rollende start mag worden ingehaald als hij verder
         weg is dan vsc_defalut_slow_and_far_allow_overtake_distance.
       label: 'VSC: inhaalsnelheid bij langzaam en ver weg'
@@ -2149,12 +2149,12 @@ form:
         Car mag rijden.
       label: 'VSC: snelheidslimiet'
     VSCFormationLapFarAllowOvertakeDistance:
-      help: De afstand tot de vorige auto waarboven een coureur tijdens de formatieronde
+      help: De afstand tot de vorige auto waarboven een rijder tijdens de formatieronde
         van de rollende start mag worden ingehaald (omdat de auto's tijdens de formatieronde
         dicht bij elkaar moeten blijven).
       label: 'VSC: inhaalafstand in formatieronde'
     VSCFormationLapMinSpeed:
-      help: De minimale snelheid (in km/h) waarboven een coureur tijdens de formatieronde
+      help: De minimale snelheid (in km/h) waarboven een rijder tijdens de formatieronde
         van de rollende start moet rijden (0 om uit te schakelen).
       label: 'VSC: min. snelheid formatieronde'
     VSCFormationLapSpeedLimit:
@@ -2162,23 +2162,23 @@ form:
         de rollende start mag rijden.
       label: 'VSC: snelheidslimiet formatieronde'
     VSCOvertakingMaxGrace:
-      help: Het aantal seconden dat een coureur heeft om de positie terug te geven als
+      help: Het aantal seconden dat een rijder heeft om de positie terug te geven als
         hij tijdens een Virtual Safety Car of de formatieronde van de rollende start
         een andere auto inhaalt.
       label: 'VSC: max. coulance bij inhalen'
     VSCSlowingMaxGrace:
-      help: Het aantal seconden dat een coureur tijdens de formatieronde van de rollende
+      help: Het aantal seconden dat een rijder tijdens de formatieronde van de rollende
         start onder de minimale snelheid mag zakken.
       label: 'VSC: max. coulance bij afremmen'
     VSCSpeedingMaxGrace:
-      help: Het aantal seconden dat een coureur tijdens een Virtual Safety Car of de
+      help: Het aantal seconden dat een rijder tijdens een Virtual Safety Car of de
         formatieronde van de rollende start boven de snelheidslimiet mag rijden.
       label: 'VSC: max. coulance bij te hard rijden'
     VirtualSafetyCar:
       label: Virtual Safety Car
     WarnedCarGrace:
       help: De tijd in seconden die elke auto na de eerste waarschuwing krijgt om ruimte
-        te maken. Verhoog dit om een gewaarschuwde coureur meer tijd te geven om de
+        te maken. Verhoog dit om een gewaarschuwde rijder meer tijd te geven om de
         andere auto te laten passeren.
       label: Coulance gewaarschuwde auto
     WebAdminConsoleGuestPassword:
@@ -2224,9 +2224,9 @@ form:
         kan het CPU-gebruik verhogen)
       label: Cachetijd Web Stats
     WebStatsDriversPerPage:
-      help: Coureurs per pagina in Web Stats. Hoeveel coureurs per pagina de coureurslijst
+      help: Rijders per pagina in Web Stats. Hoeveel rijders per pagina de rijderslijst
         van Web Stats toont.
-      label: 'Web Stats: coureurs per pagina'
+      label: 'Web Stats: rijders per pagina'
     WebStatsInterface:
       help: Of de Web Stats-interface is ingeschakeld (nodig voor Race Control en het
         beoordelen van botsingen door de wedstrijdleiding).

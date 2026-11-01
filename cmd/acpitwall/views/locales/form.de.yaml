@@ -80,7 +80,7 @@ form:
         und Download-Links. Als Nebeneffekt enthält dein Servername eine zusätzliche
         Information (ein „i“ gefolgt von einem Port, das Content Manager benötigt).
         Außerdem nutzt dieser Wrapper – falls aktiviert – eine GeoIP-Funktion von
-        <a href='https://freegeoip.app''>freegeoip.app</a>.
+        <a href='https://freegeoip.app'>freegeoip.app</a>.
       label: Content Manager Wrapper aktivieren
     FallBackResultsSorting:
       help: Wenn aktiviert, verwenden Ergebnisse eine alternative Sortiermethode.
