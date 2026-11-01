@@ -459,3 +459,64 @@ func TestLeaderboardRowsGetClassNames(t *testing.T) {
 		t.Errorf("c: %v", rows[2].Classes)
 	}
 }
+
+func TestLeaderboardAPIEntriesNameTheirClasses(t *testing.T) {
+	lh, track, layout, cleanup := multiCarLeaderboard(t)
+	defer cleanup()
+
+	q := url.Values{"track": {track}, "layout": {layout}, "perCar": {"1"}}
+	_, plain := getLeaderboard(t, lh, q)
+
+	if len(plain.Entries) < 2 {
+		t.Skipf("fixtures only have %d entries", len(plain.Entries))
+	}
+
+	car0, car1 := plain.Entries[0].CarModel, plain.Entries[1].CarModel
+
+	a := &smmodel.CarClass{ID: uuid.New(), Name: "A", Cars: []string{car0}}
+	both := &smmodel.CarClass{ID: uuid.New(), Name: "Both", Cars: []string{car0, car1}}
+	lh.CarClasses = fakeClasses{a, both}
+
+	rec, lb := getLeaderboard(t, lh, q)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status %d", rec.Code)
+	}
+
+	for _, e := range lb.Entries {
+		switch e.CarModel {
+		case car0:
+			if len(e.CarClasses) != 2 || e.CarClasses[0].ID != a.ID || e.CarClasses[0].Name != "A" || e.CarClasses[1].ID != both.ID {
+				t.Errorf("%s: %+v", e.CarModel, e.CarClasses)
+			}
+		case car1:
+			if len(e.CarClasses) != 1 || e.CarClasses[0].ID != both.ID {
+				t.Errorf("%s: %+v", e.CarModel, e.CarClasses)
+			}
+		default:
+			if len(e.CarClasses) != 0 {
+				t.Errorf("%s: %+v", e.CarModel, e.CarClasses)
+			}
+		}
+	}
+
+	// the field is left out for cars without a class
+	if strings.Contains(string(rec.Body.Bytes()), `"CarClasses":null`) {
+		t.Error("entries without classes must leave the field out")
+	}
+
+	lh.CarClasses = nil
+	rec, _ = getLeaderboard(t, lh, q)
+
+	var raw struct{ Entries []map[string]interface{} }
+
+	if err := json.Unmarshal(rec.Body.Bytes(), &raw); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, e := range raw.Entries {
+		if _, ok := e["CarClasses"]; ok {
+			t.Fatalf("entry has CarClasses without any classes: %v", e)
+		}
+	}
+}

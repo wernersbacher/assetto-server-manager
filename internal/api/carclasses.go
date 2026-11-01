@@ -33,3 +33,23 @@ func NewCarClass(class *smmodel.CarClass) *CarClass {
 
 	return out
 }
+
+// CarClassRef names a car class a car belongs to.
+type CarClassRef struct {
+	ID   uuid.UUID
+	Name string
+}
+
+// CarClassRefs returns the classes of classes that contain the car, nil if there are none (so that the field of an
+// entry can be left out).
+func CarClassRefs(classes []*smmodel.CarClass, car string) []*CarClassRef {
+	var refs []*CarClassRef
+
+	for _, class := range classes {
+		if class.HasCar(car) {
+			refs = append(refs, &CarClassRef{ID: class.ID, Name: class.Name})
+		}
+	}
+
+	return refs
+}

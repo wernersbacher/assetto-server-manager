@@ -2,7 +2,6 @@ package statshttp
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/api"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
-	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
@@ -31,13 +29,8 @@ const (
 // sessionTypes are the values of the sessionType parameter.
 var sessionTypes = []string{"practice", "qualify", "race"}
 
-// CarClasses gives the global car classes. carclasses.Manager implements it; the handler only knows this interface
-// because the package sits above statshttp. Get returns smmodel.ErrCarClassNotFound for an unknown class or an ID
-// that is no UUID.
-type CarClasses interface {
-	List() ([]*smmodel.CarClass, error)
-	Get(id string) (*smmodel.CarClass, error)
-}
+// CarClasses gives the global car classes, see smweb.CarClasses.
+type CarClasses = smweb.CarClasses
 
 // LeaderboardHandler serves the hotlap leaderboard page and API.
 type LeaderboardHandler struct {
@@ -123,41 +116,14 @@ func (lh *LeaderboardHandler) parse(r *http.Request) (*query, error) {
 	// A selection of classes and single cars is the union of the cars of the classes and the cars: a lap counts if
 	// its car is in any chosen class or is one of the chosen cars. An unknown class is an error, never an empty or an
 	// unfiltered list.
-	q.filterCars = append([]string(nil), q.cars...)
+	selection, err := smweb.ResolveCarClasses(lh.CarClasses, values["carClass"])
 
-	for _, id := range values["carClass"] {
-		if id == "" {
-			continue
-		}
-
-		var class *smmodel.CarClass
-
-		if lh.CarClasses != nil {
-			var err error
-
-			class, err = lh.CarClasses.Get(id)
-
-			if err != nil && !errors.Is(err, smmodel.ErrCarClassNotFound) {
-				logrus.WithError(err).Error("couldn't load car class")
-
-				return nil, fmt.Errorf("car class could not be loaded")
-			}
-		}
-
-		if class == nil {
-			return nil, fmt.Errorf("carClass %q is not a known car class", id)
-		}
-
-		if !containsString(q.carClasses, class.ID.String()) {
-			q.carClasses = append(q.carClasses, class.ID.String())
-		}
-
-		for _, car := range class.Cars {
-			if !containsString(q.filterCars, car) {
-				q.filterCars = append(q.filterCars, car)
-			}
-		}
+	if err != nil {
+		return nil, err
 	}
+
+	q.carClasses = selection.IDs
+	q.filterCars = selection.UnionCars(q.cars)
 
 	switch q.period {
 	case "", PeriodAll:
@@ -424,7 +390,7 @@ func (lh *LeaderboardHandler) View(w http.ResponseWriter, r *http.Request) {
 	q, err := lh.parse(r)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		smweb.FilterError(w, err)
 		return
 	}
 
@@ -437,7 +403,7 @@ func (lh *LeaderboardHandler) View(w http.ResponseWriter, r *http.Request) {
 		Track:        lb.track,
 		Layout:       lb.layout,
 		Cars:         lb.cars,
-		CarClasses:   lh.classOptions(q),
+		CarClasses:   smweb.CarClassOptions(lh.CarClasses, q.carClasses),
 		Period:       q.period,
 		SessionType:  q.sessionType,
 		PerCar:       q.perCar,
@@ -483,6 +449,9 @@ type APILeaderboardEntry struct {
 
 	// Server is the server the lap was driven on, only set if there are several servers.
 	Server *api.Server `json:",omitempty"`
+
+	// CarClasses are the car classes the car belongs to, left out if it is in none.
+	CarClasses []*api.CarClassRef `json:",omitempty"`
 }
 
 // APILeaderboard is the answer of /api/leaderboard.
@@ -512,7 +481,7 @@ func (lh *LeaderboardHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		smweb.FilterError(w, err)
 		return
 	}
 
@@ -547,6 +516,8 @@ func (lh *LeaderboardHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 		out.Cars = []string{}
 	}
 
+	classes := smweb.ListCarClasses(lh.CarClasses)
+
 	for _, row := range lh.rows(records) {
 		sectors := make([]int, 0, len(row.Sectors))
 
@@ -567,6 +538,7 @@ func (lh *LeaderboardHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 			Date:        row.Date,
 			SessionType: row.SessionType,
 			FileName:    row.ResultFile,
+			CarClasses:  api.CarClassRefs(classes, row.Car),
 		}
 
 		if server := smweb.ServerOfDir(servers, row.Dir); server != nil {
@@ -594,46 +566,11 @@ func containsString(list []string, s string) bool {
 }
 
 // CarClassOption is an entry of the car class list.
-type CarClassOption struct {
-	ID       string
-	Name     string
-	Selected bool
-}
-
-// classes lists the car classes, nil if there are none or they cannot be loaded (the page works without them).
-func (lh *LeaderboardHandler) classes() []*smmodel.CarClass {
-	if lh.CarClasses == nil {
-		return nil
-	}
-
-	classes, err := lh.CarClasses.List()
-
-	if err != nil {
-		logrus.WithError(err).Error("couldn't list car classes")
-
-		return nil
-	}
-
-	return classes
-}
-
-func (lh *LeaderboardHandler) classOptions(q *query) []CarClassOption {
-	var options []CarClassOption
-
-	for _, class := range lh.classes() {
-		options = append(options, CarClassOption{
-			ID:       class.ID.String(),
-			Name:     class.Name,
-			Selected: containsString(q.carClasses, class.ID.String()),
-		})
-	}
-
-	return options
-}
+type CarClassOption = smweb.CarClassOption
 
 // addClasses sets the names of the classes of the car of every row. A car in several classes gets all of them.
 func (lh *LeaderboardHandler) addClasses(rows []LeaderboardRow) {
-	classes := lh.classes()
+	classes := smweb.ListCarClasses(lh.CarClasses)
 
 	if len(classes) == 0 {
 		return
