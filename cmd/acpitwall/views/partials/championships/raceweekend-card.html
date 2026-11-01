@@ -10,15 +10,15 @@
 
     <div class="card mt-3 championship-event {{ if $event.Completed }}event-complete{{ end }}" id="{{ $event.ID.String }}">
         <div class="card-header event-card-header">
-            <strong>{{ $raceWeekend.Name }} Race Weekend</strong> at {{ raceWeekendTrackOverview $raceWeekend }}
+            <strong>{{ t "championships.rw.title" "name" $raceWeekend.Name }}</strong> {{ t "championships.rw.at" }} {{ raceWeekendTrackOverview $raceWeekend }}
 
             <div class="event-status">
                 {{ if $raceWeekend.Completed }}
-                    <span class="text-success">Completed on {{ localFormat $raceWeekend.CompletedTime }}</span>
+                    <span class="text-success">{{ t "championships.event.completed_on" }} {{ localFormat $raceWeekend.CompletedTime }}</span>
                 {{ else if (gt $raceWeekend.Progress 0.0) }}
-                    <span class="text-primary">{{ printf "%2.f" $raceWeekend.Progress }}% Complete</span>
+                    <span class="text-primary">{{ t "championships.rw.percent_complete" "percent" (printf "%2.f" $raceWeekend.Progress) }}</span>
                 {{ else }}
-                    <span class="text-danger">Not started</span>
+                    <span class="text-danger">{{ t "championships.event.not_started" }}</span>
                 {{ end }}
             </div>
         </div>
@@ -31,7 +31,7 @@
 
                         {{ range $sessionIndex, $session := $sessions }}
                             <li>
-                                <strong>{{ $session.Name }}</strong> at
+                                <strong>{{ $session.Name }}</strong> {{ t "championships.rw.at" }}
 
                                 {{ $trackInfo := trackInfo $session.RaceConfig.Track $session.RaceConfig.TrackLayout }}
 
@@ -47,12 +47,12 @@
                                 -
 
                                 {{ if gt $session.SessionInfo.Laps 0 }}
-                                    {{ $session.SessionInfo.Laps }} Laps
+                                    {{ tn "championships.event.laps" $session.SessionInfo.Laps }}
                                 {{ else }}
-                                    {{ $session.SessionInfo.Time }} minutes
+                                    {{ tn "championships.event.minutes" $session.SessionInfo.Time }}
 
                                     {{ if $session.RaceConfig.RaceExtraLap }}
-                                        + 1 lap
+                                        {{ t "championships.event.plus_one_lap" }}
                                     {{ end }}
                                 {{ end }}
                             </li>
@@ -63,7 +63,7 @@
                     {{/* race controls buttons */}}
 
                     <div class="pt-2">
-                        This is a Race Weekend. You must go to the Race Weekend page to manage Championship Race Weekends.
+                        {{ t "championships.rw.manage_help" }}
                     </div>
 
                     <div class="pt-5">
@@ -74,30 +74,30 @@
                                role="button"
                                aria-expanded="false"
                                aria-controls="event-{{ $eventIndex }}">
-                                View Results
+                                {{ t "championships.event.view_results" }}
                             </a>
                         {{ end }}
 
                         <a class="btn btn-primary" href="/race-weekend/{{ $raceWeekend.ID.String }}">
-                            View{{ if WriteAccess }}/Edit{{ end }} Race Weekend
+                            {{ if WriteAccess }}{{ t "championships.rw.view_edit" }}{{ else }}{{ t "championships.rw.view" }}{{ end }}
                         </a>
 
 
                         {{ if WriteAccess }}
                             <div class="dropdown d-inline-block">
                                 <a class="btn btn-outline dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Manage Race Weekend
+                                    {{ t "championships.rw.manage" }}
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                                     <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
-                                        <button type="submit" class="dropdown-item">Duplicate</button>
+                                        <button type="submit" class="dropdown-item">{{ t "championships.event.duplicate" }}</button>
                                     </form>
 
                                     {{ if DeleteAccess }}
                                         <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
-                                               data-confirm-delete="Delete this event and Race Weekend?" data-confirm-detail="The entire event and its Race Weekend are removed permanently." data-confirm-label="Delete event">
-                                            <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                               data-confirm-delete="{{ t "championships.rw.delete_confirm" }}" data-confirm-detail="{{ t "championships.rw.delete_detail" }}" data-confirm-label="{{ t "championships.event.delete_label" }}">
+                                            <button type="submit" class="dropdown-item text-danger">{{ t "common.delete" }}</button>
                                         </form>
                                     {{ end }}
                                 </div>
@@ -149,7 +149,7 @@
                                            href="#results-points-{{ $eventIndex}}"
                                            role="tab"
                                         >
-                                            Points
+                                            {{ t "championships.points.title" }}
                                         </a>
                                     </li>
                                 {{ end }}
@@ -164,14 +164,14 @@
 
                                         {{ if $session.Completed }}
                                             <p class="text-center mt-2 mb-2">
-                                                <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">View detailed results breakdown for this Session</a>
+                                                <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">{{ t "championships.event.detailed_results" }}</a>
                                             </p>
 
                                             {{ template "session-overall" dict "sessionResults" $session.Results "account" $account "server" (resultServer $session.Results.SessionFile) }}
                                         {{ else if $session.InProgress }}
-                                            <p class="text-center mt-5 pb-2"><strong>Session in Progress</strong>: Looks like there aren't any results yet. Check back later.</p>
+                                            <p class="text-center mt-5 pb-2"><strong>{{ t "championships.event.session_in_progress" }}</strong>: {{ t "championships.event.no_results_yet" }}</p>
                                         {{ else }}
-                                            <p class="text-center mt-5 pb-2"><strong>Awaiting Start</strong>: Looks like this session hasn't started yet. Check back later.</p>
+                                            <p class="text-center mt-5 pb-2"><strong>{{ t "championships.event.awaiting_start" }}</strong>: {{ t "championships.event.not_started_yet" }}</p>
                                         {{ end }}
                                     </div>
 
@@ -191,15 +191,15 @@
                                             <table class="table table-bordered table-striped">
                                                 <tr>
                                                     {{ if $championship.IsMultiClass }}
-                                                        <th>Class</th>
+                                                        <th>{{ t "championships.col.class" }}</th>
                                                     {{ end }}
                                                     <th>#</th>
-                                                    <th>Name</th>
+                                                    <th>{{ t "championships.col.name" }}</th>
                                                     {{ if $championshipHasTeamNames }}
-                                                        <th>Team</th>
+                                                        <th>{{ t "account_details.team" }}</th>
                                                     {{ end }}
-                                                    <th>Car</th>
-                                                    <th>Points</th>
+                                                    <th>{{ t "live.col.car" }}</th>
+                                                    <th>{{ t "championships.points.title" }}</th>
                                                 </tr>
 
                                                 {{ range $classIndex, $class := $championship.Classes }}

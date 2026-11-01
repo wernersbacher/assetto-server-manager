@@ -1,4 +1,4 @@
-{{ define "title"}}Import Race Weekend{{ end }}
+{{ define "title"}}{{ t "championships.import_weekend.title" }}{{ end }}
 
 {{ define "race-weekend-championship-import" }}
     {{ $writeAccess := WriteAccess }}
@@ -7,9 +7,9 @@
     <div class="table-responsive">
         <table class="table table-bordered table-striped table-championship">
             <tr>
-                <th>Name</th>
-                <th>Number of Sessions</th>
-                <th>Actions</th>
+                <th>{{ t "championships.col.name" }}</th>
+                <th>{{ t "championships.col.num_sessions" }}</th>
+                <th>{{ t "common.actions" }}</th>
             </tr>
 
             {{ range .RaceWeekends }}
@@ -25,7 +25,7 @@
 
                         {{ if WriteAccess }}
                         <td class="align-middle custom-race-actions">
-                            <form method="post" action="/championship/{{ $championship.ID.String }}/race-weekend/{{ .ID.String }}/import" class="d-inline"><button type="submit" class="btn btn-sm btn-primary">Import</button></form>
+                            <form method="post" action="/championship/{{ $championship.ID.String }}/race-weekend/{{ .ID.String }}/import" class="d-inline"><button type="submit" class="btn btn-sm btn-primary">{{ t "championships.import.button" }}</button></form>
                         </td>
                         {{ end }}
                     </tr>
@@ -37,7 +37,7 @@
 
 {{ define "content" }}
 
-    <h2 class="text-center">Import Race Weekend to {{ .Championship.Name }} Championship</h2>
+    <h2 class="text-center">{{ t "championships.import_weekend.heading" "name" .Championship.Name }}</h2>
 
     {{ if gt (len .RaceWeekends) 0 }}
         {{ template "race-weekend-championship-import" dict "RaceWeekends" .RaceWeekends "Championship" .Championship }}

@@ -1,19 +1,19 @@
-{{ define "title"}}Import Custom Race{{ end }}
+{{ define "title"}}{{ t "championships.import_custom.title" }}{{ end }}
 
 {{ define "custom-race-championship-import" }}
     {{ $writeAccess := WriteAccess }}
     {{ $championship := .Championship }}
 
     {{ if not .Races }}
-        {{ template "empty-state" dict "Icon" "flag" "Text" "There are no custom races to import." }}
+        {{ template "empty-state" dict "Icon" "flag" "Text" (t "championships.import_custom.none") }}
     {{ else }}
     <div class="table-responsive mt-4">
         <table class="table table-striped table-bordered">
             <tr>
-                <th>Details</th>
-                <th>Created</th>
+                <th>{{ t "championships.col.details" }}</th>
+                <th>{{ t "championships.col.created" }}</th>
                 {{ if $writeAccess }}
-                    <th>Actions</th>
+                    <th>{{ t "common.actions" }}</th>
                 {{ end }}
             </tr>
 
@@ -31,7 +31,7 @@
 
                     {{ if $writeAccess }}
                         <td class="align-middle custom-race-actions">
-                            <form method="post" action="/championship/{{ $championship.ID.String }}/custom/{{ $race.UUID.String }}/import" class="d-inline"><button type="submit" class="btn btn-sm btn-primary">Import</button></form>
+                            <form method="post" action="/championship/{{ $championship.ID.String }}/custom/{{ $race.UUID.String }}/import" class="d-inline"><button type="submit" class="btn btn-sm btn-primary">{{ t "championships.import.button" }}</button></form>
                         </td>
                     {{ end }}
                 </tr>
@@ -43,28 +43,28 @@
 
 {{ define "content" }}
 
-    <h2 class="text-center">Import Custom Race to {{ .Championship.Name }} Championship</h2>
+    <h2 class="text-center">{{ t "championships.import_custom.heading" "name" .Championship.Name }}</h2>
 
     {{ if gt (len .Starred) 0 }}
-        <h4>Starred</h4>
+        <h4>{{ t "championships.import_custom.starred" }}</h4>
 
         {{ template "custom-race-championship-import" dict "Races" .Starred "Championship" .Championship }}
     {{ end }}
 
     {{ if gt (len .Scheduled) 0 }}
-        <h4>Scheduled</h4>
+        <h4>{{ t "championships.import_custom.scheduled" }}</h4>
 
         {{ template "custom-race-championship-import" dict "Races" .Scheduled "Championship" .Championship }}
     {{ end }}
 
     {{ if gt (len .Loop) 0 }}
-        <h4>Auto Loop</h4>
+        <h4>{{ t "championships.import_custom.loop" }}</h4>
 
         {{ template "custom-race-championship-import" dict "Races" .Loop "Championship" .Championship }}
     {{ end }}
 
     {{ if gt (len .Recent) 0 }}
-        <h4>Recent</h4>
+        <h4>{{ t "championships.import_custom.recent" }}</h4>
 
         {{ template "custom-race-championship-import" dict "Races" .Recent "Championship" .Championship }}
     {{ end }}

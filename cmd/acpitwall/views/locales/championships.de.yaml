@@ -1,0 +1,387 @@
+championships:
+  summary: "{active} aktiv, {completed} abgeschlossen."
+  create_new: Neue Meisterschaft erstellen
+  more_options: Weitere Optionen
+  more: Mehr
+  view_button: Ansehen
+  export: Exportieren
+  duplicate: Meisterschaft duplizieren
+  delete_confirm: Meisterschaft {name} löschen?
+  delete_detail: Die gesamte Meisterschaft samt Events und Wertungen wird endgültig entfernt. Das kann nicht rückgängig gemacht werden.
+  delete_label: Meisterschaft löschen
+  active: Aktiv
+  completed: Abgeschlossen
+  none_active: Keine aktiven Meisterschaften.
+  none_completed: Noch keine abgeschlossenen Meisterschaften.
+  col:
+    name: Name
+    progress: Fortschritt
+    events: Events
+    classes: Klassen
+    details: Details
+    class: Klasse
+    email: E-Mail
+    car_skin: Auto / Skin
+    status: Status
+    created: Erstellt
+    num_sessions: Anzahl Sessions
+    pos: Pos.
+    total_points: Gesamtpunkte
+  import:
+    title: Meisterschaft importieren
+    placeholder: Füge hier das JSON deiner Meisterschaft ein!
+    help: Hier kannst du Meisterschaften im JSON-Format importieren (das Format entspricht dem Export einer Meisterschaft). Wir raten davon ab, diese Daten von Hand zu erstellen, da das Format recht komplex ist. Wenn du Meisterschaften aber zwischen Servern verschieben willst und keinen Dateizugriff hast, ist diese Funktion genau richtig!
+    button: Importieren
+  import_custom:
+    title: Eigenes Rennen importieren
+    heading: Eigenes Rennen in die Meisterschaft {name} importieren
+    none: Es gibt keine eigenen Rennen zum Importieren.
+    starred: Favoriten
+    scheduled: Geplant
+    loop: Auto-Loop
+    recent: Zuletzt
+  import_weekend:
+    title: Rennwochenende importieren
+    heading: Rennwochenende in die Meisterschaft {name} importieren
+  import_event:
+    title: Meisterschafts-Event importieren
+    heading: Meisterschafts-Event für {track} ({layout}) importieren
+    intro: Wähle Ergebnisse für die folgenden Sessions (du kannst einzelne Sessions leer lassen).
+    race_result: Ergebnisdatei Rennen
+    second_race_result: Ergebnisdatei <strong>zweites</strong> Rennen
+    qualifying_result: Ergebnisdatei Qualifying
+    practice_result: Ergebnisdatei Training
+    none: keine
+    result_option: "{track} ({layout}) am {date}"
+    submit: Event importieren
+  class:
+    label: "Klasse:"
+    unnamed: Unbenannte Klasse
+    name: Klassenname
+    name_placeholder: Meine tolle Klasse
+    slots: Plätze
+    slots_help: Plätze sind die Teilnehmer dieser Klasse. Freie Plätze werden von Fahrern belegt, die beitreten (offene Meisterschaft, Anmeldeformular oder Autofill); Fahrer weist du den Plätzen im Tab „Entry List“ zu.
+    clone_help: Auto, Skin, Ballast, Restrictor und festes Setup des letzten Teilnehmers werden in neue Teilnehmer übernommen.
+    add_entrants: Teilnehmer hinzufügen
+  points:
+    title: Punkte
+    per_place: Punkte pro Platz
+    reset: Auf Standardpunkte zurücksetzen
+    placeholder: Punkte
+    multiplier_placeholder: Faktor
+    places_help: "Plätze können hinzugefügt, aber nicht entfernt werden: Ergebnisse werden beim Laden der Seite berechnet, frühere Punkte müssen also verfügbar bleiben. Um Punkte für diese Klasse abzuschalten, setze alle Plätze auf null."
+    bonus: Bonus
+    bonus_help: Punkte für bestimmte Aktionen vergeben.
+    pole: Pole-Position
+    second_race_multiplier: Faktor zweites Rennen
+    second_race_help: Wird auf die Punkte eines zweiten Rennens angewendet (Events mit „Reversed Grid Positions“). 0 schaltet Punkte für das zweite Rennen ab, negative Werte sind erlaubt.
+    penalties: Strafen
+    penalties_help: Punkte für bestimmte Aktionen abziehen (nur Renn-Sessions).
+    collision_driver: Kollision mit Fahrer
+    collision_env: Kollision mit Umgebung
+    cut_track: Abkürzen
+  overview:
+    drop_worst:
+      one: Pro Fahrer wird {count} schlechtestes Ergebnis gestrichen (durchgestrichen). Die Gesamtpunkte enthalten nur die gewerteten Ergebnisse.
+      other: Die {count} schlechtesten Ergebnisse jedes Fahrers werden gestrichen (durchgestrichen). Die Gesamtpunkte enthalten nur die gewerteten Ergebnisse.
+    dropped: Gestrichenes Ergebnis
+    legend:
+      first: "1."
+      second: "2."
+      third: "3."
+      top10: 4. – 10.
+      rest: "> 10."
+      no_points: Keine Punkte
+  event:
+    settings_badge: Meisterschafts-Einstellungen
+    settings_help: Dieses Event verwendet die Renneinstellungen (Sprit, Reifenverschleiß, Schaden, Fahrhilfen, dynamische Strecke) der Meisterschaft.
+    completed_on: Abgeschlossen am
+    in_progress: Läuft
+    scheduled: Geplant
+    scheduled_on: auf
+    another_server: einem anderen Server
+    scheduled_for: für
+    not_started: Nicht gestartet
+    too_few_pitboxes: Diese Strecke hat weniger Pitboxen als die konfigurierte Teilnehmerzahl der Meisterschaft und ist daher für diese Meisterschaft nicht geeignet.
+    first_prefix: "1."
+    minutes:
+      one: "{count} Minute"
+      other: "{count} Minuten"
+    laps:
+      one: "{count} Runde"
+      other: "{count} Runden"
+    plus_one_lap: + 1 Runde
+    starts: Start
+    first_race: 1. Rennen
+    second_race: 2. Rennen
+    reverse_all: Im 2. Rennen wird die gesamte Startaufstellung umgedreht.
+    reverse_one: Es findet ein 2. Rennen statt, dessen Startaufstellung sich aus den Ergebnissen des 1. Rennens ergibt.
+    reverse_n: "Im 2. Rennen werden {count} Startplätze umgedreht."
+    class_winner: "Sieger {class}"
+    fastest_lap: Schnellste Runde
+    best_qualifying: Bestes Qualifying
+    other_in_progress: Ein Event dieser Meisterschaft läuft gerade
+    on_server: auf Server
+    wait_or_cancel: Du musst warten, bis es beendet ist, oder es abbrechen, bevor du dieses starten kannst.
+    start: Event starten
+    schedule: Event planen
+    schedule_help: Gib Datum und Uhrzeit für das geplante Rennen ein. Datum und Uhrzeit gelten in deiner Zeitzone
+    recurrence: Wiederholungsregel
+    recurrence_help: Nutze den <a target="_blank" href="{url}">RRule Generator</a>, um eine Wiederholungsregel zu erzeugen. Leer lassen, wenn nicht benötigt. Nur zusammen mit einer geplanten Zeit gültig.
+    schedule_submit: Planen
+    schedule_remove: Geplantes Event entfernen
+    manage: Event verwalten
+    practice_help: Lädt das konfigurierte Event als zweistündiges Endlos-Training auf den Server, ohne den Fortschritt als Meisterschafts-Event zu werten.
+    start_practice: Trainings-Event starten
+    import_results: Ergebnisse importieren
+    duplicate: Duplizieren
+    delete_confirm: Dieses Event löschen?
+    delete_detail: Das gesamte Event wird endgültig aus der Meisterschaft entfernt.
+    delete_label: Event löschen
+    restart_confirm: Dieses Event neu starten?
+    restart_detail: Das gesamte Event wird neu gestartet, alle bisherigen Ergebnisse gehen verloren.
+    restart_label: Event neu starten
+    restart: Event neu starten
+    finish_confirm: Dieses Event beenden?
+    finish_detail: Das Event wird mit den Ergebnissen der bisher gefahrenen Sessions abgeschlossen, die weiter für die Wertung zählen. Noch nicht gefahrene Sessions (zum Beispiel das zweite Rennen) werden übersprungen und ein laufender Server wird gestoppt.
+    finish_label: Event beenden
+    finish: Event beenden
+    cancel_confirm: Dieses Event abbrechen?
+    cancel_detail: Das gesamte Event wird abgebrochen und die Ergebnisse aller bisher gefahrenen Sessions werden verworfen. Um sie zu behalten, nutze stattdessen „Event beenden“.
+    cancel: Event abbrechen
+    view_results: Ergebnisse ansehen
+    details: Event-Details
+    detailed_results: Detaillierte Ergebnisse dieser Session ansehen
+    session_in_progress: Session läuft
+    no_results_yet: Es gibt noch keine Ergebnisse. Schau später wieder vorbei.
+    awaiting_start: Wartet auf Start
+    not_started_yet: Diese Session hat noch nicht begonnen. Schau später wieder vorbei.
+  rw:
+    title: "Rennwochenende {name}"
+    at: in
+    percent_complete: "{percent} % abgeschlossen"
+    manage_help: Dies ist ein Rennwochenende. Rennwochenenden einer Meisterschaft verwaltest du auf der Seite des Rennwochenendes.
+    view: Rennwochenende ansehen
+    view_edit: Rennwochenende ansehen/bearbeiten
+    manage: Rennwochenende verwalten
+    delete_confirm: Dieses Event und das Rennwochenende löschen?
+    delete_detail: Das gesamte Event und sein Rennwochenende werden endgültig entfernt.
+  entrants:
+    title: "Teilnehmer: {name}"
+    registrations:
+      one: "{count} Anmeldung"
+      other: "{count} Anmeldungen"
+    back: Zurück zur Meisterschaft
+    email: Teilnehmern mailen
+    email_all: Alle Teilnehmer
+    email_accepted: Angenommene Teilnehmer
+    email_rejected: Abgelehnte Teilnehmer
+    email_pending: Offene Teilnehmer
+    export_csv: CSV exportieren
+    none: Bisher hat sich niemand angemeldet.
+    created_at: "{date}, {time}"
+    status:
+      accepted: Angenommen
+      rejected: Abgelehnt
+      pending: Wartet auf Freigabe
+    view_answers: Antworten ansehen
+    manage: Teilnehmer verwalten
+    accept: Annehmen
+    reject: Ablehnen
+    change_team: Team ändern
+    no_team: Kein Team / Freitext
+    team_placeholder: Teamname als Freitext
+  signup:
+    heading: Anmeldung für {name}
+    intro_approval: Anmeldungen werden von den Organisatoren geprüft, bevor du in die Startaufstellung aufgenommen wirst.
+    intro: Gib deine Daten ein, um dir einen Platz in der Startaufstellung zu sichern.
+    about: Über die Meisterschaft
+    your_details: Deine Daten
+    no_team: Kein Team
+    team_locked: Du bist bereits angemeldet, daher steht dein Team fest. Frag die Organisatoren, falls es sich ändern muss.
+    registered: angemeldet
+    full: voll
+    choose_team: Wähle eines deiner Teams oder <a href="{url}">erstelle ein Team bzw. tritt einem bei</a>.
+    team_limit: Ein Team kann bis zu {count} Fahrer anmelden.
+    no_team_change: Nach der Anmeldung kannst du dein Team nicht mehr ändern.
+    sign_in_for_teams: <a href="{url}">Melde dich an</a>, um dich mit einem deiner Teams anzumelden.
+    team_placeholder: Das schnelle Team
+    free_team_help: Ohne eigenes Team kannst du stattdessen einen Teamnamen eingeben, aber nicht den Namen eines bestehenden Teams.
+    team_optional: Du kannst den Teamnamen leer lassen.
+    steam_guid: Steam GUID
+    email: E-Mail-Adresse
+    your_car: Dein Auto
+    skin: Skin
+    car_preview: Autovorschau
+    extra: Zusätzliche Angaben
+    extra_help: Die Organisatoren der Meisterschaft bitten außerdem um folgende Angaben.
+    submit: Anmelden
+  view:
+    events:
+      one: "{count} Event"
+      other: "{count} Events"
+    classes:
+      one: "{count} Klasse"
+      other: "{count} Klassen"
+    entrants:
+      one: "{count} Teilnehmer"
+      other: "{count} Teilnehmer"
+    percent_complete: "{percent} % abgeschlossen"
+    add_events: Events hinzufügen
+    more_add: Weitere Möglichkeiten, Events hinzuzufügen
+    add_race_weekend: Rennwochenende hinzufügen
+    manage: Verwalten
+    manage_requests: Anmeldungen verwalten
+    simresults: In Simresults ansehen
+    register_title: Für diese Meisterschaft anmelden
+    register_intro: Du kannst dich für einen Platz in dieser Meisterschaft anmelden!
+    register_approval: Nach Freigabe durch einen Admin wirst du in die Startaufstellung aufgenommen!
+    register_steam: Mit Steam anmelden
+    or: oder
+    register_now: Jetzt anmelden
+    pending_title:
+      one: Anmeldung wartet auf Freigabe!
+      other: Anmeldungen warten auf Freigabe!
+    pending_text:
+      one: Es wartet {count} Anmeldung auf Freigabe!
+      other: Es warten {count} Anmeldungen auf Freigabe!
+    driver_standings: Fahrerwertung
+    team_standings: Teamwertung
+    overview: Übersicht
+    points_reference: Punkteübersicht
+    worst_dropped:
+      one: "{count} schlechtestes Ergebnis gestrichen."
+      other: "{count} schlechteste Ergebnisse gestrichen."
+    points_penalty_badge: "Punktestrafe: {points}"
+    dropped_points: "Punkte gestrichener Ergebnisse: {points}"
+    dropped_count: "{count} gestrichen"
+    penalty_details: Strafdetails
+    points_penalty: Punktestrafe
+    set_penalty: Strafe setzen
+    remove_penalty: Strafe entfernen
+    driver_penalty_note: Strafpunkte gelten nur für den Fahrer, nicht für das Team. Teamstrafen kannst du im Tab „Teamwertung“ vergeben.
+    team_penalty_note: Strafpunkte gelten nur für das Team, nicht für den Fahrer. Fahrerstrafen kannst du im Tab „Fahrerwertung“ vergeben.
+    attendance: Teilnahme
+    pit_box: "Pitbox: {box}"
+    place: Platz
+    ref:
+      fastest_lap: Schnellste Rennrunde
+      best_qualifying: Beste Qualifying-Runde
+      collision_car: Kollision mit anderem Auto
+      collision_env: Kollision mit Umgebung
+      second_race: Punktefaktor zweites Rennen
+    car_skin: Skin des Autos
+    events_in:
+      one: "{count} Event in dieser Meisterschaft."
+      other: "{count} Events in dieser Meisterschaft."
+    filter_sort: Events filtern und sortieren
+    hide_show: Ein-/Ausblenden
+    not_completed: Nicht abgeschlossen
+    reverse_order: Reihenfolge der Events umkehren
+  form:
+    edit_title: Meisterschaft {name} bearbeiten
+    new: Neu
+    breadcrumb: Brotkrumen-Navigation
+    tab:
+      general: Allgemein
+      participation: Teilnahme & Zugang
+      entry_list: Entry List
+      scoring: Wertung
+      race_settings: Renneinstellungen
+      info: Info & Anzeige
+    save: Meisterschaft speichern
+    spectator_car: Zuschauerauto
+    spectator_unavailable: Nicht verfügbar für offene Meisterschaften
+    spectator_help: Ein Zuschauerauto wird bei jedem Event ans Ende der Entry List gesetzt und bei den Meisterschaftspunkten ignoriert.
+    enabled: Aktiviert
+    name: Name der Meisterschaft
+    name_placeholder: Meine tolle Meisterschaft
+    hidden: Versteckt
+    hidden_help: Nur angemeldete Konten sehen eine versteckte Meisterschaft; anonyme Besucher finden sie nicht in Listen, im Kalender, in Kalender-Feeds oder in der API und können ihre Seiten nicht öffnen.
+    add_class: Weitere Klasse hinzufügen
+    mode:
+      title: Wie kommen Fahrer in die Entry List?
+      fixed: Feste Entry List
+      fixed_help: Du trägst die Fahrer selbst ein (Tab „Entry List“ oder Autofill pro Teilnehmer).
+      open: Offen
+      open_help: Jeder Fahrer, der dem Server beitritt, belegt einen freien Platz einer Klasse. Die Plätze lassen sich beim Bearbeiten der Meisterschaft ändern (z. B. um Teams zuzuweisen).
+      persist: Beigetretene Fahrer behalten
+      persist_help: "An (Standard): Fahrer, die beitreten, werden in die Entry List aufgenommen. Aus: Jedes Event startet mit leerer Entry List, was zu vielen wechselnden Fahrern passt. <strong>Ergebnisse werden in jedem Fall</strong> in der Meisterschaft gespeichert."
+      signup: Anmeldeformular
+      signup_help: Fahrer melden sich auf der Website an; du kannst sie freigeben.
+    signup:
+      approval: Freigabe erforderlich
+      approval_help: Ein Benutzer mit Admin- oder Schreibrechten nimmt jede Anmeldung auf einer eigenen Seite an oder lehnt sie ab.
+      email: Nach E-Mail fragen
+      email_help: Damit kannst du Fahrer mit Event-Details kontaktieren.
+      team: Nach Team fragen
+      team_help: Fahrer können ihr Team angeben.
+      team_mode: Wie wählen Benutzer ihr Team
+      team_mode_text: Sie geben einen Teamnamen ein
+      team_mode_select: Sie wählen eines der Teams, in denen sie Mitglied sind
+      team_mode_both: "Beides: Team wählen oder einen Namen eingeben, der kein Team ist"
+      teams_page: Teams werden auf der Seite <a href="{url}">Teams</a> erstellt.
+      drivers_per_team: Fahrer pro Team
+      drivers_per_team_placeholder: 2 (Standard)
+      unlimited: Unbegrenzt
+      drivers_per_team_help: Fahrer, die ein Team anmelden kann. Nur ein Benutzer mit Admin- oder Schreibrechten kann ein Team nach der Anmeldung ändern.
+      car_choice: Fahrer wählen Auto und Skin selbst
+      questions: Zusätzliche Fragen
+      question_placeholder: z. B. Wie lautet dein Discord-Name?
+      add_question: Weitere Frage hinzufügen
+      recaptcha_on: "reCAPTCHA ist eingerichtet: Fahrer lösen ein CAPTCHA, bevor ihre Anmeldung abgeschickt wird."
+      recaptcha_off: "reCAPTCHA ist nicht eingerichtet: Fahrer müssen kein CAPTCHA lösen. Du kannst es in deiner config.yml aktivieren."
+    access: Zugang
+    override_password: Serverpasswort ersetzen
+    override_password_help: Das Serverpasswort wird für alle Events dieser Meisterschaft ignoriert.
+    replacement_password: Ersatzpasswort
+    replacement_password_help: Leer lassen für kein Passwort.
+    dropped_results: Streichergebnisse
+    drop_worst: Schlechteste Ergebnisse streichen
+    drop_worst_help: Anzahl der schlechtesten Event-Ergebnisse, die aus der Summe jedes Fahrers (und Teams) gestrichen werden; 0 streicht nichts. Nur abgeschlossene Events zählen, ein verpasstes Event zählt als 0 Punkte (wird zuerst gestrichen), mindestens ein Ergebnis zählt immer und Punktestrafen werden nie gestrichen.
+    race_settings: Renneinstellungen der Meisterschaft
+    use_race_settings: Renneinstellungen der Meisterschaft verwenden
+    race_settings_help: Sprit, Schaden, Reifenverschleiß, Fahrhilfen und dynamische Strecke werden einmal für alle Events festgelegt, die die Renneinstellungen der Meisterschaft verwenden (Standard für neue Events); eine Änderung hier betrifft alle diese Events. Events können sich in ihrer eigenen Konfiguration davon abmelden. Strecke, Autos, Sessions und Wetter werden weiterhin pro Event festgelegt.
+    race_settings_prefilled: Die Werte unten sind aus deinem letzten Event vorausgefüllt.
+    race_values: Rennwerte
+    rs:
+      assists: Fahrhilfen
+      abs: ABS erlaubt
+      "off": Aus
+      factory: Werkseinstellung
+      "on": An
+      tc: Traktionskontrolle erlaubt
+      stability: Stabilitätskontrolle erlaubt
+      auto_clutch: Automatische Kupplung erlaubt
+      tyre_blankets: Reifenwärmer erlaubt
+      tyre_blankets_help: Zu Beginn der Session oder nach einem Boxenstopp haben die Reifen die optimale Temperatur.
+      realism: Realismus
+      virtual_mirror: Virtuellen Spiegel erzwingen
+      virtual_mirror_help: Zwingt Clients, virtuelle Spiegel zu verwenden (funktioniert nicht in VR)
+      fuel_rate: Spritverbrauch
+      fuel_rate_help: "Faktor für den Spritverbrauch in Prozent: 0 = kein Verbrauch, 100 = realistisch, höhere Werte erhöhen den Verbrauch"
+      damage: Schadensfaktor
+      damage_help: Schaden von 0 (kein Schaden) bis 100 (voller Schaden)
+      tyre_wear: Reifenverschleiß
+      tyre_wear_help: "Faktor für den Reifenverschleiß in Prozent: 0 = kein Verschleiß, 100 = realistisch, höhere Werte erhöhen den Verschleiß"
+      tyres_out: Erlaubte Reifen neben der Strecke
+      tyres_out_help: Anzahl der Reifen, die außerhalb der Track Limits sein dürfen, bevor eine Strafe verhängt wird. -1 schaltet das ab.
+      dynamic_track: Dynamische Strecke
+      session_start: Session-Start
+      session_start_help: "Grip-Niveau in % zu Beginn der Session"
+      randomness: Zufälligkeit
+      randomness_help: Zufallsanteil, der zum Start-Grip addiert wird
+      session_transfer: Session-Übertrag
+      session_transfer_help: Wie viel des aufgebauten Grips in die nächste Session übernommen wird; 100 -> der gesamte aufgebaute Grip.
+      lap_gain: Runden pro Grip
+      lap_gain_help: Wie viele Runden nötig sind, um 1 % Grip aufzubauen
+    info: Wichtige Informationen
+    info_help: Wird oben auf der Seite der Meisterschaft und auf den Anmeldeseiten (falls aktiviert) angezeigt.
+    display: Anzeige
+    og_image: Open-Graph-Bild
+    og_image_placeholder: Beliebige Bild-URL
+    og_image_help: URL eines Bildes, das in Links auf diese Meisterschaft angezeigt wird.
+    default_tab: Standard-Tab
+    default_tab_help: Der Tab, der beim Öffnen der Meisterschaftsseite angezeigt wird.
+    save_add_weekend: Speichern & Rennwochenende hinzufügen
+    save_add_event: Speichern & erstes Event hinzufügen

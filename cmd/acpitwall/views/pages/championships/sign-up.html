@@ -6,18 +6,18 @@
     {{ $championship := $.Championship }}
     <div class="page-header">
         <div>
-            <h1>Register for {{ $championship.Name }}</h1>
+            <h1>{{ t "championships.signup.heading" "name" $championship.Name }}</h1>
             <p>
-                {{ if $championship.SignUpForm.RequiresApproval }}Registrations are checked by the organisers before you are added to the grid.{{ else }}Fill in your details to take a place on the grid.{{ end }}
+                {{ if $championship.SignUpForm.RequiresApproval }}{{ t "championships.signup.intro_approval" }}{{ else }}{{ t "championships.signup.intro" }}{{ end }}
             </p>
         </div>
-        <a class="btn btn-outline" href="/championship/{{ $championship.ID.String }}">Back to championship</a>
+        <a class="btn btn-outline" href="/championship/{{ $championship.ID.String }}">{{ t "championships.entrants.back" }}</a>
     </div>
 
     {{ with $championship.Info }}
         <div class="card mt-3">
             <div class="card-header">
-                <strong>About Championship</strong>
+                <strong>{{ t "championships.signup.about" }}</strong>
             </div>
 
             <div class="card-body">
@@ -32,7 +32,7 @@
 
         <div class="card mt-3">
             <div class="card-header">
-                <strong>Your Details</strong>
+                <strong>{{ t "championships.signup.your_details" }}</strong>
             </div>
 
             <div class="card-body">
@@ -44,7 +44,7 @@
                 {{ end }}
 
                 <div class="form-group row">
-                    <label for="Name" class="col-sm-4 col-form-label">Name</label>
+                    <label for="Name" class="col-sm-4 col-form-label">{{ t "championships.col.name" }}</label>
 
                     <div class="col-sm-8">
                         <input type="text" class="form-control" id="Name" name="Name" required
@@ -54,13 +54,13 @@
 
                 {{ if $championship.SignUpForm.AskForTeam }}
                     <div class="form-group row">
-                        <label for="TeamID" class="col-sm-4 col-form-label">Team</label>
+                        <label for="TeamID" class="col-sm-4 col-form-label">{{ t "account_details.team" }}</label>
 
                         <div class="col-sm-8">
                             {{ if $.LockedResponse }}
                                 {{/* the team is fixed once the driver is registered, the form sends the same team again */}}
                                 <p class="form-control-plaintext mb-1">
-                                    {{ if $.LockedResponse.Team }}<strong>{{ $.LockedResponse.Team }}</strong>{{ else }}No team{{ end }}
+                                    {{ if $.LockedResponse.Team }}<strong>{{ $.LockedResponse.Team }}</strong>{{ else }}{{ t "championships.signup.no_team" }}{{ end }}
                                 </p>
 
                                 {{ if $.LockedResponse.HasListTeam }}
@@ -69,37 +69,37 @@
                                     <input type="hidden" name="Team" value="{{ $.LockedResponse.Team }}">
                                 {{ end }}
 
-                                <small>You are registered already, so your team is fixed. Ask the organisers if it has to change.</small>
+                                <small>{{ t "championships.signup.team_locked" }}</small>
                             {{ else }}
                                 {{ if $championship.SignUpForm.UsesTeamSelection }}
                                     {{ if $.LoggedIn }}
                                         <select class="form-control" id="TeamID" name="TeamID">
-                                            <option value="">No team</option>
+                                            <option value="">{{ t "championships.signup.no_team" }}</option>
                                             {{ range $option := $.TeamOptions }}
                                                 <option value="{{ $option.Team.ID.String }}"
                                                         {{ if eq $.FormData.TeamID.String $option.Team.ID.String }}selected="selected"{{ end }}
                                                         {{ if $option.Full }}disabled="disabled"{{ end }}>
-                                                    {{ $option.Team.Name }} ({{ $option.Drivers }}{{ if $.TeamLimited }}/{{ $.TeamLimit }}{{ end }} registered){{ if $option.Full }} - full{{ end }}
+                                                    {{ $option.Team.Name }} ({{ $option.Drivers }}{{ if $.TeamLimited }}/{{ $.TeamLimit }}{{ end }} {{ t "championships.signup.registered" }}){{ if $option.Full }} - {{ t "championships.signup.full" }}{{ end }}
                                                 </option>
                                             {{ end }}
                                         </select>
 
                                         <small>
-                                            Choose one of your teams, or <a href="/teams">create or join a team</a> first.
-                                            {{ if $.TeamLimited }}A team can register up to {{ $.TeamLimit }} drivers.{{ end }}
-                                            You cannot change your team after registering.
+                                            {{ tHTML "championships.signup.choose_team" "url" "/teams" }}
+                                            {{ if $.TeamLimited }}{{ t "championships.signup.team_limit" "count" $.TeamLimit }}{{ end }}
+                                            {{ t "championships.signup.no_team_change" }}
                                         </small>
                                     {{ else }}
-                                        <small><a href="/login">Sign in</a> to register with one of your teams.</small>
+                                        <small>{{ tHTML "championships.signup.sign_in_for_teams" "url" "/login" }}</small>
                                     {{ end }}
                                 {{ end }}
 
                                 {{ if $championship.SignUpForm.AllowsFreeTextTeam }}
                                     <input type="text" class="form-control {{ if $championship.SignUpForm.UsesTeamSelection }}mt-2{{ end }}" id="Team" name="Team"
-                                           placeholder="The Fast Team" value="{{ $.FormData.Team }}">
+                                           placeholder="{{ t "championships.signup.team_placeholder" }}" value="{{ $.FormData.Team }}">
 
                                     <small>
-                                        {{ if $championship.SignUpForm.UsesTeamSelection }}Without a team of your own you can type a team name instead, but not the name of an existing team.{{ else }}You may leave the team name blank.{{ end }}
+                                        {{ if $championship.SignUpForm.UsesTeamSelection }}{{ t "championships.signup.free_team_help" }}{{ else }}{{ t "championships.signup.team_optional" }}{{ end }}
                                     </small>
                                 {{ end }}
                             {{ end }}
@@ -108,15 +108,14 @@
                 {{ end }}
 
                 <div class="form-group row">
-                    <label for="GUID" class="col-sm-4 col-form-label">Steam GUID</label>
+                    <label for="GUID" class="col-sm-4 col-form-label">{{ t "championships.signup.steam_guid" }}</label>
 
                     <div class="col-sm-8">
                         <input type="text" class="form-control" id="GUID" name="GUID"
                                placeholder="" value="{{ .FormData.GUID }}" {{ if .LockSteamGUID }} readonly{{ end }}>
                         {{ if not .LockSteamGUID }}
                             <small>
-                                If you don't know your Steam GUID, you can <a href="/championship/{{.ChampionshipTemplateVars.RaceTemplateVars.Championship.ID.String }}/sign-up/steam">Sign in with Steam</a>
-                                to autofill it.
+                                {{ tHTML "account_details.guid_help" "url" (printf "/championship/%s/sign-up/steam" .ChampionshipTemplateVars.RaceTemplateVars.Championship.ID.String) }}
                             </small>
                         {{ end }}
                     </div>
@@ -124,7 +123,7 @@
 
                 {{ if $championship.SignUpForm.AskForEmail }}
                     <div class="form-group row">
-                        <label for="Email" class="col-sm-4 col-form-label">Email Address</label>
+                        <label for="Email" class="col-sm-4 col-form-label">{{ t "championships.signup.email" }}</label>
 
                         <div class="col-sm-8">
                             <input type="email" class="form-control" id="Email" name="Email"
@@ -147,13 +146,13 @@
         {{ if not $championship.SignUpForm.HideCarChoice }}
             <div class="card mt-3" id="entrants">
                 <div class="card-header">
-                    <strong>Your Car</strong>
+                    <strong>{{ t "championships.signup.your_car" }}</strong>
                 </div>
 
                 <div class="card-body row">
                     <div class="col-sm-8">
                         <div class="form-group row">
-                            <label for="Car" class="col-sm-3 col-form-label">Car</label>
+                            <label for="Car" class="col-sm-3 col-form-label">{{ t "live.col.car" }}</label>
 
                             <div class="col-sm-9">
                                 <select name="Car" id="Car" class="form-control entryListCar">
@@ -169,7 +168,7 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="Skin" class="col-sm-3 col-form-label">Skin</label>
+                            <label for="Skin" class="col-sm-3 col-form-label">{{ t "championships.signup.skin" }}</label>
 
                             <div class="col-sm-9">
                                 <select name="Skin" id="Skin" class="form-control entryListSkin">
@@ -182,7 +181,7 @@
                     </div>
 
                     <div class="col-sm-4">
-                        <img class="img img-fluid entryListCarPreview" src="/static/img/no-preview-car.png" alt="Car Preview" id="CarPreview">
+                        <img class="img img-fluid entryListCarPreview" src="/static/img/no-preview-car.png" alt="{{ t "championships.signup.car_preview" }}" id="CarPreview">
                     </div>
                 </div>
             </div>
@@ -191,11 +190,11 @@
         {{ if gt (len $championship.SignUpForm.ExtraFields) 0 }}
             <div class="card mt-3" id="signup-extra">
                 <div class="card-header">
-                    <strong>Extra Information</strong>
+                    <strong>{{ t "championships.signup.extra" }}</strong>
                 </div>
 
                 <div class="card-body">
-                    <p>The championship organisers have also requested the following information.</p>
+                    <p>{{ t "championships.signup.extra_help" }}</p>
 
                     {{ range $index, $question := $championship.SignUpForm.ExtraFields }}
                         <div class="form-group row">
@@ -215,7 +214,7 @@
 
         <div class="mt-4 text-right">
             <button type="submit"
-                    class="btn btn-primary btn-lg signup-submit">Register</button>
+                    class="btn btn-primary btn-lg signup-submit">{{ t "championships.signup.submit" }}</button>
         </div>
     </form>
 

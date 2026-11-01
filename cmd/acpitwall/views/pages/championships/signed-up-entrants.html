@@ -1,6 +1,6 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/championship.signedUpEntrantsTemplateVars*/}}
 
-{{ define "title" }}{{ $.Championship.Name }} Entrants{{ end }}
+{{ define "title" }}{{ t "championships.entrants.title" "name" $.Championship.Name }}{{ end }}
 
 {{ define "content" }}
     {{ with .Championship }}
@@ -8,67 +8,67 @@
 
         <div class="page-header">
             <div>
-                <h1>{{ $championship.Name }} Entrants</h1>
-                <p>{{ len $championship.SignUpForm.Responses }} registration{{ if ne (len $championship.SignUpForm.Responses) 1 }}s{{ end }}</p>
+                <h1>{{ t "championships.entrants.title" "name" $championship.Name }}</h1>
+                <p>{{ tn "championships.entrants.registrations" (len $championship.SignUpForm.Responses) }}</p>
             </div>
 
             <div class="d-flex flex-wrap" style="gap: 8px;">
-            <a class="btn btn-outline" href="/championship/{{ $championship.ID.String }}">Back to Championship</a>
+            <a class="btn btn-outline" href="/championship/{{ $championship.ID.String }}">{{ t "championships.entrants.back" }}</a>
 
             {{ if $championship.SignUpForm.AskForEmail }}
                 <div class="dropdown show" style="display: inline-block">
                     <a class="btn btn-success dropdown-toggle" href="#" role="button" id="dropdownEmailEntrants" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                       Email Entrants
+                       {{ t "championships.entrants.email" }}
                     </a>
 
                     <div class="dropdown-menu" aria-labelledby="dropdownEmailEntrants">
                         <a class="dropdown-item" href="mailto:?bcc={{ $championship.SignUpForm.EmailList "all" }}&subject={{ $championship.Name }}">
-                            All Entrants
+                            {{ t "championships.entrants.email_all" }}
                         </a>
                         <a class="dropdown-item" href="mailto:?bcc={{ $championship.SignUpForm.EmailList "accepted" }}&subject={{ $championship.Name }}">
-                            Accepted Entrants
+                            {{ t "championships.entrants.email_accepted" }}
                         </a>
                         <a class="dropdown-item" href="mailto:?bcc={{ $championship.SignUpForm.EmailList "rejected" }}&subject={{ $championship.Name }}">
-                            Rejected Entrants
+                            {{ t "championships.entrants.email_rejected" }}
                         </a>
                         <a class="dropdown-item" href="mailto:?bcc={{ $championship.SignUpForm.EmailList "pending" }}&subject={{ $championship.Name }}">
-                            Pending Entrants
+                            {{ t "championships.entrants.email_pending" }}
                         </a>
                     </div>
                 </div>
             {{ end }}
 
-            <a class="btn btn-primary" href="/championship/{{ $championship.ID.String }}/entrants.csv">Export CSV</a>
+            <a class="btn btn-primary" href="/championship/{{ $championship.ID.String }}/entrants.csv">{{ t "championships.entrants.export_csv" }}</a>
             </div>
         </div>
 
         {{ if not .SignUpForm.Responses }}
-            {{ template "empty-state" dict "Icon" "accounts" "Text" "Nobody has signed up yet." }}
+            {{ template "empty-state" dict "Icon" "accounts" "Text" (t "championships.entrants.none") }}
         {{ else }}
         <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <tr>
-                <th>Created</th>
-                <th>Name</th>
+                <th>{{ t "championships.col.created" }}</th>
+                <th>{{ t "championships.col.name" }}</th>
                 {{ if $championship.SignUpForm.AskForTeam }}
-                    <th>Team</th>
+                    <th>{{ t "account_details.team" }}</th>
                 {{ end }}
-                <th>GUID</th>
+                <th>{{ t "account_details.guid" }}</th>
                 {{ if $championship.SignUpForm.AskForEmail }}
-                    <th>Email</th>
+                    <th>{{ t "championships.col.email" }}</th>
                 {{ end }}
                 {{ if not $championship.SignUpForm.HideCarChoice }}
-                    <th>Car / Skin</th>
+                    <th>{{ t "championships.col.car_skin" }}</th>
                 {{ end }}
-                <th>Status</th>
+                <th>{{ t "championships.col.status" }}</th>
 
-                <th>Actions</th>
+                <th>{{ t "common.actions" }}</th>
             </tr>
 
             {{ range $index, $entrant := .SignUpForm.Responses }}
                 <tr>
                     <td>
-                        {{ timeFormat $entrant.Created }} on {{ dateFormat $entrant.Created }}
+                        {{ t "championships.entrants.created_at" "time" (timeFormat $entrant.Created) "date" (dateFormat $entrant.Created) }}
                     </td>
                     <td>
                         {{ $entrant.Name }}
@@ -93,7 +93,7 @@
                     {{ end }}
 
                     <td>
-                        {{ $entrant.Status }}
+                        {{ if eq (print $entrant.Status) "Accepted" }}{{ t "championships.entrants.status.accepted" }}{{ else if eq (print $entrant.Status) "Rejected" }}{{ t "championships.entrants.status.rejected" }}{{ else if eq (print $entrant.Status) "Pending Approval" }}{{ t "championships.entrants.status.pending" }}{{ else }}{{ $entrant.Status }}{{ end }}
                     </td>
 
                     <td class="pl-2 pr-2">
@@ -104,7 +104,7 @@
                                     id="answers-{{ $entrant.GUID }}"
                                     style="width: 100%;"
                             >
-                                View Answers
+                                {{ t "championships.entrants.view_answers" }}
                             </button>
 
                             <div id="popover-content-answers-{{ $entrant.GUID }}" style="display: none;">
@@ -121,17 +121,17 @@
                         <div class="dropdown show">
                             <a class="btn btn-primary dropdown-toggle"
                                style="width: 100%;" href="#" role="button" id="manageEntrant-{{ $entrant.GUID }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                Manage Entrant
+                                {{ t "championships.entrants.manage" }}
                             </a>
 
                             <div class="dropdown-menu" aria-labelledby="manageEntrant-{{ $entrant.GUID }}">
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=accept">
-                                    <button type="submit" class="dropdown-item text-success">Accept</button>
+                                    <button type="submit" class="dropdown-item text-success">{{ t "championships.entrants.accept" }}</button>
                                 </form>
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=reject">
-                                    <button type="submit" class="dropdown-item text-danger">Reject</button>
+                                    <button type="submit" class="dropdown-item text-danger">{{ t "championships.entrants.reject" }}</button>
                                 </form>
 
                                 {{ if $championship.SignUpForm.AskForTeam }}
@@ -139,23 +139,23 @@
 
                                     {{/* drivers cannot change their team, moderators can (the team limit does not apply) */}}
                                     <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=team" class="px-3 py-2" style="min-width: 260px">
-                                        <label class="small mb-1" for="team-{{ $entrant.GUID }}">Change team</label>
+                                        <label class="small mb-1" for="team-{{ $entrant.GUID }}">{{ t "championships.entrants.change_team" }}</label>
                                         <select name="teamID" id="team-{{ $entrant.GUID }}" class="form-control form-control-sm mb-2">
-                                            <option value="">No team / free text</option>
+                                            <option value="">{{ t "championships.entrants.no_team" }}</option>
                                             {{ range $team := $.Teams }}
                                                 <option value="{{ $team.ID.String }}" {{ if eq $entrant.TeamID.String $team.ID.String }}selected="selected"{{ end }}>{{ $team.Name }}</option>
                                             {{ end }}
                                         </select>
-                                        <input type="text" name="team" class="form-control form-control-sm mb-2" placeholder="Free text team name"
+                                        <input type="text" name="team" class="form-control form-control-sm mb-2" placeholder="{{ t "championships.entrants.team_placeholder" }}"
                                                value="{{ if not $entrant.HasListTeam }}{{ $entrant.Team }}{{ end }}">
-                                        <button type="submit" class="btn btn-sm btn-primary btn-block">Change team</button>
+                                        <button type="submit" class="btn btn-sm btn-primary btn-block">{{ t "championships.entrants.change_team" }}</button>
                                     </form>
                                 {{ end }}
 
                                 <div class="dropdown-divider"></div>
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/entrant/{{ $entrant.GUID }}?action=delete">
-                                    <button type="submit" class="dropdown-item">Delete</button>
+                                    <button type="submit" class="dropdown-item">{{ t "common.delete" }}</button>
                                 </form>
                             </div>
                         </div>

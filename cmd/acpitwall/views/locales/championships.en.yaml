@@ -1,0 +1,387 @@
+championships:
+  summary: "{active} active, {completed} completed."
+  create_new: Create a new Championship
+  more_options: More options
+  more: More
+  view_button: View
+  export: Export
+  duplicate: Duplicate Championship
+  delete_confirm: Delete championship {name}?
+  delete_detail: The entire championship, including its events and results standings, is removed permanently. This cannot be undone.
+  delete_label: Delete championship
+  active: Active
+  completed: Completed
+  none_active: No active championships.
+  none_completed: No completed championships yet.
+  col:
+    name: Name
+    progress: Progress
+    events: Events
+    classes: Classes
+    details: Details
+    class: Class
+    email: Email
+    car_skin: Car / Skin
+    status: Status
+    created: Created
+    num_sessions: Number of Sessions
+    pos: Pos
+    total_points: Total Points
+  import:
+    title: Import Championship
+    placeholder: Paste your championship JSON here!
+    help: Here you can import championships in a JSON format (this format matches the format given when you export a championship). We do not recommend attempting to manually create this data, as the format is quite complex. However if you want to move championships across servers but don't have file access then you can use this feature!
+    button: Import
+  import_custom:
+    title: Import Custom Race
+    heading: Import Custom Race to {name} Championship
+    none: There are no custom races to import.
+    starred: Starred
+    scheduled: Scheduled
+    loop: Auto Loop
+    recent: Recent
+  import_weekend:
+    title: Import Race Weekend
+    heading: Import Race Weekend to {name} Championship
+  import_event:
+    title: Import a Championship Event
+    heading: Import a Championship Event for {track} ({layout})
+    intro: Choose results for the following sessions (you may leave some session results unselected).
+    race_result: Race Result File
+    second_race_result: <strong>Second</strong> Race Result File
+    qualifying_result: Qualifying Result File
+    practice_result: Practice Result File
+    none: none
+    result_option: "{track} ({layout}) on {date}"
+    submit: Import Event
+  class:
+    label: "Class:"
+    unnamed: Unnamed class
+    name: Class Name
+    name_placeholder: My awesome class
+    slots: Slots
+    slots_help: Slots are the entrants of this class. Open slots are filled by the drivers who join (open Championship, Sign Up Form or Autofill); assign drivers to slots in the Entry List tab.
+    clone_help: Car, Skin, Ballast, Restrictor and Fixed Setup from the last Entrant will be cloned into new Entrants.
+    add_entrants: Add Entrant(s)
+  points:
+    title: Points
+    per_place: Points per place
+    reset: Reset to default points
+    placeholder: Points
+    multiplier_placeholder: Multiplier
+    places_help: "Places can be added but not removed: results are calculated on page load, so earlier points must stay available. To disable points for this class, set all places to zero."
+    bonus: Bonus
+    bonus_help: Add points for certain actions.
+    pole: Pole Position
+    second_race_multiplier: Second Race Multiplier
+    second_race_help: Applied to the points of a second race (events with "Reversed Grid Positions"). 0 disables points for the second race, negative values are allowed.
+    penalties: Penalties
+    penalties_help: Remove points for certain actions (race sessions only).
+    collision_driver: Collision with driver
+    collision_env: Collision with environment
+    cut_track: Cut Track
+  overview:
+    drop_worst:
+      one: The worst {count} result of each driver is dropped (struck through). Total points only include the counted results.
+      other: The worst {count} results of each driver are dropped (struck through). Total points only include the counted results.
+    dropped: Dropped result
+    legend:
+      first: 1st
+      second: 2nd
+      third: 3rd
+      top10: 4th - 10th
+      rest: "> 10th"
+      no_points: No Points
+  event:
+    settings_badge: Championship settings
+    settings_help: This event uses the race settings (fuel, tyre wear, damage, assists, dynamic track) of the championship.
+    completed_on: Completed on
+    in_progress: In Progress
+    scheduled: Scheduled
+    scheduled_on: "on"
+    another_server: another server
+    scheduled_for: for
+    not_started: Not started
+    too_few_pitboxes: This track has fewer pit boxes than the configured number of entrants in the current championship, and therefore is not eligible for this championship.
+    first_prefix: 1st
+    minutes:
+      one: "{count} minute"
+      other: "{count} minutes"
+    laps:
+      one: "{count} lap"
+      other: "{count} laps"
+    plus_one_lap: + 1 lap
+    starts: Starts
+    first_race: 1st Race
+    second_race: 2nd Race
+    reverse_all: All grid positions will be reversed in 2nd Race.
+    reverse_one: A 2nd Race will take place with the grid formed from the 1st Race's results.
+    reverse_n: "{count} grid positions will be reversed in 2nd Race."
+    class_winner: "{class} Winner"
+    fastest_lap: Fastest Lap
+    best_qualifying: Best Qualifying
+    other_in_progress: An event in this championship is in progress
+    on_server: on server
+    wait_or_cancel: You must wait for it to finish or cancel it before you can start this one.
+    start: Start Event
+    schedule: Schedule Event
+    schedule_help: Please enter the correct date and time to add a scheduled race. This date/time is in your timezone
+    recurrence: Recurrence Rule
+    recurrence_help: Visit <a target="_blank" href="{url}">RRule Generator</a> to generate a recurrence rule. Leave blank if not required. Only valid alongside scheduled time.
+    schedule_submit: Schedule
+    schedule_remove: Remove Scheduled Event
+    manage: Manage Event
+    practice_help: Loads the configured event onto the server as a 2 hour looping practice, but doesn't track its progress as a championship event.
+    start_practice: Start Practice Event
+    import_results: Import Results
+    duplicate: Duplicate
+    delete_confirm: Delete this event?
+    delete_detail: The entire event is removed from the championship permanently.
+    delete_label: Delete event
+    restart_confirm: Restart this event?
+    restart_detail: The entire event is restarted and any current results will be lost.
+    restart_label: Restart event
+    restart: Restart Event
+    finish_confirm: Finish this event?
+    finish_detail: The event is completed with the results of the sessions driven so far, which keep counting for the standings. Sessions that were not driven yet (for example the second race) are skipped and a running server is stopped.
+    finish_label: Finish event
+    finish: Finish Event
+    cancel_confirm: Cancel this event?
+    cancel_detail: The entire event is cancelled and the results of all sessions driven so far are discarded. To keep them, use Finish Event instead.
+    cancel: Cancel Event
+    view_results: View Results
+    details: Event Details
+    detailed_results: View detailed results breakdown for this Session
+    session_in_progress: Session in Progress
+    no_results_yet: Looks like there aren't any results yet. Check back later.
+    awaiting_start: Awaiting Start
+    not_started_yet: Looks like this session hasn't started yet. Check back later.
+  rw:
+    title: "{name} Race Weekend"
+    at: at
+    percent_complete: "{percent}% Complete"
+    manage_help: This is a Race Weekend. You must go to the Race Weekend page to manage Championship Race Weekends.
+    view: View Race Weekend
+    view_edit: View/Edit Race Weekend
+    manage: Manage Race Weekend
+    delete_confirm: Delete this event and Race Weekend?
+    delete_detail: The entire event and its Race Weekend are removed permanently.
+  entrants:
+    title: "{name} Entrants"
+    registrations:
+      one: "{count} registration"
+      other: "{count} registrations"
+    back: Back to Championship
+    email: Email Entrants
+    email_all: All Entrants
+    email_accepted: Accepted Entrants
+    email_rejected: Rejected Entrants
+    email_pending: Pending Entrants
+    export_csv: Export CSV
+    none: Nobody has signed up yet.
+    created_at: "{time} on {date}"
+    status:
+      accepted: Accepted
+      rejected: Rejected
+      pending: Pending Approval
+    view_answers: View Answers
+    manage: Manage Entrant
+    accept: Accept
+    reject: Reject
+    change_team: Change team
+    no_team: No team / free text
+    team_placeholder: Free text team name
+  signup:
+    heading: Register for {name}
+    intro_approval: Registrations are checked by the organisers before you are added to the grid.
+    intro: Fill in your details to take a place on the grid.
+    about: About Championship
+    your_details: Your Details
+    no_team: No team
+    team_locked: You are registered already, so your team is fixed. Ask the organisers if it has to change.
+    registered: registered
+    full: full
+    choose_team: Choose one of your teams, or <a href="{url}">create or join a team</a> first.
+    team_limit: A team can register up to {count} drivers.
+    no_team_change: You cannot change your team after registering.
+    sign_in_for_teams: <a href="{url}">Sign in</a> to register with one of your teams.
+    team_placeholder: The Fast Team
+    free_team_help: Without a team of your own you can type a team name instead, but not the name of an existing team.
+    team_optional: You may leave the team name blank.
+    steam_guid: Steam GUID
+    email: Email Address
+    your_car: Your Car
+    skin: Skin
+    car_preview: Car Preview
+    extra: Extra Information
+    extra_help: The championship organisers have also requested the following information.
+    submit: Register
+  view:
+    events:
+      one: "{count} event"
+      other: "{count} events"
+    classes:
+      one: "{count} class"
+      other: "{count} classes"
+    entrants:
+      one: "{count} entrant"
+      other: "{count} entrants"
+    percent_complete: "{percent}% complete"
+    add_events: Add Events
+    more_add: More ways to add events
+    add_race_weekend: Add a Race Weekend
+    manage: Manage
+    manage_requests: Manage Registration Requests
+    simresults: View in Simresults
+    register_title: Register to this Championship
+    register_intro: You can register for a place in this Championship!
+    register_approval: Pending admin approval, you will be added to the grid!
+    register_steam: Register with Steam
+    or: or
+    register_now: Register Now
+    pending_title:
+      one: Registration Request pending approval!
+      other: Registration Requests pending approval!
+    pending_text:
+      one: There is {count} Registration Request pending approval!
+      other: There are {count} Registration Requests pending approval!
+    driver_standings: Driver Standings
+    team_standings: Team Standings
+    overview: Overview
+    points_reference: Points Reference
+    worst_dropped:
+      one: Worst {count} result dropped.
+      other: Worst {count} results dropped.
+    points_penalty_badge: "Points Penalty: {points}"
+    dropped_points: "Points of dropped results: {points}"
+    dropped_count: "{count} dropped"
+    penalty_details: Penalty Details
+    points_penalty: Points Penalty
+    set_penalty: Set Penalty
+    remove_penalty: Remove Penalty
+    driver_penalty_note: Note that penalty points only apply to the driver, not the team. You can add team penalties in the Team Standings tab.
+    team_penalty_note: Note that penalty points only apply to the team, not the driver. You can add driver penalties in the Driver Standings tab.
+    attendance: Attendance
+    pit_box: "Pit Box: {box}"
+    place: Place
+    ref:
+      fastest_lap: Fastest Race Lap
+      best_qualifying: Best Qualifying Lap
+      collision_car: Collision with Other Car
+      collision_env: Collision with Environment
+      second_race: Second Race Points Multiplier
+    car_skin: Car Skin
+    events_in:
+      one: "{count} event in this championship."
+      other: "{count} events in this championship."
+    filter_sort: Filter and sort events
+    hide_show: Hide/Show
+    not_completed: Not Completed
+    reverse_order: Reverse event order
+  form:
+    edit_title: Edit the {name} Championship
+    new: New
+    breadcrumb: Breadcrumb
+    tab:
+      general: General
+      participation: Participation & Access
+      entry_list: Entry List
+      scoring: Scoring
+      race_settings: Race Settings
+      info: Info & Display
+    save: Save Championship
+    spectator_car: Spectator Car
+    spectator_unavailable: Not available for open championships
+    spectator_help: A Spectator Car is added to the back of the Entry List of every event and ignored for Championship Points.
+    enabled: Enabled
+    name: Championship Name
+    name_placeholder: My awesome championship
+    hidden: Hidden
+    hidden_help: Only logged in accounts see a hidden Championship; anonymous visitors do not get it in lists, the calendar, calendar feeds or the API and can not open its pages.
+    add_class: Add another class
+    mode:
+      title: How do drivers get into the entry list?
+      fixed: Fixed entry list
+      fixed_help: You fill in the drivers yourself (Entry List tab, or the Autofill per entrant).
+      open: Open
+      open_help: Any driver who joins the server takes a free slot of a class. Slots can be edited (e.g. to assign teams) when editing the Championship.
+      persist: Keep joined drivers
+      persist_help: "On (the default): drivers who join are added to the Entry List. Off: every event starts with an empty Entry List, which suits many changing drivers. <strong>Results still persist to the Championship</strong> either way."
+      signup: Sign-up form
+      signup_help: Drivers register on the website; you can approve them.
+    signup:
+      approval: Require approval
+      approval_help: An admin/write user accepts or rejects every application on a separate page.
+      email: Ask for email
+      email_help: Lets you contact drivers with event details.
+      team: Ask for team
+      team_help: Drivers can specify their team.
+      team_mode: How do users choose their team
+      team_mode_text: They type a team name
+      team_mode_select: They pick one of the teams they are a member of
+      team_mode_both: "Both: pick a team or type a name that is not a team"
+      teams_page: Teams are created on the <a href="{url}">Teams</a> page.
+      drivers_per_team: Drivers per team
+      drivers_per_team_placeholder: 2 (default)
+      unlimited: Unlimited
+      drivers_per_team_help: Drivers one team can register. Only an admin/write user can change a team after registration.
+      car_choice: Let drivers choose car and skin
+      questions: Extra Questions
+      question_placeholder: e.g. What is your discord username?
+      add_question: Add another question
+      recaptcha_on: "reCAPTCHA is configured: drivers complete a CAPTCHA before their registration is submitted."
+      recaptcha_off: "reCAPTCHA is not configured: drivers are not asked for a CAPTCHA. You can enable it in your config.yml."
+    access: Access
+    override_password: Override Server Password
+    override_password_help: The server password is ignored for all events of this Championship.
+    replacement_password: Replacement Password
+    replacement_password_help: Leave empty for no password.
+    dropped_results: Dropped Results
+    drop_worst: Drop Worst Results
+    drop_worst_help: Number of worst event results dropped from each driver's (and team's) total; 0 drops nothing. Only completed events count, a missed event counts as 0 points (dropped first), at least one result always counts and points penalties are never dropped.
+    race_settings: Championship Race Settings
+    use_race_settings: Use Championship Race Settings
+    race_settings_help: Fuel, damage, tyre wear, assists and dynamic track are set once for all events that use the Championship race settings (the default for new events); changing them here changes all of those events. Events can opt out in their own configuration. Track, cars, sessions and weather are still set per event.
+    race_settings_prefilled: The values below are prefilled from your latest event.
+    race_values: Race Values
+    rs:
+      assists: Assists
+      abs: ABS Allowed
+      "off": "Off"
+      factory: Factory
+      "on": "On"
+      tc: Traction Control Allowed
+      stability: Stability Control Allowed
+      auto_clutch: Auto Clutch Allowed
+      tyre_blankets: Tyre Blankets Allowed
+      tyre_blankets_help: At the start of the session or after a pitstop, tyres will have the optimal temperature.
+      realism: Realism
+      virtual_mirror: Force Virtual Mirror
+      virtual_mirror_help: Force clients to use Virtual Mirrors (does not work in VR)
+      fuel_rate: Fuel Rate
+      fuel_rate_help: "Fuel usage multiplier in percent: 0 = no fuel usage, 100 = realistic, higher values increase usage"
+      damage: Damage Multiplier
+      damage_help: Damage from 0 (no damage) to 100 (full damage)
+      tyre_wear: Tyre Wear Rate
+      tyre_wear_help: "Tyre wear multiplier in percent: 0 = no tyre wear, 100 = realistic, higher values increase wear"
+      tyres_out: Allowed Tyres Out
+      tyres_out_help: The number of tyres allowed outside of track limits before a penalty is applied. -1 disables.
+      dynamic_track: Dynamic Track
+      session_start: Session Start
+      session_start_help: "% level of grip at session start"
+      randomness: Randomness
+      randomness_help: Level of randomness added to the start grip
+      session_transfer: Session Transfer
+      session_transfer_help: How much of the gained grip is to be added to the next session 100 -> all the gained grip.
+      lap_gain: Lap Gain
+      lap_gain_help: How many laps are needed to add 1% grip
+    info: Important Information
+    info_help: Shown at the top of the Championship page and on Sign Up pages (if enabled).
+    display: Display
+    og_image: Open Graph Image
+    og_image_placeholder: Any image URL
+    og_image_help: URL of an image shown in links to this Championship.
+    default_tab: Default Tab
+    default_tab_help: The tab shown when the Championship page is opened.
+    save_add_weekend: Save & add Race Weekend
+    save_add_event: Save & add first Event

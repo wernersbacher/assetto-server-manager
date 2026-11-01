@@ -21,26 +21,26 @@
             {{ end }}
 
             {{ if and $championship.RaceSettings $event.UseChampionshipRaceSettings }}
-                <span class="badge badge-info ml-2" data-toggle="tooltip" title="This event uses the race settings (fuel, tyre wear, damage, assists, dynamic track) of the championship.">Championship settings</span>
+                <span class="badge badge-info ml-2" data-toggle="tooltip" title="{{ t "championships.event.settings_help" }}">{{ t "championships.event.settings_badge" }}</span>
             {{ end }}
 
             <div class="event-status">
                 {{ if $event.Completed }}
-                    <span class="text-success">Completed on {{ localFormat $event.CompletedTime }}</span>
+                    <span class="text-success">{{ t "championships.event.completed_on" }} {{ localFormat $event.CompletedTime }}</span>
                 {{ else if $event.InProgress }}
-                    <span class="text-primary">In Progress</span>
+                    <span class="text-primary">{{ t "championships.event.in_progress" }}</span>
                 {{ else if isBefore $event.Scheduled }}
                     <span class="text-warning">
-                        Scheduled
+                        {{ t "championships.event.scheduled" }}
 
                         {{ if ne $event.ScheduledServerID $serverID }}
-                            (on <span class="scheduled-server-id" data-server-id="{{ $event.ScheduledServerID }}">{{ with serverName $event.ScheduledServerID }}{{ . }}{{ else }}another server{{ end }}</span>)
+                            ({{ t "championships.event.scheduled_on" }} <span class="scheduled-server-id" data-server-id="{{ $event.ScheduledServerID }}">{{ with serverName $event.ScheduledServerID }}{{ . }}{{ else }}{{ t "championships.event.another_server" }}{{ end }}</span>)
                         {{ end }}
 
-                        for {{ localFormat $event.Scheduled }}
+                        {{ t "championships.event.scheduled_for" }} {{ localFormat $event.Scheduled }}
                     </span>
                 {{ else }}
-                    <span class="text-danger">Not started</span>
+                    <span class="text-danger">{{ t "championships.event.not_started" }}</span>
                 {{ end }}
             </div>
         </div>
@@ -54,8 +54,7 @@
                         {{ if and (and WriteAccess (lt (int $trackInfo.Pitboxes.Int64) (int $championship.NumEntrants))) (not $event.Completed) }}
                             <div class="row">
                                 <div class="col-sm-12 text-warning mb-2">
-                                    This track has fewer pit boxes than the configured number of entrants in the
-                                    current championship, and therefore is not eligible for this championship.
+                                    {{ t "championships.event.too_few_pitboxes" }}
                                 </div>
                             </div>
                         {{ end }}
@@ -70,20 +69,20 @@
                                     <li>
                                         <strong>
                                             {{ if and $eventSetup.HasMultipleRaces (eq $sessionName "RACE") }}
-                                                1st
+                                                {{ t "championships.event.first_prefix" }}
                                             {{ end }}
 
                                             {{ $sessionName.String }}
                                         </strong>:
 
                                         {{ if ne $session.Time 0 }}
-                                            {{ $session.Time }} minutes {{ if and $eventSetup.RaceExtraLap (eq $sessionName "RACE") }} + 1 lap {{ end }}
-                                            {{ if isBefore $scheduled }} / Starts {{ localFormatHourAndZone (addTime $scheduled (int64 $previousTime)) }} {{ end }}
+                                            {{ tn "championships.event.minutes" $session.Time }} {{ if and $eventSetup.RaceExtraLap (eq $sessionName "RACE") }} {{ t "championships.event.plus_one_lap" }} {{ end }}
+                                            {{ if isBefore $scheduled }} / {{ t "championships.event.starts" }} {{ localFormatHourAndZone (addTime $scheduled (int64 $previousTime)) }} {{ end }}
 
                                             {{ $previousTime = add $previousTime $session.Time }}
                                         {{ else }}
                                             {{ with $session.Laps }}
-                                                {{ . }} laps {{ if isBefore $scheduled }} / Starts {{ localFormatHourAndZone (addTime $scheduled (int64 $previousTime)) }} {{ end }}
+                                                {{ tn "championships.event.laps" . }} {{ if isBefore $scheduled }} / {{ t "championships.event.starts" }} {{ localFormatHourAndZone (addTime $scheduled (int64 $previousTime)) }} {{ end }}
 
                                                 {{ $previousTime = 0 }}
                                             {{ end }}
@@ -94,24 +93,24 @@
                                 {{ if $eventSetup.HasMultipleRaces }}
                                     {{ $session := index $eventSetup.Sessions (SessionType "RACE") }}
                                     <li>
-                                        <strong>2nd Race</strong>:
+                                        <strong>{{ t "championships.event.second_race" }}</strong>:
 
                                         {{ if ne $session.Time 0 }}
-                                            {{ $session.Time }} minutes
+                                            {{ tn "championships.event.minutes" $session.Time }}
                                         {{ else }}
                                             {{ with $session.Laps }}
-                                                {{ . }} laps
+                                                {{ tn "championships.event.laps" . }}
                                             {{ end }}
                                         {{ end }}
                                         <br>
 
                                         <small>
                                             {{ if eq $eventSetup.ReversedGridRacePositions -1 }}
-                                                All grid positions will be reversed in 2nd Race.
+                                                {{ t "championships.event.reverse_all" }}
                                             {{ else if eq $eventSetup.ReversedGridRacePositions 1 }}
-                                                A 2nd Race will take place with the grid formed from the 1st Race's results.
+                                                {{ t "championships.event.reverse_one" }}
                                             {{ else }}
-                                                {{ $eventSetup.ReversedGridRacePositions }} grid positions will be reversed in 2nd Race.
+                                                {{ t "championships.event.reverse_n" "count" $eventSetup.ReversedGridRacePositions }}
                                             {{ end }}
                                         </small>
                                     </li>
@@ -124,7 +123,7 @@
                             <div class="col-sm-4">
 
                                 {{ if $eventSetup.HasMultipleRaces }}
-                                    <h5>1st Race</h5>
+                                    <h5>{{ t "championships.event.first_race" }}</h5>
                                 {{ end }}
 
                                 <ul class="list-unstyled">
@@ -136,7 +135,7 @@
                                                     {{ range $pos, $result := (slice ($class.ResultsForClass $sessionDetails.Results.Result $championship) 0 1) }}
                                                         {{ with $result }}
                                                             <li>
-                                                                <strong>{{ $class.Name }} Winner</strong><br>
+                                                                <strong>{{ t "championships.event.class_winner" "class" $class.Name }}</strong><br>
                                                                 {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                                             </li>
                                                         {{ end }}
@@ -167,7 +166,7 @@
                                 </ul>
 
                                 {{ if $eventSetup.HasMultipleRaces }}
-                                    <h5>2nd Race</h5>
+                                    <h5>{{ t "championships.event.second_race" }}</h5>
 
                                     <ul class="list-unstyled">
                                         {{ if $championship.IsMultiClass }}
@@ -177,7 +176,7 @@
                                                     {{ if eq $sessionName "RACEx2" }}
                                                         {{ range $pos, $result := (slice ($class.ResultsForClass $sessionDetails.Results.Result $championship) 0 1) }}
                                                             <li>
-                                                                <strong>{{ $class.Name }} Winner</strong><br>
+                                                                <strong>{{ t "championships.event.class_winner" "class" $class.Name }}</strong><br>
                                                                 {{ template "driver-link" dict "GUID" $result.DriverGUID "Name" $result.DriverName }}
                                                             </li>
                                                         {{ end }}
@@ -216,7 +215,7 @@
                                 {{ with $session.Results }}
                                     {{ if eq $sessionName "RACE" }}
                                         <span class="badge badge-best {{ if $championship.IsMultiClass }}text-left{{ end }}">
-                                                        Fastest Lap{{ if $eventSetup.HasMultipleRaces }} (1st Race){{ end }}{{ if not $championship.IsMultiClass }}:{{ end }}
+                                                        {{ t "championships.event.fastest_lap" }}{{ if $eventSetup.HasMultipleRaces }} ({{ t "championships.event.first_race" }}){{ end }}{{ if not $championship.IsMultiClass }}:{{ end }}
 
                                             {{ if $championship.IsMultiClass }}
                                                 <span class="font-weight-normal">
@@ -233,7 +232,7 @@
                                         </span><br>
                                     {{ else if eq $sessionName "RACEx2" }}
                                         <span class="badge badge-best {{ if $championship.IsMultiClass }}text-left{{ end }}">
-                                                        Fastest Lap (2nd Race){{ if not $championship.IsMultiClass }}:{{ end }}
+                                                        {{ t "championships.event.fastest_lap" }} ({{ t "championships.event.second_race" }}){{ if not $championship.IsMultiClass }}:{{ end }}
 
                                             {{ if $championship.IsMultiClass }}
                                                 <span class="font-weight-normal">
@@ -250,7 +249,7 @@
                                         </span><br>
                                     {{ else if eq $sessionName "QUALIFY" }}
                                         <span class="badge badge-success {{ if $championship.IsMultiClass }}text-left{{ end }}">
-                                                        Best Qualifying{{ if not $championship.IsMultiClass }}:{{ end }}
+                                                        {{ t "championships.event.best_qualifying" }}{{ if not $championship.IsMultiClass }}:{{ end }}
 
                                             {{ if $championship.IsMultiClass }}
                                                 <span class="font-weight-normal">
@@ -295,7 +294,7 @@
                             {{ if not (or $event.InProgress $event.Completed) }}
 
                                 {{ if $eventInProgress }}
-                                    <p>An event in this championship is in progress{{ with $activeServer }} on server <a href="/championship/{{ $championship.ID.String }}?server={{ .ID }}">{{ .Name }}</a>{{ end }}. You must wait for it to finish or cancel it before you can start this one.</p>
+                                    <p>{{ t "championships.event.other_in_progress" }}{{ with $activeServer }} {{ t "championships.event.on_server" }} <a href="/championship/{{ $championship.ID.String }}?server={{ .ID }}">{{ .Name }}</a>{{ end }}. {{ t "championships.event.wait_or_cancel" }}</p>
                                 {{ end }}
 
                                 {{ $startPath := printf "/championship/%s/event/%s/start" $championship.ID.String $event.ID.String }}
@@ -303,7 +302,7 @@
                                 <div class="btn-group">
                                     <form method="post" action="{{ serverURL $startPath }}" class="d-inline-flex m-0">
                                         <button type="submit" class="btn btn-primary" {{ if $eventInProgress }}disabled aria-disabled="true"{{ end }}>
-                                            Start Event
+                                            {{ t "championships.event.start" }}
                                         </button>
                                     </form>
 
@@ -313,9 +312,9 @@
                                 </div>
 
                                 <button type="button" class="btn btn-outline{{ if $eventInProgress }} disabled{{ end }} dropdown-toggle popover-external-html" data-placement="bottom"
-                                        data-toggle="popover" title="Schedule Event" data-html="true" {{ if $eventInProgress }}aria-disabled="true"{{ end }}
+                                        data-toggle="popover" title="{{ t "championships.event.schedule" }}" data-html="true" {{ if $eventInProgress }}aria-disabled="true"{{ end }}
                                         id="schedule-{{ $event.ID.String }}"
-                                >Schedule Event
+                                >{{ t "championships.event.schedule" }}
                                 </button>
 
                                 <div id="popover-content-schedule-{{ $event.ID.String }}" style="display: none;">
@@ -324,22 +323,20 @@
                                             <input type='date' class='form-control' name='event-schedule-date' id='event-schedule-date' required min='' value="{{ $championship.MostRecentScheduledDateFormat "2006-01-02" }}">
                                             <input type='time' class='form-control' name='event-schedule-time' id='event-schedule-time' required min='' value="{{ $championship.MostRecentScheduledDateFormat "15:04" }}">
                                             <input type='hidden' name="event-schedule-timezone" class="event-schedule-timezone">
-                                            <small class='form-text text-muted'>Please enter the correct date and time to add a scheduled race. This date/time is in your timezone (<span class='timezone'></span>).</small>
+                                            <small class='form-text text-muted'>{{ t "championships.event.schedule_help" }} (<span class='timezone'></span>).</small>
 
                                             {{ template "schedule-target" dict "Servers" $servers "Selected" $serverID "Id" $event.ID.String }}
 
 
-                                            <label for="event-schedule-recurrence" class="col-form-label">Recurrence Rule</label>
+                                            <label for="event-schedule-recurrence" class="col-form-label">{{ t "championships.event.recurrence" }}</label>
                                             <input type='text' class='form-control' name='event-schedule-recurrence' id='event-schedule-recurrence' value="{{ $event.Recurrence }}">
                                             <small class='form-text text-muted'>
-                                                Visit
-                                                <a target="_blank" href="https://www.textmagic.com/free-tools/rrule-generator">RRule Generator</a>
-                                                to generate a recurrence rule. Leave blank if not required. Only valid alongside scheduled time.
+                                                {{ tHTML "championships.event.recurrence_help" "url" "https://www.textmagic.com/free-tools/rrule-generator" }}
                                             </small>
                                         </div>
 
-                                        <button type='submit' name='action' value='add' class='btn btn-sm btn-primary'>Schedule</button>
-                                        <button type='submit' formaction='/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/schedule/remove' formnovalidate class='btn btn-sm btn-danger'>Remove Scheduled Event</button>
+                                        <button type='submit' name='action' value='add' class='btn btn-sm btn-primary'>{{ t "championships.event.schedule_submit" }}</button>
+                                        <button type='submit' formaction='/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/schedule/remove' formnovalidate class='btn btn-sm btn-danger'>{{ t "championships.event.schedule_remove" }}</button>
                                     </form>
                                 </div>
 
@@ -347,7 +344,7 @@
 
                                 <div class="dropdown d-inline-block">
                                     <a class="btn btn-outline dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Manage Event
+                                        {{ t "championships.event.manage" }}
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
@@ -355,29 +352,29 @@
                                             <button type="submit" class="dropdown-item {{ if $eventInProgress }}disabled{{ end }}"
                                                {{ if $eventInProgress }}disabled aria-disabled="true"{{ end }}
                                                data-toggle="tooltip" data-placement="left"
-                                               title="Loads the configured event onto the server as a 2 hour looping practice, but doesn't track its progress as a championship event.">
-                                                Start Practice Event
+                                               title="{{ t "championships.event.practice_help" }}">
+                                                {{ t "championships.event.start_practice" }}
                                             </button>
                                         </form>
 
                                         <div class="dropdown-divider"></div>
 
                                         <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/edit">
-                                            Edit
+                                            {{ t "common.edit" }}
                                         </a>
 
                                         <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/import">
-                                            Import Results
+                                            {{ t "championships.event.import_results" }}
                                         </a>
 
                                         <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
-                                            <button type="submit" class="dropdown-item">Duplicate</button>
+                                            <button type="submit" class="dropdown-item">{{ t "championships.event.duplicate" }}</button>
                                         </form>
 
                                         {{ if DeleteAccess }}
                                             <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
-                                                   data-confirm-delete="Delete this event?" data-confirm-detail="The entire event is removed from the championship permanently." data-confirm-label="Delete event">
-                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                                   data-confirm-delete="{{ t "championships.event.delete_confirm" }}" data-confirm-detail="{{ t "championships.event.delete_detail" }}" data-confirm-label="{{ t "championships.event.delete_label" }}">
+                                                <button type="submit" class="dropdown-item text-danger">{{ t "common.delete" }}</button>
                                             </form>
                                         {{ end }}
                                     </div>
@@ -385,20 +382,20 @@
 
                             {{ else if $event.InProgress }}
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/restart" class="d-inline"
-                                      data-confirm-action="Restart this event?" data-confirm-detail="The entire event is restarted and any current results will be lost." data-confirm-label="Restart event">
-                                    <button type="submit" class="btn btn-warning">Restart Event</button>
+                                      data-confirm-action="{{ t "championships.event.restart_confirm" }}" data-confirm-detail="{{ t "championships.event.restart_detail" }}" data-confirm-label="{{ t "championships.event.restart_label" }}">
+                                    <button type="submit" class="btn btn-warning">{{ t "championships.event.restart" }}</button>
                                 </form>
 
                                 {{ if $event.HasCompletedSessions }}
                                     <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/finish" class="d-inline"
-                                          data-confirm-action="Finish this event?" data-confirm-detail="The event is completed with the results of the sessions driven so far, which keep counting for the standings. Sessions that were not driven yet (for example the second race) are skipped and a running server is stopped." data-confirm-label="Finish event">
-                                        <button type="submit" class="btn btn-success">Finish Event</button>
+                                          data-confirm-action="{{ t "championships.event.finish_confirm" }}" data-confirm-detail="{{ t "championships.event.finish_detail" }}" data-confirm-label="{{ t "championships.event.finish_label" }}">
+                                        <button type="submit" class="btn btn-success">{{ t "championships.event.finish" }}</button>
                                     </form>
                                 {{ end }}
 
                                 <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/cancel" class="d-inline"
-                                      data-confirm-delete="Cancel this event?" data-confirm-detail="The entire event is cancelled and the results of all sessions driven so far are discarded. To keep them, use Finish Event instead." data-confirm-label="Cancel event">
-                                    <button type="submit" class="btn btn-danger">Cancel Event</button>
+                                      data-confirm-delete="{{ t "championships.event.cancel_confirm" }}" data-confirm-detail="{{ t "championships.event.cancel_detail" }}" data-confirm-label="{{ t "stop_confirm.championship.label" }}">
+                                    <button type="submit" class="btn btn-danger">{{ t "championships.event.cancel" }}</button>
                                 </form>
                             {{ end }}
                         {{ end }}
@@ -410,28 +407,28 @@
                                role="button"
                                aria-expanded="false"
                                aria-controls="event-{{ $eventIndex }}">
-                                View Results
+                                {{ t "championships.event.view_results" }}
                             </a>
 
                             {{ if AdminAccess }}
                                 <div class="dropdown d-inline-block">
                                     <a class="btn btn-outline dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        Manage Event
+                                        {{ t "championships.event.manage" }}
                                     </a>
 
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                                         <a class="dropdown-item" href="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/import">
-                                            Import Results
+                                            {{ t "championships.event.import_results" }}
                                         </a>
 
                                         <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/duplicate">
-                                            <button type="submit" class="dropdown-item">Duplicate</button>
+                                            <button type="submit" class="dropdown-item">{{ t "championships.event.duplicate" }}</button>
                                         </form>
 
                                         {{ if DeleteAccess }}
                                             <form method="post" action="/championship/{{ $championship.ID.String }}/event/{{ $event.ID.String }}/delete"
-                                                   data-confirm-delete="Delete this event?" data-confirm-detail="The entire event is removed from the championship permanently." data-confirm-label="Delete event">
-                                                <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                                   data-confirm-delete="{{ t "championships.event.delete_confirm" }}" data-confirm-detail="{{ t "championships.event.delete_detail" }}" data-confirm-label="{{ t "championships.event.delete_label" }}">
+                                                <button type="submit" class="dropdown-item text-danger">{{ t "common.delete" }}</button>
                                             </form>
                                         {{ end }}
                                     </div>
@@ -444,7 +441,7 @@
                                href="#"
                                data-event-id="{{ $event.ID }}"
                             >
-                                Event Details
+                                {{ t "championships.event.details" }}
                             </a>
                         {{ end }}
                     </div>
@@ -470,7 +467,7 @@
                                            {{ if eq $sessionName "RACE" }}aria-selected="true" {{ end }}>
 
                                             {{ if and $eventSetup.HasMultipleRaces (eq $sessionName "RACE") }}
-                                                1st Race
+                                                {{ t "championships.event.first_race" }}
                                             {{ else }}
                                                 {{ $sessionName.String }}
                                             {{ end }}
@@ -487,7 +484,7 @@
                                            href="#results-points-{{ $eventIndex}}"
                                            role="tab"
                                         >
-                                            Points
+                                            {{ t "championships.points.title" }}
                                         </a>
                                     </li>
                                 {{ end }}
@@ -503,14 +500,14 @@
                                         {{ if $sessionDetails.Completed }}
 
                                             <p class="text-center mt-2 mb-2">
-                                                <a class="detailed-results" href="/results/{{ $sessionDetails.Results.SessionFile }}">View detailed results breakdown for this Session</a>
+                                                <a class="detailed-results" href="/results/{{ $sessionDetails.Results.SessionFile }}">{{ t "championships.event.detailed_results" }}</a>
                                             </p>
 
                                             {{ template "session-overall" dict "sessionResults" $sessionDetails.Results "account" $account "server" (resultServer $sessionDetails.Results.SessionFile) }}
                                         {{ else if $sessionDetails.InProgress }}
-                                            <p class="text-center mt-5 pb-2"><strong>Session in Progress</strong>: Looks like there aren't any results yet. Check back later.</p>
+                                            <p class="text-center mt-5 pb-2"><strong>{{ t "championships.event.session_in_progress" }}</strong>: {{ t "championships.event.no_results_yet" }}</p>
                                         {{ else }}
-                                            <p class="text-center mt-5 pb-2"><strong>Awaiting Start</strong>: Looks like this session hasn't started yet. Check back later.</p>
+                                            <p class="text-center mt-5 pb-2"><strong>{{ t "championships.event.awaiting_start" }}</strong>: {{ t "championships.event.not_started_yet" }}</p>
                                         {{ end }}
                                     </div>
 
@@ -530,15 +527,15 @@
                                             <table class="table table-bordered table-striped">
                                                 <tr>
                                                     {{ if $championship.IsMultiClass }}
-                                                        <th>Class</th>
+                                                        <th>{{ t "championships.col.class" }}</th>
                                                     {{ end }}
                                                     <th>#</th>
-                                                    <th>Name</th>
+                                                    <th>{{ t "championships.col.name" }}</th>
                                                     {{ if $championshipHasTeamNames }}
-                                                        <th>Team</th>
+                                                        <th>{{ t "account_details.team" }}</th>
                                                     {{ end }}
-                                                    <th>Car</th>
-                                                    <th>Points</th>
+                                                    <th>{{ t "live.col.car" }}</th>
+                                                    <th>{{ t "championships.points.title" }}</th>
                                                 </tr>
 
                                                 {{ range $classIndex, $class := $championship.Classes }}

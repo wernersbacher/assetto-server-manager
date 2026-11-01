@@ -2,9 +2,9 @@
 
 {{ define "title" }}
     {{ if .IsEditing }}
-        Edit the {{ .Championship.Name }} Championship
+        {{ t "championships.form.edit_title" "name" .Championship.Name }}
     {{ else }}
-        Create a new Championship
+        {{ t "championships.create_new" }}
     {{ end }}
 {{ end }}
 
@@ -15,14 +15,14 @@
 
     <div class="page-header">
         <div>
-            <nav class="form-breadcrumb" aria-label="Breadcrumb">
-                <a href="/championships">Championships</a><span>{{ if .IsEditing }}Edit{{ else }}New{{ end }}</span>
+            <nav class="form-breadcrumb" aria-label="{{ t "championships.form.breadcrumb" }}">
+                <a href="/championships">{{ t "nav.championships" }}</a><span>{{ if .IsEditing }}{{ t "common.edit" }}{{ else }}{{ t "championships.form.new" }}{{ end }}</span>
             </nav>
             <h1>
                 {{ if .IsEditing }}
-                    Edit the {{ .Championship.Name }} Championship
+                    {{ t "championships.form.edit_title" "name" .Championship.Name }}
                 {{ else }}
-                    Create a new Championship
+                    {{ t "championships.create_new" }}
                 {{ end }}
             </h1>
         </div>
@@ -35,27 +35,27 @@
         <div class="championship-tabbar mt-3">
             <ul class="nav nav-tabs" role="tablist" id="championship-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" id="tab-general" data-toggle="tab" href="#pane-general" role="tab" aria-controls="pane-general" aria-selected="true">General</a>
+                    <a class="nav-link active" id="tab-general" data-toggle="tab" href="#pane-general" role="tab" aria-controls="pane-general" aria-selected="true">{{ t "championships.form.tab.general" }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="tab-participation" data-toggle="tab" href="#pane-participation" role="tab" aria-controls="pane-participation" aria-selected="false">Participation &amp; Access</a>
+                    <a class="nav-link" id="tab-participation" data-toggle="tab" href="#pane-participation" role="tab" aria-controls="pane-participation" aria-selected="false">{{ t "championships.form.tab.participation" }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="tab-entrylist" data-toggle="tab" href="#pane-entrylist" role="tab" aria-controls="pane-entrylist" aria-selected="false">Entry List</a>
+                    <a class="nav-link" id="tab-entrylist" data-toggle="tab" href="#pane-entrylist" role="tab" aria-controls="pane-entrylist" aria-selected="false">{{ t "championships.form.tab.entry_list" }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="tab-scoring" data-toggle="tab" href="#pane-scoring" role="tab" aria-controls="pane-scoring" aria-selected="false">Scoring</a>
+                    <a class="nav-link" id="tab-scoring" data-toggle="tab" href="#pane-scoring" role="tab" aria-controls="pane-scoring" aria-selected="false">{{ t "championships.form.tab.scoring" }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="tab-racesettings" data-toggle="tab" href="#pane-racesettings" role="tab" aria-controls="pane-racesettings" aria-selected="false">Race Settings</a>
+                    <a class="nav-link" id="tab-racesettings" data-toggle="tab" href="#pane-racesettings" role="tab" aria-controls="pane-racesettings" aria-selected="false">{{ t "championships.form.tab.race_settings" }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="tab-info" data-toggle="tab" href="#pane-info" role="tab" aria-controls="pane-info" aria-selected="false">Info &amp; Display</a>
+                    <a class="nav-link" id="tab-info" data-toggle="tab" href="#pane-info" role="tab" aria-controls="pane-info" aria-selected="false">{{ t "championships.form.tab.info" }}</a>
                 </li>
             </ul>
 
             {{ if .IsEditing }}
-                <button type="submit" class="btn btn-success championship-tabbar-save">Save Championship</button>
+                <button type="submit" class="btn btn-success championship-tabbar-save">{{ t "championships.form.save" }}</button>
             {{ end }}
         </div>
 
@@ -72,8 +72,8 @@
             <div class="tab-pane" id="pane-entrylist" role="tabpanel" aria-labelledby="tab-entrylist">
                 <div class="card mt-3 border-secondary race-setup spectator-card{{ if $f.OpenEntrants }} is-unavailable{{ end }}">
                     <div class="card-header">
-                        <strong>Spectator Car</strong>
-                        <span class="text-muted ml-2 visible-open-championship" {{ if not $f.OpenEntrants }} style="display: none" {{ end }}>Not available for open championships</span>
+                        <strong>{{ t "championships.form.spectator_car" }}</strong>
+                        <span class="text-muted ml-2 visible-open-championship" {{ if not $f.OpenEntrants }} style="display: none" {{ end }}>{{ t "championships.form.spectator_unavailable" }}</span>
                     </div>
 
                     <div class="d-none">
@@ -85,12 +85,11 @@
                     {{/* not "disabled": disabled fields are not submitted and the server reads the spectator entrant first in EntryList.*; the card is only made read-only (inert) for open championships */}}
                     <div class="card-body spectator-body" id="entrants" {{ if $f.OpenEntrants }} inert {{ end }}>
                         <p>
-                            A Spectator Car is added to the back of the Entry List of every event and ignored for
-                            Championship Points.
+                            {{ t "championships.form.spectator_help" }}
                         </p>
 
                         <div class="form-group row">
-                            <label for="ChampionshipSpectatorCarEnabled" class="col-sm-3 col-form-label">Enabled</label>
+                            <label for="ChampionshipSpectatorCarEnabled" class="col-sm-3 col-form-label">{{ t "championships.form.enabled" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="checkbox"
@@ -127,29 +126,28 @@
             <div class="tab-pane show active" id="pane-general" role="tabpanel" aria-labelledby="tab-general">
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Championship</strong>
+                        <strong>{{ t "event_type.championship" }}</strong>
                     </div>
 
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="ChampionshipName" class="col-sm-3 col-form-label">Championship Name</label>
+                            <label for="ChampionshipName" class="col-sm-3 col-form-label">{{ t "championships.form.name" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="ChampionshipName" name="ChampionshipName" required
-                                       placeholder="My awesome championship" {{ with $f.Name }} value="{{.}}" {{ end }}>
+                                       placeholder="{{ t "championships.form.name_placeholder" }}" {{ with $f.Name }} value="{{.}}" {{ end }}>
                             </div>
                         </div>
 
                         <div class="form-group row">
-                            <label for="ChampionshipHidden" class="col-sm-3 col-form-label">Hidden</label>
+                            <label for="ChampionshipHidden" class="col-sm-3 col-form-label">{{ t "championships.form.hidden" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="checkbox" id="ChampionshipHidden" name="ChampionshipHidden"
                                        {{ if $f.Hidden }} checked="checked" {{ end }}>
 
                                 <small class="form-text text-muted">
-                                    Only logged in accounts see a hidden Championship; anonymous visitors do not get it in
-                                    lists, the calendar, calendar feeds or the API and can not open its pages.
+                                    {{ t "championships.form.hidden_help" }}
                                 </small>
                             </div>
                         </div>
@@ -167,7 +165,7 @@
                 {{ end }}
 
                 <div class="mt-3">
-                    <button id="addClass" class="btn btn-primary float-right">Add another class</button>
+                    <button id="addClass" class="btn btn-primary float-right">{{ t "championships.form.add_class" }}</button>
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -179,41 +177,39 @@
 
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>How do drivers get into the entry list?</strong>
+                        <strong>{{ t "championships.form.mode.title" }}</strong>
                     </div>
 
                     <div class="card-body participation-modes">
                         <div class="participation-mode">
                             <div class="custom-control custom-radio">
                                 <input type="radio" class="custom-control-input" name="ParticipationMode" id="ParticipationModeFixed" value="fixed" {{ if eq $mode "fixed" }} checked="checked" {{ end }}>
-                                <label class="custom-control-label" for="ParticipationModeFixed"><strong>Fixed entry list</strong></label>
+                                <label class="custom-control-label" for="ParticipationModeFixed"><strong>{{ t "championships.form.mode.fixed" }}</strong></label>
                             </div>
                             <small class="form-text text-muted participation-mode-help">
-                                You fill in the drivers yourself (Entry List tab, or the Autofill per entrant).
+                                {{ t "championships.form.mode.fixed_help" }}
                             </small>
                         </div>
 
                         <div class="participation-mode">
                             <div class="custom-control custom-radio">
                                 <input type="radio" class="custom-control-input" name="ParticipationMode" id="ParticipationModeOpen" value="open" {{ if eq $mode "open" }} checked="checked" {{ end }}>
-                                <label class="custom-control-label" for="ParticipationModeOpen"><strong>Open</strong></label>
+                                <label class="custom-control-label" for="ParticipationModeOpen"><strong>{{ t "championships.form.mode.open" }}</strong></label>
                             </div>
                             <small class="form-text text-muted participation-mode-help">
-                                Any driver who joins the server takes a free slot of a class. Slots can be edited (e.g. to assign teams) when editing the Championship.
+                                {{ t "championships.form.mode.open_help" }}
                             </small>
 
                             <div class="participation-nested visible-open-championship" {{ if ne $mode "open" }} style="display: none" {{ end }}>
                                 <div class="form-group row mb-0">
-                                    <label for="ChampionshipPersistOpenEntrants" class="col-sm-4 col-form-label">Keep joined drivers</label>
+                                    <label for="ChampionshipPersistOpenEntrants" class="col-sm-4 col-form-label">{{ t "championships.form.mode.persist" }}</label>
 
                                     <div class="col-sm-8">
                                         <input type="checkbox" id="ChampionshipPersistOpenEntrants" name="ChampionshipPersistOpenEntrants"
                                                {{ if $f.PersistOpenEntrants }} checked="checked" {{ end }}>
 
                                         <small class="form-text text-muted">
-                                            On (the default): drivers who join are added to the Entry List. Off: every event starts
-                                            with an empty Entry List, which suits many changing drivers. <strong>Results still
-                                            persist to the Championship</strong> either way.
+                                            {{ tHTML "championships.form.mode.persist_help" }}
                                         </small>
                                     </div>
                                 </div>
@@ -223,83 +219,83 @@
                         <div class="participation-mode">
                             <div class="custom-control custom-radio">
                                 <input type="radio" class="custom-control-input" name="ParticipationMode" id="ParticipationModeSignUp" value="signup" {{ if eq $mode "signup" }} checked="checked" {{ end }}>
-                                <label class="custom-control-label" for="ParticipationModeSignUp"><strong>Sign-up form</strong></label>
+                                <label class="custom-control-label" for="ParticipationModeSignUp"><strong>{{ t "championships.form.mode.signup" }}</strong></label>
                             </div>
                             <small class="form-text text-muted participation-mode-help">
-                                Drivers register on the website; you can approve them.
+                                {{ t "championships.form.mode.signup_help" }}
                             </small>
 
                             <div class="participation-nested show-signup-form-enabled" {{ if ne $mode "signup" }} style="display: none" {{ end }}>
                                 <div class="form-group row">
-                                    <label for="Championship.SignUpForm.RequiresApproval" class="col-sm-4 col-form-label">Require approval</label>
+                                    <label for="Championship.SignUpForm.RequiresApproval" class="col-sm-4 col-form-label">{{ t "championships.form.signup.approval" }}</label>
 
                                     <div class="col-sm-8">
                                         <input type="checkbox" id="Championship.SignUpForm.RequiresApproval" name="Championship.SignUpForm.RequiresApproval"
                                                 {{ if $f.SignUpForm.RequiresApproval }} checked="checked" {{ end }}>
 
                                         <small class="form-text text-muted">
-                                            An admin/write user accepts or rejects every application on a separate page.
+                                            {{ t "championships.form.signup.approval_help" }}
                                         </small>
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="Championship.SignUpForm.AskForEmail" class="col-sm-4 col-form-label">Ask for email</label>
+                                    <label for="Championship.SignUpForm.AskForEmail" class="col-sm-4 col-form-label">{{ t "championships.form.signup.email" }}</label>
 
                                     <div class="col-sm-8">
                                         <input type="checkbox" id="Championship.SignUpForm.AskForEmail" name="Championship.SignUpForm.AskForEmail"
                                                 {{ if $f.SignUpForm.AskForEmail }} checked="checked" {{ end }}>
 
                                         <small class="form-text text-muted">
-                                            Lets you contact drivers with event details.
+                                            {{ t "championships.form.signup.email_help" }}
                                         </small>
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="Championship.SignUpForm.AskForTeam" class="col-sm-4 col-form-label">Ask for team</label>
+                                    <label for="Championship.SignUpForm.AskForTeam" class="col-sm-4 col-form-label">{{ t "championships.form.signup.team" }}</label>
 
                                     <div class="col-sm-8">
                                         <input type="checkbox" id="Championship.SignUpForm.AskForTeam" name="Championship.SignUpForm.AskForTeam"
                                                 {{ if $f.SignUpForm.AskForTeam }} checked="checked" {{ end }}>
 
                                         <small class="form-text text-muted">
-                                            Drivers can specify their team.
+                                            {{ t "championships.form.signup.team_help" }}
                                         </small>
 
                                         <div class="participation-nested show-signup-ask-team mt-3" {{ if not $f.SignUpForm.AskForTeam }} style="display: none" {{ end }}>
                                             <div class="form-group">
-                                                <label for="Championship.SignUpForm.TeamMode">How do users choose their team</label>
+                                                <label for="Championship.SignUpForm.TeamMode">{{ t "championships.form.signup.team_mode" }}</label>
 
                                                 <select class="form-control" id="Championship.SignUpForm.TeamMode" name="Championship.SignUpForm.TeamMode">
-                                                    <option value="" {{ if eq (print $f.SignUpForm.TeamMode) "" }}selected="selected"{{ end }}>They type a team name</option>
-                                                    <option value="select" {{ if eq (print $f.SignUpForm.TeamMode) "select" }}selected="selected"{{ end }}>They pick one of the teams they are a member of</option>
-                                                    <option value="both" {{ if eq (print $f.SignUpForm.TeamMode) "both" }}selected="selected"{{ end }}>Both: pick a team or type a name that is not a team</option>
+                                                    <option value="" {{ if eq (print $f.SignUpForm.TeamMode) "" }}selected="selected"{{ end }}>{{ t "championships.form.signup.team_mode_text" }}</option>
+                                                    <option value="select" {{ if eq (print $f.SignUpForm.TeamMode) "select" }}selected="selected"{{ end }}>{{ t "championships.form.signup.team_mode_select" }}</option>
+                                                    <option value="both" {{ if eq (print $f.SignUpForm.TeamMode) "both" }}selected="selected"{{ end }}>{{ t "championships.form.signup.team_mode_both" }}</option>
                                                 </select>
 
                                                 <small class="form-text text-muted">
-                                                    Teams are created on the <a href="/teams">Teams</a> page.
+                                                    {{ tHTML "championships.form.signup.teams_page" "url" "/teams" }}
                                                 </small>
                                             </div>
 
                                             <div class="form-group mb-0">
-                                                <label for="SignUpMaxDriversPerTeamInput">Drivers per team</label>
+                                                <label for="SignUpMaxDriversPerTeamInput">{{ t "championships.form.signup.drivers_per_team" }}</label>
 
                                                 {{/* the submitted value is the hidden field: the number, or -1 when Unlimited is on (see initConfigureSignUpForm) */}}
                                                 <input type="hidden" id="Championship.SignUpForm.MaxDriversPerTeam" name="Championship.SignUpForm.MaxDriversPerTeam" value="{{ $maxDrivers }}">
 
                                                 <div class="d-flex align-items-center">
                                                     <input type="number" class="form-control mr-3" style="max-width: 160px" id="SignUpMaxDriversPerTeamInput"
-                                                           min="1" max="1000" placeholder="2 (default)"
+                                                           min="1" max="1000" placeholder="{{ t "championships.form.signup.drivers_per_team_placeholder" }}"
                                                            {{ if gt $maxDrivers 0 }} value="{{ $maxDrivers }}" {{ end }}
                                                            {{ if lt $maxDrivers 0 }} disabled="disabled" {{ end }}>
 
-                                                    <label class="mb-0 mr-2" for="SignUpMaxDriversPerTeamUnlimited">Unlimited</label>
+                                                    <label class="mb-0 mr-2" for="SignUpMaxDriversPerTeamUnlimited">{{ t "championships.form.signup.unlimited" }}</label>
                                                     <input type="checkbox" id="SignUpMaxDriversPerTeamUnlimited" {{ if lt $maxDrivers 0 }} checked="checked" {{ end }}>
                                                 </div>
 
                                                 <small class="form-text text-muted">
-                                                    Drivers one team can register. Only an admin/write user can change a team after registration.
+                                                    {{ t "championships.form.signup.drivers_per_team_help" }}
                                                 </small>
                                             </div>
                                         </div>
@@ -307,7 +303,7 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="Championship.SignUpForm.HideCarChoice" class="col-sm-4 col-form-label">Let drivers choose car and skin</label>
+                                    <label for="Championship.SignUpForm.HideCarChoice" class="col-sm-4 col-form-label">{{ t "championships.form.signup.car_choice" }}</label>
 
                                     <div class="col-sm-8">
                                         <input type="checkbox" id="Championship.SignUpForm.HideCarChoice" name="Championship.SignUpForm.HideCarChoice"
@@ -316,7 +312,7 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label for="Championship.SignUpForm.ExtraFields" class="col-sm-4 col-form-label">Extra Questions</label>
+                                    <label for="Championship.SignUpForm.ExtraFields" class="col-sm-4 col-form-label">{{ t "championships.form.signup.questions" }}</label>
 
                                     <div class="col-sm-8">
 
@@ -325,7 +321,7 @@
                                                 <div class="championship-signup-question row">
                                                     <div class="col-sm-11">
                                                         <input type="text" class="form-control championshipExtraField" name="Championship.SignUpForm.ExtraFields"
-                                                               placeholder="e.g. What is your discord username?" value="{{ $question }}">
+                                                               placeholder="{{ t "championships.form.signup.question_placeholder" }}" value="{{ $question }}">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <a href="#" class="text-danger btn-delete-question"><i class="fas fa-trash"></i></a>
@@ -335,7 +331,7 @@
                                                 <div class="championship-signup-question row">
                                                     <div class="col-sm-11">
                                                         <input type="text" class="form-control championshipExtraField" name="Championship.SignUpForm.ExtraFields"
-                                                               placeholder="e.g. What is your discord username?">
+                                                               placeholder="{{ t "championships.form.signup.question_placeholder" }}">
                                                     </div>
                                                     <div class="col-sm-1">
                                                         <a href="#" class="text-danger btn-delete-question"><i class="fas fa-trash"></i></a>
@@ -345,16 +341,16 @@
                                         </div>
 
                                         <div class="mt-2">
-                                            <button class="btn btn-info float-right" id="AddSignUpFormQuestion">Add another question</button>
+                                            <button class="btn btn-info float-right" id="AddSignUpFormQuestion">{{ t "championships.form.signup.add_question" }}</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <p class="text-muted mb-0">
                                     {{ with $.RecaptchaSiteKey }}
-                                        reCAPTCHA is configured: drivers complete a CAPTCHA before their registration is submitted.
+                                        {{ t "championships.form.signup.recaptcha_on" }}
                                     {{ else }}
-                                        reCAPTCHA is not configured: drivers are not asked for a CAPTCHA. You can enable it in your config.yml.
+                                        {{ t "championships.form.signup.recaptcha_off" }}
                                     {{ end }}
                                 </p>
                             </div>
@@ -364,25 +360,25 @@
 
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Access</strong>
+                        <strong>{{ t "championships.form.access" }}</strong>
                     </div>
 
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="OverridePassword" class="col-sm-3 col-form-label">Override Server Password</label>
+                            <label for="OverridePassword" class="col-sm-3 col-form-label">{{ t "championships.form.override_password" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="checkbox" id="OverridePassword" name="OverridePassword"
                                         {{ if $f.OverridePassword }} checked="checked" {{ end }}>
 
                                 <small class="form-text text-muted">
-                                    The server password is ignored for all events of this Championship.
+                                    {{ t "championships.form.override_password_help" }}
                                 </small>
                             </div>
                         </div>
 
                         <div class="form-group row" id="ReplacementPasswordWrapper" {{ if not $f.OverridePassword }} style="display: none;" {{ end }}>
-                            <label for="ReplacementPassword" class="col-sm-3 col-form-label">Replacement Password</label>
+                            <label for="ReplacementPassword" class="col-sm-3 col-form-label">{{ t "championships.form.replacement_password" }}</label>
 
                             <div class="col-sm-9">
                                 <input
@@ -394,7 +390,7 @@
                                         value="{{ $f.ReplacementPassword }}"
                                 >
 
-                                <small class="form-text text-muted">Leave empty for no password.</small>
+                                <small class="form-text text-muted">{{ t "championships.form.replacement_password_help" }}</small>
                             </div>
                         </div>
                     </div>
@@ -404,21 +400,19 @@
             <div class="tab-pane" id="pane-scoring" role="tabpanel" aria-labelledby="tab-scoring">
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Dropped Results</strong>
+                        <strong>{{ t "championships.form.dropped_results" }}</strong>
                     </div>
 
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="ChampionshipDropWorstResults" class="col-sm-3 col-form-label">Drop Worst Results</label>
+                            <label for="ChampionshipDropWorstResults" class="col-sm-3 col-form-label">{{ t "championships.form.drop_worst" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="number" min="0" step="1" class="form-control" style="max-width: 120px;"
                                        id="ChampionshipDropWorstResults" name="ChampionshipDropWorstResults"
                                        value="{{ $f.DropWorstResults }}">
                                 <small class="form-text text-muted">
-                                    Number of worst event results dropped from each driver's (and team's) total; 0 drops
-                                    nothing. Only completed events count, a missed event counts as 0 points (dropped
-                                    first), at least one result always counts and points penalties are never dropped.
+                                    {{ t "championships.form.drop_worst_help" }}
                                 </small>
                             </div>
                         </div>
@@ -439,12 +433,12 @@
             <div class="tab-pane" id="pane-racesettings" role="tabpanel" aria-labelledby="tab-racesettings">
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Championship Race Settings</strong>
+                        <strong>{{ t "championships.form.race_settings" }}</strong>
                     </div>
 
                     <div class="card-body">
                         <div class="form-group row mb-0">
-                            <label for="ChampionshipRaceSettings.Enabled" class="col-sm-3 col-form-label">Use Championship Race Settings</label>
+                            <label for="ChampionshipRaceSettings.Enabled" class="col-sm-3 col-form-label">{{ t "championships.form.use_race_settings" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="checkbox" id="ChampionshipRaceSettings.Enabled" name="ChampionshipRaceSettings.Enabled" value="1"
@@ -452,11 +446,8 @@
                                        {{ if $f.HasRaceSettings }} checked="checked" {{ end }}>
 
                                 <small class="form-text text-muted">
-                                    Fuel, damage, tyre wear, assists and dynamic track are set once for all events that
-                                    use the Championship race settings (the default for new events); changing them here
-                                    changes all of those events. Events can opt out in their own configuration. Track,
-                                    cars, sessions and weather are still set per event.
-                                    {{ if not $f.HasRaceSettings }}The values below are prefilled from your latest event.{{ end }}
+                                    {{ t "championships.form.race_settings_help" }}
+                                    {{ if not $f.HasRaceSettings }}{{ t "championships.form.race_settings_prefilled" }}{{ end }}
                                 </small>
                             </div>
                         </div>
@@ -466,37 +457,37 @@
                 <div id="ChampionshipRaceSettingsWrapper" {{ if not $f.HasRaceSettings }} style="display: none;" {{ end }}>
                     <div class="card mt-3 border-secondary">
                         <div class="card-header">
-                            <strong>Race Values</strong>
+                            <strong>{{ t "championships.form.race_values" }}</strong>
                         </div>
 
                         <div class="card-body">
-                <h6 class="form-subheading">Assists</h6>
+                <h6 class="form-subheading">{{ t "championships.form.rs.assists" }}</h6>
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.ABSAllowed" class="col-sm-3 col-form-label">ABS Allowed</label>
+                    <label for="ChampionshipRaceSettings.ABSAllowed" class="col-sm-3 col-form-label">{{ t "championships.form.rs.abs" }}</label>
                 
                     <div class="col-sm-9">
                         <select class="form-control" id="ChampionshipRaceSettings.ABSAllowed" name="ChampionshipRaceSettings.ABSAllowed">
-                            <option value="0" {{ if eq $rs.ABSAllowed 0 }} selected="selected" {{ end }}>Off</option>
-                            <option value="1" {{ if eq $rs.ABSAllowed 1 }} selected="selected" {{ end }}>Factory</option>
-                            <option value="2" {{ if eq $rs.ABSAllowed 2 }} selected="selected" {{ end }}>On</option>
+                            <option value="0" {{ if eq $rs.ABSAllowed 0 }} selected="selected" {{ end }}>{{ t "championships.form.rs.off" }}</option>
+                            <option value="1" {{ if eq $rs.ABSAllowed 1 }} selected="selected" {{ end }}>{{ t "championships.form.rs.factory" }}</option>
+                            <option value="2" {{ if eq $rs.ABSAllowed 2 }} selected="selected" {{ end }}>{{ t "championships.form.rs.on" }}</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.TractionControlAllowed" class="col-sm-3 col-form-label">Traction Control Allowed</label>
+                    <label for="ChampionshipRaceSettings.TractionControlAllowed" class="col-sm-3 col-form-label">{{ t "championships.form.rs.tc" }}</label>
                 
                     <div class="col-sm-9">
                         <select class="form-control" id="ChampionshipRaceSettings.TractionControlAllowed" name="ChampionshipRaceSettings.TractionControlAllowed">
-                            <option value="0" {{ if eq $rs.TractionControlAllowed 0 }} selected="selected" {{ end }}>Off</option>
-                            <option value="1" {{ if eq $rs.TractionControlAllowed 1 }} selected="selected" {{ end }}>Factory</option>
-                            <option value="2" {{ if eq $rs.TractionControlAllowed 2 }} selected="selected" {{ end }}>On</option>
+                            <option value="0" {{ if eq $rs.TractionControlAllowed 0 }} selected="selected" {{ end }}>{{ t "championships.form.rs.off" }}</option>
+                            <option value="1" {{ if eq $rs.TractionControlAllowed 1 }} selected="selected" {{ end }}>{{ t "championships.form.rs.factory" }}</option>
+                            <option value="2" {{ if eq $rs.TractionControlAllowed 2 }} selected="selected" {{ end }}>{{ t "championships.form.rs.on" }}</option>
                         </select>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.StabilityControlAllowed" class="col-sm-3 col-form-label">Stability Control Allowed</label>
+                    <label for="ChampionshipRaceSettings.StabilityControlAllowed" class="col-sm-3 col-form-label">{{ t "championships.form.rs.stability" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="checkbox" id="ChampionshipRaceSettings.StabilityControlAllowed" name="ChampionshipRaceSettings.StabilityControlAllowed"
@@ -505,7 +496,7 @@
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.AutoClutchAllowed" class="col-sm-3 col-form-label">Auto Clutch Allowed</label>
+                    <label for="ChampionshipRaceSettings.AutoClutchAllowed" class="col-sm-3 col-form-label">{{ t "championships.form.rs.auto_clutch" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="checkbox" id="ChampionshipRaceSettings.AutoClutchAllowed" name="ChampionshipRaceSettings.AutoClutchAllowed"
@@ -514,115 +505,115 @@
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.TyreBlanketsAllowed" class="col-sm-3 col-form-label">Tyre Blankets Allowed</label>
+                    <label for="ChampionshipRaceSettings.TyreBlanketsAllowed" class="col-sm-3 col-form-label">{{ t "championships.form.rs.tyre_blankets" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="checkbox" id="ChampionshipRaceSettings.TyreBlanketsAllowed" name="ChampionshipRaceSettings.TyreBlanketsAllowed"
                                {{ if $rs.TyreBlanketsAllowed }} checked="checked" {{ end }}><br>
                 
-                        <small>At the start of the session or after a pitstop, tyres will have the the optimal temperature.</small>
+                        <small>{{ t "championships.form.rs.tyre_blankets_help" }}</small>
                     </div>
                 </div>
                 
-                <h6 class="form-subheading">Realism</h6>
+                <h6 class="form-subheading">{{ t "championships.form.rs.realism" }}</h6>
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.ForceVirtualMirror" class="col-sm-3 col-form-label">Force Virtual Mirror</label>
+                    <label for="ChampionshipRaceSettings.ForceVirtualMirror" class="col-sm-3 col-form-label">{{ t "championships.form.rs.virtual_mirror" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="checkbox" id="ChampionshipRaceSettings.ForceVirtualMirror" name="ChampionshipRaceSettings.ForceVirtualMirror"
                                {{ if $rs.ForceVirtualMirror }} checked="checked" {{ end }}><br>
                 
-                        <small>Force clients to use Virtual Mirrors (does not work in VR)</small>
+                        <small>{{ t "championships.form.rs.virtual_mirror_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.FuelRate" class="col-sm-3 col-form-label">Fuel Rate</label>
+                    <label for="ChampionshipRaceSettings.FuelRate" class="col-sm-3 col-form-label">{{ t "championships.form.rs.fuel_rate" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.FuelRate" name="ChampionshipRaceSettings.FuelRate"
                                class="form-control" value="{{ $rs.FuelRate }}" min="0" step="1">
                 
-                        <small>Fuel usage multiplier in percent: 0 = no fuel usage, 100 = realistic, higher values increase usage</small>
+                        <small>{{ t "championships.form.rs.fuel_rate_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.DamageMultiplier" class="col-sm-3 col-form-label">Damage Multiplier</label>
+                    <label for="ChampionshipRaceSettings.DamageMultiplier" class="col-sm-3 col-form-label">{{ t "championships.form.rs.damage" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.DamageMultiplier" name="ChampionshipRaceSettings.DamageMultiplier"
                                class="form-control" value="{{ $rs.DamageMultiplier }}" min="0" max="100" step="1">
                 
-                        <small>Damage from 0 (no damage) to 100 (full damage)</small>
+                        <small>{{ t "championships.form.rs.damage_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.TyreWearRate" class="col-sm-3 col-form-label">Tyre Wear Rate</label>
+                    <label for="ChampionshipRaceSettings.TyreWearRate" class="col-sm-3 col-form-label">{{ t "championships.form.rs.tyre_wear" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.TyreWearRate" name="ChampionshipRaceSettings.TyreWearRate"
                                class="form-control" value="{{ $rs.TyreWearRate }}" min="0" step="1">
                 
-                        <small>Tyre wear multiplier in percent: 0 = no tyre wear, 100 = realistic, higher values increase wear</small>
+                        <small>{{ t "championships.form.rs.tyre_wear_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.AllowedTyresOut" class="col-sm-3 col-form-label">Allowed Tyres Out</label>
+                    <label for="ChampionshipRaceSettings.AllowedTyresOut" class="col-sm-3 col-form-label">{{ t "championships.form.rs.tyres_out" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.AllowedTyresOut" name="ChampionshipRaceSettings.AllowedTyresOut"
                                class="form-control" value="{{ $rs.AllowedTyresOut }}" step="1">
                 
-                        <small>The number of tyres allowed outside of track limits before a penalty is applied. -1 disables.</small>
+                        <small>{{ t "championships.form.rs.tyres_out_help" }}</small>
                     </div>
                 </div>
                 
-                <h6 class="form-subheading">Dynamic Track</h6>
+                <h6 class="form-subheading">{{ t "championships.form.rs.dynamic_track" }}</h6>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.SessionStart" class="col-sm-3 col-form-label">Session Start</label>
+                    <label for="ChampionshipRaceSettings.SessionStart" class="col-sm-3 col-form-label">{{ t "championships.form.rs.session_start" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.SessionStart" name="ChampionshipRaceSettings.SessionStart"
                                class="form-control" value="{{ $rs.DynamicTrack.SessionStart }}" step="1">
                 
-                        <small>% level of grip at session start</small>
+                        <small>{{ t "championships.form.rs.session_start_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.Randomness" class="col-sm-3 col-form-label">Randomness</label>
+                    <label for="ChampionshipRaceSettings.Randomness" class="col-sm-3 col-form-label">{{ t "championships.form.rs.randomness" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.Randomness" name="ChampionshipRaceSettings.Randomness"
                                class="form-control" value="{{ $rs.DynamicTrack.Randomness }}" step="1">
                 
-                        <small>Level of randomness added to the start grip</small>
+                        <small>{{ t "championships.form.rs.randomness_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.SessionTransfer" class="col-sm-3 col-form-label">Session Transfer</label>
+                    <label for="ChampionshipRaceSettings.SessionTransfer" class="col-sm-3 col-form-label">{{ t "championships.form.rs.session_transfer" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.SessionTransfer" name="ChampionshipRaceSettings.SessionTransfer"
                                class="form-control" value="{{ $rs.DynamicTrack.SessionTransfer }}" step="1">
                 
-                        <small>How much of the gained grip is to be added to the next session 100 -&gt; all the gained grip.</small>
+                        <small>{{ t "championships.form.rs.session_transfer_help" }}</small>
                     </div>
                 </div>
                 
                 <div class="form-group row">
-                    <label for="ChampionshipRaceSettings.LapGain" class="col-sm-3 col-form-label">Lap Gain</label>
+                    <label for="ChampionshipRaceSettings.LapGain" class="col-sm-3 col-form-label">{{ t "championships.form.rs.lap_gain" }}</label>
                 
                     <div class="col-sm-9">
                         <input type="number" id="ChampionshipRaceSettings.LapGain" name="ChampionshipRaceSettings.LapGain"
                                class="form-control" value="{{ $rs.DynamicTrack.LapGain }}" step="1">
                 
-                        <small>How many laps are needed to add 1% grip</small>
+                        <small>{{ t "championships.form.rs.lap_gain_help" }}</small>
                     </div>
                 </div>
                         </div>
@@ -635,7 +626,7 @@
 
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Important Information</strong>
+                        <strong>{{ t "championships.form.info" }}</strong>
                     </div>
 
                     <div class="card-body">
@@ -643,39 +634,39 @@
                             <textarea id="summernote" name="ChampionshipInfo"></textarea>
                             <div class="clearfix"></div>
 
-                            <small class="form-text text-muted">Shown at the top of the Championship page and on Sign Up pages (if enabled).</small>
+                            <small class="form-text text-muted">{{ t "championships.form.info_help" }}</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="card mt-3 border-secondary">
                     <div class="card-header">
-                        <strong>Display</strong>
+                        <strong>{{ t "championships.form.display" }}</strong>
                     </div>
 
                     <div class="card-body">
                         <div class="form-group row">
-                            <label for="ChampionshipOGImage" class="col-sm-3 col-form-label">Open Graph Image</label>
+                            <label for="ChampionshipOGImage" class="col-sm-3 col-form-label">{{ t "championships.form.og_image" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" id="ChampionshipOGImage" name="ChampionshipOGImage"
-                                       placeholder="Any image URL" {{ with $f.OGImage }} value="{{.}}" {{ end }}>
+                                       placeholder="{{ t "championships.form.og_image_placeholder" }}" {{ with $f.OGImage }} value="{{.}}" {{ end }}>
 
-                                <small class="form-text text-muted">URL of an image shown in links to this Championship.</small>
+                                <small class="form-text text-muted">{{ t "championships.form.og_image_help" }}</small>
                             </div>
                         </div>
 
                         <div class="form-group row mb-0">
-                            <label for="ChampionshipDefaultTab" class="col-sm-3 col-form-label">Default Tab</label>
+                            <label for="ChampionshipDefaultTab" class="col-sm-3 col-form-label">{{ t "championships.form.default_tab" }}</label>
 
                             <div class="col-sm-9">
                                 <select name="ChampionshipDefaultTab" id="ChampionshipDefaultTab" class="form-control">
                                     {{ range $index, $tab := $.AvailableChampionshipTabs }}
-                                        <option value="{{ $tab }}" {{ if eq $tab $f.DefaultTab }}selected="selected"{{ end }}>{{ $tab }}</option>
+                                        <option value="{{ $tab }}" {{ if eq $tab $f.DefaultTab }}selected="selected"{{ end }}>{{ if eq (print $tab) "Driver Standings" }}{{ t "championships.view.driver_standings" }}{{ else if eq (print $tab) "Team Standings" }}{{ t "championships.view.team_standings" }}{{ else if eq (print $tab) "Overview" }}{{ t "championships.view.overview" }}{{ else if eq (print $tab) "Entrants" }}{{ t "home.entrants" }}{{ else if eq (print $tab) "Points Reference" }}{{ t "championships.view.points_reference" }}{{ else }}{{ $tab }}{{ end }}</option>
                                     {{ end }}
                                 </select>
 
-                                <small class="form-text text-muted">The tab shown when the Championship page is opened.</small>
+                                <small class="form-text text-muted">{{ t "championships.form.default_tab_help" }}</small>
                             </div>
                         </div>
                     </div>
@@ -688,11 +679,11 @@
         <div class="mt-5">
             {{ if .IsEditing }}
                 <input type="hidden" name="Editing" id="Editing" value="{{ $f.ID.String }}">
-                <button type="submit" class="btn btn-success float-right">Save Championship</button>
+                <button type="submit" class="btn btn-success float-right">{{ t "championships.form.save" }}</button>
             {{ else }}
                 <div class="float-right">
-                    <button type="submit" name="action" value="addRaceWeekend" class="btn btn-info">Save &amp; add Race Weekend</button>
-                    <button type="submit" name="action" value="addEvent" class="btn btn-success">Save &amp; add first Event</button>
+                    <button type="submit" name="action" value="addRaceWeekend" class="btn btn-info">{{ t "championships.form.save_add_weekend" }}</button>
+                    <button type="submit" name="action" value="addEvent" class="btn btn-success">{{ t "championships.form.save_add_event" }}</button>
                 </div>
             {{ end }}
         </div>
