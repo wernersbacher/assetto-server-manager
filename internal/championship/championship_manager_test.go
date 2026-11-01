@@ -21,7 +21,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/pkg/udp"
 	"github.com/wernersbacher/ACPitwall/pkg/udp/replay"
 
-	"github.com/etcd-io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 var TestEntryList = serverconfig.EntryList{

@@ -7,27 +7,20 @@ require (
 	github.com/Masterminds/goutils v1.1.0 // indirect
 	github.com/Masterminds/semver v1.5.0
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/RoaringBitmap/roaring v0.4.21 // indirect
-	github.com/blevesearch/bleve v0.8.1
-	github.com/blevesearch/blevex v0.0.0-20180227211930-4b158bb555a3 // indirect
-	github.com/blevesearch/go-porterstemmer v1.0.2 // indirect
-	github.com/blevesearch/segment v0.0.0-20160915185041-762005e7a34f // indirect
+	github.com/blevesearch/bleve v1.0.14
 	github.com/bwmarrin/discordgo v0.20.2
 	github.com/cj123/caldav-go v0.0.0-20191202141705-5d30c27975e9
 	github.com/cj123/formulate v0.0.0-20200906120731-1cd9cd8fdf1d
 	github.com/cj123/ini v1.44.0
 	github.com/cj123/sessions v1.1.5
 	github.com/cj123/watcher v1.0.9
-	github.com/couchbase/vellum v0.0.0-20190829182332-ef2e028c01fd // indirect
 	github.com/cznic/b v0.0.0-20181122101859-a26611c4d92d // indirect
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
 	github.com/cznic/strutil v0.0.0-20181122101858-275e90344537 // indirect
 	github.com/dimchansky/utfbom v1.1.0
 	github.com/dustin/go-humanize v1.0.0
-	github.com/etcd-io/bbolt v1.3.3
-	github.com/facebookgo/ensure v0.0.0-20160127193407-b4ab57deab51 // indirect
+	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
-	github.com/facebookgo/subset v0.0.0-20150612182917-8dac2c3c4870 // indirect
 	github.com/fatih/color v1.7.0
 	github.com/glycerine/go-unsnap-stream v0.0.0-20190901134440-81cf024a9e0a // indirect
 	github.com/go-chi/chi v4.0.3+incompatible
@@ -59,7 +52,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.3.0
 	github.com/prometheus/common v0.9.1 // indirect
-	github.com/remyoudompheng/bigfft v0.0.0-20190512091148-babf20351dd7 // indirect
 	github.com/russross/blackfriday v2.0.0+incompatible
 	github.com/sethvargo/go-diceware v0.2.0
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
@@ -68,13 +60,11 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/solovev/steam_go v0.0.0-20170222182106-48eb5aae6c50
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
-	github.com/steveyen/gtreap v0.0.0-20150807155958-0abe01ef9be2 // indirect
 	github.com/syndtr/goleveldb v1.0.0 // indirect
 	github.com/teambition/rrule-go v1.5.0
-	github.com/tecbot/gorocksdb v0.0.0-20190519120508-025c3cf4ffb4 // indirect
 	github.com/tinylib/msgp v1.1.1 // indirect
 	github.com/yuin/gopher-lua v0.0.0-20191220021717-ab39c6098bdb
-	go.etcd.io/bbolt v1.3.2 // indirect
+	go.etcd.io/bbolt v1.3.5
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20200904194848-62affa334b73
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208

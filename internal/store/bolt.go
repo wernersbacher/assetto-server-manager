@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/etcd-io/bbolt"
+	"go.etcd.io/bbolt"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"

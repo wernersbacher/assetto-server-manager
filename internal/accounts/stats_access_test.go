@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/cj123/sessions"
-	"github.com/etcd-io/bbolt"
+	"go.etcd.io/bbolt"
 
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"

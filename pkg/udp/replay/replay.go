@@ -10,8 +10,8 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/pkg/udp"
 
-	"github.com/etcd-io/bbolt"
 	"github.com/sirupsen/logrus"
+	"go.etcd.io/bbolt"
 )
 
 type Entries []*Entry

@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/etcd-io/bbolt"
 	"github.com/google/uuid"
 	"github.com/wernersbacher/ACPitwall/pkg/udp/replay"
+	"go.etcd.io/bbolt"
 )
 
 var filename string

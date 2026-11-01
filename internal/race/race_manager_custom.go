@@ -5,9 +5,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/etcd-io/bbolt"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"go.etcd.io/bbolt"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"

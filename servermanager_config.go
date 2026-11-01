@@ -3,9 +3,9 @@ package servermanager
 import (
 	"fmt"
 
-	"github.com/etcd-io/bbolt"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
+	"go.etcd.io/bbolt"
 )
 
 // BuildStore opens the Store configured in StoreConfig and runs migrations. installPath returns the install path of

@@ -3,7 +3,7 @@ package store
 import (
 	"time"
 
-	"github.com/etcd-io/bbolt"
+	"go.etcd.io/bbolt"
 
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )

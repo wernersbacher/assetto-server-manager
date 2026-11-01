@@ -22,7 +22,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 
-	"github.com/etcd-io/bbolt"
+	"go.etcd.io/bbolt"
 )
 
 func main() {
