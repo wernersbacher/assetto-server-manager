@@ -343,6 +343,8 @@ class RaceControlDriverMapRaceControlDriver {
     LastSeen: Date;
     LastPos: RaceControlDriverMapRaceControlDriverVec;
     Collisions: RaceControlDriverMapRaceControlDriverCollision[];
+    Team: string;
+    RaceNumber: string;
     Cars: { [key: string]: RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo };
 
     constructor(data?: any) {
@@ -356,6 +358,8 @@ class RaceControlDriverMapRaceControlDriver {
         this.LastSeen = ('LastSeen' in d) ? ParseDate(d.LastSeen) : new Date();
         this.LastPos = new RaceControlDriverMapRaceControlDriverVec(d.LastPos);
         this.Collisions = Array.isArray(d.Collisions) ? d.Collisions.map((v: any) => new RaceControlDriverMapRaceControlDriverCollision(v)) : [];
+        this.Team = ('Team' in d) ? d.Team as string : '';
+        this.RaceNumber = ('RaceNumber' in d) ? d.RaceNumber as string : '';
         this.Cars = ('Cars' in d) ? d.Cars as { [key: string]: RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo } : {};
     }
 
@@ -366,6 +370,8 @@ class RaceControlDriverMapRaceControlDriver {
         cfg.LoadedTime = 'string';
         cfg.Position = 'number';
         cfg.LastSeen = 'string';
+        cfg.Team = 'string';
+        cfg.RaceNumber = 'string';
         return ToObject(this, cfg);
     }
 }

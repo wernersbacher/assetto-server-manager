@@ -648,6 +648,31 @@ td .dot-inactive {
     text-overflow: ellipsis;
   }
 
+  .driver-cell .driver-team {
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 600;
+    color: var(--driver-colour, var(--muted-foreground));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // the livery number in front of the driver name, outlined in the colour of the team
+  .race-number {
+    display: inline-block;
+    min-width: 24px;
+    margin-right: 6px;
+    padding: 0 4px;
+    border: 2px solid var(--driver-colour, var(--muted-foreground));
+    border-radius: 4px;
+    font-size: 11px;
+    line-height: 14px;
+    font-weight: 700;
+    text-align: center;
+    vertical-align: 1px;
+  }
+
   .collision-count {
     margin-left: 6px;
     font-size: 11px;
@@ -1214,12 +1239,12 @@ body.live-drawer-open {
 
     .spark-line {
       fill: none;
-      stroke: var(--tertiary);
+      stroke: var(--driver-colour, var(--tertiary));
       stroke-width: 1.5;
     }
 
     .spark-dot {
-      fill: var(--tertiary);
+      fill: var(--driver-colour, var(--tertiary));
     }
 
     .spark-invalid path {

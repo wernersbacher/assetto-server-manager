@@ -44,6 +44,7 @@ js:
       one: "{count} invalid lap"
       other: "{count} invalid laps"
     show_laps: Show lap history
+    race_number: Race number
     hide_laps: Hide lap history
     history_lap: Lap
     history_time: Time

@@ -108,6 +108,7 @@ func (rc *RaceControl) OnClientConnect(client udp.SessionCarInfo) error {
 	driver.Lock()
 	defer driver.Unlock()
 	driver.CarInfo = client
+	rc.setIdentity(driver)
 
 	if _, ok := driver.Cars[driver.CarInfo.CarModel]; !ok {
 		driver.Cars[driver.CarInfo.CarModel] = NewRaceControlCarLapInfo(driver.CarInfo.CarModel)

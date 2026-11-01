@@ -44,6 +44,7 @@ js:
       one: "{count} ungültige Runde"
       other: "{count} ungültige Runden"
     show_laps: Rundenverlauf anzeigen
+    race_number: Startnummer
     hide_laps: Rundenverlauf ausblenden
     history_lap: Runde
     history_time: Zeit

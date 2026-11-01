@@ -44,6 +44,7 @@ js:
       one: "{count} ugyldig omgang"
       other: "{count} ugyldige omgange"
     show_laps: Vis omgangshistorik
+    race_number: Løbsnummer
     hide_laps: Skjul omgangshistorik
     history_lap: Omgang
     history_time: Tid

@@ -44,6 +44,7 @@ js:
       one: "{count} ongeldige ronde"
       other: "{count} ongeldige ronden"
     show_laps: Rondeverloop tonen
+    race_number: Racenummer
     hide_laps: Rondeverloop verbergen
     history_lap: Ronde
     history_time: Tijd

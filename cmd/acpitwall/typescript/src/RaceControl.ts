@@ -5,7 +5,6 @@ import {
 } from "./models/RaceControl";
 
 import {CarUpdate, CarUpdateVec} from "./models/UDP";
-import {randomColor} from "randomcolor/randomColor";
 import {msToTime, prettifyName} from "./utils";
 import {t, tn} from "./i18n";
 import moment from "moment";
@@ -94,6 +93,7 @@ export class RaceControl {
                 return;
             case EventRaceControl:
                 this.status = new RaceControlData(message.Message);
+                updateDriverIdentities(this.status);
 
                 if (this.status.SessionInfo.Track !== this.track || this.status.SessionInfo.TrackConfig !== this.trackLayout) {
                     this.track = this.status.SessionInfo.Track;
@@ -415,6 +415,10 @@ class LiveMap implements WebsocketHandler {
                     }
                 }
 
+                for (const [guid, $dot] of this.dots) {
+                    $dot.css("background", driverColour(guid));
+                }
+
                 $(".dot").css({"transition": this.raceControl.status.CurrentRealtimePosInterval + "ms linear"});
                 break;
 
@@ -489,7 +493,7 @@ class LiveMap implements WebsocketHandler {
 
                 $rpmGaugeInner.css({
                     'width': ((update.EngineRPM / maxRPM) * 100).toFixed(0) + "%",
-                    'background': randomColorForDriver(driverGUID),
+                    'background': driverColour(driverGUID),
                 });
 
                 $rpmGaugeOuter.append($rpmGaugeInner);
@@ -540,7 +544,7 @@ class LiveMap implements WebsocketHandler {
         const $driverName = $("<span class='name'/>").text(driverData.DriverInitials);
         const $info = $("<span class='info'/>").text("0").hide();
 
-        const $dot = $("<div class='dot' style='background: " + randomColorForDriver(driverData.DriverGUID) + "'/>").append($driverName, $info).hide().appendTo(this.$map);
+        const $dot = $("<div class='dot' style='background: " + driverColour(driverData.DriverGUID) + "'/>").append($driverName, $info).hide().appendTo(this.$map);
 
         if (lastPos !== undefined) {
             let dotPos = this.translateToTrackCoordinate(lastPos);
@@ -1144,6 +1148,7 @@ class LiveTimings implements WebsocketHandler {
             <td class="driver-pos"><span class="pos-num"></span><span class="pos-change"></span><button type="button" class="lap-expand" aria-expanded="false"><i class="fa fa-chevron-right" aria-hidden="true"></i></button></td>
             <td class="driver-cell driver-link">
                 <div class="driver-name"></div>
+                <div class="driver-team"></div>
                 <div class="driver-car"></div>
             </td>
             <td class="current-lap"><span class="lap-time"></span><span class="lap-progress"><span></span></span></td>
@@ -1195,10 +1200,7 @@ class LiveTimings implements WebsocketHandler {
                     dotClass += " dot-inactive";
                 }
 
-                $tdName.prepend($("<div/>").attr({"class": dotClass}).css("background", randomColor({
-                    luminosity: 'bright',
-                    seed: driver.CarInfo.DriverGUID,
-                })));
+                $tdName.prepend($("<div/>").attr({"class": dotClass}).css("background", driverColour(driver.CarInfo.DriverGUID)));
             }
 
             $tdName.append($("<span class='collision-count'/>").hide());
@@ -1235,6 +1237,10 @@ class LiveTimings implements WebsocketHandler {
 
         // car model
         $tr.find(".driver-car").text(carInfo.CarName ? carInfo.CarName : prettifyName(driver.CarInfo.CarModel, true));
+
+        if (addingDriverToConnectedTable) {
+            this.updateIdentity($tr, driver);
+        }
 
         if (addingDriverToConnectedTable) {
             let currentLapTimeText = "";
@@ -1391,6 +1397,29 @@ class LiveTimings implements WebsocketHandler {
         })).appendTo($tbody);
     }
 
+    // updateIdentity shows the team, the race number and the colour of a driver in the row.
+    private updateIdentity($tr: JQuery<HTMLElement>, driver: Driver): void {
+        const colour = driverColour(driver.CarInfo.DriverGUID);
+        const team = driver.Team || "";
+        const number = driver.RaceNumber || "";
+
+        $tr.css("--driver-colour", colour);
+        $tr.find(".driver-name .dot").css("background", colour);
+        $tr.find(".driver-team").text(team).attr("title", team).toggle(team !== "");
+
+        let $badge = $tr.find(".driver-name .race-number");
+
+        if (number === "") {
+            $badge.remove();
+        } else {
+            if (!$badge.length) {
+                $badge = $("<span class='race-number'/>").attr("title", t("live.race_number")).insertBefore($tr.find(".driver-name").children().not(".dot").first());
+            }
+
+            $badge.text(number);
+        }
+    }
+
     private static carKey(driver: Driver): string {
         return driver.CarInfo.DriverGUID + "|" + driver.CarInfo.CarModel;
     }
@@ -1448,11 +1477,11 @@ class LiveTimings implements WebsocketHandler {
             $detail.insertAfter($tr);
         }
 
-        $detail.find(".lap-detail").empty().append(LiveTimings.lapHistory(carInfo));
+        $detail.find(".lap-detail").empty().append(LiveTimings.lapHistory(carInfo, driverColour(driver.CarInfo.DriverGUID)));
     }
 
     // lapHistory builds the lap history of a car: a chart of the lap times and a table of the laps, newest first.
-    private static lapHistory(carInfo: CarLapInfo): JQuery<HTMLElement> {
+    private static lapHistory(carInfo: CarLapInfo, colour: string): JQuery<HTMLElement> {
         const laps = carInfo.Laps || [];
         const $root = $("<div class='lap-history'/>");
 
@@ -1460,7 +1489,7 @@ class LiveTimings implements WebsocketHandler {
             return $root.append($("<div class='lap-history-empty'/>").text(t("live.history_empty")));
         }
 
-        $root.append(LiveTimings.sparkline(laps));
+        $root.append(LiveTimings.sparkline(laps).css("--driver-colour", colour));
 
         const $table = $("<table class='lap-history-table'/>");
         $table.append($("<thead/>").append($("<tr/>").append(
@@ -1886,7 +1915,7 @@ class EventFeed implements WebsocketHandler {
 
     private add(entry: FeedEntry): void {
         const time = isNaN(entry.time.getTime()) ? new Date() : entry.time;
-        const $name = $("<span class='feed-driver'/>").text(entry.name).css("color", randomColorForDriver(entry.guid));
+        const $name = $("<span class='feed-driver'/>").text(entry.name).css("color", driverColour(entry.guid));
         const $entry = $("<li class='feed-entry'/>")
             .addClass("feed-" + entry.variant)
             .attr("data-kind", entry.kind)
@@ -1951,8 +1980,42 @@ class EventFeed implements WebsocketHandler {
     }
 }
 
-function randomColorForDriver(driverGUID: string): string {
-    return randomColor({
-        seed: driverGUID,
-    })
+// The identity (team, race number) of the connected drivers, filled from every race control status. It gives the
+// driver colour used by the table, the map, the event feed and the lap chart.
+const driverIdentities = new Map<string, {team: string, number: string}>();
+
+// DRIVER_PALETTE holds mid-tone colours which keep enough contrast on the light and on the dark theme.
+const DRIVER_PALETTE = [
+    "#e5484d", "#f76b15", "#c98a00", "#30a46c", "#12a594", "#00a2c7",
+    "#0091ff", "#3e63dd", "#8e4ec6", "#d6409f", "#76a300", "#a1735d",
+];
+
+function updateDriverIdentities(status: RaceControlData): void {
+    if (!status.ConnectedDrivers) {
+        return;
+    }
+
+    for (const guid in status.ConnectedDrivers.Drivers) {
+        const driver = status.ConnectedDrivers.Drivers[guid];
+
+        driverIdentities.set(guid, {team: driver.Team || "", number: driver.RaceNumber || ""});
+    }
+}
+
+function hashString(s: string): number {
+    let h = 2166136261;
+
+    for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+    }
+
+    return h >>> 0;
+}
+
+// driverColour is the colour of the team of a driver, or a stable colour of the GUID for a driver without team.
+function driverColour(guid: string): string {
+    const team = (driverIdentities.get(guid)?.team || "").trim().toLowerCase();
+
+    return DRIVER_PALETTE[hashString(team !== "" ? "team:" + team : "driver:" + guid) % DRIVER_PALETTE.length];
 }

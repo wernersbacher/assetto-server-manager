@@ -23,6 +23,13 @@ type RaceControlDriver struct {
 
 	Collisions []Collision `json:"Collisions"`
 
+	// Team is the team of the driver from the entry list of the running event (for a championship event the team
+	// of the entrant); empty without a team.
+	Team string `json:"Team"`
+	// RaceNumber is the livery number of the skin the driver connected with (ui_skin.json "number"); empty when the
+	// skin has none.
+	RaceNumber string `json:"RaceNumber"`
+
 	driverSwapContext context.Context
 	driverSwapCfn     context.CancelFunc
 
