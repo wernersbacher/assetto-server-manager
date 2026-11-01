@@ -106,3 +106,51 @@ func TestRedirectToSteamLoginRejectsInvalid(t *testing.T) {
 		t.Fatalf("status %d body %q", rec.Code, rec.Body.String())
 	}
 }
+
+func TestHandleLogin(t *testing.T) {
+	defer fakeSteam(t, true)()
+
+	var gotID string
+	var gotErr error
+
+	h := (&LoginHandler{}).HandleLogin(
+		func(w http.ResponseWriter, r *http.Request, steamID string) { gotID = steamID },
+		func(w http.ResponseWriter, r *http.Request, err error) { gotErr = err },
+	)
+
+	// a forged steamGUID does nothing
+	h(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com/login/steam?steamGUID=1", nil))
+
+	if gotID != "" || gotErr != nil {
+		t.Fatalf("id %q err %v", gotID, gotErr)
+	}
+
+	// valid answer: the validated id is passed to the callback
+	q := url.Values{
+		"openid.mode":       {"id_res"},
+		"openid.return_to":  {"http://example.com/login/steam"},
+		"openid.claimed_id": {"https://steamcommunity.com/openid/id/76561198000000042"},
+		"openid.sig":        {"abc"},
+	}
+	h(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com/login/steam?"+q.Encode(), nil))
+
+	if gotID != "76561198000000042" || gotErr != nil {
+		t.Fatalf("id %q err %v", gotID, gotErr)
+	}
+
+	// wrong return_to: failure, no id
+	gotID = ""
+	q.Set("openid.return_to", "http://evil.example/login/steam")
+	h(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com/login/steam?"+q.Encode(), nil))
+
+	if gotID != "" || gotErr == nil {
+		t.Fatalf("id %q err %v", gotID, gotErr)
+	}
+
+	// cancel
+	h(httptest.NewRecorder(), httptest.NewRequest("GET", "http://example.com/login/steam?openid.mode=cancel", nil))
+
+	if gotErr != ErrCancelled {
+		t.Fatalf("err %v", gotErr)
+	}
+}

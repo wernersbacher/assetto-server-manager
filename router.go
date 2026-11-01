@@ -105,6 +105,7 @@ func Router(
 	r.Use(smweb.NotFoundPageMiddleware(accountHandler.ReadAccessMiddleware(http.HandlerFunc(serverAdministrationHandler.NotFound))))
 
 	r.HandleFunc("/login", accountHandler.Login)
+	r.Get("/login/steam", accountHandler.SteamLogin())
 	r.HandleFunc("/logout", accountHandler.Logout)
 	r.Post("/language", accountHandler.SetLanguage)
 	r.HandleFunc("/robots.txt", serverAdministrationHandler.Robots)

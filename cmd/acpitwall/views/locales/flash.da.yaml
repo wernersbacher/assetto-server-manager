@@ -9,6 +9,8 @@ flash:
     invalid_login: Ugyldigt brugernavn eller adgangskode. Tjek dine oplysninger, og prøv igen.
     set_password: Tak, fordi du loggede ind. Vælg nu en permanent adgangskode til din konto.
     logged_in: Tak, fordi du loggede ind!
+    steam_not_allowed: Der findes ingen konto til dette Steam-ID, og registrering med Steam er ikke aktiveret på denne server.
+    steam_failed: Steam-login mislykkedes eller blev annulleret. Prøv igen.
     openness_changed: Serverens åbenhed er ændret
     public_stats_changed: Offentlig kørerstatistik er ændret
     download_access_changed: Downloadadgang er ændret

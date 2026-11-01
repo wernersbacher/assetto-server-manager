@@ -148,6 +148,7 @@ login:
   heading: Anmelden
   intro: Melde dich an, um den Server zu verwalten.
   submit: Anmelden
+  steam: Mit Steam anmelden
 
 password:
   create_title: Passwort festlegen

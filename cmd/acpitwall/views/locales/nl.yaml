@@ -148,6 +148,7 @@ login:
   heading: Inloggen
   intro: Log in om de server te beheren.
   submit: Inloggen
+  steam: Inloggen met Steam
 
 password:
   create_title: Wachtwoord instellen

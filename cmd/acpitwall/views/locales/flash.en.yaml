@@ -9,6 +9,8 @@ flash:
     invalid_login: Invalid username or password. Check your details and try again.
     set_password: Thanks for logging in. We need you to set up a permanent password for your account.
     logged_in: Thanks for logging in!
+    steam_not_allowed: No account exists for this Steam ID, and registration with Steam is not enabled on this server.
+    steam_failed: The Steam login failed or was cancelled. Please try again.
     openness_changed: Server openness successfully changed
     public_stats_changed: Public driver statistics successfully changed
     download_access_changed: Download access successfully changed

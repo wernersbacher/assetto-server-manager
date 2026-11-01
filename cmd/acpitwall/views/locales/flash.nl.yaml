@@ -9,6 +9,8 @@ flash:
     invalid_login: Ongeldige gebruikersnaam of wachtwoord. Controleer je gegevens en probeer het opnieuw.
     set_password: Bedankt voor het inloggen. Stel nu een vast wachtwoord in voor je account.
     logged_in: Bedankt voor het inloggen!
+    steam_not_allowed: Er bestaat geen account voor dit Steam-ID en registreren met Steam is op deze server niet ingeschakeld.
+    steam_failed: De Steam-login is mislukt of geannuleerd. Probeer het opnieuw.
     openness_changed: Openheid van de server gewijzigd
     public_stats_changed: Openbare rijdersstatistieken gewijzigd
     download_access_changed: Downloadtoegang gewijzigd

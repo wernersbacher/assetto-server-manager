@@ -9,6 +9,8 @@ flash:
     invalid_login: Ungültiger Benutzername oder ungültiges Passwort. Prüfe deine Angaben und versuche es erneut.
     set_password: Danke für deine Anmeldung. Bitte lege jetzt ein dauerhaftes Passwort für dein Konto fest.
     logged_in: Danke für deine Anmeldung!
+    steam_not_allowed: Für diese Steam-ID gibt es kein Konto, und die Registrierung per Steam ist auf diesem Server nicht aktiviert.
+    steam_failed: Die Steam-Anmeldung ist fehlgeschlagen oder wurde abgebrochen. Bitte versuche es erneut.
     openness_changed: Offenheit des Servers erfolgreich geändert
     public_stats_changed: Öffentliche Fahrerstatistiken erfolgreich geändert
     download_access_changed: Download-Zugriff erfolgreich geändert

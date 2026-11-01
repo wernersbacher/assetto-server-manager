@@ -55,6 +55,39 @@ func (slh *LoginHandler) RedirectToSteamLogin(backURLFunc func(r *http.Request) 
 	}
 }
 
+// ErrCancelled is given to the failure callback of HandleLogin if the visitor cancelled at Steam.
+var ErrCancelled = errors.New("steam: authorization cancelled")
+
+// HandleLogin redirects to Steam and, once Steam's answer was validated, calls onSuccess with the verified
+// SteamID64 in the same request. The SteamID is never taken from a query parameter that the client could set itself,
+// and never passed on via a redirect: the caller has to act on it (e.g. start a session) right away. A cancelled or
+// invalid answer calls onFailure (ErrCancelled, or the validation error).
+func (slh *LoginHandler) HandleLogin(onSuccess func(w http.ResponseWriter, r *http.Request, steamID string), onFailure func(w http.ResponseWriter, r *http.Request, err error)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Query().Get("openid.mode") {
+		case "":
+			http.Redirect(w, r, authURL(r), http.StatusFound)
+		case "cancel":
+			onFailure(w, r, ErrCancelled)
+		default:
+			steamID, err := validate(r)
+
+			if err != nil {
+				onFailure(w, r, err)
+				return
+			}
+
+			onSuccess(w, r, steamID)
+		}
+	}
+}
+
+// ClientSideRedirect sends the visitor on with an HTML redirect instead of a Location header. After the login at
+// Steam a header redirect would still count as cross-site for cookies with SameSite=Strict.
+func ClientSideRedirect(url string, w http.ResponseWriter) {
+	clientSideRedirect(url, w)
+}
+
 // root returns scheme and host of the request as the browser sees them, also behind a reverse proxy.
 func root(r *http.Request) string {
 	scheme := "http"

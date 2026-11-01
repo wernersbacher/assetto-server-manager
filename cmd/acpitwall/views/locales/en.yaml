@@ -149,6 +149,7 @@ login:
   heading: Sign in
   intro: Log in to manage the server.
   submit: Log in
+  steam: Sign in with Steam
 
 password:
   create_title: Create a Password

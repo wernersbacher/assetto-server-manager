@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
@@ -26,8 +28,10 @@ import (
 	"golang.org/x/crypto/scrypt"
 )
 
+var steamGUIDRegexp = regexp.MustCompile("^[0-9]{15,25}$")
+
 const (
-	sessionAccountID            = "account_id"
+	sessionAccountID           = "account_id"
 	serverAccountOptionsMetaKey = "server-account-options"
 )
 
@@ -52,6 +56,10 @@ type ServerAccountOptions struct {
 
 	// Skins are the settings for skin uploads of users.
 	Skins smmodel.SkinSettings
+
+	// SteamSignup lets visitors without an account create one by logging in with Steam. Off by default; Steam
+	// logins of existing accounts (matched by their GUID) always work.
+	SteamSignup bool
 }
 
 // MustLoginMiddleware determines whether an account needs to log in to access a given Group page
@@ -222,6 +230,48 @@ func NewAccountHandler(config *smconfig.Configuration, baseHandler *smweb.BaseHa
 		BaseHandler:    baseHandler,
 		store:          store,
 		accountManager: accountManager,
+	}
+}
+
+// SteamLogin is the public /login/steam route: it redirects to Steam, validates the answer there and starts the
+// session in the same request (the SteamID is never read from a query parameter set by the client).
+func (ah *AccountHandler) SteamLogin() http.HandlerFunc {
+	return ah.HandleLogin(func(w http.ResponseWriter, r *http.Request, steamID string) {
+		ah.finishSteamLogin(w, r, steamID)
+	}, func(w http.ResponseWriter, r *http.Request, err error) {
+		if err != steam.ErrCancelled {
+			logrus.WithError(err).Error("Could not validate the Steam login")
+		}
+
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_failed"))
+		http.Redirect(w, r, "/login", http.StatusFound)
+	})
+}
+
+// finishSteamLogin starts the session for a validated SteamID and sends the visitor on.
+func (ah *AccountHandler) finishSteamLogin(w http.ResponseWriter, r *http.Request, steamID string) {
+	account, created, err := ah.accountManager.loginWithSteam(r, w, steamID)
+
+	switch {
+	case err == ErrSteamSignupDisabled:
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_not_allowed"))
+		steam.ClientSideRedirect("/login", w)
+		return
+	case err != nil:
+		logrus.WithError(err).Error("Couldn't log in with Steam")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_failed"))
+		steam.ClientSideRedirect("/login", w)
+		return
+	}
+
+	logrus.Infof("Account %q logged in with Steam (new account: %t)", account.Name, created)
+	smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.logged_in"))
+
+	if created {
+		// let the new account enter its driver name
+		steam.ClientSideRedirect("/accounts/update", w)
+	} else {
+		steam.ClientSideRedirect("/", w)
 	}
 }
 
@@ -537,7 +587,61 @@ var ErrAccountNeedsPassword = errors.New("servermanager: account needs to set a 
 
 var ErrInvalidUsernameOrPassword = errors.New("servermanager: invalid username or password")
 
+// ErrSteamSignupDisabled is returned if a SteamID without a (usable) account logs in while the Steam sign up is off.
+var ErrSteamSignupDisabled = errors.New("servermanager: no account for this Steam ID and sign up with Steam is disabled")
+
+// steamAccountName is the internal (unique) name of an account that was created by a Steam login.
+func steamAccountName(steamID string) string {
+	return "steam-" + steamID
+}
+
+// loginWithSteam logs in the account whose GUID is the (already verified) steamID and starts the session. If there
+// is none, an account is created if the Steam sign up is allowed. created tells whether this happened.
+func (am *AccountManager) loginWithSteam(r *http.Request, w http.ResponseWriter, steamID string) (account *smmodel.Account, created bool, err error) {
+	if !steamGUIDRegexp.MatchString(steamID) {
+		return nil, false, fmt.Errorf("invalid SteamID %q", steamID)
+	}
+
+	am.steamMutex.Lock()
+	defer am.steamMutex.Unlock()
+
+	account, err = am.store.FindAccountByGUID(steamID)
+
+	switch {
+	case err == nil && !account.Deleted.IsZero():
+		return nil, false, ErrSteamSignupDisabled
+	case err == smstore.ErrAccountNotFound:
+		if !am.options.SteamSignup {
+			return nil, false, ErrSteamSignupDisabled
+		}
+
+		if _, err := am.store.FindAccountByName(steamAccountName(steamID)); err == nil {
+			return nil, false, fmt.Errorf("an account named %q exists already", steamAccountName(steamID))
+		}
+
+		account = smmodel.NewAccount(am.serverID, am.buildVersion)
+		account.Name = steamAccountName(steamID)
+		account.GUID = steamID
+		created = true
+
+		if err := am.store.UpsertAccount(account); err != nil {
+			return nil, false, err
+		}
+	case err != nil:
+		return nil, false, err
+	}
+
+	sess := smweb.Session(r)
+	sess.Values[sessionAccountID] = account.ID.String()
+	smweb.RememberLanguage(w, account.Language)
+
+	return account, created, sess.Save(r, w)
+}
+
 type AccountManager struct {
+	// steamMutex serialises the Steam logins so that one SteamID cannot create two accounts.
+	steamMutex sync.Mutex
+
 	config *smconfig.Configuration
 
 	// sessionStore keeps the login sessions and flash messages.

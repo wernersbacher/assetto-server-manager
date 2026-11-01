@@ -148,6 +148,7 @@ login:
   heading: Log ind
   intro: Log ind for at administrere serveren.
   submit: Log ind
+  steam: Log ind med Steam
 
 password:
   create_title: Opret adgangskode
