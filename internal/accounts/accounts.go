@@ -439,10 +439,14 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == http.MethodPost {
 		driverName, guid, team := r.FormValue("DriverName"), r.FormValue("DriverGUID"), r.FormValue("DriverTeam")
-		theme := r.FormValue("Theme")
+		theme, language := r.FormValue("Theme"), r.FormValue("Language")
 
-		if driverName != "" || guid != "" || team != "" || theme != "" {
-			err := ah.accountManager.updateDetails(account, driverName, guid, team, theme)
+		if language != "" && !ah.ViewRenderer.Bundle().Supports(language) {
+			language = ""
+		}
+
+		if driverName != "" || guid != "" || team != "" || theme != "" || language != account.Language {
+			err := ah.accountManager.updateDetails(account, driverName, guid, team, theme, language)
 
 			if err != nil {
 				smweb.AddErrorFlash(w, r, "Unable to update account details")
@@ -458,6 +462,12 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 					if err != nil {
 						logrus.WithError(err).Errorf("Successfully updated details, but could not add to autofill entry list. Account id: %s", account.ID.String())
 					}
+				}
+
+				if account.Language == "" {
+					smweb.ForgetLanguage(w)
+				} else {
+					smweb.RememberLanguage(w, account.Language)
 				}
 
 				smweb.AddFlash(w, r, "Your details were successfully changed!")
@@ -605,6 +615,7 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 				// first log in of the account, direct them to a reset password form
 				sess := smweb.Session(r)
 				sess.Values[sessionAccountID] = account.ID.String()
+				smweb.RememberLanguage(w, account.Language)
 
 				err := sess.Save(r, w)
 
@@ -624,6 +635,7 @@ func (am *AccountManager) login(r *http.Request, w http.ResponseWriter) error {
 			if subtle.ConstantTimeCompare([]byte(account.PasswordHash), []byte(passwordHash)) == 1 {
 				sess := smweb.Session(r)
 				sess.Values[sessionAccountID] = account.ID.String()
+				smweb.RememberLanguage(w, account.Language)
 
 				return sess.Save(r, w)
 			}
@@ -681,11 +693,12 @@ func (am *AccountManager) ChangePassword(account *smmodel.Account, password stri
 	return am.store.UpsertAccount(account)
 }
 
-func (am *AccountManager) updateDetails(account *smmodel.Account, name, guid, team, theme string) error {
+func (am *AccountManager) updateDetails(account *smmodel.Account, name, guid, team, theme, language string) error {
 	account.DriverName = name
 	account.GUID = guid
 	account.Team = team
 	account.Theme = smmodel.Theme(theme)
+	account.Language = language
 
 	return am.store.UpsertAccount(account)
 }

@@ -1,5 +1,8 @@
 language:
   name: Deutsch
+  label: Sprache
+  switch: Sprache ändern
+  auto: Browsersprache
 
 common:
   "yes": "Ja"

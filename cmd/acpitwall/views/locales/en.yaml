@@ -3,6 +3,9 @@
 # Keys below js. are handed to the browser (see Messages.ts / i18n.ts).
 language:
   name: English
+  label: Language
+  switch: Change language
+  auto: Browser language
 
 common:
   "yes": "Yes"

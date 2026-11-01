@@ -33,6 +33,9 @@ type BaseTemplateVars struct {
 	CurrentServer ServerRef
 	Servers       []ServerRef
 
+	// LanguageChoice is the language picked in the language selection, empty if the browser language is used.
+	LanguageChoice string
+
 	ShowEventDetailsPopup bool
 	ShowUpgradePopup      bool
 }
@@ -83,6 +86,7 @@ func (tr *Renderer) addData(w http.ResponseWriter, r *http.Request, vars Templat
 	data.Debug = tr.opts.Debug
 	data.RecaptchaSiteKey = tr.opts.Config.Championships.RecaptchaConfig.SiteKey
 	data.ServerID = ScopeFromRequest(r).ServerID
+	data.LanguageChoice = languageChoice(r, tr.bundle)
 	data.ShowEventDetailsPopup = opts.ShowEventDetailsPopup
 	data.ShowUpgradePopup = data.User.ShouldSeeUpgradePopup(tr.opts.BuildVersion, tr.opts.Config.Accounts.AdminPasswordOverride)
 

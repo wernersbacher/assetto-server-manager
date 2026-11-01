@@ -44,6 +44,9 @@ type Account struct {
 
 	Theme Theme
 
+	// Language is the code of the language the UI is shown in, empty to follow the browser.
+	Language string
+
 	// Deprecated: Use Groups instead.
 	DeprecatedGroup Group `json:"Group"`
 }

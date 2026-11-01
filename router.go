@@ -105,6 +105,7 @@ func Router(
 
 	r.HandleFunc("/login", accountHandler.Login)
 	r.HandleFunc("/logout", accountHandler.Logout)
+	r.Post("/language", accountHandler.SetLanguage)
 	r.HandleFunc("/robots.txt", serverAdministrationHandler.Robots)
 	r.Handle("/metrics", prometheusMonitoringHandler())
 	r.Get("/healthcheck.json", healthCheck.ServeHTTP)

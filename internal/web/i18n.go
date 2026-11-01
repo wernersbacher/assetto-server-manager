@@ -11,18 +11,55 @@ import (
 // LanguageCookie remembers the language which was picked in the language selection.
 const LanguageCookie = "lang"
 
-// RequestLanguage returns the code of the language a request is answered in: the language picked in the language
-// selection (cookie), else the best match of the browser's Accept-Language header, else the default language.
+// RequestLanguage returns the code of the language a request is answered in: the language picked by the account (on
+// pages which know the account), else the one remembered in the language cookie, else the best match of the browser's
+// Accept-Language header, else the default language.
 func RequestLanguage(r *http.Request, bundle *i18n.Bundle) string {
 	if bundle == nil {
 		return i18n.Default
+	}
+
+	if lang := languageChoice(r, bundle); lang != "" {
+		return lang
+	}
+
+	return bundle.Match(r.Header.Get("Accept-Language"))
+}
+
+// languageChoice returns the language which was picked explicitly (account or cookie), empty if the browser language
+// is used.
+func languageChoice(r *http.Request, bundle *i18n.Bundle) string {
+	if bundle == nil {
+		return ""
+	}
+
+	if lang := AccountFromRequest(r).Language; lang != "" && bundle.Supports(lang) {
+		return lang
 	}
 
 	if cookie, err := r.Cookie(LanguageCookie); err == nil && bundle.Supports(cookie.Value) {
 		return cookie.Value
 	}
 
-	return bundle.Match(r.Header.Get("Accept-Language"))
+	return ""
+}
+
+// languageCookieAge is how long the language cookie is kept (a year).
+const languageCookieAge = 365 * 24 * 60 * 60
+
+// RememberLanguage sets the language cookie, so that pages outside the login (and of anonymous visitors) are shown in
+// the language. An empty code does nothing.
+func RememberLanguage(w http.ResponseWriter, code string) {
+	if code == "" {
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{Name: LanguageCookie, Value: code, Path: "/", MaxAge: languageCookieAge, HttpOnly: true, SameSite: http.SameSiteLaxMode})
+}
+
+// ForgetLanguage removes the language cookie, so that the browser language is used again.
+func ForgetLanguage(w http.ResponseWriter) {
+	http.SetCookie(w, &http.Cookie{Name: LanguageCookie, Value: "", Path: "/", MaxAge: -1, HttpOnly: true, SameSite: http.SameSiteLaxMode})
 }
 
 // translationFuncs are the template functions of a language:
