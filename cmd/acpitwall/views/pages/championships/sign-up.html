@@ -28,6 +28,9 @@
         </div>
     {{ end }}
 
+    {{ if $.NeedsSteam }}
+        <div class="alert alert-warning mt-3">{{ tHTML "championships.signup.connect_steam" "url" "/accounts/update" }}</div>
+    {{ else }}
     <form action="/championship/{{ $championship.ID.String }}/sign-up" method="post" id="championship-signup-form" class="signup-form" data-safe-submit>
 
         <div class="card mt-3">
@@ -108,16 +111,12 @@
                 {{ end }}
 
                 <div class="form-group row">
-                    <label for="GUID" class="col-sm-4 col-form-label">{{ t "championships.signup.steam_guid" }}</label>
+                    <label class="col-sm-4 col-form-label">{{ t "championships.signup.steam_guid" }}</label>
 
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" id="GUID" name="GUID"
-                               placeholder="" value="{{ .FormData.GUID }}" {{ if .LockSteamGUID }} readonly{{ end }}>
-                        {{ if not .LockSteamGUID }}
-                            <small>
-                                {{ tHTML "account_details.guid_help" "url" (printf "/championship/%s/sign-up/steam" .ChampionshipTemplateVars.RaceTemplateVars.Championship.ID.String) }}
-                            </small>
-                        {{ end }}
+                        {{/* the GUID is taken from the account on the server, the form does not send it */}}
+                        <p class="form-control-plaintext mb-1"><strong>{{ .FormData.GUID }}</strong></p>
+                        <small>{{ t "championships.signup.guid_from_account" }}</small>
                     </div>
                 </div>
 
@@ -217,6 +216,7 @@
                     class="btn btn-primary btn-lg signup-submit">{{ t "championships.signup.submit" }}</button>
         </div>
     </form>
+    {{ end }}
 
 
     <script type="text/javascript">

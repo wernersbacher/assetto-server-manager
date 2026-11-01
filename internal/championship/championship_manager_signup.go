@@ -14,6 +14,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
 // ValidationError is a problem with the input of a form, which is shown to the user in the language of the request
@@ -28,8 +29,31 @@ func (e ValidationError) Error() string {
 
 var steamGUIDRegex = regexp.MustCompile("^[0-9]{17}(;[0-9]{17})*$")
 
+// signUpLoggedIn tells whether the requester has a login (the dummy account of an open server is none).
+func signUpLoggedIn(r *http.Request) bool {
+	return smweb.LoggedIn(r)() && smweb.AccountFromRequest(r).ID != uuid.Nil
+}
+
+// CheckSignUpAccount tells whether the requester may register: they need a login (the dummy account of an open
+// server is none) with a GUID, which only a login with Steam sets.
+func CheckSignUpAccount(r *http.Request) error {
+	if !signUpLoggedIn(r) {
+		return ValidationError{i18n.Msg("validation.championship.login_required", "Please log in to register for a championship.")}
+	}
+
+	if smweb.AccountFromRequest(r).GUID == "" {
+		return ValidationError{i18n.Msg("validation.championship.steam_required", "Please connect your account with Steam to register for a championship.")}
+	}
+
+	return nil
+}
+
 func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (response *smmodel.ChampionshipSignUpResponse, foundSlot bool, err error) {
 	if err := r.ParseForm(); err != nil {
+		return nil, false, err
+	}
+
+	if err := CheckSignUpAccount(r); err != nil {
 		return nil, false, err
 	}
 
@@ -50,10 +74,11 @@ func (cm *ChampionshipManager) HandleChampionshipSignUp(r *http.Request) (respon
 	signUpResponse := &smmodel.ChampionshipSignUpResponse{
 		Created: time.Now(),
 		Name:    strings.TrimSpace(r.FormValue("Name")),
-		GUID:    serverconfig.NormaliseEntrantGUID(r.FormValue("GUID")),
-		Team:    strings.TrimSpace(r.FormValue("Team")),
-		TeamID:  chosenTeamID,
-		Email:   strings.TrimSpace(r.FormValue("Email")),
+		// the GUID always comes from the account, a value of the form is ignored
+		GUID:   serverconfig.NormaliseEntrantGUID(smweb.AccountFromRequest(r).GUID),
+		Team:   strings.TrimSpace(r.FormValue("Team")),
+		TeamID: chosenTeamID,
+		Email:  strings.TrimSpace(r.FormValue("Email")),
 
 		Car:  r.FormValue("Car"),
 		Skin: r.FormValue("Skin"),

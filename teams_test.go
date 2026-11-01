@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -84,6 +85,7 @@ func (e *teamsTestEnv) account(group smmodel.Group) (*smmodel.Account, teams.Act
 
 	account := smmodel.NewAccount(teamsTestServerID, "test")
 	account.Name = "teams-user-" + uuid.New().String()[:8]
+	account.GUID = fmt.Sprintf("7656119%010d", uint64(uuid.New().ID()))
 	account.Groups[teamsTestServerID] = group
 
 	if err := e.resolver.ResolveStore().UpsertAccount(account); err != nil {

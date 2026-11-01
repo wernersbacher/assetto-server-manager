@@ -126,7 +126,8 @@ func (e *signUpTeamsEnv) team(name string, vis smmodel.TeamVisibility) (*smmodel
 	return team, owner
 }
 
-// signUp posts the sign up form as the account (nil for an anonymous visitor).
+// signUp posts the sign up form as the account (nil for an anonymous visitor). The account gets the GUID, which the
+// form sends as well but which the server does not read from it.
 func (e *signUpTeamsEnv) signUp(account *smmodel.Account, guid string, extra url.Values) (*smmodel.ChampionshipSignUpResponse, error) {
 	return e.signUpTo(e.championship, account, guid, extra)
 }
@@ -154,6 +155,12 @@ func (e *signUpTeamsEnv) signUpVia(cm *ChampionshipManager, championship *smmode
 	r = r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, routeContext))
 
 	if account != nil {
+		if account.ID != uuid.Nil {
+			copied := *account
+			copied.GUID = guid
+			account = &copied
+		}
+
 		r = smweb.WithAccount(r, account)
 	}
 
@@ -261,13 +268,6 @@ func TestSignUpTeams_NoTeamIsAllowed(t *testing.T) {
 	if err != nil || response.TeamID != uuid.Nil || response.Team != "" {
 		t.Errorf("a driver without team: %v %+v", err, response)
 	}
-
-	// anonymous visitors of an open server can still register without team
-	response, err = e.signUp(nil, e.guid(), nil)
-
-	if err != nil || response.Team != "" {
-		t.Errorf("anonymous without team: %v %+v", err, response)
-	}
 }
 
 func TestSignUpTeams_RequiresMembership(t *testing.T) {
@@ -300,12 +300,50 @@ func TestSignUpTeams_Anonymous(t *testing.T) {
 	e := newSignUpTeamsEnv(t, selectForm())
 	team, _ := e.team("Any", smmodel.TeamPublic)
 
+	// there is no registration without a login at all
 	_, err := e.signUp(nil, e.guid(), tid(team))
 	expectValidation(t, "anonymous", err, "log in")
 
 	// the dummy account of an open server is not a login either
 	_, err = e.signUp(&smmodel.Account{}, e.guid(), tid(team))
 	expectValidation(t, "empty account", err, "log in")
+}
+
+func TestSignUp_RequiresSteamAccount(t *testing.T) {
+	e := newSignUpTeamsEnv(t, smmodel.ChampionshipSignUpForm{})
+	account, _ := e.account()
+
+	// a login without GUID (not connected to Steam) cannot register
+	_, err := e.signUp(account, "", nil)
+
+	expectValidation(t, "no GUID", err, "connect your account with Steam")
+
+	if len(e.reload().SignUpForm.Responses) != 0 {
+		t.Error("a refused registration must not be stored")
+	}
+
+	// an anonymous visitor needs a login first
+	_, err = e.signUp(nil, e.guid(), nil)
+
+	expectValidation(t, "anonymous", err, "log in")
+}
+
+func TestSignUp_GUIDComesFromAccount(t *testing.T) {
+	e := newSignUpTeamsEnv(t, smmodel.ChampionshipSignUpForm{})
+	account, _ := e.account()
+
+	mine, other := e.guid(), e.guid()
+
+	// the form sends the GUID of somebody else, the one of the account counts
+	response, err := e.signUp(account, mine, url.Values{"GUID": {other}})
+
+	if err != nil || response.GUID != mine {
+		t.Fatalf("GUID of the account: %v %+v", err, response)
+	}
+
+	if stored := e.reload().SignUpForm.Response(mine); stored == nil || e.reload().SignUpForm.Response(other) != nil {
+		t.Error("the registration belongs to the GUID of the account")
+	}
 }
 
 func TestSignUpTeams_InvalidTeams(t *testing.T) {

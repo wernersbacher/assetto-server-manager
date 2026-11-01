@@ -27,6 +27,8 @@ validation:
   championship:
     recaptcha: Bitte löse das reCAPTCHA.
     steam_id: Bitte gib eine gültige SteamID64 ein.
+    login_required: Bitte melde dich an, um dich für eine Meisterschaft anzumelden.
+    steam_required: Bitte verbinde dein Konto mit Steam, um dich für eine Meisterschaft anzumelden.
     email_taken: Mit dieser E-Mail-Adresse hat sich schon jemand angemeldet.
     skin: Du kannst den gewählten Skin nicht verwenden. Bitte wähle einen anderen Skin.
     no_car_slots: "Für das Auto {car} sind keine Plätze mehr frei. Bitte wähle ein anderes Auto."

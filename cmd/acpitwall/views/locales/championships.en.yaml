@@ -209,6 +209,8 @@ championships:
     free_team_help: Without a team of your own you can type a team name instead, but not the name of an existing team.
     team_optional: You may leave the team name blank.
     steam_guid: Steam GUID
+    guid_from_account: Taken from your Steam account.
+    connect_steam: 'Your account is not connected to Steam yet. <a href="{url}">Connect with Steam</a> to register for this championship.'
     email: Email Address
     your_car: Your Car
     skin: Skin

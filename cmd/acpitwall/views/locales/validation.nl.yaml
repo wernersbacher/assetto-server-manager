@@ -27,6 +27,8 @@ validation:
   championship:
     recaptcha: Voltooi de reCAPTCHA.
     steam_id: Voer een geldige SteamID64 in.
+    login_required: Log in om je in te schrijven voor een kampioenschap.
+    steam_required: Koppel je account aan Steam om je in te schrijven voor een kampioenschap.
     email_taken: Er heeft zich al iemand met dit e-mailadres ingeschreven.
     skin: Je kunt de gekozen skin niet gebruiken. Kies een andere skin.
     no_car_slots: "Er zijn geen plaatsen meer vrij voor de auto {car}. Kies een andere auto."

@@ -28,6 +28,8 @@ validation:
   championship:
     recaptcha: Please complete the reCAPTCHA.
     steam_id: Please enter a valid SteamID64.
+    login_required: Please log in to register for a championship.
+    steam_required: Please connect your account with Steam to register for a championship.
     email_taken: Someone has already registered with this email address.
     skin: You cannot use the skin you picked. Please choose a different skin.
     no_car_slots: "There are no more available slots for the car: {car}. Please pick a different car."

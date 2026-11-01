@@ -209,6 +209,8 @@ championships:
     free_team_help: Zonder eigen team kun je in plaats daarvan een teamnaam typen, maar niet de naam van een bestaand team.
     team_optional: Je mag de teamnaam leeg laten.
     steam_guid: Steam GUID
+    guid_from_account: Overgenomen van je Steam-account.
+    connect_steam: 'Je account is nog niet met Steam verbonden. <a href="{url}">Koppel met Steam</a> om je voor dit kampioenschap in te schrijven.'
     email: E-mailadres
     your_car: Jouw auto
     skin: Skin

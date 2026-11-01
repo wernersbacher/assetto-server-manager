@@ -913,7 +913,8 @@ type championshipSignUpFormTemplateVars struct {
 	// AvailableCars are the skins per car the driver can choose: the skins of the car and their own and team skins.
 	AvailableCars   map[string][]string
 	ValidationError string
-	LockSteamGUID   bool
+	// NeedsSteam is set if the account is not connected to Steam: the form is replaced by a hint.
+	NeedsSteam bool
 
 	// LoggedIn tells whether the visitor has a login, which they need to choose a team.
 	LoggedIn bool
@@ -954,19 +955,26 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	account := smweb.AccountFromRequest(r)
-
-	if account != smweb.ScopeFromRequest(r).OpenAccount {
-		opts.FormData = &smmodel.ChampionshipSignUpResponse{
-			Name: account.DriverName,
-			GUID: account.GUID,
-			Team: account.Team,
+	// only accounts connected to Steam can register: anonymous visitors log in first
+	if err := CheckSignUpAccount(r); err != nil {
+		if !signUpLoggedIn(r) {
+			smweb.AddErrorFlash(w, r, smweb.ErrorText(r, err))
+			http.Redirect(w, r, "/login", http.StatusFound)
+			return
 		}
-	} else {
-		opts.FormData = &smmodel.ChampionshipSignUpResponse{}
+
+		opts.NeedsSteam = true
 	}
 
-	if r.Method == http.MethodPost {
+	account := smweb.AccountFromRequest(r)
+
+	opts.FormData = &smmodel.ChampionshipSignUpResponse{
+		Name: account.DriverName,
+		GUID: account.GUID,
+		Team: account.Team,
+	}
+
+	if r.Method == http.MethodPost && !opts.NeedsSteam {
 		signUpResponse, foundSlot, err := cm.HandleChampionshipSignUp(r)
 
 		if err != nil {
@@ -995,11 +1003,6 @@ func (ch *ChampionshipsHandler) SignUpForm(w http.ResponseWriter, r *http.Reques
 			opts.FormData = signUpResponse
 			opts.ValidationError = smweb.TM(r, i18n.Msg("validation.championship.no_car_slots", "There are no more available slots for the car: {car}. Please pick a different car.", "car", smcontent.PrettifyName(signUpResponse.GetCar(), true)))
 		}
-	}
-
-	if steamGUID := r.URL.Query().Get("steamGUID"); steamGUID != "" {
-		opts.FormData.GUID = steamGUID
-		opts.LockSteamGUID = true
 	}
 
 	if championship.SignUpForm.AskForTeam {

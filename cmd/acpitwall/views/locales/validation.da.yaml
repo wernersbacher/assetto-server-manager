@@ -27,6 +27,8 @@ validation:
   championship:
     recaptcha: Gennemfør venligst reCAPTCHA.
     steam_id: Angiv et gyldigt SteamID64.
+    login_required: Log ind for at tilmelde dig et mesterskab.
+    steam_required: Forbind din konto med Steam for at tilmelde dig et mesterskab.
     email_taken: Nogen har allerede tilmeldt sig med denne e-mailadresse.
     skin: Du kan ikke bruge det valgte skin. Vælg et andet skin.
     no_car_slots: "Der er ikke flere ledige pladser til bilen {car}. Vælg en anden bil."

@@ -112,9 +112,15 @@ func TestSignUpPageOffersTheTeamsOfTheDriver(t *testing.T) {
 		[]string{`name="TeamID"`, "No team"},
 		[]string{"Full House", "Roomy Racing"})
 
-	expectBody(t, "select mode, anonymous", page(selectChampionship, nil), http.StatusOK,
-		[]string{"Sign in</a> to register with one of your teams"},
-		[]string{`name="TeamID"`, `id="Team" name="Team"`})
+	// only accounts can register: visitors log in first, an account without Steam is asked to connect it
+	expectBody(t, "select mode, anonymous", page(selectChampionship, nil), http.StatusFound, nil, nil)
+
+	noSteam, _ := e.account(smmodel.GroupRead)
+	noSteam.GUID = ""
+
+	expectBody(t, "select mode, no Steam", page(selectChampionship, noSteam), http.StatusOK,
+		[]string{"Connect with Steam", "/accounts/update"},
+		[]string{`name="TeamID"`, `name="GUID"`})
 
 	// free text: as before the teams existed
 	free := e.championship(smmodel.ChampionshipSignUpForm{AskForTeam: true})

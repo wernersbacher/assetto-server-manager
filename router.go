@@ -132,12 +132,6 @@ func Router(
 		http.NotFound(w, r)
 	})
 
-	// Steam login: Steam sends the browser back from another site, so the session cookie (SameSite=Strict) is not sent
-	// with this request and an access middleware would send the visitor to the login page. The handler only validates
-	// the answer of Steam and redirects (same site again) to the page that is behind the access checks.
-	r.Get("/championship/{championshipID}/sign-up/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
-		return fmt.Sprintf("/championship/%s/sign-up", chi.URLParam(r, "championshipID"))
-	}))
 	r.Get("/accounts/update/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
 		return "/accounts/update"
 	}))
