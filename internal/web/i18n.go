@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -26,6 +27,33 @@ func RequestLanguage(r *http.Request, bundle *i18n.Bundle) string {
 	}
 
 	return bundle.Match(r.Header.Get("Accept-Language"))
+}
+
+type bundleContextKey struct{}
+
+// WithBundle returns a copy of r which carries the message catalogs, so that handlers can translate texts (see T).
+func WithBundle(r *http.Request, bundle *i18n.Bundle) *http.Request {
+	return r.WithContext(context.WithValue(r.Context(), bundleContextKey{}, bundle))
+}
+
+// TranslationMiddleware attaches the message catalogs to every request (see T).
+func (tr *Renderer) TranslationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		next.ServeHTTP(w, WithBundle(r, tr.Bundle()))
+	})
+}
+
+// T translates a message for the language of the request, e.g. for flash messages:
+// smweb.AddFlash(w, r, smweb.T(r, "flash.saved", "name", name)). Without catalogs on the request (see
+// TranslationMiddleware) it returns the key.
+func T(r *http.Request, key string, args ...interface{}) string {
+	bundle, _ := r.Context().Value(bundleContextKey{}).(*i18n.Bundle)
+
+	if bundle == nil {
+		return key
+	}
+
+	return bundle.Translator(RequestLanguage(r, bundle)).T(key, args...)
 }
 
 // languageChoice returns the language which was picked explicitly (account or cookie), empty if the browser language

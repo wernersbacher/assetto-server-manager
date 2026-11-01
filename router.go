@@ -100,6 +100,7 @@ func Router(
 	r.Use(compressor)
 	r.Use(panicHandler)
 	r.Use(accountHandler.RequestScopeMiddleware)
+	r.Use(accountHandler.ViewRenderer.TranslationMiddleware)
 	r.Use(serverSelection)
 	r.Use(smweb.NotFoundPageMiddleware(accountHandler.ReadAccessMiddleware(http.HandlerFunc(serverAdministrationHandler.NotFound))))
 

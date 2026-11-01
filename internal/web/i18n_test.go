@@ -3,6 +3,7 @@ package web
 import (
 	"bytes"
 	"html/template"
+	"net/http"
 	"net/http/httptest"
 	"testing"
 )
@@ -78,5 +79,39 @@ func TestRendererTranslatesPerRequest(t *testing.T) {
 
 	if got := len(tr.Bundle().Languages()); got != 2 {
 		t.Errorf("got %d languages, want 2", got)
+	}
+}
+
+func TestTranslateForRequest(t *testing.T) {
+	tr, err := NewRenderer(RendererOptions{
+		Loader: memoryLoader{
+			page: `{{ define "base" }}{{ end }}`,
+			locales: map[string][]byte{
+				"en.yaml": []byte(`{flash: {saved: "{name} saved"}}`),
+				"de.yaml": []byte(`{flash: {saved: "{name} gespeichert"}}`),
+			},
+		},
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := httptest.NewRequest("GET", "/", nil)
+
+	if got := T(r, "flash.saved", "name", "X"); got != "flash.saved" {
+		t.Errorf("without catalogs: got %q", got)
+	}
+
+	r.Header.Set("Accept-Language", "de")
+
+	var got string
+
+	tr.TranslationMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		got = T(r, "flash.saved", "name", "X")
+	})).ServeHTTP(httptest.NewRecorder(), r)
+
+	if got != "X gespeichert" {
+		t.Errorf("got %q", got)
 	}
 }
