@@ -3,6 +3,7 @@
 {{ define "title" }}{{ t "nav.audit_logs" }}{{ end }}
 
 {{ define "content" }}
+    {{ template "logs-tabs" $ }}
     <div class="page-header">
         <div>
             <h1>{{ t "nav.audit_logs" }}</h1>

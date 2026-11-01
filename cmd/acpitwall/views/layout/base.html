@@ -194,10 +194,7 @@
                     {{ if DeleteAccess }}
                         <a class="nav-item-link {{ if or (hasPrefix "/server-options" $path) (hasPrefix "/blacklist" $path) (hasPrefix "/motd" $path) (hasPrefix "/current-config" $path) (hasPrefix "/stracker" $path) (hasPrefix "/kissmyrank" $path) (hasPrefix "/realpenalty" $path) (hasPrefix "/autofill-entrants" $path) }}active{{ end }}" href="{{ if AdminAccess }}{{ serverURL "/server-options" }}{{ else }}{{ serverURL "/autofill-entrants" }}{{ end }}">{{ template "icon" "options" }}{{ t "nav.configuration" }}</a>
                     {{ end }}
-                    <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="{{ serverURL "/logs" }}">{{ template "icon" "logs" }}{{ t "nav.logs" }}</a>
-                    {{ if AdminAccess }}
-                        <a class="nav-item-link {{ if hasPrefix "/audit-logs" $path }}active{{ end }}" href="/audit-logs">{{ template "icon" "audit" }}{{ t "nav.audit_logs" }}</a>
-                    {{ end }}
+                    <a class="nav-item-link {{ if or (hasPrefix "/logs" $path) (hasPrefix "/audit-logs" $path) }}active{{ end }}" href="{{ serverURL "/logs" }}">{{ template "icon" "logs" }}{{ t "nav.logs" }}</a>
                 </div>
             {{ end }}
         </nav>

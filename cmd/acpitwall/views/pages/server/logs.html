@@ -1,6 +1,7 @@
 {{ define "title" }}{{ t "server.logs.title" }}{{ end }}
 
 {{ define "content" }}
+    {{ template "logs-tabs" $ }}
     <div class="page-header">
         <div>
             <h1>{{ t "server.logs.title" }}{{ template "server-badge" $ }}</h1>

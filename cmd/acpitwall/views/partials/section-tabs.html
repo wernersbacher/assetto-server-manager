@@ -35,3 +35,14 @@
     {{ end }}
     {{ template "section-tabs" (dict "Path" $.Request.URL.Path "Label" (t "nav.configuration") "Tabs" $tabs) }}
 {{ end }}
+
+{{ define "logs-tabs" }}
+    {{ $tabs := list }}
+    {{ if WriteAccess }}
+        {{ $tabs = append $tabs (dict "Prefix" "/logs" "URL" (serverURL "/logs") "Label" (t "nav.logs")) }}
+    {{ end }}
+    {{ if AdminAccess }}
+        {{ $tabs = append $tabs (dict "Prefix" "/audit-logs" "URL" "/audit-logs" "Label" (t "nav.audit_logs")) }}
+    {{ end }}
+    {{ template "section-tabs" (dict "Path" $.Request.URL.Path "Label" (t "nav.logs") "Tabs" $tabs) }}
+{{ end }}
