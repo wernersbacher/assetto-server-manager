@@ -4,22 +4,22 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Configure {{ $.Session.Name }} Combined Entry List</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title">{{ t "raceweekend.configure_combined" "name" $.Session.Name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ t "common.close" }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 {{ if $.RaceWeekend.HasLinkedChampionship }}
                     {{ if $.RaceWeekend.Championship.IsMultiClass }}
-                        <p class="text-primary">This Race Weekend is linked to a Multi-Class Championship. Sorting will apply in-class, with the classes ordered by the fastest lap for the class (So hopefully, LMP1 cars would be put on the grid ahead of GTE cars - for example)</p>
+                        <p class="text-primary">{{ t "raceweekend.multiclass_note" }}</p>
                     {{ end }}
                 {{ end }}
 
-                <p>Sort the combined drivers in the <strong>{{ $.Session.Name }}</strong> Entry List by:</p>
+                <p>{{ tHTML "raceweekend.sort_combined" "name" $.Session.Name }}</p>
 
                 <div class="form-group row">
-                    <label for="SortType" class="col-sm-4 col-form-label">Sort By</label>
+                    <label for="SortType" class="col-sm-4 col-form-label">{{ t "raceweekend.sort_by" }}</label>
 
                     <div class="col-sm-8">
                         {{ if WriteAccess }}
@@ -45,7 +45,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label for="ReverseGrid" class="col-sm-4 col-form-label">Reverse?</label>
+                    <label for="ReverseGrid" class="col-sm-4 col-form-label">{{ t "raceweekend.reverse" }}</label>
 
                     <div class="col-sm-8">
                         <input
@@ -62,14 +62,14 @@
 
                         {{ if WriteAccess }}
                             <small>
-                                0 = Don't Reverse. -1 = Reverse all. N = Reverse the first N.
+                                {{ t "raceweekend.reverse_help" }}
                             </small>
                         {{ else }}
                             <label class="col-form-label">
                                 {{ if eq $.Session.NumEntrantsToReverse 0 }}
-                                    No
+                                    {{ t "common.no" }}
                                 {{ else if lt $.Session.NumEntrantsToReverse 0 }}
-                                    All
+                                    {{ t "raceweekend.all" }}
                                 {{ else }}
                                     {{ $.Session.NumEntrantsToReverse }}
                                 {{ end }}
@@ -84,27 +84,27 @@
                 </div>
 
                 {{ if $.RaceWeekend.SessionCanBeRun $.Session }}
-                    <h4>Starting Grid</h4>
+                    <h4>{{ t "raceweekend.starting_grid" }}</h4>
 
                     <div id="table-key"></div>
 
                     <table class="table table-bordered table-striped table-sm" id="entrylist-preview">
                         <tr>
                             <th>#</th>
-                            <th>Driver</th>
+                            <th>{{ t "live.col.driver" }}</th>
                         </tr>
                     </table>
                 {{ else }}
-                    <p>A combined starting grid preview for the <strong>{{ $.Session.Name }}</strong> session will be available when all parent sessions have been completed.</p>
+                    <p>{{ tHTML "raceweekend.grid_preview_later" "name" $.Session.Name }}</p>
                 {{ end }}
 
             </div>
 
             <div class="modal-footer">
                 {{ if WriteAccess }}
-                    <button type="button" class="btn btn-primary" id="save-filters">Save changes</button>
+                    <button type="button" class="btn btn-primary" id="save-filters">{{ t "raceweekend.save_changes" }}</button>
                 {{ end }}
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ if WriteAccess }}Cancel{{ else }}Close{{ end }}</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ if WriteAccess }}{{ t "common.cancel" }}{{ else }}{{ t "common.close" }}{{ end }}</button>
             </div>
         </div>
     </div>

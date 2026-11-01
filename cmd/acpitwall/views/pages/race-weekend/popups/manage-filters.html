@@ -4,25 +4,24 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Configure {{ $.ChildSession.Name }} Entry List</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title">{{ t "raceweekend.configure_entry_list" "name" $.ChildSession.Name }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ t "common.close" }}">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
                 <p>
-                    You can modify the EntryList for {{ $.ChildSession.Name }} by changing the filter settings below.
+                    {{ t "raceweekend.filter_intro" "name" $.ChildSession.Name }}
 
 
                     {{ if not $.ParentSession.Completed }}
-                        The {{ $.ParentSession.Name }} has not yet been completed. A fake grid will be shown to allow you to see how
-                        the filters below will be applied when this session is completed.
+                        {{ t "raceweekend.filter_parent_incomplete" "name" $.ParentSession.Name }}
                     {{ end }}
                 </p>
 
                 {{ if and $.RaceWeekend.HasLinkedChampionship (not $.ParentSession.IsBase) }}
                     {{ if $.RaceWeekend.Championship.IsMultiClass }}
-                        <p class="text-primary">This Race Weekend is linked to a Multi-Class Championship. Sorting will apply in-class, with the classes ordered by the fastest lap for the class (So hopefully, LMP1 cars would be put on the grid ahead of GTE cars - for example)</p>
+                        <p class="text-primary">{{ t "raceweekend.multiclass_note" }}</p>
                     {{ end }}
                 {{ end }}
 
@@ -32,10 +31,10 @@
 
                             <div class="card border-warning">
                                 <div class="card-body">
-                                    <p>Sort the drivers from the <strong>{{ $.ParentSession.Name }}</strong>{{ if not $.ParentSession.IsBase}} Results{{ end }} by:</p>
+                                    <p>{{ if $.ParentSession.IsBase }}{{ tHTML "raceweekend.sort_parent" "name" $.ParentSession.Name }}{{ else }}{{ tHTML "raceweekend.sort_parent_results" "name" $.ParentSession.Name }}{{ end }}</p>
 
                                     <div class="form-group row">
-                                        <label for="ResultsSort" class="col-sm-4 col-form-label">Sort By</label>
+                                        <label for="ResultsSort" class="col-sm-4 col-form-label">{{ t "raceweekend.sort_by" }}</label>
 
                                         <div class="col-sm-8">
                                             {{ if WriteAccess }}
@@ -59,13 +58,13 @@
 
                                         {{ if not $.ParentSession.Completed }}
                                             <div class="pl-3 pr-3">
-                                                <small class="text-danger">The Parent Session ({{ $.ParentSession.Name }}) has not been completed. Sorting will not change the live preview, but will apply to the grid when the {{ $.ParentSession.Name }} Session has completed.</small>
+                                                <small class="text-danger">{{ t "raceweekend.parent_incomplete_sort" "name" $.ParentSession.Name }}</small>
                                             </div>
                                         {{ end }}
                                     </div>
 
                                     <div class="form-group row" id="AvailableResultsWrapper">
-                                        <label for="AvailableResults" class="col-sm-4 col-form-label">Results Files</label>
+                                        <label for="AvailableResults" class="col-sm-4 col-form-label">{{ t "raceweekend.results_files" }}</label>
 
                                         <div class="col-sm-8">
 
@@ -79,14 +78,14 @@
                                                         {{ end }}
                                                     {{ end}}
 
-                                                    <option value="{{ $result.SessionFile }}" {{ if $selected }} selected="selected" {{ end }}>{{ $result.Type.String }} on {{ dateFormat $result.Date }} at {{ timeFormat $result.Date }}</option>
+                                                    <option value="{{ $result.SessionFile }}" {{ if $selected }} selected="selected" {{ end }}>{{ t "raceweekend.result_sort_option" "type" $result.Type.String "date" (dateFormat $result.Date) "time" (timeFormat $result.Date) }}</option>
                                                 {{ end }}
                                             </select>
                                         </div>
                                     </div>
 
                                     <div class="form-group row">
-                                        <label for="ReverseGrid" class="col-sm-4 col-form-label">Reverse?</label>
+                                        <label for="ReverseGrid" class="col-sm-4 col-form-label">{{ t "raceweekend.reverse" }}</label>
 
                                         <div class="col-sm-8">
                                             <input
@@ -104,9 +103,9 @@
                                             {{ if not WriteAccess }}
                                                 <label class="col-form-label">
                                                     {{ if eq $.Filter.NumEntrantsToReverse 0 }}
-                                                        No
+                                                        {{ t "common.no" }}
                                                     {{ else if lt $.Filter.NumEntrantsToReverse 0 }}
-                                                        All
+                                                        {{ t "raceweekend.all" }}
                                                     {{ else }}
                                                         {{ $.Filter.NumEntrantsToReverse }}
                                                     {{ end }}
@@ -117,7 +116,7 @@
                                         {{ if WriteAccess }}
                                             <div class="pl-3">
                                                 <small>
-                                                    0 = Don't Reverse. -1 = Reverse all. N = Reverse the first N.
+                                                    {{ t "raceweekend.reverse_help" }}
                                                 </small>
                                             </div>
                                         {{ end }}
@@ -134,13 +133,13 @@
                                 <div class="card-body">
 
                                     {{ if $.ParentSession.IsBase }}
-                                        <p>Take the drivers from the {{ $.RaceWeekend.Name }} Entry List:</p>
+                                        <p>{{ t "raceweekend.take_from_entry_list" "name" $.RaceWeekend.Name }}</p>
                                     {{ else }}
-                                        <p>Take the drivers from the sorted <strong>{{ $.ParentSession.Name }}</strong> Results:</p>
+                                        <p>{{ tHTML "raceweekend.take_from_results" "name" $.ParentSession.Name }}</p>
                                     {{ end }}
 
                                     <div class="form-group row">
-                                        <label for="SplitType" class="col-sm-4 col-form-label">Split Type</label>
+                                        <label for="SplitType" class="col-sm-4 col-form-label">{{ t "raceweekend.split_type" }}</label>
 
                                         <div class="col-sm-8">
                                             {{ if WriteAccess }}
@@ -188,7 +187,7 @@
 
                                     <div id="FilterFromTo">
                                         <div class="form-group row">
-                                            <label for="ResultsStart" class="col-sm-4 col-form-label">From</label>
+                                            <label for="ResultsStart" class="col-sm-4 col-form-label">{{ t "raceweekend.from" }}</label>
 
                                             <div class="col-sm-8">
                                                 <input
@@ -211,7 +210,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group row">
-                                            <label for="ResultsEnd" class="col-sm-4 col-form-label">To</label>
+                                            <label for="ResultsEnd" class="col-sm-4 col-form-label">{{ t "raceweekend.to" }}</label>
 
                                             <div class="col-sm-8">
                                                 <input
@@ -244,10 +243,10 @@
                             <div class="card border-success">
                                 <div class="card-body">
 
-                                    <p>Then place the resulting drivers into the Entry List for <strong>{{ $.ChildSession.Name }}</strong> from:</p>
+                                    <p>{{ tHTML "raceweekend.place_into" "name" $.ChildSession.Name }}</p>
 
                                     <div class="form-group row">
-                                        <label for="GridStart" class="col-sm-4 col-form-label">Grid Start</label>
+                                        <label for="GridStart" class="col-sm-4 col-form-label">{{ t "raceweekend.grid_start" }}</label>
 
                                         <div class="col-sm-8">
                                             <input
@@ -272,7 +271,7 @@
 
 
                                     <div class="form-group row">
-                                        <label for="ForceUseTyreFromFastestLap" class="col-sm-4 col-form-label">Start on Tyre from Fastest Lap</label>
+                                        <label for="ForceUseTyreFromFastestLap" class="col-sm-4 col-form-label">{{ t "raceweekend.tyre_from_fastest" }}</label>
 
                                         <div class="col-sm-8">
                                             <input
@@ -290,18 +289,14 @@
                                             >
                                             {{ if not WriteAccess }}
                                                 <label class="col-form-label">
-                                                    {{ if $.Filter.ForceUseTyreFromFastestLap }}
-                                                        Yes
-                                                    {{ else }}
-                                                        No
-                                                    {{ end }}
+                                                    {{ yn $.Filter.ForceUseTyreFromFastestLap }}
                                                 </label>
                                             {{ end }}
 
                                             <br/>
 
 
-                                            <small>If enabled then the entrants for the next session will be forced to start on the same tyres as their fastest lap from the previous session.</small>
+                                            <small>{{ t "raceweekend.tyre_from_fastest_help" }}</small>
                                         </div>
                                     </div>
                                 </div>
@@ -316,12 +311,12 @@
                             <tr class="text-center">
                                 <th>
                                     {{ if $.ParentSession.IsBase }}
-                                        Race Weekend Entry List
+                                        {{ t "raceweekend.rw_entry_list" }}
                                     {{ else }}
-                                        {{ $.ParentSession.Name }} Results
+                                        {{ t "raceweekend.parent_results" "name" $.ParentSession.Name }}
                                     {{ end }}
                                 </th>
-                                <th>{{ $.ChildSession.Name }} Expected Grid</th>
+                                <th>{{ t "raceweekend.expected_grid" "name" $.ChildSession.Name }}</th>
                             </tr>
                         </table>
                     </div>
@@ -329,9 +324,9 @@
             </div>
             <div class="modal-footer">
                 {{ if WriteAccess }}
-                    <button type="button" class="btn btn-primary" id="save-filters">Save changes</button>
+                    <button type="button" class="btn btn-primary" id="save-filters">{{ t "raceweekend.save_changes" }}</button>
                 {{ end }}
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ if WriteAccess }}Cancel{{ else }}Close{{ end }}</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ if WriteAccess }}{{ t "common.cancel" }}{{ else }}{{ t "common.close" }}{{ end }}</button>
             </div>
         </div>
     </div>

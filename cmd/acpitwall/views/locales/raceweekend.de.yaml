@@ -1,0 +1,153 @@
+raceweekend:
+  # list
+  create_new: Neues Rennwochenende erstellen
+  more_options: Weitere Optionen
+  import: Rennwochenende importieren
+  intro: Ein Rennwochenende ist eine Folge von Sessions, die du jederzeit fahren kannst. Du kannst zum Beispiel ein Qualifying für Samstag anlegen und das Rennen am Sonntag folgen lassen. ACPitwall kümmert sich um die Startaufstellung und lässt dich die Teilnehmer anhand ihrer Ergebnisse und anderer Kriterien in Splits aufteilen!
+  active: Aktiv
+  completed: Abgeschlossen
+  name: Name
+  progress: Fortschritt
+  view: Ansehen
+  more: Mehr
+  export: Exportieren
+  delete_confirm: Rennwochenende {name} löschen?
+  delete_detail: Das gesamte Rennwochenende wird dauerhaft entfernt.
+  delete_label: Rennwochenende löschen
+  no_active: Keine aktiven Rennwochenenden.
+  create_one: Rennwochenende erstellen
+  no_completed: Noch keine abgeschlossenen Rennwochenenden.
+
+  # new / edit
+  create_title: Rennwochenende erstellen
+  new: Neu
+  breadcrumb: Navigationspfad
+  edit_heading: Rennwochenende {name} bearbeiten
+  in_championship: in der Meisterschaft {name}
+  save: Rennwochenende speichern
+  name_placeholder: Mein großartiges Rennwochenende
+  hidden: Versteckt
+  hidden_help: Ein verstecktes Rennwochenende sehen nur angemeldete Konten. Anonyme Besucher eines offenen Servers sehen es nicht in Listen, im Kalender, in Kalender-Feeds oder in der API und können seine Seiten nicht öffnen.
+  clone_help: Auto, Skin, Ballast, Restrictor und festes Setup des letzten Teilnehmers werden in neue Teilnehmer übernommen.
+  add_entrants: Teilnehmer hinzufügen
+  use_championship_settings: Renneinstellungen der Meisterschaft verwenden
+  use_championship_settings_help: Wenn aktiv, werden Spritverbrauch, Schaden, Reifenverschleiß, erlaubte Reifen neben der Strecke, Fahrhilfen, virtueller Spiegel und dynamische Strecke aller Sessions dieses Rennwochenendes aus der Meisterschaft übernommen. Die in den Sessions eingestellten Werte bleiben erhalten, werden aber ignoriert, solange dies aktiv ist.
+  spectator_car: Zuschauerauto
+  spectator_help: Du kannst für dieses Rennwochenende ein Zuschauerauto einrichten. Zuschauerautos werden automatisch ans Ende der Entry List jeder Session des Rennwochenendes gesetzt und in keinem Session-Ergebnis gewertet.
+  enabled: Aktiviert
+  add_session: Session hinzufügen
+
+  # view
+  view_title: "Rennwochenende {name}"
+  linked_championship: Ein Rennwochenende der Meisterschaft <a href="{url}">{name}</a>
+  in_cars:
+    one: "Ein Rennwochenende mit folgendem Auto: {cars}"
+    other: "Ein Rennwochenende mit folgenden Autos: {cars}"
+  percent_complete: "{percent} % abgeschlossen"
+  add_sessions: Weitere Sessions hinzufügen
+  manage: Verwalten
+  view_championship: Meisterschaft ansehen
+  running_on: Dieses Rennwochenende läuft auf dem Server <a href="{url}">{name}</a>. Wähle diesen Server, um die laufende Session zu verwalten.
+  sessions_intro:
+    one: Dieses Rennwochenende hat {count} Session. Um zu sehen, wie die Ergebnisse einer Session die Entry List der nächsten Session bestimmen, klicke auf den Pfeil zwischen den beiden Sessions.
+    other: Dieses Rennwochenende hat {count} Sessions. Um zu sehen, wie die Ergebnisse einer Session die Entry List der nächsten Session bestimmen, klicke auf den Pfeil zwischen den beiden Sessions.
+  entry_list: Entry List
+  entrants_count:
+    one: "{count} Teilnehmer"
+    other: "{count} Teilnehmer"
+  minutes:
+    one: "{count} Minute"
+    other: "{count} Minuten"
+  plus_lap: + 1 Runde
+  laps:
+    one: "{count} Runde"
+    other: "{count} Runden"
+  not_available: Nicht verfügbar
+  not_available_help: Diese Session kann erst gefahren werden, wenn alle vorherigen Sessions gefahren wurden.
+  completed_on: Abgeschlossen am {time}
+  complete: Abgeschlossen
+  in_progress: Läuft
+  ready: Startbereit
+  scheduled: Geplant
+  scheduled_on: auf
+  another_server: einem anderen Server
+  scheduled_for: für {time}
+  view_results: Ergebnisse ansehen
+  start_confirm: Ich habe alle Entry-List-Einstellungen geprüft und die Startaufstellung ist korrekt
+  start_session: Session starten
+  toggle_dropdown: Menü umschalten
+  start_session_on: Session auf {name} starten
+  practice_help: Lädt die konfigurierte Session als zweistündiges Training in Dauerschleife auf den Server, verfolgt ihren Fortschritt aber nicht als Session des Rennwochenendes.
+  start_practice: Training starten
+  schedule_session: Session planen
+  timezone_note: Datum und Uhrzeit sind in deiner Zeitzone (<span class="timezone"></span>).
+  parent_note: Bitte beachte, dass Sessions nur starten, wenn ihre vorherigen Sessions abgeschlossen sind.
+  start_after_parent: Nach Abschluss der vorherigen Session starten
+  schedule: Planen
+  remove_schedule: Planung entfernen
+  manage_entry_list: Entry List verwalten
+  restart_confirm: Diese Session neu starten?
+  restart_detail: Die gesamte Session wird neu gestartet und alle bisherigen Ergebnisse gehen verloren.
+  restart_label: Session neu starten
+  restart_session: Session neu starten
+  cancel_confirm: Diese Session abbrechen?
+  cancel_detail: Die gesamte Session wird abgebrochen und alle bisherigen Ergebnisse gehen verloren.
+  cancel_label: Session abbrechen
+  cancel_session: Session abbrechen
+  manage_session: Session verwalten
+  import_results: Ergebnisse importieren
+  session_details: Session-Details
+  delete_session_confirm: Diese Session löschen?
+  delete_session_detail: Die gesamte Session wird dauerhaft aus dem Rennwochenende entfernt.
+  delete_session_label: Session löschen
+  view_entry_list: Entry List ansehen
+  at: auf
+  detailed_results: Detaillierte Ergebnisse dieser Session ansehen
+  in_progress_note: "<strong>Session läuft</strong>: Es gibt anscheinend noch keine Ergebnisse. Schau später wieder vorbei."
+  awaiting_note: "<strong>Wartet auf Start</strong>: Diese Session hat anscheinend noch nicht begonnen. Schau später wieder vorbei."
+  points: Punkte
+  points_intro: Dieses Rennwochenende gehört zur Meisterschaft <a href="{url}">{name}</a>. Unten siehst du die Punkte jeder Session.
+  class: Klasse
+  place: Platz
+  fastest_race_lap: Schnellste Rennrunde
+
+  # import
+  import_placeholder: Füge hier das JSON deines Rennwochenendes ein!
+  import_help: Hier kannst du Rennwochenenden im JSON-Format importieren (das Format entspricht dem beim Exportieren eines Rennwochenendes). Wir raten davon ab, diese Daten von Hand zu erstellen, da das Format recht komplex ist. Wenn du aber Rennwochenenden zwischen Servern verschieben willst und keinen Dateizugriff hast, kannst du diese Funktion nutzen!
+  import_session_title: Session eines Rennwochenendes importieren
+  import_session_heading: Session eines Rennwochenendes für {track} ({layout}) importieren
+  result_file: "Ergebnisdatei {session}"
+  result_option: "{track} ({layout}) am {date}"
+  import_session: Session importieren
+
+  # entry list / filter popups
+  configure_combined: Kombinierte Entry List für {name} konfigurieren
+  multiclass_note: Dieses Rennwochenende gehört zu einer Multi-Class-Meisterschaft. Sortiert wird innerhalb der Klassen, die Klassen werden nach ihrer schnellsten Runde geordnet (so sollten z. B. LMP1-Autos vor GTE-Autos in der Startaufstellung stehen).
+  sort_combined: 'Sortiere die kombinierten Fahrer der Entry List von <strong>{name}</strong> nach:'
+  sort_by: Sortieren nach
+  reverse: Umkehren?
+  reverse_help: 0 = nicht umkehren. -1 = alle umkehren. N = die ersten N umkehren.
+  all: Alle
+  starting_grid: Startaufstellung
+  grid_preview_later: Eine Vorschau der kombinierten Startaufstellung für die Session <strong>{name}</strong> ist verfügbar, sobald alle vorherigen Sessions abgeschlossen sind.
+  save_changes: Änderungen speichern
+  configure_entry_list: Entry List für {name} konfigurieren
+  filter_intro: Du kannst die Entry List für {name} ändern, indem du die Filtereinstellungen unten anpasst.
+  filter_parent_incomplete: „{name}“ ist noch nicht abgeschlossen. Es wird eine Beispiel-Startaufstellung gezeigt, damit du siehst, wie die Filter unten angewendet werden, sobald diese Session abgeschlossen ist.
+  sort_parent: 'Sortiere die Fahrer aus <strong>{name}</strong> nach:'
+  sort_parent_results: 'Sortiere die Fahrer aus den Ergebnissen von <strong>{name}</strong> nach:'
+  parent_incomplete_sort: Die vorherige Session ({name}) ist noch nicht abgeschlossen. Die Sortierung ändert die Live-Vorschau nicht, wird aber auf die Startaufstellung angewendet, sobald die Session {name} abgeschlossen ist.
+  results_files: Ergebnisdateien
+  result_sort_option: "{type} am {date} um {time}"
+  take_from_entry_list: "Nimm die Fahrer aus der Entry List von {name}:"
+  take_from_results: 'Nimm die Fahrer aus den sortierten Ergebnissen von <strong>{name}</strong>:'
+  split_type: Split-Art
+  from: Von
+  to: Bis
+  place_into: 'Setze die so ausgewählten Fahrer dann in die Entry List von <strong>{name}</strong> ab:'
+  grid_start: Startplatz
+  tyre_from_fastest: Auf den Reifen der schnellsten Runde starten
+  tyre_from_fastest_help: Wenn aktiv, müssen die Teilnehmer der nächsten Session auf denselben Reifen starten wie bei ihrer schnellsten Runde der vorherigen Session.
+  rw_entry_list: Entry List des Rennwochenendes
+  parent_results: "Ergebnisse {name}"
+  expected_grid: "Erwartete Startaufstellung {name}"

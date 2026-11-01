@@ -1,6 +1,6 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/raceweekend.raceWeekendViewTemplateVars */}}
 
-{{ define "title" }}{{ $.RaceWeekend.Name }} Race Weekend{{ end }}
+{{ define "title" }}{{ t "raceweekend.view_title" "name" $.RaceWeekend.Name }}{{ end }}
 
 {{ define "content" }}
 
@@ -13,61 +13,61 @@
                 <h1>{{ $.RaceWeekend.Name }}</h1>
                 <p>
                     {{ if $.RaceWeekend.HasLinkedChampionship }}
-                        A Race Weekend in the <a href="/championship/{{ $.RaceWeekend.Championship.ID.String }}">{{ $.RaceWeekend.Championship.Name }} Championship</a>
+                        {{ tHTML "raceweekend.linked_championship" "url" (printf "/championship/%s" $.RaceWeekend.Championship.ID.String) "name" $.RaceWeekend.Championship.Name }}
                     {{ else }}
-                        A Race Weekend in the following car{{ if gt (len $.RaceWeekend.GetEntryList.CarIDs) 1 }}s{{ end }}: {{ carList ($.RaceWeekend.GetEntryList.CarIDs) }}
+                        {{ tn "raceweekend.in_cars" (len $.RaceWeekend.GetEntryList.CarIDs) "cars" (carList ($.RaceWeekend.GetEntryList.CarIDs)) }}
                     {{ end }}
                 </p>
 
                 {{ if gt $.RaceWeekend.Progress 0.0 }}
-                    <div class="progress championship-progress" title="{{ int $.RaceWeekend.Progress }}% complete">
+                    <div class="progress championship-progress" title="{{ t "raceweekend.percent_complete" "percent" (int $.RaceWeekend.Progress) }}">
                         <div class="progress-bar bg-success" id="progress-bar" role="progressbar" style="width: {{ int $.RaceWeekend.Progress }}%;" aria-valuenow="{{ int $.RaceWeekend.Progress }}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
-                    <small class="text-muted">{{ int $.RaceWeekend.Progress }}% complete</small>
+                    <small class="text-muted">{{ t "raceweekend.percent_complete" "percent" (int $.RaceWeekend.Progress) }}</small>
                 {{ end }}
             </div>
 
             <div class="championship-header-actions">
                 {{ if WriteAccess }}
-                    <a class="btn btn-primary" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session">Add more Sessions</a>
+                    <a class="btn btn-primary" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session">{{ t "raceweekend.add_sessions" }}</a>
                 {{ end }}
 
                 <div class="dropdown">
                     <a class="btn btn-outline dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        {{ if WriteAccess }}Manage{{ else }}More{{ end }}
+                        {{ if WriteAccess }}{{ t "raceweekend.manage" }}{{ else }}{{ t "raceweekend.more" }}{{ end }}
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                         {{ if $.RaceWeekend.HasLinkedChampionship }}
-                            <a class="dropdown-item" href="/championship/{{ $.RaceWeekend.Championship.ID.String }}">View Championship</a>
+                            <a class="dropdown-item" href="/championship/{{ $.RaceWeekend.Championship.ID.String }}">{{ t "raceweekend.view_championship" }}</a>
                         {{ end }}
 
                         {{ if WriteAccess }}
-                            <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/edit">Edit</a>
+                            <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/edit">{{ t "common.edit" }}</a>
                         {{ end }}
 
-                        <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/export">Export</a>
+                        <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/export">{{ t "raceweekend.export" }}</a>
                     </div>
                 </div>
             </div>
         </div>
 
         {{ with $.ActiveServer }}
-            <div class="alert alert-warning">This Race Weekend is running on server <a href="/race-weekend/{{ $.RaceWeekend.ID.String }}?server={{ .ID }}">{{ .Name }}</a>. Select that server to manage the running session.</div>
+            <div class="alert alert-warning">{{ tHTML "raceweekend.running_on" "url" (printf "/race-weekend/%s?server=%v" $.RaceWeekend.ID.String .ID) "name" .Name }}</div>
         {{ end }}
 
         {{ if not $.RaceWeekend.HasLinkedChampionship }}
-            <h2 class="section-title">Entrants</h2>
+            <h2 class="section-title">{{ t "home.entrants" }}</h2>
 
             <div class="table-card">
                 <table class="table">
                     <tr>
                         <th>#</th>
-                        <th>Driver</th>
+                        <th>{{ t "live.col.driver" }}</th>
                         {{ if $.RaceWeekend.HasTeamNames }}
-                            <th>Team</th>
+                            <th>{{ t "account_details.team" }}</th>
                         {{ end }}
-                        <th>Car</th>
+                        <th>{{ t "live.col.car" }}</th>
                     </tr>
                     {{ $num := 1 }}
 
@@ -89,9 +89,9 @@
         {{ end }}
 
 
-        <h2 class="section-title">Sessions</h2>
+        <h2 class="section-title">{{ t "home.sessions" }}</h2>
 
-        <p>This Race Weekend has {{ len $.RaceWeekend.Sessions }} sessions. To see how the Results of a Session decide the Entry List of the next Session, click on the arrow between the two Sessions.</p>
+        <p>{{ tn "raceweekend.sessions_intro" (len $.RaceWeekend.Sessions) }}</p>
     </div>
 
     {{ $sortedSessions := $.RaceWeekend.SortedSessions }}
@@ -103,10 +103,10 @@
         <div class="race-weekend-session" id="{{ $.RaceWeekend.ID }}">
             <div class="card border-secondary">
                 <div class="card-header race-weekend-entrylist">
-                    <strong>Entry List</strong>
+                    <strong>{{ t "raceweekend.entry_list" }}</strong>
 
                     <div class="float-right text-primary">
-                        {{ len $.RaceWeekend.GetEntryList }} Entrants
+                        {{ tn "raceweekend.entrants_count" (len $.RaceWeekend.GetEntryList) }}
                     </div>
                 </div>
             </div>
@@ -126,29 +126,29 @@
 
                         <div class="float-right">
                             {{ if ne $acSession.Time 0 }}
-                                {{ $acSession.Time }} minutes
+                                {{ tn "raceweekend.minutes" $acSession.Time }}
 
                                 {{ if $session.RaceConfig.RaceExtraLap }}
-                                    + 1 lap
+                                    {{ t "raceweekend.plus_lap" }}
                                 {{ end }}
                             {{ else }}
                                 {{ with $acSession.Laps }}
-                                    {{ . }} laps
+                                    {{ tn "raceweekend.laps" . }}
                                 {{ end }}
                             {{ end }}
 
                             -
 
                             {{ if not ($.RaceWeekend.SessionCanBeRun $session) }}
-                                <span class="text-danger" data-toggle="tooltip" title="This session cannot be run until all parent sessions have been run.">
-                                    Not available
+                                <span class="text-danger" data-toggle="tooltip" title="{{ t "raceweekend.not_available_help" }}">
+                                    {{ t "raceweekend.not_available" }}
                                 </span>
                             {{ else if $session.Completed }}
-                                <span class="text-success" data-toggle="tooltip" title="Completed on {{ fullTimeFormat $session.CompletedTime }}">Complete</span>
+                                <span class="text-success" data-toggle="tooltip" title="{{ t "raceweekend.completed_on" "time" (fullTimeFormat $session.CompletedTime) }}">{{ t "raceweekend.complete" }}</span>
                             {{ else if $session.InProgress }}
-                                <span class="text-primary">In Progress</span>
+                                <span class="text-primary">{{ t "raceweekend.in_progress" }}</span>
                             {{ else }}
-                                <span class="text-warning">Ready to Start</span>
+                                <span class="text-warning">{{ t "raceweekend.ready" }}</span>
                             {{ end }}
                         </div>
                     </div>
@@ -166,13 +166,13 @@
 
                                 {{ if isBefore $session.ScheduledTime }}
                                     <span class="text-warning">
-                                        Scheduled
+                                        {{ t "raceweekend.scheduled" }}
 
                                         {{ if ne $session.ScheduledServerID $serverID }}
-                                            (on <span class="scheduled-server-id" data-server-id="{{ $session.ScheduledServerID }}">{{ with serverName $session.ScheduledServerID }}{{ . }}{{ else }}another server{{ end }}</span>)
+                                            ({{ t "raceweekend.scheduled_on" }} <span class="scheduled-server-id" data-server-id="{{ $session.ScheduledServerID }}">{{ with serverName $session.ScheduledServerID }}{{ . }}{{ else }}{{ t "raceweekend.another_server" }}{{ end }}</span>)
                                         {{ end }}
 
-                                        for {{ localFormat $session.ScheduledTime }}
+                                        {{ tHTML "raceweekend.scheduled_for" "time" (localFormat $session.ScheduledTime) }}
                                     </span><br>
                                 {{ end }}
                             </div>
@@ -188,7 +188,7 @@
 
 
                         {{ if $session.Completed }}
-                            <a class="btn btn-outline-secondary btn-sm view-results" href="#">View Results</a>
+                            <a class="btn btn-outline-secondary btn-sm view-results" href="#">{{ t "raceweekend.view_results" }}</a>
                         {{ end }}
 
                         {{ if WriteAccess }}
@@ -198,19 +198,19 @@
                                             {{ $startPath := printf "/race-weekend/%s/session/%s/start" $.RaceWeekend.ID.String $session.ID.String }}
 
                                             <form method="post" action="{{ serverURL $startPath }}" class="d-inline-flex m-0"
-                                                  onsubmit="return confirm('I have checked all Entry List configurations and the starting grid is correct');">
-                                                <button type="submit" class="btn btn-primary btn-sm">Start Session</button>
+                                                  onsubmit="return confirm('{{ t "raceweekend.start_confirm" }}');">
+                                                <button type="submit" class="btn btn-primary btn-sm">{{ t "raceweekend.start_session" }}</button>
                                             </form>
 
                                             <button type="button" class="btn btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                <span class="sr-only">Toggle Dropdown</span>
+                                                <span class="sr-only">{{ t "raceweekend.toggle_dropdown" }}</span>
                                             </button>
                                             <div class="dropdown-menu">
                                                 {{ if gt (len $.Servers) 1 }}
                                                     {{ range $server := $.Servers }}
                                                         <form method="post" action="{{ $startPath }}?server={{ $server.ID }}"
-                                                              onsubmit="return confirm('I have checked all Entry List configurations and the starting grid is correct');">
-                                                            <button type="submit" class="dropdown-item">Start Session on {{ $server.Name }}</button>
+                                                              onsubmit="return confirm('{{ t "raceweekend.start_confirm" }}');">
+                                                            <button type="submit" class="dropdown-item">{{ t "raceweekend.start_session_on" "name" $server.Name }}</button>
                                                         </form>
                                                     {{ end }}
 
@@ -220,9 +220,9 @@
                                                 <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/practice">
                                                     <button type="submit" class="dropdown-item"
                                                        data-toggle="tooltip"
-                                                       title="Loads the configured session onto the server as a 2 hour looping practice, but doesn't track its progress as a Race Weekend session."
+                                                       title="{{ t "raceweekend.practice_help" }}"
                                                     >
-                                                        Start Practice Session
+                                                        {{ t "raceweekend.start_practice" }}
                                                     </button>
                                                 </form>
                                             </div>
@@ -231,18 +231,18 @@
                                         <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/practice" class="d-inline">
                                             <button type="submit" class="btn btn-outline-secondary btn-sm"
                                                data-toggle="tooltip"
-                                               title="Loads the configured session onto the server as a 2 hour looping practice, but doesn't track its progress as a Race Weekend session."
+                                               title="{{ t "raceweekend.practice_help" }}"
                                             >
-                                                Start Practice Session
+                                                {{ t "raceweekend.start_practice" }}
                                             </button>
                                         </form>
                                     {{ end }}
 
                                     <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle popover-external-html" data-placement="bottom"
-                                            data-toggle="popover" title="Schedule Session" data-html="true"
+                                            data-toggle="popover" title="{{ t "raceweekend.schedule_session" }}" data-html="true"
                                             id="schedule-{{ $session.ID.String }}"
                                     >
-                                        Schedule Session
+                                        {{ t "raceweekend.schedule_session" }}
                                     </button>
 
                                 <div id="popover-content-schedule-{{ $session.ID.String }}" style="display: none;">
@@ -255,16 +255,16 @@
                                             {{ template "schedule-target" dict "Servers" $.Servers "Selected" $serverID "Id" $session.ID.String }}
 
                                             <small class="form-text text-muted">
-                                                This date/time is in your timezone (<span class="timezone"></span>).
+                                                {{ tHTML "raceweekend.timezone_note" }}
 
-                                                <span class="text-danger">Please note that sessions will only start if their parent sessions are complete.</span>
+                                                <span class="text-danger">{{ t "raceweekend.parent_note" }}</span>
                                             </small>
 
                                             {{ if not ($.RaceWeekend.SessionCanBeRun $session) }}
                                                 <hr>
 
                                                 <label>
-                                                    Start after Parent Session has completed
+                                                    {{ t "raceweekend.start_after_parent" }}
 
                                                     <input class="ml-2" type="checkbox" name="session-start-after-parent" {{ if $session.StartWhenParentHasFinished }}checked="checked"{{ end }}>
                                                 </label>
@@ -272,36 +272,36 @@
 
                                         </div>
 
-                                        <button type="submit" class="btn btn-sm btn-primary">Schedule</button>
-                                        <button type="submit" formaction="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/schedule/remove" formnovalidate class="btn btn-sm btn-danger">Remove Schedule</button>
+                                        <button type="submit" class="btn btn-sm btn-primary">{{ t "raceweekend.schedule" }}</button>
+                                        <button type="submit" formaction="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/schedule/remove" formnovalidate class="btn btn-sm btn-danger">{{ t "raceweekend.remove_schedule" }}</button>
                                     </form>
                                 </div>
 
-                                <a class="btn btn-outline-secondary btn-sm manage-entrylist" href="#">Manage Entry List</a>
+                                <a class="btn btn-outline-secondary btn-sm manage-entrylist" href="#">{{ t "raceweekend.manage_entry_list" }}</a>
                             {{ else if $session.InProgress }}
                                 <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/restart" class="d-inline"
-                                      data-confirm-action="Restart this session?" data-confirm-detail="The entire session is restarted and any current results will be lost." data-confirm-label="Restart session">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Restart Session</button>
+                                      data-confirm-action="{{ t "raceweekend.restart_confirm" }}" data-confirm-detail="{{ t "raceweekend.restart_detail" }}" data-confirm-label="{{ t "raceweekend.restart_label" }}">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">{{ t "raceweekend.restart_session" }}</button>
                                 </form>
 
                                 <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/cancel" class="d-inline"
-                                      data-confirm-delete="Cancel this session?" data-confirm-detail="The entire session is cancelled and any current results will be lost." data-confirm-label="Cancel session">
-                                    <button type="submit" class="btn btn-danger btn-sm">Cancel Session</button>
+                                      data-confirm-delete="{{ t "raceweekend.cancel_confirm" }}" data-confirm-detail="{{ t "raceweekend.cancel_detail" }}" data-confirm-label="{{ t "raceweekend.cancel_label" }}">
+                                    <button type="submit" class="btn btn-danger btn-sm">{{ t "raceweekend.cancel_session" }}</button>
                                 </form>
                             {{ end }}
 
                             <div class="dropdown show d-inline-block">
                                 <a class="btn btn-outline-secondary dropdown-toggle btn-sm" href="#" role="button" id="manage-session-{{ $session.ID.String }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Manage Session
+                                    {{ t "raceweekend.manage_session" }}
                                 </a>
 
                                 <div class="dropdown-menu" aria-labelledby="manage-session-{{ $session.ID.String }}">
                                     <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/edit">
-                                        Edit
+                                        {{ t "common.edit" }}
                                     </a>
 
                                         <a class="dropdown-item" href="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/import">
-                                            Import Results
+                                            {{ t "raceweekend.import_results" }}
                                         </a>
 
                                     {{ if $.ShowEventDetailsPopup }}
@@ -309,19 +309,19 @@
                                            href="#"
                                            data-session-id="{{ $session.ID }}"
                                         >
-                                            Session Details
+                                            {{ t "raceweekend.session_details" }}
                                         </a>
                                     {{ end }}
 
                                     {{ if DeleteAccess }}
-                                        <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/delete" data-confirm-delete="Delete this session?" data-confirm-detail="The entire session is removed from the race weekend permanently." data-confirm-label="Delete session">
-                                            <button type="submit" class="dropdown-item text-danger">Delete</button>
+                                        <form method="post" action="/race-weekend/{{ $.RaceWeekend.ID.String }}/session/{{ $session.ID.String }}/delete" data-confirm-delete="{{ t "raceweekend.delete_session_confirm" }}" data-confirm-detail="{{ t "raceweekend.delete_session_detail" }}" data-confirm-label="{{ t "raceweekend.delete_session_label" }}">
+                                            <button type="submit" class="dropdown-item text-danger">{{ t "common.delete" }}</button>
                                         </form>
                                     {{ end }}
                                 </div>
                             </div>
                         {{ else }}
-                            <a class="btn btn-outline-secondary manage-entrylist btn-sm" href="#">View Entry List</a>
+                            <a class="btn btn-outline-secondary manage-entrylist btn-sm" href="#">{{ t "raceweekend.view_entry_list" }}</a>
                         {{ end }}
 
                         {{ if and (not WriteAccess) $.ShowEventDetailsPopup }}
@@ -329,7 +329,7 @@
                                href="#"
                                data-session-id="{{ $session.ID }}"
                             >
-                                Session Details
+                                {{ t "raceweekend.session_details" }}
                             </a>
                         {{ end }}
                     </div>
@@ -342,7 +342,7 @@
 
     {{ if gt (len $sortedSessions) 0 }}
         <div class="container" id="race-weekend-results">
-            <h2 class="section-title">Results</h2>
+            <h2 class="section-title">{{ t "nav.results" }}</h2>
 
             <div class="accordion mb-5" id="sessionResults">
                 {{ range $sessionIndex, $session := $sortedSessions }}
@@ -355,7 +355,7 @@
                                 {{ $acSession.Name }}
                             </strong>
 
-                            at
+                            {{ t "raceweekend.at" }}
 
                             {{ with $trackInfo }}
                                 {{ .Name }}
@@ -365,29 +365,29 @@
 
                             <div class="float-right">
                                 {{ if ne $acSession.Time 0 }}
-                                    {{ $acSession.Time }} minutes
+                                    {{ tn "raceweekend.minutes" $acSession.Time }}
 
                                     {{ if $session.RaceConfig.RaceExtraLap }}
-                                        + 1 lap
+                                        {{ t "raceweekend.plus_lap" }}
                                     {{ end }}
                                 {{ else }}
                                     {{ with $acSession.Laps }}
-                                        {{ . }} laps
+                                        {{ tn "raceweekend.laps" . }}
                                     {{ end }}
                                 {{ end }}
 
                                 -
 
                                 {{ if not ($.RaceWeekend.SessionCanBeRun $session) }}
-                                    <span class="text-danger" data-toggle="tooltip" title="This session cannot be run until all parent sessions have been run.">
-                                            Not available
+                                    <span class="text-danger" data-toggle="tooltip" title="{{ t "raceweekend.not_available_help" }}">
+                                            {{ t "raceweekend.not_available" }}
                                         </span>
                                 {{ else if $session.Completed }}
-                                    <span class="text-success">Completed on {{ localFormat $session.CompletedTime }}</span>
+                                    <span class="text-success">{{ tHTML "raceweekend.completed_on" "time" (localFormat $session.CompletedTime) }}</span>
                                 {{ else if $session.InProgress }}
-                                    <span class="text-primary">In Progress</span>
+                                    <span class="text-primary">{{ t "raceweekend.in_progress" }}</span>
                                 {{ else }}
-                                    <span class="text-warning">Ready to Start</span>
+                                    <span class="text-warning">{{ t "raceweekend.ready" }}</span>
                                 {{ end }}
                             </div>
                         </div>
@@ -397,14 +397,14 @@
                                 {{ if $session.Completed }}
 
                                     <p class="text-center mt-2 mb-2">
-                                        <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">View detailed results breakdown for this Session</a>
+                                        <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">{{ t "raceweekend.detailed_results" }}</a>
                                     </p>
 
                                     {{ template "session-overall" dict "sessionResults" $session.Results "account" $.Account "server" (resultServer $session.Results.SessionFile) }}
                                 {{ else if $session.InProgress }}
-                                    <p class="text-center mt-4 pb-2"><strong>Session in Progress</strong>: Looks like there aren't any results yet. Check back later.</p>
+                                    <p class="text-center mt-4 pb-2">{{ tHTML "raceweekend.in_progress_note" }}</p>
                                 {{ else }}
-                                    <p class="text-center mt-4 pb-2"><strong>Awaiting Start</strong>: Looks like this session hasn't started yet. Check back later.</p>
+                                    <p class="text-center mt-4 pb-2">{{ tHTML "raceweekend.awaiting_note" }}</p>
                                 {{ end }}
                             </div>
                         </div>
@@ -413,9 +413,9 @@
             </div>
 
             {{ if $.RaceWeekend.HasLinkedChampionship }}
-                <h2 class="section-title">Points</h2>
+                <h2 class="section-title">{{ t "raceweekend.points" }}</h2>
 
-                <p>This Race Weekend is linked to the <a href="/championship/{{ $.RaceWeekend.Championship.ID.String }}">{{ $.RaceWeekend.Championship.Name }} Championship</a>. You can review the points for each Session below.</p>
+                <p>{{ tHTML "raceweekend.points_intro" "url" (printf "/championship/%s" $.RaceWeekend.Championship.ID.String) "name" $.RaceWeekend.Championship.Name }}</p>
 
                 <div class="accordion mb-3" id="sessionPoints">
                     {{ range $sessionIndex, $session := $sortedSessions }}
@@ -428,7 +428,7 @@
                                     {{ $acSession.Name }}
                                 </strong>
 
-                                at
+                                {{ t "raceweekend.at" }}
 
                                 {{ with $trackInfo }}
                                     {{ .Name }}
@@ -441,9 +441,9 @@
                                 <div class="card-body pt-2 pb-2 pl-2 pr-2">
                                     <table class="table table-bordered table-striped">
                                         <tr>
-                                            {{ if $.RaceWeekend.Championship.IsMultiClass }}<th>Class</th>{{ end }}
-                                            <th>Place</th>
-                                            <th>Points</th>
+                                            {{ if $.RaceWeekend.Championship.IsMultiClass }}<th>{{ t "raceweekend.class" }}</th>{{ end }}
+                                            <th>{{ t "raceweekend.place" }}</th>
+                                            <th>{{ t "raceweekend.points" }}</th>
                                         </tr>
 
 
@@ -465,7 +465,7 @@
                                             {{ end }}
 
                                             <tr {{ if $.RaceWeekend.Championship.IsMultiClass }} style="--class-color: {{ classColor (int $classIndex) }}" {{ end }}>
-                                                <td><strong>Fastest Race Lap</strong></td>
+                                                <td><strong>{{ t "raceweekend.fastest_race_lap" }}</strong></td>
                                                 <td>
                                                     {{ $points.BestLap }}
                                                 </td>

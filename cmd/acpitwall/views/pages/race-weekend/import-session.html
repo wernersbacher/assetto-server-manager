@@ -1,37 +1,37 @@
 {{/* gotype:github.com/wernersbacher/ACPitwall/internal/raceweekend.raceWeekendSessionImportTemplateVars */}}
 
-{{ define "title" }}Import a Race Weekend Session{{ end }}
+{{ define "title" }}{{ t "raceweekend.import_session_title" }}{{ end }}
 
 {{ define "content" }}
     {{ $writeAccess := WriteAccess }}
 
-    <h1 class="text-center">Import a Race Weekend Session for {{ prettify .Session.RaceConfig.Track false }} ({{ prettify .Session.RaceConfig.TrackLayout true }})</h1>
+    <h1 class="text-center">{{ t "raceweekend.import_session_heading" "track" (prettify .Session.RaceConfig.Track false) "layout" (prettify .Session.RaceConfig.TrackLayout true) }}</h1>
 
 
     <form action="/race-weekend/{{ .RaceWeekendID }}/session/{{ .Session.ID.String }}/import" method="post" data-safe-submit>
 
         <div class="card mt-3 border-secondary">
             <div class="card-header">
-                <strong>Session</strong>
+                <strong>{{ t "home.session" }}</strong>
             </div>
 
             <div class="card-body">
 
                 <div class="form-group row">
-                    <label for="ResultFile" class="col-sm-3 col-form-label">{{ $.Session.SessionInfo.Name }} Result File</label>
+                    <label for="ResultFile" class="col-sm-3 col-form-label">{{ t "raceweekend.result_file" "session" $.Session.SessionInfo.Name }}</label>
 
                     <div class="col-sm-9">
                         <select name="ResultFile" id="ResultFile" class="form-control">
                             {{ range $index, $result := .Results }}
                                 {{ if eq $result.Type $.Session.SessionType }}
-                                    <option value="{{ $result.SessionFile }}">{{ $result.TrackName }} ({{ $result.TrackConfig }}) on {{ $result.Date }}</option>
+                                    <option value="{{ $result.SessionFile }}">{{ t "raceweekend.result_option" "track" $result.TrackName "layout" $result.TrackConfig "date" $result.Date }}</option>
                                 {{ end }}
                             {{ end }}
                         </select>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-success float-right">Import Session</button>
+                <button type="submit" class="btn btn-success float-right">{{ t "raceweekend.import_session" }}</button>
 
             </div>
         </div>

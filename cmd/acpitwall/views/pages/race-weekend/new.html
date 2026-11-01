@@ -1,23 +1,23 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/race.RaceTemplateVars */}}
 
-{{ define "title" }}Create a Race Weekend{{ end }}
+{{ define "title" }}{{ t "raceweekend.create_title" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <nav class="form-breadcrumb" aria-label="Breadcrumb">
-                <a href="/race-weekends">Race Weekends</a><span>{{ if $.IsEditing }}Edit{{ else }}New{{ end }}</span>
+            <nav class="form-breadcrumb" aria-label="{{ t "raceweekend.breadcrumb" }}">
+                <a href="/race-weekends">{{ t "nav.race_weekends" }}</a><span>{{ if $.IsEditing }}{{ t "common.edit" }}{{ else }}{{ t "raceweekend.new" }}{{ end }}</span>
             </nav>
             <h1>
                 {{ if not $.IsEditing }}
-                    Create a new Race Weekend
+                    {{ t "raceweekend.create_new" }}
                 {{ else }}
-                    Edit the {{ $.RaceWeekend.Name }} Race Weekend
+                    {{ t "raceweekend.edit_heading" "name" $.RaceWeekend.Name }}
                 {{ end }}
             </h1>
 
             {{ if $.RaceWeekend.HasLinkedChampionship }}
-                <p>in the {{ $.Championship.Name }} Championship</p>
+                <p>{{ t "raceweekend.in_championship" "name" $.Championship.Name }}</p>
             {{ end }}
         </div>
     </div>
@@ -27,41 +27,40 @@
         <div class="race-setup">
             <div class="card mt-3 border-secondary" id="entrants">
                 <div class="card-header">
-                    <strong>Race Weekend</strong>
+                    <strong>{{ t "event_type.race_weekend" }}</strong>
 
                     {{ if .IsEditing }}
-                        <button type="submit" class="btn btn-success float-right">Save Race Weekend</button>
+                        <button type="submit" class="btn btn-success float-right">{{ t "raceweekend.save" }}</button>
                     {{ end }}
                 </div>
 
                 <div class="card-body">
                     <div class="form-group row">
-                        <label for="RaceWeekendName" class="col-sm-3 col-form-label">Name</label>
+                        <label for="RaceWeekendName" class="col-sm-3 col-form-label">{{ t "raceweekend.name" }}</label>
 
                         <div class="col-sm-9">
                             <input type="text" class="form-control" id="RaceWeekendName" name="RaceWeekendName" required
-                                   placeholder="My awesome Race Weekend" value="{{ $.RaceWeekend.Name }}">
+                                   placeholder="{{ t "raceweekend.name_placeholder" }}" value="{{ $.RaceWeekend.Name }}">
                         </div>
                     </div>
 
                     {{ if not $.RaceWeekend.HasLinkedChampionship }}
                         <div class="form-group row">
-                            <label for="RaceWeekendHidden" class="col-sm-3 col-form-label">Hidden</label>
+                            <label for="RaceWeekendHidden" class="col-sm-3 col-form-label">{{ t "raceweekend.hidden" }}</label>
 
                             <div class="col-sm-9">
                                 <input type="checkbox" id="RaceWeekendHidden" name="RaceWeekendHidden"
                                        {{ if $.RaceWeekend.Hidden }} checked="checked" {{ end }}><br><br>
 
                                 <small>
-                                    A hidden Race Weekend is only visible to logged in accounts. Anonymous visitors of an open
-                                    server do not see it in lists, the calendar, calendar feeds or the API, and can not open its pages.
+                                    {{ t "raceweekend.hidden_help" }}
                                 </small>
                             </div>
                         </div>
 
                         <div class="form-group row">
                             <label for="Cars" class="col-sm-3 col-form-label">
-                                Cars
+                                {{ t "home.cars" }}
                             </label>
 
                             <div class="col-sm-9">
@@ -90,12 +89,12 @@
 
                         <div class="row">
                             <div class="col-md-8 pt-2">
-                                <p>Car, Skin, Ballast, Restrictor and Fixed Setup from the last Entrant will be cloned into new Entrants.</p>
+                                <p>{{ t "raceweekend.clone_help" }}</p>
                             </div>
                             <div class="col-md-4 text-right">
                                 <input class="form-control numEntrantsToAdd" type="number" name="NumEntrantsToAdd" value="1" min="0" max="40">
 
-                                <button class="btn btn-warning addEntrant">Add Entrant(s)</button>
+                                <button class="btn btn-warning addEntrant">{{ t "raceweekend.add_entrants" }}</button>
                             </div>
                         </div>
                     {{ else }}
@@ -109,16 +108,14 @@
                             {{ end }}
 
                             <div class="form-group row">
-                                <label for="UseChampionshipRaceSettings" class="col-sm-3 col-form-label">Use championship race settings</label>
+                                <label for="UseChampionshipRaceSettings" class="col-sm-3 col-form-label">{{ t "raceweekend.use_championship_settings" }}</label>
 
                                 <div class="col-sm-9">
                                     <input type="checkbox" id="UseChampionshipRaceSettings" name="UseChampionshipRaceSettings" value="1"
                                            {{ if $useSettings }} checked="checked" {{ end }}><br>
 
                                     <small>
-                                        When enabled, fuel rate, damage, tyre wear, allowed tyres out, assists, virtual mirror and
-                                        dynamic track of all sessions of this Race Weekend are taken from the Championship.
-                                        The values configured in the sessions are kept but ignored while this is enabled.
+                                        {{ t "raceweekend.use_championship_settings_help" }}
                                     </small>
                                 </div>
                             </div>
@@ -133,7 +130,7 @@
         {{ if not $.RaceWeekend.HasLinkedChampionship }}
             <div class="card mt-3 border-secondary race-setup">
                 <div class="card-header">
-                    <strong>Spectator Car</strong>
+                    <strong>{{ t "raceweekend.spectator_car" }}</strong>
                 </div>
 
                 <div class="d-none">
@@ -144,13 +141,12 @@
 
                 <div class="card-body" id="entrants">
                     <p>
-                        You can configure a Spectator Car for this Race Weekend. Spectator Cars are automatically
-                        added to the back of the Entry List for each Race Weekend Session, and discounted from any session results.
+                        {{ t "raceweekend.spectator_help" }}
                     </p>
 
 
                     <div class="form-group row">
-                        <label for="SpectatorCar.Enabled" class="col-sm-3 col-form-label">Enabled</label>
+                        <label for="SpectatorCar.Enabled" class="col-sm-3 col-form-label">{{ t "raceweekend.enabled" }}</label>
 
                         <div class="col-sm-9">
                             <input type="checkbox"
@@ -177,10 +173,10 @@
         <div class="mt-5">
             {{ if .IsEditing }}
                 <input type="hidden" name="Editing" id="Editing" value="{{ $.RaceWeekend.ID.String }}">
-                <button type="submit" class="btn btn-success float-right">Save Race Weekend</button>
+                <button type="submit" class="btn btn-success float-right">{{ t "raceweekend.save" }}</button>
             {{ else }}
                 <div class="float-right">
-                    <button type="submit" name="action" value="addEvent" class="btn btn-success">Add a Session</button>
+                    <button type="submit" name="action" value="addEvent" class="btn btn-success">{{ t "raceweekend.add_session" }}</button>
                 </div>
             {{ end }}
         </div>

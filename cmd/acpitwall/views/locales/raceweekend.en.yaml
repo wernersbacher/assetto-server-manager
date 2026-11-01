@@ -1,0 +1,153 @@
+raceweekend:
+  # list
+  create_new: Create a new Race Weekend
+  more_options: More options
+  import: Import Race Weekend
+  intro: A Race Weekend is a group of sequential sessions that can be run at any time. For example, you could set up a Qualifying session to run on a Saturday, then the Race to follow it on a Sunday. ACPitwall handles the starting grid for you, and lets you organise Entrants into splits based on their results and other factors!
+  active: Active
+  completed: Completed
+  name: Name
+  progress: Progress
+  view: View
+  more: More
+  export: Export
+  delete_confirm: Delete race weekend {name}?
+  delete_detail: The entire Race Weekend is removed permanently.
+  delete_label: Delete race weekend
+  no_active: No active race weekends.
+  create_one: Create a race weekend
+  no_completed: No completed race weekends yet.
+
+  # new / edit
+  create_title: Create a Race Weekend
+  new: New
+  breadcrumb: Breadcrumb
+  edit_heading: Edit the {name} Race Weekend
+  in_championship: in the {name} Championship
+  save: Save Race Weekend
+  name_placeholder: My awesome Race Weekend
+  hidden: Hidden
+  hidden_help: A hidden Race Weekend is only visible to logged in accounts. Anonymous visitors of an open server do not see it in lists, the calendar, calendar feeds or the API, and can not open its pages.
+  clone_help: Car, Skin, Ballast, Restrictor and Fixed Setup from the last Entrant will be cloned into new Entrants.
+  add_entrants: Add Entrant(s)
+  use_championship_settings: Use championship race settings
+  use_championship_settings_help: When enabled, fuel rate, damage, tyre wear, allowed tyres out, assists, virtual mirror and dynamic track of all sessions of this Race Weekend are taken from the Championship. The values configured in the sessions are kept but ignored while this is enabled.
+  spectator_car: Spectator Car
+  spectator_help: You can configure a Spectator Car for this Race Weekend. Spectator Cars are automatically added to the back of the Entry List for each Race Weekend Session, and discounted from any session results.
+  enabled: Enabled
+  add_session: Add a Session
+
+  # view
+  view_title: "{name} Race Weekend"
+  linked_championship: A Race Weekend in the <a href="{url}">{name} Championship</a>
+  in_cars:
+    one: "A Race Weekend in the following car: {cars}"
+    other: "A Race Weekend in the following cars: {cars}"
+  percent_complete: "{percent}% complete"
+  add_sessions: Add more Sessions
+  manage: Manage
+  view_championship: View Championship
+  running_on: This Race Weekend is running on server <a href="{url}">{name}</a>. Select that server to manage the running session.
+  sessions_intro:
+    one: This Race Weekend has {count} session. To see how the Results of a Session decide the Entry List of the next Session, click on the arrow between the two Sessions.
+    other: This Race Weekend has {count} sessions. To see how the Results of a Session decide the Entry List of the next Session, click on the arrow between the two Sessions.
+  entry_list: Entry List
+  entrants_count:
+    one: "{count} Entrant"
+    other: "{count} Entrants"
+  minutes:
+    one: "{count} minute"
+    other: "{count} minutes"
+  plus_lap: + 1 lap
+  laps:
+    one: "{count} lap"
+    other: "{count} laps"
+  not_available: Not available
+  not_available_help: This session cannot be run until all parent sessions have been run.
+  completed_on: Completed on {time}
+  complete: Complete
+  in_progress: In Progress
+  ready: Ready to Start
+  scheduled: Scheduled
+  scheduled_on: "on"
+  another_server: another server
+  scheduled_for: for {time}
+  view_results: View Results
+  start_confirm: I have checked all Entry List configurations and the starting grid is correct
+  start_session: Start Session
+  toggle_dropdown: Toggle Dropdown
+  start_session_on: Start Session on {name}
+  practice_help: Loads the configured session onto the server as a 2 hour looping practice, but doesn't track its progress as a Race Weekend session.
+  start_practice: Start Practice Session
+  schedule_session: Schedule Session
+  timezone_note: This date/time is in your timezone (<span class="timezone"></span>).
+  parent_note: Please note that sessions will only start if their parent sessions are complete.
+  start_after_parent: Start after Parent Session has completed
+  schedule: Schedule
+  remove_schedule: Remove Schedule
+  manage_entry_list: Manage Entry List
+  restart_confirm: Restart this session?
+  restart_detail: The entire session is restarted and any current results will be lost.
+  restart_label: Restart session
+  restart_session: Restart Session
+  cancel_confirm: Cancel this session?
+  cancel_detail: The entire session is cancelled and any current results will be lost.
+  cancel_label: Cancel session
+  cancel_session: Cancel Session
+  manage_session: Manage Session
+  import_results: Import Results
+  session_details: Session Details
+  delete_session_confirm: Delete this session?
+  delete_session_detail: The entire session is removed from the race weekend permanently.
+  delete_session_label: Delete session
+  view_entry_list: View Entry List
+  at: at
+  detailed_results: View detailed results breakdown for this Session
+  in_progress_note: "<strong>Session in Progress</strong>: Looks like there aren't any results yet. Check back later."
+  awaiting_note: "<strong>Awaiting Start</strong>: Looks like this session hasn't started yet. Check back later."
+  points: Points
+  points_intro: This Race Weekend is linked to the <a href="{url}">{name} Championship</a>. You can review the points for each Session below.
+  class: Class
+  place: Place
+  fastest_race_lap: Fastest Race Lap
+
+  # import
+  import_placeholder: Paste your Race Weekend JSON here!
+  import_help: Here you can import Race Weekends in a JSON format (this format matches the format given when you export a Race Weekend). We do not recommend attempting to manually create this data, as the format is quite complex. However if you want to move Race Weekends across servers but don't have file access then you can use this feature!
+  import_session_title: Import a Race Weekend Session
+  import_session_heading: Import a Race Weekend Session for {track} ({layout})
+  result_file: "{session} Result File"
+  result_option: "{track} ({layout}) on {date}"
+  import_session: Import Session
+
+  # entry list / filter popups
+  configure_combined: Configure {name} Combined Entry List
+  multiclass_note: This Race Weekend is linked to a Multi-Class Championship. Sorting will apply in-class, with the classes ordered by the fastest lap for the class (So hopefully, LMP1 cars would be put on the grid ahead of GTE cars - for example)
+  sort_combined: 'Sort the combined drivers in the <strong>{name}</strong> Entry List by:'
+  sort_by: Sort By
+  reverse: Reverse?
+  reverse_help: 0 = Don't Reverse. -1 = Reverse all. N = Reverse the first N.
+  all: All
+  starting_grid: Starting Grid
+  grid_preview_later: A combined starting grid preview for the <strong>{name}</strong> session will be available when all parent sessions have been completed.
+  save_changes: Save changes
+  configure_entry_list: Configure {name} Entry List
+  filter_intro: You can modify the Entry List for {name} by changing the filter settings below.
+  filter_parent_incomplete: The {name} has not yet been completed. A fake grid will be shown to allow you to see how the filters below will be applied when this session is completed.
+  sort_parent: 'Sort the drivers from the <strong>{name}</strong> by:'
+  sort_parent_results: 'Sort the drivers from the <strong>{name}</strong> Results by:'
+  parent_incomplete_sort: The Parent Session ({name}) has not been completed. Sorting will not change the live preview, but will apply to the grid when the {name} Session has completed.
+  results_files: Results Files
+  result_sort_option: "{type} on {date} at {time}"
+  take_from_entry_list: "Take the drivers from the {name} Entry List:"
+  take_from_results: 'Take the drivers from the sorted <strong>{name}</strong> Results:'
+  split_type: Split Type
+  from: From
+  to: To
+  place_into: 'Then place the resulting drivers into the Entry List for <strong>{name}</strong> from:'
+  grid_start: Grid Start
+  tyre_from_fastest: Start on Tyre from Fastest Lap
+  tyre_from_fastest_help: If enabled then the entrants for the next session will be forced to start on the same tyres as their fastest lap from the previous session.
+  rw_entry_list: Race Weekend Entry List
+  parent_results: "{name} Results"
+  expected_grid: "{name} Expected Grid"
