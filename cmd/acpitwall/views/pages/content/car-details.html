@@ -341,7 +341,7 @@
                                             {{ else if eq (printf "%s" .Skin.Visibility) "team" }}<span class="badge badge-info">{{ t "content.car.visibility.team" }}{{ with .TeamName }}: {{ . }}{{ end }}</span>
                                             {{ else }}<span class="badge badge-secondary">{{ t "content.car.visibility.only_owner" }}</span>{{ end }}
                                         </td>
-                                        <td>{{ tn "content.car.skin_files" .Skin.Files "size" .SizeLabel }}</td>
+                                        <td>{{ tn "content.car.skin_files" .Skin.Files "size" (tm .SizeLabel) }}</td>
                                         <td class="text-right">
                                             <a href="{{ .DownloadURL }}" class="btn btn-sm btn-secondary" title="{{ t "content.car.download_skin" }}"><i class="fas fa-download"></i></a>
 

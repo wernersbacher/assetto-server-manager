@@ -41,7 +41,7 @@
                                                 <select id="ResultsSort" name="ResultsSort" class="form-control">
                                                     {{ range $index, $sorter := $.AvailableSorters }}
                                                         {{ if and (not (and $.ParentSession.IsBase $sorter.NeedsParentSession)) (not (and (not $.RaceWeekend.HasLinkedChampionship) $sorter.NeedsChampionship)) }}
-                                                            <option value="{{ $sorter.Key }}" {{ if eq $sorter.Key $.Filter.SortType }}selected="selected"{{ end }}>{{ $sorter.Name }}</option>
+                                                            <option value="{{ $sorter.Key }}" {{ if eq $sorter.Key $.Filter.SortType }}selected="selected"{{ end }}>{{ tm $sorter.Name }}</option>
                                                         {{ end }}
                                                     {{ end }}
                                                 </select>
@@ -49,7 +49,7 @@
                                                 <label class="col-form-label">
                                                     {{ range $index, $sorter := $.AvailableSorters }}
                                                         {{ if eq $sorter.Key $.Filter.SortType }}
-                                                            {{ $sorter.Name }}
+                                                            {{ tm $sorter.Name }}
                                                         {{ end }}
                                                     {{ end }}
                                                 </label>
@@ -145,11 +145,11 @@
                                             {{ if WriteAccess }}
                                                 <select name="SplitType" id="SplitType" class="form-control">
                                                     {{ range $index, $splitType := $.RaceWeekend.GetAvailableSplitTypes }}
-                                                        <option value="{{ $splitType }}" {{ if eq $.Filter.SplitType $splitType }}selected="selected"{{ end }}>{{ $splitType }}</option>
+                                                        <option value="{{ $splitType }}" {{ if eq $.Filter.SplitType $splitType }}selected="selected"{{ end }}>{{ tm $splitType }}</option>
                                                     {{ end }}
                                                 </select>
                                             {{ else }}
-                                                <label class="col-form-label">{{ $.Filter.SplitType }}</label>
+                                                <label class="col-form-label">{{ tm $.Filter.SplitType }}</label>
                                                 <input type="hidden" name="SplitType" id="SplitType" value="{{ $.Filter.SplitType }}">
                                             {{ end }}
                                         </div>

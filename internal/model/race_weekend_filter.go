@@ -2,12 +2,28 @@ package model
 
 import (
 	"github.com/google/uuid"
+
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 )
 
 type RaceWeekendFilterSplitType string
 
 func (fst RaceWeekendFilterSplitType) String() string {
 	return string(fst)
+}
+
+// I18nMessage returns the name of the split type for the UI (template function tm); the value itself is stored.
+func (fst RaceWeekendFilterSplitType) I18nMessage() i18n.Message {
+	switch fst {
+	case SplitTypeNumeric:
+		return i18n.Msg("text.raceweekend.split.numeric", "Numeric")
+	case SplitTypeManualDriverSelection:
+		return i18n.Msg("text.raceweekend.split.manual_driver_selection", "Manual Driver Selection")
+	case SplitTypeChampionshipClass:
+		return i18n.Msg("text.raceweekend.split.championship_class", "Championship Class")
+	default:
+		return i18n.Message{English: string(fst)}
+	}
 }
 
 const (

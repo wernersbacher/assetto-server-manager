@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 )
@@ -586,5 +587,25 @@ func TestSkinIDsFromOutsideNeverReachTheFileSystem(t *testing.T) {
 		if err := e.m.SetVisibility(admin, id, smmodel.SkinGlobal, uuid.Nil); err != smmodel.ErrUserSkinNotFound {
 			t.Errorf("SetVisibility(%q): %v", id, err)
 		}
+	}
+}
+
+func TestMessage(t *testing.T) {
+	err := refuse(ErrTooManyFiles, i18n.Msg("text.skins.too_many_files_limit", "the skin has too many files ({files} files, at most {max})", "files", 3, "max", 2))
+
+	if !errors.Is(err, ErrTooManyFiles) || !IsUserError(err) {
+		t.Fatal("a refusal must be its sentinel error")
+	}
+
+	if got := Message(err).String(); got != "the skin has too many files (3 files, at most 2)" {
+		t.Errorf("unexpected message %q", got)
+	}
+
+	if got := Message(ErrDiskFull); got.Key != "text.skins.disk_full" {
+		t.Errorf("unexpected message %+v", got)
+	}
+
+	if got := Message(errors.New("skins: other")).String(); got != "other" {
+		t.Errorf("unexpected message %q", got)
 	}
 }

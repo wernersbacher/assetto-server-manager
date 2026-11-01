@@ -1,0 +1,46 @@
+text:
+  skins:
+    uploads_disabled: upload af skins fra brugere er slået fra
+    global_disabled: global deling af skins er slået fra
+    not_allowed: du må ikke ændre denne skin
+    not_team_member: du er ikke medlem af dette team
+    invalid: ugyldig skin-upload
+    too_many_files: skinnen har for mange filer
+    too_large: skinnen er for stor
+    quota_exceeded: din lagerplads til skins er fuld
+    disk_full: ikke nok ledig diskplads på serveren
+    name_taken: der findes allerede en skin med dette navn
+    invalid_visibility: ugyldig synlighed for skinnen
+    not_found: skin ikke fundet
+    not_in_folder: "ugyldig skin-upload: filerne skal ligge i en skin-mappe"
+    no_files: "ugyldig skin-upload: ingen filer"
+    too_many_skins: "ugyldig skin-upload: højst {max} skins pr. upload"
+    unknown_car: "ugyldig skin-upload: ukendt bil"
+    invalid_name: 'ugyldig skin-upload: "{name}" er ikke et gyldigt skin-navn (kun bogstaver, cifre, mellemrum, _ . -)'
+    too_many_files_limit: skinnen har for mange filer ({files} filer, højst {max})
+    too_large_limit: skinnen er for stor ({size} MB, højst {max} MB)
+    file_type: 'ugyldig skin-upload: filer af typen "{type}" er ikke tilladt i skins'
+    quota_limit: din lagerplads til skins er fuld (grænse {max} MB)
+    bad_file_name: "ugyldig skin-upload: ugyldigt filnavn"
+  size:
+    mb: "{size} MB"
+    kb: "{size} KB"
+    bytes: "{size} bytes"
+  raceweekend:
+    sort:
+      none: Ingen sortering (brug målgang)
+      fastest_lap: Hurtigste omgang
+      total_race_time: Samlet løbstid
+      fastest_multi_results_lap: Hurtigste omgang på tværs af flere resultatfiler
+      number_multi_results_lap: Antal omgange på tværs af flere resultatfiler
+      fewest_collisions: Færrest kollisioner
+      fewest_cuts: Færrest cuts
+      safety: Sikkerhed (kollisioner, derefter cuts)
+      championship_standings_order: Rækkefølge i mesterskabsstillingen
+      championship_class: Mesterskabsklasse
+      random: Tilfældig
+      alphabetical: Alfabetisk (efter kørernavn)
+    split:
+      numeric: Efter positioner
+      manual_driver_selection: Manuelt valg af kørere
+      championship_class: Mesterskabsklasse

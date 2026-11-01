@@ -74,7 +74,7 @@ func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		eventName = "Championship Event"
+		eventName = smweb.T(r, "race.form.championship_event")
 		eventConfig, entryList = slot.ChampionshipManager.FinalEventConfigurationFiles(championship, event, false)
 
 		isChampionship = true

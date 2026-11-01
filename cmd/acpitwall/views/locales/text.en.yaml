@@ -1,0 +1,47 @@
+# Texts made by Go code (i18n.Msg) which the UI shows.
+text:
+  skins:
+    uploads_disabled: skin uploads by users are disabled
+    global_disabled: sharing skins globally is disabled
+    not_allowed: you are not allowed to change this skin
+    not_team_member: you are not a member of this team
+    invalid: invalid skin upload
+    too_many_files: the skin has too many files
+    too_large: the skin is too large
+    quota_exceeded: your skin storage is full
+    disk_full: not enough free disk space on the server
+    name_taken: a skin with this name exists already
+    invalid_visibility: invalid skin visibility
+    not_found: skin not found
+    not_in_folder: "invalid skin upload: the files must be in a skin folder"
+    no_files: "invalid skin upload: no files"
+    too_many_skins: "invalid skin upload: at most {max} skins per upload"
+    unknown_car: "invalid skin upload: unknown car"
+    invalid_name: 'invalid skin upload: "{name}" is not a valid skin name (letters, digits, space, _ . - only)'
+    too_many_files_limit: the skin has too many files ({files} files, at most {max})
+    too_large_limit: the skin is too large ({size} MB, at most {max} MB)
+    file_type: 'invalid skin upload: files of type "{type}" are not allowed in skins'
+    quota_limit: your skin storage is full (limit {max} MB)
+    bad_file_name: "invalid skin upload: bad file name"
+  size:
+    mb: "{size} MB"
+    kb: "{size} KB"
+    bytes: "{size} bytes"
+  raceweekend:
+    sort:
+      none: No Sort (Use Finishing Grid)
+      fastest_lap: Fastest Lap
+      total_race_time: Total Race Time
+      fastest_multi_results_lap: Fastest Lap Across Multiple Results Files
+      number_multi_results_lap: Number of Laps Across Multiple Results Files
+      fewest_collisions: Fewest Collisions
+      fewest_cuts: Fewest Cuts
+      safety: Safety (Collisions then Cuts)
+      championship_standings_order: Championship Standings Order
+      championship_class: Championship Class
+      random: Random
+      alphabetical: Alphabetical (Using Driver Name)
+    split:
+      numeric: Numeric
+      manual_driver_selection: Manual Driver Selection
+      championship_class: Championship Class

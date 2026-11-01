@@ -1,0 +1,46 @@
+text:
+  skins:
+    uploads_disabled: het uploaden van skins door gebruikers is uitgeschakeld
+    global_disabled: skins globaal delen is uitgeschakeld
+    not_allowed: je mag deze skin niet wijzigen
+    not_team_member: je bent geen lid van dit team
+    invalid: ongeldige skin-upload
+    too_many_files: de skin heeft te veel bestanden
+    too_large: de skin is te groot
+    quota_exceeded: je opslag voor skins is vol
+    disk_full: niet genoeg vrije schijfruimte op de server
+    name_taken: er bestaat al een skin met deze naam
+    invalid_visibility: ongeldige zichtbaarheid van de skin
+    not_found: skin niet gevonden
+    not_in_folder: "ongeldige skin-upload: de bestanden moeten in een skin-map staan"
+    no_files: "ongeldige skin-upload: geen bestanden"
+    too_many_skins: "ongeldige skin-upload: hoogstens {max} skins per upload"
+    unknown_car: "ongeldige skin-upload: onbekende auto"
+    invalid_name: 'ongeldige skin-upload: "{name}" is geen geldige skinnaam (alleen letters, cijfers, spatie, _ . -)'
+    too_many_files_limit: de skin heeft te veel bestanden ({files} bestanden, hoogstens {max})
+    too_large_limit: de skin is te groot ({size} MB, hoogstens {max} MB)
+    file_type: 'ongeldige skin-upload: bestanden van het type "{type}" zijn niet toegestaan in skins'
+    quota_limit: je opslag voor skins is vol (limiet {max} MB)
+    bad_file_name: "ongeldige skin-upload: ongeldige bestandsnaam"
+  size:
+    mb: "{size} MB"
+    kb: "{size} KB"
+    bytes: "{size} bytes"
+  raceweekend:
+    sort:
+      none: Niet sorteren (finishvolgorde gebruiken)
+      fastest_lap: Snelste ronde
+      total_race_time: Totale racetijd
+      fastest_multi_results_lap: Snelste ronde over meerdere resultaatbestanden
+      number_multi_results_lap: Aantal ronden over meerdere resultaatbestanden
+      fewest_collisions: Minste botsingen
+      fewest_cuts: Minste cuts
+      safety: Veiligheid (botsingen, dan cuts)
+      championship_standings_order: Volgorde van het kampioenschapsklassement
+      championship_class: Kampioenschapsklasse
+      random: Willekeurig
+      alphabetical: Alfabetisch (op naam van de rijder)
+    split:
+      numeric: Op posities
+      manual_driver_selection: Handmatige rijderselectie
+      championship_class: Kampioenschapsklasse

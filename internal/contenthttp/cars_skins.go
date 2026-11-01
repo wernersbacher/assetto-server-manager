@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	"github.com/wernersbacher/ACPitwall/internal/skins"
@@ -144,7 +145,7 @@ func skinBack(w http.ResponseWriter, r *http.Request, car string) {
 // what is the action: "skin upload", "changing the skin" or "deleting the skin".
 func skinFailed(w http.ResponseWriter, r *http.Request, car string, err error, what string) {
 	if skins.IsUserError(err) {
-		reason := skins.Message(err)
+		reason := smweb.TM(r, skins.Message(err))
 
 		var message string
 
@@ -325,14 +326,14 @@ func (ch *CarsHandler) RemoveSkin(w http.ResponseWriter, r *http.Request) {
 	skinBack(w, r, car)
 }
 
-// SizeLabel is the size of the skin for people, like "2.4 MB".
-func (r SkinRow) SizeLabel() string {
+// SizeLabel is the size of the skin for people, like "2.4 MB" (translated by the template function tm).
+func (r SkinRow) SizeLabel() i18n.Message {
 	switch size := r.Skin.Size; {
 	case size >= 1<<20:
-		return fmt.Sprintf("%.1f MB", float64(size)/(1<<20))
+		return i18n.Msg("text.size.mb", "{size} MB", "size", fmt.Sprintf("%.1f", float64(size)/(1<<20)))
 	case size >= 1<<10:
-		return fmt.Sprintf("%.1f KB", float64(size)/(1<<10))
+		return i18n.Msg("text.size.kb", "{size} KB", "size", fmt.Sprintf("%.1f", float64(size)/(1<<10)))
 	default:
-		return fmt.Sprintf("%d bytes", size)
+		return i18n.Msg("text.size.bytes", "{size} bytes", "size", size)
 	}
 }

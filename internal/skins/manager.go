@@ -21,6 +21,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -277,7 +278,7 @@ func groupFiles(files []File) ([]*uploadGroup, error) {
 		parts := strings.SplitN(cleaned, "/", 2)
 
 		if len(parts) != 2 || parts[1] == "" || strings.ContainsAny(cleaned, ":\x00") {
-			return nil, fmt.Errorf("%w: the files must be in a skin folder", ErrInvalidSkin)
+			return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.not_in_folder", "invalid skin upload: the files must be in a skin folder"))
 		}
 
 		group := byName[parts[0]]
@@ -294,11 +295,11 @@ func groupFiles(files []File) ([]*uploadGroup, error) {
 	}
 
 	if len(groups) == 0 {
-		return nil, fmt.Errorf("%w: no files", ErrInvalidSkin)
+		return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.no_files", "invalid skin upload: no files"))
 	}
 
 	if len(groups) > maxSkinsPerUpload {
-		return nil, fmt.Errorf("%w: at most %d skins per upload", ErrInvalidSkin, maxSkinsPerUpload)
+		return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.too_many_skins", "invalid skin upload: at most {max} skins per upload", "max", maxSkinsPerUpload))
 	}
 
 	return groups, nil
@@ -308,11 +309,11 @@ func groupFiles(files []File) ([]*uploadGroup, error) {
 // again (same name) replaces it. All limits are checked before anything is written, and again while writing.
 func (m *Manager) Upload(actor Actor, car string, vis smmodel.SkinVisibility, team uuid.UUID, files []File) ([]*smmodel.UserSkin, error) {
 	if !plainname.Valid(car) {
-		return nil, fmt.Errorf("%w: unknown car", ErrInvalidSkin)
+		return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.unknown_car", "invalid skin upload: unknown car"))
 	}
 
 	if info, err := os.Stat(filepath.Join(m.installPath(), "content", "cars", car)); err != nil || !info.IsDir() {
-		return nil, fmt.Errorf("%w: unknown car", ErrInvalidSkin)
+		return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.unknown_car", "invalid skin upload: unknown car"))
 	}
 
 	if err := m.authorize(actor, vis, team); err != nil {
@@ -331,21 +332,21 @@ func (m *Manager) Upload(actor Actor, car string, vis smmodel.SkinVisibility, te
 
 	for _, group := range groups {
 		if !plainname.Valid(group.name) || !actor.Writer && !userSkinNamePattern.MatchString(group.name) {
-			return nil, fmt.Errorf("%w: %q is not a valid skin name (letters, digits, space, _ . - only)", ErrInvalidSkin, group.name)
+			return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.invalid_name", "invalid skin upload: \"{name}\" is not a valid skin name (letters, digits, space, _ . - only)", "name", group.name))
 		}
 
 		if len(group.files) > limits.MaxFiles {
-			return nil, fmt.Errorf("%w (%d files, at most %d)", ErrTooManyFiles, len(group.files), limits.MaxFiles)
+			return nil, refuse(ErrTooManyFiles, i18n.Msg("text.skins.too_many_files_limit", "the skin has too many files ({files} files, at most {max})", "files", len(group.files), "max", limits.MaxFiles))
 		}
 
 		if group.size > limits.MaxSkinBytes {
-			return nil, fmt.Errorf("%w (%d MB, at most %d MB)", ErrSkinTooLarge, group.size>>20, limits.MaxSkinBytes>>20)
+			return nil, refuse(ErrSkinTooLarge, i18n.Msg("text.skins.too_large_limit", "the skin is too large ({size} MB, at most {max} MB)", "size", group.size>>20, "max", limits.MaxSkinBytes>>20))
 		}
 
 		if !actor.Writer {
 			for _, file := range group.files {
 				if !userFileExtensions[strings.ToLower(path.Ext(file.Path))] {
-					return nil, fmt.Errorf("%w: files of type %q are not allowed in skins", ErrInvalidSkin, path.Ext(file.Path))
+					return nil, refuse(ErrInvalidSkin, i18n.Msg("text.skins.file_type", "invalid skin upload: files of type \"{type}\" are not allowed in skins", "type", path.Ext(file.Path)))
 				}
 			}
 		}
@@ -389,7 +390,7 @@ func (m *Manager) Upload(actor Actor, car string, vis smmodel.SkinVisibility, te
 
 	if !actor.Writer {
 		if usage(existing, actor.ID, uuid.Nil)-replaced+total > limits.UserQuotaBytes {
-			return nil, fmt.Errorf("%w (limit %d MB)", ErrQuotaExceeded, limits.UserQuotaBytes>>20)
+			return nil, refuse(ErrQuotaExceeded, i18n.Msg("text.skins.quota_limit", "your skin storage is full (limit {max} MB)", "max", limits.UserQuotaBytes>>20))
 		}
 	}
 
@@ -502,7 +503,7 @@ func writeFile(dir string, file File, limit int64) (int64, error) {
 	target := filepath.Join(dir, filepath.FromSlash(file.Path))
 
 	if rel, err := filepath.Rel(dir, target); err != nil || strings.HasPrefix(rel, "..") {
-		return 0, fmt.Errorf("%w: bad file name", ErrInvalidSkin)
+		return 0, refuse(ErrInvalidSkin, i18n.Msg("text.skins.bad_file_name", "invalid skin upload: bad file name"))
 	}
 
 	if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
@@ -794,9 +795,63 @@ func (m *Manager) Quota(actor Actor) (used, quota int64, err error) {
 	return used, m.settings().Limits().UserQuotaBytes, nil
 }
 
-// Message turns an error of the manager into text for the user, without the package prefix.
-func Message(err error) string {
-	return strings.TrimPrefix(err.Error(), "skins: ")
+// refusal is a refusal with details: errors.Is finds its sentinel error, the UI shows (and translates) its message.
+type refusal struct {
+	err error
+	msg i18n.Message
+}
+
+func refuse(err error, msg i18n.Message) error {
+	return &refusal{err: err, msg: msg}
+}
+
+func (r *refusal) Error() string {
+	return "skins: " + r.msg.String()
+}
+
+func (r *refusal) Unwrap() error {
+	return r.err
+}
+
+// I18nMessage returns the message for the user (see i18n.Translatable).
+func (r *refusal) I18nMessage() i18n.Message {
+	return r.msg
+}
+
+// errorMessages are the texts for the user of the errors without details.
+var errorMessages = []struct {
+	err error
+	msg i18n.Message
+}{
+	{ErrUploadsDisabled, i18n.Msg("text.skins.uploads_disabled", "skin uploads by users are disabled")},
+	{ErrGlobalDisabled, i18n.Msg("text.skins.global_disabled", "sharing skins globally is disabled")},
+	{ErrNotAllowed, i18n.Msg("text.skins.not_allowed", "you are not allowed to change this skin")},
+	{ErrNotTeamMember, i18n.Msg("text.skins.not_team_member", "you are not a member of this team")},
+	{ErrInvalidSkin, i18n.Msg("text.skins.invalid", "invalid skin upload")},
+	{ErrTooManyFiles, i18n.Msg("text.skins.too_many_files", "the skin has too many files")},
+	{ErrSkinTooLarge, i18n.Msg("text.skins.too_large", "the skin is too large")},
+	{ErrQuotaExceeded, i18n.Msg("text.skins.quota_exceeded", "your skin storage is full")},
+	{ErrDiskFull, i18n.Msg("text.skins.disk_full", "not enough free disk space on the server")},
+	{ErrNameTaken, i18n.Msg("text.skins.name_taken", "a skin with this name exists already")},
+	{smmodel.ErrSkinVisibility, i18n.Msg("text.skins.invalid_visibility", "invalid skin visibility")},
+	{smmodel.ErrUserSkinNotFound, i18n.Msg("text.skins.not_found", "skin not found")},
+}
+
+// Message turns an error of the manager into a message for the user (without the package prefix).
+func Message(err error) i18n.Message {
+	var translatable i18n.Translatable
+
+	if errors.As(err, &translatable) {
+		return translatable.I18nMessage()
+	}
+
+	for _, e := range errorMessages {
+		if errors.Is(err, e.err) {
+			return e.msg
+		}
+	}
+
+	return i18n.Message{English: strings.TrimPrefix(err.Error(), "skins: ")}
 }
 
 // IsUserError tells whether err is a refusal the user can understand and fix (as opposed to a failure of the server).

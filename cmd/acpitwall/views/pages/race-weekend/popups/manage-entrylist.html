@@ -26,7 +26,7 @@
                             <select id="SortType" name="SortType" class="form-control">
                                 {{ range $index, $sorter := $.AvailableSorters }}
                                     {{ if $sorter.ShowInManageEntryList }}
-                                        <option value="{{ $sorter.Key }}" {{ if eq $sorter.Key $.Session.SortType }}selected="selected"{{ end }}>{{ $sorter.Name }}</option>
+                                        <option value="{{ $sorter.Key }}" {{ if eq $sorter.Key $.Session.SortType }}selected="selected"{{ end }}>{{ tm $sorter.Name }}</option>
                                     {{ end }}
                                 {{ end }}
                             </select>
@@ -35,7 +35,7 @@
                                 {{ range $index, $sorter := $.AvailableSorters }}
                                     {{ if $sorter.ShowInManageEntryList }}
                                         {{ if eq $sorter.Key $.Session.SortType }}
-                                            {{ $sorter.Name }}
+                                            {{ tm $sorter.Name }}
                                         {{ end }}
                                     {{ end}}
                                 {{ end }}

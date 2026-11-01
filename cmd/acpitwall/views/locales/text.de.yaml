@@ -1,0 +1,46 @@
+text:
+  skins:
+    uploads_disabled: das Hochladen von Skins durch Benutzer ist abgeschaltet
+    global_disabled: Skins global zu teilen ist abgeschaltet
+    not_allowed: du darfst diesen Skin nicht ändern
+    not_team_member: du bist kein Mitglied dieses Teams
+    invalid: ungültiger Skin-Upload
+    too_many_files: der Skin hat zu viele Dateien
+    too_large: der Skin ist zu groß
+    quota_exceeded: dein Speicher für Skins ist voll
+    disk_full: nicht genug freier Speicherplatz auf dem Server
+    name_taken: es gibt schon einen Skin mit diesem Namen
+    invalid_visibility: ungültige Sichtbarkeit des Skins
+    not_found: Skin nicht gefunden
+    not_in_folder: "ungültiger Skin-Upload: die Dateien müssen in einem Skin-Ordner liegen"
+    no_files: "ungültiger Skin-Upload: keine Dateien"
+    too_many_skins: "ungültiger Skin-Upload: höchstens {max} Skins pro Upload"
+    unknown_car: "ungültiger Skin-Upload: unbekanntes Auto"
+    invalid_name: 'ungültiger Skin-Upload: "{name}" ist kein gültiger Skin-Name (nur Buchstaben, Ziffern, Leerzeichen, _ . -)'
+    too_many_files_limit: der Skin hat zu viele Dateien ({files} Dateien, höchstens {max})
+    too_large_limit: der Skin ist zu groß ({size} MB, höchstens {max} MB)
+    file_type: 'ungültiger Skin-Upload: Dateien vom Typ "{type}" sind in Skins nicht erlaubt'
+    quota_limit: dein Speicher für Skins ist voll (Limit {max} MB)
+    bad_file_name: "ungültiger Skin-Upload: ungültiger Dateiname"
+  size:
+    mb: "{size} MB"
+    kb: "{size} KB"
+    bytes: "{size} Bytes"
+  raceweekend:
+    sort:
+      none: Nicht sortieren (Zieleinlauf verwenden)
+      fastest_lap: Schnellste Runde
+      total_race_time: Gesamte Rennzeit
+      fastest_multi_results_lap: Schnellste Runde über mehrere Ergebnisdateien
+      number_multi_results_lap: Anzahl Runden über mehrere Ergebnisdateien
+      fewest_collisions: Wenigste Kollisionen
+      fewest_cuts: Wenigste Cuts
+      safety: Sicherheit (Kollisionen, dann Cuts)
+      championship_standings_order: Reihenfolge der Meisterschaftswertung
+      championship_class: Meisterschaftsklasse
+      random: Zufällig
+      alphabetical: Alphabetisch (nach Fahrername)
+    split:
+      numeric: Nach Positionen
+      manual_driver_selection: Manuelle Fahrerauswahl
+      championship_class: Meisterschaftsklasse

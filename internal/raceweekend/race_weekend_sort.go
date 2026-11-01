@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 )
@@ -18,7 +19,8 @@ type RaceWeekendEntryListSorter interface {
 }
 
 type RaceWeekendEntryListSorterDescription struct {
-	Name                  string
+	// Name is shown in the UI (template function tm).
+	Name                  i18n.Message
 	Key                   string
 	Sorter                RaceWeekendEntryListSorter
 	NeedsParentSession    bool
@@ -36,7 +38,7 @@ func (rwelsf RaceWeekendEntryListSortFunc) Sort(rw *smmodel.RaceWeekend, rws *sm
 func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorterDescription {
 	return []RaceWeekendEntryListSorterDescription{
 		{
-			Name:                  "No Sort (Use Finishing Grid)",
+			Name:                  i18n.Msg("text.raceweekend.sort.none", "No Sort (Use Finishing Grid)"),
 			Key:                   "", // key intentionally left blank
 			Sorter:                RaceWeekendEntryListSortFunc(UnchangedRaceWeekendEntryListSort),
 			NeedsParentSession:    false,
@@ -44,7 +46,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Fastest Lap",
+			Name:                  i18n.Msg("text.raceweekend.sort.fastest_lap", "Fastest Lap"),
 			Key:                   "fastest_lap",
 			Sorter:                RaceWeekendEntryListSortFunc(FastestLapRaceWeekendEntryListSort),
 			NeedsParentSession:    true,
@@ -52,7 +54,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Total Race Time",
+			Name:                  i18n.Msg("text.raceweekend.sort.total_race_time", "Total Race Time"),
 			Key:                   "total_race_time",
 			Sorter:                RaceWeekendEntryListSortFunc(TotalRaceTimeRaceWeekendEntryListSort),
 			NeedsParentSession:    true,
@@ -60,7 +62,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Fastest Lap Across Multiple Results Files",
+			Name:                  i18n.Msg("text.raceweekend.sort.fastest_multi_results_lap", "Fastest Lap Across Multiple Results Files"),
 			Key:                   "fastest_multi_results_lap",
 			Sorter:                FastestResultsFileRaceWeekendEntryListSort(env),
 			NeedsParentSession:    false,
@@ -68,7 +70,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: false,
 		},
 		{
-			Name:                  "Number of Laps Across Multiple Results Files",
+			Name:                  i18n.Msg("text.raceweekend.sort.number_multi_results_lap", "Number of Laps Across Multiple Results Files"),
 			Key:                   "number_multi_results_lap",
 			Sorter:                NumberResultsFileRaceWeekendEntryListSort(env),
 			NeedsParentSession:    false,
@@ -76,7 +78,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: false,
 		},
 		{
-			Name:                  "Fewest Collisions",
+			Name:                  i18n.Msg("text.raceweekend.sort.fewest_collisions", "Fewest Collisions"),
 			Key:                   "fewest_collisions",
 			Sorter:                RaceWeekendEntryListSortFunc(FewestCollisionsRaceWeekendEntryListSort),
 			NeedsParentSession:    true,
@@ -84,7 +86,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Fewest Cuts",
+			Name:                  i18n.Msg("text.raceweekend.sort.fewest_cuts", "Fewest Cuts"),
 			Key:                   "fewest_cuts",
 			Sorter:                RaceWeekendEntryListSortFunc(FewestCutsRaceWeekendEntryListSort),
 			NeedsParentSession:    true,
@@ -92,7 +94,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Safety (Collisions then Cuts)",
+			Name:                  i18n.Msg("text.raceweekend.sort.safety", "Safety (Collisions then Cuts)"),
 			Key:                   "safety",
 			Sorter:                RaceWeekendEntryListSortFunc(SafetyRaceWeekendEntryListSort),
 			NeedsParentSession:    true,
@@ -100,7 +102,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Championship Standings Order",
+			Name:                  i18n.Msg("text.raceweekend.sort.championship_standings_order", "Championship Standings Order"),
 			Key:                   "championship_standings_order",
 			Sorter:                &ChampionshipStandingsOrderEntryListSort{},
 			NeedsParentSession:    false,
@@ -108,7 +110,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Championship Class",
+			Name:                  i18n.Msg("text.raceweekend.sort.championship_class", "Championship Class"),
 			Key:                   "championship_class",
 			Sorter:                &ChampionshipClassSort{},
 			NeedsParentSession:    false,
@@ -116,7 +118,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: false,
 		},
 		{
-			Name:                  "Random",
+			Name:                  i18n.Msg("text.raceweekend.sort.random", "Random"),
 			Key:                   "random",
 			Sorter:                RaceWeekendEntryListSortFunc(RandomRaceWeekendEntryListSort),
 			NeedsParentSession:    false,
@@ -124,7 +126,7 @@ func RaceWeekendEntryListSorters(env *serverenv.Env) []RaceWeekendEntryListSorte
 			ShowInManageEntryList: true,
 		},
 		{
-			Name:                  "Alphabetical (Using Driver Name)",
+			Name:                  i18n.Msg("text.raceweekend.sort.alphabetical", "Alphabetical (Using Driver Name)"),
 			Key:                   "alphabetical",
 			Sorter:                RaceWeekendEntryListSortFunc(AlphabeticalRaceWeekendEntryListSort),
 			NeedsParentSession:    false,
