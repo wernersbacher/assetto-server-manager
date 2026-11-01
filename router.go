@@ -131,6 +131,16 @@ func Router(
 		http.NotFound(w, r)
 	})
 
+	// Steam login: Steam sends the browser back from another site, so the session cookie (SameSite=Strict) is not sent
+	// with this request and an access middleware would send the visitor to the login page. The handler only validates
+	// the answer of Steam and redirects (same site again) to the page that is behind the access checks.
+	r.Get("/championship/{championshipID}/sign-up/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
+		return fmt.Sprintf("/championship/%s/sign-up", chi.URLParam(r, "championshipID"))
+	}))
+	r.Get("/accounts/update/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
+		return "/accounts/update"
+	}))
+
 	// driver statistics: read access, but anonymous visitors of an open server only if the statistics are public
 	r.Group(func(r chi.Router) {
 		r.Use(accountHandler.StatsAccessMiddleware)
@@ -210,9 +220,6 @@ func Router(
 		r.Get("/championship/{championshipID}/ics", championshipsHandler.IcalFeed)
 		r.Get("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
 		r.Post("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
-		r.Get("/championship/{championshipID}/sign-up/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
-			return fmt.Sprintf("/championship/%s/sign-up", chi.URLParam(r, "championshipID"))
-		}))
 
 		// race control
 		r.Group(func(r chi.Router) {
@@ -242,9 +249,6 @@ func Router(
 		// account management
 		r.HandleFunc("/accounts/new-password", accountHandler.NewPassword)
 		r.HandleFunc("/accounts/update", accountHandler.Update)
-		r.Get("/accounts/update/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
-			return "/accounts/update"
-		}))
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
 		// skins of users: every logged in account may upload and manage its own skins (checked in the handlers, which

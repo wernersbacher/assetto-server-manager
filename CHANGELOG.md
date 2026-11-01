@@ -22,7 +22,7 @@ Changed:
 
 Fixed:
 
-* The Steam login (fill in the Steam GUID on the sign-up form and the account details) did nothing after returning from Steam when ACPitwall runs behind a reverse proxy. The return address now follows `X-Forwarded-Proto` / `X-Forwarded-Host`, and a failed login shows the reason (and is logged) instead of failing silently. The unmaintained steam_go library was replaced by a built-in OpenID check; no Steam API key is needed.
+* The Steam login (fill in the Steam GUID on the sign-up form and the account details) sent you to the ACPitwall login page after returning from Steam, because the session cookie is not sent when Steam redirects back (SameSite=Strict) and the Steam routes were behind the login check. These routes no longer need a session; the GUID page you land on is checked as before. The return address also follows `X-Forwarded-Proto` / `X-Forwarded-Host` behind a reverse proxy, a failed login shows the reason (and is logged) instead of failing silently, and the unmaintained steam_go library was replaced by a built-in OpenID check; no Steam API key is needed.
 
 * Saving a race weekend session (and a championship event) failed with "The maximum number of clients must be at least 1." because the session form has no such field; the number is set from the entry list when the session starts.
 
