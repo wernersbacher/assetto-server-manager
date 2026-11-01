@@ -408,6 +408,10 @@ func (rs *JSONStore) LoadChampionship(id string) (*smmodel.Championship, error) 
 		return nil, err
 	}
 
+	if err := attachCarClasses(rs, championship); err != nil {
+		return nil, err
+	}
+
 	if err := loadChampionshipRaceWeekends(championship, rs); err != nil {
 		return nil, err
 	}

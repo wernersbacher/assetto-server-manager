@@ -3,6 +3,7 @@ package championship
 import (
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/notification"
 	smrace "github.com/wernersbacher/ACPitwall/internal/race"
@@ -84,6 +85,32 @@ func (cm *ChampionshipManager) UpsertChampionship(c *smmodel.Championship) error
 	err := cm.store.UpsertChampionship(c)
 
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// checkCarClasses validates the car classes of the championship against the global car classes in the store (see
+// Championship.CheckCarClasses): references must exist, no duplicate references and no car in two classes. A violation
+// is returned as a ValidationError.
+func (cm *ChampionshipManager) checkCarClasses(championship *smmodel.Championship) error {
+	carClasses, err := cm.store.ListCarClasses()
+
+	if err != nil {
+		return err
+	}
+
+	lookup := smmodel.NewCarClassMap(carClasses)
+
+	// the classes of the form do not have a lookup yet, so that the cars of references are resolved from the store as it is now
+	championship.SetCarClassLookup(lookup)
+
+	if err := championship.CheckCarClasses(lookup); err != nil {
+		if msg, ok := err.(i18n.Message); ok {
+			return ValidationError{msg}
+		}
+
 		return err
 	}
 
@@ -331,6 +358,10 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 		previousNumEntrants += numEntrantsForClass
 		previousNumPoints += numPointsForClass
 		previousNumCars += numCarsForClass
+	}
+
+	if err := cm.checkCarClasses(championship); err != nil {
+		return nil, edited, err
 	}
 
 	// persist any entrants so that they can be autofilled

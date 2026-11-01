@@ -1,6 +1,7 @@
 package store
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -87,5 +88,72 @@ func TestStoreContract_CarClasses(t *testing.T) {
 		if err := store.DeleteCarClass(alpha.ID.String()); err != smmodel.ErrCarClassNotFound {
 			t.Errorf("second delete: %v", err)
 		}
+	})
+}
+
+// TestStoreContract_ChampionshipCarClassLookup checks that loaded championships resolve their car class references
+// live, from the car classes as they are when the championship is loaded.
+func TestStoreContract_ChampionshipCarClassLookup(t *testing.T) {
+	runStoreContract(t, func(t *testing.T, store Store) {
+		gt3, _ := smmodel.NewCarClass("GT3", []string{"bmw", "audi"}, time.Now())
+
+		if err := store.UpsertCarClass(gt3); err != nil {
+			t.Fatal(err)
+		}
+
+		championship := smmodel.NewChampionship("c")
+		class := smmodel.NewChampionshipClass("A")
+		class.AvailableCars = []string{"fiat"}
+		class.CarClassIDs = []uuid.UUID{gt3.ID, uuid.New()}
+		championship.AddClass(class)
+
+		if err := store.UpsertChampionship(championship); err != nil {
+			t.Fatal(err)
+		}
+
+		check := func(what string, c *smmodel.Championship, expected string) {
+			t.Helper()
+
+			cars, err := c.Classes[0].ResolveCarIDs(nil)
+
+			if err == nil {
+				t.Errorf("%s: the unknown reference must be reported", what)
+			}
+
+			if strings.Join(cars, ",") != expected {
+				t.Errorf("%s: expected %s, got %v", what, expected, cars)
+			}
+		}
+
+		loaded, err := store.LoadChampionship(championship.ID.String())
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		check("load", loaded, "fiat,bmw,audi")
+
+		// the car class changes: the next load sees it
+		gt3.Cars = []string{"porsche"}
+
+		if err := store.UpsertCarClass(gt3); err != nil {
+			t.Fatal(err)
+		}
+
+		listed, err := store.ListChampionships()
+
+		if err != nil || len(listed) != 1 {
+			t.Fatalf("list: %v, %d", err, len(listed))
+		}
+
+		check("list", listed[0], "fiat,porsche")
+
+		loaded, err = store.LoadChampionship(championship.ID.String())
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		check("reload", loaded, "fiat,porsche")
 	})
 }

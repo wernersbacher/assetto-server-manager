@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"math/rand"
+	"sort"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -12,9 +13,20 @@ import (
 
 var ErrClassNotFound = errors.New("servermanager: championship class not found")
 
+// FindClassForCarModel returns the class a car belongs to. If no class has the car and a class refers to a car class
+// that cannot be resolved, ErrCarClassUnresolved is returned instead of ErrClassNotFound: the car might belong to
+// that class, so callers must not treat it as "no class" quietly (and nothing is ever assigned to another class).
 func (c *Championship) FindClassForCarModel(model string) (*ChampionshipClass, error) {
+	unresolved := false
+
 	for _, class := range c.Classes {
-		for _, car := range class.ValidCarIDs() {
+		cars, err := class.ResolveCarIDs(c.carClassLookupFor(class))
+
+		if err != nil {
+			unresolved = true
+		}
+
+		for _, car := range cars {
 			if car == model {
 				return class, nil
 			}
@@ -40,6 +52,10 @@ func (c *Championship) FindClassForCarModel(model string) (*ChampionshipClass, e
 		}
 	}
 
+	if unresolved {
+		return nil, ErrCarClassUnresolved
+	}
+
 	return nil, ErrClassNotFound
 }
 
@@ -62,28 +78,91 @@ type ChampionshipClass struct {
 	Points        ChampionshipPoints
 	AvailableCars []string
 
+	// CarClassIDs refer to global car classes (CarClass). The cars of these classes count as available cars of this
+	// class in addition to AvailableCars, always as they are now (no snapshot), so that changes to a car class apply
+	// to the championships using it. Stored data from before this field existed decodes to none.
+	CarClassIDs []uuid.UUID
+
+	// carClasses resolves CarClassIDs. It is set at runtime (Championship.SetCarClassLookup, done by the store when
+	// it loads a championship) and never persisted.
+	carClasses CarClassLookup
+
 	DriverPenalties, TeamPenalties map[string]int
 }
 
-// ValidCarIDs returns a set of all cars chosen within the given class
+// ValidCarIDs returns all cars chosen within the given class: AvailableCars (or, if none are chosen and no car class is
+// referenced, the models of the entrants) plus the cars of the referenced car classes, without duplicates, in a stable
+// order. A reference that cannot be resolved is logged and contributes no cars; use ResolveCarIDs to get the error.
 func (c *ChampionshipClass) ValidCarIDs() []string {
-	if len(c.AvailableCars) == 0 {
-		cars := make(map[string]bool)
+	cars, err := c.ResolveCarIDs(c.carClasses)
 
-		for _, e := range c.Entrants {
-			cars[e.Model] = true
-		}
-
-		var availableCars []string
-
-		for car := range cars {
-			availableCars = append(availableCars, car)
-		}
-
-		return availableCars
+	if err != nil {
+		logrus.WithError(err).Errorf("Could not resolve all cars of championship class %q (%s)", c.Name, c.ID)
 	}
 
-	return c.AvailableCars
+	return cars
+}
+
+// ResolveCarIDs is ValidCarIDs with an explicit lookup (nil falls back to the lookup of the class). The cars that could
+// be resolved are returned together with an error (an i18n.Message) if a referenced car class does not exist or no
+// lookup is set.
+func (c *ChampionshipClass) ResolveCarIDs(lookup CarClassLookup) ([]string, error) {
+	if lookup == nil {
+		lookup = c.carClasses
+	}
+
+	var cars []string
+	seen := make(map[string]bool)
+
+	add := func(car string) {
+		if !seen[car] {
+			seen[car] = true
+			cars = append(cars, car)
+		}
+	}
+
+	if len(c.AvailableCars) > 0 {
+		for _, car := range c.AvailableCars {
+			add(car)
+		}
+	} else if len(c.CarClassIDs) == 0 {
+		var models []string
+
+		for _, e := range c.Entrants {
+			models = append(models, e.Model)
+		}
+
+		sort.Strings(models)
+
+		for _, model := range models {
+			add(model)
+		}
+	}
+
+	var firstErr error
+
+	for _, id := range c.CarClassIDs {
+		var carClass *CarClass
+		var ok bool
+
+		if lookup != nil {
+			carClass, ok = lookup.CarClass(id)
+		}
+
+		if !ok || carClass == nil {
+			if firstErr == nil {
+				firstErr = ErrCarClassReferenceMissing(c.Name, id)
+			}
+
+			continue
+		}
+
+		for _, car := range carClass.Cars {
+			add(car)
+		}
+	}
+
+	return cars, firstErr
 }
 
 // ClassByID finds a ChampionshipClass by its ID string.
@@ -99,6 +178,10 @@ func (c *Championship) ClassByID(id string) (*ChampionshipClass, error) {
 
 // AddClass to the championship
 func (c *Championship) AddClass(class *ChampionshipClass) {
+	if class.carClasses == nil {
+		class.carClasses = c.carClasses
+	}
+
 	c.Classes = append(c.Classes, class)
 }
 

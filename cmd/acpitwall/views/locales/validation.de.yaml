@@ -51,3 +51,6 @@ validation:
     form_points: "Ungültiges Formular: {expected} Punkteplätze erwartet, aber {count} übermittelt."
     form_cars: "Ungültiges Formular: {expected} Autos erwartet, aber {count} übermittelt."
     form_entrants: "Ungültiges Formular: {expected} Teilnehmer erwartet, aber {count} Werte für {field}."
+    car_class_missing: 'Klasse „{class}“: Die Fahrzeugklasse {id} existiert nicht.'
+    car_class_duplicate: 'Klasse „{class}“ enthält die Fahrzeugklasse {id} mehrfach.'
+    car_in_two_classes: 'Das Auto {car} ist in mehr als einer Klasse dieser Meisterschaft („{first}“ und „{second}“).'

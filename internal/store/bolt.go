@@ -434,7 +434,11 @@ func (rs *BoltStore) ListChampionships() ([]*smmodel.Championship, error) {
 		})
 	})
 
-	return championships, err
+	if err != nil {
+		return championships, err
+	}
+
+	return championships, attachCarClasses(rs, championships...)
 }
 
 var ErrChampionshipNotFound = errors.New("servermanager: championship not found")
@@ -461,6 +465,10 @@ func (rs *BoltStore) LoadChampionship(id string) (*smmodel.Championship, error) 
 	})
 
 	if err != nil {
+		return nil, err
+	}
+
+	if err := attachCarClasses(rs, championship); err != nil {
 		return nil, err
 	}
 

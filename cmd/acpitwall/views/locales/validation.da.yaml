@@ -51,3 +51,6 @@ validation:
     form_points: "Ugyldig formular: {expected} pointplaceringer forventet, men {count} indsendt."
     form_cars: "Ugyldig formular: {expected} biler forventet, men {count} indsendt."
     form_entrants: "Ugyldig formular: {expected} deltagere forventet, men {count} værdier for {field}."
+    car_class_missing: 'Klasse "{class}": bilklassen {id} findes ikke.'
+    car_class_duplicate: 'Klasse "{class}" indeholder bilklassen {id} mere end én gang.'
+    car_in_two_classes: 'Bilen {car} er i mere end én klasse i dette mesterskab ("{first}" og "{second}").'

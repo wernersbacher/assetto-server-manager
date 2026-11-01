@@ -52,3 +52,6 @@ validation:
     form_points: "Invalid form: {expected} points places expected but {count} submitted."
     form_cars: "Invalid form: {expected} cars expected but {count} submitted."
     form_entrants: "Invalid form: {expected} entrants expected but {count} values for {field}."
+    car_class_missing: 'Class "{class}": the car class {id} does not exist.'
+    car_class_duplicate: 'Class "{class}" lists the car class {id} more than once.'
+    car_in_two_classes: 'The car {car} is in more than one class of this championship ("{first}" and "{second}").'

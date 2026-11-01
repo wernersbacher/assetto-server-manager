@@ -202,3 +202,31 @@ func InitServerID(store Store) (smmodel.ServerID, error) {
 
 	return serverID, nil
 }
+
+// attachCarClasses gives the championships the global car classes their classes refer to (see
+// Championship.SetCarClassLookup), read now, so a championship always sees the car classes as they are when it is
+// loaded. Nothing is read for championships without references. A missing car class is no error here: the model
+// reports unresolved references where they matter.
+func attachCarClasses(store Store, championships ...*smmodel.Championship) error {
+	var lookup smmodel.CarClassMap
+
+	for _, championship := range championships {
+		if !championship.HasCarClassReferences() {
+			continue
+		}
+
+		if lookup == nil {
+			classes, err := store.ListCarClasses()
+
+			if err != nil {
+				return err
+			}
+
+			lookup = smmodel.NewCarClassMap(classes)
+		}
+
+		championship.SetCarClassLookup(lookup)
+	}
+
+	return nil
+}

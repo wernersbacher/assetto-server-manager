@@ -51,3 +51,6 @@ validation:
     form_points: "Ongeldig formulier: {expected} puntenplaatsen verwacht, maar {count} verzonden."
     form_cars: "Ongeldig formulier: {expected} auto's verwacht, maar {count} verzonden."
     form_entrants: "Ongeldig formulier: {expected} deelnemers verwacht, maar {count} waarden voor {field}."
+    car_class_missing: 'Klasse "{class}": de autoklasse {id} bestaat niet.'
+    car_class_duplicate: 'Klasse "{class}" bevat de autoklasse {id} meer dan één keer.'
+    car_in_two_classes: 'De auto {car} zit in meer dan één klasse van dit kampioenschap ("{first}" en "{second}").'

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 )
 
@@ -72,6 +73,9 @@ type Championship struct {
 	// RaceSettings are race settings (fuel, tyre wear, damage, assists, dynamic track...) which are shared by all
 	// events of the championship that have UseChampionshipRaceSettings set. nil means the feature is off.
 	RaceSettings *ChampionshipRaceSettings
+
+	// carClasses resolves the CarClassIDs of the classes. Runtime only, never persisted (see SetCarClassLookup).
+	carClasses CarClassLookup
 }
 
 func (c *Championship) HasSpectatorCar() bool {
@@ -117,22 +121,30 @@ func (c *Championship) HasTeamNames() bool {
 // ValidCarIDs returns a set of all of the valid cars in the Championship - that is, the smallest possible list
 // of Cars driven by the Entrants.
 func (c *Championship) ValidCarIDs() []string {
-	cars := make(map[string]bool)
+	seen := make(map[string]bool)
+	var out []string
+
+	add := func(car string) {
+		if !seen[car] {
+			seen[car] = true
+			out = append(out, car)
+		}
+	}
 
 	for _, class := range c.Classes {
-		for _, model := range class.ValidCarIDs() {
-			cars[model] = true
+		cars, err := class.ResolveCarIDs(c.carClassLookupFor(class))
+
+		if err != nil {
+			logrus.WithError(err).Errorf("Could not resolve all cars of class %q in championship %q", class.Name, c.Name)
+		}
+
+		for _, model := range cars {
+			add(model)
 		}
 	}
 
 	if c.HasSpectatorCar() {
-		cars[c.SpectatorCar.Model] = true
-	}
-
-	var out []string
-
-	for car := range cars {
-		out = append(out, car)
+		add(c.SpectatorCar.Model)
 	}
 
 	return out

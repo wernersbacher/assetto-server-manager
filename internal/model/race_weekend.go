@@ -145,7 +145,9 @@ func (rw *RaceWeekend) GetEntryList() serverconfig.EntryList {
 
 					if entrant.Model == "" || entrant.Model == serverconfig.AnyCarModel {
 						// assign the entrant some car model for ease of sorting
-						entrant.Model = class.AvailableCars[rand.Intn(len(class.AvailableCars))]
+						if cars := class.ValidCarIDs(); len(cars) > 0 {
+							entrant.Model = cars[rand.Intn(len(cars))]
+						}
 					}
 				}
 
