@@ -113,6 +113,7 @@ results:
     sectors: Sektoren
     lap_record: Rundenrekord
     best_sector: Bester Wert dieses Sektors
+    car_class: Fahrzeugklasse
   driver:
     team: Team {team}
     aka: Auch bekannt als

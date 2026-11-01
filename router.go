@@ -170,6 +170,8 @@ func Router(
 		r.Get("/car/{car_id}", carsHandler.View)
 		r.Get(carclasses.ListPath, carClassHandler.List)
 		r.Get(carclasses.ListPath+"/{classID}", carClassHandler.View)
+		r.Get("/api/car-classes", carClassHandler.ListAPI)
+		r.Get("/api/car-classes/{classID}", carClassHandler.ViewAPI)
 		r.Get("/tracks", tracksHandler.List)
 		r.Get("/track/{track_id}", tracksHandler.View)
 		r.Get("/weather", weatherHandler.List)

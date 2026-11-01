@@ -748,6 +748,7 @@ func (r *Resolver) resolveLeaderboardHandler() *statshttp.LeaderboardHandler {
 
 	r.leaderboardHandler = statshttp.NewLeaderboardHandler(r.resolveBaseHandler(), r.resolveStatsIndex(), r.resultsServers, r.resolveEnv().InstallPath)
 	r.leaderboardHandler.Hide = resultshttp.HideFuncFor(r.ResolveStore())
+	r.leaderboardHandler.CarClasses = r.resolveCarClassManager()
 
 	return r.leaderboardHandler
 }

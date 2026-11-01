@@ -113,6 +113,7 @@ results:
     sectors: Sectoren
     lap_record: Ronderecord
     best_sector: Beste van deze sector
+    car_class: Autoklasse
   driver:
     team: Team {team}
     aka: Ook bekend als

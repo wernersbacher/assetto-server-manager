@@ -2,14 +2,21 @@ package statshttp
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 )
 
@@ -255,5 +262,200 @@ func TestLeaderboardRowsBestSectors(t *testing.T) {
 				t.Errorf("row %d sector %d: best %v, want %v", i, j, rows[i].BestSectors[j], want[i][j])
 			}
 		}
+	}
+}
+
+// fakeClasses is a CarClasses with fixed classes.
+type fakeClasses []*smmodel.CarClass
+
+func (f fakeClasses) List() ([]*smmodel.CarClass, error) { return f, nil }
+
+func (f fakeClasses) Get(id string) (*smmodel.CarClass, error) {
+	for _, c := range f {
+		if c.ID.String() == id {
+			return c, nil
+		}
+	}
+
+	return nil, smmodel.ErrCarClassNotFound
+}
+
+// multiCarLeaderboard is a handler over a race with four cars.
+func multiCarLeaderboard(t *testing.T) (lh *LeaderboardHandler, track, layout string, cleanup func()) {
+	t.Helper()
+
+	dir, err := ioutil.TempDir("", "leaderboard-classes")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	results := filepath.Join(dir, "results")
+	name := "2019_3_2_21_36_RACE.json"
+
+	if err := os.MkdirAll(results, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	fixture, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", name))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ioutil.WriteFile(filepath.Join(results, name), fixture, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	env := envtest.New(dir)
+	env.ResultsDirs = func() []string { return []string{results} }
+
+	index := stats.New(env.Results(), 0)
+	tracks := index.Tracks()
+
+	if len(tracks) == 0 {
+		t.Fatal("no tracks in the fixture")
+	}
+
+	lh = &LeaderboardHandler{index: index, installPath: func() string { return "." }, now: time.Now}
+
+	return lh, tracks[0].Track, tracks[0].Layout, func() { _ = os.RemoveAll(dir) }
+}
+
+func TestLeaderboardAPICarClass(t *testing.T) {
+	lh, track, layout, cleanup := multiCarLeaderboard(t)
+	defer cleanup()
+
+	base := func() url.Values { return url.Values{"track": {track}, "layout": {layout}} }
+
+	q := base()
+	q.Set("perCar", "1")
+	_, perCar := getLeaderboard(t, lh, q)
+
+	var cars []string
+
+	for _, e := range perCar.Entries {
+		if !containsString(cars, e.CarModel) {
+			cars = append(cars, e.CarModel)
+		}
+	}
+
+	if len(cars) < 2 {
+		t.Skipf("fixtures only have %d car(s) on the track", len(cars))
+	}
+
+	classA := &smmodel.CarClass{ID: uuid.New(), Name: "A", Cars: []string{cars[0]}}
+	classB := &smmodel.CarClass{ID: uuid.New(), Name: "B", Cars: []string{cars[1]}}
+	classNoLaps := &smmodel.CarClass{ID: uuid.New(), Name: "No laps", Cars: []string{"no_such_car"}}
+	lh.CarClasses = fakeClasses{classA, classB, classNoLaps}
+
+	only := func(what string, q url.Values, want ...string) *APILeaderboard {
+		t.Helper()
+
+		rec, lb := getLeaderboard(t, lh, q)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("%s: status %d", what, rec.Code)
+		}
+
+		if len(lb.Entries) == 0 {
+			t.Fatalf("%s: no entries", what)
+		}
+
+		for _, e := range lb.Entries {
+			if !containsString(want, e.CarModel) {
+				t.Errorf("%s: car %s, want one of %v", what, e.CarModel, want)
+			}
+		}
+
+		return lb
+	}
+
+	// one class
+	q = base()
+	q.Set("carClass", classA.ID.String())
+	lb := only("one class", q, cars[0])
+
+	if len(lb.CarClasses) != 1 || lb.CarClasses[0] != classA.ID.String() || len(lb.Cars) != 1 {
+		t.Errorf("echo: %+v %+v", lb.CarClasses, lb.Cars)
+	}
+
+	// two classes are a union
+	q = base()
+	q["carClass"] = []string{classA.ID.String(), classB.ID.String()}
+	only("two classes", q, cars[0], cars[1])
+
+	// a class and a car: union, the same car twice is no problem
+	q = base()
+	q.Set("carClass", classA.ID.String())
+	q.Add("car", cars[1])
+	lb = only("class and car", q, cars[0], cars[1])
+
+	if len(lb.Cars) != 2 {
+		t.Errorf("effective cars %v", lb.Cars)
+	}
+
+	q = base()
+	q.Set("carClass", classA.ID.String())
+	q.Add("car", cars[0])
+	only("class and its car", q, cars[0])
+
+	// per car
+	q = base()
+	q["carClass"] = []string{classA.ID.String(), classB.ID.String()}
+	q.Set("perCar", "1")
+	only("per car", q, cars[0], cars[1])
+
+	// a valid class without laps is an empty list
+	q = base()
+	q.Set("carClass", classNoLaps.ID.String())
+
+	if rec, lb := getLeaderboard(t, lh, q); rec.Code != http.StatusOK || len(lb.Entries) != 0 {
+		t.Errorf("class without laps: status %d, %d entries", rec.Code, len(lb.Entries))
+	}
+
+	// unknown and invalid classes are errors, also next to a valid one
+	for name, ids := range map[string][]string{
+		"unknown":       {uuid.New().String()},
+		"invalid":       {"../x"},
+		"unknown+known": {classA.ID.String(), uuid.New().String()},
+	} {
+		q = base()
+		q["carClass"] = ids
+
+		if rec, _ := getLeaderboard(t, lh, q); rec.Code != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400", name, rec.Code)
+		}
+	}
+
+	// without any classes every carClass is unknown
+	lh.CarClasses = nil
+	q = base()
+	q.Set("carClass", classA.ID.String())
+
+	if rec, _ := getLeaderboard(t, lh, q); rec.Code != http.StatusBadRequest {
+		t.Errorf("no class provider: status %d, want 400", rec.Code)
+	}
+}
+
+func TestLeaderboardRowsGetClassNames(t *testing.T) {
+	lh := &LeaderboardHandler{CarClasses: fakeClasses{
+		{ID: uuid.New(), Name: "GT3", Cars: []string{"a", "b"}},
+		{ID: uuid.New(), Name: "Fast", Cars: []string{"b"}},
+	}}
+	rows := []LeaderboardRow{{Record: stats.Record{Car: "a"}}, {Record: stats.Record{Car: "b"}}, {Record: stats.Record{Car: "c"}}}
+
+	lh.addClasses(rows)
+
+	if got := strings.Join(rows[0].Classes, ","); got != "GT3" {
+		t.Errorf("a: %q", got)
+	}
+
+	if got := strings.Join(rows[1].Classes, ","); got != "GT3,Fast" {
+		t.Errorf("b: %q", got)
+	}
+
+	if len(rows[2].Classes) != 0 {
+		t.Errorf("c: %v", rows[2].Classes)
 	}
 }

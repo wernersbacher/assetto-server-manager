@@ -19,7 +19,7 @@
         {{ end }}
     {{ else }}
         <form class="results-filter" method="get" action="/leaderboards">
-            <select name="trackLayout" class="form-control" aria-label="{{ t "home.track" }}" onchange="this.form.querySelectorAll('input[name=car]').forEach(function (c) { c.checked = false; }); this.form.submit()">
+            <select name="trackLayout" class="form-control" aria-label="{{ t "home.track" }}" onchange="this.form.querySelectorAll('input[name=car], input[name=carClass]').forEach(function (c) { c.checked = false; }); this.form.submit()">
                 {{ range $.Tracks }}
                     <option value="{{ .Value }}" {{ if eq .Value $.Value }}selected{{ end }}>{{ .Name }}</option>
                 {{ end }}
@@ -50,6 +50,17 @@
                         <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
                     {{ end }}
                 </select>
+            {{ end }}
+
+            {{ if $.CarClasses }}
+                <details class="leaderboard-cars w-100">
+                    <summary>{{ t "results.leaderboards.car_class" }}</summary>
+                    <div class="mt-1">
+                        {{ range $.CarClasses }}
+                            <label class="mr-3 mb-0 text-nowrap"><input type="checkbox" name="carClass" value="{{ .ID }}" {{ if .Selected }}checked{{ end }} onchange="this.form.submit()"> {{ .Name }}</label>
+                        {{ end }}
+                    </div>
+                </details>
             {{ end }}
 
             {{ if gt (len $.Cars) 1 }}
@@ -94,7 +105,7 @@
                                 {{ if eq .Position 1 }}<span class="badge badge-success" title="{{ t "results.leaderboards.lap_record" }}">1</span>{{ else }}{{ .Position }}{{ end }}
                             </td>
                             <td>{{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}</td>
-                            <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a></td>
+                            <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a>{{ range .Classes }} <span class="badge badge-secondary">{{ . }}</span>{{ end }}</td>
                             <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
                             <td class="text-nowrap text-muted">{{ .GapText }}</td>
                             <td class="d-none d-md-table-cell text-nowrap">

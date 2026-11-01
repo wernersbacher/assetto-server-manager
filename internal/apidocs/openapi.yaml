@@ -37,6 +37,7 @@ servers:
 tags:
   - name: Championships
   - name: Teams
+  - name: Car classes
   - name: Results
   - name: Driver statistics
   - name: Server
@@ -160,6 +161,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/TeamDetail"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/car-classes:
+    get:
+      tags: [Car classes]
+      summary: List the car classes
+      description: |
+        The global car classes (named groups of cars, shared by all servers and by the championships that use them),
+        sorted by name. Access: read.
+      operationId: listCarClasses
+      responses:
+        "200":
+          description: The car classes.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CarClass"
+        "302":
+          $ref: "#/components/responses/LoginRedirect"
+  /api/car-classes/{classID}:
+    get:
+      tags: [Car classes]
+      summary: A single car class
+      description: "Unknown classes and IDs that are no UUID are a 404. Access: read."
+      operationId: getCarClass
+      parameters:
+        - name: classID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The car class.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CarClass"
         "302":
           $ref: "#/components/responses/LoginRedirect"
         "404":
@@ -297,6 +341,19 @@ paths:
             type: array
             items:
               type: string
+        - name: carClass
+          in: query
+          description: |
+            Restrict the leaderboard to the cars of car classes (IDs from `/api/car-classes`). Repeatable. Classes and
+            `car` values combine as a union: a lap counts if its car is in any chosen class or is one of the chosen
+            cars. An unknown class or an ID that is no UUID is a 400, never an empty or an unfiltered leaderboard.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
         - name: period
           in: query
           schema:
@@ -693,6 +750,24 @@ components:
         Owner:
           type: string
           description: Optional. Driver name (or account name) of the owner.
+    CarClass:
+      type: object
+      properties:
+        ID:
+          type: string
+          format: uuid
+        Name:
+          type: string
+        Cars:
+          type: array
+          items:
+            type: object
+            properties:
+              ID:
+                type: string
+                description: Car model (folder name).
+              Name:
+                type: string
     TeamMember:
       type: object
       properties:
@@ -1063,8 +1138,15 @@ components:
           type: boolean
         Cars:
           type: array
+          description: The car models the leaderboard was restricted by (`car` values and the cars of the `carClass` values), empty if unrestricted.
           items:
             type: string
+        CarClasses:
+          type: array
+          description: IDs of the requested car classes.
+          items:
+            type: string
+            format: uuid
         Entries:
           type: array
           items:

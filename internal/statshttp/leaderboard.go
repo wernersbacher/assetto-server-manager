@@ -2,6 +2,7 @@ package statshttp
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/api"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
@@ -29,6 +31,14 @@ const (
 // sessionTypes are the values of the sessionType parameter.
 var sessionTypes = []string{"practice", "qualify", "race"}
 
+// CarClasses gives the global car classes. carclasses.Manager implements it; the handler only knows this interface
+// because the package sits above statshttp. Get returns smmodel.ErrCarClassNotFound for an unknown class or an ID
+// that is no UUID.
+type CarClasses interface {
+	List() ([]*smmodel.CarClass, error)
+	Get(id string) (*smmodel.CarClass, error)
+}
+
 // LeaderboardHandler serves the hotlap leaderboard page and API.
 type LeaderboardHandler struct {
 	*smweb.BaseHandler
@@ -36,6 +46,9 @@ type LeaderboardHandler struct {
 	index       *stats.Index
 	servers     smweb.ServersFunc
 	installPath func() string
+
+	// CarClasses resolves the carClass parameter (nil: there are no car classes, every carClass is unknown).
+	CarClasses CarClasses
 
 	// Hide gives the filter for results of hidden championships and race weekends per request (nil: nothing is hidden).
 	Hide smweb.HideFuncFor
@@ -58,7 +71,9 @@ func NewLeaderboardHandler(baseHandler *smweb.BaseHandler, index *stats.Index, s
 // query is a validated leaderboard request.
 type query struct {
 	track, layout string
-	cars          []string
+	cars          []string // the car parameters
+	carClasses    []string // the carClass parameters (canonical IDs)
+	filterCars    []string // cars and the cars of the classes: what the leaderboard is filtered by
 	period        string
 	sessionType   string
 	perCar        bool
@@ -103,6 +118,45 @@ func (lh *LeaderboardHandler) parse(r *http.Request) (*query, error) {
 		}
 
 		q.cars = append(q.cars, car)
+	}
+
+	// A selection of classes and single cars is the union of the cars of the classes and the cars: a lap counts if
+	// its car is in any chosen class or is one of the chosen cars. An unknown class is an error, never an empty or an
+	// unfiltered list.
+	q.filterCars = append([]string(nil), q.cars...)
+
+	for _, id := range values["carClass"] {
+		if id == "" {
+			continue
+		}
+
+		var class *smmodel.CarClass
+
+		if lh.CarClasses != nil {
+			var err error
+
+			class, err = lh.CarClasses.Get(id)
+
+			if err != nil && !errors.Is(err, smmodel.ErrCarClassNotFound) {
+				logrus.WithError(err).Error("couldn't load car class")
+
+				return nil, fmt.Errorf("car class could not be loaded")
+			}
+		}
+
+		if class == nil {
+			return nil, fmt.Errorf("carClass %q is not a known car class", id)
+		}
+
+		if !containsString(q.carClasses, class.ID.String()) {
+			q.carClasses = append(q.carClasses, class.ID.String())
+		}
+
+		for _, car := range class.Cars {
+			if !containsString(q.filterCars, car) {
+				q.filterCars = append(q.filterCars, car)
+			}
+		}
 	}
 
 	switch q.period {
@@ -196,6 +250,9 @@ type LeaderboardRow struct {
 
 	// Server is the name of the server (only set with several servers).
 	Server string
+
+	// Classes are the names of the car classes of the car.
+	Classes []string
 }
 
 func formatGap(d time.Duration) string {
@@ -327,7 +384,7 @@ func (lh *LeaderboardHandler) load(q *query) *leaderboard {
 
 	sort.Slice(lb.cars, func(a, b int) bool { return lb.cars[a].Name < lb.cars[b].Name })
 
-	f.Cars = q.cars
+	f.Cars = q.filterCars
 	f.PerCar = q.perCar
 	lb.records = lh.index.Leaderboard(lb.track, lb.layout, f)
 
@@ -344,6 +401,9 @@ type leaderboardTemplateVars struct {
 	Value     string // the selected value of the track select
 
 	Cars []CarOption
+
+	// CarClasses are the classes to choose from (empty: there are none).
+	CarClasses []CarClassOption
 
 	Period       string
 	SessionType  string
@@ -370,17 +430,19 @@ func (lh *LeaderboardHandler) View(w http.ResponseWriter, r *http.Request) {
 
 	lb := lh.load(q)
 	rows := lh.rows(lb.records)
+	lh.addClasses(rows)
 
 	vars := &leaderboardTemplateVars{
 		Tracks:       lb.tracks,
 		Track:        lb.track,
 		Layout:       lb.layout,
 		Cars:         lb.cars,
+		CarClasses:   lh.classOptions(q),
 		Period:       q.period,
 		SessionType:  q.sessionType,
 		PerCar:       q.perCar,
 		FilterServer: q.filterServer,
-		Filtered:     len(q.cars) > 0 || q.period != PeriodAll || q.sessionType != "" || q.perCar || q.filterServer != "",
+		Filtered:     len(q.cars) > 0 || len(q.carClasses) > 0 || q.period != PeriodAll || q.sessionType != "" || q.perCar || q.filterServer != "",
 		Rows:         rows,
 	}
 
@@ -432,7 +494,11 @@ type APILeaderboard struct {
 	Period      string
 	SessionType string
 	PerCar      bool
-	Cars        []string
+	// Cars is the filter the leaderboard was restricted by: the cars asked for and the cars of the classes asked for.
+	Cars []string
+
+	// CarClasses are the IDs of the classes asked for.
+	CarClasses []string
 
 	Entries []*APILeaderboardEntry
 }
@@ -451,7 +517,7 @@ func (lh *LeaderboardHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := lh.filter(q)
-	f.Cars = q.cars
+	f.Cars = q.filterCars
 	f.PerCar = q.perCar
 
 	var records []stats.Record
@@ -468,8 +534,13 @@ func (lh *LeaderboardHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 		Period:      q.period,
 		SessionType: q.sessionType,
 		PerCar:      q.perCar,
-		Cars:        q.cars,
+		Cars:        q.filterCars,
+		CarClasses:  q.carClasses,
 		Entries:     []*APILeaderboardEntry{},
+	}
+
+	if out.CarClasses == nil {
+		out.CarClasses = []string{}
 	}
 
 	if out.Cars == nil {
@@ -509,5 +580,70 @@ func (lh *LeaderboardHandler) ViewAPI(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewEncoder(w).Encode(out); err != nil {
 		logrus.WithError(err).Error("couldn't encode the leaderboard")
+	}
+}
+
+func containsString(list []string, s string) bool {
+	for _, e := range list {
+		if e == s {
+			return true
+		}
+	}
+
+	return false
+}
+
+// CarClassOption is an entry of the car class list.
+type CarClassOption struct {
+	ID       string
+	Name     string
+	Selected bool
+}
+
+// classes lists the car classes, nil if there are none or they cannot be loaded (the page works without them).
+func (lh *LeaderboardHandler) classes() []*smmodel.CarClass {
+	if lh.CarClasses == nil {
+		return nil
+	}
+
+	classes, err := lh.CarClasses.List()
+
+	if err != nil {
+		logrus.WithError(err).Error("couldn't list car classes")
+
+		return nil
+	}
+
+	return classes
+}
+
+func (lh *LeaderboardHandler) classOptions(q *query) []CarClassOption {
+	var options []CarClassOption
+
+	for _, class := range lh.classes() {
+		options = append(options, CarClassOption{
+			ID:       class.ID.String(),
+			Name:     class.Name,
+			Selected: containsString(q.carClasses, class.ID.String()),
+		})
+	}
+
+	return options
+}
+
+// addClasses sets the names of the classes of the car of every row. A car in several classes gets all of them.
+func (lh *LeaderboardHandler) addClasses(rows []LeaderboardRow) {
+	classes := lh.classes()
+
+	if len(classes) == 0 {
+		return
+	}
+
+	for i := range rows {
+		for _, class := range classes {
+			if class.HasCar(rows[i].Car) {
+				rows[i].Classes = append(rows[i].Classes, class.Name)
+			}
+		}
 	}
 }

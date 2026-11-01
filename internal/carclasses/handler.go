@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
 
+	"github.com/wernersbacher/ACPitwall/internal/api"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -295,4 +296,34 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		smweb.AddFlash(w, r, smweb.T(r, "flash.carclass.deleted", "name", class.Name))
 		http.Redirect(w, r, ListPath, http.StatusFound)
 	}
+}
+
+// ListAPI lists all car classes in the API format, sorted by name.
+func (h *Handler) ListAPI(w http.ResponseWriter, r *http.Request) {
+	classes, err := h.manager.List()
+
+	if err != nil {
+		h.serverError(w, err, "couldn't list car classes")
+
+		return
+	}
+
+	out := make([]*api.CarClass, 0, len(classes))
+
+	for _, class := range classes {
+		out = append(out, api.NewCarClass(class))
+	}
+
+	api.WriteJSON(w, out)
+}
+
+// ViewAPI returns one car class in the API format (404 for an unknown class or an ID that is no UUID).
+func (h *Handler) ViewAPI(w http.ResponseWriter, r *http.Request) {
+	class, ok := h.find(w, r)
+
+	if !ok {
+		return
+	}
+
+	api.WriteJSON(w, api.NewCarClass(class))
 }

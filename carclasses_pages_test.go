@@ -1,6 +1,7 @@
 package servermanager
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/api"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
@@ -275,4 +277,67 @@ func (e *carClassPagesEnv) getWithCookies(router http.Handler, target string, ac
 	router.ServeHTTP(rec, req)
 
 	return rec
+}
+
+func TestCarClassAPIAndLeaderboardFilter(t *testing.T) {
+	e, cleanup := newCarClassPagesEnv(t)
+	defer cleanup()
+
+	// a closed server sends visitors to the login like every other API endpoint
+	for _, target := range []string{"/api/car-classes", "/api/car-classes/" + e.usedClass.ID.String()} {
+		if rec := e.get(e.router, target, nil); rec.Code != http.StatusFound || !strings.Contains(rec.Header().Get("Location"), "login") {
+			t.Errorf("anonymous GET %s: got %d %q", target, rec.Code, rec.Header().Get("Location"))
+		}
+	}
+
+	rec := e.get(e.router, "/api/car-classes", e.reader)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("list: %d", rec.Code)
+	}
+
+	var classes []*api.CarClass
+
+	if err := json.Unmarshal(rec.Body.Bytes(), &classes); err != nil {
+		t.Fatal(err)
+	}
+
+	// sorted by name: "Free <Class>" before "GT3"
+	if len(classes) != 2 || classes[0].Name != "Free <Class>" || classes[1].Name != "GT3" {
+		t.Fatalf("classes: %+v", classes)
+	}
+
+	if classes[1].ID != e.usedClass.ID || len(classes[1].Cars) != 2 || classes[1].Cars[0].ID != "ks_audi_r8_lms" || classes[1].Cars[0].Name == "" {
+		t.Errorf("GT3: %+v", classes[1])
+	}
+
+	rec = e.get(e.router, "/api/car-classes/"+e.freeClass.ID.String(), e.reader)
+
+	var one api.CarClass
+
+	if rec.Code != http.StatusOK || json.Unmarshal(rec.Body.Bytes(), &one) != nil || one.ID != e.freeClass.ID || len(one.Cars) != 1 {
+		t.Errorf("single: %d %s", rec.Code, rec.Body.String())
+	}
+
+	for _, id := range []string{uuid.New().String(), "not-a-uuid"} {
+		if rec := e.get(e.router, "/api/car-classes/"+id, e.reader); rec.Code != http.StatusNotFound {
+			t.Errorf("class %s: status %d, want 404", id, rec.Code)
+		}
+	}
+
+	// the leaderboard knows the classes: a known one is fine (no laps, so an empty list), an unknown one is a 400
+	for _, base := range []string{"/api/leaderboard?track=suzuka&carClass=", "/leaderboards?carClass="} {
+		if rec := e.get(e.router, base+e.usedClass.ID.String(), e.reader); rec.Code != http.StatusOK {
+			t.Errorf("%s known: status %d: %.200s", base, rec.Code, rec.Body.String())
+		}
+
+		for _, id := range []string{uuid.New().String(), "not-a-uuid"} {
+			if rec := e.get(e.router, base+id, e.reader); rec.Code != http.StatusBadRequest {
+				t.Errorf("%s%s: status %d, want 400", base, id, rec.Code)
+			}
+		}
+	}
+
+	// the page renders (without laps it shows the empty state, the filter form is checked by the smoke test)
+	expectBody(t, "page", e.get(e.router, "/leaderboards", e.reader), http.StatusOK, nil, nil)
 }
