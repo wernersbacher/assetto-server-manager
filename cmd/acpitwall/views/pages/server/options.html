@@ -39,7 +39,9 @@
             <p class="mb-0" style="flex: 1 1 400px">
                 {{ t "server.options.rebuild_help" }}
             </p>
-            <a class="btn btn-primary" href="/search-index">{{ t "server.options.rebuild" }}</a>
+            <form method="post" action="/search-index" data-confirm-delete="{{ t "server.options.rebuild_confirm" }}" data-confirm-detail="{{ t "server.options.rebuild_detail" }}" data-confirm-label="{{ t "server.options.rebuild_label" }}">
+                <button type="submit" class="btn btn-primary">{{ t "server.options.rebuild" }}</button>
+            </form>
         </div>
     </div>
 {{ end }}

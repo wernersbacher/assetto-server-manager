@@ -20,6 +20,9 @@ server:
     maintenance: Onderhoud
     rebuild_help: De zoekindex opnieuw opbouwen. Dit zou je zelden of nooit nodig moeten hebben - maar als je handmatig content aan je contentmap hebt toegevoegd (dus niet via ACPitwall geüpload), moet je dit doen zodat de content in de zoekfunctie verschijnt. Dit kan lang duren.
     rebuild: Zoekindex opnieuw opbouwen
+    rebuild_confirm: "De zoekindex opnieuw opbouwen?"
+    rebuild_detail: "Dit kan lang duren."
+    rebuild_label: "Opnieuw opbouwen"
 
   plugin:
     options_title: "Opties voor {name}"

@@ -20,6 +20,9 @@ server:
     maintenance: Wartung
     rebuild_help: Suchindex neu aufbauen. Das solltest du selten oder nie brauchen - wenn du aber Inhalte manuell in den Content-Ordner kopiert hast (also nicht über ACPitwall hochgeladen), musst du das ausführen, damit die Inhalte in der Suche erscheinen. Das kann lange dauern.
     rebuild: Suchindex neu aufbauen
+    rebuild_confirm: "Suchindex neu aufbauen?"
+    rebuild_detail: "Das kann lange dauern."
+    rebuild_label: "Neu aufbauen"
 
   plugin:
     options_title: "{name}-Optionen"

@@ -162,6 +162,7 @@ func TestRouterActionRoutesArePostOnly(t *testing.T) {
 		"/race-weekend/{raceWeekendID}/session/{sessionID}/cancel",
 		"/race-weekend/{raceWeekendID}/session/{sessionID}/schedule/remove",
 		"/race-weekend/{raceWeekendID}/update-entrylist",
+		"/search-index",
 	} {
 		got, ok := methods[route]
 

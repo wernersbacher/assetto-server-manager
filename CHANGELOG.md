@@ -32,6 +32,8 @@ Changed:
 
 Fixed:
 
+* "Rebuild Search Index" on the server options page is now a POST action with a confirmation dialog instead of a plain link, so it can no longer be triggered by link prefetching or a cross-site request.
+
 * Deleting a race weekend now needs Delete access like every other delete (the button was already disabled without it, but the request itself was only checked for Write access).
 
 * Saving a race weekend session (and a championship event) failed with "The maximum number of clients must be at least 1." because the session form has no such field; the number is set from the entry list when the session starts.

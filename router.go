@@ -462,7 +462,7 @@ func Router(
 		r.Post("/accounts/team-options", accountHandler.SetTeamOptions)
 		r.Post("/accounts/skin-options", accountHandler.SetSkinSettings)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
-		r.HandleFunc("/search-index", carsHandler.RebuildSearchIndex)
+		r.Post("/search-index", carsHandler.RebuildSearchIndex)
 
 		r.HandleFunc("/restart-session", raceControlHandler.RestartSession)
 		r.HandleFunc("/next-session", raceControlHandler.NextSession)

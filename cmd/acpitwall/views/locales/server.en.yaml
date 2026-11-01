@@ -20,6 +20,9 @@ server:
     maintenance: Maintenance
     rebuild_help: Rebuild the Search Index. You shouldn't need to do this often - if at all - but if you have manually added content to your content folder (i.e. not uploaded the content through ACPitwall), you will need to use this so that the content shows up in the Search. Note that this process can take a long time.
     rebuild: Rebuild Search Index
+    rebuild_confirm: "Rebuild the search index?"
+    rebuild_detail: "This can take a long time."
+    rebuild_label: "Rebuild"
 
   plugin:
     options_title: "{name} Options"

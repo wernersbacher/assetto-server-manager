@@ -20,6 +20,9 @@ server:
     maintenance: Vedligeholdelse
     rebuild_help: Genopbyg søgeindekset. Det bør du sjældent eller aldrig have brug for - men har du lagt content i din content-mappe manuelt (altså ikke uploadet det via ACPitwall), skal du gøre dette, så indholdet dukker op i søgningen. Bemærk, at det kan tage lang tid.
     rebuild: Genopbyg søgeindeks
+    rebuild_confirm: "Genopbyg søgeindekset?"
+    rebuild_detail: "Det kan tage lang tid."
+    rebuild_label: "Genopbyg"
 
   plugin:
     options_title: "Indstillinger for {name}"
