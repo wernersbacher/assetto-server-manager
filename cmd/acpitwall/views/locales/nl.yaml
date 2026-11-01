@@ -259,16 +259,17 @@ accounts:
     max_help: 0 is de standaard van 3, -1 is onbeperkt.
   skins:
     title: Skins
-    intro: Accounts kunnen skins voor auto's uploaden en ze privé houden, delen met een team of globaal maken. Accounts met schrijfrechten uploaden altijd globale skins. De limieten beschermen de schijf; onbeperkt bestaat niet, 0 gebruikt de standaard tussen haakjes.
+    intro: Accounts kunnen skins voor auto's uploaden en ze privé houden, delen met een team of globaal maken. Accounts met schrijfrechten uploaden altijd globale skins. De limieten beschermen de schijf; onbeperkt bestaat niet. De limieten tonen hun standaard en gelden pas na overschrijven.
     uploads: Skinuploads door gebruikers
     uploads_everyone: Elk ingelogd account kan skins uploaden
     global: Skins globaal maken
     global_everyone: Gebruikers kunnen hun skins globaal delen
-    max_files: Bestanden per skin (standaard {default})
-    max_skin_mb: Grootte van één skin in MB (standaard {default})
-    user_quota_mb: Skinopslag per gebruiker in MB (standaard {default})
-    min_free_mb: Vrij te houden schijfruimte in MB (standaard {default})
+    max_files: Bestanden per skin
+    max_skin_mb: Grootte van één skin in MB
+    user_quota_mb: Skinopslag per gebruiker in MB
+    min_free_mb: Vrij te houden schijfruimte in MB
     min_free_help: Een upload wordt geweigerd als er daarna minder dan dit vrij zou blijven op de schijf.
+    override: Standaard overschrijven
   matrix:
     title: Wat elke groep mag
     read: Races, uitslagen, content, kampioenschappen en live timing bekijken

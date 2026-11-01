@@ -259,16 +259,17 @@ accounts:
     max_help: 0 ist der Standard von 3, -1 ist unbegrenzt.
   skins:
     title: Skins
-    intro: Konten können Skins für Autos hochladen und sie privat halten, mit einem Team teilen oder global freigeben. Konten mit Schreibrechten laden immer globale Skins hoch. Die Grenzen schützen die Festplatte; unbegrenzt gibt es nicht, 0 verwendet den Standard in Klammern.
+    intro: Konten können Skins für Autos hochladen und sie privat halten, mit einem Team teilen oder global freigeben. Konten mit Schreibrechten laden immer globale Skins hoch. Die Grenzen schützen die Festplatte; unbegrenzt gibt es nicht. Die Grenzen zeigen ihren Standard und gelten erst mit Überschreiben.
     uploads: Skin-Uploads durch Benutzer
     uploads_everyone: Jedes angemeldete Konto kann Skins hochladen
     global: Skins global freigeben
     global_everyone: Benutzer können ihre Skins global freigeben
-    max_files: Dateien pro Skin (Standard {default})
-    max_skin_mb: Größe eines Skins in MB (Standard {default})
-    user_quota_mb: Skin-Speicher pro Benutzer in MB (Standard {default})
-    min_free_mb: Freizuhaltender Speicherplatz in MB (Standard {default})
+    max_files: Dateien pro Skin
+    max_skin_mb: Größe eines Skins in MB
+    user_quota_mb: Skin-Speicher pro Benutzer in MB
+    min_free_mb: Freizuhaltender Speicherplatz in MB
     min_free_help: Ein Upload wird abgelehnt, wenn danach weniger als dieser Platz frei bliebe.
+    override: Standard überschreiben
   matrix:
     title: Was jede Gruppe darf
     read: Rennen, Ergebnisse, Inhalte, Meisterschaften und Live-Timing ansehen

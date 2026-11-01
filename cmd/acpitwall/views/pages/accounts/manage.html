@@ -162,20 +162,48 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="skin-max-files">{{ t "accounts.skins.max_files" "default" $.SkinDefaults.MaxFiles }}</label>
-                        <input type="number" name="max_files" id="skin-max-files" class="form-control" style="max-width: 160px" min="0" max="100000" value="{{ $.Skins.MaxFiles }}">
+                        <label for="skin-max-files">{{ t "accounts.skins.max_files" }}</label>
+                        {{ $on := gt $.Skins.MaxFiles 0 }}
+                        <div class="form-inline">
+                            <input type="number" name="max_files" id="skin-max-files" class="form-control mr-3" style="max-width: 160px" min="1" max="100000" value="{{ if $on }}{{ $.Skins.MaxFiles }}{{ else }}{{ $.SkinDefaults.MaxFiles }}{{ end }}" {{ if not $on }}disabled{{ end }}>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="override_max_files" id="skin-max-files-override" data-toggle-override="#skin-max-files" {{ if $on }}checked{{ end }}>
+                                <label class="form-check-label" for="skin-max-files-override">{{ t "accounts.skins.override" }}</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="skin-max-mb">{{ t "accounts.skins.max_skin_mb" "default" $.SkinDefaults.MaxSkinMB }}</label>
-                        <input type="number" name="max_skin_mb" id="skin-max-mb" class="form-control" style="max-width: 160px" min="0" max="100000" value="{{ $.Skins.MaxSkinMB }}">
+                        <label for="skin-max-mb">{{ t "accounts.skins.max_skin_mb" }}</label>
+                        {{ $on := gt $.Skins.MaxSkinMB 0 }}
+                        <div class="form-inline">
+                            <input type="number" name="max_skin_mb" id="skin-max-mb" class="form-control mr-3" style="max-width: 160px" min="1" max="100000" value="{{ if $on }}{{ $.Skins.MaxSkinMB }}{{ else }}{{ $.SkinDefaults.MaxSkinMB }}{{ end }}" {{ if not $on }}disabled{{ end }}>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="override_max_skin_mb" id="skin-max-mb-override" data-toggle-override="#skin-max-mb" {{ if $on }}checked{{ end }}>
+                                <label class="form-check-label" for="skin-max-mb-override">{{ t "accounts.skins.override" }}</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="skin-quota-mb">{{ t "accounts.skins.user_quota_mb" "default" $.SkinDefaults.UserQuotaMB }}</label>
-                        <input type="number" name="user_quota_mb" id="skin-quota-mb" class="form-control" style="max-width: 160px" min="0" max="1000000" value="{{ $.Skins.UserQuotaMB }}">
+                        <label for="skin-quota-mb">{{ t "accounts.skins.user_quota_mb" }}</label>
+                        {{ $on := gt $.Skins.UserQuotaMB 0 }}
+                        <div class="form-inline">
+                            <input type="number" name="user_quota_mb" id="skin-quota-mb" class="form-control mr-3" style="max-width: 160px" min="1" max="1000000" value="{{ if $on }}{{ $.Skins.UserQuotaMB }}{{ else }}{{ $.SkinDefaults.UserQuotaMB }}{{ end }}" {{ if not $on }}disabled{{ end }}>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="override_user_quota_mb" id="skin-quota-mb-override" data-toggle-override="#skin-quota-mb" {{ if $on }}checked{{ end }}>
+                                <label class="form-check-label" for="skin-quota-mb-override">{{ t "accounts.skins.override" }}</label>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="skin-min-free-mb">{{ t "accounts.skins.min_free_mb" "default" $.SkinDefaults.MinFreeMB }}</label>
-                        <input type="number" name="min_free_mb" id="skin-min-free-mb" class="form-control" style="max-width: 160px" min="0" max="1000000" value="{{ $.Skins.MinFreeMB }}">
+                        <label for="skin-min-free-mb">{{ t "accounts.skins.min_free_mb" }}</label>
+                        {{ $on := gt $.Skins.MinFreeMB 0 }}
+                        <div class="form-inline">
+                            <input type="number" name="min_free_mb" id="skin-min-free-mb" class="form-control mr-3" style="max-width: 160px" min="1" max="1000000" value="{{ if $on }}{{ $.Skins.MinFreeMB }}{{ else }}{{ $.SkinDefaults.MinFreeMB }}{{ end }}" {{ if not $on }}disabled{{ end }}>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="override_min_free_mb" id="skin-min-free-mb-override" data-toggle-override="#skin-min-free-mb" {{ if $on }}checked{{ end }}>
+                                <label class="form-check-label" for="skin-min-free-mb-override">{{ t "accounts.skins.override" }}</label>
+                            </div>
+                        </div>
                         <small>{{ t "accounts.skins.min_free_help" }}</small>
                     </div>
                     <button type="submit" class="btn btn-success">{{ t "common.save" }}</button>

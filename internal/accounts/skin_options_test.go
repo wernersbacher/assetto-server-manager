@@ -27,6 +27,7 @@ func skinForm(overrides map[string]string) url.Values {
 	form := url.Values{
 		"uploads": {"on"}, "global": {"off"},
 		"max_files": {"10"}, "max_skin_mb": {"20"}, "user_quota_mb": {"300"}, "min_free_mb": {"4096"},
+		"override_max_files": {"on"}, "override_max_skin_mb": {"on"}, "override_user_quota_mb": {"on"}, "override_min_free_mb": {"on"},
 	}
 
 	for k, v := range overrides {
@@ -96,6 +97,8 @@ func TestSetSkinSettings_RejectsBadInput(t *testing.T) {
 		"bad uploads":   skinForm(map[string]string{"uploads": "maybe"}),
 		"bad global":    skinForm(map[string]string{"global": ""}),
 		"negative":      skinForm(map[string]string{"user_quota_mb": "-1"}),
+		"zero":          skinForm(map[string]string{"max_files": "0"}),
+		"empty":         skinForm(map[string]string{"max_skin_mb": ""}),
 		"text":          skinForm(map[string]string{"max_files": "many"}),
 		"decimal":       skinForm(map[string]string{"max_skin_mb": "1.5"}),
 		"too many":      skinForm(map[string]string{"max_files": "100001"}),
@@ -139,5 +142,57 @@ func TestSetSkinSettings_UploadsOff(t *testing.T) {
 
 	if s := ah.SkinSettings(); s.UploadsEnabled() || !s.UserUploadsDisabled || s.GlobalShare {
 		t.Errorf("uploads must be off: %+v", s)
+	}
+}
+
+func TestSetSkinSettings_OverrideCheckboxDecides(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	// a value without the checkbox is ignored (a browser does not send disabled fields, a stale value must not count)
+	form := skinForm(nil)
+	form.Del("override_max_files")
+	form.Del("override_min_free_mb")
+
+	if rec := postSkinOptions(ah, form); rec.Code != http.StatusFound {
+		t.Fatalf("expected a redirect, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	want := smmodel.SkinSettings{MaxSkinMB: 20, UserQuotaMB: 300}
+
+	if got := ah.SkinSettings(); got != want {
+		t.Errorf("got %+v, want %+v", got, want)
+	}
+
+	// no override at all: the default (0) is stored, not the default value
+	if rec := postSkinOptions(ah, url.Values{"uploads": {"on"}, "global": {"off"}}); rec.Code != http.StatusFound {
+		t.Fatalf("expected a redirect, got %d", rec.Code)
+	}
+
+	if got := ah.SkinSettings(); got != (smmodel.SkinSettings{}) {
+		t.Errorf("got %+v, want all defaults", got)
+	}
+}
+
+func TestSetSkinSettings_OverrideErrorKeepsStoredValues(t *testing.T) {
+	ah, _, cleanup := newTestHandler(t)
+	defer cleanup()
+
+	if rec := postSkinOptions(ah, skinForm(nil)); rec.Code != http.StatusFound {
+		t.Fatalf("setup failed: %d", rec.Code)
+	}
+
+	before := ah.SkinSettings()
+
+	// first limits are fine, a later one with the checkbox but without a usable value fails the whole request
+	form := skinForm(map[string]string{"min_free_mb": "0"})
+	form.Set("override_max_files", "")
+
+	if rec := postSkinOptions(ah, form); rec.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d", rec.Code)
+	}
+
+	if got := ah.SkinSettings(); got != before {
+		t.Errorf("nothing may be stored on error: got %+v, want %+v", got, before)
 	}
 }

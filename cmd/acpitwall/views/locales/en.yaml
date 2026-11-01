@@ -260,16 +260,17 @@ accounts:
     max_help: 0 is the default of 3, -1 is unlimited.
   skins:
     title: Car skins
-    intro: Accounts can upload skins for cars and keep them private, share them with a team or make them global. Accounts with write access always upload global skins. The limits protect the disk; there is no unlimited setting, 0 uses the default shown in brackets.
+    intro: Accounts can upload skins for cars and keep them private, share them with a team or make them global. Accounts with write access always upload global skins. The limits protect the disk; there is no unlimited setting. Limits show their default and only apply once overridden.
     uploads: Skin uploads by users
     uploads_everyone: Every logged in account can upload skins
     global: Making skins global
     global_everyone: Users can share their skins globally
-    max_files: Files per skin (default {default})
-    max_skin_mb: Size of one skin in MB (default {default})
-    user_quota_mb: Skin storage per user in MB (default {default})
-    min_free_mb: Free disk space to keep in MB (default {default})
+    max_files: Files per skin
+    max_skin_mb: Size of one skin in MB
+    user_quota_mb: Skin storage per user in MB
+    min_free_mb: Free disk space to keep in MB
     min_free_help: An upload is refused if less than this would remain free on the disk.
+    override: Override default
   matrix:
     title: What each group can do
     read: View races, results, content, championships and live timing

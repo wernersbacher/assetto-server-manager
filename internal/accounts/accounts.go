@@ -366,7 +366,7 @@ func (ah *AccountHandler) SkinSettings() smmodel.SkinSettings {
 }
 
 // SetSkinSettings sets the skin options from the form values "uploads" and "global" (on or off) and the
-// whole numbers "max_files", "max_skin_mb", "user_quota_mb" and "min_free_mb" (0 is the default).
+// whole numbers "max_files", "max_skin_mb", "user_quota_mb" and "min_free_mb", which only count with the checkbox "override_<name>=on" (otherwise 0, the default).
 func (ah *AccountHandler) SetSkinSettings(w http.ResponseWriter, r *http.Request) {
 	var settings smmodel.SkinSettings
 
@@ -396,10 +396,17 @@ func (ah *AccountHandler) SetSkinSettings(w http.ResponseWriter, r *http.Request
 		{"user_quota_mb", 1000000, &settings.UserQuotaMB},
 		{"min_free_mb", 1000000, &settings.MinFreeMB},
 	} {
+		// the field of a limit that is not overridden is disabled in the form and not sent: the checkbox decides,
+		// 0 stays the default (resolved at runtime, so a changed default applies to everybody without override)
+		if r.FormValue("override_"+f.name) != "on" {
+			*f.dest = 0
+			continue
+		}
+
 		n, err := strconv.Atoi(strings.TrimSpace(r.FormValue(f.name)))
 
-		if err != nil || n < 0 || n > f.max {
-			http.Error(w, fmt.Sprintf("%s must be a whole number between 0 and %d", f.name, f.max), http.StatusBadRequest)
+		if err != nil || n < 1 || n > f.max {
+			http.Error(w, fmt.Sprintf("%s must be a whole number between 1 and %d to override the default", f.name, f.max), http.StatusBadRequest)
 			return
 		}
 

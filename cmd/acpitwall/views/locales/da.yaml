@@ -259,16 +259,17 @@ accounts:
     max_help: 0 er standarden på 3, -1 er ubegrænset.
   skins:
     title: Skins
-    intro: Konti kan uploade skins til biler og holde dem private, dele dem med et team eller gøre dem globale. Konti med skriveadgang uploader altid globale skins. Grænserne beskytter disken; ubegrænset findes ikke, 0 bruger standarden i parentes.
+    intro: Konti kan uploade skins til biler og holde dem private, dele dem med et team eller gøre dem globale. Konti med skriveadgang uploader altid globale skins. Grænserne beskytter disken; ubegrænset findes ikke. Grænserne viser deres standard og gælder først, når de tilsidesættes.
     uploads: Skin-uploads fra brugere
     uploads_everyone: Alle loggede ind konti kan uploade skins
     global: Gøre skins globale
     global_everyone: Brugere kan dele deres skins globalt
-    max_files: Filer pr. skin (standard {default})
-    max_skin_mb: Størrelse af ét skin i MB (standard {default})
-    user_quota_mb: Skin-lagerplads pr. bruger i MB (standard {default})
-    min_free_mb: Ledig diskplads, der skal bevares, i MB (standard {default})
+    max_files: Filer pr. skin
+    max_skin_mb: Størrelse af én skin i MB
+    user_quota_mb: Skin-lager pr. bruger i MB
+    min_free_mb: Ledig diskplads, der skal bevares, i MB
     min_free_help: En upload afvises, hvis der bagefter ville være mindre end dette ledigt på disken.
+    override: Tilsidesæt standard
   matrix:
     title: Hvad hver gruppe må
     read: Se løb, resultater, indhold, mesterskaber og live timing

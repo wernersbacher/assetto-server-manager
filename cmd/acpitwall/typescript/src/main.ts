@@ -25,12 +25,14 @@ import {SpectatorCar} from "./SpectatorCar";
 import {Form} from "./Form";
 import {Shell} from "./Shell";
 import {DeleteConfirm} from "./DeleteConfirm";
+import {ToggleOverride} from "./ToggleOverride";
 import {AdminForm} from "./AdminForm";
 import {RaceForm} from "./RaceForm";
 
 $(() => {
     new Shell();
     new DeleteConfirm();
+    new ToggleOverride();
     new AdminForm();
     new Form();
     EntryPoint();
