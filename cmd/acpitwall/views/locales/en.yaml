@@ -408,3 +408,7 @@ js:
     sign_up: Event Sign Up
   messages:
     cm_placeholder: A message that Content Manager users can see!
+  # moment.js formats of the dates the browser shows in the viewer's time zone; they match date.layout.compact(_year)
+  date:
+    compact: "ddd D MMM, HH:mm"
+    compact_year: "ddd D MMM YYYY, HH:mm"

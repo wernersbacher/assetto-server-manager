@@ -378,18 +378,18 @@ date:
     november: November
     december: Dezember
   months_short:
-    january: Jan
-    february: Feb
-    march: Mär
-    april: Apr
+    january: Jan.
+    february: Feb.
+    march: März
+    april: Apr.
     may: Mai
-    june: Jun
-    july: Jul
-    august: Aug
-    september: Sep
-    october: Okt
-    november: Nov
-    december: Dez
+    june: Juni
+    july: Juli
+    august: Aug.
+    september: Sep.
+    october: Okt.
+    november: Nov.
+    december: Dez.
 
 js:
   confirm:
@@ -405,3 +405,6 @@ js:
     sign_up: Zur Anmeldung
   messages:
     cm_placeholder: Eine Nachricht, die Content-Manager-Nutzer sehen!
+  date:
+    compact: "dd D. MMM, HH:mm"
+    compact_year: "dd D. MMM YYYY, HH:mm"

@@ -78,7 +78,7 @@ export function EntryPoint() {
         let local = moment.parseZone($elem.attr("data-time")).tz(moment.tz.guess());
         let sameYear = local.year() === moment().tz(moment.tz.guess()).year();
 
-        $elem.text(local.format(sameYear ? 'ddd D MMM, HH:mm' : 'ddd D MMM YYYY, HH:mm'));
+        $elem.text(local.format(sameYear ? t("date.compact") : t("date.compact_year")));
         $elem.attr("data-original-title", local.format('LLLL (z)'));
     });
 
