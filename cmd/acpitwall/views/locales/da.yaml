@@ -92,6 +92,7 @@ nav:
   audit_logs: Audit-logs
   current_config: Aktuel konfiguration
   plugins: Plugins
+  configuration: Konfiguration
   changelog: Ændringer
 
 footer:

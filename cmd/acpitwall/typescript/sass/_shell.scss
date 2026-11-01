@@ -522,3 +522,14 @@ $sidebar-width: 240px;
     font-family: monospace;
   }
 }
+
+// Section tabs (partials/section-tabs.html): links to the pages merged into one menu entry
+.section-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+
+  .nav-link {
+    white-space: nowrap;
+  }
+}

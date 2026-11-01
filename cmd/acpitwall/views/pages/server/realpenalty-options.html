@@ -3,6 +3,7 @@
 {{ define "title" }}{{ t "server.plugin.options_title" "name" "Real Penalty" }}{{ end }}
 
 {{ define "content" }}
+    {{ template "config-tabs" $ }}
     <div class="page-header">
         <div>
             <h1>{{ t "server.plugin.options_title" "name" "Real Penalty" }}{{ template "server-badge" $ }}</h1>

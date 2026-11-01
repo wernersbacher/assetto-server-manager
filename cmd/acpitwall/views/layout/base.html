@@ -189,29 +189,16 @@
                     <div class="nav-group-title">{{ t "nav.server" }}</div>
                     {{ if AdminAccess }}
                         {{ if gt (len $.Servers) 1 }}<a class="nav-item-link {{ if eq $path "/servers" }}active{{ end }}" href="/servers">{{ template "icon" "config" }}{{ t "nav.servers" }}</a>{{ end }}
-                        <a class="nav-item-link {{ if hasPrefix "/server-options" $path }}active{{ end }}" href="{{ serverURL "/server-options" }}">{{ template "icon" "options" }}{{ t "nav.options" }}</a>
                         <a class="nav-item-link {{ if hasPrefix "/accounts" $path }}active{{ end }}" href="/accounts">{{ template "icon" "accounts" }}{{ t "nav.accounts" }}</a>
-                        <a class="nav-item-link {{ if hasPrefix "/blacklist" $path }}active{{ end }}" href="{{ serverURL "/blacklist" }}">{{ template "icon" "blacklist" }}{{ t "nav.blacklist" }}</a>
-                        <a class="nav-item-link {{ if hasPrefix "/motd" $path }}active{{ end }}" href="{{ serverURL "/motd" }}">{{ template "icon" "message" }}{{ t "nav.messages" }}</a>
                     {{ end }}
                     {{ if DeleteAccess }}
-                        <a class="nav-item-link {{ if hasPrefix "/autofill-entrants" $path }}active{{ end }}" href="{{ serverURL "/autofill-entrants" }}">{{ template "icon" "autofill" }}{{ t "nav.autofill" }}</a>
+                        <a class="nav-item-link {{ if or (hasPrefix "/server-options" $path) (hasPrefix "/blacklist" $path) (hasPrefix "/motd" $path) (hasPrefix "/current-config" $path) (hasPrefix "/stracker" $path) (hasPrefix "/kissmyrank" $path) (hasPrefix "/realpenalty" $path) (hasPrefix "/autofill-entrants" $path) }}active{{ end }}" href="{{ if AdminAccess }}{{ serverURL "/server-options" }}{{ else }}{{ serverURL "/autofill-entrants" }}{{ end }}">{{ template "icon" "options" }}{{ t "nav.configuration" }}</a>
                     {{ end }}
                     <a class="nav-item-link {{ if eq $path "/logs" }}active{{ end }}" href="{{ serverURL "/logs" }}">{{ template "icon" "logs" }}{{ t "nav.logs" }}</a>
                     {{ if AdminAccess }}
                         <a class="nav-item-link {{ if hasPrefix "/audit-logs" $path }}active{{ end }}" href="/audit-logs">{{ template "icon" "audit" }}{{ t "nav.audit_logs" }}</a>
-                        <a class="nav-item-link {{ if hasPrefix "/current-config" $path }}active{{ end }}" href="{{ serverURL "/current-config" }}">{{ template "icon" "config" }}{{ t "nav.current_config" }}</a>
                     {{ end }}
                 </div>
-
-                {{ if AdminAccess }}
-                    <div class="nav-group">
-                        <div class="nav-group-title">{{ t "nav.plugins" }}</div>
-                        <a class="nav-item-link {{ if hasPrefix "/stracker" $path }}active{{ end }}" href="{{ serverURL "/stracker/options" }}">{{ template "icon" "plugin" }}sTracker</a>
-                        <a class="nav-item-link {{ if hasPrefix "/kissmyrank" $path }}active{{ end }}" href="{{ serverURL "/kissmyrank/options" }}">{{ template "icon" "plugin" }}KissMyRank</a>
-                        <a class="nav-item-link {{ if hasPrefix "/realpenalty" $path }}active{{ end }}" href="{{ serverURL "/realpenalty/options" }}">{{ template "icon" "plugin" }}Real Penalty</a>
-                    </div>
-                {{ end }}
             {{ end }}
         </nav>
 

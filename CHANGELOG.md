@@ -3,7 +3,7 @@ Unreleased
 
 Changed:
 
-* The sidebar is shorter: the Organize group and the footer (changelog link and version) are gone from it. The create buttons are on the Custom Races, Championships and Race Weekends pages (and the overview), the Custom Races page also has a Quick Race button. The entries are more compact and the sidebar no longer scrolls on its own: it only stays in place when the window is tall enough to show it completely, otherwise it scrolls with the page.
+* The sidebar is shorter: the options, blacklist, messages, current config, plugin option pages (sTracker, KissMyRank, Real Penalty) and AutoFill Entrants are one "Configuration" entry now, with tabs at the top of each of these pages (same permissions as before). the Organize group and the footer (changelog link and version) are gone from it. The create buttons are on the Custom Races, Championships and Race Weekends pages (and the overview), the Custom Races page also has a Quick Race button. The entries are more compact and the sidebar no longer scrolls on its own: it only stays in place when the window is tall enough to show it completely, otherwise it scrolls with the page.
 
 * After a fresh install the cars and tracks page, the race forms and the car search only list content that was uploaded. The cars and tracks that come with the acServer install (data only, no skins or previews) are recorded in `content/.acpitwall-vanilla.json` after the steamcmd install and hidden until a car or track of the same name is uploaded. Existing installs have no such file, so nothing is hidden there (and a forced update only hides what it adds); to hide the install's content on an existing install, list its folders in that file (`{"cars": [...], "tracks": [...]}`).
 

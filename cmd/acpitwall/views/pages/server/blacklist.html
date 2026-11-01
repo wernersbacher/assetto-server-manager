@@ -3,6 +3,7 @@
 {{ define "title" }}{{ t "nav.blacklist" }}{{ end }}
 
 {{ define "content" }}
+    {{ template "config-tabs" $ }}
     <div class="page-header">
         <div>
             <h1>{{ t "nav.blacklist" }}{{ template "server-badge" $ }}</h1>

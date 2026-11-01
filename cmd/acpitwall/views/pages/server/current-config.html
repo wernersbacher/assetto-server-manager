@@ -3,6 +3,7 @@
 {{ define "title" }}{{ t "nav.current_config" }}{{ end }}
 
 {{ define "content" }}
+    {{ template "config-tabs" $ }}
     <div class="page-header">
         <div>
             <h1>{{ t "nav.current_config" }}{{ template "server-badge" $ }}</h1>
