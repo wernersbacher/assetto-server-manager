@@ -70,7 +70,7 @@ func (qrh *QuickRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Quick race successfully started!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.race.quick_started"))
 
 	if qrh.config.Server.PerformanceMode {
 		http.Redirect(w, r, "/", http.StatusFound)

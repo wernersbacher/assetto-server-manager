@@ -1,7 +1,6 @@
 package teams
 
 import (
-	"fmt"
 	"net/http"
 	"sort"
 	"strings"
@@ -49,59 +48,61 @@ func (h *Handler) requireActor(w http.ResponseWriter, r *http.Request) (Actor, b
 	actor, ok := actorFor(r)
 
 	if !ok {
-		smweb.AddErrorFlash(w, r, "Please sign in to use teams.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.teams.sign_in"))
 		http.Redirect(w, r, "/login", http.StatusFound)
 	}
 
 	return actor, ok
 }
 
-// teamErrorMessage turns the errors of the team rules into a message for the user. Other errors are not known.
-func teamErrorMessage(err error) (string, bool) {
+// teamErrorMessage turns the errors of the team rules into a message for the user (in the language of the request).
+// Other errors are not known.
+func teamErrorMessage(r *http.Request, err error) (string, bool) {
 	switch err {
 	case smmodel.ErrTeamNotFound:
-		return "This team does not exist.", true
+		return smweb.T(r, "flash.teams.not_found"), true
 	case smmodel.ErrTeamNameInvalid:
-		return fmt.Sprintf("A team name needs %d to %d characters and cannot contain control characters.", smmodel.TeamNameMinLength, smmodel.TeamNameMaxLength), true
+		return smweb.T(r, "flash.teams.name_invalid", "min", smmodel.TeamNameMinLength, "max", smmodel.TeamNameMaxLength), true
 	case smmodel.ErrTeamNameTaken:
-		return "There is already a team with this name.", true
+		return smweb.T(r, "flash.teams.name_taken"), true
 	case smmodel.ErrNotTeamMember:
-		return "This account is not a member of the team.", true
+		return smweb.T(r, "flash.teams.not_member"), true
 	case smmodel.ErrAlreadyTeamMember:
-		return "This account is already a member of the team.", true
+		return smweb.T(r, "flash.teams.already_member"), true
 	case smmodel.ErrTeamInviteInvalid:
-		return "The invite is invalid or has expired.", true
+		return smweb.T(r, "flash.teams.invite_invalid"), true
 	case smmodel.ErrTeamPermission:
-		return "You are not allowed to do this.", true
+		return smweb.T(r, "flash.teams.not_allowed"), true
 	case smmodel.ErrTeamOwnerRole:
-		return "The role of the owner cannot be changed. Transfer the ownership to another member instead.", true
+		return smweb.T(r, "flash.teams.owner_role"), true
 	case smmodel.ErrTeamTransferToSelf:
-		return "You are the owner of the team already.", true
+		return smweb.T(r, "flash.teams.already_owner"), true
 	case smmodel.ErrTeamLimitReached:
-		return "You own the maximum number of teams already.", true
+		return smweb.T(r, "flash.teams.limit_reached"), true
 	case smmodel.ErrTeamCreationBlocked:
-		return "Creating teams is turned off on this server.", true
+		return smweb.T(r, "flash.teams.creation_blocked"), true
 	case smstore.ErrAccountNotFound:
-		return "There is no account with this name.", true
+		return smweb.T(r, "flash.teams.account_not_found"), true
 	}
 
 	return "", false
 }
 
-// done flashes the result of an action and redirects. Unknown errors are server errors.
+// done flashes the result of an action (success is the translated message) and redirects. Unknown errors are server
+// errors.
 func (h *Handler) done(w http.ResponseWriter, r *http.Request, err error, success, redirect string) {
 	if renamed, ok := err.(ErrRenameHook); ok {
 		// the rename itself worked, only the registrations of running championships were not updated
 		logrus.WithError(renamed.Err).Error("could not update the team name in the championships")
 		smweb.AddFlash(w, r, success)
-		smweb.AddErrorFlash(w, r, "The registrations of running championships could not be updated, please check the log.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.teams.rename_hook_failed"))
 		http.Redirect(w, r, redirect, http.StatusFound)
 
 		return
 	}
 
 	if err != nil {
-		message, known := teamErrorMessage(err)
+		message, known := teamErrorMessage(r, err)
 
 		if !known {
 			logrus.WithError(err).Error("couldn't handle team request")
@@ -404,7 +405,7 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, nil, "Team created.", "/teams/"+team.ID.String())
+	h.done(w, r, nil, smweb.T(r, "flash.teams.created"),"/teams/"+team.ID.String())
 }
 
 func (h *Handler) Join(w http.ResponseWriter, r *http.Request) {
@@ -421,7 +422,7 @@ func (h *Handler) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, nil, "You joined the team.", teamPath(r))
+	h.done(w, r, nil, smweb.T(r, "flash.teams.joined"), teamPath(r))
 }
 
 func (h *Handler) Leave(w http.ResponseWriter, r *http.Request) {
@@ -431,7 +432,7 @@ func (h *Handler) Leave(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, h.manager.Leave(actor, chi.URLParam(r, "teamID")), "You left the team.", "/teams")
+	h.done(w, r, h.manager.Leave(actor, chi.URLParam(r, "teamID")), smweb.T(r, "flash.teams.left"), "/teams")
 }
 
 func (h *Handler) Rename(w http.ResponseWriter, r *http.Request) {
@@ -443,7 +444,7 @@ func (h *Handler) Rename(w http.ResponseWriter, r *http.Request) {
 
 	_, err := h.manager.Rename(actor, chi.URLParam(r, "teamID"), r.FormValue("name"))
 
-	h.done(w, r, err, "Team renamed.", teamPath(r))
+	h.done(w, r, err, smweb.T(r, "flash.teams.renamed"),teamPath(r))
 }
 
 func (h *Handler) SetVisibility(w http.ResponseWriter, r *http.Request) {
@@ -461,7 +462,7 @@ func (h *Handler) SetVisibility(w http.ResponseWriter, r *http.Request) {
 
 	_, err := h.manager.SetVisibility(actor, chi.URLParam(r, "teamID"), visibility)
 
-	h.done(w, r, err, "Visibility changed.", teamPath(r))
+	h.done(w, r, err, smweb.T(r, "flash.teams.visibility_changed"),teamPath(r))
 }
 
 // Invite invites the account with the name of the form value "driver", or creates an invite link if it is empty.
@@ -488,9 +489,9 @@ func (h *Handler) Invite(w http.ResponseWriter, r *http.Request) {
 	_, err := h.manager.Invite(actor, chi.URLParam(r, "teamID"), target)
 
 	if target == uuid.Nil {
-		h.done(w, r, err, "Invite link created, you find it below.", teamPath(r))
+		h.done(w, r, err, smweb.T(r, "flash.teams.invite_link_created"),teamPath(r))
 	} else {
-		h.done(w, r, err, "Invite sent.", teamPath(r))
+		h.done(w, r, err, smweb.T(r, "flash.teams.invite_sent"),teamPath(r))
 	}
 }
 
@@ -501,7 +502,7 @@ func (h *Handler) RevokeInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, h.manager.RevokeInvite(actor, chi.URLParam(r, "teamID"), r.FormValue("token")), "Invite withdrawn.", teamPath(r))
+	h.done(w, r, h.manager.RevokeInvite(actor, chi.URLParam(r, "teamID"), r.FormValue("token")), smweb.T(r, "flash.teams.invite_withdrawn"),teamPath(r))
 }
 
 func (h *Handler) DeclineInvite(w http.ResponseWriter, r *http.Request) {
@@ -511,7 +512,7 @@ func (h *Handler) DeclineInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, h.manager.DeclineInvite(actor, chi.URLParam(r, "teamID")), "Invite declined.", "/teams")
+	h.done(w, r, h.manager.DeclineInvite(actor, chi.URLParam(r, "teamID")), smweb.T(r, "flash.teams.invite_declined"),"/teams")
 }
 
 func (h *Handler) memberAction(w http.ResponseWriter, r *http.Request, do func(actor Actor, team string, member uuid.UUID) error, success string) {
@@ -532,7 +533,7 @@ func (h *Handler) memberAction(w http.ResponseWriter, r *http.Request, do func(a
 }
 
 func (h *Handler) Kick(w http.ResponseWriter, r *http.Request) {
-	h.memberAction(w, r, h.manager.Kick, "Member removed.")
+	h.memberAction(w, r, h.manager.Kick, smweb.T(r, "flash.teams.member_removed"))
 }
 
 func (h *Handler) SetAdmin(w http.ResponseWriter, r *http.Request) {
@@ -542,7 +543,7 @@ func (h *Handler) SetAdmin(w http.ResponseWriter, r *http.Request) {
 		_, err := h.manager.SetAdmin(actor, team, member, admin)
 
 		return err
-	}, "Role changed.")
+	}, smweb.T(r, "flash.teams.role_changed"))
 }
 
 func (h *Handler) Transfer(w http.ResponseWriter, r *http.Request) {
@@ -550,7 +551,7 @@ func (h *Handler) Transfer(w http.ResponseWriter, r *http.Request) {
 		_, err := h.manager.TransferOwnership(actor, team, member)
 
 		return err
-	}, "Ownership transferred.")
+	}, smweb.T(r, "flash.teams.ownership_transferred"))
 }
 
 func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
@@ -560,7 +561,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, h.manager.Delete(actor, chi.URLParam(r, "teamID")), "Team deleted. Registrations of championships keep its name.", "/teams")
+	h.done(w, r, h.manager.Delete(actor, chi.URLParam(r, "teamID")), smweb.T(r, "flash.teams.deleted"),"/teams")
 }
 
 type inviteTemplateVars struct {
@@ -580,7 +581,7 @@ func (h *Handler) InvitePage(w http.ResponseWriter, r *http.Request) {
 	team, err := h.manager.FindByInvite(token)
 
 	if err == smmodel.ErrTeamInviteInvalid {
-		smweb.AddErrorFlash(w, r, "The invite is invalid or has expired.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.teams.invite_invalid"))
 		http.Redirect(w, r, "/teams", http.StatusFound)
 
 		return
@@ -615,7 +616,7 @@ func (h *Handler) AcceptInvite(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.done(w, r, nil, "You joined the team.", "/teams/"+team.ID.String())
+	h.done(w, r, nil, smweb.T(r, "flash.teams.joined"), "/teams/"+team.ID.String())
 }
 
 // ListAPI lists the teams the requester may see in the API format.

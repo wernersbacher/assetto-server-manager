@@ -2,7 +2,6 @@ package race
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -122,13 +121,13 @@ func (crh *CustomRaceHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if action == "justSave" {
-		smweb.AddFlash(w, r, "Custom race saved!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_saved"))
 		http.Redirect(w, r, smweb.ServerURL(r, "/custom"), http.StatusFound)
 	} else if action == "schedule" {
-		smweb.AddFlash(w, r, "Custom race scheduled!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_scheduled"))
 		http.Redirect(w, r, smweb.ServerURL(r, "/custom"), http.StatusFound)
 	} else {
-		smweb.AddFlash(w, r, "Custom race started!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_started"))
 		if crh.config.Server.PerformanceMode {
 			http.Redirect(w, r, "/", http.StatusFound)
 		} else {
@@ -180,7 +179,7 @@ func (crh *CustomRaceHandler) Schedule(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, fmt.Sprintf("We have scheduled the race to begin at %s", date.Format(time.RFC1123)))
+	smweb.AddFlash(w, r, smweb.T(r, "flash.race.scheduled", "date", date.Format(time.RFC1123)))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -221,7 +220,7 @@ func (crh *CustomRaceHandler) Start(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Custom race started!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_started"))
 
 	if crh.config.Server.PerformanceMode {
 		http.Redirect(w, r, "/", http.StatusFound)
@@ -245,7 +244,7 @@ func (crh *CustomRaceHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Custom race deleted!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_deleted"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -264,7 +263,7 @@ func (crh *CustomRaceHandler) Star(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Custom race starred")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_starred"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -284,9 +283,9 @@ func (crh *CustomRaceHandler) Loop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if loopStatus {
-		smweb.AddFlash(w, r, "Custom race added to loop")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_looped"))
 	} else {
-		smweb.AddFlash(w, r, "Custom race removed from loop")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.race.custom_unlooped"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

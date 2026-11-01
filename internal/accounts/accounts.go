@@ -85,7 +85,7 @@ func (ah *AccountHandler) DownloadAccessMiddleware(next http.Handler) http.Handl
 			next.ServeHTTP(w, r)
 		case downloads.LoggedIn:
 			if anonymous {
-				smweb.AddErrorFlash(w, r, "Please log in to download content.")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.login_to_download"))
 				http.Redirect(w, r, "/login", http.StatusFound)
 				return
 			}
@@ -119,7 +119,7 @@ func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowe
 				delete(sess.Values, sessionAccountID)
 				_ = sessions.Save(r, w)
 
-				smweb.AddFlash(w, r, "You have been logged out")
+				smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.logged_out"))
 
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
@@ -127,12 +127,12 @@ func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowe
 
 			if !account.HasGroupPrivilege(serverID, requiredGroup) {
 				if account.GroupFor(serverID) == smmodel.GroupNoAccess {
-					smweb.AddErrorFlash(w, r, "You do not have permission to access this ACPitwall instance.")
+					smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.no_access"))
 					http.Redirect(w, r, "/login", http.StatusFound)
 					return
 				}
 
-				smweb.AddErrorFlash(w, r, "You do not have permission to view this page.")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.no_permission"))
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
 			}
@@ -148,7 +148,7 @@ func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowe
 		}
 
 		if !ok {
-			smweb.AddErrorFlash(w, r, "You do not have permission to view this page. Please login first.")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.login_first"))
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}
@@ -231,9 +231,9 @@ func (ah *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 		switch {
 		case err == ErrInvalidUsernameOrPassword:
-			smweb.AddErrorFlash(w, r, "Invalid username or password. Check your details and try again.")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.invalid_login"))
 		case err == ErrAccountNeedsPassword:
-			smweb.AddFlash(w, r, "Thanks for logging in. We need you to set up a permanent password for your account.")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.set_password"))
 			http.Redirect(w, r, "/accounts/new-password", http.StatusFound)
 			return
 		case err != nil:
@@ -241,7 +241,7 @@ func (ah *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 			return
 		default: // err == nil, successful auth
-			smweb.AddFlash(w, r, "Thanks for logging in!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.logged_in"))
 			http.Redirect(w, r, "/", http.StatusFound)
 			return
 		}
@@ -251,12 +251,12 @@ func (ah *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
-	ah.toggleOption(w, r, "Server openness", func(o *ServerAccountOptions) { o.IsOpen = !o.IsOpen })
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.openness_changed"), func(o *ServerAccountOptions) { o.IsOpen = !o.IsOpen })
 }
 
 // TogglePublicStats switches the "public driver statistics" option.
 func (ah *AccountHandler) TogglePublicStats(w http.ResponseWriter, r *http.Request) {
-	ah.toggleOption(w, r, "Public driver statistics", func(o *ServerAccountOptions) { o.PublicStats = !o.PublicStats })
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.public_stats_changed"), func(o *ServerAccountOptions) { o.PublicStats = !o.PublicStats })
 }
 
 // SetDownloadAccess sets the "downloads" option from the form value "access" (public, login or off).
@@ -268,7 +268,7 @@ func (ah *AccountHandler) SetDownloadAccess(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	ah.toggleOption(w, r, "Download access", func(o *ServerAccountOptions) { o.DownloadAccess = access })
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.download_access_changed"), func(o *ServerAccountOptions) { o.DownloadAccess = access })
 }
 
 // SetTeamOptions sets the team options from the form values "creation" (enabled or disabled) and "max" (a whole
@@ -293,7 +293,7 @@ func (ah *AccountHandler) SetTeamOptions(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	ah.toggleOption(w, r, "Team options", func(o *ServerAccountOptions) {
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.team_options_changed"), func(o *ServerAccountOptions) {
 		o.DisableTeamCreation = disable
 		o.MaxOwnedTeams = max
 	})
@@ -344,10 +344,11 @@ func (ah *AccountHandler) SetSkinSettings(w http.ResponseWriter, r *http.Request
 		*f.dest = n
 	}
 
-	ah.toggleOption(w, r, "Skin options", func(o *ServerAccountOptions) { o.Skins = settings })
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.skin_options_changed"), func(o *ServerAccountOptions) { o.Skins = settings })
 }
 
-func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, name string, toggle func(*ServerAccountOptions)) {
+// toggleOption changes the server account options and flashes the (translated) message saved.
+func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, saved string, toggle func(*ServerAccountOptions)) {
 	err := ah.store.GetMeta(serverAccountOptionsMetaKey, &ah.accountManager.options)
 
 	if err != nil && err != smstore.ErrValueNotSet {
@@ -366,7 +367,7 @@ func (ah *AccountHandler) toggleOption(w http.ResponseWriter, r *http.Request, n
 		return
 	}
 
-	smweb.AddFlash(w, r, name+" successfully changed")
+	smweb.AddFlash(w, r, saved)
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -388,12 +389,12 @@ func (ah *AccountHandler) NewPassword(w http.ResponseWriter, r *http.Request) {
 			currentPasswordHash, err := hashPassword([]byte(currentPassword), []byte(account.PasswordSalt))
 
 			if err != nil {
-				smweb.AddErrorFlash(w, r, "Unable to change your password")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.password_not_changed"))
 				set = false
 			}
 
 			if !(subtle.ConstantTimeCompare([]byte(currentPasswordHash), []byte(account.PasswordHash)) == 1) {
-				smweb.AddErrorFlash(w, r, "Unable to change your password")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.password_not_changed"))
 				set = false
 			}
 		}
@@ -404,7 +405,7 @@ func (ah *AccountHandler) NewPassword(w http.ResponseWriter, r *http.Request) {
 				err := ah.accountManager.ChangePassword(account, password)
 
 				if err == nil {
-					smweb.AddFlash(w, r, "Your password was successfully changed!")
+					smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.password_changed"))
 					if updateDetails {
 						http.Redirect(w, r, "/accounts/update", http.StatusFound)
 					} else {
@@ -413,10 +414,10 @@ func (ah *AccountHandler) NewPassword(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				smweb.AddErrorFlash(w, r, "Unable to change your password")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.password_not_changed"))
 				logrus.WithError(err).Errorf("Could not change password for account id: %s", account.ID.String())
 			} else {
-				smweb.AddErrorFlash(w, r, "Your passwords must match")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.passwords_must_match"))
 			}
 		}
 	}
@@ -449,7 +450,7 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 			err := ah.accountManager.updateDetails(account, driverName, guid, team, theme, language)
 
 			if err != nil {
-				smweb.AddErrorFlash(w, r, "Unable to update account details")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.details_not_updated"))
 				logrus.WithError(err).Errorf("Could not update details for account id: %s", account.ID.String())
 			} else {
 				if account.GUID != "" {
@@ -470,7 +471,7 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 					smweb.RememberLanguage(w, account.Language)
 				}
 
-				smweb.AddFlash(w, r, "Your details were successfully changed!")
+				smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.details_changed"))
 				http.Redirect(w, r, "/", http.StatusFound)
 				return
 			}
@@ -490,16 +491,16 @@ func (ah *AccountHandler) DeleteAccount(w http.ResponseWriter, r *http.Request) 
 	accountID := chi.URLParam(r, "id")
 
 	if requestAccount.ID.String() == accountID {
-		smweb.AddErrorFlash(w, r, "You can't delete your own account!")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.cannot_delete_self"))
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
 
 	if err := ah.store.DeleteAccount(accountID); err != nil {
 		logrus.WithError(err).Errorf("Could not delete account")
-		smweb.AddErrorFlash(w, r, "Could not delete account")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.not_deleted"))
 	} else {
-		smweb.AddFlash(w, r, "Account successfully deleted")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.deleted"))
 
 		if id, err := uuid.Parse(accountID); err == nil && ah.onAccountDeleted != nil {
 			if err := ah.onAccountDeleted(id); err != nil {
@@ -517,10 +518,10 @@ func (ah *AccountHandler) ResetPassword(w http.ResponseWriter, r *http.Request) 
 	account, err := ah.accountManager.resetPassword(accountID)
 
 	if err != nil {
-		smweb.AddErrorFlash(w, r, "Unable to reset account password")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.password_not_reset"))
 		logrus.WithError(err).Errorf("Could not reset password for account id: %s", accountID)
 	} else {
-		smweb.AddFlash(w, r, fmt.Sprintf("We have autogenerated a new password for %s, it is: %s", account.Name, account.DefaultPassword))
+		smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.password_reset", "name", account.Name, "password", account.DefaultPassword))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -778,9 +779,9 @@ func (ah *AccountHandler) CreateOrEditAccount(w http.ResponseWriter, r *http.Req
 		}
 
 		if isEditing {
-			smweb.AddFlash(w, r, "Account successfully edited")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.edited"))
 		} else {
-			smweb.AddFlash(w, r, "Account successfully created")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.created"))
 		}
 
 		http.Redirect(w, r, "/accounts", http.StatusFound)

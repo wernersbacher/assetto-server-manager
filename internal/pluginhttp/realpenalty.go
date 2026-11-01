@@ -65,9 +65,9 @@ func (rph *RealPenaltyHandler) Options(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save Real Penalty options")
-			smweb.AddErrorFlash(w, r, "Failed to save Real Penalty options")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.plugins.realpenalty_not_saved"))
 		} else {
-			smweb.AddFlash(w, r, "Real Penalty options successfully saved!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.plugins.realpenalty_saved"))
 		}
 	}
 

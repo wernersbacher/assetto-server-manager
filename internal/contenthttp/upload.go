@@ -73,11 +73,26 @@ func (cuh *ContentUploadHandler) Upload(contentType ContentType) http.HandlerFun
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't upload file")
-			smweb.AddErrorFlash(w, r, string(contentType)+"(s) could not be added")
+			switch contentType {
+			case ContentTypeCar:
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.cars_not_added"))
+			case ContentTypeTrack:
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.tracks_not_added"))
+			default:
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.weather_not_added"))
+			}
+
 			return
 		}
 
-		smweb.AddFlash(w, r, string(contentType)+"(s) added successfully!")
+		switch contentType {
+		case ContentTypeCar:
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.cars_added"))
+		case ContentTypeTrack:
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.tracks_added"))
+		default:
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.weather_added"))
+		}
 	}
 }
 

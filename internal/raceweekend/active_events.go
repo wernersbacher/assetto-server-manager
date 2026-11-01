@@ -1,7 +1,6 @@
 package raceweekend
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -70,12 +69,11 @@ func (rwh *RaceWeekendHandler) manager(w http.ResponseWriter, r *http.Request) (
 	return manager, true
 }
 
-// flashSessionError tells the user why a session action failed, if it is because of the state of the servers.
+// flashSessionError tells the user why a session action failed (fallback is the translated message), if it is
+// because of the state of the servers.
 func flashSessionError(w http.ResponseWriter, r *http.Request, err error, fallback string) {
-	var elsewhere smchampionship.ActiveElsewhereError
-
-	if errors.Is(err, smchampionship.ErrServerBusy) || errors.As(err, &elsewhere) {
-		smweb.AddErrorFlash(w, r, fallback+": "+err.Error())
+	if reason, ok := smchampionship.ServerStateReason(r, err); ok {
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.failed_reason", "message", fallback, "reason", reason))
 		return
 	}
 

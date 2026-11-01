@@ -141,9 +141,23 @@ func skinBack(w http.ResponseWriter, r *http.Request, car string) {
 }
 
 // skinFailed reports an error of the skin manager: refusals as a message to the user, everything else as an error.
+// what is the action: "skin upload", "changing the skin" or "deleting the skin".
 func skinFailed(w http.ResponseWriter, r *http.Request, car string, err error, what string) {
 	if skins.IsUserError(err) {
-		smweb.AddErrorFlash(w, r, strings.ToUpper(what[:1])+what[1:]+" failed: "+skins.Message(err)+".")
+		reason := skins.Message(err)
+
+		var message string
+
+		switch what {
+		case "skin upload":
+			message = smweb.T(r, "flash.content.skin_upload_failed", "reason", reason)
+		case "changing the skin":
+			message = smweb.T(r, "flash.content.skin_change_failed", "reason", reason)
+		default:
+			message = smweb.T(r, "flash.content.skin_delete_failed", "reason", reason)
+		}
+
+		smweb.AddErrorFlash(w, r, message)
 		skinBack(w, r, car)
 
 		return
@@ -158,7 +172,7 @@ func skinActor(w http.ResponseWriter, r *http.Request, car string) (skins.Actor,
 	actor := smweb.SkinActorFromRequest(r)
 
 	if actor.ID == uuid.Nil {
-		smweb.AddErrorFlash(w, r, "Please log in to manage skins.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.skin_login"))
 		skinBack(w, r, car)
 
 		return actor, false
@@ -198,7 +212,7 @@ func (ch *CarsHandler) UploadSkin(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, ch.userSkins.UploadCap(actor))
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
-		smweb.AddErrorFlash(w, r, "The skin upload was refused: it is larger than the skin limits allow.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.skin_too_large"))
 		skinBack(w, r, car)
 
 		return
@@ -236,7 +250,7 @@ func (ch *CarsHandler) UploadSkin(w http.ResponseWriter, r *http.Request) {
 		names = append(names, skin.Name)
 	}
 
-	smweb.AddFlash(w, r, fmt.Sprintf("Skin %s uploaded successfully (%s).", strings.Join(names, ", "), visibility))
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.skin_uploaded", "skins", strings.Join(names, ", "), "visibility", skinVisibilityName(r, visibility)))
 	skinBack(w, r, car)
 }
 
@@ -270,8 +284,20 @@ func (ch *CarsHandler) SetSkinVisibility(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	smweb.AddFlash(w, r, "The skin is "+string(visibility)+" now.")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.skin_visibility_changed", "visibility", skinVisibilityName(r, visibility)))
 	skinBack(w, r, car)
+}
+
+// skinVisibilityName is the translated name of a skin visibility (private, team, global).
+func skinVisibilityName(r *http.Request, visibility smmodel.SkinVisibility) string {
+	switch visibility {
+	case smmodel.SkinTeam:
+		return smweb.T(r, "flash.content.skin_visibility.team")
+	case smmodel.SkinGlobal:
+		return smweb.T(r, "flash.content.skin_visibility.global")
+	default:
+		return smweb.T(r, "flash.content.skin_visibility.private")
+	}
 }
 
 // RemoveSkin deletes one of the skins of the visitor (or any skin, for accounts with write access): the form field
@@ -295,7 +321,7 @@ func (ch *CarsHandler) RemoveSkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Skin deleted successfully!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.skin_deleted"))
 	skinBack(w, r, car)
 }
 

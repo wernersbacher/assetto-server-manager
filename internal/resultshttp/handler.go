@@ -128,11 +128,11 @@ func (rh *ResultsHandler) UploadHandler(w http.ResponseWriter, r *http.Request) 
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not parse results form")
-		smweb.AddErrorFlash(w, r, "Sorry, we couldn't parse that results file! Please make sure the format is correct.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.results.parse_failed"))
 	}
 
 	if !matched {
-		smweb.AddErrorFlash(w, r, "Your results file content was correct, but the file name is incorrect! Please make sure the file name matches the AC standard then try again.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.results.bad_file_name"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -401,7 +401,7 @@ func (rh *ResultsHandler) Edit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Drivers successfully edited")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.results.drivers_edited"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -418,12 +418,16 @@ func (rh *ResultsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	case errors.As(err, &referencedErr):
 		logrus.WithError(err).Warnf("refusing to delete results file: %s", fileName)
-		smweb.AddErrorFlash(w, r, fmt.Sprintf("Results file could not be deleted, it is used by %s", referencedErr.Reference))
+		if referencedErr.Championship {
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.results.used_by_championship", "name", referencedErr.Name))
+		} else {
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.results.used_by_race_weekend", "name", referencedErr.Name))
+		}
 	case err != nil:
 		logrus.WithError(err).Errorf("could not delete results file: %s", fileName)
-		smweb.AddErrorFlash(w, r, "Unable to delete the results file")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.results.not_deleted"))
 	default:
-		smweb.AddFlash(w, r, "Results file successfully deleted")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.results.deleted"))
 	}
 
 	http.Redirect(w, r, "/results", http.StatusFound)

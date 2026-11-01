@@ -177,7 +177,7 @@ func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Requ
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save message of the day")
-			smweb.AddErrorFlash(w, r, "Failed to save message changes")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.admin.messages_not_saved"))
 			success = false
 		}
 
@@ -186,12 +186,12 @@ func (sah *ServerAdministrationHandler) MOTD(w http.ResponseWriter, r *http.Requ
 
 		if err := slot.Store.UpsertServerOptions(opts); err != nil {
 			logrus.WithError(err).Error("couldn't save messages")
-			smweb.AddErrorFlash(w, r, "Failed to save message changes")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.admin.messages_not_saved"))
 			success = false
 		}
 
 		if success {
-			smweb.AddFlash(w, r, "Messages successfully saved!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.admin.messages_saved"))
 		}
 	}
 
@@ -301,9 +301,9 @@ func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.R
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save config")
-			smweb.AddErrorFlash(w, r, "Failed to save server options")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.admin.options_not_saved"))
 		} else {
-			smweb.AddFlash(w, r, "Server options successfully saved!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.admin.options_saved"))
 		}
 
 	}
@@ -359,9 +359,9 @@ func (sah *ServerAdministrationHandler) Blacklist(w http.ResponseWriter, r *http
 
 		if err != nil {
 			logrus.WithError(err).Error("couldn't save blacklist")
-			smweb.AddErrorFlash(w, r, "Failed to save Server blacklist changes")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.admin.blacklist_not_saved"))
 		} else {
-			smweb.AddFlash(w, r, "Server blacklist successfully changed!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.admin.blacklist_saved"))
 		}
 	}
 
@@ -414,9 +414,9 @@ func (sah *ServerAdministrationHandler) AutoFillEntrantDelete(w http.ResponseWri
 
 	if err != nil {
 		logrus.WithError(err).Error("could not delete entrant")
-		smweb.AddErrorFlash(w, r, "Could not delete entrant")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.admin.entrant_not_deleted"))
 	} else {
-		smweb.AddFlash(w, r, "Successfully deleted entrant")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.admin.entrant_deleted"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -491,9 +491,27 @@ func (sah *ServerAdministrationHandler) ServerProcess(w http.ResponseWriter, r *
 	}
 
 	var err error
-	var txt string
 
 	event := slot.Process.Event()
+
+	var noun string
+
+	switch {
+	case event.IsChampionship() && event.IsPractice():
+		noun = smweb.T(r, "flash.admin.process.championship_practice")
+	case event.IsChampionship():
+		noun = smweb.T(r, "flash.admin.process.championship")
+	case event.IsRaceWeekend() && event.IsPractice():
+		noun = smweb.T(r, "flash.admin.process.race_weekend_practice")
+	case event.IsRaceWeekend():
+		noun = smweb.T(r, "flash.admin.process.race_weekend")
+	case event.IsPractice():
+		noun = smweb.T(r, "flash.admin.process.server_practice")
+	default:
+		noun = smweb.T(r, "flash.admin.process.server")
+	}
+
+	txt := smweb.T(r, "flash.admin.process.changed", "what", noun)
 
 	switch chi.URLParam(r, "action") {
 	case "stop":
@@ -504,7 +522,7 @@ func (sah *ServerAdministrationHandler) ServerProcess(w http.ResponseWriter, r *
 		} else {
 			err = slot.Process.Stop()
 		}
-		txt = "stopped"
+		txt = smweb.T(r, "flash.admin.process.stopped", "what", noun)
 	case "restart":
 		if event.IsChampionship() && !event.IsPractice() {
 			err = slot.ChampionshipManager.RestartActiveEvent()
@@ -513,26 +531,14 @@ func (sah *ServerAdministrationHandler) ServerProcess(w http.ResponseWriter, r *
 		} else {
 			err = slot.Process.Restart()
 		}
-		txt = "restarted"
-	}
-
-	noun := "Server"
-
-	if event.IsChampionship() {
-		noun = "Championship"
-	} else if event.IsRaceWeekend() {
-		noun = "Race Weekend"
-	}
-
-	if event.IsPractice() {
-		noun += " Practice"
+		txt = smweb.T(r, "flash.admin.process.restarted", "what", noun)
 	}
 
 	if err != nil {
-		logrus.WithError(err).Errorf("could not change " + noun + " status")
-		smweb.AddErrorFlash(w, r, "Unable to change "+noun+" status")
+		logrus.WithError(err).Errorf("could not change the status of the server process (%s)", chi.URLParam(r, "action"))
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.admin.process.failed", "what", noun))
 	} else {
-		smweb.AddFlash(w, r, noun+" successfully "+txt)
+		smweb.AddFlash(w, r, txt)
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

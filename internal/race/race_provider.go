@@ -53,7 +53,7 @@ func flashServerBusy(w http.ResponseWriter, r *http.Request, err error) bool {
 		return false
 	}
 
-	smweb.AddErrorFlash(w, r, "The event was not started: this server is already running an event. Stop it first, or start on another server.")
+	smweb.AddErrorFlash(w, r, smweb.T(r, "flash.race.server_busy"))
 
 	if referer := r.Referer(); referer != "" {
 		http.Redirect(w, r, referer, http.StatusFound)

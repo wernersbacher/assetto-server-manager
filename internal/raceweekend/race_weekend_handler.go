@@ -176,7 +176,7 @@ func (rwh *RaceWeekendHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Race Weekend successfully deleted!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.deleted"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -196,10 +196,10 @@ func (rwh *RaceWeekendHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if edited {
-		smweb.AddFlash(w, r, "Race Weekend successfully edited!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.edited"))
 		http.Redirect(w, r, "/race-weekend/"+raceWeekend.ID.String(), http.StatusFound)
 	} else {
-		smweb.AddFlash(w, r, "We've created the Race Weekend. Now you need to add some sessions!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.created"))
 		http.Redirect(w, r, "/race-weekend/"+raceWeekend.ID.String()+"/session", http.StatusFound)
 	}
 }
@@ -254,19 +254,9 @@ func (rwh *RaceWeekendHandler) SubmitSessionConfiguration(w http.ResponseWriter,
 	}
 
 	if edited {
-		smweb.AddFlash(w, r,
-			fmt.Sprintf(
-				"Race Weekend session at %s was successfully edited!",
-				smcontent.PrettifyName(session.RaceConfig.Track, false),
-			),
-		)
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_edited", "track", smcontent.PrettifyName(session.RaceConfig.Track, false)))
 	} else {
-		smweb.AddFlash(w, r,
-			fmt.Sprintf(
-				"Race Weekend session at %s was successfully added!",
-				smcontent.PrettifyName(session.RaceConfig.Track, false),
-			),
-		)
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_added", "track", smcontent.PrettifyName(session.RaceConfig.Track, false)))
 	}
 
 	if r.FormValue("action") == "saveRaceWeekend" {
@@ -295,9 +285,9 @@ func (rwh *RaceWeekendHandler) StartSession(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start Race Weekend session")
 
-		flashSessionError(w, r, err, "Couldn't start the Session")
+		flashSessionError(w, r, err, smweb.T(r, "flash.raceweekend.session_not_started"))
 	} else {
-		smweb.AddFlash(w, r, "Session started successfully!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_started"))
 		time.Sleep(time.Second * 1)
 	}
 
@@ -320,9 +310,9 @@ func (rwh *RaceWeekendHandler) StartPracticeSession(w http.ResponseWriter, r *ht
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not start Race Weekend practice session")
 
-		flashSessionError(w, r, err, "Couldn't start the Session")
+		flashSessionError(w, r, err, smweb.T(r, "flash.raceweekend.session_not_started"))
 	} else {
-		smweb.AddFlash(w, r, "Session started successfully!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_started"))
 		time.Sleep(time.Second * 1)
 	}
 
@@ -345,9 +335,9 @@ func (rwh *RaceWeekendHandler) RestartSession(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not restart Race Weekend session")
 
-		flashSessionError(w, r, err, "Couldn't restart the Session")
+		flashSessionError(w, r, err, smweb.T(r, "flash.raceweekend.session_not_restarted"))
 	} else {
-		smweb.AddFlash(w, r, "Session restarted successfully!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_restarted"))
 		time.Sleep(time.Second * 1)
 	}
 
@@ -370,9 +360,9 @@ func (rwh *RaceWeekendHandler) CancelSession(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not cancel Race Weekend session")
 
-		flashSessionError(w, r, err, "Couldn't cancel the Session")
+		flashSessionError(w, r, err, smweb.T(r, "flash.raceweekend.session_not_cancelled"))
 	} else {
-		smweb.AddFlash(w, r, "Session canceled successfully!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_cancelled"))
 		time.Sleep(time.Second * 1)
 	}
 
@@ -391,9 +381,9 @@ func (rwh *RaceWeekendHandler) DeleteSession(w http.ResponseWriter, r *http.Requ
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete Race Weekend session")
 
-		smweb.AddErrorFlash(w, r, "Couldn't delete the Session")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.raceweekend.session_not_deleted"))
 	} else {
-		smweb.AddFlash(w, r, "Session deleted successfully!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.session_deleted"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -422,9 +412,9 @@ func (rwh *RaceWeekendHandler) ImportSessionResults(w http.ResponseWriter, r *ht
 
 		if err != nil {
 			logrus.WithError(err).Errorf("Could not import race weekend session")
-			smweb.AddErrorFlash(w, r, "Could not import race weekend session files")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.raceweekend.session_import_failed"))
 		} else {
-			smweb.AddFlash(w, r, "Successfully imported session files!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.sessions_imported"))
 			http.Redirect(w, r, "/race-weekend/"+raceWeekendID, http.StatusFound)
 			return
 		}
@@ -722,9 +712,9 @@ func (rwh *RaceWeekendHandler) ImportRaceWeekend(w http.ResponseWriter, r *http.
 
 		if err != nil {
 			logrus.WithError(err).Error("could not import race weekend")
-			smweb.AddErrorFlash(w, r, "Sorry, we couldn't import that Race Weekend! Check your JSON formatting.")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.raceweekend.import_failed"))
 		} else {
-			smweb.AddFlash(w, r, "Race Weekend successfully imported!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.raceweekend.imported"))
 			http.Redirect(w, r, "/race-weekend/"+raceWeekendID, http.StatusFound)
 		}
 	}
@@ -775,10 +765,10 @@ func (rwh *RaceWeekendHandler) ScheduleSession(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		message = fmt.Sprintf("We have scheduled the Race Weekend Session to begin at %s", date.Format(time.RFC1123))
+		message = smweb.T(r, "flash.raceweekend.session_scheduled", "date", date.Format(time.RFC1123))
 
 	} else {
-		message = "We have scheduled the Race Weekend Session to begin after the parent session(s) complete."
+		message = smweb.T(r, "flash.raceweekend.session_scheduled_after_parent")
 	}
 
 	err := rwm.ScheduleSession(championshipID, championshipEventID, date, startWhenParentFinished)

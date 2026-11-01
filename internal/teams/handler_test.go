@@ -3,9 +3,11 @@ package teams
 import (
 	"context"
 	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -13,6 +15,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 
+	"github.com/wernersbacher/ACPitwall/internal/i18n"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -515,21 +518,36 @@ func TestHandler_RenameErrors(t *testing.T) {
 }
 
 func TestTeamErrorMessage(t *testing.T) {
+	// the English flash messages of the catalogs
+	catalog, err := ioutil.ReadFile(filepath.Join("..", "..", "cmd", "acpitwall", "views", "locales", "flash.en.yaml"))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	bundle, err := i18n.NewBundle(map[string][]byte{"flash.en.yaml": catalog})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	r := smweb.WithBundle(httptest.NewRequest(http.MethodGet, "/", nil), bundle)
+
 	for _, err := range []error{
 		smmodel.ErrTeamNotFound, smmodel.ErrTeamNameInvalid, smmodel.ErrTeamNameTaken, smmodel.ErrNotTeamMember,
 		smmodel.ErrAlreadyTeamMember, smmodel.ErrTeamInviteInvalid, smmodel.ErrTeamPermission, smmodel.ErrTeamOwnerRole,
 		smmodel.ErrTeamTransferToSelf, smmodel.ErrTeamLimitReached, smmodel.ErrTeamCreationBlocked, smstore.ErrAccountNotFound,
 	} {
-		if message, ok := teamErrorMessage(err); !ok || message == "" {
-			t.Errorf("%v: no message", err)
+		if message, ok := teamErrorMessage(r, err); !ok || message == "" || strings.HasPrefix(message, "flash.") {
+			t.Errorf("%v: no message (%q)", err, message)
 		}
 	}
 
-	if _, ok := teamErrorMessage(errors.New("disk is on fire")); ok {
+	if _, ok := teamErrorMessage(r, errors.New("disk is on fire")); ok {
 		t.Error("unknown errors must not be shown to the user")
 	}
 
-	if message, _ := teamErrorMessage(smmodel.ErrTeamNameInvalid); !strings.Contains(message, "2") || !strings.Contains(message, "40") {
+	if message, _ := teamErrorMessage(r, smmodel.ErrTeamNameInvalid); !strings.Contains(message, "2") || !strings.Contains(message, "40") {
 		t.Errorf("the name rules belong in the message: %q", message)
 	}
 }

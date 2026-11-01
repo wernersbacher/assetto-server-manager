@@ -151,7 +151,7 @@ func (ch *CarsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not delete car: %s", carName)
-		smweb.AddErrorFlash(w, r, "couldn't get car list")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.car_not_deleted", "car", carName))
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
@@ -162,7 +162,7 @@ func (ch *CarsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	smweb.AddFlash(w, r, fmt.Sprintf("Car %s successfully deleted!", carName))
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.car_deleted", "car", carName))
 	http.Redirect(w, r, "/cars", http.StatusFound)
 }
 
@@ -217,18 +217,18 @@ func (ch *CarsHandler) Tags(w http.ResponseWriter, r *http.Request) {
 		err := ch.carManager.AddTag(car, tag)
 
 		if err == nil {
-			smweb.AddFlash(w, r, fmt.Sprintf("Successfully added the tag: %s", tag))
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.tag_added", "tag", tag))
 		} else {
-			smweb.AddFlash(w, r, "Could not add tag")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.tag_not_added"))
 		}
 	} else {
 		tag := r.URL.Query().Get("delete")
 		err := ch.carManager.DelTag(car, tag)
 
 		if err == nil {
-			smweb.AddFlash(w, r, fmt.Sprintf("Successfully deleted the tag: %s", tag))
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.tag_deleted", "tag", tag))
 		} else {
-			smweb.AddFlash(w, r, "Could not delete tag")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.content.tag_not_deleted"))
 		}
 	}
 
@@ -249,7 +249,7 @@ func (ch *CarsHandler) SaveMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Car metadata updated successfully!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.car_metadata_updated"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -285,7 +285,7 @@ func (ch *CarsHandler) DeleteSkin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Car skin deleted successfully!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.car_skin_deleted"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 
@@ -298,7 +298,7 @@ func (ch *CarsHandler) RebuildSearchIndex(w http.ResponseWriter, r *http.Request
 		}
 	})
 
-	smweb.AddFlash(w, r, "Started re-indexing cars!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.reindexing_cars"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 

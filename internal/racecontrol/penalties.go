@@ -40,7 +40,7 @@ func (ph *PenaltiesHandler) ManagePenalty(w http.ResponseWriter, r *http.Request
 	err := r.ParseForm()
 
 	if err != nil {
-		smweb.AddErrorFlash(w, r, "Could not parse penalty form")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.racecontrol.penalty_form_invalid"))
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
@@ -59,7 +59,7 @@ func (ph *PenaltiesHandler) ManagePenalty(w http.ResponseWriter, r *http.Request
 
 			if err != nil {
 				logrus.WithError(err).Errorf("could not parse penalty time")
-				smweb.AddErrorFlash(w, r, "Could not parse penalty time")
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.racecontrol.penalty_time_invalid"))
 				http.Redirect(w, r, r.Referer(), http.StatusFound)
 				return
 			}
@@ -71,15 +71,15 @@ func (ph *PenaltiesHandler) ManagePenalty(w http.ResponseWriter, r *http.Request
 	err = ph.penaltiesManager.applyPenalty(jsonFileName, guid, carModel, penalty, add)
 
 	if err != nil {
-		smweb.AddErrorFlash(w, r, "Could not add/remove penalty")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.racecontrol.penalty_failed"))
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
 
 	if !add {
-		smweb.AddFlash(w, r, "Penalty Removed!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.racecontrol.penalty_removed"))
 	} else {
-		smweb.AddFlash(w, r, "Penalty Added!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.racecontrol.penalty_added"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

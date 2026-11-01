@@ -60,9 +60,9 @@ func (kmrh *KissMyRankHandler) Options(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save KissMyRank options")
-			smweb.AddErrorFlash(w, r, "Failed to save KissMyRank options")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.plugins.kissmyrank_not_saved"))
 		} else {
-			smweb.AddFlash(w, r, "KissMyRank options successfully saved!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.plugins.kissmyrank_saved"))
 		}
 	}
 

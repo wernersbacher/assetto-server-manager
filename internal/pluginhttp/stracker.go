@@ -226,9 +226,9 @@ func (sth *StrackerHandler) Options(w http.ResponseWriter, r *http.Request) {
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't save stracker options")
-			smweb.AddErrorFlash(w, r, "Failed to save stracker options")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.plugins.stracker_not_saved"))
 		} else {
-			smweb.AddFlash(w, r, "Stracker options successfully saved!")
+			smweb.AddFlash(w, r, smweb.T(r, "flash.plugins.stracker_saved"))
 		}
 
 		err = sth.initReverseProxy(slot)

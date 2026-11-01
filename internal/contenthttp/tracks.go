@@ -66,7 +66,7 @@ func (th *TracksHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Errorf("could not get track list")
-		smweb.AddErrorFlash(w, r, "couldn't get track list")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.track_list_failed"))
 		http.Redirect(w, r, r.Referer(), http.StatusFound)
 		return
 	}
@@ -95,10 +95,10 @@ func (th *TracksHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	if found {
 		// confirm deletion
-		smweb.AddFlash(w, r, "Track successfully deleted!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.content.track_deleted"))
 	} else {
 		// inform track wasn't found
-		smweb.AddErrorFlash(w, r, "Sorry, track could not be deleted.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.track_not_deleted"))
 	}
 
 	http.Redirect(w, r, "/tracks", http.StatusFound)
@@ -140,7 +140,7 @@ func (th *TracksHandler) SaveMetadata(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	smweb.AddFlash(w, r, "Track metadata updated successfully!")
+	smweb.AddFlash(w, r, smweb.T(r, "flash.content.track_metadata_updated"))
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
 }
 

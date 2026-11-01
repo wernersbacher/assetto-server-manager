@@ -44,7 +44,7 @@ func (tr *Renderer) TranslationMiddleware(next http.Handler) http.Handler {
 }
 
 // T translates a message for the language of the request, e.g. for flash messages:
-// smweb.AddFlash(w, r, smweb.T(r, "flash.saved", "name", name)). Without catalogs on the request (see
+// AddFlash(w, r, T(r, "flash.<area>.<key>", "name", name)). Without catalogs on the request (see
 // TranslationMiddleware) it returns the key.
 func T(r *http.Request, key string, args ...interface{}) string {
 	bundle, _ := r.Context().Value(bundleContextKey{}).(*i18n.Bundle)
@@ -54,6 +54,18 @@ func T(r *http.Request, key string, args ...interface{}) string {
 	}
 
 	return bundle.Translator(RequestLanguage(r, bundle)).T(key, args...)
+}
+
+// lookupForRequest returns the message of the key in the language of the request, false if there is none (or no
+// catalogs on the request).
+func lookupForRequest(r *http.Request, key string) (string, bool) {
+	bundle, _ := r.Context().Value(bundleContextKey{}).(*i18n.Bundle)
+
+	if bundle == nil {
+		return "", false
+	}
+
+	return bundle.Translator(RequestLanguage(r, bundle)).Lookup(key)
 }
 
 // languageChoice returns the language which was picked explicitly (account or cookie), empty if the browser language

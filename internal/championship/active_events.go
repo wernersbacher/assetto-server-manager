@@ -83,14 +83,37 @@ func (ch *ChampionshipsHandler) manager(w http.ResponseWriter, r *http.Request) 
 	return manager, true
 }
 
-// flashEventError tells the user why an event action failed, if it is because of the state of the servers.
+// flashEventError tells the user why an event action failed (fallback is the translated message), if it is because
+// of the state of the servers.
 func flashEventError(w http.ResponseWriter, r *http.Request, err error, fallback string) {
-	var elsewhere ActiveElsewhereError
-
-	if errors.Is(err, ErrServerBusy) || errors.As(err, &elsewhere) {
-		smweb.AddErrorFlash(w, r, fallback+": "+err.Error())
+	if reason, ok := ServerStateReason(r, err); ok {
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.failed_reason", "message", fallback, "reason", reason))
 		return
 	}
 
 	smweb.AddErrorFlash(w, r, fallback)
+}
+
+// ServerStateReason returns the translated reason if err is because of the state of the servers (the server is busy,
+// or the event is active on another server).
+func ServerStateReason(r *http.Request, err error) (string, bool) {
+	var elsewhere ActiveElsewhereError
+
+	switch {
+	case errors.Is(err, ErrServerBusy):
+		return smweb.T(r, "flash.championship.server_busy"), true
+	case errors.As(err, &elsewhere):
+		switch elsewhere.Subject {
+		case "championship":
+			return smweb.T(r, "flash.championship.championship_active_elsewhere", "server", elsewhere.Server.Name), true
+		case "race weekend":
+			return smweb.T(r, "flash.championship.race_weekend_active_elsewhere", "server", elsewhere.Server.Name), true
+		case "championship of this race weekend":
+			return smweb.T(r, "flash.championship.linked_championship_active_elsewhere", "server", elsewhere.Server.Name), true
+		}
+
+		return err.Error(), true
+	}
+
+	return "", false
 }

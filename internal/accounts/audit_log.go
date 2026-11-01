@@ -79,7 +79,7 @@ func (alh *AuditLogHandler) ViewLogs(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Error("couldn't find audit logs")
-		smweb.AddErrorFlash(w, r, "Couldn't open audit logs")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.audit_logs_failed"))
 	}
 
 	// sort to newest first

@@ -97,13 +97,13 @@ func (wh *WeatherHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case err == nil:
-		smweb.AddFlash(w, r, "Weather preset successfully deleted!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.content.weather_deleted"))
 	case err == errWeatherNotInstalled:
 		// inform weather wasn't found
-		smweb.AddErrorFlash(w, r, "Sorry, weather preset could not be deleted. Are you sure it was installed? Built-in presets cannot be deleted.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.weather_not_installed"))
 	default:
 		logrus.WithError(err).Errorf("could not remove weather files")
-		smweb.AddErrorFlash(w, r, "Sorry, weather preset could not be deleted.")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.weather_not_deleted"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

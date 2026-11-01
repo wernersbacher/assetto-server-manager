@@ -446,7 +446,7 @@ func (rch *RaceControlHandler) RestartSession(w http.ResponseWriter, r *http.Req
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to restart session")
 
-		smweb.AddErrorFlash(w, r, "The server was unable to restart the session!")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.racecontrol.restart_failed"))
 	}
 
 	http.Redirect(w, r, smweb.ServerURL(r, "/live-timing"), http.StatusFound)
@@ -464,7 +464,7 @@ func (rch *RaceControlHandler) NextSession(w http.ResponseWriter, r *http.Reques
 	if err != nil {
 		logrus.WithError(err).Errorf("Unable to move to next session")
 
-		smweb.AddErrorFlash(w, r, "The server was unable to move to the next session!")
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.racecontrol.next_session_failed"))
 	}
 
 	http.Redirect(w, r, smweb.ServerURL(r, "/live-timing"), http.StatusFound)

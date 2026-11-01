@@ -1,7 +1,6 @@
 package contenthttp
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -29,12 +28,12 @@ func (sh *SetupsHandler) Upload(w http.ResponseWriter, r *http.Request) {
 		logrus.WithError(err).Errorf("Could not upload setup file")
 
 		if carName != "" {
-			smweb.AddErrorFlash(w, r, fmt.Sprintf("Unable to upload setup file for %s", carName))
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.setup_upload_failed_car", "car", carName))
 		} else {
-			smweb.AddErrorFlash(w, r, "Unable to upload setup file")
+			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.setup_upload_failed"))
 		}
 	} else {
-		smweb.AddFlash(w, r, fmt.Sprintf("The setup file for %s was uploaded successfully!", carName))
+		smweb.AddFlash(w, r, smweb.T(r, "flash.content.setup_uploaded", "car", carName))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)
@@ -54,9 +53,9 @@ func (sh *SetupsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Could not remove setup %s/%s/%s", carName, trackName, setupName)
-		smweb.AddErrorFlash(w, r, "Couldn't delete setup for "+carName)
+		smweb.AddErrorFlash(w, r, smweb.T(r, "flash.content.setup_not_deleted", "car", carName))
 	} else {
-		smweb.AddFlash(w, r, "Setup successfully deleted!")
+		smweb.AddFlash(w, r, smweb.T(r, "flash.content.setup_deleted"))
 	}
 
 	http.Redirect(w, r, r.Referer(), http.StatusFound)

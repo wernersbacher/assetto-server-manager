@@ -1,0 +1,221 @@
+# Flash-Meldungen der Go-Handler (smweb.T(r, "flash.<area>.<key>", ...)).
+flash:
+  accounts:
+    login_to_download: Bitte melde dich an, um Inhalte herunterzuladen.
+    logged_out: Du wurdest abgemeldet
+    no_access: Du hast keine Berechtigung für diese ACPitwall-Instanz.
+    no_permission: Du hast keine Berechtigung, diese Seite anzusehen.
+    login_first: Du hast keine Berechtigung, diese Seite anzusehen. Bitte melde dich zuerst an.
+    invalid_login: Ungültiger Benutzername oder ungültiges Passwort. Prüfe deine Angaben und versuche es erneut.
+    set_password: Danke für deine Anmeldung. Bitte lege jetzt ein dauerhaftes Passwort für dein Konto fest.
+    logged_in: Danke für deine Anmeldung!
+    openness_changed: Offenheit des Servers erfolgreich geändert
+    public_stats_changed: Öffentliche Fahrerstatistiken erfolgreich geändert
+    download_access_changed: Download-Zugriff erfolgreich geändert
+    team_options_changed: Team-Optionen erfolgreich geändert
+    skin_options_changed: Skin-Optionen erfolgreich geändert
+    password_not_changed: Dein Passwort konnte nicht geändert werden
+    password_changed: Dein Passwort wurde erfolgreich geändert!
+    passwords_must_match: Deine Passwörter müssen übereinstimmen
+    details_not_updated: Die Kontodaten konnten nicht aktualisiert werden
+    details_changed: Deine Daten wurden erfolgreich geändert!
+    cannot_delete_self: Du kannst dein eigenes Konto nicht löschen!
+    not_deleted: Das Konto konnte nicht gelöscht werden
+    deleted: Konto erfolgreich gelöscht
+    password_not_reset: Das Passwort des Kontos konnte nicht zurückgesetzt werden
+    password_reset: "Wir haben ein neues Passwort für {name} erzeugt: {password}"
+    edited: Konto erfolgreich bearbeitet
+    created: Konto erfolgreich erstellt
+    audit_logs_failed: Die Audit-Logs konnten nicht geöffnet werden
+
+  admin:
+    messages_not_saved: Die Nachrichten konnten nicht gespeichert werden
+    messages_saved: Nachrichten erfolgreich gespeichert!
+    options_not_saved: Die Server-Optionen konnten nicht gespeichert werden
+    options_saved: Server-Optionen erfolgreich gespeichert!
+    blacklist_not_saved: Die Änderungen an der Sperrliste konnten nicht gespeichert werden
+    blacklist_saved: Sperrliste erfolgreich geändert!
+    entrant_not_deleted: Der Teilnehmer konnte nicht gelöscht werden
+    entrant_deleted: Teilnehmer erfolgreich gelöscht
+    process:
+      server: Server
+      server_practice: Server-Training
+      championship: Meisterschaft
+      championship_practice: Meisterschafts-Training
+      race_weekend: Rennwochenende
+      race_weekend_practice: Rennwochenend-Training
+      stopped: "{what} erfolgreich gestoppt"
+      restarted: "{what} erfolgreich neu gestartet"
+      changed: "{what} erfolgreich geändert"
+      failed: "{what}: Der Status konnte nicht geändert werden"
+
+  championship:
+    edited: Meisterschaft erfolgreich bearbeitet!
+    created: Die Meisterschaft wurde erstellt. Jetzt musst du noch Events hinzufügen!
+    duplicated: Meisterschaft erfolgreich dupliziert!
+    import_failed: Die Meisterschaft konnte leider nicht importiert werden! Prüfe das JSON-Format.
+    imported: Meisterschaft erfolgreich importiert!
+    deleted: Meisterschaft gelöscht!
+    session_import_failed: Die Session-Dateien konnten nicht importiert werden
+    sessions_imported: Session-Dateien erfolgreich importiert!
+    event_edited: Das Meisterschaftsrennen auf {track} wurde erfolgreich bearbeitet!
+    event_added: Das Meisterschaftsrennen auf {track} wurde erfolgreich hinzugefügt!
+    event_not_started: Das Event konnte nicht gestartet werden
+    event_started: Event erfolgreich gestartet!
+    event_scheduled: Das Meisterschafts-Event ist für {date} geplant
+    event_not_deleted: Das Event konnte nicht gelöscht werden
+    event_deleted: Event erfolgreich gelöscht!
+    practice_not_started: Das Trainings-Event konnte nicht gestartet werden
+    practice_started: Trainings-Event erfolgreich gestartet!
+    event_not_cancelled: Das Meisterschafts-Event konnte nicht abgebrochen werden
+    event_cancelled: Event erfolgreich abgebrochen!
+    event_not_finished: Das Meisterschafts-Event konnte nicht beendet werden
+    event_finished: Das Event wurde mit den bisher gefahrenen Ergebnissen beendet!
+    event_not_restarted: Das Meisterschafts-Event konnte nicht neu gestartet werden
+    event_restarted: Event erfolgreich neu gestartet!
+    driver_penalty_failed: Die Fahrerstrafe konnte nicht geändert werden
+    driver_penalty_modified: Fahrerstrafe erfolgreich geändert
+    team_penalty_failed: Die Teamstrafe konnte nicht geändert werden
+    team_penalty_modified: Teamstrafe erfolgreich geändert
+    signed_up_pending: Danke für deine Anmeldung zur Meisterschaft! Deine Anmeldung muss noch von einem Administrator bestätigt werden.
+    signed_up: Danke für deine Anmeldung zur Meisterschaft!
+    entrant_already_accepted: Dieser Teilnehmer wurde bereits angenommen.
+    entrant_accepted: Der Teilnehmer wurde erfolgreich angenommen!
+    no_slots: Für diesen Teilnehmer und dieses Auto sind keine Plätze mehr frei. Bitte prüfe die Konfiguration der Meisterschaft.
+    entrant_team_changed: Das Team des Teilnehmers wurde geändert.
+    race_weekend_duplicated: Rennwochenende der Meisterschaft erfolgreich dupliziert!
+    event_duplicated: Meisterschafts-Event erfolgreich dupliziert!
+    failed_reason: "{message}: {reason}"
+    server_busy: auf diesem Server läuft bereits ein Event. Stoppe es zuerst oder starte auf einem anderen Server.
+    championship_active_elsewhere: diese Meisterschaft läuft auf dem Server „{server}“. Wähle diesen Server aus oder stoppe das Event dort zuerst.
+    race_weekend_active_elsewhere: dieses Rennwochenende läuft auf dem Server „{server}“. Wähle diesen Server aus oder stoppe das Event dort zuerst.
+    linked_championship_active_elsewhere: die Meisterschaft dieses Rennwochenendes läuft auf dem Server „{server}“. Wähle diesen Server aus oder stoppe das Event dort zuerst.
+
+  content:
+    car_not_deleted: Das Auto {car} konnte nicht gelöscht werden
+    car_deleted: Auto {car} erfolgreich gelöscht!
+    tag_added: "Tag erfolgreich hinzugefügt: {tag}"
+    tag_not_added: Der Tag konnte nicht hinzugefügt werden
+    tag_deleted: "Tag erfolgreich gelöscht: {tag}"
+    tag_not_deleted: Der Tag konnte nicht gelöscht werden
+    car_metadata_updated: Metadaten des Autos erfolgreich aktualisiert!
+    car_skin_deleted: Skin des Autos erfolgreich gelöscht!
+    reindexing_cars: Die Autos werden neu indiziert!
+    skin_upload_failed: "Hochladen des Skins fehlgeschlagen: {reason}."
+    skin_change_failed: "Ändern des Skins fehlgeschlagen: {reason}."
+    skin_delete_failed: "Löschen des Skins fehlgeschlagen: {reason}."
+    skin_login: Bitte melde dich an, um Skins zu verwalten.
+    skin_too_large: "Der Skin wurde abgelehnt: Er ist größer, als die Skin-Limits erlauben."
+    skin_uploaded: Skin {skins} erfolgreich hochgeladen ({visibility}).
+    skin_visibility_changed: Der Skin ist jetzt {visibility}.
+    skin_visibility:
+      private: privat
+      team: für das Team
+      global: global
+    skin_deleted: Skin erfolgreich gelöscht!
+    cars_added: Auto(s) erfolgreich hinzugefügt!
+    cars_not_added: Auto(s) konnten nicht hinzugefügt werden
+    tracks_added: Strecke(n) erfolgreich hinzugefügt!
+    tracks_not_added: Strecke(n) konnten nicht hinzugefügt werden
+    weather_added: Wetter-Preset(s) erfolgreich hinzugefügt!
+    weather_not_added: Wetter-Preset(s) konnten nicht hinzugefügt werden
+    weather_deleted: Wetter-Preset erfolgreich gelöscht!
+    weather_not_installed: Das Wetter-Preset konnte leider nicht gelöscht werden. Ist es wirklich installiert? Eingebaute Presets können nicht gelöscht werden.
+    weather_not_deleted: Das Wetter-Preset konnte leider nicht gelöscht werden.
+    track_list_failed: Die Streckenliste konnte nicht geladen werden
+    track_deleted: Strecke erfolgreich gelöscht!
+    track_not_deleted: Die Strecke konnte leider nicht gelöscht werden.
+    track_metadata_updated: Metadaten der Strecke erfolgreich aktualisiert!
+    setup_upload_failed_car: Die Setup-Datei für {car} konnte nicht hochgeladen werden
+    setup_upload_failed: Die Setup-Datei konnte nicht hochgeladen werden
+    setup_uploaded: Die Setup-Datei für {car} wurde erfolgreich hochgeladen!
+    setup_not_deleted: Das Setup für {car} konnte nicht gelöscht werden
+    setup_deleted: Setup erfolgreich gelöscht!
+
+  plugins:
+    stracker_not_saved: Die stracker-Optionen konnten nicht gespeichert werden
+    stracker_saved: stracker-Optionen erfolgreich gespeichert!
+    realpenalty_not_saved: Die Real-Penalty-Optionen konnten nicht gespeichert werden
+    realpenalty_saved: Real-Penalty-Optionen erfolgreich gespeichert!
+    kissmyrank_not_saved: Die KissMyRank-Optionen konnten nicht gespeichert werden
+    kissmyrank_saved: KissMyRank-Optionen erfolgreich gespeichert!
+
+  race:
+    custom_saved: Eigenes Rennen gespeichert!
+    custom_scheduled: Eigenes Rennen geplant!
+    custom_started: Eigenes Rennen gestartet!
+    scheduled: Das Rennen ist für {date} geplant
+    custom_deleted: Eigenes Rennen gelöscht!
+    custom_starred: Eigenes Rennen markiert
+    custom_looped: Eigenes Rennen zur Schleife hinzugefügt
+    custom_unlooped: Eigenes Rennen aus der Schleife entfernt
+    server_busy: "Das Event wurde nicht gestartet: Auf diesem Server läuft bereits ein Event. Stoppe es zuerst oder starte auf einem anderen Server."
+    quick_started: Schnelles Rennen erfolgreich gestartet!
+
+  racecontrol:
+    restart_failed: Der Server konnte die Session nicht neu starten!
+    next_session_failed: Der Server konnte nicht zur nächsten Session wechseln!
+    penalty_form_invalid: Das Strafenformular konnte nicht gelesen werden
+    penalty_time_invalid: Die Strafzeit konnte nicht gelesen werden
+    penalty_failed: Die Strafe konnte nicht hinzugefügt/entfernt werden
+    penalty_removed: Strafe entfernt!
+    penalty_added: Strafe hinzugefügt!
+
+  raceweekend:
+    deleted: Rennwochenende erfolgreich gelöscht!
+    edited: Rennwochenende erfolgreich bearbeitet!
+    created: Das Rennwochenende wurde erstellt. Jetzt musst du noch Sessions hinzufügen!
+    session_edited: Die Session des Rennwochenendes auf {track} wurde erfolgreich bearbeitet!
+    session_added: Die Session des Rennwochenendes auf {track} wurde erfolgreich hinzugefügt!
+    session_not_started: Die Session konnte nicht gestartet werden
+    session_started: Session erfolgreich gestartet!
+    session_not_restarted: Die Session konnte nicht neu gestartet werden
+    session_restarted: Session erfolgreich neu gestartet!
+    session_not_cancelled: Die Session konnte nicht abgebrochen werden
+    session_cancelled: Session erfolgreich abgebrochen!
+    session_not_deleted: Die Session konnte nicht gelöscht werden
+    session_deleted: Session erfolgreich gelöscht!
+    session_import_failed: Die Session-Dateien des Rennwochenendes konnten nicht importiert werden
+    sessions_imported: Session-Dateien erfolgreich importiert!
+    import_failed: Das Rennwochenende konnte leider nicht importiert werden! Prüfe das JSON-Format.
+    imported: Rennwochenende erfolgreich importiert!
+    session_scheduled: Die Session des Rennwochenendes ist für {date} geplant
+    session_scheduled_after_parent: Die Session des Rennwochenendes startet, sobald die vorherige(n) Session(s) beendet sind.
+
+  results:
+    parse_failed: Die Ergebnisdatei konnte leider nicht gelesen werden! Bitte prüfe, ob das Format stimmt.
+    bad_file_name: Der Inhalt deiner Ergebnisdatei ist korrekt, aber der Dateiname nicht! Bitte benenne die Datei nach dem AC-Standard und versuche es erneut.
+    drivers_edited: Fahrer erfolgreich bearbeitet
+    used_by_championship: Die Ergebnisdatei kann nicht gelöscht werden, sie wird von der Meisterschaft {name} verwendet
+    used_by_race_weekend: Die Ergebnisdatei kann nicht gelöscht werden, sie wird vom Rennwochenende {name} verwendet
+    not_deleted: Die Ergebnisdatei konnte nicht gelöscht werden
+    deleted: Ergebnisdatei erfolgreich gelöscht
+
+  teams:
+    sign_in: Bitte melde dich an, um Teams zu nutzen.
+    not_found: Dieses Team gibt es nicht.
+    name_invalid: Ein Teamname braucht {min} bis {max} Zeichen und darf keine Steuerzeichen enthalten.
+    name_taken: Es gibt bereits ein Team mit diesem Namen.
+    not_member: Dieses Konto ist kein Mitglied des Teams.
+    already_member: Dieses Konto ist bereits Mitglied des Teams.
+    invite_invalid: Die Einladung ist ungültig oder abgelaufen.
+    not_allowed: Das darfst du nicht.
+    owner_role: Die Rolle des Besitzers kann nicht geändert werden. Übertrage stattdessen den Besitz an ein anderes Mitglied.
+    already_owner: Du bist bereits der Besitzer des Teams.
+    limit_reached: Du besitzt bereits die maximale Anzahl an Teams.
+    creation_blocked: Das Erstellen von Teams ist auf diesem Server abgeschaltet.
+    account_not_found: Es gibt kein Konto mit diesem Namen.
+    rename_hook_failed: Die Anmeldungen laufender Meisterschaften konnten nicht aktualisiert werden, bitte prüfe das Log.
+    created: Team erstellt.
+    joined: Du bist dem Team beigetreten.
+    left: Du hast das Team verlassen.
+    renamed: Team umbenannt.
+    visibility_changed: Sichtbarkeit geändert.
+    invite_link_created: Einladungslink erstellt, du findest ihn unten.
+    invite_sent: Einladung verschickt.
+    invite_withdrawn: Einladung zurückgezogen.
+    invite_declined: Einladung abgelehnt.
+    member_removed: Mitglied entfernt.
+    role_changed: Rolle geändert.
+    ownership_transferred: Besitz übertragen.
+    deleted: Team gelöscht. Anmeldungen zu Meisterschaften behalten seinen Namen.
