@@ -168,8 +168,7 @@
                     {{ template "icon" "live" }}{{ t "nav.live_timing" }}
                     {{ if $.ServerStatus }}<span class="nav-badge">{{ t "nav.live" }}</span>{{ end }}
                 </a>
-                <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}{{ t "nav.results" }}</a>
-                {{ if StatsAccess }}<a class="nav-item-link {{ if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/leaderboards">{{ template "icon" "championship" }}{{ t "nav.leaderboards" }}</a>{{ end }}
+                <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ else if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}{{ t "nav.results" }}</a>
                 <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}{{ t "nav.championships" }}</a>
                 <a class="nav-item-link {{ if hasPrefix "/teams" $path }}active{{ end }}" href="/teams">{{ template "icon" "accounts" }}{{ t "nav.teams" }}</a>
                 <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}{{ t "nav.race_weekends" }}</a>

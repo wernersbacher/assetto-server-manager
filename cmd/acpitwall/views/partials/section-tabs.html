@@ -11,12 +11,14 @@
 */}}
 
 {{ define "section-tabs" }}
+  {{ if gt (len .Tabs) 1 }}
     <ul class="nav nav-tabs section-tabs" aria-label="{{ .Label }}">
         {{ range .Tabs }}
             {{ $active := and .Prefix (hasPrefix .Prefix $.Path) }}
             <li class="nav-item"><a class="nav-link {{ if $active }}active{{ end }}" href="{{ .URL }}" {{ if $active }}aria-current="page"{{ end }}>{{ .Label }}</a></li>
         {{ end }}
     </ul>
+  {{ end }}
 {{ end }}
 
 {{ define "config-tabs" }}
@@ -45,4 +47,12 @@
         {{ $tabs = append $tabs (dict "Prefix" "/audit-logs" "URL" "/audit-logs" "Label" (t "nav.audit_logs")) }}
     {{ end }}
     {{ template "section-tabs" (dict "Path" $.Request.URL.Path "Label" (t "nav.logs") "Tabs" $tabs) }}
+{{ end }}
+
+{{ define "results-tabs" }}
+    {{ $tabs := list (dict "Prefix" "/results" "URL" "/results" "Label" (t "nav.results")) }}
+    {{ if StatsAccess }}
+        {{ $tabs = append $tabs (dict "Prefix" "/leaderboards" "URL" "/leaderboards" "Label" (t "nav.leaderboards")) }}
+    {{ end }}
+    {{ template "section-tabs" (dict "Path" $.Request.URL.Path "Label" (t "nav.results") "Tabs" $tabs) }}
 {{ end }}
