@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/pluginhttp.realPenaltyConfigurationTemplateVars*/}}
 
-{{ define "title" }}Real Penalty Options{{ end }}
+{{ define "title" }}{{ t "server.plugin.options_title" "name" "Real Penalty" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Real Penalty Options{{ template "server-badge" $ }}</h1>
-            <p>Server side plugin integration</p>
+            <h1>{{ t "server.plugin.options_title" "name" "Real Penalty" }}{{ template "server-badge" $ }}</h1>
+            <p>{{ t "server.plugin.intro" }}</p>
         </div>
     </div>
 
@@ -17,14 +17,11 @@
     <div class="card admin-card mb-4">
         <div class="card-body">
             <p>
-                <a href="https://www.racedepartment.com/downloads/real-penalty-tool.29591/">Real Penalty</a> is the popular server side app
-                designed to manage custom penalties for organised racing.
+                {{ tHTML "server.plugin.rp.about" "url" "https://www.racedepartment.com/downloads/real-penalty-tool.29591/" }}
             </p>
 
             <p class="mb-0 text-muted">
-                <em>Real Penalty is not developed or maintained by ACPitwall authors.
-                If you have questions related to the operation of the Real Penalty tool itself, please ask on the
-                    <a href="https://www.racedepartment.com/threads/real-penalty-tool.175214/">Real Penalty support thread</a>.</em>
+                <em>{{ tHTML "server.plugin.not_ours" "name" "Real Penalty" "url" "https://www.racedepartment.com/threads/real-penalty-tool.175214/" }}</em>
             </p>
         </div>
     </div>
@@ -32,8 +29,7 @@
     {{ if .IsRealPenaltyInstalled }}
         <form method="post" action="{{ serverURL "/realpenalty/options" }}" class="admin-form">
             <p class="text-muted">
-                These configuration options are those of the selected server - they are applied to the Real Penalty configuration files
-                whenever a race setup is started by ACPitwall.
+                {{ t "server.plugin.options_intro_files" "name" "Real Penalty" }}
             </p>
 
             <div class="options-main">
@@ -41,36 +37,34 @@
             </div>
 
             <div class="card admin-card mt-4">
-                <div class="card-header"><h2>Download Logs</h2></div>
+                <div class="card-header"><h2>{{ t "server.plugin.rp.download_logs" }}</h2></div>
                 <div class="card-body d-flex flex-wrap align-items-center justify-content-between" style="gap: 16px">
-                    <p class="mb-0">You can download all of your Real Penalty logs in zip format here.</p>
-                    <a class="btn btn-info" href="{{ serverURL "/realpenalty/logs" }}">{{ template "icon" "download" }} Download Logs</a>
+                    <p class="mb-0">{{ t "server.plugin.rp.download_logs_help" }}</p>
+                    <a class="btn btn-info" href="{{ serverURL "/realpenalty/logs" }}">{{ template "icon" "download" }} {{ t "server.plugin.rp.download_logs" }}</a>
                 </div>
             </div>
 
             <div class="save-bar">
-                <span class="save-bar-text">Applied to the Real Penalty configuration when a race starts.</span>
-                <button class="btn btn-success" type="submit">Save</button>
+                <span class="save-bar-text">{{ t "server.plugin.save_hint" "name" "Real Penalty" }}</span>
+                <button class="btn btn-success" type="submit">{{ t "common.save" }}</button>
             </div>
         </form>
     {{ else }}
         <div class="card admin-card">
-            <div class="card-header"><h2>Installation</h2></div>
+            <div class="card-header"><h2>{{ t "server.plugin.installation" }}</h2></div>
             <div class="card-body">
-                <p>Real Penalty is not installed. Please follow the instructions below to install Real Penalty, or contact your Server Administrator:</p>
+                <p>{{ t "server.plugin.not_installed" "name" "Real Penalty" }}</p>
 
                 <ol>
-                    <li><a href="https://www.racedepartment.com/downloads/real-penalty-tool.29591/history">Download Real Penalty {{ $.RealPenaltySupportedVersion }}</a></li>
-                    <li>Extract <code>Real Penalty {{ $.RealPenaltySupportedVersion }}.zip</code></li>
-                    <li>Rename the extracted folder to <code>realpenalty</code></li>
-                    <li>Move that folder inside your <code>assetto</code> folder. If you are using multiserver, copy it inside each one of them. E.g. inside <code>youracserver/servers/SERVER_00/assetto/</code></li>
-                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{{ serverURL "/server-options" }}">Server Options</a></li>
-                    <li>Refresh this page!</li>
+                    <li><a href="https://www.racedepartment.com/downloads/real-penalty-tool.29591/history">{{ t "server.plugin.download" "name" (printf "Real Penalty %s" $.RealPenaltySupportedVersion) }}</a></li>
+                    <li>{{ tHTML "server.plugin.rp.extract" "version" $.RealPenaltySupportedVersion }}</li>
+                    <li>{{ tHTML "server.plugin.rp.rename" }}</li>
+                    <li>{{ tHTML "server.plugin.rp.move" }}</li>
+                    <li>{{ tHTML "server.plugin.udp_hint" "url" (serverURL "/server-options") }}</li>
+                    <li>{{ t "server.plugin.refresh" }}</li>
                 </ol>
 
-                <p class="mb-0">Note: these instructions and the integration provided are known to be compatible with <code>{{ $.RealPenaltySupportedVersion }}</code> of Real Penalty.
-                Other versions may work. If you have problems with a more recent version than this,
-                please <a href="https://github.com/wernersbacher/ACPitwall/issues">File an issue</a>.</p>
+                <p class="mb-0">{{ tHTML "server.plugin.rp.version_note" "version" $.RealPenaltySupportedVersion "url" "https://github.com/wernersbacher/ACPitwall/issues" }}</p>
             </div>
         </div>
     {{ end }}

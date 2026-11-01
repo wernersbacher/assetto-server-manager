@@ -1,11 +1,10 @@
-{{ define "title" }}Server Logs{{ end }}
+{{ define "title" }}{{ t "server.logs.title" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Server Logs{{ template "server-badge" $ }}</h1>
-            <p>Diagnose issues with the server, manager or any plugins. You can also check the
-                <a href="{{ serverURL "/current-config" }}">current server config</a> to see if it matches your expectations.</p>
+            <h1>{{ t "server.logs.title" }}{{ template "server-badge" $ }}</h1>
+            <p>{{ tHTML "server.logs.intro" "url" (serverURL "/current-config") }}</p>
         </div>
     </div>
 
@@ -14,26 +13,26 @@
     <div class="card admin-card">
         <div class="card-header log-tabs-header">
             <ul class="nav nav-pills log-tabs" id="log-tabs" role="tablist" data-logs-url="{{ serverURL "/api/logs" }}">
-                <li class="nav-item"><a class="nav-link active" id="tab-server" data-toggle="pill" href="#pane-server" role="tab" aria-controls="pane-server" aria-selected="true">Assetto Corsa Server</a></li>
+                <li class="nav-item"><a class="nav-link active" id="tab-server" data-toggle="pill" href="#pane-server" role="tab" aria-controls="pane-server" aria-selected="true">{{ t "server.logs.ac_server" }}</a></li>
                 <li class="nav-item"><a class="nav-link" id="tab-manager" data-toggle="pill" href="#pane-manager" role="tab" aria-controls="pane-manager" aria-selected="false">ACPitwall</a></li>
-                <li class="nav-item"><a class="nav-link" id="tab-plugins" data-toggle="pill" href="#pane-plugins" role="tab" aria-controls="pane-plugins" aria-selected="false">Plugins</a></li>
+                <li class="nav-item"><a class="nav-link" id="tab-plugins" data-toggle="pill" href="#pane-plugins" role="tab" aria-controls="pane-plugins" aria-selected="false">{{ t "nav.plugins" }}</a></li>
             </ul>
         </div>
 
         <div class="card-body tab-content">
             <div class="tab-pane fade show active" id="pane-server" role="tabpanel" aria-labelledby="tab-server">
                 <div class="log-box"><pre id="server-logs"></pre></div>
-                <a class="btn btn-primary mt-3" href="{{ serverURL "/api/log-download/server" }}">{{ template "icon" "download" }} Download Server Log</a>
+                <a class="btn btn-primary mt-3" href="{{ serverURL "/api/log-download/server" }}">{{ template "icon" "download" }} {{ t "server.logs.download_server" }}</a>
             </div>
 
             <div class="tab-pane fade" id="pane-manager" role="tabpanel" aria-labelledby="tab-manager">
                 <div class="log-box"><pre id="manager-logs"></pre></div>
-                <a class="btn btn-primary mt-3" href="{{ serverURL "/api/log-download/manager" }}">{{ template "icon" "download" }} Download Manager Log</a>
+                <a class="btn btn-primary mt-3" href="{{ serverURL "/api/log-download/manager" }}">{{ template "icon" "download" }} {{ t "server.logs.download_manager" }}</a>
             </div>
 
             <div class="tab-pane fade" id="pane-plugins" role="tabpanel" aria-labelledby="tab-plugins">
                 <div class="log-box"><pre id="plugin-logs"></pre></div>
-                <a class="btn btn-primary mt-3" href="{{ serverURL "/api/log-download/plugins" }}">{{ template "icon" "download" }} Download Plugins Log</a>
+                <a class="btn btn-primary mt-3" href="{{ serverURL "/api/log-download/plugins" }}">{{ template "icon" "download" }} {{ t "server.logs.download_plugins" }}</a>
             </div>
         </div>
     </div>

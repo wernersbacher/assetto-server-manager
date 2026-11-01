@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/pluginhttp.kissMyRankConfigurationTemplateVars*/}}
 
-{{ define "title" }}KissMyRank Options{{ end }}
+{{ define "title" }}{{ t "server.plugin.options_title" "name" "KissMyRank" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>KissMyRank Options{{ template "server-badge" $ }}</h1>
-            <p>Server side plugin integration</p>
+            <h1>{{ t "server.plugin.options_title" "name" "KissMyRank" }}{{ template "server-badge" $ }}</h1>
+            <p>{{ t "server.plugin.intro" }}</p>
         </div>
     </div>
 
@@ -17,15 +17,11 @@
     <div class="card admin-card mb-4">
         <div class="card-body">
             <p>
-                <a href="https://www.racedepartment.com/downloads/kissmyrank-local-assetto-corsa-server-plugin.17667/">KissMyRank</a> is the popular server side app
-                designed to promote knowledge of the gentlemen drivers driving etiquette and fair racing.
+                {{ tHTML "server.plugin.kmr.about" "url" "https://www.racedepartment.com/downloads/kissmyrank-local-assetto-corsa-server-plugin.17667/" }}
             </p>
 
             <p class="mb-0 text-muted">
-                <em>KissMyRank is not developed or maintained by
-                ACPitwall authors.
-                If you have questions related to the operation of the KissMyRank tool itself, please ask on the
-                    <a href="https://www.racedepartment.com/threads/kissmyrank-local-assetto-corsa-server-plugin.142199/">KissMyRank support thread</a>.</em>
+                <em>{{ tHTML "server.plugin.not_ours" "name" "KissMyRank" "url" "https://www.racedepartment.com/threads/kissmyrank-local-assetto-corsa-server-plugin.142199/" }}</em>
             </p>
         </div>
     </div>
@@ -33,8 +29,7 @@
     {{ if .IsKMRInstalled }}
         <form method="post" action="{{ serverURL "/kissmyrank/options" }}" class="admin-form">
             <p class="text-muted">
-                These configuration options are those of the selected server - they are applied to the KissMyRank configuration file
-                whenever a race setup is started by ACPitwall.
+                {{ t "server.plugin.options_intro" "name" "KissMyRank" }}
             </p>
 
             <div class="options-main">
@@ -42,21 +37,21 @@
             </div>
 
             <div class="save-bar">
-                <span class="save-bar-text">Applied to the KissMyRank configuration when a race starts.</span>
-                <button class="btn btn-success" type="submit">Save</button>
+                <span class="save-bar-text">{{ t "server.plugin.save_hint" "name" "KissMyRank" }}</span>
+                <button class="btn btn-success" type="submit">{{ t "common.save" }}</button>
             </div>
         </form>
     {{ else }}
         <div class="card admin-card">
-            <div class="card-header"><h2>Installation</h2></div>
+            <div class="card-header"><h2>{{ t "server.plugin.installation" }}</h2></div>
             <div class="card-body">
-                <p>KissMyRank is not installed. Please follow the instructions below to install KissMyRank, or contact your Server Administrator:</p>
+                <p>{{ t "server.plugin.not_installed" "name" "KissMyRank" }}</p>
 
                 <ol class="mb-0">
-                    <li><a href="https://www.racedepartment.com/downloads/kissmyrank-local-assetto-corsa-server-plugin.17667/">Download KissMyRank</a></li>
-                    <li>Extract the correct folder for your platform from the KissMyRank zip into a folder called "kissmyrank" (case sensitive) in your Assetto Corsa Server folder</li>
-                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{{ serverURL "/server-options" }}">Server Options</a></li>
-                    <li>Refresh this page!</li>
+                    <li><a href="https://www.racedepartment.com/downloads/kissmyrank-local-assetto-corsa-server-plugin.17667/">{{ t "server.plugin.download" "name" "KissMyRank" }}</a></li>
+                    <li>{{ t "server.plugin.kmr.extract" }}</li>
+                    <li>{{ tHTML "server.plugin.udp_hint" "url" (serverURL "/server-options") }}</li>
+                    <li>{{ t "server.plugin.refresh" }}</li>
                 </ol>
             </div>
         </div>

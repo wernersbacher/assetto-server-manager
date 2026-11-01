@@ -1,22 +1,22 @@
-{{ define "title" }}Weather{{ end }}
+{{ define "title" }}{{ t "nav.weather" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Weather</h1>
-            <p>Weather presets installed on the server.</p>
+            <h1>{{ t "nav.weather" }}</h1>
+            <p>{{ t "content.weather.intro" }}</p>
         </div>
 
         {{ if WriteAccess }}
             <button type="button" class="btn btn-primary btn-with-icon" data-toggle="collapse" data-target="#upload-panel" aria-expanded="false" aria-controls="upload-panel">
-                {{ template "icon" "upload" }} Upload weather
+                {{ template "icon" "upload" }} {{ t "content.weather.upload" }}
             </button>
         {{ end }}
     </div>
 
     {{ if WriteAccess }}
         <div class="stack">
-        {{ template "content-upload" dict "Kind" "weather" "Plural" "weather presets" }}
+        {{ template "content-upload" dict "Kind" "weather" }}
 
         <div id="weather-info-panel"></div>
         </div>
@@ -28,11 +28,11 @@
     <div class="card content-table"><div class="table-responsive">
     <table class="table table-striped mb-0">
         <tr>
-            <th>Weather Key</th>
-            <th>Weather Name</th>
+            <th>{{ t "content.weather.key" }}</th>
+            <th>{{ t "content.weather.name" }}</th>
 
             {{ if DeleteAccess }}
-                <th class="text-center">Delete</th>
+                <th class="text-center">{{ t "common.delete" }}</th>
             {{ end }}
         </tr>
         {{ range $i, $weather := .Weathers }}
@@ -47,7 +47,7 @@
                 {{ if DeleteAccess }}
                     <td class="text-center">
                         {{ if index $installed $i }}
-                            <form method="post" action="{{ print "/weather/delete/" $i }}" class="d-inline" data-confirm-delete="Delete weather preset {{ $weather }}?" data-confirm-detail="The weather preset is removed from the server permanently." data-confirm-label="Delete weather preset">
+                            <form method="post" action="{{ print "/weather/delete/" $i }}" class="d-inline" data-confirm-delete="{{ t "content.weather.delete_confirm" "name" $weather }}" data-confirm-detail="{{ t "content.weather.delete_detail" }}" data-confirm-label="{{ t "content.weather.delete_label" }}">
                                 <button type="submit" class="btn btn-link p-0"><i class="fas fa-trash fa text-danger"></i></button>
                             </form>
                         {{ end }}

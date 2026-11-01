@@ -1,0 +1,95 @@
+# Server administration pages: servers, options, plugins, blacklist, messages, logs, audit logs, AutoFill entrants.
+server:
+  servers:
+    intro: All servers of this ACPitwall with their ports, plugins and port conflicts, so that you can compare and fix the settings in one place.
+    default: default
+    ports: acServer ports
+    no_ports: No ports known.
+    enabled: Enabled
+    disabled: Disabled
+    live_timing: Live timing
+    scope_title: Global and per-server settings
+    scope_per_server: "<strong>Per server:</strong> server options (including the ports), sTracker, KissMyRank and Real Penalty options, blacklist, messages (MOTD), logs of the acServer, the current config, live timing and the race control, the running event and the last race."
+    scope_shared: "<strong>Shared by all servers:</strong> accounts, the audit log, cars, tracks, weather and setups, the AutoFill entrants, penalties, the calendar and scheduled events, championships and their results (results are kept in the folder of the server that ran the session)."
+    scope_notifications: <strong>Notifications</strong> (Discord) are sent with the options of the default server, the Discord settings of the other servers are not used. ACPitwall log is shared, only the acServer log belongs to a server.
+
+  options:
+    intro: These configuration options are those of the selected server - they are applied to each race setup started by ACPitwall.
+    sections: Sections
+    save_hint: Changes apply to the next race that is started.
+    maintenance: Maintenance
+    rebuild_help: Rebuild the Search Index. You shouldn't need to do this often - if at all - but if you have manually added content to your content folder (i.e. not uploaded the content through ACPitwall), you will need to use this so that the content shows up in the Search. Note that this process can take a long time.
+    rebuild: Rebuild Search Index
+
+  plugin:
+    options_title: "{name} Options"
+    intro: Server side plugin integration
+    not_ours: "{name} is not developed or maintained by ACPitwall authors. If you have questions related to the operation of the {name} tool itself, please ask on the <a href=\"{url}\">{name} support thread</a>."
+    options_intro: These configuration options are those of the selected server - they are applied to the {name} configuration file whenever a race setup is started by ACPitwall.
+    options_intro_files: These configuration options are those of the selected server - they are applied to the {name} configuration files whenever a race setup is started by ACPitwall.
+    save_hint: Applied to the {name} configuration when a race starts.
+    installation: Installation
+    not_installed: "{name} is not installed. Please follow the instructions below to install {name}, or contact your Server Administrator:"
+    download: Download {name}
+    udp_hint: Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{url}">Server Options</a>
+    refresh: Refresh this page!
+    kmr:
+      about: <a href="{url}">KissMyRank</a> is the popular server side app designed to promote knowledge of the gentlemen drivers driving etiquette and fair racing.
+      extract: Extract the correct folder for your platform from the KissMyRank zip into a folder called "kissmyrank" (case sensitive) in your Assetto Corsa Server folder
+    stracker:
+      about: <a href="{url}">sTracker</a> is the popular server side app companion to <a href="{ptracker_url}">pTracker</a>, for lap and race tracking.
+      extract: Extract the stracker zip into a folder called "stracker" (case sensitive) in your Assetto Corsa Server folder
+      linux: If you are on Linux, extract the <code>stracker_linux_x86.tgz</code> folder. (e.g. <code>tar xfvz stracker_linux_x86.tgz</code>)
+    rp:
+      about: <a href="{url}">Real Penalty</a> is the popular server side app designed to manage custom penalties for organised racing.
+      download_logs: Download Logs
+      download_logs_help: You can download all of your Real Penalty logs in zip format here.
+      extract: Extract <code>Real Penalty {version}.zip</code>
+      rename: Rename the extracted folder to <code>realpenalty</code>
+      move: Move that folder inside your <code>assetto</code> folder. If you are using multiserver, copy it inside each one of them. E.g. inside <code>youracserver/servers/SERVER_00/assetto/</code>
+      version_note: "Note: these instructions and the integration provided are known to be compatible with <code>{version}</code> of Real Penalty. Other versions may work. If you have problems with a more recent version than this, please <a href=\"{url}\">File an issue</a>."
+
+  blacklist:
+    intro: Banned user GUIDs, one per line.
+    help: This file is where banned user GUIDs are stored. If blacklist mode is set to "2" users will automatically be added to this list when kicked. You can edit this list manually regardless of blacklist mode, but you must restart the server for manual changes to take effect.
+    save_hint: Restart the server for manual changes to take effect.
+
+  motd:
+    intro: Messages shown to drivers when they join the server.
+    motd_help: Message of the day. Shown by Assetto Corsa in a full screen popup window to everyone who joins the server.
+    join_message: Server Join Message
+    join_message_help: Shown in chat to each user when they join the server.
+    cm_message: Content Manager Welcome Message
+    cm_message_help: Shown to Content Manager users before they join the server. This input is a template, in which you can access data about your manager/the current event. You can enter anything you like in here. If you put <code>&lbrace;&lbrace; .ServerName &rbrace;&rbrace;</code> in, the Server Name will replace it. If you put <code>&lbrace;&lbrace; .EventName &rbrace;&rbrace;</code>, then the Event Name will replace it.
+    cm_disabled: Enable Content Manager Wrapper in <a href="{url}">Server Options</a> to show this message.
+    save_hint: Join messages are sent to drivers as they connect.
+
+  config:
+    intro: The <code>server_cfg.ini</code> and <code>entry_list.ini</code> that are currently applied to the server. Read-only, intended for troubleshooting.
+    empty: No configuration yet. The server writes its configuration when the first event is started.
+    server_config: Server Config
+    entry_list: Entry List
+
+  logs:
+    title: Server Logs
+    intro: Diagnose issues with the server, manager or any plugins. You can also check the <a href="{url}">current server config</a> to see if it matches your expectations.
+    ac_server: Assetto Corsa Server
+    download_server: Download Server Log
+    download_manager: Download Manager Log
+    download_plugins: Download Plugins Log
+
+  audit:
+    intro: Changes made through ACPitwall by users with write access or higher.
+    time: Time
+    user: User
+    group: Permission Group
+    url: URL
+    method: Method
+    empty: No audit log entries yet.
+
+  autofill:
+    intro: Entrants that are suggested when filling out an entry list.
+    delete_confirm: Delete autofill entrant {name}?
+    delete_detail: The entrant is removed from the autofill list.
+    delete_label: Delete entrant
+    empty: No autofill entrants yet.

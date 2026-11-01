@@ -1,0 +1,176 @@
+# Content pages: cars, tracks, weather, the upload panel and the search help.
+content:
+  default: Default
+  notes: Notes
+  lap_time: Lap Time
+  download_url: Download URL
+  download_url_placeholder: e.g. http://racedepartment.com/...
+  danger_zone: Danger Zone!
+
+  cars:
+    intro: Cars installed on the server.
+    upload: Upload cars
+    search_placeholder: Search for cars
+
+  car:
+    skin_alt: "{car}, skin {skin}"
+    download_skin: Download skin
+    delete_tag: Delete this tag
+    add_tag: Add a new tag
+    add_tag_submit: Go
+    description: Description
+    no_description: There is no description for this car.
+    setups: Setups
+    setup_file: Setup File
+    delete_setup_confirm: Delete setup {name}?
+    delete_setup_detail: The setup file is removed permanently.
+    delete_setup: Delete setup
+    upload_setups_help: You can upload setups for this car using the form below.
+    no_setups: There are no setups for this car.
+    upload_one_below: You can upload one below.
+    generic: Generic
+    choose_setup: Choose Setup
+    upload_setup: Upload Setup
+    best_laps: Best Laps
+    no_best_laps: No best laps yet. Valid laps with this car show up here.
+    used_in_sessions:
+      one: This car has been used in {count} session.
+      other: This car has been used in {count} sessions.
+    download_car: Download Car
+    tyres: Tyres
+    specs: Specs
+    spec:
+      acceleration: "Acceleration:"
+      bhp: "BHP:"
+      power_ratio: "Power Ratio:"
+      top_speed: "Top Speed:"
+      torque: "Torque:"
+      weight: "Weight:"
+    about: About
+    info:
+      author: "Author:"
+      brand: "Brand:"
+      class: "Class:"
+      country: "Country:"
+      year: "Year:"
+      version: "Version:"
+    skins: Skins
+    skin_upload: Skin Upload
+    choose_skin: Choose a Skin
+    skin_upload_help: Pick the skin folder. At most {files} files and {mb} MB per skin.
+    skin_quota: You use {used} of {quota} MB.
+    who_can_use: Who can use it
+    visibility:
+      only_me: Only me
+      my_team: My team
+      everybody_global: Everybody (global)
+      everybody: Everybody
+      team: Team
+      only_owner: Only owner
+    team_for_skin: Team for a team skin
+    upload: Upload
+    skin_upload_disabled: Uploading skins is not enabled for your account.
+    user_skins_help: Skins uploaded by accounts. Private and team skins show for you and your team only.
+    skin: Skin
+    owner: Owner
+    visible_for: Visible for
+    size: Size
+    unknown_owner: unknown
+    skin_files:
+      one: "{count} file, {size}"
+      other: "{count} files, {size}"
+    delete_skin_confirm: Delete skin {name}?
+    delete_user_skin_detail: The skin and its files are removed permanently.
+    delete_skin_label: Delete skin
+    metadata: Car Metadata
+    download_url_help: Download links for cars will be shown in Content Manager's server information screen.
+    notes_help: Notes will be shown to all users when they visit this car page.
+    save_metadata: Save Car Metadata
+    skin_folders: Skin folders
+    skin_folders_help: Skins of this car in its skins directory. Uploads are in the skins section above.
+    delete_selected_skin_confirm: Delete the selected skin?
+    delete_skin_folder_detail: The skin folder is removed from this car permanently.
+    delete_skin: Delete Skin
+    delete_help: Permanently delete this car and all associated skins.
+    delete_confirm: Delete car {name}?
+    delete_detail: The car and all associated skins are removed from the server permanently.
+    delete_detail_folder: The car and all associated skins are removed from the server permanently ({folder}).
+    delete_label: Delete car
+    delete_aria: Delete car {name}
+    delete_car: Delete Car
+
+  tracks:
+    intro: Tracks and layouts installed on the server.
+    upload: Upload tracks
+
+  track:
+    download: Download
+    layouts: Layouts
+    records_server: Server for lap records
+    records_any_server: Lap records of any server
+    layout_alt: "{track}, layout {layout}"
+    layout_title: "{layout} Layout"
+    geotags: "Geotags:"
+    tags: "Tags:"
+    lap_records: Lap Records
+    full_leaderboard: Full leaderboard
+    sectors: Sectors
+    no_lap_records: No lap records yet. Valid laps from results show up here.
+    used_in_sessions:
+      one: This layout has been used in {count} session.
+      other: This layout has been used in {count} sessions.
+    metadata: Track Metadata
+    download_url_help: Download links for tracks will be shown in Content Manager's server information screen.
+    notes_help: Notes will be shown to all users when they visit this track page.
+    save_metadata: Save Track Metadata
+    delete_help: Permanently delete this track and all associated layouts.
+    delete_confirm: Delete track {name}?
+    delete_detail: The track and all associated layouts are removed from the server permanently.
+    delete_detail_folder: The track and all associated layouts are removed from the server permanently ({folder}).
+    delete_label: Delete track
+    delete_aria: Delete track {name}
+    delete_track: Delete Track
+
+  weather:
+    intro: Weather presets installed on the server.
+    upload: Upload weather
+    key: Weather Key
+    name: Weather Name
+    delete_confirm: Delete weather preset {name}?
+    delete_detail: The weather preset is removed from the server permanently.
+    delete_label: Delete weather preset
+
+  upload:
+    choose_folder: Choose a folder
+    only_ks: Only upload official KS content
+    car:
+      tags_placeholder: Add tags to all uploaded cars (e.g. GT3, Enduro)
+      drop_title: Drag & drop car folder(s) here
+      drop_hint: A single car folder, several car folders, or a "cars" folder containing multiple cars.
+      help: Only the files the server requires are uploaded. After choosing a folder, check the preview below and press the upload button. If uploading many cars at once fails, upload them in smaller batches.
+    track:
+      drop_title: Drag & drop track folder(s) here
+      drop_hint: A single track folder, several track folders, or a "tracks" folder containing multiple tracks.
+      help: Only the files the server requires are uploaded. After choosing a folder, check the preview below and press the upload button. If uploading many tracks at once fails, upload them in smaller batches.
+    weather:
+      drop_title: Drag & drop weather folder(s) here
+      drop_hint: A single weather folder, several weather folders, or a "weather" folder containing multiple weather presets.
+      help: Only the files the server requires are uploaded. After choosing a folder, check the preview below and press the upload button. If uploading many weather presets at once fails, upload them in smaller batches.
+
+  search:
+    submit: Search
+    showing: Showing results {from}-{to} of {total}
+    took: Search completed in {duration}
+    no_results: Your search returned no results. Please try a different query.
+    help: Search Help
+    help_intro: You can type in the search much like you would use Google or any other search field.
+    help_basic: "<strong>Basic Search</strong> - for example if you wanted to find cars which relate to Ferrari, you can type: <code>ferrari</code>"
+    help_boolean: "<strong>Boolean Searches</strong> - say you wanted to find Ferrari cars that are not vintage, you could use: <code>+ferrari -vintage</code>."
+    help_fields: "<strong>Searching by Specific Fields</strong> - the entirety of the car's details can be searched across. For example, if you want to find cars with a specific tag - say, \"italy\" - you can use: <code>tags:\"italy\"</code>"
+    help_fields_list: "The entire list of car fields is:"
+    help_numeric: "<strong>Searching Numeric Values</strong> - you can search numeric values, for example <code>spec.weight:>600</code> will list all cars with a weight above 600kg."
+    help_numeric_list: "All available numeric values are:"
+    help_content_type: "<strong>Searching for Stock, DLC and Mod content</strong> - you can search specifically for only stock, only DLC or only mod content by using one (or multiple) of the following: <code>+stock</code>, <code>+dlc</code>, <code>+mod</code>. You can remove stock, DLC or mod content from the results by using one (or multiple) of the following: <code>-stock</code>, <code>-dlc</code>, <code>-mod</code>."
+    help_combine: "Of course, you can combine all of the above things into one query! That might look like the following:"
+    help_combine_example: "\"must be a ferrari\", \"must not be vintage\", \"must have the tag 'semiautomatic'\", \"must have a BHP greater than 600\", \"must not be DLC\"."
+    help_bleve: ACPitwall uses Bleve to provide searching. Bleve is incredibly powerful and offers a great amount of control over search queries. We've covered some examples of how to make the most out of searching here, but please refer to <a href="{url}">Bleve's Documentation</a> for more detailed examples and syntax.

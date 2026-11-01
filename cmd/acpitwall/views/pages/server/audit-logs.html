@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/accounts.auditLogTemplateVars */}}
 
-{{ define "title" }}Audit Logs{{ end }}
+{{ define "title" }}{{ t "nav.audit_logs" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Audit Logs</h1>
-            <p>Changes made through ACPitwall by users with write access or higher.</p>
+            <h1>{{ t "nav.audit_logs" }}</h1>
+            <p>{{ t "server.audit.intro" }}</p>
         </div>
     </div>
 
@@ -14,11 +14,11 @@
         <table class="table audit-table">
             <thead>
             <tr>
-                <th scope="col">Time</th>
-                <th scope="col">User</th>
-                <th scope="col">Permission Group</th>
-                <th scope="col">URL</th>
-                <th scope="col">Method</th>
+                <th scope="col">{{ t "server.audit.time" }}</th>
+                <th scope="col">{{ t "server.audit.user" }}</th>
+                <th scope="col">{{ t "server.audit.group" }}</th>
+                <th scope="col">{{ t "server.audit.url" }}</th>
+                <th scope="col">{{ t "server.audit.method" }}</th>
             </tr>
             </thead>
 
@@ -31,7 +31,7 @@
                     <td><span class="method-badge">{{ $entry.Method }}</span></td>
                 </tr>
             {{ else }}
-                <tr><td colspan="5" class="text-center text-muted py-4">No audit log entries yet.</td></tr>
+                <tr><td colspan="5" class="text-center text-muted py-4">{{ t "server.audit.empty" }}</td></tr>
             {{ end }}
         </table>
     </div>

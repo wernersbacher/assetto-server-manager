@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/admin.autoFillEntrantListTemplateVars */}}
 
-{{ define "title" }}AutoFill Entrants{{ end }}
+{{ define "title" }}{{ t "nav.autofill" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>AutoFill Entrants</h1>
-            <p>Entrants that are suggested when filling out an entry list.</p>
+            <h1>{{ t "nav.autofill" }}</h1>
+            <p>{{ t "server.autofill.intro" }}</p>
         </div>
     </div>
 
@@ -14,10 +14,10 @@
         <table class="table">
             <thead>
             <tr>
-                <th>Name</th>
-                <th>Team</th>
-                <th>GUID</th>
-                <th class="text-right">Actions</th>
+                <th>{{ t "accounts.name" }}</th>
+                <th>{{ t "account_details.team" }}</th>
+                <th>{{ t "account_details.guid" }}</th>
+                <th class="text-right">{{ t "common.actions" }}</th>
             </tr>
             </thead>
 
@@ -27,13 +27,13 @@
                     <td>{{ $entrant.Team }}</td>
                     <td><code>{{ $entrant.GUID }}</code></td>
                     <td class="text-right">
-                        <form method="post" action="/autofill-entrants/delete/{{ $entrant.ID }}" data-confirm-delete="Delete autofill entrant {{ $entrant.Name }}?" data-confirm-detail="The entrant is removed from the autofill list." data-confirm-label="Delete entrant" class="d-inline">
-                            <button type="submit" class="btn btn-link p-0" title="Delete"><i class="fas fa-trash text-danger"></i></button>
+                        <form method="post" action="/autofill-entrants/delete/{{ $entrant.ID }}" data-confirm-delete="{{ t "server.autofill.delete_confirm" "name" $entrant.Name }}" data-confirm-detail="{{ t "server.autofill.delete_detail" }}" data-confirm-label="{{ t "server.autofill.delete_label" }}" class="d-inline">
+                            <button type="submit" class="btn btn-link p-0" title="{{ t "common.delete" }}"><i class="fas fa-trash text-danger"></i></button>
                         </form>
                     </td>
                 </tr>
             {{ else }}
-                <tr><td colspan="4" class="text-center text-muted py-4">No autofill entrants yet.</td></tr>
+                <tr><td colspan="4" class="text-center text-muted py-4">{{ t "server.autofill.empty" }}</td></tr>
             {{ end }}
         </table>
     </div>

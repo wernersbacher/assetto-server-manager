@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/pluginhttp.strackerConfigurationTemplateVars*/}}
 
-{{ define "title" }}sTracker Options{{ end }}
+{{ define "title" }}{{ t "server.plugin.options_title" "name" "sTracker" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>sTracker Options{{ template "server-badge" $ }}</h1>
-            <p>Server side plugin integration</p>
+            <h1>{{ t "server.plugin.options_title" "name" "sTracker" }}{{ template "server-badge" $ }}</h1>
+            <p>{{ t "server.plugin.intro" }}</p>
         </div>
     </div>
 
@@ -17,16 +17,11 @@
     <div class="card admin-card mb-4">
         <div class="card-body">
             <p>
-                <a href="https://www.racedepartment.com/downloads/stracker.3510/">sTracker</a> is the popular server side app
-                companion to <a href="https://www.racedepartment.com/downloads/ptracker.3509/">pTracker</a>, for lap and race
-                tracking.
+                {{ tHTML "server.plugin.stracker.about" "url" "https://www.racedepartment.com/downloads/stracker.3510/" "ptracker_url" "https://www.racedepartment.com/downloads/ptracker.3509/" }}
             </p>
 
             <p class="mb-0 text-muted">
-                <em>sTracker is not developed or maintained by
-                ACPitwall authors.
-                If you have questions related to the operation of the sTracker tool itself, please ask on the
-                    <a href="https://www.racedepartment.com/threads/stracker.93956/">sTracker support thread</a>.</em>
+                <em>{{ tHTML "server.plugin.not_ours" "name" "sTracker" "url" "https://www.racedepartment.com/threads/stracker.93956/" }}</em>
             </p>
         </div>
     </div>
@@ -34,8 +29,7 @@
     {{ if .IsStrackerInstalled }}
         <form method="post" action="{{ serverURL "/stracker/options" }}" class="admin-form">
             <p class="text-muted">
-                These configuration options are those of the selected server - they are applied to the stracker configuration file
-                whenever a race setup is started by ACPitwall.
+                {{ t "server.plugin.options_intro" "name" "sTracker" }}
             </p>
 
             <div class="options-main">
@@ -43,22 +37,22 @@
             </div>
 
             <div class="save-bar">
-                <span class="save-bar-text">Applied to the sTracker configuration when a race starts.</span>
-                <button class="btn btn-success" type="submit">Save</button>
+                <span class="save-bar-text">{{ t "server.plugin.save_hint" "name" "sTracker" }}</span>
+                <button class="btn btn-success" type="submit">{{ t "common.save" }}</button>
             </div>
         </form>
     {{ else }}
         <div class="card admin-card">
-            <div class="card-header"><h2>Installation</h2></div>
+            <div class="card-header"><h2>{{ t "server.plugin.installation" }}</h2></div>
             <div class="card-body">
-                <p>STracker is not installed. Please follow the instructions below to install STracker, or contact your Server Administrator:</p>
+                <p>{{ t "server.plugin.not_installed" "name" "sTracker" }}</p>
 
                 <ol class="mb-0">
-                    <li><a href="https://www.racedepartment.com/downloads/stracker.3510/">Download stracker</a></li>
-                    <li>Extract the stracker zip into a folder called "stracker" (case sensitive) in your Assetto Corsa Server folder</li>
-                    <li>If you are on Linux, extract the <code>stracker_linux_x86.tgz</code> folder. (e.g. <code>tar xfvz stracker_linux_x86.tgz</code>)</li>
-                    <li>Make sure that you have set UDP Plugin Address and UDP Plugin Local Port in <a href="{{ serverURL "/server-options" }}">Server Options</a></li>
-                    <li>Refresh this page!</li>
+                    <li><a href="https://www.racedepartment.com/downloads/stracker.3510/">{{ t "server.plugin.download" "name" "sTracker" }}</a></li>
+                    <li>{{ t "server.plugin.stracker.extract" }}</li>
+                    <li>{{ tHTML "server.plugin.stracker.linux" }}</li>
+                    <li>{{ tHTML "server.plugin.udp_hint" "url" (serverURL "/server-options") }}</li>
+                    <li>{{ t "server.plugin.refresh" }}</li>
                 </ol>
             </div>
         </div>

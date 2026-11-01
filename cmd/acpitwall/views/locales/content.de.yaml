@@ -1,0 +1,176 @@
+# Inhalte: Autos, Strecken, Wetter, Upload-Bereich und Suchhilfe.
+content:
+  default: Standard
+  notes: Notizen
+  lap_time: Rundenzeit
+  download_url: Download-URL
+  download_url_placeholder: z. B. http://racedepartment.com/...
+  danger_zone: Gefahrenbereich!
+
+  cars:
+    intro: Auf dem Server installierte Autos.
+    upload: Autos hochladen
+    search_placeholder: Autos suchen
+
+  car:
+    skin_alt: "{car}, Skin {skin}"
+    download_skin: Skin herunterladen
+    delete_tag: Diesen Tag löschen
+    add_tag: Neuen Tag hinzufügen
+    add_tag_submit: Los
+    description: Beschreibung
+    no_description: Für dieses Auto gibt es keine Beschreibung.
+    setups: Setups
+    setup_file: Setup-Datei
+    delete_setup_confirm: Setup {name} löschen?
+    delete_setup_detail: Die Setup-Datei wird endgültig entfernt.
+    delete_setup: Setup löschen
+    upload_setups_help: Mit dem Formular unten kannst du Setups für dieses Auto hochladen.
+    no_setups: Für dieses Auto gibt es keine Setups.
+    upload_one_below: Du kannst unten eins hochladen.
+    generic: Allgemein
+    choose_setup: Setup wählen
+    upload_setup: Setup hochladen
+    best_laps: Beste Runden
+    no_best_laps: Noch keine besten Runden. Gültige Runden mit diesem Auto erscheinen hier.
+    used_in_sessions:
+      one: Dieses Auto wurde in {count} Session gefahren.
+      other: Dieses Auto wurde in {count} Sessions gefahren.
+    download_car: Auto herunterladen
+    tyres: Reifen
+    specs: Technische Daten
+    spec:
+      acceleration: "Beschleunigung:"
+      bhp: "PS:"
+      power_ratio: "Leistungsgewicht:"
+      top_speed: "Höchstgeschwindigkeit:"
+      torque: "Drehmoment:"
+      weight: "Gewicht:"
+    about: Infos
+    info:
+      author: "Autor:"
+      brand: "Marke:"
+      class: "Klasse:"
+      country: "Land:"
+      year: "Jahr:"
+      version: "Version:"
+    skins: Skins
+    skin_upload: Skin hochladen
+    choose_skin: Skin wählen
+    skin_upload_help: Wähle den Skin-Ordner. Höchstens {files} Dateien und {mb} MB pro Skin.
+    skin_quota: Du nutzt {used} von {quota} MB.
+    who_can_use: Wer ihn nutzen darf
+    visibility:
+      only_me: Nur ich
+      my_team: Mein Team
+      everybody_global: Alle (global)
+      everybody: Alle
+      team: Team
+      only_owner: Nur Besitzer
+    team_for_skin: Team für einen Team-Skin
+    upload: Hochladen
+    skin_upload_disabled: Skin-Uploads sind für dein Konto nicht freigeschaltet.
+    user_skins_help: Von Konten hochgeladene Skins. Private und Team-Skins sehen nur du und dein Team.
+    skin: Skin
+    owner: Besitzer
+    visible_for: Sichtbar für
+    size: Größe
+    unknown_owner: unbekannt
+    skin_files:
+      one: "{count} Datei, {size}"
+      other: "{count} Dateien, {size}"
+    delete_skin_confirm: Skin {name} löschen?
+    delete_user_skin_detail: Der Skin und seine Dateien werden endgültig entfernt.
+    delete_skin_label: Skin löschen
+    metadata: Metadaten des Autos
+    download_url_help: Download-Links für Autos werden im Server-Infobildschirm von Content Manager angezeigt.
+    notes_help: Notizen werden allen Benutzern auf der Seite dieses Autos angezeigt.
+    save_metadata: Metadaten speichern
+    skin_folders: Skin-Ordner
+    skin_folders_help: Skins dieses Autos in seinem Skin-Verzeichnis. Uploads findest du oben im Bereich Skins.
+    delete_selected_skin_confirm: Ausgewählten Skin löschen?
+    delete_skin_folder_detail: Der Skin-Ordner wird endgültig von diesem Auto entfernt.
+    delete_skin: Skin löschen
+    delete_help: Dieses Auto mit allen zugehörigen Skins endgültig löschen.
+    delete_confirm: Auto {name} löschen?
+    delete_detail: Das Auto und alle zugehörigen Skins werden endgültig vom Server entfernt.
+    delete_detail_folder: Das Auto und alle zugehörigen Skins werden endgültig vom Server entfernt ({folder}).
+    delete_label: Auto löschen
+    delete_aria: Auto {name} löschen
+    delete_car: Auto löschen
+
+  tracks:
+    intro: Auf dem Server installierte Strecken und Layouts.
+    upload: Strecken hochladen
+
+  track:
+    download: Herunterladen
+    layouts: Layouts
+    records_server: Server für Rundenrekorde
+    records_any_server: Rundenrekorde aller Server
+    layout_alt: "{track}, Layout {layout}"
+    layout_title: "Layout {layout}"
+    geotags: "Geotags:"
+    tags: "Tags:"
+    lap_records: Rundenrekorde
+    full_leaderboard: Komplette Bestenliste
+    sectors: Sektoren
+    no_lap_records: Noch keine Rundenrekorde. Gültige Runden aus Ergebnissen erscheinen hier.
+    used_in_sessions:
+      one: Dieses Layout wurde in {count} Session gefahren.
+      other: Dieses Layout wurde in {count} Sessions gefahren.
+    metadata: Metadaten der Strecke
+    download_url_help: Download-Links für Strecken werden im Server-Infobildschirm von Content Manager angezeigt.
+    notes_help: Notizen werden allen Benutzern auf der Seite dieser Strecke angezeigt.
+    save_metadata: Metadaten speichern
+    delete_help: Diese Strecke mit allen zugehörigen Layouts endgültig löschen.
+    delete_confirm: Strecke {name} löschen?
+    delete_detail: Die Strecke und alle zugehörigen Layouts werden endgültig vom Server entfernt.
+    delete_detail_folder: Die Strecke und alle zugehörigen Layouts werden endgültig vom Server entfernt ({folder}).
+    delete_label: Strecke löschen
+    delete_aria: Strecke {name} löschen
+    delete_track: Strecke löschen
+
+  weather:
+    intro: Auf dem Server installierte Wetter-Presets.
+    upload: Wetter hochladen
+    key: Wetter-Schlüssel
+    name: Wetter-Name
+    delete_confirm: Wetter-Preset {name} löschen?
+    delete_detail: Das Wetter-Preset wird endgültig vom Server entfernt.
+    delete_label: Wetter-Preset löschen
+
+  upload:
+    choose_folder: Ordner wählen
+    only_ks: Nur offizielle KS-Inhalte hochladen
+    car:
+      tags_placeholder: Tags für alle hochgeladenen Autos (z. B. GT3, Enduro)
+      drop_title: Auto-Ordner hierher ziehen
+      drop_hint: Ein einzelner Auto-Ordner, mehrere Auto-Ordner oder ein „cars“-Ordner mit mehreren Autos.
+      help: Es werden nur die Dateien hochgeladen, die der Server braucht. Prüfe nach der Ordnerwahl die Vorschau unten und klicke auf den Upload-Button. Wenn das Hochladen vieler Autos auf einmal fehlschlägt, lade sie in kleineren Gruppen hoch.
+    track:
+      drop_title: Strecken-Ordner hierher ziehen
+      drop_hint: Ein einzelner Strecken-Ordner, mehrere Strecken-Ordner oder ein „tracks“-Ordner mit mehreren Strecken.
+      help: Es werden nur die Dateien hochgeladen, die der Server braucht. Prüfe nach der Ordnerwahl die Vorschau unten und klicke auf den Upload-Button. Wenn das Hochladen vieler Strecken auf einmal fehlschlägt, lade sie in kleineren Gruppen hoch.
+    weather:
+      drop_title: Wetter-Ordner hierher ziehen
+      drop_hint: Ein einzelner Wetter-Ordner, mehrere Wetter-Ordner oder ein „weather“-Ordner mit mehreren Wetter-Presets.
+      help: Es werden nur die Dateien hochgeladen, die der Server braucht. Prüfe nach der Ordnerwahl die Vorschau unten und klicke auf den Upload-Button. Wenn das Hochladen vieler Wetter-Presets auf einmal fehlschlägt, lade sie in kleineren Gruppen hoch.
+
+  search:
+    submit: Suchen
+    showing: Ergebnisse {from}-{to} von {total}
+    took: Suche dauerte {duration}
+    no_results: Deine Suche hat keine Treffer ergeben. Versuch es mit einer anderen Anfrage.
+    help: Suchhilfe
+    help_intro: Du kannst die Suche ähnlich wie Google oder jedes andere Suchfeld benutzen.
+    help_basic: "<strong>Einfache Suche</strong> - wenn du zum Beispiel Autos zu Ferrari finden willst, gib ein: <code>ferrari</code>"
+    help_boolean: "<strong>Boolesche Suche</strong> - wenn du Ferraris finden willst, die keine Oldtimer sind, nimm: <code>+ferrari -vintage</code>."
+    help_fields: "<strong>Suche in bestimmten Feldern</strong> - alle Angaben eines Autos sind durchsuchbar. Wenn du zum Beispiel Autos mit einem bestimmten Tag suchst - etwa „italy“ - nimm: <code>tags:\"italy\"</code>"
+    help_fields_list: "Alle Felder eines Autos:"
+    help_numeric: "<strong>Suche nach Zahlenwerten</strong> - du kannst Zahlenwerte durchsuchen, zum Beispiel listet <code>spec.weight:>600</code> alle Autos mit mehr als 600 kg Gewicht."
+    help_numeric_list: "Alle verfügbaren Zahlenwerte:"
+    help_content_type: "<strong>Suche nach Standard-, DLC- und Mod-Inhalten</strong> - mit einem (oder mehreren) der folgenden Begriffe findest du nur Standard-, nur DLC- oder nur Mod-Inhalte: <code>+stock</code>, <code>+dlc</code>, <code>+mod</code>. Mit einem (oder mehreren) der folgenden Begriffe schließt du Standard-, DLC- oder Mod-Inhalte aus: <code>-stock</code>, <code>-dlc</code>, <code>-mod</code>."
+    help_combine: "Natürlich kannst du all das in einer Anfrage kombinieren! Das könnte so aussehen:"
+    help_combine_example: "„muss ein Ferrari sein“, „darf kein Oldtimer sein“, „muss den Tag ‚semiautomatic‘ haben“, „muss mehr als 600 PS haben“, „darf kein DLC sein“."
+    help_bleve: ACPitwall nutzt Bleve für die Suche. Bleve ist sehr mächtig und bietet viel Kontrolle über Suchanfragen. Hier haben wir einige Beispiele gezeigt, weitere Beispiele und die genaue Syntax findest du in der <a href="{url}">Bleve-Dokumentation</a>.

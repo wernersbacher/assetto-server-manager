@@ -1,5 +1,5 @@
-{{/* Upload panel shared by the cars, tracks and weather pages. Takes a dict with Kind (car|track|weather),
-     Plural, and optionally Tags and OnlyKS. The element ids are used by manager.js. */}}
+{{/* Upload panel shared by the cars, tracks and weather pages. Takes a dict with Kind (car|track|weather) and
+     optionally Tags and OnlyKS. The texts are the keys content.upload.<Kind>.*. The element ids are used by manager.js. */}}
 {{ define "content-upload" }}
     <div class="collapse upload-panel-wrapper" id="upload-panel">
         <div class="card upload-panel">
@@ -7,16 +7,16 @@
                 <form class="upload-form" onsubmit="return false;">
                     {{ if .Tags }}
                         <input type="text" class="form-control mb-3" id="tags" name="tags"
-                               placeholder="Add tags to all uploaded {{ .Plural }} (e.g. GT3, Enduro)">
+                               placeholder="{{ t (printf "content.upload.%s.tags_placeholder" .Kind) }}">
                     {{ end }}
 
                     <div id="drop-zone" class="{{ .Kind }}-drop drop-zone">
                         <span class="drop-zone-icon">{{ template "icon" "upload" }}</span>
-                        <div class="drop-zone-title">Drag &amp; drop {{ .Kind }} folder(s) here</div>
-                        <div class="drop-zone-hint">A single {{ .Kind }} folder, several {{ .Kind }} folders, or a "{{ .Plural }}" folder containing multiple {{ .Plural }}.</div>
+                        <div class="drop-zone-title">{{ t (printf "content.upload.%s.drop_title" .Kind) }}</div>
+                        <div class="drop-zone-hint">{{ t (printf "content.upload.%s.drop_hint" .Kind) }}</div>
 
                         <div class="btn-file btn btn-outline mt-2">
-                            Choose a folder
+                            {{ t "content.upload.choose_folder" }}
                             <input id="input-folder-{{ .Kind }}" name="input-folder-{{ .Kind }}[]" type="file"
                                    webkitdirectory multiple value="Choose Folder"/>
                         </div>
@@ -25,7 +25,7 @@
                     {{ if .OnlyKS }}
                         <div class="upload-option mt-3">
                             <input type="checkbox" name="only-ks" id="only-ks">
-                            <label for="only-ks" class="mb-0 ml-2">Only upload official KS content</label>
+                            <label for="only-ks" class="mb-0 ml-2">{{ t "content.upload.only_ks" }}</label>
                         </div>
                     {{ end }}
 
@@ -40,9 +40,7 @@
                 </form>
 
                 <p class="upload-help mb-0">
-                    Only the files the server requires are uploaded. After choosing a folder, check the preview
-                    below and press the upload button. If uploading many {{ .Plural }} at once fails, upload them in
-                    smaller batches.
+                    {{ t (printf "content.upload.%s.help" .Kind) }}
                 </p>
             </div>
         </div>

@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/admin.currentCFGTemplateVars */}}
 
-{{ define "title" }}Current Config{{ end }}
+{{ define "title" }}{{ t "nav.current_config" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Current Config{{ template "server-badge" $ }}</h1>
-            <p>The <code>server_cfg.ini</code> and <code>entry_list.ini</code> that are currently applied to the server. Read-only, intended for troubleshooting.</p>
+            <h1>{{ t "nav.current_config" }}{{ template "server-badge" $ }}</h1>
+            <p>{{ tHTML "server.config.intro" }}</p>
         </div>
     </div>
 
@@ -17,17 +17,17 @@
     {{ end }}
 
     {{ if and .NotWritten (not .ReadError) }}
-        {{ template "empty-state" dict "Icon" "config" "Text" "No configuration yet. The server writes its configuration when the first event is started." "Href" (serverURL "/quick") "Label" "Start a quick race" }}
+        {{ template "empty-state" dict "Icon" "config" "Text" (t "server.config.empty") "Href" (serverURL "/quick") "Label" (t "home.start_quick_race") }}
     {{ else }}
     <div class="card admin-card mb-4">
-        <div class="card-header"><h2><label for="current-config" class="mb-0">Server Config</label></h2></div>
+        <div class="card-header"><h2><label for="current-config" class="mb-0">{{ t "server.config.server_config" }}</label></h2></div>
         <div class="card-body">
             <textarea readonly id="current-config" name="current-config" class="form-control md-textarea text-area mono-area" rows="30">{{ .ConfigText }}</textarea>
         </div>
     </div>
 
     <div class="card admin-card">
-        <div class="card-header"><h2><label for="entry-list" class="mb-0">Entry List</label></h2></div>
+        <div class="card-header"><h2><label for="entry-list" class="mb-0">{{ t "server.config.entry_list" }}</label></h2></div>
         <div class="card-body">
             <textarea readonly id="entry-list" name="entry-list" class="form-control md-textarea text-area mono-area" rows="30">{{ .EntryListText }}</textarea>
         </div>

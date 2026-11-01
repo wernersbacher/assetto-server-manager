@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/admin.serversTemplateVars */}}
 
-{{ define "title" }}Servers{{ end }}
+{{ define "title" }}{{ t "nav.servers" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Servers</h1>
-            <p>All servers of this ACPitwall with their ports, plugins and port conflicts, so that you can compare and fix the settings in one place.</p>
+            <h1>{{ t "nav.servers" }}</h1>
+            <p>{{ t "server.servers.intro" }}</p>
         </div>
     </div>
 
@@ -14,29 +14,29 @@
         {{ range $server := $.Details }}
             <article class="card dashboard-card server-card" aria-labelledby="server-{{ $server.ID }}-heading">
                 <div class="dashboard-card-header">
-                    <h3 id="server-{{ $server.ID }}-heading">{{ $server.Name }} <small class="text-muted">{{ if $server.ID }}{{ $server.ID }}{{ else }}default{{ end }}</small></h3>
+                    <h3 id="server-{{ $server.ID }}-heading">{{ $server.Name }} <small class="text-muted">{{ if $server.ID }}{{ $server.ID }}{{ else }}{{ t "server.servers.default" }}{{ end }}</small></h3>
 
                     {{ if $server.Running }}
                         <span class="badge badge-success">{{ $server.EventType }}</span>
                     {{ else }}
-                        <span class="badge badge-secondary">Idle</span>
+                        <span class="badge badge-secondary">{{ t "topbar.idle" }}</span>
                     {{ end }}
                 </div>
 
                 <dl class="stat-row">
                     <div>
-                        <dt>Event</dt>
-                        <dd>{{ if $server.Running }}{{ $server.EventName }}{{ else }}No event is running{{ end }}</dd>
+                        <dt>{{ t "home.event" }}</dt>
+                        <dd>{{ if $server.Running }}{{ $server.EventName }}{{ else }}{{ t "home.no_event" }}{{ end }}</dd>
                     </div>
                     <div>
-                        <dt>Drivers online</dt>
+                        <dt>{{ t "home.drivers_online" }}</dt>
                         <dd>{{ $server.DriversOnline }}</dd>
                     </div>
                 </dl>
 
                 {{ if $server.Warnings }}
                     <div class="alert alert-warning" role="alert">
-                        <strong>Port conflict with another server.</strong>
+                        <strong>{{ t "port_warnings.title" }}</strong>
                         <ul class="mb-0">
                             {{ range $warning := $server.Warnings }}
                                 <li>{{ $warning }}</li>
@@ -45,22 +45,22 @@
                     </div>
                 {{ end }}
 
-                <h4 class="h6">acServer ports</h4>
+                <h4 class="h6">{{ t "server.servers.ports" }}</h4>
                 <ul class="server-ports mb-3">
                     {{ range $port := $server.Ports }}
                         <li><span>{{ $port.What }}</span><span class="port-number">{{ $port.Port }} / {{ $port.Protocol }}</span></li>
                     {{ else }}
-                        <li class="text-muted">No ports known.</li>
+                        <li class="text-muted">{{ t "server.servers.no_ports" }}</li>
                     {{ end }}
                 </ul>
 
-                <h4 class="h6">Plugins</h4>
+                <h4 class="h6">{{ t "nav.plugins" }}</h4>
                 <ul class="server-ports mb-3">
                     {{ range $plugin := $server.Plugins }}
                         <li>
                             <span>
                                 <a href="{{ $plugin.OptionsURL }}?server={{ $server.ID }}">{{ $plugin.Name }}</a>
-                                {{ if $plugin.Enabled }}<span class="badge badge-success">Enabled</span>{{ else }}<span class="badge badge-secondary">Disabled</span>{{ end }}
+                                {{ if $plugin.Enabled }}<span class="badge badge-success">{{ t "server.servers.enabled" }}</span>{{ else }}<span class="badge badge-secondary">{{ t "server.servers.disabled" }}</span>{{ end }}
                             </span>
                             <span class="port-number">
                                 {{ range $i, $port := $plugin.Ports }}{{ if $i }}, {{ end }}{{ $port.Port }}/{{ $port.Protocol }}{{ end }}
@@ -70,10 +70,10 @@
                 </ul>
 
                 <div class="server-card-actions">
-                    <a href="/server-options?server={{ $server.ID }}" class="btn btn-primary btn-sm">Options</a>
-                    <a href="/logs?server={{ $server.ID }}" class="btn btn-outline-secondary btn-sm">Logs</a>
+                    <a href="/server-options?server={{ $server.ID }}" class="btn btn-primary btn-sm">{{ t "nav.options" }}</a>
+                    <a href="/logs?server={{ $server.ID }}" class="btn btn-outline-secondary btn-sm">{{ t "nav.logs" }}</a>
                     {{ if ReadAccess }}
-                        <a href="/live-timing?server={{ $server.ID }}" class="btn btn-outline-secondary btn-sm">Live timing</a>
+                        <a href="/live-timing?server={{ $server.ID }}" class="btn btn-outline-secondary btn-sm">{{ t "server.servers.live_timing" }}</a>
                     {{ end }}
                 </div>
             </article>
@@ -81,14 +81,11 @@
     </div>
 
     <div class="card admin-card">
-        <div class="card-header"><h2>Global and per-server settings</h2></div>
+        <div class="card-header"><h2>{{ t "server.servers.scope_title" }}</h2></div>
         <div class="card-body">
-            <p><strong>Per server:</strong> server options (including the ports), sTracker, KissMyRank and Real Penalty options, blacklist, messages (MOTD), logs of the
-                acServer, the current config, live timing and the race control, the running event and the last race.</p>
-            <p><strong>Shared by all servers:</strong> accounts, the audit log, cars, tracks, weather and setups, the AutoFill entrants, penalties, the calendar and
-                scheduled events, championships and their results (results are kept in the folder of the server that ran the session).</p>
-            <p class="mb-0"><strong>Notifications</strong> (Discord) are sent with the options of the default server, the Discord settings of the other servers are not used.
-                ACPitwall log is shared, only the acServer log belongs to a server.</p>
+            <p>{{ tHTML "server.servers.scope_per_server" }}</p>
+            <p>{{ tHTML "server.servers.scope_shared" }}</p>
+            <p class="mb-0">{{ tHTML "server.servers.scope_notifications" }}</p>
         </div>
     </div>
 {{ end }}

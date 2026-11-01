@@ -1,12 +1,12 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/admin.motdTemplateVars */}}
 
-{{ define "title" }}Messages{{ end }}
+{{ define "title" }}{{ t "nav.messages" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Messages{{ template "server-badge" $ }}</h1>
-            <p>Messages shown to drivers when they join the server.</p>
+            <h1>{{ t "nav.messages" }}{{ template "server-badge" $ }}</h1>
+            <p>{{ t "server.motd.intro" }}</p>
         </div>
     </div>
 
@@ -16,42 +16,38 @@
         <div class="card admin-card mb-4">
             <div class="card-header"><h2>MOTD</h2></div>
             <div class="card-body">
-                <label for="motd">Message of the day. Shown by Assetto Corsa in a full screen popup window to everyone who joins the server.</label>
+                <label for="motd">{{ t "server.motd.motd_help" }}</label>
                 <textarea id="motd" name="motd" class="form-control md-textarea text-area">{{ .MOTDText }}</textarea>
             </div>
         </div>
 
         <div class="card admin-card mb-4">
-            <div class="card-header"><h2>Server Join Message</h2></div>
+            <div class="card-header"><h2>{{ t "server.motd.join_message" }}</h2></div>
             <div class="card-body">
-                <label for="serverJoinMessage">Shown in chat to each user when they join the server.</label>
+                <label for="serverJoinMessage">{{ t "server.motd.join_message_help" }}</label>
                 <textarea id="serverJoinMessage" name="serverJoinMessage" class="form-control md-textarea text-area">{{ $.Opts.ServerJoinMessage }}</textarea>
             </div>
         </div>
 
         <div class="card admin-card mb-4">
-            <div class="card-header"><h2>Content Manager Welcome Message</h2></div>
+            <div class="card-header"><h2>{{ t "server.motd.cm_message" }}</h2></div>
             <div class="card-body">
                 {{ if and $.Opts.EnableContentManagerWrapper (gt $.Opts.ContentManagerWrapperPort 0) }}
                     <div class="d-none" id="ContentManagerMessageContent">{{ trustHTML $.Opts.ContentManagerWelcomeMessage }}</div>
 
                     <label for="contentManagerWelcomeMessage">
-                        Shown to Content Manager users before they join the server.
-
-                        This input is a template, in which you can access data about your manager/the current event.
-                        You can enter anything you like in here. If you put <code>&lbrace;&lbrace; .ServerName &rbrace;&rbrace;</code> in, the Server Name will replace it.
-                        If you put <code>&lbrace;&lbrace; .EventName &rbrace;&rbrace;</code>, then the Event Name will replace it.
+                        {{ tHTML "server.motd.cm_message_help" }}
                     </label><br>
                     <textarea id="contentManagerWelcomeMessage" name="contentManagerWelcomeMessage"></textarea>
                 {{ else }}
-                    <p class="mb-0 text-muted">Enable Content Manager Wrapper in <a href="{{ serverURL "/server-options" }}">Server Options</a> to show this message.</p>
+                    <p class="mb-0 text-muted">{{ tHTML "server.motd.cm_disabled" "url" (serverURL "/server-options") }}</p>
                 {{ end }}
             </div>
         </div>
 
         <div class="save-bar">
-            <span class="save-bar-text">Join messages are sent to drivers as they connect.</span>
-            <button class="btn btn-success" type="submit">Save</button>
+            <span class="save-bar-text">{{ t "server.motd.save_hint" }}</span>
+            <button class="btn btn-success" type="submit">{{ t "common.save" }}</button>
         </div>
     </form>
 {{ end }}

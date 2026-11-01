@@ -7,37 +7,37 @@
         <div class="page-header">
             <div>
                 <h1>{{ $.Track.PrettyName }}</h1>
-                <p><a href="/tracks">Tracks</a> / {{ $.Track.Name }}</p>
+                <p><a href="/tracks">{{ t "nav.tracks" }}</a> / {{ $.Track.Name }}</p>
             </div>
             <div>
             {{ if $.Track.IsPaidDLC }}<span class="badge bg-dlc">DLC</span>{{ end }}
             {{ if $.Track.IsMod }}<span class="badge bg-mod">Mod</span>{{ end }}
-            {{ if not (or $.Track.IsPaidDLC $.Track.IsMod) }}<span class="badge bg-default-content">Default</span>{{ end }}
+            {{ if not (or $.Track.IsPaidDLC $.Track.IsMod) }}<span class="badge bg-default-content">{{ t "content.default" }}</span>{{ end }}
             </div>
         </div>
 
         {{ with $.Track.MetaData.Notes }}
-            <h2>Notes</h2>
+            <h2>{{ t "content.notes" }}</h2>
 
             <p>{{ trustHTML . }}</p>
         {{ end }}
 
         {{ with $.Track.MetaData.DownloadURL }}
-            <div class="mb-2 float-right"><a class="btn btn-primary" href="{{ . }}">Download</a></div>
+            <div class="mb-2 float-right"><a class="btn btn-primary" href="{{ . }}">{{ t "content.track.download" }}</a></div>
 
             <div class="clearfix"></div>
         {{ end }}
 
-        <h2>Layouts</h2>
+        <h2>{{ t "content.track.layouts" }}</h2>
         {{ if and (gt (len $.Servers) 1) StatsAccess }}
             <form class="results-filter mb-2" method="get" action="/track/{{ $.Track.Name }}">
-                <select name="filterServer" class="form-control" aria-label="Server for lap records" onchange="this.form.submit()">
-                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>Lap records of any server</option>
+                <select name="filterServer" class="form-control" aria-label="{{ t "content.track.records_server" }}" onchange="this.form.submit()">
+                    <option value="" {{ if eq $.FilterServer "" }}selected{{ end }}>{{ t "content.track.records_any_server" }}</option>
                     {{ range $.Servers }}
                         <option value="{{ .ID }}" {{ if eq (printf "%s" .ID) $.FilterServer }}selected{{ end }}>{{ .Name }}</option>
                     {{ end }}
                 </select>
-                <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+                <noscript><button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button></noscript>
             </form>
         {{ end }}
 
@@ -50,28 +50,28 @@
                         <div class="col-md-4">
                             <div class="card-img track-layout">
                                 <img class="img img-fluid car-image" src="{{ trackLayoutURL $.Track.Name $layout }}"
-                                     alt="{{ $.Track.PrettyName }}, layout {{ $layout }}"
+                                     alt="{{ t "content.track.layout_alt" "track" $.Track.PrettyName "layout" $layout }}"
                                      title="{{ prettify $layout true }}" data-layout="{{ $layout }}"
                                      data-toggle="tooltip" data-placement="bottom">
                             </div>
                         </div>
 
                         <div class="col-md-8">
-                            <h3 class="card-title mb-0">{{ prettify $layout true }} Layout</h3>
+                            <h3 class="card-title mb-0">{{ t "content.track.layout_title" "layout" (prettify $layout true) }}</h3>
 
                             {{ $info := index $.TrackInfo $layout }}
 
                             {{ with $info }}
                                 <div class="mb-1"><i>{{ $info.City }} {{ $info.Country }}</i></div>
 
-                                <span><strong>Length: </strong>{{ $info.Length }}</span>
-                                <span><strong>Run: </strong>{{ $info.Run }}</span>
-                                <span><strong>Width: </strong>{{ $info.Width }}</span>
-                                <span><strong>Pitboxes: </strong>{{ $info.Pitboxes }}</span>
+                                <span><strong>{{ t "live.track.length" }} </strong>{{ $info.Length }}</span>
+                                <span><strong>{{ t "live.track.run" }} </strong>{{ $info.Run }}</span>
+                                <span><strong>{{ t "live.track.width" }} </strong>{{ $info.Width }}</span>
+                                <span><strong>{{ t "live.track.pitboxes" }} </strong>{{ $info.Pitboxes }}</span>
 
-                                <div><strong>Geotags: </strong>{{ stringArrayToCSV $info.Geotags }}</div>
+                                <div><strong>{{ t "content.track.geotags" }} </strong>{{ stringArrayToCSV $info.Geotags }}</div>
 
-                                <div><strong>Tags: </strong>{{ stringArrayToCSV $info.Tags }}</div>
+                                <div><strong>{{ t "content.track.tags" }} </strong>{{ stringArrayToCSV $info.Tags }}</div>
                             {{ end }}
                         </div>
                     </div>
@@ -90,14 +90,14 @@
 
                 <div class="card-body lap-records">
 
-                    <h2>Lap Records</h2>
+                    <h2>{{ t "content.track.lap_records" }}</h2>
 
                     {{ $records := index $.Records $layout }}
 
                     {{ if $records }}
                         {{ $best := index $records 0 }}
 
-                        <p class="mb-2"><a href="/leaderboards?track={{ $.Track.Name | urlquery }}&layout={{ $layout | urlquery }}">Full leaderboard</a></p>
+                        <p class="mb-2"><a href="/leaderboards?track={{ $.Track.Name | urlquery }}&layout={{ $layout | urlquery }}">{{ t "content.track.full_leaderboard" }}</a></p>
 
                         <p class="lap-record-overall mb-2">
                             <span class="h3 mr-2">{{ formatDuration $best.LapTime true }}</span>
@@ -107,11 +107,11 @@
 
                         <div class="table-card"><table class="table results-table">
                             <tr>
-                                <th>Car</th>
-                                <th>Driver</th>
-                                <th class="text-nowrap">Lap Time</th>
-                                <th class="d-none d-md-table-cell">Sectors</th>
-                                <th>Date</th>
+                                <th>{{ t "live.col.car" }}</th>
+                                <th>{{ t "live.col.driver" }}</th>
+                                <th class="text-nowrap">{{ t "content.lap_time" }}</th>
+                                <th class="d-none d-md-table-cell">{{ t "content.track.sectors" }}</th>
+                                <th>{{ t "home.date" }}</th>
                             </tr>
                             {{ range $records }}
                                 <tr class="row-link" data-href="/results/{{ .ResultFile }}">
@@ -127,7 +127,7 @@
                             {{ end }}
                         </table></div>
                     {{ else }}
-                        {{ template "empty-state" dict "Icon" "results" "Text" "No lap records yet. Valid laps from results show up here." }}
+                        {{ template "empty-state" dict "Icon" "results" "Text" (t "content.track.no_lap_records") }}
                     {{ end }}
                 </div>
                 {{ end }}
@@ -136,11 +136,11 @@
 
                 <div class="card-body">
 
-                    <h2>Sessions</h2>
+                    <h2>{{ t "home.sessions" }}</h2>
 
                     {{ $results := index $.Results $layout }}
 
-                    <p>This layout has been used in {{ len $results}} sessions.</p>
+                    <p>{{ tn "content.track.used_in_sessions" (len $results) }}</p>
 
                     <div class="list-group overflow-auto mt-3 mb-3" style="max-height: 300px;">
                         {{ range $index, $session := $results }}
@@ -165,12 +165,12 @@
             <form method="post" action="/track/{{ $.Track.Name }}/metadata">
                 <div class="card mt-3 border-primary mt-5 mb-3">
                     <div class="card-header text-white bg-primary">
-                        <strong>Track Metadata</strong>
+                        <strong>{{ t "content.track.metadata" }}</strong>
                     </div>
                     <div class="card-body">
 
                         <div class="form-group row">
-                            <label for="DownloadURL" class="col-sm-3 col-form-label">Download URL</label>
+                            <label for="DownloadURL" class="col-sm-3 col-form-label">{{ t "content.download_url" }}</label>
 
                             <div class="col-sm-9">
 
@@ -180,11 +180,10 @@
                                         id="DownloadURL"
                                         name="DownloadURL"
                                         value="{{ $.Track.MetaData.DownloadURL }}"
-                                        placeholder="e.g. http://racedepartment.com/..."
+                                        placeholder="{{ t "content.download_url_placeholder" }}"
                                 >
 
-                                <small>Download links for tracks will be shown in
-                                    Content Manager's server information screen.</small>
+                                <small>{{ t "content.track.download_url_help" }}</small>
                             </div>
                         </div>
 
@@ -193,19 +192,18 @@
                                 <div class="d-none" id="TrackNotes">{{ trustHTML . }}</div>
                             {{ end }}
 
-                            <label for="summernote" class="col-sm-3 col-form-label">Notes</label>
+                            <label for="summernote" class="col-sm-3 col-form-label">{{ t "content.notes" }}</label>
 
                             <div class="col-sm-9" id="championship-info">
                                 <textarea id="summernote" name="Notes"></textarea>
                                 <div class="clearfix"></div>
 
-                                <small>Notes will be shown to all users when they visit this track
-                                    page.</small>
+                                <small>{{ t "content.track.notes_help" }}</small>
                             </div>
                         </div>
 
                         <div class="float-right mt-5">
-                            <button class="btn btn-primary" type="submit">Save Track Metadata</button>
+                            <button class="btn btn-primary" type="submit">{{ t "content.track.save_metadata" }}</button>
                         </div>
                     </div>
                 </div>
@@ -215,15 +213,15 @@
         {{ if DeleteAccess }}
             <div class="card border-danger mt-3 mb-3">
                 <div class="card-header text-white bg-danger">
-                    Danger Zone!
+                    {{ t "content.danger_zone" }}
                 </div>
 
                 <div class="card-body">
-                    <p class="float-left">Permanently delete this track and all associated layouts.</p>
+                    <p class="float-left">{{ t "content.track.delete_help" }}</p>
 
                     <form method="post" action="/track/{{ $.Track.Name }}/delete" class="float-right"
-                           data-confirm-delete="Delete track {{ prettify $.Track.Name true }}?" data-confirm-detail="The track and all associated layouts are removed from the server permanently ({{ $.Track.Name }})." data-confirm-label="Delete track">
-                        <button type="submit" class="btn btn-danger">Delete Track</button>
+                           data-confirm-delete="{{ t "content.track.delete_confirm" "name" (prettify $.Track.Name true) }}" data-confirm-detail="{{ t "content.track.delete_detail_folder" "folder" $.Track.Name }}" data-confirm-label="{{ t "content.track.delete_label" }}">
+                        <button type="submit" class="btn btn-danger">{{ t "content.track.delete_track" }}</button>
                     </form>
 
                     <div class="clearfix"></div>

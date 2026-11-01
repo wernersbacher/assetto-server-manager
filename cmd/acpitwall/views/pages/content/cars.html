@@ -1,24 +1,24 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/contenthttp.carListTemplateVars */}}
 
-{{ define "title" }}Cars{{ end }}
+{{ define "title" }}{{ t "home.cars" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Cars</h1>
-            <p>Cars installed on the server.</p>
+            <h1>{{ t "home.cars" }}</h1>
+            <p>{{ t "content.cars.intro" }}</p>
         </div>
 
         {{ if WriteAccess }}
             <button type="button" class="btn btn-primary btn-with-icon" data-toggle="collapse" data-target="#upload-panel" aria-expanded="false" aria-controls="upload-panel">
-                {{ template "icon" "upload" }} Upload cars
+                {{ template "icon" "upload" }} {{ t "content.cars.upload" }}
             </button>
         {{ end }}
     </div>
 
     {{ if WriteAccess }}
         <div class="stack">
-        {{ template "content-upload" dict "Kind" "car" "Plural" "cars" "Tags" true "OnlyKS" true }}
+        {{ template "content-upload" dict "Kind" "car" "Tags" true "OnlyKS" true }}
 
         <div id="car-fail"></div>
         <div id="car-info-panel"></div>
@@ -26,8 +26,8 @@
     {{ end }}
 
     <form method="get" action="/cars" class="content-search mb-3">
-        <input name="q" placeholder="Search for cars" aria-label="Search for cars" class="form-control" value="{{ $.Query }}" autocomplete="off">
-        <button type="submit" class="btn btn-primary">Search</button>
+        <input name="q" placeholder="{{ t "content.cars.search_placeholder" }}" aria-label="{{ t "content.cars.search_placeholder" }}" class="form-control" value="{{ $.Query }}" autocomplete="off">
+        <button type="submit" class="btn btn-primary">{{ t "content.search.submit" }}</button>
     </form>
 
     {{ with .Results }}
@@ -36,11 +36,11 @@
         <div id="search-info" class="content-search-info text-black-50 mb-2">
             <div>
                 {{ $pageStart := mul $.CurrentPage $.PageSize }}
-                <small>Showing results {{ $pageStart }}-{{ add $pageStart (len .Hits) }} of {{ .Total }}</small>
+                <small>{{ t "content.search.showing" "from" $pageStart "to" (add $pageStart (len .Hits)) "total" .Total }}</small>
             </div>
 
             <div>
-                <small>Search completed in {{ .Took }} | <a href="#" data-toggle="collapse" data-target="#searchHelp" aria-expanded="false" aria-controls="searchHelp">Search Help</a></small>
+                <small>{{ t "content.search.took" "duration" .Took }} | <a href="#" data-toggle="collapse" data-target="#searchHelp" aria-expanded="false" aria-controls="searchHelp">{{ t "content.search.help" }}</a></small>
             </div>
         </div>
 
@@ -66,7 +66,7 @@
                         <div class="content-card-badges">
                             {{ if $car.IsPaidDLC }}<span class="badge bg-dlc">DLC</span>{{ end }}
                             {{ if $car.IsMod }}<span class="badge bg-mod">Mod</span>{{ end }}
-                            {{ if not (or $car.IsPaidDLC $car.IsMod) }}<span class="badge bg-default-content">Default</span>{{ end }}
+                            {{ if not (or $car.IsPaidDLC $car.IsMod) }}<span class="badge bg-default-content">{{ t "content.default" }}</span>{{ end }}
 
                             {{ range $index, $tag := $car.Details.Tags }}
                                 <a class="badge badge-secondary content-tag" href="/cars?q=%2Btags:%22{{ urlquery $tag }}%22">{{ $tag }}</a>
@@ -75,8 +75,8 @@
                     </div>
 
                     {{ if DeleteAccess }}
-                        <form method="post" action="/car/{{ $car.Name }}/delete" class="content-card-delete" data-confirm-delete="Delete car {{ $car.Name }}?" data-confirm-detail="The car and all associated skins are removed from the server permanently." data-confirm-label="Delete car">
-                            <button type="submit" class="btn btn-icon text-danger" aria-label="Delete car {{ $car.Name }}"><i class="fa fa-trash"></i></button>
+                        <form method="post" action="/car/{{ $car.Name }}/delete" class="content-card-delete" data-confirm-delete="{{ t "content.car.delete_confirm" "name" $car.Name }}" data-confirm-detail="{{ t "content.car.delete_detail" }}" data-confirm-label="{{ t "content.car.delete_label" }}">
+                            <button type="submit" class="btn btn-icon text-danger" aria-label="{{ t "content.car.delete_aria" "name" $car.Name }}"><i class="fa fa-trash"></i></button>
                         </form>
                     {{ end }}
                 </div>
@@ -86,7 +86,7 @@
                 </a>
             </div>
         {{ else }}
-            <p>Your search returned no results. Please try a different query.</p>
+            <p>{{ t "content.search.no_results" }}</p>
         {{ end }}
         </div>
 
