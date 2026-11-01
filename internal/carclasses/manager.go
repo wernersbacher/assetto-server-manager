@@ -172,6 +172,8 @@ func (m *Manager) Usages(id string) ([]Usage, error) {
 	return m.usages(class.ID)
 }
 
+// usages lists the live championships that refer to the car class. Deleted championships are not listed by the store
+// and do not block changes of a car class; they are checked when they are saved again (UpsertChampionshipChecked).
 func (m *Manager) usages(id uuid.UUID) ([]Usage, error) {
 	championships, err := m.store.ListChampionships()
 

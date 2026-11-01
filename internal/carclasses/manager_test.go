@@ -409,3 +409,42 @@ func TestChampionshipSaveIsCheckedAgainstCurrentCarClasses(t *testing.T) {
 		}
 	})
 }
+
+// A deleted championship (soft delete) is no longer listed, so it does not block changing or deleting a car class it
+// refers to. Saving it again (it can still be opened by its ID) is checked like any other save.
+func TestDeletedChampionshipDoesNotBlockCarClassChanges(t *testing.T) {
+	forEachStore(t, func(t *testing.T, store smstore.Store) {
+		m := NewManager(store)
+		cm := championship.NewChampionshipManager(nil, nil, store, nil, nil, nil)
+
+		class := mustCreate(t, m, "Used", "a")
+		c := saveChampionship(t, store, "Old season", class)
+
+		if err := m.Delete(class.ID.String()); err == nil {
+			t.Fatal("a class of a live championship must not be deleted")
+		}
+
+		if err := store.DeleteChampionship(c.ID.String()); err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := m.Update(class.ID.String(), "Used", []string{"b"}); err != nil {
+			t.Fatalf("update with only a deleted championship: %v", err)
+		}
+
+		if err := m.Delete(class.ID.String()); err != nil {
+			t.Fatalf("delete with only a deleted championship: %v", err)
+		}
+
+		// the deleted championship loads, but cannot be saved with the missing car class
+		loaded, err := store.LoadChampionship(c.ID.String())
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := cm.UpsertChampionship(loaded); err == nil {
+			t.Error("saving a championship that refers to a missing car class must be refused")
+		}
+	})
+}
