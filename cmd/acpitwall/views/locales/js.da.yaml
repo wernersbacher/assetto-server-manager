@@ -1,0 +1,116 @@
+# Messages of the browser code (cmd/acpitwall/typescript/src), used with t("area.key") / tn("area.key", count).
+# js.confirm, js.calendar and js.messages live in da.yaml.
+js:
+  live:
+    event_title: "{session} på {track}"
+    session:
+      booking: Booking
+      practice: Træning
+      qualifying: Kvalifikation
+      race: Løb
+      unknown: Ukendt session
+    days_plus:
+      one: "{count} dag + {time}"
+      other: "{count} dage + {time}"
+    laps_remaining:
+      one: "{count} omgang tilbage"
+      other: "{count} omgange tilbage"
+    road_temp: "Banetemperatur: {temp}°C"
+    ambient_temp: "Lufttemperatur: {temp}°C"
+    current_weather: "Aktuelt vejr: {weather}"
+    loaded: Indlæst
+    crash_with_car: "Kollision med {driver} ved {speed}"
+    crash_with_environment: "Kollision med omgivelserne ved {speed}"
+  race_form:
+    field:
+      abs: ABS
+      tc: TC
+      stability: Stabilitet
+      autoclutch: Autokobling
+      tyre_blankets: Dækvarmere
+      fuel: Brændstof
+      damage: Skade
+      tyre_wear: Dækslid
+      virtual_mirror: Virtuelt spejl
+      surface: Baneforhold
+      grip_at_start: Greb ved start
+      max_ballast: Maks. ballast
+      tyres_out: Dæk uden for banen
+      contacts_per_km: Kontakter/km
+      start_rule: Startregel
+      loop: Gentag
+      result_screen: Resultatskærm
+      no_drs_zones: Ingen DRS-zoner
+      replace_password: Erstat adgangskode
+      force_stop: Tvunget stop
+      stop_with_drivers: Stop med kørere
+    summary:
+      "on": "{label} til"
+      "off": "{label} fra"
+      selected: "{count} valgt"
+      none_selected: intet valgt
+    show: Vis
+    hide: Skjul
+    toggle_label: "Vis eller skjul {section}"
+    edited: ændret
+    status:
+      has_errors: har fejl
+      complete: komplet
+    sections: Sektioner
+    field_fallback: Felt
+    fix_fields: "Ret disse felter, før du gemmer:"
+    no_changes: Ingen ændringer endnu
+    unsaved_changes: Ikke-gemte ændringer
+    discard_changes: Kassér ændringer
+    discard_title: Kassér dine ændringer?
+    discard_detail: Formularen nulstilles til de senest gemte værdier.
+    discard: Kassér
+  form:
+    leave_unsaved: Er du sikker på, at du vil forlade siden? Ikke-gemte ændringer i dette setup går så tabt.
+  entrant:
+    preview_image: Forhåndsvisning
+    random_skin: "<tilfældigt skin>"
+    no_fixed_setup: Intet fast setup
+    any_car: Enhver ledig bil
+  upload:
+    uploading: Uploader...
+    sent: "Upload sendt ({size}), serveren behandler filerne..."
+    progress: "Uploader {percent}% ({loaded} af {total})"
+    finished: Upload færdig. Genindlæser...
+    reading:
+      one: "Læser {count} fil..."
+      other: "Læser {count} filer..."
+    no_files: Der er ingen filer at uploade.
+    reading_progress: "Læser filer ({count} af {total})..."
+    read_failed: "Kunne ikke læse {file}."
+    failed: "Upload mislykkedes ({error}). Prøv igen, eller upload færre filer ad gangen."
+    network_error: netværksfejl
+    preview: "Forhåndsvisning: {name}"
+    weather_preview: Vejrforhåndsvisning
+    livery: "Livery: {name}"
+    layout: "Layout: {name}"
+    default_layout: Standard
+    content_preview: Forhåndsvisning af indhold
+    incompatible_weather: Beklager, de uploadede filer ser ikke ud til at være en kompatibel vejr-preset!
+    incompatible_car: Beklager, de uploadede filer ser ikke ud til at være en kompatibel bil!
+    incompatible_track: Beklager, de uploadede filer ser ikke ud til at være en kompatibel bane!
+    upload_weather: Upload vejr-preset(s)
+    upload_cars: Upload bil(er)
+    upload_tracks: Upload bane(r)
+    not_a_car: Beklager, det var vist ikke en bil!
+    not_a_track: Beklager, det var vist ikke en bane!
+  championship:
+    unnamed_class: Unavngiven klasse
+    slots_with_drivers:
+      one: "{count} plads har en kører tildelt – fjern den under fanen Entrylist"
+      other: "{count} pladser har kørere tildelt – fjern dem under fanen Entrylist"
+    info_placeholder: I dette felt kan du dele links til baner, biler eller andre ressourcer, beskrive mesterskabets regler og alt andet, du vil dele med deltagerne i dit mesterskab! Du kan også lade det stå tomt, hvis du ikke har brug for info. Store billeder gør denne redigeringsside langsommere, men visningssiden påvirkes næppe.
+  points:
+    ordinal:
+      one: "{n}."
+      two: "{n}."
+      few: "{n}."
+      other: "{n}."
+  content:
+    car_notes_placeholder: I dette felt kan du tilføje noter til hver bil!
+    track_notes_placeholder: I dette felt kan du tilføje noter til hver bane!

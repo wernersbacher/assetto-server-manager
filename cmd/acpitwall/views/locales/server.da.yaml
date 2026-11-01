@@ -1,0 +1,95 @@
+# Serveradministration: servere, indstillinger, plugins, blacklist, beskeder, logs, auditlogs, AutoFill-deltagere.
+server:
+  servers:
+    intro: Alle servere i denne ACPitwall med deres porte, plugins og portkonflikter, så du kan sammenligne og rette indstillingerne ét sted.
+    default: standard
+    ports: acServer-porte
+    no_ports: Ingen kendte porte.
+    enabled: Aktiveret
+    disabled: Deaktiveret
+    live_timing: Live timing
+    scope_title: Globale indstillinger og indstillinger pr. server
+    scope_per_server: "<strong>Pr. server:</strong> serverindstillinger (inklusive portene), indstillinger for sTracker, KissMyRank og Real Penalty, blacklist, beskeder (MOTD), logs fra acServer, den aktuelle konfiguration, live timing og race control, det kørende event og det seneste løb."
+    scope_shared: "<strong>Fælles for alle servere:</strong> konti, auditloggen, biler, baner, vejr og setups, AutoFill-deltagerne, straffe, kalenderen og planlagte events, mesterskaber og deres resultater (resultater ligger i mappen for den server, sessionen kørte på)."
+    scope_notifications: <strong>Notifikationer</strong> (Discord) sendes med standardserverens indstillinger, de andre serveres Discord-indstillinger bruges ikke. ACPitwall-loggen er fælles, kun acServer-loggen hører til en server.
+
+  options:
+    intro: Disse indstillinger hører til den valgte server - de anvendes på hvert løb, ACPitwall starter.
+    sections: Sektioner
+    save_hint: Ændringer gælder fra det næste løb, der startes.
+    maintenance: Vedligeholdelse
+    rebuild_help: Genopbyg søgeindekset. Det bør du sjældent eller aldrig have brug for - men har du lagt content i din content-mappe manuelt (altså ikke uploadet det via ACPitwall), skal du gøre dette, så indholdet dukker op i søgningen. Bemærk, at det kan tage lang tid.
+    rebuild: Genopbyg søgeindeks
+
+  plugin:
+    options_title: "Indstillinger for {name}"
+    intro: Integration af serverside-plugins
+    not_ours: "{name} udvikles eller vedligeholdes ikke af ACPitwalls forfattere. Har du spørgsmål om selve brugen af {name}, så spørg i <a href=\"{url}\">supporttråden for {name}</a>."
+    options_intro: Disse indstillinger hører til den valgte server - de skrives til konfigurationsfilen for {name}, hver gang ACPitwall starter et løb.
+    options_intro_files: Disse indstillinger hører til den valgte server - de skrives til konfigurationsfilerne for {name}, hver gang ACPitwall starter et løb.
+    save_hint: Anvendes på konfigurationen af {name}, når et løb starter.
+    installation: Installation
+    not_installed: "{name} er ikke installeret. Følg vejledningen nedenfor for at installere {name}, eller kontakt din serveradministrator:"
+    download: Download {name}
+    udp_hint: Sørg for, at UDP Plugin Address og UDP Plugin Local Port er sat i <a href="{url}">serverindstillingerne</a>
+    refresh: Genindlæs denne side!
+    kmr:
+      about: <a href="{url}">KissMyRank</a> er den populære serverside-app, der fremmer god opførsel og fair racing på banen.
+      extract: Udpak den rigtige mappe til din platform fra KissMyRank-zippen til en mappe med navnet »kissmyrank« (der skelnes mellem store og små bogstaver) i din Assetto Corsa-servermappe
+    stracker:
+      about: <a href="{url}">sTracker</a> er den populære serverside-makker til <a href="{ptracker_url}">pTracker</a> til registrering af omgange og løb.
+      extract: Udpak stracker-zippen til en mappe med navnet »stracker« (der skelnes mellem store og små bogstaver) i din Assetto Corsa-servermappe
+      linux: Bruger du Linux, så udpak også <code>stracker_linux_x86.tgz</code> (f.eks. <code>tar xfvz stracker_linux_x86.tgz</code>).
+    rp:
+      about: <a href="{url}">Real Penalty</a> er den populære serverside-app til egne straffe ved organiserede løb.
+      download_logs: Download logs
+      download_logs_help: Her kan du downloade alle dine Real Penalty-logs som zip.
+      extract: Udpak <code>Real Penalty {version}.zip</code>
+      rename: Omdøb den udpakkede mappe til <code>realpenalty</code>
+      move: Flyt mappen ind i din <code>assetto</code>-mappe. Bruger du multiserver, så kopiér den ind i hver af dem, f.eks. i <code>youracserver/servers/SERVER_00/assetto/</code>
+      version_note: "Bemærk: denne vejledning og integrationen er kendt for at virke med version <code>{version}</code> af Real Penalty. Andre versioner kan virke. Har du problemer med en nyere version, så <a href=\"{url}\">opret en fejlrapport</a>."
+
+  blacklist:
+    intro: Udelukkede bruger-GUID'er, én pr. linje.
+    help: I denne fil gemmes GUID'er for udelukkede brugere. Står blacklist-tilstanden på »2«, tilføjes brugere automatisk til listen, når de bliver kicket. Du kan redigere listen manuelt uanset blacklist-tilstand, men du skal genstarte serveren, før manuelle ændringer træder i kraft.
+    save_hint: Genstart serveren, så manuelle ændringer træder i kraft.
+
+  motd:
+    intro: Beskeder, som kørere ser, når de joiner serveren.
+    motd_help: Dagens besked. Vises af Assetto Corsa i et pop-up-vindue i fuld skærm for alle, der joiner serveren.
+    join_message: Besked ved join
+    join_message_help: Vises i chatten for hver bruger, når de joiner serveren.
+    cm_message: Velkomstbesked til Content Manager
+    cm_message_help: Vises for Content Manager-brugere, før de joiner serveren. Feltet er en skabelon, hvor du kan bruge data om din manager og det aktuelle event. Du kan skrive alt, hvad du vil, her. Skriver du <code>&lbrace;&lbrace; .ServerName &rbrace;&rbrace;</code>, erstattes det af servernavnet. Skriver du <code>&lbrace;&lbrace; .EventName &rbrace;&rbrace;</code>, erstattes det af eventnavnet.
+    cm_disabled: Aktivér Content Manager Wrapper i <a href="{url}">serverindstillingerne</a> for at vise denne besked.
+    save_hint: Join-beskeder sendes til kørerne, når de forbinder.
+
+  config:
+    intro: Den <code>server_cfg.ini</code> og <code>entry_list.ini</code>, der aktuelt bruges på serveren. Skrivebeskyttet, beregnet til fejlfinding.
+    empty: Ingen konfiguration endnu. Serveren skriver sin konfiguration, når det første event startes.
+    server_config: Serverkonfiguration
+    entry_list: Entry List
+
+  logs:
+    title: Serverlogs
+    intro: Find problemer med serveren, manageren eller plugins. Du kan også tjekke den <a href="{url}">aktuelle serverkonfiguration</a> for at se, om den svarer til dine forventninger.
+    ac_server: Assetto Corsa-server
+    download_server: Download serverlog
+    download_manager: Download managerlog
+    download_plugins: Download pluginlog
+
+  audit:
+    intro: Ændringer foretaget via ACPitwall af brugere med skriverettigheder eller højere.
+    time: Tid
+    user: Bruger
+    group: Rettighedsgruppe
+    url: URL
+    method: Metode
+    empty: Ingen poster i auditloggen endnu.
+
+  autofill:
+    intro: Deltagere, der foreslås, når en Entry List udfyldes.
+    delete_confirm: Slet AutoFill-deltageren {name}?
+    delete_detail: Deltageren fjernes fra AutoFill-listen.
+    delete_label: Slet deltager
+    empty: Ingen AutoFill-deltagere endnu.

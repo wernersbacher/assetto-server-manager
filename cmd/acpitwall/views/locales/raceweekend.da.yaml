@@ -1,0 +1,153 @@
+raceweekend:
+  # list
+  create_new: Opret en ny løbsweekend
+  more_options: Flere muligheder
+  import: Importér løbsweekend
+  intro: En løbsweekend er en række sessioner efter hinanden, som kan køres når som helst. Du kan for eksempel lægge en kvalifikation om lørdagen og lade løbet følge om søndagen. ACPitwall klarer startopstillingen for dig og lader dig fordele deltagerne i splits ud fra deres resultater og andre faktorer!
+  active: Aktive
+  completed: Afsluttede
+  name: Navn
+  progress: Fremskridt
+  view: Vis
+  more: Mere
+  export: Eksportér
+  delete_confirm: Slet løbsweekenden {name}?
+  delete_detail: Hele løbsweekenden fjernes permanent.
+  delete_label: Slet løbsweekend
+  no_active: Ingen aktive løbsweekender.
+  create_one: Opret en løbsweekend
+  no_completed: Ingen afsluttede løbsweekender endnu.
+
+  # new / edit
+  create_title: Opret en løbsweekend
+  new: Ny
+  breadcrumb: Brødkrummesti
+  edit_heading: Redigér løbsweekenden {name}
+  in_championship: i mesterskabet {name}
+  save: Gem løbsweekend
+  name_placeholder: Min fede løbsweekend
+  hidden: Skjult
+  hidden_help: En skjult løbsweekend er kun synlig for indloggede konti. Anonyme besøgende på en åben server ser den ikke i lister, kalenderen, kalenderfeeds eller API'et og kan ikke åbne dens sider.
+  clone_help: Bil, skin, ballast, restrictor og fast setup fra den sidste deltager kopieres til nye deltagere.
+  add_entrants: Tilføj deltager(e)
+  use_championship_settings: Brug mesterskabets løbsindstillinger
+  use_championship_settings_help: Når det er aktiveret, hentes brændstofforbrug, skade, dækslid, tilladte dæk uden for banen, kørehjælp, virtuelt spejl og dynamisk bane for alle sessioner i denne løbsweekend fra mesterskabet. Værdierne, der er sat i sessionerne, bevares, men ignoreres, så længe dette er aktiveret.
+  spectator_car: Tilskuerbil
+  spectator_help: Du kan sætte en tilskuerbil op til denne løbsweekend. Tilskuerbiler sættes automatisk bagerst i Entry List for hver session i løbsweekenden og tælles ikke med i nogen sessionsresultater.
+  enabled: Aktiveret
+  add_session: Tilføj en session
+
+  # view
+  view_title: "Løbsweekend {name}"
+  linked_championship: En løbsweekend i mesterskabet <a href="{url}">{name}</a>
+  in_cars:
+    one: "En løbsweekend med følgende bil: {cars}"
+    other: "En løbsweekend med følgende biler: {cars}"
+  percent_complete: "{percent} % afsluttet"
+  add_sessions: Tilføj flere sessioner
+  manage: Administrér
+  view_championship: Vis mesterskab
+  running_on: Denne løbsweekend kører på serveren <a href="{url}">{name}</a>. Vælg den server for at administrere den igangværende session.
+  sessions_intro:
+    one: Denne løbsweekend har {count} session. Klik på pilen mellem to sessioner for at se, hvordan resultaterne af en session bestemmer Entry List for den næste session.
+    other: Denne løbsweekend har {count} sessioner. Klik på pilen mellem to sessioner for at se, hvordan resultaterne af en session bestemmer Entry List for den næste session.
+  entry_list: Entry List
+  entrants_count:
+    one: "{count} deltager"
+    other: "{count} deltagere"
+  minutes:
+    one: "{count} minut"
+    other: "{count} minutter"
+  plus_lap: + 1 omgang
+  laps:
+    one: "{count} omgang"
+    other: "{count} omgange"
+  not_available: Ikke tilgængelig
+  not_available_help: Denne session kan først køres, når alle forrige sessioner er kørt.
+  completed_on: Afsluttet {time}
+  complete: Afsluttet
+  in_progress: I gang
+  ready: Klar til start
+  scheduled: Planlagt
+  scheduled_on: på
+  another_server: en anden server
+  scheduled_for: til {time}
+  view_results: Vis resultater
+  start_confirm: Jeg har tjekket alle indstillinger for Entry List, og startopstillingen er korrekt
+  start_session: Start session
+  toggle_dropdown: Vis/skjul menu
+  start_session_on: Start session på {name}
+  practice_help: Indlæser den konfigurerede session på serveren som en 2 timers træning i loop, men følger ikke fremskridtet som session i løbsweekenden.
+  start_practice: Start træningssession
+  schedule_session: Planlæg session
+  timezone_note: Dato og klokkeslæt er i din tidszone (<span class="timezone"></span>).
+  parent_note: Bemærk, at sessioner kun starter, hvis deres forrige sessioner er afsluttet.
+  start_after_parent: Start, når den forrige session er afsluttet
+  schedule: Planlæg
+  remove_schedule: Fjern planlægning
+  manage_entry_list: Administrér Entry List
+  restart_confirm: Genstart denne session?
+  restart_detail: Hele sessionen genstartes, og alle nuværende resultater går tabt.
+  restart_label: Genstart session
+  restart_session: Genstart session
+  cancel_confirm: Annullér denne session?
+  cancel_detail: Hele sessionen annulleres, og alle nuværende resultater går tabt.
+  cancel_label: Annullér session
+  cancel_session: Annullér session
+  manage_session: Administrér session
+  import_results: Importér resultater
+  session_details: Sessionsdetaljer
+  delete_session_confirm: Slet denne session?
+  delete_session_detail: Hele sessionen fjernes permanent fra løbsweekenden.
+  delete_session_label: Slet session
+  view_entry_list: Vis Entry List
+  at: på
+  detailed_results: Vis detaljerede resultater for denne session
+  in_progress_note: "<strong>Session i gang</strong>: der er ingen resultater endnu. Kig forbi igen senere."
+  awaiting_note: "<strong>Venter på start</strong>: denne session er ikke startet endnu. Kig forbi igen senere."
+  points: Point
+  points_intro: Denne løbsweekend hører til mesterskabet <a href="{url}">{name}</a>. Nedenfor kan du se pointene for hver session.
+  class: Klasse
+  place: Placering
+  fastest_race_lap: Hurtigste løbsomgang
+
+  # import
+  import_placeholder: Indsæt JSON for din løbsweekend her!
+  import_help: Her kan du importere løbsweekender i JSON-format (samme format som når du eksporterer en løbsweekend). Vi fraråder at lave disse data i hånden, da formatet er ret komplekst. Men vil du flytte løbsweekender mellem servere uden adgang til filerne, kan du bruge denne funktion!
+  import_session_title: Importér en session i en løbsweekend
+  import_session_heading: Importér en session i en løbsweekend for {track} ({layout})
+  result_file: "Resultatfil for {session}"
+  result_option: "{track} ({layout}) den {date}"
+  import_session: Importér session
+
+  # entry list / filter popups
+  configure_combined: Konfigurér kombineret Entry List for {name}
+  multiclass_note: Denne løbsweekend hører til et multiclass-mesterskab. Der sorteres inden for hver klasse, og klasserne ordnes efter klassens hurtigste omgang (så LMP1-biler for eksempel forhåbentlig kommer foran GTE-biler i startopstillingen)
+  sort_combined: "Sortér de kombinerede kørere i Entry List for <strong>{name}</strong> efter:"
+  sort_by: Sortér efter
+  reverse: Vend om?
+  reverse_help: 0 = vend ikke om. -1 = vend alle om. N = vend de første N om.
+  all: Alle
+  starting_grid: Startopstilling
+  grid_preview_later: En forhåndsvisning af den kombinerede startopstilling for sessionen <strong>{name}</strong> er tilgængelig, når alle forrige sessioner er afsluttet.
+  save_changes: Gem ændringer
+  configure_entry_list: Konfigurér Entry List for {name}
+  filter_intro: Du kan ændre Entry List for {name} ved at justere filterindstillingerne nedenfor.
+  filter_parent_incomplete: "»{name}« er endnu ikke afsluttet. Der vises en eksempelopstilling, så du kan se, hvordan filtrene nedenfor anvendes, når denne session er afsluttet."
+  sort_parent: "Sortér kørerne fra <strong>{name}</strong> efter:"
+  sort_parent_results: "Sortér kørerne fra resultaterne af <strong>{name}</strong> efter:"
+  parent_incomplete_sort: Den forrige session ({name}) er ikke afsluttet. Sorteringen ændrer ikke live-forhåndsvisningen, men anvendes på startopstillingen, når sessionen {name} er afsluttet.
+  results_files: Resultatfiler
+  result_sort_option: "{type} den {date} kl. {time}"
+  take_from_entry_list: "Tag kørerne fra Entry List for {name}:"
+  take_from_results: "Tag kørerne fra de sorterede resultater af <strong>{name}</strong>:"
+  split_type: Splittype
+  from: Fra
+  to: Til
+  place_into: "Placér derefter de udvalgte kørere i Entry List for <strong>{name}</strong> fra:"
+  grid_start: Startplads
+  tyre_from_fastest: Start på dækkene fra hurtigste omgang
+  tyre_from_fastest_help: Når det er aktiveret, skal deltagerne i næste session starte på de samme dæk som på deres hurtigste omgang i den forrige session.
+  rw_entry_list: Løbsweekendens Entry List
+  parent_results: "Resultater {name}"
+  expected_grid: "Forventet startopstilling {name}"

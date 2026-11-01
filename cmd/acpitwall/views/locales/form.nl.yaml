@@ -1,0 +1,2259 @@
+# Dutch translation of form.en.yaml (generated from the struct tags of the forms).
+form:
+  GlobalServerConfig:
+    AdminPassword:
+      help: "Het wachtwoord waarmee je als serverbeheerder wordt herkend: als je met dit wachtwoord op de server joint, word je automatisch als admin herkend. Typ /help in de chat van het spel om de lijst met commando's te zien. Let op: als je dit leeg laat, kan elke coureur als admin verbinden!"
+      label: Adminwachtwoord
+    AssettoCorsaServer:
+      label: Assetto Corsa Server
+    AuthPluginAddress:
+      help: "Het adres van de auth-plugin"
+      label: Adres auth-plugin
+    BlacklistMode:
+      help: "Hoe met geblokkeerde spelers wordt omgegaan."
+      label: Blokkeerlijstmodus
+      option:
+        "0": Normale kick, speler kan opnieuw joinen
+        "1": Gekickte speler kan pas na een herstart van de server opnieuw joinen
+        "2": Speler kicken en aan blacklist.txt toevoegen, gekickte speler kan pas opnieuw joinen als hij van de blokkeerlijst is verwijderd
+    ClientSendIntervalInHertz:
+      help: "Verversingsfrequentie waarmee de server pakketten verstuurt. 10Hz = ~100ms. Hogere waarde = betere MP-kwaliteit = meer bandbreedte nodig. Erg hoge waarden kunnen verbindingsproblemen veroorzaken"
+      label: Verzendinterval client in hertz
+    ContentManagerIPOverride:
+      help: "Als dit is ingesteld, vervangt het het IP-adres dat de GeoIP-dienst heeft bepaald voor de Content Manager-joinlink. Dit moet een IPv4-adres zijn."
+      label: Content Manager-IP overschrijven
+    ContentManagerIntegration:
+      label: Content Manager-integratie
+    ContentManagerWrapperContentRequiresPassword:
+      help: "Als dit aan staat (en de server een wachtwoord heeft), krijgt Content Manager te horen dat de gelinkte content het serverwachtwoord vereist. De downloads zelf zijn beschermd met ondertekende URL's."
+      label: "Content Manager Wrapper: content vereist wachtwoord"
+    ContentManagerWrapperPort:
+      help: "De poort waarop Content Manager de bovenstaande informatie krijgt. Zorg dat deze poort in je firewall open staat."
+      label: Content Manager Wrapper-poort
+    CustomCSS:
+      help: "Pas de stijl van ACPitwall aan!"
+      label: Eigen CSS
+    DarkTheme:
+      help: "Het donkere thema van ACPitwall standaard inschakelen"
+      label: Donker thema
+    DiscordAPIToken:
+      help: "Als dit is ingesteld, worden berichten bij de racestart en geplande herinneringen naar het hieronder opgegeven Discord-kanaal-ID gestuurd.  Gebruik het user-token van je bot, niet het OAuth-token."
+      label: Discord API-token
+    DiscordChannelID:
+      help: "Als Discord is ingeschakeld, is dit het kanaal-ID waar berichten naartoe worden gestuurd.  Om het kanaal-ID te vinden, schakel je in Discord de ontwikkelaarsmodus in (gebruikersinstellingen, Weergave), daarna Serverinstellingen, Rollen, klik met rechts op het kanaal en kies ‘ID kopiëren’."
+      label: Discord-kanaal-ID
+    DiscordIntegration:
+      label: Discord-integratie
+    DiscordRoleCommand:
+      help: "Als het Discord-rol-ID is ingesteld, kun je hier optioneel een commando opgeven, zoals ‘notify’ (zonder !-prefix). Als een gebruiker dit in Discord als !-commando uitvoert (alleen op een regel), probeert deze server de ingestelde rol aan de gebruiker toe te wijzen.  Als je meerdere servers met Discord draait, stel dit dan maar op één ervan in.  Om dit te laten werken, heeft je bot de permissie ‘Rollen beheren’ nodig."
+      label: Discord-rolcommando
+    DiscordRoleID:
+      help: "Als dit is ingesteld, wordt deze rol in alle Discord-meldingen genoemd.  Alle gebruikers met deze rol en toegang tot het kanaal worden gepingd.  Om het rol-ID te vinden, schakel je de ontwikkelaarsmodus in (zie boven), daarna Serverinstellingen, Rollen, klik met rechts op de rol en kies ‘ID kopiëren’."
+      label: Discord-rol-ID
+    EnableContentManagerWrapper:
+      help: "Als dit aan staat, geeft ACPitwall extra informatie aan Content Manager. Daaronder vallen meer details over verbonden clients, eventbeschrijvingen en downloadlinks. Een bijeffect is dat je servernaam een extra stukje informatie bevat (een 'i' gevolgd door een poort, die Content Manager nodig heeft). Ook gebruikt deze wrapper (als hij is ingeschakeld) een GeoIP-functie van <a href='https://freegeoip.app'>freegeoip.app</a>."
+      label: Content Manager Wrapper inschakelen
+    FallBackResultsSorting:
+      help: "Als dit aan staat, worden uitslagen met een alternatieve methode gesorteerd. Schakel dit alleen in als de uitslagen in het json-bestand in de verkeerde volgorde staan."
+      label: Alternatieve sortering van uitslagen
+    HTTPPort:
+      help: "Poortnummer van de lobby: open deze poorten (zowel UDP als TCP) in de firewall van je server"
+      label: HTTP-poort
+    KickQuorum:
+      help: "Percentage dat nodig is om een kick-stemming te laten slagen"
+      label: Kick-quorum
+    LogACServerOutputToFile:
+      help: "Als dit aan staat, schrijft ACPitwall elke Assetto Corsa-sessie naar een logbestand in de map logs."
+      label: Uitvoer van de AC-server naar bestand loggen
+    Miscellaneous:
+      label: Overig
+    Name:
+      help: "Servernaam"
+      label: Naam
+    NotificationReminderTimers:
+      help: "Als Discord is ingeschakeld, wordt zoveel minuten voor de racestart een herinnering gestuurd.  Bij 0 of leeg worden alleen berichten bij de racestart gestuurd.  Je kunt meerdere herinneringen plannen met een kommagescheiden lijst, zoals 120,15."
+      label: Timers voor herinneringen
+    NotifyWhenScheduled:
+      help: "Stuur een melding als een race wordt gepland (of geannuleerd)."
+      label: Melden bij planning
+    NumberOfACServerLogsToKeep:
+      help: "Het aantal AC-serverlogs dat in de map logs bewaard blijft. (De oudste bestanden worden eerst verwijderd. 0 = alle bestanden bewaren)"
+      label: Aantal te bewaren AC-serverlogs
+    NumberOfThreads:
+      help: "Aantal threads waarop de server draait"
+      label: Aantal threads
+    OGImage:
+      help: "Link hier naar een afbeelding op het web om die als standaard Open Graph-afbeelding in te stellen (wordt getoond in links)"
+      label: OG-afbeelding
+    Password:
+      help: "Serverwachtwoord"
+      label: Wachtwoord
+    PreventWebCrawlers:
+      help: "Als dit aan staat, verbiedt robots.txt robots om deze manager te indexeren. Let op: dit houdt alleen nette bots tegen, geen malware- of spambots enz."
+      label: Webcrawlers blokkeren
+    ReceiveBufferSize:
+      label: Grootte ontvangstbuffer
+    RegisterToLobby:
+      help: "De AC-server registreren in de hoofdlobby"
+      label: In lobby registreren
+    RestartEventOnServerManagerLaunch:
+      help: "Als dit aan staat en ACPitwall wordt gestopt terwijl er een event bezig is, probeert ACPitwall het event opnieuw te starten zodra ACPitwall weer opstart."
+      label: Event herstarten bij het starten van ACPitwall
+    SendBufferSize:
+      label: Grootte verzendbuffer
+    ServerName:
+      label: Servernaam
+    ServerNameTemplate:
+      help: "Hier kun je invullen wat je wilt. Als je <code>{{ .ServerName }}</code> invoegt, wordt dat vervangen door de servernaam. Als je <code>{{ .EventName }}</code> invoegt, wordt dat vervangen door de eventnaam. Dit werkt alleen als ‘Racenaam in serverlobby tonen’ (boven) is ingeschakeld."
+      label: Sjabloon servernaam
+    ShowContentManagerJoinLink:
+      help: "Als dit aan staat, toont ACPitwall Content Manager-joinlinks op de Live Timing-pagina en (indien ingeschakeld) in de Discord-meldingen bij de racestart."
+      label: Content Manager-joinlink tonen
+    ShowEventDetailsPopup:
+      help: "Laat alle gebruikers een popup zien die de opzet van Custom Races, kampioenschapsevents en Race Weekend-sessies gedetailleerd beschrijft."
+      label: Popup met eventdetails tonen
+    ShowPasswordInNotifications:
+      help: "Het serverwachtwoord tonen in de meldingen bij de racestart."
+      label: Wachtwoord in meldingen tonen
+    ShowRaceNameInServerLobby:
+      help: "Als dit aan staat, voegt ACPitwall de naam van de Custom Race of het kampioenschap toe aan de servernaam in de lobby."
+      label: Racenaam in serverlobby tonen
+    SleepTime:
+      help: "Het nut van deze instelling is niet helemaal bekend. Laat de waarde op 1 staan, tenzij je echt weet wat je doet. (Andere waarden dan 1 veroorzaken overmatig CPU-gebruik)"
+      label: Sleep Time
+    TCPPort:
+      help: "TCP-poortnummer: open deze poort in de firewall van je server"
+      label: TCP-poort
+    Theme:
+      label: Thema
+    UDPPluginAddress:
+      help: "Het adres van de plugin waar UDP-berichten naartoe worden gestuurd.  Let op: ACPitwall proxyt de UDP-poorten, zodat het ze zelf ook kan gebruiken, bijvoorbeeld voor kampioenschappen, Live Timings en de kaart. Daardoor wijken de UDP-poorten in server_cfg.ini af van de poorten die je hier opgeeft. Dat is geen probleem: berichten worden ook op de hier opgegeven UDP-poorten correct verstuurd en ontvangen."
+      label: Adres UDP-plugin
+    UDPPluginLocalPort:
+      help: "De poort waarop naar UDP-berichten van een plugin wordt geluisterd. Let op: ACPitwall proxyt de UDP-poorten, zodat het ze zelf ook kan gebruiken, bijvoorbeeld voor kampioenschappen, Live Timings en de kaart. Daardoor wijken de UDP-poorten in server_cfg.ini af van de poorten die je hier opgeeft. Dat is geen probleem: berichten worden ook op de hier opgegeven UDP-poorten correct verstuurd en ontvangen."
+      label: Lokale poort UDP-plugin
+    UDPPort:
+      help: "UDP-poortnummer: open deze poort in de firewall van je server"
+      label: UDP-poort
+    UseMPH:
+      help: "Als dit aan staat, gebruikt ACPitwall MPH in plaats van km/h voor alle snelheden."
+      label: MPH gebruiken
+    UseShortenedDriverNames:
+      help: "Als dit aan staat, verbergt ACPitwall de achternamen van coureurs, zo wordt 'John Smith' bijvoorbeeld 'John S.'"
+      label: Verkorte coureursnamen gebruiken
+    VoteDuration:
+      help: "Duur van een stemming in seconden"
+      label: Stemduur
+    VotingQuorum:
+      help: "Percentage dat nodig is om een sessie-stemming te laten slagen"
+      label: Stem-quorum
+  RealPenaltyConfig:
+    Admin:
+      fieldset: Admin
+    App:
+      fieldset: App
+    BlueFlag:
+      fieldset: Blauwe vlag
+    Crossing:
+      fieldset: Overschrijden
+    CustomShadersPatch:
+      fieldset: Custom Shaders Patch
+    Cutting:
+      fieldset: Cutting
+    DRS:
+      fieldset: DRS
+    General:
+      fieldset: Algemeen
+    Helicorsa:
+      fieldset: Helicorsa
+    JumpStart:
+      fieldset: Valse start
+    NoPenalty:
+      fieldset: Geen straf
+    PluginsRelay:
+      fieldset: Plugins-relay
+    RealPenaltyACSettings:
+      Admin:
+        GUIDs:
+          help: "Lijst met Steam-GUID's (gescheiden door een puntkomma) die via de chat commando's naar de server mogen sturen"
+          label: GUID's
+      App:
+        CheckFrequency:
+          help: "Frequentie (seconden) van de app-controle"
+          label: Controlefrequentie
+        Mandatory:
+          help: "on = Real Penalty-app is verplicht, off = Real Penalty-app is niet verplicht"
+          label: Verplicht
+      CustomShadersPatch:
+        CheckFrequency:
+          help: "Frequentie (seconden) van de Custom Shaders Patch-controle"
+          label: Controlefrequentie
+        Mandatory:
+          help: "Zet dit op ON als alle coureurs Custom Shaders Patch (versie 0.1.46 of nieuwer) moeten hebben om op de server te rijden. Als je deze optie op true zet, maakt de app de rondetijd automatisch ongeldig"
+          label: Verplicht
+      General:
+        CarChecksum:
+          help: "Zet dit op true als je de extra checksum van de auto wilt (data.acd + collider.kn5, als deze twee bestanden op de server staan)"
+          label: Checksum auto
+        CockpitCamera:
+          help: "Zet dit op true om de cockpitcamera voor alle coureurs verplicht te maken. Voor wedstrijdleiding of live-uitzending zet je de GUID's onder de sectie [No_Penalty]"
+          label: Cockpitcamera
+        FirstCheckTime:
+          help: "Vertraging (seconden) na het verbinden van een nieuwe coureur tot de eerste controle (app + sol)"
+          label: Tijd tot eerste controle
+        TrackChecksum:
+          help: "Zet dit op true als je een extra checksum van het circuit wilt (model + kn5-bestanden, als die op de server staan)"
+          label: Checksum circuit
+        WeatherChecksum:
+          help: "Zet dit op true als je de checksum van het weer wilt (als het weer op de server staat)"
+          label: Checksum weer
+      Helicorsa:
+        CarLength:
+          help: "Hoe lang de auto's zijn (in meters). Sorry, AC levert hier geen gegevens over"
+          label: Lengte auto
+        CarWidth:
+          help: "Hoe breed de auto's zijn (in meters). Sorry, AC levert hier geen gegevens over"
+          label: Breedte auto
+        DistanceThreshold:
+          help: "Tot op welke afstand worden auto's getekend?"
+          label: Afstandsdrempel
+        FrontFadeAngle:
+          help: "Als een auto voor je wordt uitgefaded, hoe zacht moet dat gebeuren? (ook in graden, 0 om uit te schakelen = aan/uit)"
+          label: Fade-hoek voor
+        FrontFadeOutArc:
+          help: "Auto's voor de speler in een boog van X graden uitfaden (0 om uit te schakelen)"
+          label: Fade-boog voor
+        Mandatory:
+          help: "Zet dit op true als de Helicorsa-app verplicht is voor de race"
+          label: Verplicht
+        OpacityThreshold:
+          help: "Drempel voor doorzichtigheid: vanaf welke afstand (in meters) moeten de auto's beginnen te faden?"
+          label: Drempel doorzichtigheid
+        WorldZoom:
+          help: "Zoom van de wereldcoördinaten, oftewel hoe groot de balken zijn"
+          label: Wereldzoom
+      NoPenalty:
+        GUIDs:
+          help: "Lijst met Steam-GUID's (gescheiden door een puntkomma) die zonder de app en sol met de server mogen verbinden (bijvoorbeeld voor 'Race Direction' of 'Live')"
+          label: GUID's
+      SafetyCar:
+        CarModel:
+          help: "Automodel van de safety car"
+          label: Automodel
+        GreenLightDelay:
+          help: "Rollende start: vertraging van het groene licht na het rode signaal (seconden)"
+          label: Vertraging groen licht
+        NormalizedLightOffPosition:
+          help: "Rollende start: genormaliseerde positie (0 = start, 1 = einde) van de eerste coureur tijdens de rollende start waarop de app het SC-signaal uitschakelt"
+          label: Genormaliseerde positie lichten uit
+        NormalizedStartPosition:
+          help: "Rollende start: genormaliseerde positie (0 = start, 1 = einde) van de eerste coureur tijdens de rollende start waarop de app het rode signaal inschakelt. START_NORMALIZED_POSITION moet groter zijn dan LIGHT_OFF_NORMALIZED_POSITION"
+          label: Genormaliseerde startpositie
+        RaceStartBehindSC:
+          help: "Zet dit op true als de race start na de eerste ronde achter de safety car (werkt met of zonder echte safety car op de server)"
+          label: Racestart achter SC
+      Sol:
+        CheckFrequency:
+          help: "Frequentie (seconden) van de Sol-controle"
+          label: Controlefrequentie
+        Mandatory:
+          help: "Zet dit op true als het event de mod Sol gebruikt voor de overgang van dag naar nacht"
+          label: Verplicht
+        PerformanceModeAllowed:
+          help: "Zet dit op true als de performance-modus van Sol is toegestaan"
+          label: Performance-modus toegestaan
+    RealPenaltyAppConfig:
+      General:
+        AppTCPPort:
+          help: "TCP-poort waarop naar de AC-app wordt geluisterd (open hem in firewall/router). Moet een van 53000, 53001, 53002 t/m 53020 zijn, of de poort uit de cfg van de AC-server, HTTP_PORT + 27. De app probeert al deze poorten op het IP-adres van de AC-server (tot de juiste verbinding is gevonden)"
+          label: TCP-poort app
+        AppUDPPort:
+          help: "UDP-poort waarop naar de AC-app wordt geluisterd (open hem in firewall/router). Elke vrije UDP-poort is goed"
+          label: UDP-poort app
+        EnableRealPenalty:
+          help: "Real Penalty aan- of uitzetten"
+          label: Real Penalty inschakelen
+      PluginsRelay:
+        OtherUDPPlugin:
+          help: "Lijst met alle andere UDP-plugins die met de AC-server zijn verbonden (formaat: IP:Ports, gescheiden door een puntkomma)"
+          label: Andere UDP-plugin
+        UDPPort:
+          help: "Lijst met UDP-poorten waarop alle andere verbonden plugins luisteren (gescheiden door een puntkomma)"
+          label: UDP-poort
+    RealPenaltySettings:
+      BlueFlag:
+        QualifyTimeThreshold:
+          help: "Tijdsafstand (seconden) waarbij de blauwe vlag in de kwalificatie wordt getoond"
+          label: Tijdsdrempel kwalificatie
+        RaceTimeThreshold:
+          help: "Tijdsafstand (seconden) waarbij de blauwe vlag in de race wordt getoond"
+          label: Tijdsdrempel race
+      Crossing:
+        PenaltyType:
+          help: "Soort straf voor het overschrijden. dt = drive through, sgn = stop and go van n seconden, n = n seconden die aan het einde van de race worden opgeteld"
+          label: Soort straf
+      Cutting:
+        EnableTyresDirtLevel:
+          help: "Vuil op de banden bij cutten"
+          label: Vuil op banden inschakelen
+        EnabledDuringSafetyCar:
+          help: "Straf voor cutten ingeschakeld tijdens Safety Car of Virtual Safety Car"
+          label: Ingeschakeld tijdens safety car
+        MaxCutTime:
+          help: "De maximale cut-tijd (in seconden) die een waarschuwing oplevert. Als je dit te lang maakt, kunnen ongelukken naast de baan cut-waarschuwingen opleveren"
+          label: Max. cut-tijd
+        MinSlowDownRatio:
+          help: "De minimale verhouding tussen de snelheid bij het verlaten van de baan en de snelheid bij het terugkeren op de baan die een waarschuwing oplevert. Een verhouding daaronder betekent dat de auto heeft afgeremd en zo elk voordeel ongedaan heeft gemaakt, en dan volgt geen waarschuwing. 0.9 betekent dat de auto met 90% van de snelheid waarmee hij de baan verliet weer terugkomt. Een waarde < 1 betekent dat de auto tijdens de cut is afgeremd; een waarde > 1 dat hij sneller is gegaan"
+          label: Min. afremverhouding
+        MinSpeed:
+          help: "De minimale snelheid in km/h die een cut oplevert"
+          label: Min. snelheid
+        PenaltyType:
+          help: "Soort straf voor cutten. dt = drive through, sgn = stop and go van n seconden, n = n seconden die aan het einde van de race worden opgeteld"
+          label: Soort straf
+        PostCuttingTime:
+          help: "Bonustijd na het terugkeren op de baan. Als de snelheid in deze tijd afneemt --> geen cut! Zet dit op 0 voor cut-controles zoals bij PLP (geen controle na het terugkeren op de baan)"
+          label: Tijd na cut
+        QualifyMaxSectorOutSpeed:
+          help: "Initiële maximaal toegestane snelheid in de kwalificatie op de startlijn na een cut in de laatste bocht. BELANGRIJK! Pas deze waarde aan het circuit en de auto's aan!"
+          label: Max. snelheid sectoruitgang kwalificatie
+        QualifySlowDownSpeed:
+          help: "Als je afremt tot deze snelheid (km/h), verdwijnt de melding INVALID LAP, SLOW DOWN in de kwalificatie"
+          label: Afremsnelheid kwalificatie
+        QualifySlowDownSpeedRatio:
+          help: "Verhouding ten opzichte van QUALIFY_MAX_SECTOR_OUT_SPEED. De maximaal toegestane snelheid op de startlijn na een cut = QUALIFY_MAX_SECTOR_OUT_SPEED (of een andere nieuwe maximumsnelheid van de coureur) * QUALIFY_SLOW_DOWN_SPEED_RATIO"
+          label: Afremverhouding kwalificatie
+        SecondsBetweenCuts:
+          help: "Je krijgt pas zoveel seconden na de vorige cut een nieuwe"
+          label: Seconden tussen cuts
+        TotalCutWarnings:
+          help: "Hoeveel waarschuwingen zijn toegestaan voordat er een straf volgt"
+          label: Totaal aantal cut-waarschuwingen
+        WheelsOut:
+          help: "Het maximale aantal wielen dat naast de baan mag komen"
+          label: Wielen naast de baan
+      DRS:
+        BonusTime:
+          help: "Hoeveel seconden de DRS bij elk illegaal gebruik open mag blijven voordat er een straf volgt"
+          label: Bonustijd
+        EnabledAfterLaps:
+          help: "DRS ingeschakeld na N ronden vanaf de start (+1 bij een rollende start met SC, bestand ac_settings.ini)"
+          label: Ingeschakeld na ronden
+        EnabledDuringSafetyCar:
+          help: "DRS-straf ingeschakeld tijdens Safety Car of Virtual Safety Car"
+          label: Ingeschakeld tijdens safety car
+        Gap:
+          help: "Maximaal gat in seconden tot de auto voor je"
+          label: Gat
+        MaxIllegalUses:
+          help: "Hoe vaak de coureur de DRS per sector illegaal mag openen voordat er een straf volgt"
+          label: Max. illegaal gebruik
+        MinSpeed:
+          help: "Als de snelheid van de auto < MIN SPEED is, volgt geen straf voor illegaal DRS-gebruik"
+          label: Min. snelheid
+        OmitCars:
+          help: "Lijst met auto's zonder DRS, gescheiden door puntkomma's."
+          label: Uitgezonderde auto's
+        PenaltyType:
+          help: "Soort straf voor illegaal DRS-gebruik. dt = drive through, sgn = stop and go van n seconden, n = n seconden die aan het einde van de race worden opgeteld"
+          label: Soort straf
+      General:
+        EnableCrossingPenalties:
+          help: "Zet dit op true om straffen voor het overschrijden van de lijn bij de pituitgang in te schakelen"
+          label: Straffen voor overschrijden inschakelen
+        EnableCuttingPenalties:
+          help: "Zet dit op true om straffen voor cutten in te schakelen; false om alleen waarschuwingen te geven"
+          label: Straffen voor cutten inschakelen
+        EnableDRSPenalties:
+          help: "Zet dit op true om DRS-straffen in te schakelen (alleen voor auto's met DRS)"
+          label: DRS-straffen inschakelen
+        EnableSpeedingPenalties:
+          help: "Zet dit op true om straffen voor te hard rijden in de pitlane in te schakelen"
+          label: Straffen voor te hard rijden inschakelen
+        LapsToTakePenalty:
+          help: "Binnen hoeveel ronden een coureur een straf moet inlossen. Als LAPS_TO_TAKE_PENALTY > 2 --> valse start is altijd 2 vanwege de AC-limiet!"
+          label: Ronden om straf in te lossen
+        LastLapsWithoutPenalty:
+          help: "Als een coureur in de laatste N ronden een straf krijgt (N = LAPS_TO_TAKE_PENALTY + LAST_LAPS_WITHOUT_PENALTY), mag hij de race uitrijden zonder hem in te lossen, maar krijgt hij een tijdstraf! (Drive through = PENALTY_SECONDS, Stop & GO 10 = PENALTY_SECONDS + 10, .......)"
+          label: Laatste ronden zonder straf
+        LastTimeWithoutPenalty:
+          help: "Alleen voor races op tijd: seconden voor het einde van de racetijd (de optionele +1 ronde komt daar nog bij) zonder verplichte straf. Alle niet ingeloste straffen ----> strafseconden die bij de uiteindelijke racetijd worden opgeteld (in chat en log). Standaard 360 (6 minuten). BELANGRIJK! Pas deze waarde aan het circuit, de auto's en de extra ronde aan (ca. 3/5 ronden, maar afhankelijk van LAPS_TO_TAKE_PENALTY)"
+          label: Laatste tijd zonder straf
+        PenaltySeconds:
+          help: "Aantal seconden dat handmatig bij de einduitslag wordt opgeteld voor alle straffen die tijdens de race niet zijn ingelost"
+          label: Strafseconden
+      JumpStart:
+        PenaltyType0:
+          help: "Soort straf voor een valse start. Geen secondenstraf instellen! dt = drive through, sgn = stop and go van n seconden, dsq = diskwalificatie --> kick"
+          label: Soort straf 0
+        PenaltyType1:
+          label: Soort straf 1
+        PenaltyType2:
+          label: Soort straf 2
+        SpeedLimitPenalty0:
+          label: Snelheidslimiet straf 0
+        SpeedLimitPenalty1:
+          help: "Soort straf voor een valse start. Geen secondenstraf instellen! dt = drive through, sgn = stop and go van n seconden, dsq = diskwalificatie --> kick"
+          label: Snelheidslimiet straf 1
+        SpeedLimitPenalty2:
+          help: "Soort straf voor een valse start. Geen secondenstraf instellen! dt = drive through, sgn = stop and go van n seconden, dsq = diskwalificatie --> kick"
+          label: Snelheidslimiet straf 2
+      Speeding:
+        PenaltyType0:
+          help: "Soort straf voor te hard rijden. dt = drive through, sgn = stop and go van n seconden, n = n seconden die aan het einde van de race worden opgeteld, dsq = diskwalificatie --> kick"
+          label: Soort straf 0
+        PenaltyType1:
+          help: "Soort straf voor te hard rijden. dt = drive through, sgn = stop and go van n seconden, n = n seconden die aan het einde van de race worden opgeteld, dsq = diskwalificatie --> kick"
+          label: Soort straf 1
+        PenaltyType2:
+          help: "Soort straf voor te hard rijden. dt = drive through, sgn = stop and go van n seconden, n = n seconden die aan het einde van de race worden opgeteld, dsq = diskwalificatie --> kick"
+          label: Soort straf 2
+        PitLaneSpeed:
+          help: "De snelheid in km/h waarboven je in de pits als te snel geldt. Zet dit hoger voor meer speling bij het inrijden van de pitlane"
+          label: Snelheid pitlane
+        SpeedLimitPenalty0:
+          label: Snelheidslimiet straf 0
+        SpeedLimitPenalty1:
+          label: Snelheidslimiet straf 1
+        SpeedLimitPenalty2:
+          label: Snelheidslimiet straf 2
+    SafetyCar:
+      fieldset: Safety Car
+    Sol:
+      fieldset: Sol
+    Speeding:
+      fieldset: Te hard rijden
+  StrackerConfiguration:
+    ACPlugin:
+      ProxyPluginLocalPort:
+        help: "Het AC-serverprotocol op deze poorten proxyen, zodat meerdere plugins aan elkaar gekoppeld kunnen worden (komt overeen met UDP_PLUGIN_LOCAL_PORT in server_cfg.ini)"
+        label: Lokale poort proxy-plugin
+      ProxyPluginPort:
+        help: "Het AC-serverprotocol op deze poorten proxyen, zodat meerdere plugins aan elkaar gekoppeld kunnen worden (komt overeen met UDP_PLUGIN_ADDRESS in server_cfg.ini)"
+        label: Poort proxy-plugin
+      ReceivePort:
+        help: "UDP-poort waarvan de plugin ontvangt. -1 betekent dat de instelling UDP_PLUGIN_ADDRESS van de AC-server wordt gebruikt"
+        label: Ontvangstpoort
+      SendPort:
+        help: "UDP-poort waarnaar de plugin verstuurt. -1 betekent dat de instelling UDP_PLUGIN_LOCAL_PORT van de AC-server wordt gebruikt"
+        label: Verzendpoort
+      fieldset: AC-plugin
+    Database:
+      DatabaseFile:
+        help: "Alleen relevant als database_type=sqlite3. Pad naar de stracker-database. Een relatief pad is relatief ten opzichte van het <stracker>-programma"
+        label: Databasebestand
+      DatabaseType:
+        help: "Geldige waarden zijn 'sqlite3' en 'postgres'. Kiest de database die wordt gebruikt."
+        label: Databasetype
+      PerformBackups:
+        help: "Zet dit op OFF als stracker geen back-up van de database moet maken voordat hij naar een nieuwe db-versie migreert. Let op: de back-ups worden als sqlite3-db in de huidige werkmap aangemaakt."
+        label: Back-ups maken
+      PostgresDatabaseName:
+        help: "De naam van de postgres-database"
+        label: Naam Postgres-database
+      PostgresHostname:
+        help: "Naam van de host waarop de postgresql-server draait."
+        label: Hostnaam Postgres
+      PostgresPassword:
+        help: "Wachtwoord van de postgresql-gebruiker"
+        label: Wachtwoord Postgres
+      PostgresUsername:
+        help: "Naam van de postgresql-gebruiker"
+        label: Gebruikersnaam Postgres
+      fieldset: Database
+    DatabaseCompression:
+      Interval:
+        help: "Interval van de databasecompressie in minuten"
+        label: Interval
+      Mode:
+        help: "Verschillende opties om de database klein te houden. Geldige waarden zijn 'none' (geen compressie, alle beschikbare info opslaan), 'remove_slow_laps' (alleen gedetailleerde info van snelle ronden opslaan) en 'remove_all' (geen gedetailleerde ronde-info opslaan)."
+        label: Modus
+      NeedsEmptyServer:
+        help: "Als dit op ON staat, wordt de database alleen gecomprimeerd als de server leeg is."
+        label: Lege server vereist
+      fieldset: Databasecompressie
+    EnableStracker:
+      help: "Stracker aan- of uitzetten"
+      label: Stracker inschakelen
+    HTTPConfiguration:
+      AdminPassword:
+        help: "Wachtwoord voor de adminpagina's van stracker. Leeg laten schakelt de adminpagina's uit"
+        label: Adminwachtwoord
+      AdminUsername:
+        help: "Gebruikersnaam voor de adminpagina's van stracker. Leeg laten schakelt de adminpagina's uit"
+        label: Admin-gebruikersnaam
+      AuthBanAnonymisedPlayers:
+        help: "Geanonimiseerde spelers aan de blokkeerlijst toevoegen."
+        label: Geanonimiseerde spelers bannen
+      AuthLogFile:
+        help: "Stel een bestand in waarin http-authenticatieverzoeken worden gelogd. Handig om aanvallen met een extern programma te voorkomen (bijv. fail2ban)."
+        label: Auth-logbestand
+      Banner:
+        help: "Icoon voor de webpagina's (leeg laten voor het standaard Assetto Corsa-icoon)"
+        label: Banner
+      EnableSVGGeneration:
+        help: "Zet dit op OFF als je geen svg-grafieken in de http-uitvoer wilt (om bandbreedte te besparen)"
+        label: SVG-generatie inschakelen
+      Enabled:
+        label: Ingeschakeld
+      InverseNavbar:
+        help: "Zet dit op true om de navigatiebalk om te keren (d.w.z. donker in plaats van licht)"
+        label: Omgekeerde navigatiebalk
+      ItemsPerPage:
+        help: "Aantal items per pagina"
+        label: Items per pagina
+      LapTimesAddColumns:
+        help: "Extra kolommen in de tabel LapTimes (gescheiden door een +-teken). Kolommen kunnen 'valid', 'aids', 'laps', 'date', 'grip', 'cuts', 'collisions', 'tyres', 'temps', 'ballast' en 'vmax' zijn. Let op: te veel kolommen kunnen in sommige browsers problemen geven."
+        label: Extra kolommen rondetijden
+      ListenAddress:
+        help: "Luisteradres van de http-server (normaal hoef je de standaardwaarde 0.0.0.0 niet te wijzigen; die betekent dat het hele internet met de server kan verbinden)"
+        label: Luisteradres
+      ListenPort:
+        help: "TCP-poort waarop de http-server luistert"
+        label: Luisterpoort
+      LogRequests:
+        help: "Als dit op ON staat, worden http-verzoeken in stracker.log gelogd. Anders worden ze niet gelogd."
+        label: Verzoeken loggen
+      MaximumStreamingClients:
+        help: "Maximaal aantal streaming-clients (gebruikers van LiveMap/Log) dat tegelijk met deze server mag verbinden. Het aantal threads voor de http-server wordt max(10, max_streaming_clients + 5)"
+        label: Max. aantal streaming-clients
+      PublicURL:
+        help: "Hiermee geef je handmatig de URL op waarop de webinterface van sTracker draait. Deze link wordt op de Live Timings-pagina van ACPitwall getoond, zodat iedereen de sTracker-interface kan bekijken. Als je dit leeg laat, wordt een oudere en <em>niet aanbevolen</em> proxymethode van ACPitwall gebruikt om de sTracker-interface te tonen!"
+        label: Openbare URL
+      SSL:
+        help: "Zet dit op true als je https wilt gebruiken. Daarvoor heb je een SSL-certificaat en -sleutel nodig. Als je deze optie inschakelt, bereik je stracker via https://ip:port/ in plaats van http://ip:port/"
+        label: SSL
+      SSLCertificate:
+        help: "Pad naar het SSL-certificaat voor https. Wordt alleen gebruikt als ssl True is. Een zelfondertekend certificaat maak je met 'openssl req -new -x509 -days 365 -key privkey.pem -out cert.pem'"
+        label: SSL-certificaat
+      SSLPrivateKey:
+        help: "Pad naar de private SSL-sleutel voor https. Wordt alleen gebruikt als ssl True is. Een private sleutel maak je met 'openssl genrsa -out privkey.pem 2048'"
+        label: Private SSL-sleutel
+      TemperatureUnit:
+        help: "Geldige waarden zijn 'degc' of 'degf'"
+        label: Temperatuureenheid
+      VelocityUnit:
+        help: "Geldige waarden zijn 'kmh' of 'mph'"
+        label: Snelheidseenheid
+      fieldset: HTTP-configuratie
+    InstanceConfiguration:
+      ACServerAddress:
+        help: "IP-adres of naam van de server waarvan de uitslagen worden opgehaald. Laat de standaardwaarde 127.0.0.1 met rust"
+        label: Adres AC-server
+      AppendLogFile:
+        help: "Zet dit op ON als je aan logbestanden wilt toevoegen in plaats van ze te overschrijven. Alleen zinvol met een extern systeem voor logrotatie."
+        label: Aan logbestand toevoegen
+      IDBasedOnDriverNames:
+        help: "Normaal laat je dit op de standaardwaarde (OFF). Het is bedoeld voor een omgeving waarin hetzelfde Steam-account door verschillende coureurs wordt gebruikt."
+        label: ID op basis van coureursnamen
+      KeepAlivePtrackerConnections:
+        help: "Zet dit op OFF als je de TCP-optie keep_alive wilt uitschakelen (het gedrag van voor 3.1.7)."
+        label: Ptracker-verbindingen actief houden
+      ListeningPort:
+        help: "Poort waarop naar inkomende verbindingen van ptracker wordt geluisterd. Moet een van 50042, 50043, 54242, 54243, 60023, 60024, 62323, 62324, 42423, 42424, 23232, 23233, AC-udp-poort +42 zijn; ptracker probeert al deze poorten op het IP-adres van de AC-server (tot er een betere oplossing is...)"
+        label: Luisterpoort
+      LogFile:
+        help: "Naam van het logbestand van stracker (utf-8), alle berichten komen daarin"
+        label: Logbestand
+      LogLevel:
+        help: "Geldige waarden zijn 'info', 'debug' en 'dump'. Gebruik 'dump' alleen voor probleemanalyse, de logbestanden kunnen erg groot worden."
+        label: Logniveau
+      LogTimestamps:
+        help: "Zet dit op ON als logberichten met een tijdstempel moeten beginnen"
+        label: Tijdstempels in log
+      LowerPriority:
+        help: "Zet dit op ON als stracker zijn prioriteit moet verlagen. Gebruikt BELOW_NORMAL op Windows en nice(5) op Linux."
+        label: Lagere prioriteit
+      PerformChecksumComparisons:
+        help: "Zet dit op ON als stracker de checksums van de spelers moet vergelijken."
+        label: Checksums vergelijken
+      PtrackerConnectionMode:
+        help: "Bepaal welke ptracker-instanties mogen verbinden. Geldige waarden zijn 'any', 'newer' of 'none'."
+        label: Verbindingsmodus ptracker
+      ServerName:
+        help: "Naam van de server; sessies in de database krijgen deze naam als tag; handig als meerdere servers tegelijk dezelfde database gebruiken"
+        label: Servernaam
+      TeeToStdout:
+        help: "Zet dit op ON als de berichten ook op stdout moeten verschijnen (in de pluginlogs van ACPitwall)"
+        label: Ook naar stdout schrijven
+      fieldset: Instantieconfiguratie
+    LapValidChecks:
+      InvalidateOnCarCollisions:
+        help: "Als dit op ON staat, maken botsingen met andere auto's ronden ongeldig"
+        label: Ongeldig bij botsingen met auto's
+      InvalidateOnEnvironmentCollisions:
+        help: "Als dit op ON staat, maken botsingen met objecten in de omgeving ronden ongeldig"
+        label: Ongeldig bij botsingen met omgeving
+      PtrackerAllowedTyresOut:
+        help: "Bij -1: de strafinstelling van de server gebruiken als die er is, anders 2. Alle andere waarden worden aan ptracker doorgegeven."
+        label: Toegestane banden naast de baan (ptracker)
+      fieldset: Controles geldige ronde
+    Messages:
+      BestLapTimeBroadcastThreshold:
+        help: "Rondetijden onder deze drempel (in procent van de beste tijd) worden aan iedereen als beste ronde gemeld. Rondetijden daarboven worden alleen aan de speler zelf gefluisterd."
+        label: Drempel voor melden beste rondetijd
+      CarToCarCollisionMessage:
+        help: "Zet dit op ON om privéberichten bij botsingen tussen auto's in te schakelen."
+        label: Bericht bij botsing tussen auto's
+      MessageTypesToSendOverChat:
+        help: "Beschikbare berichttypen zijn 'enter_leave','best_lap','checksum_errors','welcome','race_finished' en 'collision'. Verbind ze met een +-teken zonder spaties."
+        label: Berichttypen via chat
+      fieldset: Berichten
+    SessionManagement:
+      RaceOverStrategy:
+        help: "Wat er moet gebeuren als de race voorbij is en niemand meer actief racet. Geldige waarden zijn 'none' of 'skip'."
+        label: Strategie na einde race
+      WaitSecondsBeforeSkip:
+        help: "Aantal seconden wachten voordat de sessie wordt overgeslagen (als de strategie na einde race op 'skip' staat)"
+        label: Seconden wachten voor overslaan
+      fieldset: Sessiebeheer
+    SwearFilter:
+      Action:
+        help: "Geldige waarden zijn 'none', 'kick' en 'ban'"
+        label: Actie
+      BanDuration:
+        help: "Het aantal dagen dat een speler wordt gebannen (als de actie 'ban' is)"
+        label: Duur ban
+      NumberOfWarnings:
+        help: "Het aantal waarschuwingen voordat de speler wordt gekickt"
+        label: Aantal waarschuwingen
+      SwearFile:
+        help: "Een bestand met scheldwoorden om op te filteren"
+        label: Scheldwoordenbestand
+      Warning:
+        help: "Het bericht dat een speler krijgt als er gescholden wordt"
+        label: Waarschuwing
+      fieldset: Scheldwoordenfilter
+    WelcomeMessage:
+      Line1:
+        label: Regel 1
+      Line2:
+        label: Regel 2
+      Line3:
+        label: Regel 3
+      Line4:
+        label: Regel 4
+      Line5:
+        label: Regel 5
+      Line6:
+        label: Regel 6
+      fieldset: Welkomstbericht
+  KissMyRankConfig:
+    ACAppLinkUDPPort:
+      help: De UDP-poort waarmee Kissmyrank-events naar compatibele Assetto Corsa-game-apps
+        worden doorgestuurd (0 om deze functie uit te schakelen). AC-apps kunnen met
+        deze poort verbinden. Volledige documentatie vind je onder /applink/doc. Een
+        demo-app vind je onder /applink/demo/.
+      label: UDP-poort AC App Link
+    ACChatAdminGUIDList:
+      help: Eén GUID per regel. Lijst met GUID's van de coureurs die via de Assetto
+        Corsa-chat Kissmyrank-admincommando's mogen sturen (typ '/kmr login password'
+        in de chat om in te loggen en '/kmr command' om een van de ondersteunde commando's
+        uit te voeren).
+      label: Admin-GUID-lijst AC-chat
+    ACChatAdminPassword:
+      help: Het adminwachtwoord om vanuit de Assetto Corsa-chat in te loggen (typ '/kmr
+        login password' in de chat van het spel om in te loggen).
+      label: Adminwachtwoord AC-chat
+    AlltimeFastestLapPrize:
+      help: Hoeveel een coureur krijgt voor de snelste ronde aller tijden (in duizenden).
+        1.5 = 1500€.
+      label: Prijs snelste ronde aller tijden
+    AntiCheatMaxClockDeltaConsecutiveHits:
+      fieldset: 'Anticheat: max. klokafwijking opeenvolgend bereikt'
+    AnticheatLaptimeInvalidateMaxClockDelta:
+      help: Het maximale verschil (in milliseconden) tussen de rondetijden die de Assetto
+        Corsa-server meldt en die de plugin meet (met de klok van de hostmachine) voordat
+        een rondetijd wordt afgekeurd (bijv. om misbruik te voorkomen waarbij iemand
+        Assetto Corsa-rondetijden manipuleert via de CPU-klok). Houd er rekening mee
+        dat deze waarde ruimte moet laten voor de natuurlijke vertraging in de communicatie
+        tussen plugin en server. Zet hem niet te laag, anders kan hij coureurs bestraffen
+        als je server zwaar belast is. Gebruik dit alleen als je server genoeg resources
+        heeft om pakketten met een constante vertraging te verwerken. 0 om uit te schakelen.
+      label: 'Anticheat: rondetijd ongeldig bij max. klokafwijking'
+    AnticheatPenalizeDriverMaxClockDeltaConsecutiveHits:
+      help: Hoe vaak achter elkaar een coureur de max_clock_delta moet bereiken voordat
+        hij de straf krijgt uit de strafkosten en strafacties. 0 om uit te schakelen.
+      label: 'Anticheat: coureur bestraffen na opeenvolgende max. klokafwijkingen'
+    CarTowingCost:
+      help: Sleepkosten per km. Hoeveel (in duizenden) coureurs per km betalen om hun
+        auto naar de pits te laten slepen. 0.05 = 50€ per km (bijv. als een coureur
+        teruggaat naar de pits, betaalt hij 50€ voor elke km). 0 om de functie helemaal
+        uit te schakelen.
+      label: Sleepkosten
+    ChatDriverWelcomeMessageShowRaceControlLink:
+      help: Of de Race Control-link wordt getoond als een coureur joint.
+      label: Race Control-link in welkomstbericht tonen
+    CleanLapReward:
+      help: Hoeveel (in duizenden) een coureur krijgt voor een schone ronde (bijv. een
+        ronde zonder cut). Handig op trainingsservers (omdat racebeloningen daar niet
+        werken).
+      label: Beloning schone ronde
+    CollisionMinimumDamageBetweenCars:
+      help: De minimale schadekosten (in duizenden) waaronder botsingen tussen auto's
+        niet worden gelogd. Zet dit op 0 om alle botsingen te loggen. 0.001 = botsingen
+        met de omgeving onder 1€ niet loggen.
+      label: Minimale schade bij botsing tussen auto's
+    CollisionMinimumDamageWithEnvironment:
+      help: De minimale schadekosten (in duizenden) waaronder botsingen met de omgeving
+        niet worden gelogd. Zet dit op 0 om alle botsingen te loggen. 0.001 = botsingen
+        met de omgeving onder 1€ niet loggen.
+      label: Minimale schade bij botsing met omgeving
+    ConnectionOptions:
+      label: Verbindingsopties
+    CurrencySymbol:
+      help: Het valutasymbool voor alle boetes en betalingen van coureurs (bijv. €,$,RUB).
+      label: Valutasymbool
+    CustomChatDriverWelcomeMessages:
+      help: Eigen chatberichten die je wilt sturen als een coureur verbindt. Eén per
+        regel.
+      label: Eigen welkomstberichten in de chat
+    CutLineYourCustomCutLine:
+      fieldset: 'Cut-lijn: je eigen cut-lijn'
+    CutLinesEnabled:
+      help: Cut-lijnen inschakelen. Zet dit op 0 als je de functie cut_lines wilt uitschakelen.
+        Cut-lijnen werken alleen als ze met de cut line drawer zijn gedefinieerd. Typ
+        cut_line_list in de console om de huidige cut-lijnen te bekijken. Meer info
+        in readme.txt.
+      label: Cut-lijnen ingeschakeld
+    DamageCostBetweenCars:
+      help: 'De kosten (in duizenden) van de schade bij een botsing tussen auto''s bij
+        damage_cost_between_cars_base_speed. 3 = 3000€ (bijv. coureurs betalen 3000€
+        als ze bij de opgegeven relatieve basissnelheid botsen). Let op: de schade groeit
+        met het kwadraat van de relatieve snelheid.'
+      label: Schadekosten tussen auto's
+    DamageCostBetweenCarsBaseSpeed:
+      help: De basissnelheid (in km/h) voor damage_cost_between_cars.
+      label: Basissnelheid schadekosten tussen auto's
+    DamageCostWithEnvironment:
+      help: 'De kosten (in duizenden) van de schade bij een botsing met de omgeving
+        bij damage_cost_with_environment_base_speed. 3 = 3000€ (bijv. coureurs betalen
+        3000€ als ze bij de opgegeven relatieve basissnelheid tegen de omgeving botsen).
+        Let op: de schade groeit met het kwadraat van de snelheid.'
+      label: Schadekosten met omgeving
+    DamageCostWithEnvironmentBaseSpeed:
+      help: De basissnelheid (in km/h) voor damage_cost_with_environment.
+      label: Basissnelheid schadekosten met omgeving
+    Database:
+      label: Database
+    DatabaseSharingLocalGroupPort:
+      help: 'Poort voor lokaal delen van de database met Kissmyrank-instanties op dezelfde
+        machine. Stel een geldig poortnummer in als je dezelfde database wilt delen
+        tussen verschillende instanties van de Kissmyrank-plugin op dezelfde machine.
+        Alle plugins in dezelfde deelgroep moeten dezelfde poort hebben (bijv. je hebt
+        4 Kissmyrank-instanties A,B,C,D en wilt de database per paar delen: A deelt
+        met B, en C en D delen een aparte; dan zet je database_sharing_group_port in
+        config.json voor KMR A en KMR B op 4567 en voor KMR C en KMR D op 4568).'
+      label: Lokale groepspoort database delen
+    DatabaseSharingRelayForNames:
+      help: 'Eén per regel. Namen waarvoor bij het delen van de database op afstand
+        wordt doorgestuurd. Let op: deze sleutel is niet nodig voor normaal delen van
+        de database, alleen als je losse plugins hebt (bijv. plugins die met één instantie
+        verbonden zijn en niet met de andere). Stel dat je de database tussen 3 plugins
+        (A,B en C) wilt delen en database_sharing_unique_name op respectievelijk plugin_a,
+        plugin_b, plugin_c hebt gezet. Stel dat je alleen A<->B en B<->C kunt verbinden,
+        maar A niet direct met C. Nadat je alle andere sleutels voor (A<->B en B<->C)
+        goed hebt ingesteld, bewerk je config.json van plugin_b en voeg je plugin_a
+        en plugin_c toe aan de sleutel database_sharing_relay_for_names. Dan stuurt
+        plugin B informatie door naar de andere plugin, zodat je A<->B<->C krijgt. Als
+        je in dit geval B stopt, moet je ook A en C stoppen, anders wordt de synchronisatie
+        mogelijk niet volledig toegepast. Deze functie werkt voor lokale en externe
+        verbindingen, zolang je de unieke naam instelt. Pas op dat je geen dubbele koppelingen
+        tussen plugins maakt, anders krijg je mogelijk dubbele updates.'
+      label: 'Database delen: doorsturen voor namen'
+    DatabaseSharingRemoteConnectToAddresses:
+      help: Eén per regel. Adressen om mee te verbinden bij het delen van de database
+        op afstand. De adressen van de externe plugins in het gebruikelijke formaat
+        host:port (host is het IP/adres van de server waarop de plugin draait en port
+        de database_sharing_remote_listen_port die je voor die plugin hebt ingesteld).
+        Als plugin A de database met plugin B moet delen, voeg je hostA:portA toe aan
+        config.json van plugin B en hostB:portB aan config.json van plugin A. Voeg bij
+        elke plugin alle plugins toe waarmee hij moet communiceren (uiteraard niet zichzelf,
+        anders ontstaat een lus). Verbind twee plugins niet tegelijk via lokaal en extern
+        delen.
+      label: 'Database delen op afstand: verbinden met adressen'
+    DatabaseSharingRemoteListenAddress:
+      help: Luisteradres voor delen van de database op afstand (wijzig dit alleen als
+        je alleen op een bepaalde interface wilt luisteren, niet aanbevolen).
+      label: 'Database delen op afstand: luisteradres'
+    DatabaseSharingRemoteListenPort:
+      help: Luisterpoort voor delen van de database op afstand. Gebruik dit alleen als
+        lokaal delen niet mogelijk is. Stel een geldig poortnummer in als je de database
+        wilt delen met een plugin op een andere machine. Delen op afstand kan vertraging
+        veroorzaken, dus ik raad aan waar mogelijk lokaal te delen.
+      label: 'Database delen op afstand: luisterpoort'
+    DatabaseSharingRemoteSecretKey:
+      help: Geheime sleutel voor delen van de database op afstand. Alleen nodig bij
+        delen op afstand. Moet voor alle hosts die de database op afstand delen gelijk
+        zijn.
+      label: 'Database delen op afstand: geheime sleutel'
+    DatabaseSharingUniqueName:
+      help: Unieke naam voor het delen van de database. Geef deze plugin een unieke
+        naam om hem in de logs beter te herkennen. Dit is puur cosmetisch en helemaal
+        optioneel.
+      label: 'Database delen: unieke naam'
+    DriveThroughNoKick:
+      help: Of de kick als straf wordt uitgeschakeld als een drive-through niet wordt
+        ingelost of als er twee drive-throughs achter elkaar volgen.
+      label: Geen kick bij drive-through
+    DrivingLinePenaltyRepeatGrace:
+      help: De minimale tijd (in seconden) tussen twee opeenvolgende cut-straffen (baangrenzen
+        en cut-lijnen). 6 = 6s (bijv. als een coureur twee keer binnen 6s cut, wordt
+        hij maar één keer bestraft). Zet dit niet te laag, om een stortvloed aan straffen
+        te voorkomen.
+      label: Wachttijd tussen rijlijnstraffen
+    EnableKissMyRank:
+      label: Kiss My Rank inschakelen
+    FirstBlood:
+      fieldset: First Blood
+    HotLapProtection:
+      fieldset: Hotlap-bescherming
+    HotLappingCarCollision:
+      fieldset: Botsing met auto op hotlap
+    HotlapProtection:
+      help: Bij welk gat (in meters) een auto in een outlap de waarschuwing 'Laat de
+        andere auto passeren' krijgt als hij bijna wordt ingehaald.
+      label: Hotlap-bescherming
+    ImprovingQualifyLapTimeWithInfractions:
+      fieldset: Kwalificatietijd verbeteren met overtredingen
+    ImprovingQualifyLaptimeWithInfractionsCutoffPercent:
+      help: De rondetijd (in procent van de beste tijd van de sessie) waarboven een
+        verbeterde tijd met cuts niet als misbruik geldt. 107 = 107% (bijv. een coureur
+        die een tijd met Kissmyrank-overtredingen maar zonder AC-overtredingen neerzet
+        die boven 107% van de snelste ronde van de sessie ligt, krijgt geen straf).
+      label: Grens (procent) kwalificatietijd verbeteren met overtredingen
+    JLPMoneyKillSwitch:
+      help: Zet dit op 1 als je, net als Captain Jean-Luc Picard, het geld-/puntensysteem
+        helemaal niet wilt gebruiken (bijv. competities, privéservers en iedereen die
+        alleen geïnteresseerd is in de Race Control- en trackingfuncties van Kissmyrank).
+        Als je dit wijzigt, moet je de database resetten (bijv. de plugin opnieuw installeren).
+      label: JLP-noodschakelaar geld
+    LappingCarCollision:
+      fieldset: Botsing met auto die op ronde wordt gezet
+    LappingProtection:
+      fieldset: Bescherming bij op ronde zetten
+      help: Bij welk gat (in meters) een auto die op ronde wordt gezet de waarschuwing
+        'Blauwe vlag' krijgt als hij bijna wordt ingehaald.
+      label: Bescherming bij op ronde zetten
+    LaptimeChallengeBaseAverageSpeed:
+      help: Basis-gemiddelde snelheid van de Laptime Challenge (km/h). 110=110km/h.
+        Een coureur is level 0 als hij een ronde met gemiddeld 110 km/h kan rijden.
+        Level 1 bij 111 km/h enzovoort...
+      label: Basis-gemiddelde snelheid Laptime Challenge
+    LaptimeChallengeBasePrize:
+      help: Basisprijs van de Laptime Challenge (in duizenden). 0.01 = 10€. De beloning
+        is basis*level (level 2 krijgt 20). 0 om de Laptime Challenge uit te schakelen.
+      label: Basisprijs Laptime Challenge
+    LaptimeChallengeLevelAverageSpeedGap:
+      help: Het verschil in gemiddelde snelheid tussen twee opeenvolgende Laptime Challenge-levels
+        in (km/h). 1=1km/h (bijv. level 0 => 110km/h, level 1 => 111km/h).
+      label: Snelheidsverschil tussen Laptime Challenge-levels
+    LiveTrackView:
+      help: Of de Live Track View is ingeschakeld (bijv. uitzetten als je de Live Map-optie
+        van Web Stats wilt uitschakelen).
+      label: Live Track View
+    MacCollisionsPer100kmRechargeHours:
+      help: De basistijd (uren per botsingseenheid) die een coureur die max_collisions_per_100km
+        overschrijdt moet wachten voordat hij weer op de server mag (bijv. als max_collisions_per_100km
+        op 30 staat, moet een coureur met 31 botsingen per 100km 1u wachten na de laatste
+        keer dat hij de server verliet, bij 32 2 uur enzovoort).
+      label: Wachturen bij max. botsingen per 100 km
+    MaxCollisions:
+      fieldset: Max. botsingen
+      help: Het maximale aantal botsingen waarbij een gebruiker betrokken mag zijn voordat
+        hij de straffen uit penalty_cost en penalty_action krijgt.
+      label: Max. botsingen
+    MaxCollisionsPer100km:
+      help: Het maximale aantal botsingen per 100 km dat een coureur op de server mag
+        hebben. Dit geldt voor coureurs die meer dan max_collisions_per_100km_min_distance
+        hebben gereden.
+      label: Max. botsingen per 100 km
+    MaxCollisionsPer100kmMinDistance:
+      help: De gereden afstand (in km) vanaf waar max_collisions_per_100km gaat gelden.
+      label: Min. afstand voor max. botsingen per 100 km
+    MaxInfractions:
+      fieldset: Max. overtredingen
+      help: Hoe vaak een coureur de serverregels mag overtreden (cutten, te hard rijden,
+        de lijn bij de pituitgang overschrijden enz.) voordat hij de straffen uit de
+        strafkosten en strafacties krijgt.
+      label: Max. overtredingen
+    MaxPing:
+      help: De maximale ping (in ms) die een coureur mag hebben (de plugin geeft een
+        waarschuwing als de actuele ping hoger is en kickt de coureur als het gemiddelde
+        van de laatste 4 metingen boven de opgegeven waarde ligt). Zet dit niet te laag,
+        anders blijven er misschien weinig spelers over. 0 om de pinglimiet helemaal
+        uit te schakelen.
+      label: Max. ping
+    MaxPingDeviation:
+      help: De maximale pingafwijking (in ms) die coureurs mogen hebben voordat hun
+        verbinding als instabiel geldt (de plugin kickt de coureur als de standaardafwijking
+        van de ping bij de laatste 4 metingen boven de opgegeven waarde ligt). Dit is
+        een maat voor de instabiliteit van de verbinding, die belangrijk is voor MP-racen.
+        0 om uit te schakelen.
+      label: Max. pingafwijking
+    MemoryMonitorEnabled:
+      help: Of de geheugenmonitor is ingeschakeld (op Linux is libc6 2.14+ nodig). Schakel
+        dit in als de plugin het geheugengebruik moet bewaken (handig om problemen op
+        te sporen die met geheugentoewijzing te maken kunnen hebben).
+      label: Geheugenmonitor ingeschakeld
+    MinMoney:
+      help: Minimaal bedrag (in duizenden) dat een coureur moet hebben om op de server
+        te blijven. 1 = 1000€ (bijv. -12 -> coureurs met meer dan 12000€ schuld worden
+        gekickt). Controleer ook start_money om zeker te weten dat deze waarde zinnig
+        is.
+      label: Min. geld
+    MinimumDrivingStandard:
+      help: Maximaal toegestane tijd in het klassement als fractie van de snelste tijd.
+        1.1 = 110% van de snelste tijd (bijv. een coureur die binnen minimum_driving_standard_laps
+        ronden geen tijd binnen 110% van de snelste rondetijd neerzet, wordt niet op
+        de server toegelaten).
+      label: Minimaal rijniveau
+    MinimumDrivingStandardLaps:
+      help: Het aantal geldige ronden waarin een coureur het minimale rijniveau moet
+        halen. Een coureur krijgt na een paar dagen een tweede kans, volgens minimum_driving_standard_recharge_period.
+      label: Ronden voor minimaal rijniveau
+    MinimumDrivingStandardMinPlayers:
+      help: Minimaal aantal spelers vanaf waar het minimale rijniveau wordt afgedwongen.
+        Bij een waarde anders dan 0 wordt het rijniveau alleen afgedwongen als er meer
+        dan het opgegeven aantal spelers op de server is.
+      label: Min. spelers voor minimaal rijniveau
+    MinimumDrivingStandardRechargePeriod:
+      help: Het aantal seconden waarna een coureur die niet aan het niveau voldoet één
+        ronde terugkrijgt (bijv. als minimum_driving_standard_laps op 12 staat, bepaalt
+        deze waarde hoe lang een speler met 13 ronden en een slechte tijd moet wachten
+        voordat hij weer op de server mag).
+      label: Herlaadperiode minimaal rijniveau
+    Miscellaneous:
+      label: Overig
+    Money:
+      label: Geld
+    NoMoney:
+      help: Zet dit op ON als je punten in plaats van geld wilt gebruiken (no money,
+        no party :D).
+      label: Geen geld
+    OvertakingUnderVirtualSafety:
+      fieldset: Inhalen onder Virtual Safety Car
+    ParkedCarDistance:
+      help: De afstand (in meters) die een auto binnen parked_car_max_seconds moet afleggen
+        om de detectie niet te activeren. 24 = 24 meter (een auto op de baan die binnen
+        parked_car_seconds meer dan 24 meter rijdt, activeert de detectie niet).
+      label: Afstand geparkeerde auto
+    ParkedCarMaxGrace:
+      help: Hoe vaak een coureur de detectie van geparkeerde auto's mag activeren voordat
+        hij een straf krijgt. 4 = 4 keer (0 om deze detectie uit te schakelen).
+      label: Max. coulance geparkeerde auto
+    ParkedCarSeconds:
+      help: Het aantal seconden voor de detectie van geparkeerde auto's. 6 = 6s (bijv.
+        een coureur die bij de baan staat en binnen 6s niet meer dan parked_car_distance
+        rijdt, activeert de detectie één keer).
+      label: Seconden geparkeerde auto
+    ParkingNearTrack:
+      fieldset: Parkeren bij de baan
+    PenaltyActions:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      CutLineYourCustomCutLine:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      FirstBlood:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      HotLapProtection:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      HotLappingCarCollision:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      ImprovingQualifyLapTimeWithInfractions:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      LappingCarCollision:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      LappingProtection:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      MaxCollisions:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      MaxInfractions:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      OvertakingUnderVirtualSafety:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      ParkingNearTrack:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      PitExitLineCrossing:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      PitLaneSpeeding:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      ReverseGear:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      SlowingUnderVirtualSafetyCar:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      SpeedingUnderVirtualSafetyCar:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      TrackBoundaryCut:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      TrackRejoinMaxSpeed:
+        Practice:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Training
+        Qualify:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Kwalificatie
+        Race:
+          help: DT0 voor een drive-through voor het einde van de ronde. DT1 voor een
+            drive-through voor het einde van de volgende ronde enzovoort. Een DT uit
+            kwalificatie of training moet in de volgende race worden ingelost. K om
+            direct te kicken. TB30 voor een tijdelijke ban van 30 minuten. TB60 voor
+            een tijdelijke ban van 60 minuten.
+          label: Race
+      fieldset: Strafacties
+    PenaltyCosts:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      CutLineYourCustomCutLine:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      FirstBlood:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      HotLapProtection:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      HotLappingCarCollision:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      ImprovingQualifyLapTimeWithInfractions:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      LappingCarCollision:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      LappingProtection:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      MaxCollisions:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      MaxInfractions:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      OvertakingUnderVirtualSafety:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      ParkingNearTrack:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      PitExitLineCrossing:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      PitLaneSpeeding:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      ReverseGear:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      SlowingUnderVirtualSafetyCar:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      SpeedingUnderVirtualSafetyCar:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      TrackBoundaryCut:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      TrackRejoinMaxSpeed:
+        Other:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Overig
+        Practice:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Training
+        Qualify:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Kwalificatie
+        Race:
+          help: De geldboetes (in duizenden) die je per situatie wilt geven.
+          label: Race
+      fieldset: Strafkosten
+    PenaltyInfractionMap:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      CutLineYourCustomCutLine:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      FirstBlood:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      HotLapProtection:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      HotLappingCarCollision:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      ImprovingQualifyLapTimeWithInfractions:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      LappingCarCollision:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      LappingProtection:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      MaxCollisions:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      MaxInfractions:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      OvertakingUnderVirtualSafety:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      ParkingNearTrack:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      PitExitLineCrossing:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      PitLaneSpeeding:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      ReverseGear:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      SlowingUnderVirtualSafetyCar:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      SpeedingUnderVirtualSafetyCar:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      TrackBoundaryCut:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      TrackRejoinMaxSpeed:
+        Practice:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Training
+        Qualify:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Kwalificatie
+        Race:
+          help: Hoeveel overtredingen je per straf en per sessie bij de overtredingsteller
+            wilt optellen.
+          label: Race
+      fieldset: Overtredingen per straf
+    PingCheckInterval:
+      help: Het aantal seconden tussen twee opeenvolgende pingcontroles (een lagere
+        waarde kan tot hoog CPU-gebruik leiden). 0 om de pingcontrole helemaal uit te
+        schakelen.
+      label: Interval pingcontrole
+    PitExitLineCrossing:
+      fieldset: Lijn bij pituitgang overschrijden
+    PitLaneSpeeding:
+      fieldset: Te hard rijden in de pitlane
+    PitSpeedLimit:
+      help: De snelheidslimiet in de pits (in km/h). Boven deze snelheid wordt de drive-through
+        afgebroken. 80 = 80km/h (gebruik eventueel 81 als je last hebt van de bug in
+        de pitbegrenzer). Deze waarde is verplicht, zet hem niet op 0.
+      label: Snelheidslimiet pits
+    Protections:
+      label: Beschermingen
+    QualifyTopThreeBasePrize:
+      help: Hoeveel (in duizenden) de eerste drie coureurs krijgen als meer dan het
+        opgegeven aantal spelers een geldige kwalificatietijd heeft neergezet. 0.5 =
+        500€ (bijv. de eerste krijgt 1500, de tweede 1000, de derde 500€).
+      label: Basisprijs top drie kwalificatie
+    QualifyTopThreePrizeMinPlayers:
+      help: Hoeveel spelers een tijd moeten neerzetten voordat de poleprijzen worden
+        toegekend.
+      label: Min. spelers voor prijs top drie kwalificatie
+    RaceControl:
+      label: Race Control
+    RaceControlCollisionReplayTime:
+      help: Hoeveel seconden de plugin per auto toont in de botsingsreplay van Race
+        Control.
+      label: 'Race Control: replaytijd botsing'
+    RaceControlCollisionSpace:
+      help: De maximale afstand in meters tussen de twee posities die de Assetto Corsa-server
+        voor dezelfde botsing meldt (om verschillen bij de clients door lag op te vangen).
+        Verhoog dit als botsingen dubbel worden gemeld.
+      label: 'Race Control: botsingsafstand'
+    RaceControlCollisionTime:
+      help: Het maximale aantal seconden waarbinnen de Assetto Corsa-server botsingsgegevens
+        voor beide auto's moet leveren. Verhoog dit als botsingen dubbel worden gemeld.
+      label: 'Race Control: botsingstijd'
+    RaceControlCutReplayTime:
+      help: Hoeveel seconden de plugin per auto toont in de cut-replay van Race Control.
+      label: 'Race Control: replaytijd cut'
+    RaceControlIncludePlayersNearerThan:
+      help: Auto's binnen deze afstand (in meters) van de auto die het Race Control-event
+        veroorzaakt, komen in de replay. 100 = 100m (bijv. als een auto met een andere
+        botst, komen alle coureurs binnen 100 meter in de replay).
+      label: 'Race Control: spelers meenemen dichter dan'
+    RaceControlLogOvertakes:
+      help: Zet dit op 1 als de plugin inhaalacties moet loggen en in de Race Control-viewer
+        moet tonen (dit kost geheugen en maakt de weergave voller met events die voor
+        Race Control niet echt nodig zijn).
+      label: 'Race Control: inhaalacties loggen'
+    RaceControlMaxEvents:
+      help: Het maximale aantal events dat Race Control toont.
+      label: 'Race Control: max. events'
+    RaceControlOvertakeReplayTime:
+      help: Hoeveel seconden de plugin per auto toont in de inhaalreplay van Race Control.
+      label: 'Race Control: replaytijd inhalen'
+    RaceControlPassword:
+      help: Het wachtwoord waarmee wedstrijdleiders botsingen beoordelen via de Web
+        Stats-pagina (minstens 8 tekens, anders wordt de functie uitgeschakeld).
+      label: Race Control-wachtwoord
+    RaceDriverEntryFee:
+      help: Hoeveel een coureur moet betalen om aan een racesessie op de server deel
+        te nemen (in duizenden). 0.3 = 300€ (bijv. coureurs betalen 300€ aan het begin
+        van elke race).
+      label: Inschrijfgeld coureur
+    RaceFastestLapPrize:
+      help: Hoeveel een coureur krijgt voor de snelste ronde van de race (in duizenden).
+        0.15 = 150€.
+      label: Prijs snelste ronde race
+    RaceMassAccidentCrashTime:
+      help: De tijd in seconden waarover race_mass_accident_crashed_players_percentage
+        wordt beoordeeld. 30 = 30s.
+      label: Tijdvenster massacrash race
+    RaceMassAccidentCrashedPlayersPercentage:
+      help: Het percentage spelers dat binnen de opgegeven mass_accident_crash_time
+        bij een botsing betrokken moet zijn voordat de plugin de reactie op een massacrash
+        start (bijv. Virtual Safety Car of automatische herstart). 45 = 45%.
+      label: Percentage gecrashte spelers bij massacrash
+    RaceMassAccidentMinCrashedPlayers:
+      help: Het minimale aantal spelers dat moet crashen voor de reactie op een massacrash
+        (bijv. zodat de Virtual Safety Car op servers met weinig spelers niet te vaak
+        uitrukt).
+      label: Min. gecrashte spelers bij massacrash
+    RaceMassAccidentResponse:
+      FirstLap:
+        label: Eerste ronde
+      OtherLaps:
+        label: Overige ronden
+      fieldset: Reactie op massacrash in de race
+    RaceMinimumPlayers:
+      help: Minimaal aantal spelers om te racen (moet >=2 zijn als je het geldsysteem
+        gebruikt). Zijn er niet genoeg spelers, dan slaat de server de racesessie over.
+      label: Min. spelers voor race
+    RacePodiumAnnouncement:
+      help: Of de eerste drie coureurs aan het einde van de race worden aangekondigd.
+      label: Podium aankondigen
+    RaceSponsorCleanGainOvertakes:
+      help: Hoeveel schone inhaalacties nodig zijn voordat de sponsors één beloning
+        voor schone winst uitkeren (bijv. als je dit op 5 zet en de coureur 5 keer schoon
+        inhaalt, krijgt hij 1000€, bij 10 inhaalacties 2000€ enz.)
+      label: Schone inhaalacties voor sponsorbeloning
+    RaceSponsorCleanGainReward:
+      help: Hoeveel sponsors een coureur belonen die tijdens de race 5 keer schoon inhaalt
+        (in duizenden). 1 = 1000€. Schone inhaalacties zijn posities die zonder botsingen
+        zijn gewonnen, zonder posities gewonnen op coureurs die tijdens de race de verbinding
+        verbreken.
+      label: Sponsorbeloning voor schone winst
+    RaceSponsorEntryFee:
+      help: Hoeveel een sponsor betaalt om de coureur aan de race te laten deelnemen
+        (in duizenden). 1.5 = 1500€ (dit vormt samen met het inschrijfgeld het totale
+        prijzengeld; hoe hoger, hoe hoger de uitbetalingen van de race).
+      label: Sponsorbijdrage inschrijving
+    RaceSponsorRewardBaseLength:
+      help: Het aantal km waarvoor de volledige sponsorbijdrage wordt betaald (bijv.
+        als de sponsorbijdrage 1000€ is en je dit op 35 zet, dragen sponsors bij een
+        race van 7 ronden op een circuit van 5km 1000€ per auto bij; bij 14 ronden betalen
+        ze 2000€ per auto, zodat langere races grotere prijzen opleveren).
+      label: Basislengte sponsorbeloning
+    RaceSponsorRewardBaseTime:
+      help: Het aantal minuten waarvoor de volledige sponsorbijdrage wordt betaald (bijv.
+        als de sponsorbijdrage 1000€ is en je dit op 15 zet, dragen sponsors bij een
+        race van 15 minuten 1000€ per auto bij; bij 30 minuten betalen ze 2000€ per
+        auto, zodat langere races grotere prijzen opleveren).
+      label: Basistijd sponsorbeloning
+    RankSortByWinStats:
+      help: Ranglijst sorteren op overwinningsstatistieken in plaats van geld. Als je
+        dit wijzigt, moet je de database resetten.
+      label: Ranglijst sorteren op overwinningen
+    RelativeHotlapProtection:
+      help: Bij welk gat (als fractie van de totale baanlengte) een auto in een outlap
+        de waarschuwing 'Laat de andere auto passeren' krijgt als hij bijna wordt ingehaald.
+        Wordt alleen gebruikt als de baanlengte ontbreekt. 1 is de volledige baanlengte
+        (0.008 is 8/1000 van de volledige baanlengte).
+      label: Relatieve hotlap-bescherming
+    RelativeLappingProtection:
+      help: Bij welk gat (als fractie van de totale baanlengte) een auto die op ronde
+        wordt gezet de waarschuwing 'Blauwe vlag' krijgt als hij bijna wordt ingehaald.
+        Wordt alleen gebruikt als de baanlengte ontbreekt. 1 is de volledige baanlengte
+        (0.007 is 7/1000 van de volledige baanlengte).
+      label: Relatieve bescherming bij op ronde zetten
+    ReservedSlotsAccessKey:
+      help: De sleutel die VIP-spelers in de Kissmyrank Multiplayer Launcher Mod gebruiken
+        om hun gereserveerde slot te krijgen. Coureurs met een gereserveerd slot typen
+        deze sleutel in het invoerveld van de Kissmyrank Multiplayer Launcher Mod (bij
+        de rode vraagteken-knop boven de serverlijst) voordat ze hun gereserveerde slot
+        kunnen gebruiken. Als dit niet is ingesteld, worden gereserveerde slots helemaal
+        uitgeschakeld.
+      label: Toegangssleutel gereserveerde slots
+    ReservedSlotsBootPlayersAtRace:
+      help: Of het verwijderen van spelers voor gereserveerde slots tijdens de race
+        wordt uitgeschakeld. Slots worden per auto vrijgemaakt, beginnend achteraan
+        de grid (op een volle grid worden dus waarschijnlijk spelers verwijderd die
+        laat zijn gejoind of meerdere ronden achterstaan). Zet dit op 1 als je gereserveerde
+        slots tijdens de racesessie helemaal wilt uitschakelen. VIP-spelers moeten dan
+        wachten tot er een slot vrijkomt of tot de volgende sessie.
+      label: Spelers verwijderen voor gereserveerde slots in de race
+    ReservedSlotsGUIDList:
+      help: Eén per regel. Lijst met GUID's van de coureurs die een gereserveerd slot
+        op de server hebben (vereist de Kissmyrank Multiplayer Launcher Mod). Als de
+        server vol is en een van deze GUID's probeert te joinen, wordt een speler gekickt
+        om plaats te maken.
+      label: GUID-lijst gereserveerde slots
+    ReverseGear:
+      fieldset: Achteruit
+    ReverseGearMaxDistance:
+      help: De maximale afstand in meters die een coureur op de baan achteruit mag rijden
+        (0 om de straf uit te schakelen).
+      label: Max. afstand achteruit
+    RightToBeForgottenChatCommand:
+      help: Of het chatcommando 'kmr erase_personal_data_and_ban_myself' is ingeschakeld,
+        waarmee coureurs hun recht om vergeten te worden gebruiken en al hun statistieken
+        laten verwijderen.
+      label: Chatcommando recht om vergeten te worden
+    RollingStart:
+      help: Of je de Rolling Start van Kissmyrank aan het begin van een race wilt gebruiken.
+      label: Rollende start
+    Rules:
+      label: Regels
+    SessionHistoryLength:
+      help: Lengte van de sessiegeschiedenis. Hoeveel sessies in het geheugen blijven.
+        Een hogere waarde kost meer geheugen.
+      label: Lengte sessiegeschiedenis
+    SlowingUnderVirtualSafetyCar:
+      fieldset: Afremmen onder Virtual Safety Car
+    SpeedUnitFormat:
+      help: 'De snelheidseenheid voor openbaar getoonde gegevens. Toegestane waarden
+        zijn kmh en mph. Let op: dit is alleen cosmetisch voor de eindgebruiker; voor
+        alle configuratie gebruik je nog steeds km/h.'
+      label: Weergave snelheidseenheid
+    SpeedingUnderVirtualSafetyCar:
+      fieldset: Te hard rijden onder Virtual Safety Car
+    StartMoney:
+      help: Het geld (in duizenden) dat een speler zonder ranking krijgt als hij voor
+        het eerst op de server joint (30=30000€). Controleer ook min_money om zeker
+        te weten dat deze waarde zinnig is.
+      label: Startgeld
+    ThousandSeparator:
+      help: Het symbool om duizendtallen te scheiden (bijv. 19,000 of 19.000).
+      label: Scheidingsteken duizendtallen
+    TimeBasedRaceExtraLap:
+      help: Of bij een race op tijd de extra ronde in server_cfg.ini van Assetto Corsa
+        is ingeschakeld. Als baanrotatie actief is, leest de plugin de instelling direct
+        uit server_cfg.ini en negeert hij deze waarde.
+      label: Extra ronde bij race op tijd
+    TrackBoundaryCut:
+      fieldset: Cut over de baangrens
+    TrackBoundaryCutGainFilter:
+      help: Of het winstfilter voor cuts over de baangrens is ingeschakeld. Dat vergelijkt
+        het voordeel van de cut met de snelste ronde van de sessie en geeft geen straf
+        als de coureur daarbij tijd verliest.
+      label: Winstfilter cut over baangrens
+    TrackBoundaryCutGainFilterMinAverageSpeed:
+      help: Deze snelheid (in km/h) is de ondergrens van het winstfilter voor cuts over
+        de baangrens. 45 = 45km/h (bijv. als een speler tijdens de cut meer tijd verliest
+        dan wanneer hij het betreffende baandeel met 45km/h had gereden, wordt de cut
+        genegeerd). Dit is alleen nuttig in de eerste ronden, als er nog geen vergelijkingsronde
+        is.
+      label: 'Winstfilter cut over baangrens: min. gemiddelde snelheid'
+    TrackBoundaryCutGainFilterMinLossPercent:
+      help: Het minimale tijdverlies (in procent) waarbij het winstfilter voor cuts
+        over de baangrens de cut negeert. 6=6% (bijv. een coureur die meer dan 6% verliest
+        ten opzichte van de snelste rondetijd van de sessie, krijgt geen straf).
+      label: 'Winstfilter cut over baangrens: min. verlies in procent'
+    TrackBoundaryCutMaxSpeed:
+      help: De maximale snelheid (in km/h) waarmee een coureur de baangrens mag overschrijden.
+      label: Max. snelheid cut over baangrens
+    TrackBoundaryCutMaxTime:
+      help: De maximale tijd (in seconden) tussen begin en einde van een cut (cuts daarbuiten
+        gelden als momenten naast de baan).
+      label: Max. tijd cut over baangrens
+    TrackBoundarySameLapCutMaxSpeed:
+      help: De maximale snelheid (in km/h) waarmee een coureur na de eerste overtreding
+        de baangrens mag overschrijden (dit geldt zowel voor het terugkeren op de baan
+        als voor verdere cuts).
+      label: Max. snelheid cut over baangrens in dezelfde ronde
+    TrackBoundarySampleLength:
+      help: 'De lengte (in meters) van één meetpunt van de baangrens (max. aanbevolen
+        waarde is 3). Verhoog dit als je schijfruimte wilt besparen ten koste van de
+        nauwkeurigheid. Let op: deze waarde geldt alleen voor nieuwe datasets.'
+      label: Meetlengte baangrens
+    TrackRejoinMaxSpeed:
+      fieldset: Max. snelheid bij terugkeren op de baan
+      help: De maximale snelheid waarmee een coureur op de baan mag terugkeren nadat
+        hij in een uitgesloten zone van de baan is gegaan of de auto naast de baan heeft
+        stilgezet.
+      label: Max. snelheid bij terugkeren op de baan
+    UDPRelay:
+      label: UDP-relay
+    UDPReplayTo:
+      help: 'Eén per regel. Gebruik dit als je UDP-verkeer wilt doorsturen naar andere
+        plugins (bijv. Minorating, Stracker enz.). Het werkt zo: AC-server <-> Kissmyrank-plugin
+        <-> andere plugins. Geef voor elke plugin het adres op in het formaat ip_address:port
+        (bijv. voor een plugin op 127.0.0.1 met poort 12003 vervang je UDP_PLUGIN_ADDRESS_1
+        door 127.0.0.1:12003). Daarna stel je de andere plugin zo in alsof de Kissmyrank-plugin
+        de Assetto Corsa-server is (bijv. bij de standaardconfiguratie van Kissmyrank
+        op poort 12000 zet je ac_server_plugin_port van de andere plugin op 12000 en
+        ac_server_ip op het IP van de machine waarop de Kissmyrank-plugin draait). Controleer
+        bij het starten in de console of het adres correct wordt gelezen.'
+      label: UDP doorsturen naar
+    VSCDefaultLeaderSlowAllowOvertakeSpeed:
+      help: De snelheid in km/h waaronder de leider tijdens de Virtual Safety Car of
+        de formatieronde van de rollende start mag worden ingehaald (bijv. zodat een
+        geparkeerde auto niet iedereen blokkeert).
+      label: 'VSC: inhaalsnelheid bij langzame leider'
+    VSCDefaultSlowAndFarAllowOvertakeDistance:
+      help: De afstand tot de vorige auto waarboven een coureur tijdens de Virtual Safety
+        Car of de formatieronde van de rollende start mag worden ingehaald als hij langzamer
+        is dan vsc_defalut_slow_and_far_allow_overtake_speed.
+      label: 'VSC: inhaalafstand bij langzaam en ver weg'
+    VSCDefaultSlowAndFarAllowOvertakeSpeed:
+      help: De snelheid in km/h waaronder een coureur tijdens de Virtual Safety Car
+        of de formatieronde van de rollende start mag worden ingehaald als hij verder
+        weg is dan vsc_defalut_slow_and_far_allow_overtake_distance.
+      label: 'VSC: inhaalsnelheid bij langzaam en ver weg'
+    VSCDefaultSpeedLimit:
+      help: De maximale snelheid (in km/h) die een speler tijdens een Virtual Safety
+        Car mag rijden.
+      label: 'VSC: snelheidslimiet'
+    VSCFormationLapFarAllowOvertakeDistance:
+      help: De afstand tot de vorige auto waarboven een coureur tijdens de formatieronde
+        van de rollende start mag worden ingehaald (omdat de auto's tijdens de formatieronde
+        dicht bij elkaar moeten blijven).
+      label: 'VSC: inhaalafstand in formatieronde'
+    VSCFormationLapMinSpeed:
+      help: De minimale snelheid (in km/h) waarboven een coureur tijdens de formatieronde
+        van de rollende start moet rijden (0 om uit te schakelen).
+      label: 'VSC: min. snelheid formatieronde'
+    VSCFormationLapSpeedLimit:
+      help: De maximale snelheid (in km/h) die een speler tijdens de formatieronde van
+        de rollende start mag rijden.
+      label: 'VSC: snelheidslimiet formatieronde'
+    VSCOvertakingMaxGrace:
+      help: Het aantal seconden dat een coureur heeft om de positie terug te geven als
+        hij tijdens een Virtual Safety Car of de formatieronde van de rollende start
+        een andere auto inhaalt.
+      label: 'VSC: max. coulance bij inhalen'
+    VSCSlowingMaxGrace:
+      help: Het aantal seconden dat een coureur tijdens de formatieronde van de rollende
+        start onder de minimale snelheid mag zakken.
+      label: 'VSC: max. coulance bij afremmen'
+    VSCSpeedingMaxGrace:
+      help: Het aantal seconden dat een coureur tijdens een Virtual Safety Car of de
+        formatieronde van de rollende start boven de snelheidslimiet mag rijden.
+      label: 'VSC: max. coulance bij te hard rijden'
+    VirtualSafetyCar:
+      label: Virtual Safety Car
+    WarnedCarGrace:
+      help: De tijd in seconden die elke auto na de eerste waarschuwing krijgt om ruimte
+        te maken. Verhoog dit om een gewaarschuwde coureur meer tijd te geven om de
+        andere auto te laten passeren.
+      label: Coulance gewaarschuwde auto
+    WebAdminConsoleGuestPassword:
+      help: 'Stel dit wachtwoord in (minstens 8 tekens) als je alleen-lezen toegang
+        tot de Web Admin-console wilt geven. Let op: web_admin_console_password moet
+        zijn ingesteld om de console überhaupt te activeren. Geef dit wachtwoord alleen
+        aan vertrouwde leden, want zij zien alles wat in de Kissmyrank-console verschijnt.'
+      label: Gastwachtwoord Web Admin-console
+    WebAdminConsolePassword:
+      help: Wachtwoord van de Web Admin-console. Het wachtwoord (min. 12 tekens, anders
+        wordt de Kissmyrank Web Admin-interface geforceerd uitgeschakeld) waarmee je
+        inlogt op je Kissmyrank Web Admin-console op http://yourserver/kissmyrank_admin
+        (als je wachtwoord 'yourcomplexpassword' is, typ je na het openen van de pagina
+        'login yourcomplexpassword' om toegang te krijgen). Laat dit leeg als je de
+        Kissmyrank Web Admin-console niet wilt gebruiken.
+      label: Wachtwoord Web Admin-console
+    WebAuth:
+      label: Web Auth
+    WebAuthCacheTime:
+      help: Hoe lang het resultaat van web auth in de cache blijft, in seconden
+      label: Cachetijd web auth
+    WebAuthRelayTo:
+      help: Eén per regel. Gebruik dit als je gebruikers ook op basis van andere plugins
+        wilt blokkeren. De waarden zijn dezelfde die je als AUTH_PLUGIN_ADDRESS in server_cfg.ini
+        van Assetto Corsa voor de plugin van derden zou instellen (bijv. voor Minorating
+        vervang je AUTH_PLUGIN_ADDRESS_1 door plugin.minorating.com:805/minodata/auth/ABCN/?).  Je
+        kunt natuurlijk ook een andere instantie van de Kissmyrank Plugin Auth gebruiken
+        om over servers heen te blokkeren, met de Kissmyrank-AUTH_PLUGIN_ADDRESS van
+        die andere instantie. Controleer bij het starten van de plugin in de console
+        of het adres correct wordt gelezen.
+      label: Web auth doorsturen naar
+    WebAuthServerAddress:
+      help: Adres van web auth (wijzig dit als je alleen op een bepaalde interface wilt
+        luisteren, niet aanbevolen).
+      label: Serveradres web auth
+    WebAuthServerPort:
+      help: Poort van web auth. Gebruik op Linux geen poorten onder 1024.
+      label: Serverpoort web auth
+    WebInterface:
+      label: Webinterface
+    WebStatsCacheTime:
+      help: Hoe lang de statistieken in de cache blijven, in seconden (een lagere waarde
+        kan het CPU-gebruik verhogen)
+      label: Cachetijd Web Stats
+    WebStatsDriversPerPage:
+      help: Coureurs per pagina in Web Stats. Hoeveel coureurs per pagina de coureurslijst
+        van Web Stats toont.
+      label: 'Web Stats: coureurs per pagina'
+    WebStatsInterface:
+      help: Of de Web Stats-interface is ingeschakeld (nodig voor Race Control en het
+        beoordelen van botsingen door de wedstrijdleiding).
+      label: Web Stats-interface
+    WebStatsOverridePublicAddress:
+      help: Vul hier het openbare Web Stats-adres van je server in als je de automatische
+        detectie van het openbare adres door de plugin wilt overschrijven.
+      label: 'Web Stats: openbaar adres overschrijven'
+    WebStatsOverridePublicPort:
+      help: Vul hier de openbare Web Stats-poort van je server in als je de standaardinstelling
+        wilt overschrijven (bijv. bij een forward, proxy, redirect enz.).
+      label: 'Web Stats: openbare poort overschrijven'
+    WebStatsPublicURL:
+      help: <strong>Stel deze waarde in als je de Web Stats-poort gebruikt!</strong>
+        Dit moet de URL zijn waar iedereen bij kan. Deze link wordt op de Live Timings-pagina
+        van ACPitwall getoond, zodat iedereen de KMR-interface kan bekijken. Als je
+        dit leeg laat, wordt er geen link op de Live Timings-pagina getoond!
+      label: Openbare URL Web Stats
+    WebStatsResultsShowLapLog:
+      help: Zet dit op 1 als de raceuitslagen in Web Stats ook het rondelog moeten bevatten
+        (met per ronde de tijden van elke speler, de banden waarop hij reed enz.).
+      label: 'Web Stats: rondelog in uitslagen tonen'
+    WebStatsServerAddress:
+      help: Adres van de Web Stats-server (wijzig dit als je alleen op een bepaalde
+        interface wilt luisteren, niet aanbevolen).
+      label: Serveradres Web Stats
+    WebStatsServerPort:
+      help: Poort van de Web Stats-server. Lees voor Linux het hoofdstuk over probleemoplossing
+        in het helpbestand readme.txt.
+      label: Serverpoort Web Stats

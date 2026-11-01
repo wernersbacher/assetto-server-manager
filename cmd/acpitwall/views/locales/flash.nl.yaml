@@ -1,0 +1,221 @@
+# Flash messages of the Go handlers (smweb.T(r, "flash.<area>.<key>", ...)).
+flash:
+  accounts:
+    login_to_download: Log in om content te downloaden.
+    logged_out: Je bent uitgelogd
+    no_access: Je hebt geen toegang tot deze ACPitwall-instantie.
+    no_permission: Je hebt geen toestemming om deze pagina te bekijken.
+    login_first: Je hebt geen toestemming om deze pagina te bekijken. Log eerst in.
+    invalid_login: Ongeldige gebruikersnaam of wachtwoord. Controleer je gegevens en probeer het opnieuw.
+    set_password: Bedankt voor het inloggen. Stel nu een vast wachtwoord in voor je account.
+    logged_in: Bedankt voor het inloggen!
+    openness_changed: Openheid van de server gewijzigd
+    public_stats_changed: Openbare coureursstatistieken gewijzigd
+    download_access_changed: Downloadtoegang gewijzigd
+    team_options_changed: Teamopties gewijzigd
+    skin_options_changed: Skinopties gewijzigd
+    password_not_changed: Je wachtwoord kon niet worden gewijzigd
+    password_changed: Je wachtwoord is gewijzigd!
+    passwords_must_match: Je wachtwoorden moeten overeenkomen
+    details_not_updated: De accountgegevens konden niet worden bijgewerkt
+    details_changed: Je gegevens zijn gewijzigd!
+    cannot_delete_self: Je kunt je eigen account niet verwijderen!
+    not_deleted: Het account kon niet worden verwijderd
+    deleted: Account verwijderd
+    password_not_reset: Het wachtwoord van het account kon niet worden gereset
+    password_reset: "We hebben een nieuw wachtwoord voor {name} gegenereerd: {password}"
+    edited: Account bewerkt
+    created: Account aangemaakt
+    audit_logs_failed: De auditlogs konden niet worden geopend
+
+  admin:
+    messages_not_saved: De berichten konden niet worden opgeslagen
+    messages_saved: Berichten opgeslagen!
+    options_not_saved: De serveropties konden niet worden opgeslagen
+    options_saved: Serveropties opgeslagen!
+    blacklist_not_saved: De wijzigingen aan de blacklist konden niet worden opgeslagen
+    blacklist_saved: Blacklist van de server gewijzigd!
+    entrant_not_deleted: De deelnemer kon niet worden verwijderd
+    entrant_deleted: Deelnemer verwijderd
+    process:
+      server: Server
+      server_practice: Servertraining
+      championship: Kampioenschap
+      championship_practice: Kampioenschapstraining
+      race_weekend: Raceweekend
+      race_weekend_practice: Raceweekendtraining
+      stopped: "{what} gestopt"
+      restarted: "{what} herstart"
+      changed: "{what} gewijzigd"
+      failed: "{what}: de status kon niet worden gewijzigd"
+
+  championship:
+    edited: Kampioenschap bewerkt!
+    created: Het kampioenschap is aangemaakt. Nu moet je nog events toevoegen!
+    duplicated: Kampioenschap gedupliceerd!
+    import_failed: Sorry, het kampioenschap kon niet worden geïmporteerd! Controleer de JSON-opmaak.
+    imported: Kampioenschap geïmporteerd!
+    deleted: Kampioenschap verwijderd!
+    session_import_failed: De sessiebestanden konden niet worden geïmporteerd
+    sessions_imported: Sessiebestanden geïmporteerd!
+    event_edited: De kampioenschapsrace op {track} is bewerkt!
+    event_added: De kampioenschapsrace op {track} is toegevoegd!
+    event_not_started: Het event kon niet worden gestart
+    event_started: Event gestart!
+    event_scheduled: Het kampioenschapsevent is gepland voor {date}
+    event_not_deleted: Het event kon niet worden verwijderd
+    event_deleted: Event verwijderd!
+    practice_not_started: Het trainingsevent kon niet worden gestart
+    practice_started: Trainingsevent gestart!
+    event_not_cancelled: Het kampioenschapsevent kon niet worden geannuleerd
+    event_cancelled: Event geannuleerd!
+    event_not_finished: Het kampioenschapsevent kon niet worden afgesloten
+    event_finished: Het event is afgesloten met de tot nu toe gereden uitslagen!
+    event_not_restarted: Het kampioenschapsevent kon niet worden herstart
+    event_restarted: Event herstart!
+    driver_penalty_failed: De straf van de coureur kon niet worden gewijzigd
+    driver_penalty_modified: Straf van de coureur gewijzigd
+    team_penalty_failed: De teamstraf kon niet worden gewijzigd
+    team_penalty_modified: Teamstraf gewijzigd
+    signed_up_pending: Bedankt voor je inschrijving voor het kampioenschap! Je inschrijving moet nog door een beheerder worden goedgekeurd.
+    signed_up: Bedankt voor je inschrijving voor het kampioenschap!
+    entrant_already_accepted: Deze deelnemer is al geaccepteerd.
+    entrant_accepted: De deelnemer is geaccepteerd!
+    no_slots: Er zijn geen plekken meer vrij voor deze deelnemer en auto. Controleer de configuratie van het kampioenschap.
+    entrant_team_changed: Het team van de deelnemer is gewijzigd.
+    race_weekend_duplicated: Raceweekend van het kampioenschap gedupliceerd!
+    event_duplicated: Kampioenschapsevent gedupliceerd!
+    failed_reason: "{message}: {reason}"
+    server_busy: op deze server loopt al een event. Stop het eerst of start op een andere server.
+    championship_active_elsewhere: 'dit kampioenschap is actief op server "{server}". Kies die server of stop het event daar eerst.'
+    race_weekend_active_elsewhere: 'dit raceweekend is actief op server "{server}". Kies die server of stop het event daar eerst.'
+    linked_championship_active_elsewhere: 'het kampioenschap van dit raceweekend is actief op server "{server}". Kies die server of stop het event daar eerst.'
+
+  content:
+    car_not_deleted: De auto {car} kon niet worden verwijderd
+    car_deleted: Auto {car} verwijderd!
+    tag_added: "Tag toegevoegd: {tag}"
+    tag_not_added: De tag kon niet worden toegevoegd
+    tag_deleted: "Tag verwijderd: {tag}"
+    tag_not_deleted: De tag kon niet worden verwijderd
+    car_metadata_updated: Metadata van de auto bijgewerkt!
+    car_skin_deleted: Skin van de auto verwijderd!
+    reindexing_cars: De auto's worden opnieuw geïndexeerd!
+    skin_upload_failed: "Uploaden van de skin mislukt: {reason}."
+    skin_change_failed: "Wijzigen van de skin mislukt: {reason}."
+    skin_delete_failed: "Verwijderen van de skin mislukt: {reason}."
+    skin_login: Log in om skins te beheren.
+    skin_too_large: "De skin is geweigerd: hij is groter dan de skinlimieten toestaan."
+    skin_uploaded: Skin {skins} geüpload ({visibility}).
+    skin_visibility_changed: De skin is nu {visibility}.
+    skin_visibility:
+      private: privé
+      team: voor het team
+      global: globaal
+    skin_deleted: Skin verwijderd!
+    cars_added: Auto('s) toegevoegd!
+    cars_not_added: Auto('s) konden niet worden toegevoegd
+    tracks_added: Circuit(s) toegevoegd!
+    tracks_not_added: Circuit(s) konden niet worden toegevoegd
+    weather_added: Weerpreset(s) toegevoegd!
+    weather_not_added: Weerpreset(s) konden niet worden toegevoegd
+    weather_deleted: Weerpreset verwijderd!
+    weather_not_installed: Sorry, de weerpreset kon niet worden verwijderd. Is hij wel geïnstalleerd? Ingebouwde presets kunnen niet worden verwijderd.
+    weather_not_deleted: Sorry, de weerpreset kon niet worden verwijderd.
+    track_list_failed: De circuitlijst kon niet worden geladen
+    track_deleted: Circuit verwijderd!
+    track_not_deleted: Sorry, het circuit kon niet worden verwijderd.
+    track_metadata_updated: Metadata van het circuit bijgewerkt!
+    setup_upload_failed_car: Het setupbestand voor {car} kon niet worden geüpload
+    setup_upload_failed: Het setupbestand kon niet worden geüpload
+    setup_uploaded: Het setupbestand voor {car} is geüpload!
+    setup_not_deleted: De setup voor {car} kon niet worden verwijderd
+    setup_deleted: Setup verwijderd!
+
+  plugins:
+    stracker_not_saved: De stracker-opties konden niet worden opgeslagen
+    stracker_saved: stracker-opties opgeslagen!
+    realpenalty_not_saved: De Real Penalty-opties konden niet worden opgeslagen
+    realpenalty_saved: Real Penalty-opties opgeslagen!
+    kissmyrank_not_saved: De KissMyRank-opties konden niet worden opgeslagen
+    kissmyrank_saved: KissMyRank-opties opgeslagen!
+
+  race:
+    custom_saved: Eigen race opgeslagen!
+    custom_scheduled: Eigen race gepland!
+    custom_started: Eigen race gestart!
+    scheduled: De race is gepland voor {date}
+    custom_deleted: Eigen race verwijderd!
+    custom_starred: Eigen race gemarkeerd
+    custom_looped: Eigen race aan de loop toegevoegd
+    custom_unlooped: Eigen race uit de loop verwijderd
+    server_busy: "Het event is niet gestart: op deze server loopt al een event. Stop het eerst of start op een andere server."
+    quick_started: Snelle race gestart!
+
+  racecontrol:
+    restart_failed: De server kon de sessie niet herstarten!
+    next_session_failed: De server kon niet naar de volgende sessie gaan!
+    penalty_form_invalid: Het strafformulier kon niet worden gelezen
+    penalty_time_invalid: De straftijd kon niet worden gelezen
+    penalty_failed: De straf kon niet worden toegevoegd/verwijderd
+    penalty_removed: Straf verwijderd!
+    penalty_added: Straf toegevoegd!
+
+  raceweekend:
+    deleted: Raceweekend verwijderd!
+    edited: Raceweekend bewerkt!
+    created: Het raceweekend is aangemaakt. Nu moet je nog sessies toevoegen!
+    session_edited: De sessie van het raceweekend op {track} is bewerkt!
+    session_added: De sessie van het raceweekend op {track} is toegevoegd!
+    session_not_started: De sessie kon niet worden gestart
+    session_started: Sessie gestart!
+    session_not_restarted: De sessie kon niet worden herstart
+    session_restarted: Sessie herstart!
+    session_not_cancelled: De sessie kon niet worden geannuleerd
+    session_cancelled: Sessie geannuleerd!
+    session_not_deleted: De sessie kon niet worden verwijderd
+    session_deleted: Sessie verwijderd!
+    session_import_failed: De sessiebestanden van het raceweekend konden niet worden geïmporteerd
+    sessions_imported: Sessiebestanden geïmporteerd!
+    import_failed: Sorry, het raceweekend kon niet worden geïmporteerd! Controleer de JSON-opmaak.
+    imported: Raceweekend geïmporteerd!
+    session_scheduled: De sessie van het raceweekend is gepland voor {date}
+    session_scheduled_after_parent: De sessie van het raceweekend start zodra de vorige sessie(s) zijn afgelopen.
+
+  results:
+    parse_failed: Sorry, het uitslagbestand kon niet worden gelezen! Controleer of het formaat klopt.
+    bad_file_name: De inhoud van je uitslagbestand klopt, maar de bestandsnaam niet! Geef het bestand een naam volgens de AC-standaard en probeer het opnieuw.
+    drivers_edited: Coureurs bewerkt
+    used_by_championship: Het uitslagbestand kan niet worden verwijderd, het wordt gebruikt door kampioenschap {name}
+    used_by_race_weekend: Het uitslagbestand kan niet worden verwijderd, het wordt gebruikt door raceweekend {name}
+    not_deleted: Het uitslagbestand kon niet worden verwijderd
+    deleted: Uitslagbestand verwijderd
+
+  teams:
+    sign_in: Log in om teams te gebruiken.
+    not_found: Dit team bestaat niet.
+    name_invalid: Een teamnaam moet {min} tot {max} tekens hebben en mag geen stuurtekens bevatten.
+    name_taken: Er bestaat al een team met deze naam.
+    not_member: Dit account is geen lid van het team.
+    already_member: Dit account is al lid van het team.
+    invite_invalid: De uitnodiging is ongeldig of verlopen.
+    not_allowed: Dat mag je niet doen.
+    owner_role: De rol van de eigenaar kan niet worden gewijzigd. Draag in plaats daarvan het eigendom over aan een ander lid.
+    already_owner: Je bent al de eigenaar van het team.
+    limit_reached: Je bent al eigenaar van het maximale aantal teams.
+    creation_blocked: Teams aanmaken is op deze server uitgeschakeld.
+    account_not_found: Er bestaat geen account met deze naam.
+    rename_hook_failed: De inschrijvingen van lopende kampioenschappen konden niet worden bijgewerkt, controleer de log.
+    created: Team aangemaakt.
+    joined: Je bent lid geworden van het team.
+    left: Je hebt het team verlaten.
+    renamed: Team hernoemd.
+    visibility_changed: Zichtbaarheid gewijzigd.
+    invite_link_created: Uitnodigingslink aangemaakt, je vindt hem hieronder.
+    invite_sent: Uitnodiging verstuurd.
+    invite_withdrawn: Uitnodiging ingetrokken.
+    invite_declined: Uitnodiging afgewezen.
+    member_removed: Lid verwijderd.
+    role_changed: Rol gewijzigd.
+    ownership_transferred: Eigendom overgedragen.
+    deleted: Team verwijderd. Inschrijvingen voor kampioenschappen behouden de naam.

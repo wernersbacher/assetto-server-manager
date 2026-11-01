@@ -1,0 +1,116 @@
+# Messages of the browser code (cmd/acpitwall/typescript/src), used with t("area.key") / tn("area.key", count).
+# js.confirm, js.calendar and js.messages live in nl.yaml.
+js:
+  live:
+    event_title: "{session} op {track}"
+    session:
+      booking: Booking
+      practice: Training
+      qualifying: Kwalificatie
+      race: Race
+      unknown: Onbekende sessie
+    days_plus:
+      one: "{count} dag + {time}"
+      other: "{count} dagen + {time}"
+    laps_remaining:
+      one: "nog {count} ronde"
+      other: "nog {count} ronden"
+    road_temp: "Baantemperatuur: {temp}°C"
+    ambient_temp: "Luchttemperatuur: {temp}°C"
+    current_weather: "Huidig weer: {weather}"
+    loaded: Geladen
+    crash_with_car: "Crash met {driver} bij {speed}"
+    crash_with_environment: "Crash met de omgeving bij {speed}"
+  race_form:
+    field:
+      abs: ABS
+      tc: TC
+      stability: Stabiliteit
+      autoclutch: Autokoppeling
+      tyre_blankets: Bandenwarmers
+      fuel: Brandstof
+      damage: Schade
+      tyre_wear: Bandenslijtage
+      virtual_mirror: Virtuele spiegel
+      surface: Baanconditie
+      grip_at_start: Grip bij start
+      max_ballast: Max. ballast
+      tyres_out: Banden buiten de baan
+      contacts_per_km: Contacten/km
+      start_rule: Startregel
+      loop: Herhalen
+      result_screen: Uitslagscherm
+      no_drs_zones: Geen DRS-zones
+      replace_password: Wachtwoord vervangen
+      force_stop: Geforceerd stoppen
+      stop_with_drivers: Stoppen met coureurs
+    summary:
+      "on": "{label} aan"
+      "off": "{label} uit"
+      selected: "{count} geselecteerd"
+      none_selected: niets geselecteerd
+    show: Tonen
+    hide: Verbergen
+    toggle_label: "{section} tonen of verbergen"
+    edited: gewijzigd
+    status:
+      has_errors: bevat fouten
+      complete: compleet
+    sections: Secties
+    field_fallback: Veld
+    fix_fields: "Corrigeer deze velden voordat je opslaat:"
+    no_changes: Nog geen wijzigingen
+    unsaved_changes: Niet-opgeslagen wijzigingen
+    discard_changes: Wijzigingen negeren
+    discard_title: Je wijzigingen negeren?
+    discard_detail: Het formulier wordt teruggezet naar de laatst opgeslagen waarden.
+    discard: Negeren
+  form:
+    leave_unsaved: Weet je zeker dat je de pagina wilt verlaten? Niet-opgeslagen wijzigingen aan deze setup gaan dan verloren.
+  entrant:
+    preview_image: Voorbeeldafbeelding
+    random_skin: "<willekeurige skin>"
+    no_fixed_setup: Geen vaste setup
+    any_car: Elke beschikbare auto
+  upload:
+    uploading: Bezig met uploaden...
+    sent: "Upload verzonden ({size}), de server verwerkt de bestanden..."
+    progress: "Bezig met uploaden: {percent}% ({loaded} van {total})"
+    finished: Upload voltooid. Pagina wordt herladen...
+    reading:
+      one: "{count} bestand wordt gelezen..."
+      other: "{count} bestanden worden gelezen..."
+    no_files: Er zijn geen bestanden om te uploaden.
+    reading_progress: "Bestanden worden gelezen ({count} van {total})..."
+    read_failed: "{file} kon niet worden gelezen."
+    failed: "De upload is mislukt ({error}). Probeer het opnieuw of upload minder bestanden tegelijk."
+    network_error: netwerkfout
+    preview: "Voorbeeld: {name}"
+    weather_preview: Weervoorbeeld
+    livery: "Livery: {name}"
+    layout: "Layout: {name}"
+    default_layout: Standaard
+    content_preview: Contentvoorbeeld
+    incompatible_weather: Sorry, de geüploade bestanden lijken geen compatibele weerpreset te zijn!
+    incompatible_car: Sorry, de geüploade bestanden lijken geen compatibele auto te zijn!
+    incompatible_track: Sorry, de geüploade bestanden lijken geen compatibel circuit te zijn!
+    upload_weather: Weerpreset(s) uploaden
+    upload_cars: Auto('s) uploaden
+    upload_tracks: Circuit(s) uploaden
+    not_a_car: Sorry, dat was blijkbaar geen auto!
+    not_a_track: Sorry, dat was blijkbaar geen circuit!
+  championship:
+    unnamed_class: Naamloze klasse
+    slots_with_drivers:
+      one: "{count} plek heeft een coureur toegewezen – verwijder die in het tabblad Entrylist"
+      other: "{count} plekken hebben coureurs toegewezen – verwijder ze in het tabblad Entrylist"
+    info_placeholder: In dit veld kun je links naar circuits, auto's of andere bronnen delen, de regels van het kampioenschap beschrijven en alles wat je verder met de deelnemers van je kampioenschap wilt delen! Je kunt het ook leeg laten als je geen info nodig hebt. Grote afbeeldingen maken deze bewerkpagina trager, de weergavepagina merkt er weinig van.
+  points:
+    ordinal:
+      one: "{n}e"
+      two: "{n}e"
+      few: "{n}e"
+      other: "{n}e"
+  content:
+    car_notes_placeholder: In dit veld kun je notities bij elke auto zetten!
+    track_notes_placeholder: In dit veld kun je notities bij elk circuit zetten!

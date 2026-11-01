@@ -1,0 +1,388 @@
+championships:
+  summary: "{active} aktive, {completed} afsluttede."
+  create_new: Opret et nyt mesterskab
+  more_options: Flere muligheder
+  more: Mere
+  view_button: Vis
+  export: Eksportér
+  duplicate: Duplikér mesterskab
+  delete_confirm: Slet mesterskabet {name}?
+  delete_detail: Hele mesterskabet, inklusive events og stillinger, fjernes permanent. Det kan ikke fortrydes.
+  delete_label: Slet mesterskab
+  active: Aktive
+  completed: Afsluttede
+  none_active: Ingen aktive mesterskaber.
+  none_completed: Ingen afsluttede mesterskaber endnu.
+  col:
+    name: Navn
+    progress: Fremskridt
+    events: Events
+    classes: Klasser
+    details: Detaljer
+    class: Klasse
+    email: E-mail
+    car_skin: Bil / Skin
+    status: Status
+    created: Oprettet
+    num_sessions: Antal sessioner
+    pos: Pos.
+    total_points: Point i alt
+  import:
+    title: Importér mesterskab
+    placeholder: Indsæt JSON for dit mesterskab her!
+    help: Her kan du importere mesterskaber i JSON-format (samme format som når du eksporterer et mesterskab). Vi fraråder at lave disse data i hånden, da formatet er ret komplekst. Men vil du flytte mesterskaber mellem servere uden adgang til filerne, er denne funktion lige sagen!
+    button: Importér
+  import_custom:
+    title: Importér eget løb
+    heading: Importér eget løb til mesterskabet {name}
+    none: Der er ingen egne løb at importere.
+    starred: Favoritter
+    scheduled: Planlagt
+    loop: Auto-loop
+    recent: Seneste
+  import_weekend:
+    title: Importér løbsweekend
+    heading: Importér løbsweekend til mesterskabet {name}
+  import_event:
+    title: Importér et mesterskabsevent
+    heading: Importér et mesterskabsevent for {track} ({layout})
+    intro: Vælg resultater for følgende sessioner (du kan lade nogle sessioner stå tomme).
+    race_result: Resultatfil for løb
+    second_race_result: Resultatfil for <strong>andet</strong> løb
+    qualifying_result: Resultatfil for kvalifikation
+    practice_result: Resultatfil for træning
+    none: ingen
+    result_option: "{track} ({layout}) den {date}"
+    submit: Importér event
+  class:
+    label: "Klasse:"
+    unnamed: Unavngiven klasse
+    name: Klassenavn
+    name_placeholder: Min fede klasse
+    slots: Pladser
+    slots_help: Pladser er deltagerne i denne klasse. Ledige pladser udfyldes af kørere, der deltager (åbent mesterskab, tilmeldingsformular eller Autofill); du tildeler kørere til pladser under fanen »Entry List«.
+    clone_help: Bil, skin, ballast, restrictor og fast setup fra den sidste deltager kopieres til nye deltagere.
+    add_entrants: Tilføj deltager(e)
+  points:
+    title: Point
+    per_place: Point pr. placering
+    reset: Nulstil til standardpoint
+    placeholder: Point
+    multiplier_placeholder: Faktor
+    places_help: "Placeringer kan tilføjes, men ikke fjernes: resultater beregnes, når siden indlæses, så tidligere point skal forblive tilgængelige. Vil du slå point fra for denne klasse, så sæt alle placeringer til nul."
+    bonus: Bonus
+    bonus_help: Giv point for bestemte handlinger.
+    pole: Pole position
+    second_race_multiplier: Faktor for andet løb
+    second_race_help: Anvendes på pointene fra et andet løb (events med »Reversed Grid Positions«). 0 slår point fra for andet løb, negative værdier er tilladt.
+    penalties: Straffe
+    penalties_help: Træk point fra for bestemte handlinger (kun løbssessioner).
+    collision_driver: Kollision med kører
+    collision_env: Kollision med omgivelser
+    cut_track: Skæring af banen
+  overview:
+    drop_worst:
+      one: Hver kørers {count} dårligste resultat fratrækkes (overstreget). Point i alt omfatter kun de tællende resultater.
+      other: Hver kørers {count} dårligste resultater fratrækkes (overstreget). Point i alt omfatter kun de tællende resultater.
+    dropped: Fratrukket resultat
+    legend:
+      first: "1."
+      second: "2."
+      third: "3."
+      top10: 4. - 10.
+      rest: "> 10."
+      no_points: Ingen point
+  event:
+    settings_badge: Mesterskabsindstillinger
+    settings_help: Dette event bruger mesterskabets løbsindstillinger (brændstof, dækslid, skade, kørehjælp, dynamisk bane).
+    completed_on: Afsluttet den
+    in_progress: I gang
+    scheduled: Planlagt
+    scheduled_on: på
+    another_server: en anden server
+    scheduled_for: til
+    not_started: Ikke startet
+    too_few_pitboxes: Denne bane har færre pitbokse end det konfigurerede antal deltagere i det aktuelle mesterskab og kan derfor ikke bruges i dette mesterskab.
+    first_prefix: "1."
+    minutes:
+      one: "{count} minut"
+      other: "{count} minutter"
+    laps:
+      one: "{count} omgang"
+      other: "{count} omgange"
+    plus_one_lap: + 1 omgang
+    starts: Start
+    first_race: 1. løb
+    second_race: 2. løb
+    reverse_all: Hele startopstillingen vendes om i 2. løb.
+    reverse_one: Der køres et 2. løb med en startopstilling ud fra resultaterne af 1. løb.
+    reverse_n: "{count} startpositioner vendes om i 2. løb."
+    class_winner: "Vinder {class}"
+    fastest_lap: Hurtigste omgang
+    best_qualifying: Bedste kvalifikation
+    other_in_progress: Et event i dette mesterskab er i gang
+    on_server: på serveren
+    wait_or_cancel: Du skal vente, til det er færdigt, eller annullere det, før du kan starte dette.
+    start: Start event
+    schedule: Planlæg event
+    schedule_help: Indtast dato og klokkeslæt for at tilføje et planlagt løb. Dato og klokkeslæt er i din tidszone
+    recurrence: Gentagelsesregel
+    recurrence_help: Brug <a target="_blank" href="{url}">RRule Generator</a> til at lave en gentagelsesregel. Lad feltet stå tomt, hvis du ikke har brug for den. Gælder kun sammen med et planlagt tidspunkt.
+    schedule_submit: Planlæg
+    schedule_remove: Fjern planlagt event
+    manage: Administrér event
+    practice_help: Indlæser det konfigurerede event på serveren som en 2 timers træning i loop, men følger ikke fremskridtet som mesterskabsevent.
+    start_practice: Start træningsevent
+    import_results: Importér resultater
+    duplicate: Duplikér
+    delete_confirm: Slet dette event?
+    delete_detail: Hele eventet fjernes permanent fra mesterskabet.
+    delete_label: Slet event
+    restart_confirm: Genstart dette event?
+    restart_detail: Hele eventet genstartes, og alle nuværende resultater går tabt.
+    restart_label: Genstart event
+    restart: Genstart event
+    finish_confirm: Afslut dette event?
+    finish_detail: Eventet afsluttes med resultaterne af de sessioner, der er kørt indtil nu, og de tæller fortsat med i stillingen. Sessioner, der endnu ikke er kørt (for eksempel andet løb), springes over, og en kørende server stoppes.
+    finish_label: Afslut event
+    finish: Afslut event
+    cancel_confirm: Annullér dette event?
+    cancel_detail: Hele eventet annulleres, og resultaterne af alle sessioner kørt indtil nu kasseres. Vil du beholde dem, så brug »Afslut event« i stedet.
+    cancel: Annullér event
+    view_results: Vis resultater
+    details: Eventdetaljer
+    detailed_results: Vis detaljerede resultater for denne session
+    session_in_progress: Session i gang
+    no_results_yet: Der er ingen resultater endnu. Kig forbi igen senere.
+    awaiting_start: Venter på start
+    not_started_yet: Denne session er ikke startet endnu. Kig forbi igen senere.
+  rw:
+    title: "Løbsweekend {name}"
+    at: på
+    percent_complete: "{percent} % afsluttet"
+    manage_help: Dette er en løbsweekend. Et mesterskabs løbsweekender administrerer du på løbsweekendens side.
+    view: Vis løbsweekend
+    view_edit: Vis/redigér løbsweekend
+    manage: Administrér løbsweekend
+    delete_confirm: Slet dette event og løbsweekenden?
+    delete_detail: Hele eventet og dets løbsweekend fjernes permanent.
+  entrants:
+    title: "Deltagere: {name}"
+    registrations:
+      one: "{count} tilmelding"
+      other: "{count} tilmeldinger"
+    back: Tilbage til mesterskabet
+    email: Send e-mail til deltagere
+    email_all: Alle deltagere
+    email_accepted: Godkendte deltagere
+    email_rejected: Afviste deltagere
+    email_pending: Ventende deltagere
+    export_csv: Eksportér CSV
+    none: Ingen har tilmeldt sig endnu.
+    created_at: "{date}, {time}"
+    status:
+      accepted: Godkendt
+      rejected: Afvist
+      pending: Venter på godkendelse
+    view_answers: Vis svar
+    manage: Administrér deltager
+    accept: Godkend
+    reject: Afvis
+    change_team: Skift team
+    no_team: Intet team / fritekst
+    team_placeholder: Teamnavn som fritekst
+  signup:
+    heading: Tilmelding til {name}
+    intro_approval: Tilmeldinger tjekkes af arrangørerne, før du kommer med i startopstillingen.
+    intro: Udfyld dine oplysninger for at få en plads i startopstillingen.
+    about: Om mesterskabet
+    your_details: Dine oplysninger
+    no_team: Intet team
+    team_locked: Du er allerede tilmeldt, så dit team ligger fast. Spørg arrangørerne, hvis det skal ændres.
+    registered: tilmeldt
+    full: fuld
+    choose_team: Vælg et af dine teams, eller <a href="{url}">opret eller bliv medlem af et team</a> først.
+    team_limit: Et team kan tilmelde op til {count} kørere.
+    no_team_change: Du kan ikke skifte team efter tilmeldingen.
+    sign_in_for_teams: <a href="{url}">Log ind</a> for at tilmelde dig med et af dine teams.
+    team_placeholder: Det hurtige team
+    free_team_help: Uden dit eget team kan du i stedet skrive et teamnavn, men ikke navnet på et eksisterende team.
+    team_optional: Du kan lade teamnavnet stå tomt.
+    steam_guid: Steam GUID
+    email: E-mailadresse
+    your_car: Din bil
+    skin: Skin
+    car_preview: Forhåndsvisning af bil
+    extra: Ekstra oplysninger
+    extra_help: Mesterskabets arrangører beder også om følgende oplysninger.
+    submit: Tilmeld
+  view:
+    events:
+      one: "{count} event"
+      other: "{count} events"
+    classes:
+      one: "{count} klasse"
+      other: "{count} klasser"
+    entrants:
+      one: "{count} deltager"
+      other: "{count} deltagere"
+    percent_complete: "{percent} % afsluttet"
+    add_events: Tilføj events
+    more_add: Flere måder at tilføje events på
+    add_race_weekend: Tilføj en løbsweekend
+    manage: Administrér
+    manage_requests: Administrér tilmeldinger
+    simresults: Vis i Simresults
+    register_title: Tilmeld dig dette mesterskab
+    register_intro: Du kan tilmelde dig en plads i dette mesterskab!
+    register_approval: Når en admin har godkendt dig, kommer du med i startopstillingen!
+    register_steam: Tilmeld med Steam
+    or: eller
+    register_now: Tilmeld nu
+    pending_title:
+      one: Tilmelding venter på godkendelse!
+      other: Tilmeldinger venter på godkendelse!
+    pending_text:
+      one: Der er {count} tilmelding, der venter på godkendelse!
+      other: Der er {count} tilmeldinger, der venter på godkendelse!
+    driver_standings: Kørerstilling
+    team_standings: Teamstilling
+    overview: Oversigt
+    points_reference: Pointoversigt
+    worst_dropped:
+      one: "{count} dårligste resultat fratrukket."
+      other: "{count} dårligste resultater fratrukket."
+    points_penalty_badge: "Pointstraf: {points}"
+    dropped_points: "Point fra fratrukne resultater: {points}"
+    dropped_count: "{count} fratrukket"
+    penalty_details: Strafdetaljer
+    points_penalty: Pointstraf
+    set_penalty: Giv straf
+    remove_penalty: Fjern straf
+    driver_penalty_note: Strafpoint gælder kun for køreren, ikke for teamet. Teamstraffe kan du give under fanen »Teamstilling«.
+    team_penalty_note: Strafpoint gælder kun for teamet, ikke for køreren. Kørerstraffe kan du give under fanen »Kørerstilling«.
+    attendance: Deltagelse
+    pit_box: "Pitboks: {box}"
+    place: Placering
+    ref:
+      fastest_lap: Hurtigste løbsomgang
+      best_qualifying: Bedste kvalifikationsomgang
+      collision_car: Kollision med anden bil
+      collision_env: Kollision med omgivelser
+      second_race: Pointfaktor for andet løb
+    car_skin: Bilens skin
+    events_in:
+      one: "{count} event i dette mesterskab."
+      other: "{count} events i dette mesterskab."
+    filter_sort: Filtrér og sortér events
+    hide_show: Skjul/vis
+    not_completed: Ikke afsluttet
+    reverse_order: Vend rækkefølgen af events
+  form:
+    edit_title: Redigér mesterskabet {name}
+    new: Nyt
+    breadcrumb: Brødkrummesti
+    tab:
+      general: Generelt
+      participation: Deltagelse & adgang
+      entry_list: Entry List
+      scoring: Pointgivning
+      race_settings: Løbsindstillinger
+      info: Info & visning
+    save: Gem mesterskab
+    spectator_car: Tilskuerbil
+    spectator_unavailable: Ikke tilgængelig for åbne mesterskaber
+    spectator_help: En tilskuerbil sættes bagerst i Entry List ved hvert event og ignoreres i mesterskabets point.
+    enabled: Aktiveret
+    name: Mesterskabets navn
+    name_placeholder: Mit fede mesterskab
+    hidden: Skjult
+    hidden_help: Kun indloggede konti ser et skjult mesterskab; anonyme besøgende finder det ikke i lister, kalenderen, kalenderfeeds eller API'et og kan ikke åbne dets sider.
+    add_class: Tilføj endnu en klasse
+    mode:
+      title: Hvordan kommer kørere på Entry List?
+      fixed: Fast Entry List
+      fixed_help: Du udfylder selv kørerne (fanen »Entry List« eller Autofill pr. deltager).
+      open: Åben
+      open_help: Enhver kører, der joiner serveren, tager en ledig plads i en klasse. Pladserne kan ændres, når du redigerer mesterskabet (f.eks. for at tildele teams).
+      persist: Behold kørere, der har joinet
+      persist_help: "Til (standard): kørere, der joiner, tilføjes til Entry List. Fra: hvert event starter med en tom Entry List, hvilket passer til mange skiftende kørere. <strong>Resultaterne gemmes under alle omstændigheder</strong> i mesterskabet."
+      signup: Tilmeldingsformular
+      signup_help: Kørere tilmelder sig på hjemmesiden; du kan godkende dem.
+    signup:
+      approval: Kræv godkendelse
+      approval_help: En bruger med admin- eller skriverettigheder godkender eller afviser hver ansøgning på en separat side.
+      email: Spørg efter e-mail
+      email_help: Så kan du kontakte kørerne med detaljer om events.
+      team: Spørg efter team
+      team_help: Kørere kan angive deres team.
+      team_mode: Hvordan vælger brugere deres team
+      team_mode_text: De skriver et teamnavn
+      team_mode_select: De vælger et af de teams, de er medlem af
+      team_mode_both: "Begge dele: vælg et team eller skriv et navn, der ikke er et team"
+      teams_page: Teams oprettes på siden <a href="{url}">Teams</a>.
+      drivers_per_team: Kørere pr. team
+      drivers_per_team_placeholder: 2 (standard)
+      unlimited: Ubegrænset
+      drivers_per_team_help: Antal kørere, ét team kan tilmelde. Kun en bruger med admin- eller skriverettigheder kan ændre et team efter tilmeldingen.
+      car_choice: Lad kørerne vælge bil og skin
+      questions: Ekstra spørgsmål
+      question_placeholder: f.eks. Hvad er dit Discord-brugernavn?
+      add_question: Tilføj endnu et spørgsmål
+      recaptcha_on: "reCAPTCHA er sat op: kørere løser en CAPTCHA, før deres tilmelding sendes."
+      recaptcha_off: "reCAPTCHA er ikke sat op: kørere bliver ikke bedt om en CAPTCHA. Du kan aktivere det i din config.yml."
+    access: Adgang
+    override_password: Erstat serveradgangskode
+    override_password_help: Serverens adgangskode ignoreres for alle events i dette mesterskab.
+    replacement_password: Erstatningsadgangskode
+    replacement_password_help: Lad feltet stå tomt for ingen adgangskode.
+    dropped_results: Fratrukne resultater
+    drop_worst: Fratræk dårligste resultater
+    drop_worst_help: Antal dårligste eventresultater, der fratrækkes hver kørers (og hvert teams) samlede point; 0 fratrækker intet. Kun afsluttede events tæller, et misset event tæller som 0 point (fratrækkes først), mindst ét resultat tæller altid, og pointstraffe fratrækkes aldrig.
+    race_settings: Mesterskabets løbsindstillinger
+    use_race_settings: Brug mesterskabets løbsindstillinger
+    race_settings_help: Brændstof, skade, dækslid, kørehjælp og dynamisk bane indstilles én gang for alle events, der bruger mesterskabets løbsindstillinger (standard for nye events); ændrer du dem her, ændres alle disse events. Events kan fravælge det i deres egen konfiguration. Bane, biler, sessioner og vejr indstilles stadig pr. event.
+    race_settings_prefilled: Værdierne nedenfor er udfyldt fra dit seneste event.
+    race_values: Løbsværdier
+    rs:
+      assists: Kørehjælp
+      abs: ABS tilladt
+      "off": Fra
+      factory: Fabriksindstilling
+      "on": Til
+      tc: Traction control tilladt
+      stability: Stabilitetskontrol tilladt
+      auto_clutch: Automatisk kobling tilladt
+      tyre_blankets: Dækvarmere tilladt
+      tyre_blankets_help: Ved starten af sessionen eller efter et pitstop har dækkene den optimale temperatur.
+      realism: Realisme
+      virtual_mirror: Gennemtving virtuelt spejl
+      virtual_mirror_help: Tvinger klienter til at bruge virtuelle spejle (virker ikke i VR)
+      fuel_rate: Brændstofforbrug
+      fuel_rate_help: "Faktor for brændstofforbrug i procent: 0 = intet forbrug, 100 = realistisk, højere værdier øger forbruget"
+      damage: Skadesfaktor
+      damage_help: Skade fra 0 (ingen skade) til 100 (fuld skade)
+      tyre_wear: Dækslid
+      tyre_wear_help: "Faktor for dækslid i procent: 0 = intet slid, 100 = realistisk, højere værdier øger sliddet"
+      tyres_out: Tilladte dæk uden for banen
+      tyres_out_help: Antal dæk, der må være uden for track limits, før der gives en straf. -1 slår det fra.
+      dynamic_track: Dynamisk bane
+      session_start: Sessionsstart
+      session_start_help: "Gribeevne i % ved sessionens start"
+      randomness: Tilfældighed
+      randomness_help: Grad af tilfældighed, der lægges til startgrebet
+      session_transfer: Overførsel mellem sessioner
+      session_transfer_help: Hvor meget af det opbyggede greb der overføres til næste session; 100 -> alt det opbyggede greb.
+      lap_gain: Omgange pr. greb
+      lap_gain_help: Hvor mange omgange der skal til for at opbygge 1 % greb
+    info: Vigtig information
+    info_help: Vises øverst på mesterskabets side og på tilmeldingssiderne (hvis aktiveret).
+    display: Visning
+    og_image: Open Graph-billede
+    og_image_placeholder: Vilkårlig billed-URL
+    og_image_help: URL til et billede, der vises i links til dette mesterskab.
+    default_tab: Standardfane
+    default_tab_help: Den fane, der vises, når mesterskabets side åbnes.
+    save_add_weekend: Gem & tilføj løbsweekend
+    save_add_event: Gem & tilføj første event
+  nth_place: "{position} plads"

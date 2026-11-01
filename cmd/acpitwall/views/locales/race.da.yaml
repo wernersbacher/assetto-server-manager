@@ -1,0 +1,345 @@
+# Egne løb, hurtigt løb og partials til løbsbyggeren (biler, deltager, ...), bruges også af mesterskaber og løbsweekender.
+race:
+  track_and_cars: Bane & biler
+  track_layout: Banelayout
+  stock: Standard
+  time: Tid
+  laps: Omgange
+  session_length_minutes: Sessionens længde i minutter
+  laps_in_race: Antal omgange i løbet
+  start_race: Start løb
+  entry_list: Entry List
+  realism: Realisme
+  assists: Kørehjælp
+  rules: Regler
+  dynamic_track: Dynamisk bane
+  session:
+    qualifying: Kvalifikation
+    race: Løb
+  openness:
+    o0: Ingen join
+    o1: Fri join
+    o2: Fri join indtil 20 sekunder før grønt lys
+  factory_assist:
+    a0: Fra
+    a1: Fabriksindstilling
+    a2: Til
+  start_rule:
+    r0: Bilen er låst indtil start
+    r1: Teleport
+    r2: Drive Through
+  quick:
+    intro: Sæt et hurtigt løb op med fornuftige standardværdier, og start serveren.
+    cars_help: Bilmodeller, der er tilladt på serveren. De valgte biler fordeles jævnt på banens ledige pitbokse, når Entry List oprettes. Skins vælges tilfældigt.
+    no_practice: Træning er slået fra i hurtige løb. Måske vil du hellere lave et <a href="{url}">eget løb</a>?
+  cars:
+    search_placeholder: Søg efter biler
+    search: Søg
+    search_help: Hjælp til søgning
+  entrant:
+    grid_pit_id: Grid-/pit-ID
+    entrant: Deltager
+    autofill: Autofill
+    overwrite_all_events: Anvend bil, skin, ballast, restrictor og setup på alle events i dette mesterskab
+    transfer_team_points: Flyt kørerens point til det nye team
+    name: Navn
+    team: Team
+    ballast: Ballast
+    restrictor: Restrictor
+    fixed_setup: Fast setup
+    no_fixed_setup: Intet fast setup
+    car_skin: Bilens skin
+  list:
+    scheduled: Planlagt
+    on_server: på
+    another_server: en anden server
+    scheduled_for: den {date}
+    starred: Markeret
+    not_starred: Ikke markeret
+    looping: I loop
+    not_looping: Ikke i loop
+    start: Start
+    details: Løbsdetaljer
+    more: Mere
+    use_as_template: Brug som skabelon
+    delete_confirm: Slet løbs-setup {name}?
+    delete_detail: Løbs-setuppet fjernes permanent.
+    delete_label: Slet løbs-setup
+    create: Opret et nyt eget løb
+    create_short: Opret et eget løb
+    intro: Egne løb er events, du kan konfigurere fuldt ud. Når du har oprettet et eget løb, kan du markere det eller tilføje det til det automatiske løbsloop. Du kan bruge et eget løb som skabelon for et nyt løb (så laves en kopi) eller redigere det direkte. Med knappen »Start« kører et eget løb straks på serveren.
+    tab_recent: Seneste
+    tab_starred: Markerede
+    tab_scheduled: Planlagte
+    tab_loop: Auto-loop
+    empty_recent: Ingen egne løb endnu.
+    empty_starred_hint: Ingen markerede egne løb endnu. Markér dem under fanen »Seneste«.
+    empty_starred: Ingen markerede egne løb endnu.
+    empty_scheduled: Ingen planlagte egne løb.
+    loop_help: Disse egne løb kører i loop på serveren, mens den ikke er i brug! Løb i auto-loopet virker kun, hvis de må starte automatisk, så start dem ikke manuelt, hvis de skal køre i loop!
+    empty_loop_hint: Auto-loopet er tomt. Tilføj et eget løb med afspilningsikonet; løb i loopet kører, mens serveren ikke er i brug.
+    empty_loop: Ingen egne løb i loop endnu.
+  schedule:
+    title: Planlæg event
+    date_help: Indtast dato og klokkeslæt for at tilføje et planlagt event.
+    timezone_help: Dato og klokkeslæt er i din tidszone
+    recurrence: Gentagelsesregel
+    recurrence_help: Brug <a target="_blank" href="{url}">RRule Generator</a> til at lave en gentagelsesregel. Lad feltet stå tomt, hvis du ikke har brug for den. Gælder kun sammen med et planlagt tidspunkt.
+    submit: Planlæg
+    remove: Fjern planlagt event
+  details:
+    title: "{name}: detaljer"
+    pitboxes: "{count} pitbokse"
+    available_tyres: "Tilgængelige dæk:"
+    first: "1."
+    minutes:
+      one: "{count} minut"
+      other: "{count} minutter"
+    laps:
+      one: "{count} omgang"
+      other: "{count} omgange"
+    seconds:
+      one: "{count} sekund"
+      other: "{count} sekunder"
+    plus_one_lap: + 1 omgang
+    wait_time: "Ventetid:"
+    pit_window_minutes: "Pitvindue: {start} minutter - {end} minutter"
+    pit_window_laps: "Pitvindue: omgang {start} - omgang {end}"
+    gas_penalty: "Gasstraf ved skæring:"
+    second_race: 2. løb
+    second_race_identical: Samme setup som løb 1 ovenfor.
+    reverse_all: Hele resultatet af 1. løb vendes om for at danne startopstillingen.
+    reverse_top: De første {count} placeringer fra 1. løb vendes om for at danne startopstillingen.
+    loops: Serveren starter forfra efter sidste session.
+    entrants:
+      one: "{count} deltager"
+      other: "{count} deltagere"
+    locked_entry_list: "Låst Entry List:"
+    pickup_mode: "Pickup-tilstand:"
+    driver_swaps: "Kørerskift:"
+    swap_min_time: "Minimal tid for kørerskift:"
+    swap_min_count: "Mindste antal krævede kørerskift:"
+    sol_enabled: Sol er aktiveret.
+    sun_angle: "Solvinkel:"
+    time_of_day: Tidspunkt på dagen
+    time_multiplier: "Faktor for tidspunkt:"
+    weather_random: "Hver session vælger tilfældigt en af følgende muligheder:"
+    date: "Dato:"
+    multiplier: "Faktor:"
+    ambient: "Luft: {temp}°C (variation {variation})"
+    road: "Bane: {temp}°C (variation {variation})"
+    wind: "Vind: {min}-{max} km/t fra {direction}° (±{variation}°)"
+    fuel_rate: "Brændstofforbrug:"
+    damage: "Skadesfaktor:"
+    tyre_wear: "Dækslid:"
+    virtual_mirror: "Gennemtvunget virtuelt spejl:"
+    abs: "ABS:"
+    tc: "Traction control:"
+    stability: "Stabilitetskontrol:"
+    auto_clutch: "Automatisk kobling:"
+    tyre_blankets: "Dækvarmere:"
+    max_ballast: "Maks. ballast:"
+    tyres_out: "Tilladte dæk uden for banen:"
+    max_contacts: "Maks. kontakter pr. kilometer:"
+    start_rule: "Startregel:"
+    result_screen: "Visningstid for resultater:"
+    drs_disabled: "DRS-zoner slået fra:"
+    grip_start: "{grip} % greb ved sessionens start."
+    grip_start_random: "{grip} % greb (tilfældighed {randomness}) ved sessionens start."
+    lap_gain: "{laps} omgange giver 1 % greb."
+    session_transfer: "Overførsel af greb mellem sessioner: {transfer}."
+  champ_settings:
+    title: Mesterskabets løbsindstillinger
+    use: Brug mesterskabets løbsindstillinger
+    help: Når det er aktiveret, hentes brændstofforbrug, skade, dækslid, tilladte dæk uden for banen, kørehjælp, virtuelt spejl og dynamisk bane for dette event fra mesterskabet (redigér mesterskabet for at ændre dem). Værdierne, der er sat for dette event nedenfor, bevares, men ignoreres, så længe dette er aktiveret.
+    note: Indstillingerne nedenfor, der er markeret med »sat af mesterskabet«, hentes fra mesterskabet.
+    badge: sat af mesterskabet
+  champ_save:
+    title: Gem mesterskabsløb
+    identical: Setuppet under dette panel er identisk med det løbs-setup, du lige har konfigureret. Er du tilfreds med de indstillinger, kan du gå videre og oprette endnu et løb. Hvis ikke, så rul ned og tilpas konfigurationen af dette løb.
+    added: Når dette løb gemmes, tilføjes det til mesterskabet <strong>{name}</strong>. Du kan tilføje flere løb nedenfor eller, hvis du er færdig, afslutte opsætningen af mesterskabet her.
+    add_another: Tilføj endnu et løb
+    add_another_help: Gem dette setup, og konfigurér derefter et nyt
+    finish: Færdiggør mesterskabet
+    finish_help: Gem dette løbs-setup, og færdiggør mesterskabet
+  form:
+    championship_event: Mesterskabsevent
+    race_weekend_session: Session i løbsweekend
+    custom_race: Eget løb
+    breadcrumb: Brødkrummesti
+    new: Nyt
+    intro_championship: Konfigurér et event for mesterskabet <strong>{name}</strong>.
+    intro_race_weekend: Konfigurér en session for løbsweekenden <strong>{name}</strong>.
+    intro: Bane, biler, sessioner, Entry List og regler for dette løb.
+    fix_fields: "Ret disse felter, før du gemmer:"
+    save_championship_event: Gem mesterskabsevent
+    save_race_weekend_session: Gem session i løbsweekend
+    save_race: Gem løb
+    pit_boxes: Pitbokse
+    too_few_pitboxes_championship: Denne bane har færre pitbokse end det konfigurerede antal deltagere i det aktuelle mesterskab og kan derfor ikke bruges.
+    too_few_pitboxes_race: Denne bane har færre pitbokse end det konfigurerede antal deltagere i det aktuelle løb og kan derfor ikke bruges.
+    time_attack_help: Time attack-events kører en træning i loop og samler alle resultatfiler. Loop-tilstand tvinges til, og alle sessioner undtagen træning slås fra.
+    time_attack_locked: Vi anbefaler kraftigt en låst Entry List for at få time attack-events til at køre stabilt.
+    session_type: Sessionstype
+    enabled: Aktiveret
+    booking_help: Med booking-tilstand slået til kan du ikke konfigurere en bestemt Entry List. Serveren starter med pickup-tilstand slået fra, og deltagerne vælger bil og livery i booking-sessionen.
+    is_open: Åben
+    is_open_help: Tillad at joine under en session. Den første session i et event bør ikke stå på »Ingen join«, men senere sessioner kan, så kun kørere fra den forrige session kan forbinde.
+    wait_time: Ventetid
+    wait_time_help: Sekunder før sessionens start
+    pit_window_start: Start på pitvindue
+    pit_window_start_help: Pitvinduet åbner ved den angivne omgang/det angivne minut
+    pit_window_end: Slut på pitvindue
+    pit_window_end_help: Pitvinduet lukker ved den angivne omgang/det angivne minut
+    race_over_time: Tid efter løbets afslutning
+    race_over_time_help: Resterende tid i sekunder til at fuldføre løbet, fra den første kører passerer målstregen
+    gas_penalty: Gasstraf ved skæring
+    gas_penalty_off: "FRA: der gives ingen straf, men skæringer gemmes i resultatets JSON."
+    gas_penalty_on: "TIL: enhver skæring straffes med beskeden om at slippe gassen."
+    reversed_grid: Omvendt startopstilling
+    reversed_grid_tooltip: Løbssessionen genstartes med omvendt startopstilling ud fra stillingen i det forrige løb. Kørere, der blev diskvalificeret i første løb, starter bagerst i andet løb, også selvom deres position ligger inden for det omvendte område.
+    reversed_grid_0: 0 = intet ekstra løb
+    reversed_grid_minus1: -1 = alle positioner vendes om (udgåede kørere står på de sidste pladser)
+    reversed_grid_1: 1 = der køres et 2. løb med en startopstilling ud fra resultaterne af 1. løb
+    reversed_grid_x: X = de første X positioner vendes om til 2. løb
+    extra_lap: Ekstra omgang
+    extra_lap_help: Er løbet på tid, køres en ekstra omgang, efter at føreren har krydset stregen
+    qualify_max_wait: Maks. ventetid i kvalifikation (procent)
+    qualify_max_wait_help: "Faktor til at beregne den resterende tid i en kvalifikationssession, efter at sessionen er slut: 120 betyder, at 120 % af sessionens hurtigste omgang er tilbage til at gøre den aktuelle omgang færdig."
+    max_clients: Maks. klienter
+    max_clients_help: Maksimalt antal klienter på serveren.
+    pickup_mode: Pickup-tilstand
+    pickup_mode_help: "Står den på FRA, starter serveren i booking-tilstand. Advarsel: i pickup-tilstand skal Entry List indeholde mindst én bil. Bemærk: når pickup-tilstand er FRA, skal spillerne forbinde igen i sessioner med loop-tilstand TIL eller omvendt startopstilling, når serveren starter forfra eller går videre til et andet løb."
+    locked_entry_list: Låst Entry List
+    locked_entry_list_help: Kun spillere, der allerede står på Entry List, kan joine serveren.
+    locked_reverse_warning: Serveren går ned, hvis et andet løb er aktivt (omvendt startopstilling != 0), Entry List er låst og pickup-tilstand er slået fra. Vil du låse Entry List for dette event, skal du også slå pickup-tilstand til!
+    driver_swaps: Kørerskift
+    driver_swaps_help: Med ACPitwalls kørerskift kan flere kørere dele én deltager og skifte med hinanden. Angiv flere GUID'er adskilt af ; ved en deltager for at gøre det muligt.
+    driver_swaps_note: "Bemærk: kørerskift giver kun gyldige resultatfiler, hvis banens tidtagningslinje ligger før eller efter alle pitbokse."
+    swap_min_time: Minimal tid for kørerskift (sekunder)
+    swap_min_time_help: Mindste varighed af et kørerskift, så brugere med hurtigere computere ikke får en fordel. Kører den anden kører af sted før denne tid, bliver vedkommende diskvalificeret eller straffet afhængigt af konfigurationen.
+    swap_dq_window: Diskvalifikationsvindue for kørerskift (sekunder)
+    swap_dq_window_help: Køreren kickes fra løbet og diskvalificeres, hvis vedkommende kører af sted så mange sekunder eller mere før minimumstiden under et kørerskift.
+    swap_penalty_window: Strafvindue for kørerskift (sekunder)
+    swap_penalty_window_help: Kører en kører af sted så mange sekunder eller mere før minimumstiden under et kørerskift, får vedkommende en straf svarende til de resterende sekunder af nedtællingen plus 5 sekunder.
+    swap_min_count: Mindste antal kørerskift
+    swap_min_count_help: Det antal skift, en kører skal gennemføre. Gennemføres det krævede antal stop ikke, gives der straf (se nedenfor).
+    swap_not_enough_penalty: Straf for for få kørerskift (sekunder)
+    swap_not_enough_penalty_help: Straffen i sekunder, en kører får for hvert manglende kørerskift under minimum. Står den på 0, diskvalificeres køreren.
+    clone_entrant_help: Bil, skin, ballast, restrictor og fast setup fra den sidste deltager kopieres til nye deltagere.
+    add_entrants: Tilføj deltager(e)
+    booking_enabled: Booking-tilstand er slået til. Du kan ikke konfigurere bestemte kørere i Entry List. Pickup-tilstand slås fra.
+    abs_allowed: ABS tilladt
+    tc_allowed: Traction control tilladt
+    stability_allowed: Stabilitetskontrol tilladt
+    auto_clutch_allowed: Automatisk kobling tilladt
+    tyre_blankets_allowed: Dækvarmere tilladt
+    tyre_blankets_help: Ved starten af sessionen eller efter et pitstop har dækkene den optimale temperatur.
+    sol: Sol-integration
+    sol_help: Giver mulighed for døgncyklusser på 24 timer. Serveren håndterer tid anderledes, når det er aktiveret. Klienterne skal også have Sol og Content Manager
+    sol_missing: Sol er ikke installeret. <a href="{url}">Upload dine Sol-vejrtyper</a>, hvis du vil bruge Sol.
+    time_of_day: Tidspunkt på dagen
+    time_of_day_help: Bruges til at beregne solvinklen (nedenfor)
+    sun_angle: Solvinkel
+    sun_angle_help: Vinklen på solens position
+    time_multiplier: Faktor for tidspunkt
+    time_multiplier_help: Faktor for tidspunktet på dagen
+    weather_random: Hver ny session <strong>vælger tilfældigt</strong> sin vejrkonfiguration blandt følgende muligheder.
+    weather_delete: Slet dette vejr
+    sol_start: Sessionens startdato/-tid
+    sol_multiplier: Faktor for tidsforløb
+    sol_multiplier_help: F.eks. går der ved 60x 24 timer i spillet på 24 minutter i virkeligheden
+    graphics: Grafik
+    weather_context: Mesterskabets vejrkontekst
+    weather_any: Alle sessioner
+    weather_practice: Kun mesterskabstræning
+    weather_event: Kun mesterskabsevent
+    weather_context_help: Vælg, om vejret kun bruges til mesterskabets træninger (startet fra mesterskabets oversigtsside), kun til de egentlige mesterskabsevents eller til alle sessioner
+    temp_ambient: Grundtemperatur luft
+    temp_road: Grundtemperatur bane
+    temp_road_help: Denne værdi lægges til den endelige lufttemperatur. Værdien må være negativ.
+    variation_ambient: Variation luft
+    variation_ambient_help: Variation af lufttemperaturen. I dette eksempel kan den endelige lufttemperatur være 16 eller 20
+    variation_road: Variation bane
+    variation_road_help: Variation af banetemperaturen, ligesom for luften
+    wind_min: Min. vindhastighed
+    wind_min_help: Mindste mulige hastighed i sessionen
+    wind_max: Maks. vindhastighed
+    wind_max_help: Højeste mulige hastighed i sessionen (maks. 40)
+    wind_direction: Grundretning for vind
+    wind_direction_help: Vindens grundretning (den retning, vinden peger mod); 0 = nord, 90 = øst osv.
+    wind_variation: Variation vindretning
+    wind_variation_help: Variation (+ eller -) af grundretningen
+    add_weather: Tilføj vejr
+    legal_tyres: Tilladte dæk
+    fuel_rate: Brændstofforbrug
+    fuel_rate_help: "Faktor for brændstofforbrug i procent: 0 = intet forbrug, 100 = realistisk, højere værdier øger forbruget"
+    damage: Skadesfaktor
+    damage_help: Skade fra 0 (ingen skade) til 100 (fuld skade)
+    tyre_wear: Dækslid
+    tyre_wear_help: "Faktor for dækslid i procent: 0 = intet slid, 100 = realistisk, højere værdier øger sliddet"
+    virtual_mirror: Gennemtving virtuelt spejl
+    virtual_mirror_help: Tvinger klienter til at bruge virtuelle spejle (virker ikke i VR)
+    surface_preset: Overfladepreset
+    surface_preset_help: Presets for dynamisk bane
+    grip_start: Sessionsstart
+    grip_start_help: "Gribeevne i % ved sessionens start"
+    randomness: Tilfældighed
+    randomness_help: Grad af tilfældighed, der lægges til startgrebet
+    session_transfer: Overførsel mellem sessioner
+    session_transfer_help: "Hvor meget af det opbyggede greb der overføres til næste session, 100 -> alt det opbyggede greb. Eksempel: forskel mellem start- (90) og slutgreb (96) i sessionen = 6 %, med session_transfer = 50 starter næste session med 93."
+    lap_gain: Omgange pr. greb
+    lap_gain_help: Hvor mange omgange der skal til for at opbygge 1 % greb
+    max_ballast: Maks. ballast (kg)
+    max_ballast_help: Den maksimale samlede ballast, en deltager kan få via Entry List eller admin-kommandoen
+    tyres_out: Tilladte dæk uden for banen
+    tyres_out_help: Antal dæk, der må være uden for track limits, før der gives en straf. -1 slår det fra.
+    max_contacts: Maks. kontakter pr. kilometer
+    max_contacts_help: Maksimalt antal gange, du må have kontakt med en anden bil inden for 1 kilometer. -1 = ingen grænse. (Vi har haft blandede resultater med dette i vores tests. Brug med forsigtighed.)
+    start_rule: Startregel
+    start_rule_help: Har løbet 3 omgange eller færre, gælder teleport-straffen.
+    loop_mode: Loop-tilstand
+    loop_mode_help: Serveren starter forfra fra det første event, når det forrige event er slut
+    result_screen: Visningstid for resultater
+    result_screen_help: Sekunder, resultatskærmen vises mellem løbssessionerne
+    disable_drs: Slå DRS-zoner fra
+    disable_drs_help: Når den står på TIL, erstattes banens drs_zones.ini midlertidigt af en fil, der slår DRS fra på hele banen. Nyttigt til baner uden klart definerede zoner, eller hvis du vil køre uden DRS!
+    disable_drs_note: "Bemærk: dette ændrer rigtige banefiler. Bruger flere servere den samme content-mappe, kan det give problemer, hvis der køres løb på den samme bane samtidig."
+    server_options: Serverindstillinger
+    override_password: Erstat serveradgangskode
+    override_password_help: Når det er aktiveret, erstattes serverens adgangskode for dette event.
+    replacement_password: Erstatningsadgangskode
+    replacement_password_help: Står feltet tomt, har serveren ingen adgangskode.
+    force_stop_time: Tvunget stop efter
+    force_stop_time_help: "Maksimalt antal minutter, dette event kører (på tværs af alle sessioner), før serveren stoppes med tvang. Så virker auto-loopets banerotation, selv når der ikke er kørere på serveren. 0 slår det fra. ADVARSEL: ved et tvunget stop skrives der ingen resultatfiler!"
+    force_stop_drivers: Tvunget stop også med kørere
+    force_stop_drivers_help: Når det er aktiveret, stoppes serveren efter tiden for tvunget stop, selvom der stadig er kørere på serveren.
+  champ_event:
+    overwrite: Dette redigerede setup overskriver det {position} event i mesterskabet <strong>{name}</strong>.
+    added: Når dette event gemmes, tilføjes det til mesterskabet <strong>{name}</strong>. Du kan tilføje flere events nedenfor eller, hvis du er færdig, afslutte opsætningen af mesterskabet her.
+    add_another: Tilføj endnu et event
+    finish_help: Gem dette event-setup, og færdiggør mesterskabet
+    save: Gem event
+  rw:
+    parent_sessions: Forrige session(er)
+    entry_list: Løbsweekendens Entry List
+    parent_sessions_help: Den forrige session angiver, hvilken session Entry List for denne session bygges ud fra. Resultatet af den forrige session (plus eventuelle filtre) danner startopstillingen for denne session. Vælges »Ingen forrige session«, ignoreres alle andre valg.
+    session_points: Sessionspoint
+    session_points_help: Hver session i løbsweekenden og hver mesterskabsklasse har sin egen pointtavle. Træning og kvalifikation giver som standard 0 point, men kan give point, hvis du vil.
+    overwrite: Dette redigerede setup overskriver den {position} session i løbsweekenden <strong>{name}</strong>.
+    added: Når denne session gemmes, tilføjes den til løbsweekenden <strong>{name}</strong>. Du kan tilføje flere sessioner nedenfor eller, hvis du er færdig, afslutte opsætningen af løbsweekenden her.
+    add_another: Tilføj endnu en session
+    finish: Færdiggør løbsweekenden
+    finish_help: Gem dette sessions-setup, og færdiggør løbsweekenden
+    save: Gem session
+  save:
+    title: Gem eget løb
+    name: Navn på eget løb
+    name_placeholder: Noget, du kan genkende dette løb på
+    name_help: Navnet ovenfor bruges på siden »Egne løb«.
+    scheduled: Planlagt løb
+    scheduled_help: Er begge felter udfyldt, starter løbet på det planlagte tidspunkt.
+    scheduled_server: Planlagt på server
+    scheduled_server_help: Den server, der kører løbet, når der er sat et starttidspunkt ovenfor.
+    save_help: Gem dette setup uden at starte løbet
+    start_help: Gem dette setup, og start løbet

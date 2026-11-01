@@ -1,0 +1,176 @@
+# Content pages: cars, tracks, weather, the upload panel and the search help.
+content:
+  default: Standard
+  notes: Noter
+  lap_time: Omgangstid
+  download_url: Download-URL
+  download_url_placeholder: f.eks. http://racedepartment.com/...
+  danger_zone: Farezone!
+
+  cars:
+    intro: Biler, der er installeret på serveren.
+    upload: Upload biler
+    search_placeholder: Søg efter biler
+
+  car:
+    skin_alt: "{car}, skin {skin}"
+    download_skin: Download skin
+    delete_tag: Slet dette tag
+    add_tag: Tilføj et nyt tag
+    add_tag_submit: Tilføj
+    description: Beskrivelse
+    no_description: Der er ingen beskrivelse af denne bil.
+    setups: Setups
+    setup_file: Setup-fil
+    delete_setup_confirm: Slet setuppet {name}?
+    delete_setup_detail: Setup-filen bliver slettet permanent.
+    delete_setup: Slet setup
+    upload_setups_help: Med formularen nedenfor kan du uploade setups til denne bil.
+    no_setups: Der er ingen setups til denne bil.
+    upload_one_below: Du kan uploade et nedenfor.
+    generic: Generelt
+    choose_setup: Vælg setup
+    upload_setup: Upload setup
+    best_laps: Bedste omgange
+    no_best_laps: Ingen bedste omgange endnu. Gyldige omgange med denne bil vises her.
+    used_in_sessions:
+      one: Denne bil er brugt i {count} session.
+      other: Denne bil er brugt i {count} sessioner.
+    download_car: Download bil
+    tyres: Dæk
+    specs: Specifikationer
+    spec:
+      acceleration: "Acceleration:"
+      bhp: "Hestekræfter:"
+      power_ratio: "Effekt/vægt:"
+      top_speed: "Topfart:"
+      torque: "Moment:"
+      weight: "Vægt:"
+    about: Om
+    info:
+      author: "Forfatter:"
+      brand: "Mærke:"
+      class: "Klasse:"
+      country: "Land:"
+      year: "År:"
+      version: "Version:"
+    skins: Skins
+    skin_upload: Upload skin
+    choose_skin: Vælg et skin
+    skin_upload_help: Vælg skin-mappen. Højst {files} filer og {mb} MB pr. skin.
+    skin_quota: Du bruger {used} af {quota} MB.
+    who_can_use: Hvem der må bruge det
+    visibility:
+      only_me: Kun mig
+      my_team: Mit team
+      everybody_global: Alle (globalt)
+      everybody: Alle
+      team: Team
+      only_owner: Kun ejer
+    team_for_skin: Team til et team-skin
+    upload: Upload
+    skin_upload_disabled: Upload af skins er ikke slået til for din konto.
+    user_skins_help: Skins uploadet af konti. Private skins og team-skins vises kun for dig og dit team.
+    skin: Skin
+    owner: Ejer
+    visible_for: Synligt for
+    size: Størrelse
+    unknown_owner: ukendt
+    skin_files:
+      one: "{count} fil, {size}"
+      other: "{count} filer, {size}"
+    delete_skin_confirm: Slet skinnet {name}?
+    delete_user_skin_detail: Skinnet og dets filer bliver slettet permanent.
+    delete_skin_label: Slet skin
+    metadata: Bilens metadata
+    download_url_help: Download-links til biler vises på serverinformationsskærmen i Content Manager.
+    notes_help: Noter vises for alle brugere, når de besøger denne bils side.
+    save_metadata: Gem metadata
+    skin_folders: Skin-mapper
+    skin_folders_help: Skins til denne bil i dens skins-mappe. Uploads findes i skin-afsnittet ovenfor.
+    delete_selected_skin_confirm: Slet det valgte skin?
+    delete_skin_folder_detail: Skin-mappen bliver fjernet permanent fra denne bil.
+    delete_skin: Slet skin
+    delete_help: Slet denne bil og alle tilhørende skins permanent.
+    delete_confirm: Slet bilen {name}?
+    delete_detail: Bilen og alle tilhørende skins bliver fjernet permanent fra serveren.
+    delete_detail_folder: Bilen og alle tilhørende skins bliver fjernet permanent fra serveren ({folder}).
+    delete_label: Slet bil
+    delete_aria: Slet bilen {name}
+    delete_car: Slet bil
+
+  tracks:
+    intro: Baner og layouts, der er installeret på serveren.
+    upload: Upload baner
+
+  track:
+    download: Download
+    layouts: Layouts
+    records_server: Server for omgangsrekorder
+    records_any_server: Omgangsrekorder fra alle servere
+    layout_alt: "{track}, layout {layout}"
+    layout_title: "Layout {layout}"
+    geotags: "Geotags:"
+    tags: "Tags:"
+    lap_records: Omgangsrekorder
+    full_leaderboard: Fuld rangliste
+    sectors: Sektorer
+    no_lap_records: Ingen omgangsrekorder endnu. Gyldige omgange fra resultater vises her.
+    used_in_sessions:
+      one: Dette layout er brugt i {count} session.
+      other: Dette layout er brugt i {count} sessioner.
+    metadata: Banens metadata
+    download_url_help: Download-links til baner vises på serverinformationsskærmen i Content Manager.
+    notes_help: Noter vises for alle brugere, når de besøger denne banes side.
+    save_metadata: Gem metadata
+    delete_help: Slet denne bane og alle tilhørende layouts permanent.
+    delete_confirm: Slet banen {name}?
+    delete_detail: Banen og alle tilhørende layouts bliver fjernet permanent fra serveren.
+    delete_detail_folder: Banen og alle tilhørende layouts bliver fjernet permanent fra serveren ({folder}).
+    delete_label: Slet bane
+    delete_aria: Slet banen {name}
+    delete_track: Slet bane
+
+  weather:
+    intro: Vejr-presets, der er installeret på serveren.
+    upload: Upload vejr
+    key: Vejrnøgle
+    name: Vejrnavn
+    delete_confirm: Slet vejr-presettet {name}?
+    delete_detail: Vejr-presettet bliver fjernet permanent fra serveren.
+    delete_label: Slet vejr-preset
+
+  upload:
+    choose_folder: Vælg en mappe
+    only_ks: Upload kun officielt KS-indhold
+    car:
+      tags_placeholder: Tilføj tags til alle uploadede biler (f.eks. GT3, Enduro)
+      drop_title: Træk bilmappe(r) hertil
+      drop_hint: En enkelt bilmappe, flere bilmapper eller en "cars"-mappe med flere biler.
+      help: Kun de filer, serveren har brug for, bliver uploadet. Tjek forhåndsvisningen nedenfor, når du har valgt en mappe, og tryk på upload-knappen. Hvis upload af mange biler på én gang mislykkes, så upload dem i mindre portioner.
+    track:
+      drop_title: Træk banemappe(r) hertil
+      drop_hint: En enkelt banemappe, flere banemapper eller en "tracks"-mappe med flere baner.
+      help: Kun de filer, serveren har brug for, bliver uploadet. Tjek forhåndsvisningen nedenfor, når du har valgt en mappe, og tryk på upload-knappen. Hvis upload af mange baner på én gang mislykkes, så upload dem i mindre portioner.
+    weather:
+      drop_title: Træk vejrmappe(r) hertil
+      drop_hint: En enkelt vejrmappe, flere vejrmapper eller en "weather"-mappe med flere vejr-presets.
+      help: Kun de filer, serveren har brug for, bliver uploadet. Tjek forhåndsvisningen nedenfor, når du har valgt en mappe, og tryk på upload-knappen. Hvis upload af mange vejr-presets på én gang mislykkes, så upload dem i mindre portioner.
+
+  search:
+    submit: Søg
+    showing: Viser resultat {from}-{to} af {total}
+    took: Søgningen tog {duration}
+    no_results: Din søgning gav ingen resultater. Prøv en anden søgning.
+    help: Søgehjælp
+    help_intro: Du kan bruge søgningen ligesom Google eller ethvert andet søgefelt.
+    help_basic: "<strong>Simpel søgning</strong> - hvis du for eksempel vil finde biler, der har med Ferrari at gøre, kan du skrive: <code>ferrari</code>"
+    help_boolean: "<strong>Boolesk søgning</strong> - hvis du vil finde Ferrari-biler, der ikke er veteranbiler, kan du bruge: <code>+ferrari -vintage</code>."
+    help_fields: "<strong>Søgning i bestemte felter</strong> - alle bilens oplysninger kan gennemsøges. Hvis du for eksempel vil finde biler med et bestemt tag - lad os sige \"italy\" - kan du bruge: <code>tags:\"italy\"</code>"
+    help_fields_list: "Den komplette liste over bilens felter:"
+    help_numeric: "<strong>Søgning på talværdier</strong> - du kan søge på talværdier, for eksempel viser <code>spec.weight:>600</code> alle biler, der vejer mere end 600 kg."
+    help_numeric_list: "Alle tilgængelige talværdier:"
+    help_content_type: "<strong>Søgning efter standard-, DLC- og mod-indhold</strong> - du kan søge specifikt efter kun standard-, kun DLC- eller kun mod-indhold med en (eller flere) af følgende: <code>+stock</code>, <code>+dlc</code>, <code>+mod</code>. Du kan fjerne standard-, DLC- eller mod-indhold fra resultaterne med en (eller flere) af følgende: <code>-stock</code>, <code>-dlc</code>, <code>-mod</code>."
+    help_combine: "Du kan selvfølgelig kombinere alt ovenstående i én søgning! Det kunne se sådan ud:"
+    help_combine_example: "\"skal være en Ferrari\", \"må ikke være en veteranbil\", \"skal have tagget 'semiautomatic'\", \"skal have mere end 600 hk\", \"må ikke være DLC\"."
+    help_bleve: ACPitwall bruger Bleve til søgning. Bleve er meget kraftfuldt og giver stor kontrol over søgninger. Vi har vist nogle eksempler her, men se <a href="{url}">Bleves dokumentation</a> for flere eksempler og den præcise syntaks.

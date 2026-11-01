@@ -1,0 +1,74 @@
+# Team pages.
+teams:
+  intro: Opret et team eller bliv medlem af et, og tilmeld jer derefter mesterskaber sammen. Et team kan have så mange medlemmer, det vil, men kun nogle få af dem kan køre i det samme mesterskab.
+  sign_in_to_create: <a href="{url}">Log ind</a> for at oprette et team eller blive medlem af et.
+  sign_in_to_join: <a href="{url}">Log ind</a> for at blive medlem af et team.
+  create_title: Opret et team
+  name: Navn
+  name_placeholder: Det Hurtige Team
+  visibility: Synlighed
+  visibility_public_help: "Offentligt: alle kan se det og blive medlem"
+  visibility_private_help: "Privat: kun personer, du inviterer, kan blive medlem"
+  create: Opret team
+  invitations: Invitationer
+  team: Team
+  members: Medlemmer
+  join: Bliv medlem
+  decline: Afvis
+  your_teams: Dine teams
+  no_own_teams: Du er ikke med i et team endnu.
+  your_role: Din rolle
+  owner: Ejer
+  private: Privat
+  public: Offentligt
+  role:
+    owner: Ejer
+    admin: Admin
+    member: Medlem
+  all_teams: Alle teams
+  no_other_teams: Der er ingen andre teams.
+  private_team: "Privat team: kun inviterede personer kan blive medlem."
+  public_team: "Offentligt team: alle kan blive medlem."
+  member_count:
+    one: "{count} medlem"
+    other: "{count} medlemmer"
+  join_team: Bliv medlem af team
+  decline_invite: Afvis invitation
+  leave: Forlad team
+  leave_confirm: Forlad {name}?
+  leave_detail: Dine tilmeldinger til mesterskaber beholder dette team. Hvis du er ejer, går ejerskabet videre til en anden.
+  role_label: Rolle
+  member_since: Medlem siden
+  you: dig
+  remove_admin: Fjern admin
+  make_admin: Gør til admin
+  make_owner: Gør til ejer
+  transfer_confirm: Gør {name} til ejer?
+  transfer_detail: Den nuværende ejer bliver admin.
+  transfer_label: Overdrag ejerskab
+  kick: Fjern
+  kick_confirm: Fjern {name}?
+  kick_detail: Deres tilmeldinger til mesterskaber beholder teamet.
+  kick_label: Fjern medlem
+  invite: Inviter
+  invite_help: Inviter en kører via kontonavnet, eller lad navnet stå tomt for at oprette et link, som alle kan bruge én gang.
+  invite_placeholder: Kontonavn (valgfrit)
+  valid_until: Gyldig til
+  no_limit: ubegrænset
+  withdraw: Træk tilbage
+  settings: Indstillinger
+  rename: Omdøb
+  rename_help: Det nye navn bruges i tilmeldingerne til mesterskaber, der ikke er afsluttet endnu.
+  private_help: Medlemmer bliver i teamet, når det bliver privat.
+  delete: Slet team
+  delete_confirm: Slet {name}?
+  delete_detail: Tilmeldinger til mesterskaber beholder teamets navn.
+  invitation_title: Invitation til {name}
+  join_name: Bliv medlem af {name}
+  invited: Du er blevet inviteret til at blive medlem af dette team.
+  has_members:
+    one: Det har {count} medlem.
+    other: Det har {count} medlemmer.
+  already_member: Du er allerede medlem af dette team.
+  go_to_team: Gå til teamet
+  sign_in_first: Log ind først, og åbn derefter invitationslinket igen.

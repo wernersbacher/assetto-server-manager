@@ -6,7 +6,9 @@
 // Adding a language: besides its catalog files, import its moment locale below (and the FullCalendar locale in
 // Calendar.ts), so that dates are formatted in it too.
 import moment from "moment";
+import "moment/locale/da";
 import "moment/locale/de";
+import "moment/locale/nl";
 
 interface I18NData {
     lang: string;

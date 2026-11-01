@@ -1,0 +1,388 @@
+championships:
+  summary: "{active} actief, {completed} afgerond."
+  create_new: Nieuw kampioenschap maken
+  more_options: Meer opties
+  more: Meer
+  view_button: Bekijken
+  export: Exporteren
+  duplicate: Kampioenschap dupliceren
+  delete_confirm: Kampioenschap {name} verwijderen?
+  delete_detail: Het hele kampioenschap, inclusief events en standen, wordt definitief verwijderd. Dit kan niet ongedaan worden gemaakt.
+  delete_label: Kampioenschap verwijderen
+  active: Actief
+  completed: Afgerond
+  none_active: Geen actieve kampioenschappen.
+  none_completed: Nog geen afgeronde kampioenschappen.
+  col:
+    name: Naam
+    progress: Voortgang
+    events: Events
+    classes: Klassen
+    details: Details
+    class: Klasse
+    email: E-mail
+    car_skin: Auto / Skin
+    status: Status
+    created: Aangemaakt
+    num_sessions: Aantal sessies
+    pos: Pos.
+    total_points: Totaal punten
+  import:
+    title: Kampioenschap importeren
+    placeholder: Plak hier de JSON van je kampioenschap!
+    help: Hier kun je kampioenschappen in JSON-formaat importeren (hetzelfde formaat als bij het exporteren van een kampioenschap). We raden af om deze gegevens met de hand te maken, want het formaat is vrij complex. Wil je kampioenschappen naar een andere server verhuizen zonder toegang tot de bestanden, dan is deze functie precies wat je nodig hebt!
+    button: Importeren
+  import_custom:
+    title: Eigen race importeren
+    heading: Eigen race importeren in kampioenschap {name}
+    none: Er zijn geen eigen races om te importeren.
+    starred: Favorieten
+    scheduled: Gepland
+    loop: Auto-loop
+    recent: Recent
+  import_weekend:
+    title: Raceweekend importeren
+    heading: Raceweekend importeren in kampioenschap {name}
+  import_event:
+    title: Kampioenschapsevent importeren
+    heading: Kampioenschapsevent voor {track} ({layout}) importeren
+    intro: Kies de resultaten voor de volgende sessies (je mag sessies leeg laten).
+    race_result: Resultaatbestand race
+    second_race_result: Resultaatbestand <strong>tweede</strong> race
+    qualifying_result: Resultaatbestand kwalificatie
+    practice_result: Resultaatbestand training
+    none: geen
+    result_option: "{track} ({layout}) op {date}"
+    submit: Event importeren
+  class:
+    label: "Klasse:"
+    unnamed: Naamloze klasse
+    name: Klassenaam
+    name_placeholder: Mijn geweldige klasse
+    slots: Plaatsen
+    slots_help: Plaatsen zijn de deelnemers van deze klasse. Vrije plaatsen worden ingenomen door rijders die meedoen (open kampioenschap, inschrijfformulier of Autofill); rijders wijs je toe aan plaatsen in het tabblad ‘Entry List’.
+    clone_help: Auto, skin, ballast, restrictor en vaste setup van de laatste deelnemer worden overgenomen in nieuwe deelnemers.
+    add_entrants: Deelnemer(s) toevoegen
+  points:
+    title: Punten
+    per_place: Punten per plaats
+    reset: Terugzetten naar standaardpunten
+    placeholder: Punten
+    multiplier_placeholder: Factor
+    places_help: "Plaatsen kunnen worden toegevoegd, maar niet verwijderd: resultaten worden berekend bij het laden van de pagina, dus eerdere punten moeten beschikbaar blijven. Wil je geen punten voor deze klasse, zet dan alle plaatsen op nul."
+    bonus: Bonus
+    bonus_help: Punten toekennen voor bepaalde acties.
+    pole: Poleposition
+    second_race_multiplier: Factor tweede race
+    second_race_help: Wordt toegepast op de punten van een tweede race (events met ‘Reversed Grid Positions’). 0 schakelt punten voor de tweede race uit, negatieve waarden zijn toegestaan.
+    penalties: Straffen
+    penalties_help: Punten aftrekken voor bepaalde acties (alleen racesessies).
+    collision_driver: Botsing met rijder
+    collision_env: Botsing met omgeving
+    cut_track: Afsnijden
+  overview:
+    drop_worst:
+      one: Per rijder wordt {count} slechtste resultaat geschrapt (doorgestreept). De totale punten bevatten alleen de getelde resultaten.
+      other: De {count} slechtste resultaten van elke rijder worden geschrapt (doorgestreept). De totale punten bevatten alleen de getelde resultaten.
+    dropped: Geschrapt resultaat
+    legend:
+      first: "1e"
+      second: "2e"
+      third: "3e"
+      top10: 4e - 10e
+      rest: "> 10e"
+      no_points: Geen punten
+  event:
+    settings_badge: Kampioenschapsinstellingen
+    settings_help: Dit event gebruikt de race-instellingen (brandstof, bandenslijtage, schade, rijhulpen, dynamische baan) van het kampioenschap.
+    completed_on: Afgerond op
+    in_progress: Bezig
+    scheduled: Gepland
+    scheduled_on: op
+    another_server: een andere server
+    scheduled_for: voor
+    not_started: Niet gestart
+    too_few_pitboxes: Dit circuit heeft minder pitboxen dan het ingestelde aantal deelnemers van het huidige kampioenschap en is daarom niet geschikt voor dit kampioenschap.
+    first_prefix: "1e"
+    minutes:
+      one: "{count} minuut"
+      other: "{count} minuten"
+    laps:
+      one: "{count} ronde"
+      other: "{count} ronden"
+    plus_one_lap: + 1 ronde
+    starts: Start
+    first_race: 1e race
+    second_race: 2e race
+    reverse_all: In de 2e race wordt de hele startopstelling omgedraaid.
+    reverse_one: Er volgt een 2e race met een startopstelling op basis van de uitslag van de 1e race.
+    reverse_n: "In de 2e race worden {count} startposities omgedraaid."
+    class_winner: "Winnaar {class}"
+    fastest_lap: Snelste ronde
+    best_qualifying: Beste kwalificatie
+    other_in_progress: Er loopt een event van dit kampioenschap
+    on_server: op server
+    wait_or_cancel: Je moet wachten tot het klaar is of het annuleren voordat je dit event kunt starten.
+    start: Event starten
+    schedule: Event plannen
+    schedule_help: Voer de juiste datum en tijd in om een geplande race toe te voegen. Datum en tijd zijn in jouw tijdzone
+    recurrence: Herhalingsregel
+    recurrence_help: Gebruik de <a target="_blank" href="{url}">RRule Generator</a> om een herhalingsregel te maken. Laat leeg als je die niet nodig hebt. Alleen geldig samen met een geplande tijd.
+    schedule_submit: Plannen
+    schedule_remove: Gepland event verwijderen
+    manage: Event beheren
+    practice_help: Laadt het ingestelde event op de server als training van 2 uur in een loop, maar telt de voortgang niet als kampioenschapsevent.
+    start_practice: Trainingsevent starten
+    import_results: Resultaten importeren
+    duplicate: Dupliceren
+    delete_confirm: Dit event verwijderen?
+    delete_detail: Het hele event wordt definitief uit het kampioenschap verwijderd.
+    delete_label: Event verwijderen
+    restart_confirm: Dit event herstarten?
+    restart_detail: Het hele event wordt herstart en alle huidige resultaten gaan verloren.
+    restart_label: Event herstarten
+    restart: Event herstarten
+    finish_confirm: Dit event afronden?
+    finish_detail: Het event wordt afgerond met de resultaten van de tot nu toe gereden sessies, die blijven meetellen voor de stand. Sessies die nog niet gereden zijn (bijvoorbeeld de tweede race) worden overgeslagen en een draaiende server wordt gestopt.
+    finish_label: Event afronden
+    finish: Event afronden
+    cancel_confirm: Dit event annuleren?
+    cancel_detail: Het hele event wordt geannuleerd en de resultaten van alle tot nu toe gereden sessies worden weggegooid. Wil je ze bewaren, gebruik dan ‘Event afronden’.
+    cancel: Event annuleren
+    view_results: Resultaten bekijken
+    details: Eventdetails
+    detailed_results: Gedetailleerde resultaten van deze sessie bekijken
+    session_in_progress: Sessie bezig
+    no_results_yet: Er zijn nog geen resultaten. Kijk later nog eens.
+    awaiting_start: Wacht op start
+    not_started_yet: Deze sessie is nog niet begonnen. Kijk later nog eens.
+  rw:
+    title: "Raceweekend {name}"
+    at: op
+    percent_complete: "{percent}% afgerond"
+    manage_help: Dit is een raceweekend. Raceweekenden van een kampioenschap beheer je op de pagina van het raceweekend.
+    view: Raceweekend bekijken
+    view_edit: Raceweekend bekijken/bewerken
+    manage: Raceweekend beheren
+    delete_confirm: Dit event en het raceweekend verwijderen?
+    delete_detail: Het hele event en het bijbehorende raceweekend worden definitief verwijderd.
+  entrants:
+    title: "Deelnemers: {name}"
+    registrations:
+      one: "{count} inschrijving"
+      other: "{count} inschrijvingen"
+    back: Terug naar kampioenschap
+    email: Deelnemers mailen
+    email_all: Alle deelnemers
+    email_accepted: Geaccepteerde deelnemers
+    email_rejected: Afgewezen deelnemers
+    email_pending: Openstaande deelnemers
+    export_csv: CSV exporteren
+    none: Er heeft zich nog niemand ingeschreven.
+    created_at: "{date}, {time}"
+    status:
+      accepted: Geaccepteerd
+      rejected: Afgewezen
+      pending: Wacht op goedkeuring
+    view_answers: Antwoorden bekijken
+    manage: Deelnemer beheren
+    accept: Accepteren
+    reject: Afwijzen
+    change_team: Team wijzigen
+    no_team: Geen team / vrije tekst
+    team_placeholder: Teamnaam als vrije tekst
+  signup:
+    heading: Inschrijven voor {name}
+    intro_approval: Inschrijvingen worden door de organisatoren gecontroleerd voordat je aan de startopstelling wordt toegevoegd.
+    intro: Vul je gegevens in om een plek in de startopstelling te bemachtigen.
+    about: Over het kampioenschap
+    your_details: Jouw gegevens
+    no_team: Geen team
+    team_locked: Je bent al ingeschreven, dus je team staat vast. Vraag de organisatoren als het moet veranderen.
+    registered: ingeschreven
+    full: vol
+    choose_team: Kies een van je teams, of <a href="{url}">maak eerst een team of sluit je aan bij een team</a>.
+    team_limit: Een team kan maximaal {count} rijders inschrijven.
+    no_team_change: Na het inschrijven kun je je team niet meer wijzigen.
+    sign_in_for_teams: <a href="{url}">Log in</a> om je met een van je teams in te schrijven.
+    team_placeholder: Het snelle team
+    free_team_help: Zonder eigen team kun je in plaats daarvan een teamnaam typen, maar niet de naam van een bestaand team.
+    team_optional: Je mag de teamnaam leeg laten.
+    steam_guid: Steam GUID
+    email: E-mailadres
+    your_car: Jouw auto
+    skin: Skin
+    car_preview: Autovoorbeeld
+    extra: Extra informatie
+    extra_help: De organisatoren van het kampioenschap vragen ook om de volgende informatie.
+    submit: Inschrijven
+  view:
+    events:
+      one: "{count} event"
+      other: "{count} events"
+    classes:
+      one: "{count} klasse"
+      other: "{count} klassen"
+    entrants:
+      one: "{count} deelnemer"
+      other: "{count} deelnemers"
+    percent_complete: "{percent}% afgerond"
+    add_events: Events toevoegen
+    more_add: Meer manieren om events toe te voegen
+    add_race_weekend: Raceweekend toevoegen
+    manage: Beheren
+    manage_requests: Inschrijvingen beheren
+    simresults: Bekijken in Simresults
+    register_title: Inschrijven voor dit kampioenschap
+    register_intro: Je kunt je inschrijven voor een plek in dit kampioenschap!
+    register_approval: Na goedkeuring door een admin word je aan de startopstelling toegevoegd!
+    register_steam: Inschrijven met Steam
+    or: of
+    register_now: Nu inschrijven
+    pending_title:
+      one: Inschrijving wacht op goedkeuring!
+      other: Inschrijvingen wachten op goedkeuring!
+    pending_text:
+      one: Er wacht {count} inschrijving op goedkeuring!
+      other: Er wachten {count} inschrijvingen op goedkeuring!
+    driver_standings: Rijdersklassement
+    team_standings: Teamklassement
+    overview: Overzicht
+    points_reference: Puntenoverzicht
+    worst_dropped:
+      one: "{count} slechtste resultaat geschrapt."
+      other: "{count} slechtste resultaten geschrapt."
+    points_penalty_badge: "Puntenstraf: {points}"
+    dropped_points: "Punten van geschrapte resultaten: {points}"
+    dropped_count: "{count} geschrapt"
+    penalty_details: Strafdetails
+    points_penalty: Puntenstraf
+    set_penalty: Straf instellen
+    remove_penalty: Straf verwijderen
+    driver_penalty_note: Strafpunten gelden alleen voor de rijder, niet voor het team. Teamstraffen kun je toekennen in het tabblad ‘Teamklassement’.
+    team_penalty_note: Strafpunten gelden alleen voor het team, niet voor de rijder. Rijdersstraffen kun je toekennen in het tabblad ‘Rijdersklassement’.
+    attendance: Deelname
+    pit_box: "Pitbox: {box}"
+    place: Plaats
+    ref:
+      fastest_lap: Snelste raceronde
+      best_qualifying: Beste kwalificatieronde
+      collision_car: Botsing met andere auto
+      collision_env: Botsing met omgeving
+      second_race: Puntenfactor tweede race
+    car_skin: Skin van de auto
+    events_in:
+      one: "{count} event in dit kampioenschap."
+      other: "{count} events in dit kampioenschap."
+    filter_sort: Events filteren en sorteren
+    hide_show: Verbergen/tonen
+    not_completed: Niet afgerond
+    reverse_order: Volgorde van events omdraaien
+  form:
+    edit_title: Kampioenschap {name} bewerken
+    new: Nieuw
+    breadcrumb: Kruimelpad
+    tab:
+      general: Algemeen
+      participation: Deelname & toegang
+      entry_list: Entry List
+      scoring: Puntentelling
+      race_settings: Race-instellingen
+      info: Info & weergave
+    save: Kampioenschap opslaan
+    spectator_car: Toeschouwersauto
+    spectator_unavailable: Niet beschikbaar voor open kampioenschappen
+    spectator_help: Bij elk event wordt een toeschouwersauto achteraan de Entry List gezet en genegeerd voor de kampioenschapspunten.
+    enabled: Ingeschakeld
+    name: Naam van het kampioenschap
+    name_placeholder: Mijn geweldige kampioenschap
+    hidden: Verborgen
+    hidden_help: Alleen ingelogde accounts zien een verborgen kampioenschap; anonieme bezoekers vinden het niet in lijsten, de kalender, kalenderfeeds of de API en kunnen de pagina's niet openen.
+    add_class: Nog een klasse toevoegen
+    mode:
+      title: Hoe komen rijders in de Entry List?
+      fixed: Vaste Entry List
+      fixed_help: Je vult de rijders zelf in (tabblad ‘Entry List’ of Autofill per deelnemer).
+      open: Open
+      open_help: Elke rijder die de server joint, neemt een vrije plaats in een klasse in. Plaatsen kun je aanpassen bij het bewerken van het kampioenschap (bijv. om teams toe te wijzen).
+      persist: Gejoinde rijders behouden
+      persist_help: "Aan (standaard): rijders die joinen worden aan de Entry List toegevoegd. Uit: elk event start met een lege Entry List, handig bij veel wisselende rijders. <strong>Resultaten worden hoe dan ook</strong> in het kampioenschap bewaard."
+      signup: Inschrijfformulier
+      signup_help: Rijders schrijven zich in op de website; jij kunt ze goedkeuren.
+    signup:
+      approval: Goedkeuring vereist
+      approval_help: Een gebruiker met admin- of schrijfrechten accepteert of wijst elke aanmelding af op een aparte pagina.
+      email: Vragen om e-mail
+      email_help: Zo kun je rijders benaderen met eventdetails.
+      team: Vragen om team
+      team_help: Rijders kunnen hun team opgeven.
+      team_mode: Hoe kiezen gebruikers hun team
+      team_mode_text: Ze typen een teamnaam
+      team_mode_select: Ze kiezen een van de teams waar ze lid van zijn
+      team_mode_both: "Beide: een team kiezen of een naam typen die geen team is"
+      teams_page: Teams worden aangemaakt op de pagina <a href="{url}">Teams</a>.
+      drivers_per_team: Rijders per team
+      drivers_per_team_placeholder: 2 (standaard)
+      unlimited: Onbeperkt
+      drivers_per_team_help: Aantal rijders dat één team kan inschrijven. Alleen een gebruiker met admin- of schrijfrechten kan een team na inschrijving wijzigen.
+      car_choice: Rijders kiezen zelf auto en skin
+      questions: Extra vragen
+      question_placeholder: bijv. Wat is je Discord-gebruikersnaam?
+      add_question: Nog een vraag toevoegen
+      recaptcha_on: "reCAPTCHA is ingesteld: rijders lossen een CAPTCHA op voordat hun inschrijving wordt verstuurd."
+      recaptcha_off: "reCAPTCHA is niet ingesteld: rijders krijgen geen CAPTCHA. Je kunt het inschakelen in je config.yml."
+    access: Toegang
+    override_password: Serverwachtwoord vervangen
+    override_password_help: Het serverwachtwoord wordt genegeerd voor alle events van dit kampioenschap.
+    replacement_password: Vervangend wachtwoord
+    replacement_password_help: Laat leeg voor geen wachtwoord.
+    dropped_results: Geschrapte resultaten
+    drop_worst: Slechtste resultaten schrappen
+    drop_worst_help: Aantal slechtste eventresultaten dat uit het totaal van elke rijder (en elk team) wordt geschrapt; 0 schrapt niets. Alleen afgeronde events tellen, een gemist event telt als 0 punten (wordt als eerste geschrapt), minstens één resultaat telt altijd en puntenstraffen worden nooit geschrapt.
+    race_settings: Race-instellingen van het kampioenschap
+    use_race_settings: Race-instellingen van het kampioenschap gebruiken
+    race_settings_help: Brandstof, schade, bandenslijtage, rijhulpen en dynamische baan worden één keer ingesteld voor alle events die de race-instellingen van het kampioenschap gebruiken (de standaard voor nieuwe events); een wijziging hier geldt voor al die events. Events kunnen zich in hun eigen configuratie afmelden. Circuit, auto's, sessies en weer stel je nog steeds per event in.
+    race_settings_prefilled: De waarden hieronder zijn ingevuld vanuit je laatste event.
+    race_values: Racewaarden
+    rs:
+      assists: Rijhulpen
+      abs: ABS toegestaan
+      "off": Uit
+      factory: Fabrieksinstelling
+      "on": Aan
+      tc: Tractiecontrole toegestaan
+      stability: Stabiliteitscontrole toegestaan
+      auto_clutch: Automatische koppeling toegestaan
+      tyre_blankets: Bandenwarmers toegestaan
+      tyre_blankets_help: Aan het begin van de sessie of na een pitstop hebben de banden de optimale temperatuur.
+      realism: Realisme
+      virtual_mirror: Virtuele spiegel afdwingen
+      virtual_mirror_help: Dwingt clients om virtuele spiegels te gebruiken (werkt niet in VR)
+      fuel_rate: Brandstofverbruik
+      fuel_rate_help: "Factor voor het brandstofverbruik in procent: 0 = geen verbruik, 100 = realistisch, hogere waarden verhogen het verbruik"
+      damage: Schadefactor
+      damage_help: Schade van 0 (geen schade) tot 100 (volledige schade)
+      tyre_wear: Bandenslijtage
+      tyre_wear_help: "Factor voor de bandenslijtage in procent: 0 = geen slijtage, 100 = realistisch, hogere waarden verhogen de slijtage"
+      tyres_out: Toegestane banden buiten de baan
+      tyres_out_help: Aantal banden dat buiten de track limits mag komen voordat er een straf volgt. -1 schakelt dit uit.
+      dynamic_track: Dynamische baan
+      session_start: Sessiestart
+      session_start_help: "Gripniveau in % bij de start van de sessie"
+      randomness: Willekeur
+      randomness_help: Mate van willekeur die aan de startgrip wordt toegevoegd
+      session_transfer: Overdracht naar sessie
+      session_transfer_help: Hoeveel van de opgebouwde grip naar de volgende sessie gaat; 100 -> alle opgebouwde grip.
+      lap_gain: Ronden per grip
+      lap_gain_help: Hoeveel ronden nodig zijn om 1% grip op te bouwen
+    info: Belangrijke informatie
+    info_help: Wordt bovenaan de kampioenschapspagina en op de inschrijfpagina's (indien ingeschakeld) getoond.
+    display: Weergave
+    og_image: Open Graph-afbeelding
+    og_image_placeholder: Willekeurige afbeeldings-URL
+    og_image_help: URL van een afbeelding die in links naar dit kampioenschap wordt getoond.
+    default_tab: Standaardtabblad
+    default_tab_help: Het tabblad dat wordt getoond als de kampioenschapspagina opent.
+    save_add_weekend: Opslaan & raceweekend toevoegen
+    save_add_event: Opslaan & eerste event toevoegen
+  nth_place: "{position} plaats"

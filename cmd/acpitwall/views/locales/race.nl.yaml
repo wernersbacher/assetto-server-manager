@@ -1,0 +1,345 @@
+# Eigen races, snelle race en partials van de racebouwer (auto's, deelnemer, ...), ook gebruikt door kampioenschappen en raceweekenden.
+race:
+  track_and_cars: Circuit & auto's
+  track_layout: Circuitlayout
+  stock: Standaard
+  time: Tijd
+  laps: Ronden
+  session_length_minutes: Sessieduur in minuten
+  laps_in_race: Aantal ronden in de race
+  start_race: Race starten
+  entry_list: Entry List
+  realism: Realisme
+  assists: Rijhulpen
+  rules: Regels
+  dynamic_track: Dynamische baan
+  session:
+    qualifying: Kwalificatie
+    race: Race
+  openness:
+    o0: Niet joinen
+    o1: Vrij joinen
+    o2: Vrij joinen tot 20 seconden voor groen licht
+  factory_assist:
+    a0: Uit
+    a1: Fabrieksinstelling
+    a2: Aan
+  start_rule:
+    r0: Auto vergrendeld tot de start
+    r1: Teleport
+    r2: Drive Through
+  quick:
+    intro: Zet een snelle race op met verstandige standaardwaarden en start de server.
+    cars_help: Automodellen die op de server zijn toegestaan. De gekozen auto's worden bij het maken van de Entry List gelijk verdeeld over de beschikbare pitboxen van het circuit. Skins worden willekeurig gekozen.
+    no_practice: Snelle races hebben geen training. Misschien wil je liever een <a href="{url}">eigen race</a>?
+  cars:
+    search_placeholder: Auto's zoeken
+    search: Zoeken
+    search_help: Zoekhulp
+  entrant:
+    grid_pit_id: Grid-/pit-ID
+    entrant: Deelnemer
+    autofill: Autofill
+    overwrite_all_events: Auto, skin, ballast, restrictor en setup toepassen op alle events van dit kampioenschap
+    transfer_team_points: Punten van deze rijder naar het nieuwe team verplaatsen
+    name: Naam
+    team: Team
+    ballast: Ballast
+    restrictor: Restrictor
+    fixed_setup: Vaste setup
+    no_fixed_setup: Geen vaste setup
+    car_skin: Skin van de auto
+  list:
+    scheduled: Gepland
+    on_server: op
+    another_server: een andere server
+    scheduled_for: op {date}
+    starred: Gemarkeerd
+    not_starred: Niet gemarkeerd
+    looping: In de loop
+    not_looping: Niet in de loop
+    start: Starten
+    details: Racedetails
+    more: Meer
+    use_as_template: Als sjabloon gebruiken
+    delete_confirm: Race-setup {name} verwijderen?
+    delete_detail: De race-setup wordt definitief verwijderd.
+    delete_label: Race-setup verwijderen
+    create: Nieuwe eigen race maken
+    create_short: Eigen race maken
+    intro: Eigen races zijn volledig instelbare events. Een eigen race die je hebt gemaakt kun je markeren of aan de automatische raceloop toevoegen. Je kunt een eigen race als sjabloon voor een nieuwe race gebruiken (dan wordt er een kopie gemaakt) of hem direct bewerken. Met de knop ‘Starten’ draait een eigen race meteen op de server.
+    tab_recent: Recent
+    tab_starred: Gemarkeerd
+    tab_scheduled: Gepland
+    tab_loop: Auto-loop
+    empty_recent: Nog geen recente eigen races.
+    empty_starred_hint: Nog geen gemarkeerde eigen races. Markeer ze in het tabblad ‘Recent’.
+    empty_starred: Nog geen gemarkeerde eigen races.
+    empty_scheduled: Geen geplande eigen races.
+    loop_help: Deze eigen races draaien in een loop zolang de server niet in gebruik is! Races in de auto-loop werken alleen als ze automatisch mogen starten, dus start ze niet met de hand als je wilt dat ze in de loop draaien!
+    empty_loop_hint: De auto-loop is leeg. Voeg een eigen race toe met het afspeelicoon; races in de loop draaien zolang de server niet in gebruik is.
+    empty_loop: Nog geen eigen races in de loop.
+  schedule:
+    title: Event plannen
+    date_help: Voer de juiste datum en tijd in om een gepland event toe te voegen.
+    timezone_help: Datum en tijd zijn in jouw tijdzone
+    recurrence: Herhalingsregel
+    recurrence_help: Gebruik de <a target="_blank" href="{url}">RRule Generator</a> om een herhalingsregel te maken. Laat leeg als je die niet nodig hebt. Alleen geldig samen met een geplande tijd.
+    submit: Plannen
+    remove: Gepland event verwijderen
+  details:
+    title: "{name}: details"
+    pitboxes: "{count} pitboxen"
+    available_tyres: "Beschikbare banden:"
+    first: "1e"
+    minutes:
+      one: "{count} minuut"
+      other: "{count} minuten"
+    laps:
+      one: "{count} ronde"
+      other: "{count} ronden"
+    seconds:
+      one: "{count} seconde"
+      other: "{count} seconden"
+    plus_one_lap: + 1 ronde
+    wait_time: "Wachttijd:"
+    pit_window_minutes: "Pitvenster: {start} minuten - {end} minuten"
+    pit_window_laps: "Pitvenster: ronde {start} - ronde {end}"
+    gas_penalty: "Gasstraf bij afsnijden:"
+    second_race: 2e race
+    second_race_identical: Dezelfde setup als race 1 hierboven.
+    reverse_all: De volledige uitslag van de 1e race wordt omgedraaid voor de startopstelling.
+    reverse_top: De eerste {count} plaatsen van de 1e race worden omgedraaid voor de startopstelling.
+    loops: De server begint na de laatste sessie opnieuw.
+    entrants:
+      one: "{count} deelnemer"
+      other: "{count} deelnemers"
+    locked_entry_list: "Vergrendelde Entry List:"
+    pickup_mode: "Pickup-modus:"
+    driver_swaps: "Rijderswissels:"
+    swap_min_time: "Minimale tijd rijderswissel:"
+    swap_min_count: "Minimaal aantal rijderswissels:"
+    sol_enabled: Sol is ingeschakeld.
+    sun_angle: "Zonnehoek:"
+    time_of_day: Tijdstip
+    time_multiplier: "Factor tijdstip:"
+    weather_random: "Elke sessie kiest willekeurig een van de volgende opties:"
+    date: "Datum:"
+    multiplier: "Factor:"
+    ambient: "Lucht: {temp}°C (variatie {variation})"
+    road: "Baan: {temp}°C (variatie {variation})"
+    wind: "Wind: {min}-{max} km/u uit {direction}° (±{variation}°)"
+    fuel_rate: "Brandstofverbruik:"
+    damage: "Schadefactor:"
+    tyre_wear: "Bandenslijtage:"
+    virtual_mirror: "Virtuele spiegel afgedwongen:"
+    abs: "ABS:"
+    tc: "Tractiecontrole:"
+    stability: "Stabiliteitscontrole:"
+    auto_clutch: "Automatische koppeling:"
+    tyre_blankets: "Bandenwarmers:"
+    max_ballast: "Max. ballast:"
+    tyres_out: "Toegestane banden buiten de baan:"
+    max_contacts: "Max. contacten per kilometer:"
+    start_rule: "Startregel:"
+    result_screen: "Tijd uitslagscherm:"
+    drs_disabled: "DRS-zones uitgeschakeld:"
+    grip_start: "{grip}% grip bij de start van de sessie."
+    grip_start_random: "{grip}% grip (willekeur {randomness}) bij de start van de sessie."
+    lap_gain: "{laps} ronden leveren 1% grip op."
+    session_transfer: "Gripoverdracht tussen sessies: {transfer}."
+  champ_settings:
+    title: Race-instellingen van het kampioenschap
+    use: Race-instellingen van het kampioenschap gebruiken
+    help: Indien ingeschakeld worden brandstofverbruik, schade, bandenslijtage, toegestane banden buiten de baan, rijhulpen, virtuele spiegel en dynamische baan van dit event uit het kampioenschap gehaald (bewerk het kampioenschap om ze te wijzigen). De waarden die hieronder voor dit event zijn ingesteld blijven bewaard, maar worden genegeerd zolang dit aan staat.
+    note: De instellingen hieronder met ‘ingesteld door het kampioenschap’ komen uit het kampioenschap.
+    badge: ingesteld door het kampioenschap
+  champ_save:
+    title: Kampioenschapsrace opslaan
+    identical: De setup onder dit paneel is gelijk aan de race-setup die je net hebt ingesteld. Ben je tevreden met die instellingen, dan kun je meteen een volgende race maken. Zo niet, scrol dan omlaag en pas de configuratie van deze race aan.
+    added: Als je deze race opslaat, wordt hij toegevoegd aan het kampioenschap <strong>{name}</strong>. Je kunt hieronder meer races toevoegen of, als je klaar bent, de opzet van het kampioenschap hier afronden.
+    add_another: Nog een race toevoegen
+    add_another_help: Deze setup opslaan en daarna een volgende instellen
+    finish: Kampioenschap afronden
+    finish_help: Deze race-setup opslaan en het kampioenschap afronden
+  form:
+    championship_event: Kampioenschapsevent
+    race_weekend_session: Sessie van raceweekend
+    custom_race: Eigen race
+    breadcrumb: Kruimelpad
+    new: Nieuw
+    intro_championship: Stel een event in voor het kampioenschap <strong>{name}</strong>.
+    intro_race_weekend: Stel een sessie in voor het raceweekend <strong>{name}</strong>.
+    intro: Circuit, auto's, sessies, Entry List en regels voor deze race.
+    fix_fields: "Corrigeer deze velden voordat je opslaat:"
+    save_championship_event: Kampioenschapsevent opslaan
+    save_race_weekend_session: Sessie van raceweekend opslaan
+    save_race: Race opslaan
+    pit_boxes: Pitboxen
+    too_few_pitboxes_championship: Dit circuit heeft minder pitboxen dan het ingestelde aantal deelnemers van het huidige kampioenschap en is daarom niet geschikt.
+    too_few_pitboxes_race: Dit circuit heeft minder pitboxen dan het ingestelde aantal deelnemers van de huidige race en is daarom niet geschikt.
+    time_attack_help: Time attack-events draaien een training in een loop en voegen alle resultaatbestanden samen. Zet de loopmodus geforceerd aan en schakelt alle sessies behalve de training uit.
+    time_attack_locked: We raden sterk een vergrendelde Entry List aan voor stabiele time attack-events.
+    session_type: Sessietype
+    enabled: Ingeschakeld
+    booking_help: Met de bookingmodus aan kun je geen vaste Entry List instellen. De server start met de pickup-modus uit en deelnemers kiezen hun auto en livery tijdens de bookingsessie.
+    is_open: Open
+    is_open_help: Joinen tijdens een sessie toestaan. De eerste sessie van een event mag niet op ‘Niet joinen’ staan; latere sessies wel, zodat alleen rijders uit de vorige sessie kunnen verbinden.
+    wait_time: Wachttijd
+    wait_time_help: Seconden voor de start van de sessie
+    pit_window_start: Begin pitvenster
+    pit_window_start_help: Het pitvenster gaat open in de opgegeven ronde/minuut
+    pit_window_end: Einde pitvenster
+    pit_window_end_help: Het pitvenster sluit in de opgegeven ronde/minuut
+    race_over_time: Uitlooptijd race
+    race_over_time_help: Resterende tijd in seconden om de race af te maken vanaf het moment dat de eerste rijder de finish passeert
+    gas_penalty: Gasstraf bij afsnijden
+    gas_penalty_off: "UIT: er wordt niet bestraft, maar afsnijdingen worden opgeslagen in de JSON van de uitslag."
+    gas_penalty_on: "AAN: elke afsnijding wordt bestraft met de melding om gas terug te nemen."
+    reversed_grid: Omgedraaide startopstelling
+    reversed_grid_tooltip: De racesessie wordt opnieuw gestart met een omgedraaide startopstelling op basis van de uitslag van de vorige race. Spelers die in de eerste race zijn gediskwalificeerd starten in de tweede race achteraan, ook als hun positie binnen het omgedraaide bereik valt.
+    reversed_grid_0: 0 = geen extra race
+    reversed_grid_minus1: -1 = alle posities worden omgedraaid (uitgevallen spelers staan op de laatste plaatsen)
+    reversed_grid_1: 1 = er volgt een 2e race met een startopstelling op basis van de uitslag van de 1e race
+    reversed_grid_x: X = de eerste X posities worden omgedraaid voor de 2e race
+    extra_lap: Extra ronde
+    extra_lap_help: Bij een race op tijd wordt een extra ronde gereden nadat de leider de finish is gepasseerd
+    qualify_max_wait: Max. wachtpercentage kwalificatie
+    qualify_max_wait_help: "Factor voor de resterende tijd in een kwalificatiesessie nadat de sessie is afgelopen: 120 betekent dat 120% van de snelste ronde van de sessie overblijft om de huidige ronde af te maken."
+    max_clients: Max. clients
+    max_clients_help: Maximaal aantal clients op de server.
+    pickup_mode: Pickup-modus
+    pickup_mode_help: "Staat dit UIT, dan start de server in bookingmodus. Let op: in pickup-modus moet de Entry List minstens één auto bevatten. Let wel: als de pickup-modus UIT staat, moeten spelers bij sessies met loopmodus AAN of een omgedraaide startopstelling opnieuw verbinden wanneer de server opnieuw begint of naar een tweede race gaat."
+    locked_entry_list: Vergrendelde Entry List
+    locked_entry_list_help: Alleen spelers die al in de Entry List staan kunnen de server joinen.
+    locked_reverse_warning: De server crasht als er een tweede race actief is (omgedraaide startopstelling != 0), de Entry List vergrendeld is en de pickup-modus uit staat. Wil je de Entry List voor dit event vergrendelen, zet dan ook de pickup-modus aan!
+    driver_swaps: Rijderswissels
+    driver_swaps_help: Met de rijderswissels van ACPitwall kunnen meerdere rijders één deelnemer delen en van rijder wisselen. Voer daarvoor bij een deelnemer meerdere GUID's in, gescheiden door ;.
+    driver_swaps_note: "Let op: rijderswissels leveren alleen geldige resultaatbestanden op als de tijdwaarnemingslijn van het circuit voor of na alle pitboxen ligt."
+    swap_min_time: Minimale tijd rijderswissel (seconden)
+    swap_min_time_help: Minimale duur van een rijderswissel, zodat spelers met snellere computers geen voordeel hebben. Vertrekt de tweede rijder voor deze tijd, dan wordt hij afhankelijk van de configuratie gediskwalificeerd of bestraft.
+    swap_dq_window: Diskwalificatievenster rijderswissel (seconden)
+    swap_dq_window_help: De rijder wordt uit de race gekickt en gediskwalificeerd als hij bij een rijderswissel dit aantal seconden of meer voor de minimale tijd vertrekt.
+    swap_penalty_window: Strafvenster rijderswissel (seconden)
+    swap_penalty_window_help: Vertrekt een rijder bij een rijderswissel dit aantal seconden of meer voor de minimale tijd, dan krijgt hij een straf gelijk aan de resterende seconden van het aftellen plus 5 seconden.
+    swap_min_count: Minimaal aantal rijderswissels
+    swap_min_count_help: Het aantal wissels dat een rijder moet voltooien. Wie het vereiste aantal stops niet haalt, wordt bestraft (zie hieronder).
+    swap_not_enough_penalty: Straf voor te weinig rijderswissels (seconden)
+    swap_not_enough_penalty_help: De straf in seconden die een rijder krijgt voor elke ontbrekende rijderswissel onder het minimum. Bij 0 wordt de rijder gediskwalificeerd.
+    clone_entrant_help: Auto, skin, ballast, restrictor en vaste setup van de laatste deelnemer worden overgenomen in nieuwe deelnemers.
+    add_entrants: Deelnemer(s) toevoegen
+    booking_enabled: De bookingmodus staat aan. Je kunt geen vaste rijders in de Entry List instellen. De pickup-modus wordt uitgeschakeld.
+    abs_allowed: ABS toegestaan
+    tc_allowed: Tractiecontrole toegestaan
+    stability_allowed: Stabiliteitscontrole toegestaan
+    auto_clutch_allowed: Automatische koppeling toegestaan
+    tyre_blankets_allowed: Bandenwarmers toegestaan
+    tyre_blankets_help: Aan het begin van de sessie of na een pitstop hebben de banden de optimale temperatuur.
+    sol: Sol-integratie
+    sol_help: Maakt dag-en-nachtcycli van 24 uur mogelijk. De server gaat dan anders met tijd om. Clients hebben ook Sol en Content Manager nodig
+    sol_missing: Sol is niet geïnstalleerd. <a href="{url}">Upload je Sol-weertypes</a> als je Sol wilt gebruiken.
+    time_of_day: Tijdstip
+    time_of_day_help: Wordt gebruikt om de zonnehoek (hieronder) te berekenen
+    sun_angle: Zonnehoek
+    sun_angle_help: Hoek van de stand van de zon
+    time_multiplier: Factor tijdstip
+    time_multiplier_help: Factor voor het tijdstip
+    weather_random: Elke nieuwe sessie kiest zijn weer <strong>willekeurig</strong> uit de volgende opties.
+    weather_delete: Dit weer verwijderen
+    sol_start: Startdatum/-tijd van de sessie
+    sol_multiplier: Factor tijdsverloop
+    sol_multiplier_help: Bijv. bij 60x verstrijken 24 uur in het spel in 24 minuten echte tijd
+    graphics: Graphics
+    weather_context: Weercontext van het kampioenschap
+    weather_any: Elke sessie
+    weather_practice: Alleen kampioenschapstraining
+    weather_event: Alleen kampioenschapsevent
+    weather_context_help: Kies of het weer alleen voor trainingen van het kampioenschap (gestart vanaf de overzichtspagina van het kampioenschap), alleen voor echte kampioenschapsevents of voor elke sessie wordt gebruikt
+    temp_ambient: Basistemperatuur lucht
+    temp_road: Basistemperatuur baan
+    temp_road_help: Deze waarde wordt opgeteld bij de uiteindelijke luchttemperatuur. De waarde mag negatief zijn.
+    variation_ambient: Variatie lucht
+    variation_ambient_help: Variatie van de luchttemperatuur. In dit voorbeeld kan de uiteindelijke luchttemperatuur 16 of 20 zijn
+    variation_road: Variatie baan
+    variation_road_help: Variatie van de baantemperatuur, net als bij de lucht
+    wind_min: Min. windsnelheid
+    wind_min_help: Minimaal mogelijke snelheid in de sessie
+    wind_max: Max. windsnelheid
+    wind_max_help: Maximaal mogelijke snelheid in de sessie (max. 40)
+    wind_direction: Basisrichting wind
+    wind_direction_help: Basisrichting van de wind (waar de wind naartoe wijst); 0 = noord, 90 = oost enz.
+    wind_variation: Variatie windrichting
+    wind_variation_help: Variatie (+ of -) van de basisrichting
+    add_weather: Weer toevoegen
+    legal_tyres: Toegestane banden
+    fuel_rate: Brandstofverbruik
+    fuel_rate_help: "Factor voor het brandstofverbruik in procent: 0 = geen verbruik, 100 = realistisch, hogere waarden verhogen het verbruik"
+    damage: Schadefactor
+    damage_help: Schade van 0 (geen schade) tot 100 (volledige schade)
+    tyre_wear: Bandenslijtage
+    tyre_wear_help: "Factor voor de bandenslijtage in procent: 0 = geen slijtage, 100 = realistisch, hogere waarden verhogen de slijtage"
+    virtual_mirror: Virtuele spiegel afdwingen
+    virtual_mirror_help: Dwingt clients om virtuele spiegels te gebruiken (werkt niet in VR)
+    surface_preset: Oppervlaktepreset
+    surface_preset_help: Presets voor de dynamische baan
+    grip_start: Sessiestart
+    grip_start_help: "Gripniveau in % bij de start van de sessie"
+    randomness: Willekeur
+    randomness_help: Mate van willekeur die aan de startgrip wordt toegevoegd
+    session_transfer: Overdracht naar sessie
+    session_transfer_help: "Hoeveel van de opgebouwde grip naar de volgende sessie gaat, 100 -> alle opgebouwde grip. Voorbeeld: verschil tussen begin- (90) en eindgrip (96) van de sessie = 6%, met session_transfer = 50 start de volgende sessie met 93."
+    lap_gain: Ronden per grip
+    lap_gain_help: Hoeveel ronden nodig zijn om 1% grip op te bouwen
+    max_ballast: Max. ballast (kg)
+    max_ballast_help: Maximale totale ballast die een deelnemer via de Entry List of het admincommando kan krijgen
+    tyres_out: Toegestane banden buiten de baan
+    tyres_out_help: Aantal banden dat buiten de track limits mag komen voordat er een straf volgt. -1 schakelt dit uit.
+    max_contacts: Max. contacten per kilometer
+    max_contacts_help: Maximaal aantal keren dat je binnen 1 kilometer contact mag maken met een andere auto. -1 = geen limiet. (In onze tests werkte dit wisselend. Gebruik met beleid.)
+    start_rule: Startregel
+    start_rule_help: Heeft de race 3 ronden of minder, dan geldt de teleportstraf.
+    loop_mode: Loopmodus
+    loop_mode_help: De server begint weer bij het eerste event nadat het vorige event is afgelopen
+    result_screen: Tijd uitslagscherm
+    result_screen_help: Seconden dat het uitslagscherm tussen de sessies wordt getoond
+    disable_drs: DRS-zones uitschakelen
+    disable_drs_help: Als dit AAN staat, wordt de drs_zones.ini van het circuit tijdelijk vervangen door een bestand dat DRS op het hele circuit uitschakelt. Handig voor circuits zonder duidelijk vastgelegde zones, of als je zonder DRS wilt racen!
+    disable_drs_note: "Let op: dit wijzigt echte circuitbestanden. Gebruiken meerdere servers dezelfde contentmap, dan kan dit problemen geven als er tegelijk races op hetzelfde circuit draaien."
+    server_options: Serveropties
+    override_password: Serverwachtwoord vervangen
+    override_password_help: Indien ingeschakeld wordt het serverwachtwoord voor dit event vervangen.
+    replacement_password: Vervangend wachtwoord
+    replacement_password_help: Laat je dit leeg, dan heeft de server geen wachtwoord.
+    force_stop_time: Geforceerde stop na
+    force_stop_time_help: "Maximaal aantal minuten dat dit event (over alle sessies) draait voordat de server geforceerd stopt. Zo werkt de circuitrotatie van de auto-loop ook als er geen rijders op de server zijn. 0 schakelt dit uit. LET OP: bij een geforceerde stop worden geen resultaatbestanden weggeschreven!"
+    force_stop_drivers: Geforceerde stop ook met rijders
+    force_stop_drivers_help: Indien ingeschakeld stopt de server na de geforceerde stoptijd, ook als er nog rijders op de server zijn.
+  champ_event:
+    overwrite: Deze bewerkte setup overschrijft het {position} event van het kampioenschap <strong>{name}</strong>.
+    added: Als je dit event opslaat, wordt het toegevoegd aan het kampioenschap <strong>{name}</strong>. Je kunt hieronder meer events toevoegen of, als je klaar bent, de opzet van het kampioenschap hier afronden.
+    add_another: Nog een event toevoegen
+    finish_help: Deze eventsetup opslaan en het kampioenschap afronden
+    save: Event opslaan
+  rw:
+    parent_sessions: Vorige sessie(s)
+    entry_list: Entry List van het raceweekend
+    parent_sessions_help: De vorige sessie bepaalt uit welke sessie de Entry List van deze sessie wordt opgebouwd. De uitslag van de vorige sessie (plus eventuele filters) vormt de startopstelling van deze sessie. Kies je ‘Geen vorige sessie’, dan worden alle andere keuzes genegeerd.
+    session_points: Sessiepunten
+    session_points_help: Elke sessie van het raceweekend en elke kampioenschapsklasse heeft een eigen puntentelling. Training en kwalificatie hebben standaard 0 punten, maar kunnen punten opleveren als je dat wilt.
+    overwrite: Deze bewerkte setup overschrijft de {position} sessie van het raceweekend <strong>{name}</strong>.
+    added: Als je deze sessie opslaat, wordt ze toegevoegd aan het raceweekend <strong>{name}</strong>. Je kunt hieronder meer sessies toevoegen of, als je klaar bent, de opzet van het raceweekend hier afronden.
+    add_another: Nog een sessie toevoegen
+    finish: Raceweekend afronden
+    finish_help: Deze sessiesetup opslaan en het raceweekend afronden
+    save: Sessie opslaan
+  save:
+    title: Eigen race opslaan
+    name: Naam van de eigen race
+    name_placeholder: Een naam waaraan je deze race herkent
+    name_help: Deze naam wordt getoond op de pagina ‘Eigen races’.
+    scheduled: Geplande race
+    scheduled_help: Zijn beide velden ingevuld, dan start de race op het geplande tijdstip.
+    scheduled_server: Gepland op server
+    scheduled_server_help: De server waarop de race draait als hierboven een starttijd is ingesteld.
+    save_help: Deze setup opslaan zonder de race te starten
+    start_help: Deze setup opslaan en de race starten

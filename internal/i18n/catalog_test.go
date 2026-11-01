@@ -12,7 +12,7 @@ import (
 
 // complete lists the languages whose catalogs have to translate every key. Languages which are added later may be
 // incomplete for a while, their missing keys fall back to English.
-var complete = []string{"en", "de"}
+var complete = []string{"en", "de", "nl", "da"}
 
 const viewsDir = "../../cmd/acpitwall/views"
 

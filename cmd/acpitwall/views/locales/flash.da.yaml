@@ -1,0 +1,221 @@
+# Flash messages of the Go handlers (smweb.T(r, "flash.<area>.<key>", ...)).
+flash:
+  accounts:
+    login_to_download: Log ind for at downloade indhold.
+    logged_out: Du er logget ud
+    no_access: Du har ikke adgang til denne ACPitwall-instans.
+    no_permission: Du har ikke tilladelse til at se denne side.
+    login_first: Du har ikke tilladelse til at se denne side. Log ind først.
+    invalid_login: Ugyldigt brugernavn eller adgangskode. Tjek dine oplysninger, og prøv igen.
+    set_password: Tak, fordi du loggede ind. Vælg nu en permanent adgangskode til din konto.
+    logged_in: Tak, fordi du loggede ind!
+    openness_changed: Serverens åbenhed er ændret
+    public_stats_changed: Offentlig kørerstatistik er ændret
+    download_access_changed: Downloadadgang er ændret
+    team_options_changed: Teamindstillinger er ændret
+    skin_options_changed: Skin-indstillinger er ændret
+    password_not_changed: Din adgangskode kunne ikke ændres
+    password_changed: Din adgangskode er ændret!
+    passwords_must_match: Dine adgangskoder skal være ens
+    details_not_updated: Kontooplysningerne kunne ikke opdateres
+    details_changed: Dine oplysninger er ændret!
+    cannot_delete_self: Du kan ikke slette din egen konto!
+    not_deleted: Kontoen kunne ikke slettes
+    deleted: Kontoen er slettet
+    password_not_reset: Kontoens adgangskode kunne ikke nulstilles
+    password_reset: "Vi har genereret en ny adgangskode til {name}: {password}"
+    edited: Kontoen er redigeret
+    created: Kontoen er oprettet
+    audit_logs_failed: Audit-loggene kunne ikke åbnes
+
+  admin:
+    messages_not_saved: Beskederne kunne ikke gemmes
+    messages_saved: Beskederne er gemt!
+    options_not_saved: Serverindstillingerne kunne ikke gemmes
+    options_saved: Serverindstillingerne er gemt!
+    blacklist_not_saved: Ændringerne i serverens blacklist kunne ikke gemmes
+    blacklist_saved: Serverens blacklist er ændret!
+    entrant_not_deleted: Deltageren kunne ikke slettes
+    entrant_deleted: Deltageren er slettet
+    process:
+      server: Server
+      server_practice: Servertræning
+      championship: Mesterskab
+      championship_practice: Mesterskabstræning
+      race_weekend: Løbsweekend
+      race_weekend_practice: Løbsweekend-træning
+      stopped: "{what} er stoppet"
+      restarted: "{what} er genstartet"
+      changed: "{what} er ændret"
+      failed: "{what}: status kunne ikke ændres"
+
+  championship:
+    edited: Mesterskabet er redigeret!
+    created: Mesterskabet er oprettet. Nu skal du tilføje nogle events!
+    duplicated: Mesterskabet er duplikeret!
+    import_failed: Beklager, mesterskabet kunne ikke importeres! Tjek JSON-formatet.
+    imported: Mesterskabet er importeret!
+    deleted: Mesterskabet er slettet!
+    session_import_failed: Sessionsfilerne kunne ikke importeres
+    sessions_imported: Sessionsfilerne er importeret!
+    event_edited: Mesterskabsløbet på {track} er redigeret!
+    event_added: Mesterskabsløbet på {track} er tilføjet!
+    event_not_started: Eventet kunne ikke startes
+    event_started: Eventet er startet!
+    event_scheduled: Mesterskabseventet er planlagt til {date}
+    event_not_deleted: Eventet kunne ikke slettes
+    event_deleted: Eventet er slettet!
+    practice_not_started: Træningseventet kunne ikke startes
+    practice_started: Træningseventet er startet!
+    event_not_cancelled: Mesterskabseventet kunne ikke annulleres
+    event_cancelled: Eventet er annulleret!
+    event_not_finished: Mesterskabseventet kunne ikke afsluttes
+    event_finished: Eventet er afsluttet med de resultater, der er kørt indtil nu!
+    event_not_restarted: Mesterskabseventet kunne ikke genstartes
+    event_restarted: Eventet er genstartet!
+    driver_penalty_failed: Kørerens straf kunne ikke ændres
+    driver_penalty_modified: Kørerens straf er ændret
+    team_penalty_failed: Teamstraffen kunne ikke ændres
+    team_penalty_modified: Teamstraffen er ændret
+    signed_up_pending: Tak for din tilmelding til mesterskabet! Din tilmelding skal først godkendes af en administrator.
+    signed_up: Tak for din tilmelding til mesterskabet!
+    entrant_already_accepted: Denne deltager er allerede godkendt.
+    entrant_accepted: Deltageren er godkendt!
+    no_slots: Der er ikke flere ledige pladser til denne deltager og bil. Tjek mesterskabets konfiguration.
+    entrant_team_changed: Deltagerens team er ændret.
+    race_weekend_duplicated: Mesterskabets løbsweekend er duplikeret!
+    event_duplicated: Mesterskabseventet er duplikeret!
+    failed_reason: "{message}: {reason}"
+    server_busy: denne server kører allerede et event. Stop det først, eller start på en anden server.
+    championship_active_elsewhere: 'dette mesterskab er aktivt på serveren "{server}". Vælg den server, eller stop eventet der først.'
+    race_weekend_active_elsewhere: 'denne løbsweekend er aktiv på serveren "{server}". Vælg den server, eller stop eventet der først.'
+    linked_championship_active_elsewhere: 'mesterskabet for denne løbsweekend er aktivt på serveren "{server}". Vælg den server, eller stop eventet der først.'
+
+  content:
+    car_not_deleted: Bilen {car} kunne ikke slettes
+    car_deleted: Bilen {car} er slettet!
+    tag_added: "Tag tilføjet: {tag}"
+    tag_not_added: Tagget kunne ikke tilføjes
+    tag_deleted: "Tag slettet: {tag}"
+    tag_not_deleted: Tagget kunne ikke slettes
+    car_metadata_updated: Bilens metadata er opdateret!
+    car_skin_deleted: Bilens skin er slettet!
+    reindexing_cars: Bilerne bliver genindekseret!
+    skin_upload_failed: "Upload af skin mislykkedes: {reason}."
+    skin_change_failed: "Ændring af skin mislykkedes: {reason}."
+    skin_delete_failed: "Sletning af skin mislykkedes: {reason}."
+    skin_login: Log ind for at administrere skins.
+    skin_too_large: "Skinnet blev afvist: det er større, end skin-grænserne tillader."
+    skin_uploaded: Skin {skins} er uploadet ({visibility}).
+    skin_visibility_changed: Skinnet er nu {visibility}.
+    skin_visibility:
+      private: privat
+      team: for teamet
+      global: globalt
+    skin_deleted: Skinnet er slettet!
+    cars_added: Bil(er) tilføjet!
+    cars_not_added: Bil(er) kunne ikke tilføjes
+    tracks_added: Bane(r) tilføjet!
+    tracks_not_added: Bane(r) kunne ikke tilføjes
+    weather_added: Vejr-preset(s) tilføjet!
+    weather_not_added: Vejr-preset(s) kunne ikke tilføjes
+    weather_deleted: Vejr-presettet er slettet!
+    weather_not_installed: Beklager, vejr-presettet kunne ikke slettes. Er det overhovedet installeret? Indbyggede presets kan ikke slettes.
+    weather_not_deleted: Beklager, vejr-presettet kunne ikke slettes.
+    track_list_failed: Banelisten kunne ikke hentes
+    track_deleted: Banen er slettet!
+    track_not_deleted: Beklager, banen kunne ikke slettes.
+    track_metadata_updated: Banens metadata er opdateret!
+    setup_upload_failed_car: Setup-filen til {car} kunne ikke uploades
+    setup_upload_failed: Setup-filen kunne ikke uploades
+    setup_uploaded: Setup-filen til {car} er uploadet!
+    setup_not_deleted: Setuppet til {car} kunne ikke slettes
+    setup_deleted: Setuppet er slettet!
+
+  plugins:
+    stracker_not_saved: stracker-indstillingerne kunne ikke gemmes
+    stracker_saved: stracker-indstillingerne er gemt!
+    realpenalty_not_saved: Real Penalty-indstillingerne kunne ikke gemmes
+    realpenalty_saved: Real Penalty-indstillingerne er gemt!
+    kissmyrank_not_saved: KissMyRank-indstillingerne kunne ikke gemmes
+    kissmyrank_saved: KissMyRank-indstillingerne er gemt!
+
+  race:
+    custom_saved: Eget løb gemt!
+    custom_scheduled: Eget løb planlagt!
+    custom_started: Eget løb startet!
+    scheduled: Løbet er planlagt til {date}
+    custom_deleted: Eget løb slettet!
+    custom_starred: Eget løb markeret
+    custom_looped: Eget løb tilføjet til loopet
+    custom_unlooped: Eget løb fjernet fra loopet
+    server_busy: "Eventet blev ikke startet: denne server kører allerede et event. Stop det først, eller start på en anden server."
+    quick_started: Hurtigt løb startet!
+
+  racecontrol:
+    restart_failed: Serveren kunne ikke genstarte sessionen!
+    next_session_failed: Serveren kunne ikke skifte til næste session!
+    penalty_form_invalid: Strafformularen kunne ikke læses
+    penalty_time_invalid: Straftiden kunne ikke læses
+    penalty_failed: Straffen kunne ikke tilføjes/fjernes
+    penalty_removed: Straf fjernet!
+    penalty_added: Straf tilføjet!
+
+  raceweekend:
+    deleted: Løbsweekenden er slettet!
+    edited: Løbsweekenden er redigeret!
+    created: Løbsweekenden er oprettet. Nu skal du tilføje nogle sessioner!
+    session_edited: Løbsweekendens session på {track} er redigeret!
+    session_added: Løbsweekendens session på {track} er tilføjet!
+    session_not_started: Sessionen kunne ikke startes
+    session_started: Sessionen er startet!
+    session_not_restarted: Sessionen kunne ikke genstartes
+    session_restarted: Sessionen er genstartet!
+    session_not_cancelled: Sessionen kunne ikke annulleres
+    session_cancelled: Sessionen er annulleret!
+    session_not_deleted: Sessionen kunne ikke slettes
+    session_deleted: Sessionen er slettet!
+    session_import_failed: Løbsweekendens sessionsfiler kunne ikke importeres
+    sessions_imported: Sessionsfilerne er importeret!
+    import_failed: Beklager, løbsweekenden kunne ikke importeres! Tjek JSON-formatet.
+    imported: Løbsweekenden er importeret!
+    session_scheduled: Løbsweekendens session er planlagt til {date}
+    session_scheduled_after_parent: Løbsweekendens session starter, når den/de foregående session(er) er afsluttet.
+
+  results:
+    parse_failed: Beklager, resultatfilen kunne ikke læses! Tjek, at formatet er korrekt.
+    bad_file_name: Indholdet af din resultatfil er korrekt, men filnavnet er forkert! Giv filen et navn efter AC-standarden, og prøv igen.
+    drivers_edited: Kørerne er redigeret
+    used_by_championship: Resultatfilen kunne ikke slettes, den bruges af mesterskabet {name}
+    used_by_race_weekend: Resultatfilen kunne ikke slettes, den bruges af løbsweekenden {name}
+    not_deleted: Resultatfilen kunne ikke slettes
+    deleted: Resultatfilen er slettet
+
+  teams:
+    sign_in: Log ind for at bruge teams.
+    not_found: Dette team findes ikke.
+    name_invalid: Et teamnavn skal have {min} til {max} tegn og må ikke indeholde kontroltegn.
+    name_taken: Der findes allerede et team med dette navn.
+    not_member: Denne konto er ikke medlem af teamet.
+    already_member: Denne konto er allerede medlem af teamet.
+    invite_invalid: Invitationen er ugyldig eller udløbet.
+    not_allowed: Det har du ikke lov til.
+    owner_role: Ejerens rolle kan ikke ændres. Overdrag i stedet ejerskabet til et andet medlem.
+    already_owner: Du er allerede ejer af teamet.
+    limit_reached: Du ejer allerede det maksimale antal teams.
+    creation_blocked: Oprettelse af teams er slået fra på denne server.
+    account_not_found: Der findes ingen konto med dette navn.
+    rename_hook_failed: Tilmeldingerne til igangværende mesterskaber kunne ikke opdateres, tjek loggen.
+    created: Team oprettet.
+    joined: Du er blevet medlem af teamet.
+    left: Du har forladt teamet.
+    renamed: Team omdøbt.
+    visibility_changed: Synlighed ændret.
+    invite_link_created: Invitationslink oprettet, du finder det nedenfor.
+    invite_sent: Invitation sendt.
+    invite_withdrawn: Invitation trukket tilbage.
+    invite_declined: Invitation afvist.
+    member_removed: Medlem fjernet.
+    role_changed: Rolle ændret.
+    ownership_transferred: Ejerskab overdraget.
+    deleted: Team slettet. Tilmeldinger til mesterskaber beholder dets navn.

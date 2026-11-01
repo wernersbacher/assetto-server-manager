@@ -1,0 +1,74 @@
+# Team pages.
+teams:
+  intro: Richt een team op of word lid van een team en schrijf je samen in voor kampioenschappen. Een team kan zoveel leden hebben als het wil, maar slechts een paar van hen kunnen in hetzelfde kampioenschap rijden.
+  sign_in_to_create: <a href="{url}">Log in</a> om een team op te richten of lid te worden van een team.
+  sign_in_to_join: <a href="{url}">Log in</a> om lid te worden van een team.
+  create_title: Team oprichten
+  name: Naam
+  name_placeholder: Het Snelle Team
+  visibility: Zichtbaarheid
+  visibility_public_help: "Openbaar: iedereen kan het zien en lid worden"
+  visibility_private_help: "Privé: alleen mensen die je uitnodigt kunnen lid worden"
+  create: Team oprichten
+  invitations: Uitnodigingen
+  team: Team
+  members: Leden
+  join: Lid worden
+  decline: Afwijzen
+  your_teams: Jouw teams
+  no_own_teams: Je zit nog niet in een team.
+  your_role: Jouw rol
+  owner: Eigenaar
+  private: Privé
+  public: Openbaar
+  role:
+    owner: Eigenaar
+    admin: Admin
+    member: Lid
+  all_teams: Alle teams
+  no_other_teams: Er zijn geen andere teams.
+  private_team: "Privéteam: alleen uitgenodigde mensen kunnen lid worden."
+  public_team: "Openbaar team: iedereen kan lid worden."
+  member_count:
+    one: "{count} lid"
+    other: "{count} leden"
+  join_team: Lid worden van team
+  decline_invite: Uitnodiging afwijzen
+  leave: Team verlaten
+  leave_confirm: "{name} verlaten?"
+  leave_detail: Je inschrijvingen voor kampioenschappen behouden dit team. Ben je de eigenaar, dan gaat het eigendom naar iemand anders.
+  role_label: Rol
+  member_since: Lid sinds
+  you: jij
+  remove_admin: Admin intrekken
+  make_admin: Admin maken
+  make_owner: Eigenaar maken
+  transfer_confirm: "{name} eigenaar maken?"
+  transfer_detail: De huidige eigenaar wordt admin.
+  transfer_label: Eigendom overdragen
+  kick: Verwijderen
+  kick_confirm: "{name} verwijderen?"
+  kick_detail: Hun inschrijvingen voor kampioenschappen behouden het team.
+  kick_label: Lid verwijderen
+  invite: Uitnodigen
+  invite_help: Nodig een coureur uit via zijn accountnaam, of laat de naam leeg om een link te maken die iedereen één keer kan gebruiken.
+  invite_placeholder: Accountnaam (optioneel)
+  valid_until: Geldig tot
+  no_limit: onbeperkt
+  withdraw: Intrekken
+  settings: Instellingen
+  rename: Hernoemen
+  rename_help: De nieuwe naam wordt gebruikt in de inschrijvingen van kampioenschappen die nog niet zijn afgelopen.
+  private_help: Leden blijven in het team als het privé wordt.
+  delete: Team verwijderen
+  delete_confirm: "{name} verwijderen?"
+  delete_detail: Inschrijvingen voor kampioenschappen behouden de naam van het team.
+  invitation_title: Uitnodiging voor {name}
+  join_name: Lid worden van {name}
+  invited: Je bent uitgenodigd om lid te worden van dit team.
+  has_members:
+    one: Het heeft {count} lid.
+    other: Het heeft {count} leden.
+  already_member: Je bent al lid van dit team.
+  go_to_team: Naar het team
+  sign_in_first: Log eerst in en open daarna de uitnodigingslink opnieuw.

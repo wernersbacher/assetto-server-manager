@@ -1,0 +1,176 @@
+# Content pages: cars, tracks, weather, the upload panel and the search help.
+content:
+  default: Standaard
+  notes: Notities
+  lap_time: Rondetijd
+  download_url: Download-URL
+  download_url_placeholder: bijv. http://racedepartment.com/...
+  danger_zone: Gevarenzone!
+
+  cars:
+    intro: Auto's die op de server zijn geïnstalleerd.
+    upload: Auto's uploaden
+    search_placeholder: Auto's zoeken
+
+  car:
+    skin_alt: "{car}, skin {skin}"
+    download_skin: Skin downloaden
+    delete_tag: Deze tag verwijderen
+    add_tag: Nieuwe tag toevoegen
+    add_tag_submit: Toevoegen
+    description: Beschrijving
+    no_description: Er is geen beschrijving voor deze auto.
+    setups: Setups
+    setup_file: Setupbestand
+    delete_setup_confirm: Setup {name} verwijderen?
+    delete_setup_detail: Het setupbestand wordt definitief verwijderd.
+    delete_setup: Setup verwijderen
+    upload_setups_help: Met het formulier hieronder kun je setups voor deze auto uploaden.
+    no_setups: Er zijn geen setups voor deze auto.
+    upload_one_below: Je kunt er hieronder een uploaden.
+    generic: Algemeen
+    choose_setup: Setup kiezen
+    upload_setup: Setup uploaden
+    best_laps: Snelste ronden
+    no_best_laps: Nog geen snelste ronden. Geldige ronden met deze auto verschijnen hier.
+    used_in_sessions:
+      one: Deze auto is in {count} sessie gebruikt.
+      other: Deze auto is in {count} sessies gebruikt.
+    download_car: Auto downloaden
+    tyres: Banden
+    specs: Specificaties
+    spec:
+      acceleration: "Acceleratie:"
+      bhp: "Vermogen (pk):"
+      power_ratio: "Vermogen/gewicht:"
+      top_speed: "Topsnelheid:"
+      torque: "Koppel:"
+      weight: "Gewicht:"
+    about: Info
+    info:
+      author: "Auteur:"
+      brand: "Merk:"
+      class: "Klasse:"
+      country: "Land:"
+      year: "Jaar:"
+      version: "Versie:"
+    skins: Skins
+    skin_upload: Skin uploaden
+    choose_skin: Skin kiezen
+    skin_upload_help: Kies de skinmap. Maximaal {files} bestanden en {mb} MB per skin.
+    skin_quota: Je gebruikt {used} van {quota} MB.
+    who_can_use: Wie hem mag gebruiken
+    visibility:
+      only_me: Alleen ik
+      my_team: Mijn team
+      everybody_global: Iedereen (globaal)
+      everybody: Iedereen
+      team: Team
+      only_owner: Alleen eigenaar
+    team_for_skin: Team voor een teamskin
+    upload: Uploaden
+    skin_upload_disabled: Skins uploaden is niet ingeschakeld voor je account.
+    user_skins_help: Skins die door accounts zijn geüpload. Privé- en teamskins zijn alleen zichtbaar voor jou en je team.
+    skin: Skin
+    owner: Eigenaar
+    visible_for: Zichtbaar voor
+    size: Grootte
+    unknown_owner: onbekend
+    skin_files:
+      one: "{count} bestand, {size}"
+      other: "{count} bestanden, {size}"
+    delete_skin_confirm: Skin {name} verwijderen?
+    delete_user_skin_detail: De skin en zijn bestanden worden definitief verwijderd.
+    delete_skin_label: Skin verwijderen
+    metadata: Metadata van de auto
+    download_url_help: Downloadlinks voor auto's worden getoond in het serverinformatiescherm van Content Manager.
+    notes_help: Notities worden aan alle gebruikers getoond op de pagina van deze auto.
+    save_metadata: Metadata opslaan
+    skin_folders: Skinmappen
+    skin_folders_help: Skins van deze auto in zijn skinmap. Uploads staan hierboven bij Skins.
+    delete_selected_skin_confirm: Geselecteerde skin verwijderen?
+    delete_skin_folder_detail: De skinmap wordt definitief van deze auto verwijderd.
+    delete_skin: Skin verwijderen
+    delete_help: Deze auto met alle bijbehorende skins definitief verwijderen.
+    delete_confirm: Auto {name} verwijderen?
+    delete_detail: De auto en alle bijbehorende skins worden definitief van de server verwijderd.
+    delete_detail_folder: De auto en alle bijbehorende skins worden definitief van de server verwijderd ({folder}).
+    delete_label: Auto verwijderen
+    delete_aria: Auto {name} verwijderen
+    delete_car: Auto verwijderen
+
+  tracks:
+    intro: Circuits en layouts die op de server zijn geïnstalleerd.
+    upload: Circuits uploaden
+
+  track:
+    download: Downloaden
+    layouts: Layouts
+    records_server: Server voor ronderecords
+    records_any_server: Ronderecords van alle servers
+    layout_alt: "{track}, layout {layout}"
+    layout_title: "Layout {layout}"
+    geotags: "Geotags:"
+    tags: "Tags:"
+    lap_records: Ronderecords
+    full_leaderboard: Volledige ranglijst
+    sectors: Sectoren
+    no_lap_records: Nog geen ronderecords. Geldige ronden uit uitslagen verschijnen hier.
+    used_in_sessions:
+      one: Deze layout is in {count} sessie gebruikt.
+      other: Deze layout is in {count} sessies gebruikt.
+    metadata: Metadata van het circuit
+    download_url_help: Downloadlinks voor circuits worden getoond in het serverinformatiescherm van Content Manager.
+    notes_help: Notities worden aan alle gebruikers getoond op de pagina van dit circuit.
+    save_metadata: Metadata opslaan
+    delete_help: Dit circuit met alle bijbehorende layouts definitief verwijderen.
+    delete_confirm: Circuit {name} verwijderen?
+    delete_detail: Het circuit en alle bijbehorende layouts worden definitief van de server verwijderd.
+    delete_detail_folder: Het circuit en alle bijbehorende layouts worden definitief van de server verwijderd ({folder}).
+    delete_label: Circuit verwijderen
+    delete_aria: Circuit {name} verwijderen
+    delete_track: Circuit verwijderen
+
+  weather:
+    intro: Weerpresets die op de server zijn geïnstalleerd.
+    upload: Weer uploaden
+    key: Weersleutel
+    name: Weernaam
+    delete_confirm: Weerpreset {name} verwijderen?
+    delete_detail: De weerpreset wordt definitief van de server verwijderd.
+    delete_label: Weerpreset verwijderen
+
+  upload:
+    choose_folder: Map kiezen
+    only_ks: Alleen officiële KS-content uploaden
+    car:
+      tags_placeholder: Tags voor alle geüploade auto's (bijv. GT3, Enduro)
+      drop_title: Sleep automap(pen) hierheen
+      drop_hint: Eén automap, meerdere automappen of een map "cars" met meerdere auto's.
+      help: Alleen de bestanden die de server nodig heeft worden geüpload. Controleer na het kiezen van een map het voorbeeld hieronder en klik op de uploadknop. Als het uploaden van veel auto's tegelijk mislukt, upload ze dan in kleinere groepen.
+    track:
+      drop_title: Sleep circuitmap(pen) hierheen
+      drop_hint: Eén circuitmap, meerdere circuitmappen of een map "tracks" met meerdere circuits.
+      help: Alleen de bestanden die de server nodig heeft worden geüpload. Controleer na het kiezen van een map het voorbeeld hieronder en klik op de uploadknop. Als het uploaden van veel circuits tegelijk mislukt, upload ze dan in kleinere groepen.
+    weather:
+      drop_title: Sleep weermap(pen) hierheen
+      drop_hint: Eén weermap, meerdere weermappen of een map "weather" met meerdere weerpresets.
+      help: Alleen de bestanden die de server nodig heeft worden geüpload. Controleer na het kiezen van een map het voorbeeld hieronder en klik op de uploadknop. Als het uploaden van veel weerpresets tegelijk mislukt, upload ze dan in kleinere groepen.
+
+  search:
+    submit: Zoeken
+    showing: Resultaten {from}-{to} van {total}
+    took: Zoekopdracht duurde {duration}
+    no_results: Je zoekopdracht leverde geen resultaten op. Probeer een andere zoekopdracht.
+    help: Zoekhulp
+    help_intro: Je kunt de zoekfunctie gebruiken zoals Google of elk ander zoekveld.
+    help_basic: "<strong>Eenvoudig zoeken</strong> - als je bijvoorbeeld auto's van Ferrari wilt vinden, typ je: <code>ferrari</code>"
+    help_boolean: "<strong>Booleaans zoeken</strong> - als je Ferrari's wilt vinden die geen oldtimer zijn, gebruik je: <code>+ferrari -vintage</code>."
+    help_fields: "<strong>Zoeken in specifieke velden</strong> - alle gegevens van een auto zijn doorzoekbaar. Als je bijvoorbeeld auto's met een bepaalde tag zoekt - zeg \"italy\" - gebruik je: <code>tags:\"italy\"</code>"
+    help_fields_list: "Alle velden van een auto:"
+    help_numeric: "<strong>Zoeken op getallen</strong> - je kunt op getallen zoeken, <code>spec.weight:>600</code> toont bijvoorbeeld alle auto's die zwaarder zijn dan 600 kg."
+    help_numeric_list: "Alle beschikbare getalwaarden:"
+    help_content_type: "<strong>Zoeken naar standaard-, DLC- en modcontent</strong> - met een (of meer) van de volgende termen vind je alleen standaard-, alleen DLC- of alleen modcontent: <code>+stock</code>, <code>+dlc</code>, <code>+mod</code>. Met een (of meer) van de volgende termen sluit je standaard-, DLC- of modcontent uit: <code>-stock</code>, <code>-dlc</code>, <code>-mod</code>."
+    help_combine: "Je kunt dit alles natuurlijk in één zoekopdracht combineren! Dat ziet er bijvoorbeeld zo uit:"
+    help_combine_example: "\"moet een Ferrari zijn\", \"mag geen oldtimer zijn\", \"moet de tag 'semiautomatic' hebben\", \"moet meer dan 600 pk hebben\", \"mag geen DLC zijn\"."
+    help_bleve: ACPitwall gebruikt Bleve om te zoeken. Bleve is zeer krachtig en geeft veel controle over zoekopdrachten. Hier staan een paar voorbeelden, meer voorbeelden en de precieze syntax vind je in de <a href="{url}">documentatie van Bleve</a>.

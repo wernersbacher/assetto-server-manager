@@ -2,7 +2,9 @@ import { Calendar } from '@fullcalendar/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
+import daLocale from '@fullcalendar/core/locales/da';
 import deLocale from '@fullcalendar/core/locales/de';
+import nlLocale from '@fullcalendar/core/locales/nl';
 import {lang, t} from './i18n';
 
 // serverLabel returns the HTML which tells on which server an event is scheduled, if that is worth showing.
@@ -29,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         defaultView: 'timeGridThreeDay',
         events: '/calendar.json' + window.location.search.replace(/[?&]server=[^&]*/g, '').replace(/^&/, '?'),
         themeSystem: 'bootstrap',
-        locales: [deLocale],
+        locales: [daLocale, deLocale, nlLocale],
         locale: lang(),
 
         header: {

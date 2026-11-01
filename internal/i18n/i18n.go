@@ -329,7 +329,7 @@ func format(v interface{}) string {
 	}
 }
 
-// pluralRule returns the plural form of a count in the language (CLDR names). English and German only know "one" and
+// pluralRule returns the plural form of a count in the language (CLDR names). English, German, Dutch and Danish only know "one" and
 // "other"; languages with other rules get theirs here when they are added.
 func pluralRule(code string) func(n int) string {
 	switch code {

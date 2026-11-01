@@ -1,0 +1,95 @@
+# Serverbeheer: servers, opties, plugins, blacklist, berichten, logs, auditlogs, AutoFill-deelnemers.
+server:
+  servers:
+    intro: Alle servers van deze ACPitwall met hun poorten, plugins en poortconflicten, zodat je de instellingen op één plek kunt vergelijken en corrigeren.
+    default: standaard
+    ports: acServer-poorten
+    no_ports: Geen poorten bekend.
+    enabled: Ingeschakeld
+    disabled: Uitgeschakeld
+    live_timing: Live timing
+    scope_title: Globale instellingen en instellingen per server
+    scope_per_server: "<strong>Per server:</strong> serveropties (inclusief de poorten), opties voor sTracker, KissMyRank en Real Penalty, blacklist, berichten (MOTD), logs van de acServer, de huidige configuratie, live timing en race control, het lopende event en de laatste race."
+    scope_shared: "<strong>Gedeeld door alle servers:</strong> accounts, het auditlog, auto's, circuits, weer en setups, de AutoFill-deelnemers, straffen, de kalender en geplande events, kampioenschappen en hun resultaten (resultaten staan in de map van de server waarop de sessie draaide)."
+    scope_notifications: <strong>Meldingen</strong> (Discord) worden verstuurd met de opties van de standaardserver, de Discord-instellingen van de andere servers worden niet gebruikt. Het ACPitwall-log is gedeeld, alleen het acServer-log hoort bij een server.
+
+  options:
+    intro: Deze opties horen bij de geselecteerde server - ze worden toegepast op elke race die ACPitwall start.
+    sections: Secties
+    save_hint: Wijzigingen gelden vanaf de volgende race die wordt gestart.
+    maintenance: Onderhoud
+    rebuild_help: De zoekindex opnieuw opbouwen. Dit zou je zelden of nooit nodig moeten hebben - maar als je handmatig content aan je contentmap hebt toegevoegd (dus niet via ACPitwall geüpload), moet je dit doen zodat de content in de zoekfunctie verschijnt. Dit kan lang duren.
+    rebuild: Zoekindex opnieuw opbouwen
+
+  plugin:
+    options_title: "Opties voor {name}"
+    intro: Integratie van server-side plugins
+    not_ours: "{name} wordt niet ontwikkeld of onderhouden door de makers van ACPitwall. Heb je vragen over de werking van {name} zelf, stel ze dan in de <a href=\"{url}\">supportthread van {name}</a>."
+    options_intro: Deze opties horen bij de geselecteerde server - ze worden naar het configuratiebestand van {name} geschreven telkens wanneer ACPitwall een race start.
+    options_intro_files: Deze opties horen bij de geselecteerde server - ze worden naar de configuratiebestanden van {name} geschreven telkens wanneer ACPitwall een race start.
+    save_hint: Wordt bij de start van een race toegepast op de configuratie van {name}.
+    installation: Installatie
+    not_installed: "{name} is niet geïnstalleerd. Volg de instructies hieronder om {name} te installeren, of neem contact op met je serverbeheerder:"
+    download: "{name} downloaden"
+    udp_hint: Zorg dat UDP Plugin Address en UDP Plugin Local Port zijn ingesteld in de <a href="{url}">serveropties</a>
+    refresh: Vernieuw deze pagina!
+    kmr:
+      about: <a href="{url}">KissMyRank</a> is de populaire server-side app die goed rijgedrag en eerlijk racen bevordert.
+      extract: Pak de juiste map voor je platform uit de KissMyRank-zip uit in een map met de naam ‘kissmyrank’ (hoofdlettergevoelig) in de map van je Assetto Corsa-server
+    stracker:
+      about: <a href="{url}">sTracker</a> is de populaire server-side tegenhanger van <a href="{ptracker_url}">pTracker</a> voor het bijhouden van ronden en races.
+      extract: Pak de stracker-zip uit in een map met de naam ‘stracker’ (hoofdlettergevoelig) in de map van je Assetto Corsa-server
+      linux: Gebruik je Linux, pak dan ook <code>stracker_linux_x86.tgz</code> uit (bijv. <code>tar xfvz stracker_linux_x86.tgz</code>).
+    rp:
+      about: <a href="{url}">Real Penalty</a> is de populaire server-side app voor eigen straffen bij georganiseerde races.
+      download_logs: Logs downloaden
+      download_logs_help: Hier kun je al je Real Penalty-logs als zip downloaden.
+      extract: Pak <code>Real Penalty {version}.zip</code> uit
+      rename: Hernoem de uitgepakte map naar <code>realpenalty</code>
+      move: Verplaats die map naar je <code>assetto</code>-map. Gebruik je multiserver, kopieer hem dan in elk van die mappen, bijv. in <code>youracserver/servers/SERVER_00/assetto/</code>
+      version_note: "Let op: deze instructies en de integratie werken gegarandeerd met versie <code>{version}</code> van Real Penalty. Andere versies kunnen werken. Heb je problemen met een nieuwere versie, <a href=\"{url}\">meld dan een probleem</a>."
+
+  blacklist:
+    intro: Verbannen gebruikers-GUID's, één per regel.
+    help: In dit bestand staan de GUID's van verbannen gebruikers. Staat de blacklistmodus op ‘2’, dan worden gebruikers automatisch aan deze lijst toegevoegd als ze worden gekickt. Je kunt de lijst los van de blacklistmodus met de hand bewerken, maar je moet de server herstarten voordat handmatige wijzigingen werken.
+    save_hint: Herstart de server zodat handmatige wijzigingen werken.
+
+  motd:
+    intro: Berichten die rijders zien als ze de server joinen.
+    motd_help: Bericht van de dag. Assetto Corsa toont het in een pop-up op volledig scherm aan iedereen die de server joint.
+    join_message: Bericht bij joinen
+    join_message_help: Wordt in de chat aan elke gebruiker getoond die de server joint.
+    cm_message: Welkomstbericht voor Content Manager
+    cm_message_help: Wordt aan Content Manager-gebruikers getoond voordat ze de server joinen. Dit veld is een sjabloon waarin je gegevens over je manager en het huidige event kunt gebruiken. Je kunt hier alles invullen wat je wilt. Zet je <code>&lbrace;&lbrace; .ServerName &rbrace;&rbrace;</code> erin, dan wordt dat vervangen door de servernaam. Zet je <code>&lbrace;&lbrace; .EventName &rbrace;&rbrace;</code> erin, dan wordt dat vervangen door de eventnaam.
+    cm_disabled: Schakel de Content Manager Wrapper in bij de <a href="{url}">serveropties</a> om dit bericht te tonen.
+    save_hint: Joinberichten worden naar rijders gestuurd zodra ze verbinden.
+
+  config:
+    intro: De <code>server_cfg.ini</code> en <code>entry_list.ini</code> die nu op de server worden gebruikt. Alleen-lezen, bedoeld voor probleemoplossing.
+    empty: Nog geen configuratie. De server schrijft zijn configuratie zodra het eerste event wordt gestart.
+    server_config: Serverconfiguratie
+    entry_list: Entry List
+
+  logs:
+    title: Serverlogs
+    intro: Spoor problemen op met de server, de manager of plugins. Je kunt ook de <a href="{url}">huidige serverconfiguratie</a> bekijken om te zien of die is wat je verwacht.
+    ac_server: Assetto Corsa-server
+    download_server: Serverlog downloaden
+    download_manager: Managerlog downloaden
+    download_plugins: Pluginlog downloaden
+
+  audit:
+    intro: Wijzigingen die gebruikers met schrijfrechten of hoger via ACPitwall hebben gedaan.
+    time: Tijd
+    user: Gebruiker
+    group: Rechtengroep
+    url: URL
+    method: Methode
+    empty: Nog geen items in het auditlog.
+
+  autofill:
+    intro: Deelnemers die worden voorgesteld bij het invullen van een Entry List.
+    delete_confirm: AutoFill-deelnemer {name} verwijderen?
+    delete_detail: De deelnemer wordt uit de AutoFill-lijst verwijderd.
+    delete_label: Deelnemer verwijderen
+    empty: Nog geen AutoFill-deelnemers.

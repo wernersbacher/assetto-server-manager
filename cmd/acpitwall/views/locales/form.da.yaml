@@ -1,0 +1,2224 @@
+# Danish translation of form.en.yaml (generated from the struct tags of the forms).
+form:
+  GlobalServerConfig:
+    AdminPassword:
+      help: 'Adgangskoden, der skal til for at blive genkendt som serveradministrator: Joiner du serveren med den, bliver du automatisk genkendt som admin. Skriv /help i spillets chat for at se kommandolisten. Advarsel: Hvis feltet er tomt, kan alle kørere forbinde som admin!'
+      label: Admin-adgangskode
+    AssettoCorsaServer:
+      label: Assetto Corsa-server
+    AuthPluginAddress:
+      help: Adressen på auth-pluginet
+      label: Auth-plugin-adresse
+    BlacklistMode:
+      help: Hvordan spærrede spillere håndteres.
+      label: Spærreliste-tilstand
+      option:
+        "0": Normalt kick, spilleren kan joine igen
+        "1": Kicket spiller kan ikke joine igen før servergenstart
+        "2": Kick spilleren og tilføj til blacklist.txt, kicket spiller kan ikke joine igen, medmindre han fjernes fra spærrelisten
+    ClientSendIntervalInHertz:
+      help: Opdateringsfrekvens for serverens afsendelse af pakker. 10Hz = ~100ms. Højere tal = bedre MP-kvalitet = mere båndbredde. Meget høje værdier kan give forbindelsesproblemer
+      label: Klient-sendeinterval i hertz
+    ContentManagerIPOverride:
+      help: Hvis sat, erstatter den IP-adressen, som GeoIP-tjenesten finder, og som bruges til Content Manager-joinlinket. Skal være en IPv4-adresse.
+      label: Content Manager-IP-tilsidesættelse
+    ContentManagerIntegration:
+      label: Content Manager-integration
+    ContentManagerWrapperContentRequiresPassword:
+      help: Når slået til (og serveren har en adgangskode), får Content Manager at vide, at det linkede indhold kræver serverens adgangskode. Selve downloads er beskyttet af signerede URL'er.
+      label: 'Content Manager Wrapper: indhold kræver adgangskode'
+    ContentManagerWrapperPort:
+      help: Porten, hvor Content Manager får ovenstående informationer. Sørg for, at porten er åben i din firewall.
+      label: Content Manager Wrapper-port
+    CustomCSS:
+      help: Tilpas ACPitwalls udseende!
+      label: Egen CSS
+    DarkTheme:
+      help: Brug ACPitwalls mørke tema som standard
+      label: Mørkt tema
+    DiscordAPIToken:
+      help: Hvis sat, sendes beskeder om løbsstart og planlagte påmindelser til Discord-kanalen med ID'et nedenfor. Brug din bots bruger-token, ikke OAuth-token.
+      label: Discord API-token
+    DiscordChannelID:
+      help: Hvis Discord er slået til, er det kanal-ID'et, som beskederne sendes til. For at finde kanal-ID'et skal du slå udviklertilstand til i Discord (brugerindstillinger, Udseende), derefter Serverindstillinger, Roller, højreklikke på kanalen og vælge Kopiér ID.
+      label: Discord-kanal-ID
+    DiscordIntegration:
+      label: Discord-integration
+    DiscordRoleCommand:
+      help: Hvis Discord-rolle-ID'et er sat, kan du her angive en kommando, fx "notify" (uden ! foran). Kører en bruger den som !-kommando (alene på en linje) i Discord, forsøger serveren at give brugeren den konfigurerede rolle. Kører du flere servere med Discord, så sæt den kun på én af dem. For at det virker, skal din bot have tilladelsen "Manage Roles".
+      label: Discord-rollekommando
+    DiscordRoleID:
+      help: Hvis sat, nævnes denne rolle i alle Discord-notifikationer. Alle brugere med rollen og adgang til kanalen bliver pinget. For at finde rolle-ID'et skal du slå udviklertilstand til (se ovenfor), derefter Serverindstillinger, Roller, højreklikke på rollen og vælge Kopiér ID.
+      label: Discord-rolle-ID
+    EnableContentManagerWrapper:
+      help: Når slået til, giver ACPitwall Content Manager ekstra informationer, bl.a. flere detaljer om forbundne klienter, eventbeskrivelser og downloadlinks. En bivirkning er, at dit servernavn får en ny oplysning (et 'i' efterfulgt af en port, som Content Manager kræver). Desuden bruger wrapperen - hvis slået til - en GeoIP-funktion fra <a href='https://freegeoip.app'>freegeoip.app</a>.
+      label: Slå Content Manager Wrapper til
+    FallBackResultsSorting:
+      help: Når slået til, bruger resultaterne en alternativ sorteringsmetode. Slå det kun til, hvis resultaterne står i forkert rækkefølge i json-filen.
+      label: Alternativ resultatsortering
+    HTTPPort:
+      help: 'Lobby-portnummer: åbn disse porte (både UDP og TCP) i serverens firewall'
+      label: HTTP-port
+    KickQuorum:
+      help: Procentdel, der kræves, for at en kick-afstemning går igennem
+      label: Kick-quorum
+    LogACServerOutputToFile:
+      help: Når slået til, skriver ACPitwall hver Assetto Corsa-session til en logfil i logs-mappen.
+      label: Log AC-serverens output til fil
+    Miscellaneous:
+      label: Diverse
+    Name:
+      help: Servernavn
+      label: Navn
+    NotificationReminderTimers:
+      help: Hvis Discord er slået til, sendes en påmindelse så mange minutter før løbsstart. Ved 0 eller tomt sendes kun beskeder om løbsstart. Du kan planlægge flere påmindelser med en kommasepareret liste som 120,15.
+      label: Påmindelsestidspunkter
+    NotifyWhenScheduled:
+      help: Send en notifikation, når et løb planlægges (eller aflyses).
+      label: Giv besked ved planlægning
+    NumberOfACServerLogsToKeep:
+      help: Antal AC-serverlogs, der gemmes i logs-mappen. (De ældste filer slettes først. 0 = behold alle filer)
+      label: Antal AC-serverlogs, der gemmes
+    NumberOfThreads:
+      help: Antal tråde, der køres med
+      label: Antal tråde
+    OGImage:
+      help: Link til et billede på nettet, som bruges som standard-Open Graph-billede (vises i links)
+      label: OG-billede
+    Password:
+      help: Serverens adgangskode
+      label: Adgangskode
+    PreventWebCrawlers:
+      help: Når slået til, forbyder robots.txt robotter at indeksere denne manager. Bemærk, at det kun afholder velopdragne bots, ikke malware-/spambots osv.
+      label: Bloker webcrawlere
+    ReceiveBufferSize:
+      label: Modtagebufferstørrelse
+    RegisterToLobby:
+      help: Registrer AC-serveren i hovedlobbyen
+      label: Registrer i lobbyen
+    RestartEventOnServerManagerLaunch:
+      help: Når slået til, og ACPitwall stoppes, mens et event kører, forsøger ACPitwall at genstarte eventet, når ACPitwall startes igen.
+      label: Genstart event, når ACPitwall starter
+    SendBufferSize:
+      label: Sendebufferstørrelse
+    ServerName:
+      label: Servernavn
+    ServerNameTemplate:
+      help: Du kan skrive hvad som helst her. Skriver du <code>{{ .ServerName }}</code>, erstattes det af servernavnet. Skriver du <code>{{ .EventName }}</code>, erstattes det af eventnavnet. Bemærk, at det kun virker, hvis 'Vis løbsnavn i serverlobbyen' (ovenfor) er slået til.
+      label: Skabelon for servernavn
+    ShowContentManagerJoinLink:
+      help: Når slået til, viser ACPitwall Content Manager-joinlinks på Live Timing-siden og (hvis slået til) i Discord-notifikationer om løbsstart.
+      label: Vis Content Manager-joinlink
+    ShowEventDetailsPopup:
+      help: Lader alle brugere se en popup, der i detaljer beskriver opsætningen af Custom Races, mesterskabsevents og Race Weekend-sessioner.
+      label: Vis popup med eventdetaljer
+    ShowPasswordInNotifications:
+      help: Vis serverens adgangskode i notifikationer om løbsstart.
+      label: Vis adgangskode i notifikationer
+    ShowRaceNameInServerLobby:
+      help: Når slået til, tilføjer ACPitwall navnet på Custom Race eller mesterskabet til servernavnet i lobbyen.
+      label: Vis løbsnavn i serverlobbyen
+    SleepTime:
+      help: Det vides ikke helt, hvad denne indstilling gør. Lad værdien stå på 1, medmindre du virkelig ved, hvad du laver. (Andre værdier end 1 giver meget høj CPU-belastning)
+      label: Sleep Time
+    TCPPort:
+      help: 'TCP-portnummer: åbn denne port i serverens firewall'
+      label: TCP-port
+    Theme:
+      label: Tema
+    UDPPluginAddress:
+      help: Adressen på pluginet, som UDP-beskeder sendes til. Bemærk, at ACPitwall proxyer UDP-portene, så den også selv kan bruge dem, fx til mesterskaber, Live Timing og kortet. Derfor er UDP-portene i server_cfg.ini andre end dem, du angiver her. Det er ikke et problem, og beskeder sendes/modtages også korrekt på de UDP-porte, du angiver her.
+      label: UDP-plugin-adresse
+    UDPPluginLocalPort:
+      help: Porten, hvor der lyttes efter UDP-beskeder fra et plugin. Bemærk, at ACPitwall proxyer UDP-portene, så den også selv kan bruge dem, fx til mesterskaber, Live Timing og kortet. Derfor er UDP-portene i server_cfg.ini andre end dem, du angiver her. Det er ikke et problem, og beskeder sendes/modtages også korrekt på de UDP-porte, du angiver her.
+      label: Lokal UDP-plugin-port
+    UDPPort:
+      help: 'UDP-portnummer: åbn denne port i serverens firewall'
+      label: UDP-port
+    UseMPH:
+      help: Når slået til, bruger ACPitwall MPH i stedet for km/h for alle hastigheder.
+      label: Brug MPH
+    UseShortenedDriverNames:
+      help: Når slået til, skjuler ACPitwall kørernes efternavne, fx bliver 'John Smith' til 'John S.'
+      label: Forkortede kørernavne
+    VoteDuration:
+      help: Afstemningens længde i sekunder
+      label: Afstemningsvarighed
+    VotingQuorum:
+      help: Procentdel, der kræves, for at en sessionsafstemning går igennem
+      label: Afstemnings-quorum
+  RealPenaltyConfig:
+    Admin:
+      fieldset: Admin
+    App:
+      fieldset: App
+    BlueFlag:
+      fieldset: Blåt flag
+    Crossing:
+      fieldset: Krydsning af linjen
+    CustomShadersPatch:
+      fieldset: Custom Shaders Patch
+    Cutting:
+      fieldset: Cutting
+    DRS:
+      fieldset: DRS
+    General:
+      fieldset: Generelt
+    Helicorsa:
+      fieldset: Helicorsa
+    JumpStart:
+      fieldset: Tyvstart
+    NoPenalty:
+      fieldset: Ingen straf
+    PluginsRelay:
+      fieldset: Plugin-relay
+    RealPenaltyACSettings:
+      Admin:
+        GUIDs:
+          help: Liste over Steam-GUID'er (adskilt af semikolon), der kan sende kommandoer til serveren via chatten
+          label: GUID'er
+      App:
+        CheckFrequency:
+          help: Hvor ofte (sekunder) appen tjekkes
+          label: Tjekfrekvens
+        Mandatory:
+          help: on = Real Penalty-appen er obligatorisk, off = Real Penalty-appen er ikke obligatorisk
+          label: Obligatorisk
+      CustomShadersPatch:
+        CheckFrequency:
+          help: Hvor ofte (sekunder) Custom Shaders Patch tjekkes
+          label: Tjekfrekvens
+        Mandatory:
+          help: Slå til, hvis alle kørere skal have Custom Shaders Patch (version 0.1.46 eller nyere) for at køre på serveren. Er indstillingen slået til, ugyldiggør appen automatisk omgangstiden
+          label: Obligatorisk
+      General:
+        CarChecksum:
+          help: Slå til, hvis du vil have en ekstra checksum af bilen (data.acd + collider.kn5, hvis de to filer findes på serveren)
+          label: Bil-checksum
+        CockpitCamera:
+          help: Slå til for obligatorisk cockpitkamera for alle kørere. Til race direction eller livetransmission skal GUID'erne stå i sektionen [No_Penalty]
+          label: Cockpitkamera
+        FirstCheckTime:
+          help: Forsinkelse (sekunder) efter en ny kørers forbindelse før første tjek (app + sol)
+          label: Tid til første tjek
+        TrackChecksum:
+          help: Slå til, hvis du vil have en ekstra checksum af banen (model + kn5-filer, hvis de findes på serveren)
+          label: Bane-checksum
+        WeatherChecksum:
+          help: Slå til, hvis du vil have en checksum af vejret (hvis vejret findes på serveren)
+          label: Vejr-checksum
+      Helicorsa:
+        CarLength:
+          help: Hvor lange bilerne er (i meter). Desværre er der ingen data fra AC
+          label: Billængde
+        CarWidth:
+          help: Hvor brede bilerne er (i meter). Desværre er der ingen data fra AC
+          label: Bilbredde
+        DistanceThreshold:
+          help: Hvor langt væk må biler være, for at de tegnes?
+          label: Afstandsgrænse
+        FrontFadeAngle:
+          help: Hvor blødt skal en bil foran tones ud? (igen i grader, 0 deaktiverer = til/fra)
+          label: Udtoningsvinkel foran
+        FrontFadeOutArc:
+          help: Ton biler foran spilleren ud i en bue på X grader (0 deaktiverer)
+          label: Udtoningsbue foran
+        Mandatory:
+          help: Slå til, hvis Helicorsa-appen er obligatorisk til løbet
+          label: Obligatorisk
+        OpacityThreshold:
+          help: 'Opacitetsgrænse: Ved hvilken afstand (i meter) skal bilerne begynde at tone ud?'
+          label: Opacitetsgrænse
+        WorldZoom:
+          help: Zoom af verdenskoordinaterne, eller hvor store bjælkerne er
+          label: Verdenszoom
+      NoPenalty:
+        GUIDs:
+          help: Liste over Steam-GUID'er (adskilt af semikolon), der kan forbinde til serveren uden app og sol (fx 'Race Direction' eller til 'Live')
+          label: GUID'er
+      SafetyCar:
+        CarModel:
+          help: Safety carens bilmodel
+          label: Bilmodel
+        GreenLightDelay:
+          help: 'Rullende start: forsinkelse af grønt lys efter rødt signal (sekunder)'
+          label: Forsinkelse af grønt lys
+        NormalizedLightOffPosition:
+          help: 'Rullende start: normaliseret position (0 = start, 1 = slut) for den første kører under den rullende start, hvor appen slukker SC-signalet'
+          label: Normaliseret position for lys slukket
+        NormalizedStartPosition:
+          help: 'Rullende start: normaliseret position (0 = start, 1 = slut) for den første kører under den rullende start, hvor appen tænder det røde signal. START_NORMALIZED_POSITION skal være større end LIGHT_OFF_NORMALIZED_POSITION'
+          label: Normaliseret startposition
+        RaceStartBehindSC:
+          help: Slå til, hvis løbet starter efter første omgang bag safety car (virker med eller uden en rigtig safety car på serveren)
+          label: Løbsstart bag SC
+      Sol:
+        CheckFrequency:
+          help: Hvor ofte (sekunder) Sol tjekkes
+          label: Tjekfrekvens
+        Mandatory:
+          help: Slå til, hvis eventet kører med Sol-moddets overgang fra dag til nat
+          label: Obligatorisk
+        PerformanceModeAllowed:
+          help: Slå til, hvis Sols performance mode er tilladt
+          label: Performance mode tilladt
+    RealPenaltyAppConfig:
+      General:
+        AppTCPPort:
+          help: TCP-port, som AC-appen lytter på (skal åbnes i firewall/router). Skal være en af 53000, 53001, 53002 til 53020 eller AC-serverens cfg-port HTTP_PORT + 27. Appen prøver alle disse porte på AC-serverens IP-adresse (indtil den rigtige forbindelse findes)
+          label: App-TCP-port
+        AppUDPPort:
+          help: UDP-port, som AC-appen lytter på (skal åbnes i firewall/router). Enhver ledig UDP-port er OK
+          label: App-UDP-port
+        EnableRealPenalty:
+          help: Slå Real Penalty til eller fra
+          label: Slå Real Penalty til
+      PluginsRelay:
+        OtherUDPPlugin:
+          help: 'Liste over alle andre UDP-plugins, der er forbundet til AC-serveren (format: IP:Ports - adskilt af semikolon)'
+          label: Andre UDP-plugins
+        UDPPort:
+          help: Liste over UDP-porte, som alle andre forbundne plugins lytter på (adskilt af semikolon)
+          label: UDP-port
+    RealPenaltySettings:
+      BlueFlag:
+        QualifyTimeThreshold:
+          help: Tidsafstand (sekunder), hvor det blå flag vises i kvalifikationen
+          label: Tidsgrænse i kvalifikation
+        RaceTimeThreshold:
+          help: Tidsafstand (sekunder), hvor det blå flag vises i løbet
+          label: Tidsgrænse i løb
+      Crossing:
+        PenaltyType:
+          help: Straftype for krydsning af linjen. dt = drive through, sgn = stop and go n sekunder, n = n sekunder lægges til ved løbets slutning
+          label: Straftype
+      Cutting:
+        EnableTyresDirtLevel:
+          help: Snavs på dækkene ved cutting
+          label: Slå dæksnavs til
+        EnabledDuringSafetyCar:
+          help: Cutting-straf slået til under safety car eller virtual safety car
+          label: Aktiv under safety car
+        MaxCutTime:
+          help: Den maksimale cut-tid (i sekunder), der udløser en advarsel. Er den for lang, kan uheld uden for banen udløse cut-advarsler
+          label: Maks. cut-tid
+        MinSlowDownRatio:
+          help: Det mindste forhold mellem hastigheden, når bilen forlader banen, og hastigheden, når den kommer tilbage, der udløser en advarsel. Et forhold under denne værdi betyder, at bilen har sænket farten og opgivet enhver fordel, og der gives ingen advarsel. 0.9 betyder, at bilen kommer tilbage på banen med 90% af den hastighed, den forlod den med. En værdi < 1 betyder, at bilen er bremset under cuttet; en værdi > 1, at den er accelereret
+          label: Min. nedbremsningsforhold
+        MinSpeed:
+          help: Den mindste hastighed i km/t, der udløser et cut
+          label: Min. hastighed
+        PenaltyType:
+          help: Straftype for cutting. dt = drive through, sgn = stop and go n sekunder, n = n sekunder lægges til ved løbets slutning
+          label: Straftype
+        PostCuttingTime:
+          help: Bonustid efter tilbagekomst på banen. Falder hastigheden i denne tid --> intet cut! Sæt til 0 for cutting-tjek som i PLP (intet tjek efter tilbagekomst på banen)
+          label: Tid efter cut
+        QualifyMaxSectorOutSpeed:
+          help: Oprindelig maks. tilladt hastighed på startlinjen i kvalifikationen efter et cut i sidste sving. VIGTIGT! Tilpas værdien til banen og bilerne!
+          label: Maks. sektor-udgangshastighed i kvalifikation
+        QualifySlowDownSpeed:
+          help: Sænker du farten til denne hastighed (km/t), forsvinder beskeden INVALID LAP, SLOW DOWN i kvalifikationen
+          label: Nedbremsningshastighed i kvalifikation
+        QualifySlowDownSpeedRatio:
+          help: Forhold til QUALIFY_MAX_SECTOR_OUT_SPEED. Den maks. tilladte hastighed på startlinjen efter et cut = QUALIFY_MAX_SECTOR_OUT_SPEED (eller kørerens nye maks. hastighed) * QUALIFY_SLOW_DOWN_SPEED_RATIO
+          label: Nedbremsningsforhold i kvalifikation
+        SecondsBetweenCuts:
+          help: Du får ikke et nyt cut, før der er gået så mange sekunder siden det sidste
+          label: Sekunder mellem cuts
+        TotalCutWarnings:
+          help: Hvor mange advarsler der tillades, før der gives en straf
+          label: Antal cut-advarsler
+        WheelsOut:
+          help: Det maksimale antal hjul, der må komme uden for banen
+          label: Hjul udenfor
+      DRS:
+        BonusTime:
+          help: Hvor mange sekunder DRS må være åben ved hver ulovlig brug før straffen
+          label: Bonustid
+        EnabledAfterLaps:
+          help: DRS slået til efter N omgange fra start (+1 ved rullende start med SC - fil ac_settings.ini)
+          label: Aktiv efter omgange
+        EnabledDuringSafetyCar:
+          help: DRS-straf slået til under safety car eller virtual safety car
+          label: Aktiv under safety car
+        Gap:
+          help: Maks. afstand i sekunder til bilen foran
+          label: Afstand
+        MaxIllegalUses:
+          help: Hvor mange gange køreren må åbne DRS ulovligt i hver sektor før straffen
+          label: Maks. ulovlige brug
+        MinSpeed:
+          help: Er bilens hastighed < MIN SPEED, gives ingen straf for ulovlig DRS-brug
+          label: Min. hastighed
+        OmitCars:
+          help: Liste over biler uden DRS, adskilt af semikolon.
+          label: Udeladte biler
+        PenaltyType:
+          help: Straftype for ulovlig DRS-brug. dt = drive through, sgn = stop and go n sekunder, n = n sekunder lægges til ved løbets slutning
+          label: Straftype
+      General:
+        EnableCrossingPenalties:
+          help: Slå til for straf ved krydsning af linjen ved pitudkørslen
+          label: Straf for krydsning
+        EnableCuttingPenalties:
+          help: Slå til for cutting-straffe; fra for kun at give advarsler
+          label: Cutting-straffe
+        EnableDRSPenalties:
+          help: Slå til for DRS-straf (kun for biler med DRS)
+          label: DRS-straffe
+        EnableSpeedingPenalties:
+          help: Slå til for straf for for høj fart i pitlane
+          label: Fartstraffe
+        LapsToTakePenalty:
+          help: Inden for hvor mange omgange en kører skal afsone en straf. Hvis LAPS_TO_TAKE_PENALTY > 2 --> tyvstart er altid 2 pga. AC's begrænsning!
+          label: Omgange til at afsone straf
+        LastLapsWithoutPenalty:
+          help: Får en kører en straf i de sidste N omgange (N = LAPS_TO_TAKE_PENALTY + LAST_LAPS_WITHOUT_PENALTY), kan han køre til løbets slutning uden at afsone den, men får en tidsstraf! (Drive through = PENALTY_SECONDS, Stop & Go 10 = PENALTY_SECONDS + 10, .......)
+          label: Sidste omgange uden straf
+        LastTimeWithoutPenalty:
+          help: Kun for tidsløb - sekunder før løbstidens slutning (husk, at den valgfrie +1 omgang kommer oveni) uden obligatorisk straf. Alle straffe, der ikke er afsonet ----> strafsekunder lægges til den endelige løbstid (i chat og log). Standard 360 (6 minutter). VIGTIGT! Tilpas værdien til banen, bilerne og den ekstra omgang (ca. 3/5 omgange, men afhængigt af LAPS_TO_TAKE_PENALTY)
+          label: Sidste tid uden straf
+        PenaltySeconds:
+          help: Antal sekunder, der lægges manuelt til det endelige løbsresultat for alle straffe, der ikke er afsonet under løbet
+          label: Strafsekunder
+      JumpStart:
+        PenaltyType0:
+          help: Straftype for tyvstart. Brug ikke sekundstraf! dt = drive through, sgn = stop and go n sekunder, dsq = diskvalifikation --> kick
+          label: Straftype 0
+        PenaltyType1:
+          label: Straftype 1
+        PenaltyType2:
+          label: Straftype 2
+        SpeedLimitPenalty0:
+          label: Hastighedsgrænse straf 0
+        SpeedLimitPenalty1:
+          help: Straftype for tyvstart. Brug ikke sekundstraf! dt = drive through, sgn = stop and go n sekunder, dsq = diskvalifikation --> kick
+          label: Hastighedsgrænse straf 1
+        SpeedLimitPenalty2:
+          help: Straftype for tyvstart. Brug ikke sekundstraf! dt = drive through, sgn = stop and go n sekunder, dsq = diskvalifikation --> kick
+          label: Hastighedsgrænse straf 2
+      Speeding:
+        PenaltyType0:
+          help: Straftype for for høj fart. dt = drive through, sgn = stop and go n sekunder, n = n sekunder lægges til ved løbets slutning, dsq = diskvalifikation --> kick
+          label: Straftype 0
+        PenaltyType1:
+          help: Straftype for for høj fart. dt = drive through, sgn = stop and go n sekunder, n = n sekunder lægges til ved løbets slutning, dsq = diskvalifikation --> kick
+          label: Straftype 1
+        PenaltyType2:
+          help: Straftype for for høj fart. dt = drive through, sgn = stop and go n sekunder, n = n sekunder lægges til ved løbets slutning, dsq = diskvalifikation --> kick
+          label: Straftype 2
+        PitLaneSpeed:
+          help: Hastigheden i km/t, over hvilken du anses for at køre for stærkt i pit. Sæt den højere for at være mere lempelig ved indkørslen til pitlane
+          label: Pitlane-hastighed
+        SpeedLimitPenalty0:
+          label: Hastighedsgrænse straf 0
+        SpeedLimitPenalty1:
+          label: Hastighedsgrænse straf 1
+        SpeedLimitPenalty2:
+          label: Hastighedsgrænse straf 2
+    SafetyCar:
+      fieldset: Safety Car
+    Sol:
+      fieldset: Sol
+    Speeding:
+      fieldset: For høj fart
+  StrackerConfiguration:
+    ACPlugin:
+      ProxyPluginLocalPort:
+        help: Proxyer AC-serverens protokol på disse porte, så flere plugins kan kædes sammen (svarer til UDP_PLUGIN_LOCAL_PORT i server_cfg.ini)
+        label: Lokal proxy-plugin-port
+      ProxyPluginPort:
+        help: Proxyer AC-serverens protokol på disse porte, så flere plugins kan kædes sammen (svarer til UDP_PLUGIN_ADDRESS i server_cfg.ini)
+        label: Proxy-plugin-port
+      ReceivePort:
+        help: UDP-port, som pluginet modtager fra. -1 betyder, at AC-serverens indstilling UDP_PLUGIN_ADDRESS bruges
+        label: Modtageport
+      SendPort:
+        help: UDP-port, som pluginet sender til. -1 betyder, at AC-serverens indstilling UDP_PLUGIN_LOCAL_PORT bruges
+        label: Sendeport
+      fieldset: AC-plugin
+    Database:
+      DatabaseFile:
+        help: Kun relevant hvis database_type=sqlite3. Sti til stracker-databasen. En relativ sti er relativ til <stracker>-programmet
+        label: Databasefil
+      DatabaseType:
+        help: Gyldige værdier er 'sqlite3' og 'postgres'. Vælger den database, der bruges.
+        label: Databasetype
+      PerformBackups:
+        help: 'Slå fra, hvis stracker ikke skal tage backup af databasen før migrering til en ny db-version. Bemærk: Backups oprettes som sqlite3-db i den aktuelle arbejdsmappe.'
+        label: Tag backups
+      PostgresDatabaseName:
+        help: Navnet på postgres-databasen
+        label: Postgres-databasenavn
+      PostgresHostname:
+        help: Navnet på værten, der kører postgresql-serveren.
+        label: Postgres-værtsnavn
+      PostgresPassword:
+        help: Postgresql-brugerens adgangskode
+        label: Postgres-adgangskode
+      PostgresUsername:
+        help: Navnet på postgresql-brugeren
+        label: Postgres-brugernavn
+      fieldset: Database
+    DatabaseCompression:
+      Interval:
+        help: Interval for databasekomprimering i minutter
+        label: Interval
+      Mode:
+        help: Forskellige muligheder for at holde databasen lille. Gyldige værdier er 'none' (ingen komprimering, gem alle tilgængelige oplysninger), 'remove_slow_laps' (gem kun detaljerede oplysninger for hurtige omgange) og 'remove_all' (gem ingen detaljerede omgangsoplysninger).
+        label: Tilstand
+      NeedsEmptyServer:
+        help: Når slået til, komprimeres databasen kun, når serveren er tom.
+        label: Kræver tom server
+      fieldset: Databasekomprimering
+    EnableStracker:
+      help: Slå Stracker til eller fra
+      label: Slå Stracker til
+    HTTPConfiguration:
+      AdminPassword:
+        help: Adgangskode til strackers admin-sider. Tomt felt slår admin-siderne fra
+        label: Admin-adgangskode
+      AdminUsername:
+        help: Brugernavn til strackers admin-sider. Tomt felt slår admin-siderne fra
+        label: Admin-brugernavn
+      AuthBanAnonymisedPlayers:
+        help: Tilføj anonymiserede spillere til spærrelisten.
+        label: Ban anonymiserede spillere
+      AuthLogFile:
+        help: Fil til logning af HTTP-godkendelsesforespørgsler. Nyttigt mod angreb med eksterne programmer (fx fail2ban).
+        label: Godkendelseslogfil
+      Banner:
+        help: Ikon, der bruges på websiderne (tomt for standard-Assetto Corsa-ikonet)
+        label: Banner
+      EnableSVGGeneration:
+        help: Slå fra, hvis du ikke vil have svg-grafer i HTTP-outputtet (sparer båndbredde)
+        label: SVG-generering
+      Enabled:
+        label: Slået til
+      InverseNavbar:
+        help: Slå til for en inverteret navigationslinje (dvs. mørk i stedet for lys)
+        label: Inverteret navigationslinje
+      ItemsPerPage:
+        help: Antal elementer pr. side
+        label: Elementer pr. side
+      LapTimesAddColumns:
+        help: Ekstra kolonner i LapTimes-tabellen (adskilt af +). Kolonner kan være 'valid', 'aids', 'laps', 'date', 'grip', 'cuts', 'collisions', 'tyres', 'temps', 'ballast' og 'vmax'. Bemærk, at for mange kolonner kan give problemer i nogle browsere.
+        label: Ekstra kolonner for omgangstider
+      ListenAddress:
+        help: HTTP-serverens lytteadresse (normalt er der ingen grund til at ændre standardværdien 0.0.0.0, som betyder, at hele internettet kan forbinde til serveren)
+        label: Lytteadresse
+      ListenPort:
+        help: HTTP-serverens TCP-lytteport
+        label: Lytteport
+      LogRequests:
+        help: Når slået til, logges HTTP-forespørgsler i stracker.log. Ellers logges de ikke.
+        label: Log forespørgsler
+      MaximumStreamingClients:
+        help: Maks. antal streaming-klienter (LiveMap-/Log-brugere), der må forbinde til serveren samtidig. Antallet af tråde til HTTP er max(10, max_streaming_clients + 5)
+        label: Maks. streaming-klienter
+      PublicURL:
+        help: Her kan du selv angive den URL, hvor sTrackers webinterface kører. Linket vises på ACPitwalls Live Timing-side, så alle kan se sTracker-interfacet. Er feltet tomt, bruges en ældre og <em>ikke anbefalet</em> proxy-metode i ACPitwall til at vise sTracker-interfacet!
+        label: Offentlig URL
+      SSL:
+        help: Slå til, hvis du vil bruge https. Bemærk, at du skal bruge et SSL-certifikat og en nøgle. Slår du det til, når du stracker på https://ip:port/ i stedet for http://ip:port/
+        label: SSL
+      SSLCertificate:
+        help: Sti til SSL-certifikatet til https. Bruges kun, når ssl er True. Et selvsigneret certifikat kan laves med 'openssl req -new -x509 -days 365 -key privkey.pem -out cert.pem'
+        label: SSL-certifikat
+      SSLPrivateKey:
+        help: Sti til den private SSL-nøgle til https. Bruges kun, når ssl er True. En privat nøgle kan laves med 'openssl genrsa -out privkey.pem 2048'
+        label: Privat SSL-nøgle
+      TemperatureUnit:
+        help: Gyldige værdier er 'degc' eller 'degf'
+        label: Temperaturenhed
+      VelocityUnit:
+        help: Gyldige værdier er 'kmh' eller 'mph'
+        label: Hastighedsenhed
+      fieldset: HTTP-konfiguration
+    InstanceConfiguration:
+      ACServerAddress:
+        help: 'Serverens IP-adresse eller navn, som resultaterne hentes fra. Rør ikke standardværdien: 127.0.0.1'
+        label: AC-serveradresse
+      AppendLogFile:
+        help: Slå til, hvis der skal tilføjes til logfilerne i stedet for at overskrive dem. Giver kun mening med et eksternt system til logrotation.
+        label: Tilføj til logfil
+      IDBasedOnDriverNames:
+        help: Normalt bør du lade standarden (fra) stå. Det bruges i miljøer, hvor den samme Steam-konto bruges af forskellige kørere.
+        label: ID baseret på kørernavne
+      KeepAlivePtrackerConnections:
+        help: Slå fra for at deaktivere TCP-indstillingen keep_alive (sådan var det før 3.1.7).
+        label: Hold ptracker-forbindelser i live
+      ListeningPort:
+        help: Lytteport for indgående ptracker-forbindelser. Skal være en af 50042, 50043, 54242, 54243, 60023, 60024, 62323, 62324, 42423, 42424, 23232, 23233, AC-udp-port +42; ptracker prøver alle disse porte på AC-serverens IP-adresse (indtil der findes en bedre løsning...)
+        label: Lytteport
+      LogFile:
+        help: Navnet på strackers logfil (utf-8-kodet), alle beskeder havner der
+        label: Logfil
+      LogLevel:
+        help: Gyldige værdier er 'info', 'debug' og 'dump'. Brug kun 'dump' til fejlsøgning, logfilerne kan blive meget store.
+        label: Logniveau
+      LogTimestamps:
+        help: Slå til, hvis logbeskederne skal have et tidsstempel foran
+        label: Tidsstempler i log
+      LowerPriority:
+        help: Slå til, hvis stracker skal sænke sin prioritet. Bruger BELOW_NORMAL på windows og nice(5) på linux.
+        label: Lavere prioritet
+      PerformChecksumComparisons:
+        help: Slå til, hvis stracker skal sammenligne spillernes checksums.
+        label: Sammenlign checksums
+      PtrackerConnectionMode:
+        help: 'Hvilke ptracker-instanser der må forbinde: Gyldige værdier er ''any'', ''newer'' eller ''none''.'
+        label: Ptracker-forbindelsestilstand
+      ServerName:
+        help: Navn på serveren; sessioner i databasen mærkes med navnet; nyttigt, når flere servere kører samtidig på den samme database
+        label: Servernavn
+      TeeToStdout:
+        help: Slå til, hvis beskederne også skal vises på stdout (i ACPitwalls plugin-logs)
+        label: Tee til stdout
+      fieldset: Instanskonfiguration
+    LapValidChecks:
+      InvalidateOnCarCollisions:
+        help: Når slået til, ugyldiggør kollisioner med andre biler omgangen
+        label: Ugyldiggør ved kollision med biler
+      InvalidateOnEnvironmentCollisions:
+        help: Når slået til, ugyldiggør kollisioner med objekter i omgivelserne omgangen
+        label: Ugyldiggør ved kollision med omgivelser
+      PtrackerAllowedTyresOut:
+        help: 'Ved -1: brug serverens strafindstilling, hvis den findes, ellers 2. Alle andre værdier gives videre til ptracker.'
+        label: Ptracker tilladte dæk udenfor
+      fieldset: Tjek af gyldige omgange
+    Messages:
+      BestLapTimeBroadcastThreshold:
+        help: Omgangstider under denne grænse (i procent af den bedste tid) sendes til alle som bedste omgange. Omgangstider over grænsen sendes kun til køreren, der har kørt dem.
+        label: Grænse for udsendelse af bedste omgang
+      CarToCarCollisionMessage:
+        help: Slå til for private beskeder ved kollision mellem biler.
+        label: Besked ved kollision mellem biler
+      MessageTypesToSendOverChat:
+        help: Tilgængelige beskedtyper er 'enter_leave','best_lap','checksum_errors','welcome','race_finished' og 'collision'. Forbind dem med + uden mellemrum.
+        label: Beskedtyper i chatten
+      fieldset: Beskeder
+    SessionManagement:
+      RaceOverStrategy:
+        help: 'Hvad der skal ske, når løbet er slut, og ingen spiller kører aktivt længere. Gyldige værdier er: ''none'' eller ''skip''.'
+        label: Strategi efter løbet
+      WaitSecondsBeforeSkip:
+        help: Antal sekunder, der ventes, før sessionen springes over (hvis strategien efter løbet er 'skip')
+        label: Ventesekunder før skip
+      fieldset: Sessionsstyring
+    SwearFilter:
+      Action:
+        help: Gyldige værdier er 'none', 'kick' og 'ban'
+        label: Handling
+      BanDuration:
+        help: Antal dage, en spiller bannes (hvis handlingen er 'ban')
+        label: Ban-varighed
+      NumberOfWarnings:
+        help: Antal advarsler, før spilleren bliver kicket
+        label: Antal advarsler
+      SwearFile:
+        help: En fil med grimme ord, der bruges til filtrering
+        label: Bandeordsfil
+      Warning:
+        help: Beskeden, en spiller får, når der er fundet et bandeord
+        label: Advarsel
+      fieldset: Bandeordsfilter
+    WelcomeMessage:
+      Line1:
+        label: Linje 1
+      Line2:
+        label: Linje 2
+      Line3:
+        label: Linje 3
+      Line4:
+        label: Linje 4
+      Line5:
+        label: Linje 5
+      Line6:
+        label: Linje 6
+      fieldset: Velkomstbesked
+  KissMyRankConfig:
+    ACAppLinkUDPPort:
+      help: UDP-porten, der bruges til at videresende Kissmyrank-events til kompatible
+        Assetto Corsa-apps i spillet (0 deaktiverer funktionen). AC-apps kan forbinde
+        til denne port. Fuld dokumentation findes under /applink/doc. Demo-app findes
+        under /applink/demo/.
+      label: AC App Link-UDP-port
+    ACChatAdminGUIDList:
+      help: Én GUID pr. linje. En liste over GUID'er for de kørere, der kan sende Kissmyrank-adminkommandoer
+        via Assetto Corsa-chatten (skriv '/kmr login password' i chatten for at logge
+        ind og '/kmr command' for at køre en af de understøttede kommandoer).
+      label: GUID-liste for admins i AC-chatten
+    ACChatAdminPassword:
+      help: Admin-adgangskoden til login fra Assetto Corsa-chatten (skriv '/kmr login
+        password' i spillets chat for at logge ind).
+      label: Admin-adgangskode i AC-chatten
+    AlltimeFastestLapPrize:
+      help: Hvor meget en kører får for den hurtigste omgang nogensinde (i tusinder).
+        1.5 = 1500€.
+      label: Præmie for hurtigste omgang nogensinde
+    AntiCheatMaxClockDeltaConsecutiveHits:
+      fieldset: 'Anti-cheat: maks. clock delta i træk'
+    AnticheatLaptimeInvalidateMaxClockDelta:
+      help: Den maksimale forskel (i millisekunder) mellem omgangstiderne, som Assetto
+        Corsa-serveren rapporterer, og dem, pluginet måler (med værtsmaskinens ur), før
+        en omgangstid afvises (fx for at forhindre misbrug, hvor man manipulerer Assetto
+        Corsa-omgangstider via CPU-uret). Husk, at værdien skal tage højde for de naturlige
+        forsinkelser i kommunikationen mellem plugin og server. Sæt den ikke for lavt,
+        ellers kan kørere blive straffet, når serveren er presset. Brug den kun, hvis
+        serveren har ressourcer nok til at behandle pakker med stabile forsinkelser. 0
+        deaktiverer.
+      label: 'Anti-cheat: ugyldiggør omgang ved maks. clock delta'
+    AnticheatPenalizeDriverMaxClockDeltaConsecutiveHits:
+      help: Antal gange i træk, en kører skal ramme max_clock_delta, før han får straffen,
+        der er defineret i penalty cost- og penalty action-tabellerne. 0 deaktiverer.
+      label: 'Anti-cheat: straf kører efter maks. clock delta i træk'
+    CarTowingCost:
+      help: Bugseringsomkostning pr. km. Hvor meget (i tusinder) kørere betaler for at
+        få bilen bugseret til pit pr. km. 0.05 = 50€ pr. km (fx når de vender tilbage
+        til pit, betaler en kører 50€ for hver km). 0 deaktiverer funktionen helt.
+      label: Bugseringsomkostning
+    ChatDriverWelcomeMessageShowRaceControlLink:
+      help: Om Race Control-linket skal vises, når en kører joiner.
+      label: Vis Race Control-link i velkomstbeskeden
+    CleanLapReward:
+      help: Hvor meget (i tusinder) en kører får for en ren omgang (dvs. en omgang uden
+        cut). Kan bruges på træningsservere (da løbsbelønninger ikke virker der).
+      label: Belønning for ren omgang
+    CollisionMinimumDamageBetweenCars:
+      help: Den mindste skadesomkostning (i tusinder), under hvilken kollisioner mellem
+        biler ikke logges. 0 logger alle kollisioner. 0.001 = kollisioner under 1€ logges
+        ikke.
+      label: Min. skade ved kollision mellem biler
+    CollisionMinimumDamageWithEnvironment:
+      help: Den mindste skadesomkostning (i tusinder), under hvilken kollisioner med omgivelserne
+        ikke logges. 0 logger alle kollisioner. 0.001 = kollisioner med omgivelserne under
+        1€ logges ikke.
+      label: Min. skade ved kollision med omgivelser
+    ConnectionOptions:
+      label: Forbindelsesindstillinger
+    CurrencySymbol:
+      help: Symbolet for valutaen, der bruges til alle kørernes bøder og betalinger (fx
+        €,$,RUB).
+      label: Valutasymbol
+    CustomChatDriverWelcomeMessages:
+      help: Egne chatbeskeder, der sendes, når en kører forbinder. Én pr. linje.
+      label: Egne velkomstbeskeder i chatten
+    CutLineYourCustomCutLine:
+      fieldset: 'Cut line: din egen cut line'
+    CutLinesEnabled:
+      help: Slå cut lines til. Sæt til 0 for at deaktivere cut_lines-funktionen. Husk,
+        at cut lines kun virker, hvis de er defineret med cut line-tegneværktøjet. Skriv
+        cut_line_list i konsollen for at se de aktuelle cut lines. Se readme.txt for mere.
+      label: Cut lines slået til
+    DamageCostBetweenCars:
+      help: Omkostningen (i tusinder) for skaden ved en kollision mellem biler ved damage_cost_between_cars_base_speed.
+        3 = 3000€ (fx betaler kørere 3000€, hvis de kolliderer ved den angivne relative
+        basishastighed). Bemærk, at skaden vokser med kvadratet af den relative hastighed.
+      label: Skadesomkostning mellem biler
+    DamageCostBetweenCarsBaseSpeed:
+      help: Basishastigheden (i km/h) for damage_cost_between_cars.
+      label: Basishastighed for skadesomkostning mellem biler
+    DamageCostWithEnvironment:
+      help: Omkostningen (i tusinder) for skaden ved en kollision med omgivelserne ved
+        damage_cost_with_environment_base_speed. 3 = 3000€ (fx betaler kørere 3000€, hvis
+        de kolliderer med omgivelserne ved den angivne relative basishastighed). Bemærk,
+        at skaden vokser med kvadratet af hastigheden.
+      label: Skadesomkostning med omgivelser
+    DamageCostWithEnvironmentBaseSpeed:
+      help: Basishastigheden (i km/h) for damage_cost_with_environment.
+      label: Basishastighed for skadesomkostning med omgivelser
+    Database:
+      label: Database
+    DatabaseSharingLocalGroupPort:
+      help: Port til lokal databasedeling med Kissmyrank-instanser på samme maskine. Sæt
+        en gyldig port, hvis du vil dele den samme database mellem flere instanser af
+        Kissmyrank-pluginet på samme maskine. Porten skal have samme værdi for alle plugins
+        i den samme delingsgruppe (fx har du 4 Kissmyrank-instanser A,B,C,D og vil bruge
+        databasen parvis, så A deler db med B, og C og D deler en anden; så sætter du
+        database_sharing_group_port i config.json for KMR A og KMR B til 4567 og for KMR
+        C og KMR D til 4568).
+      label: Lokal gruppeport til databasedeling
+    DatabaseSharingRelayForNames:
+      help: 'Én pr. linje. Relay-navne til fjern-databasedeling. Advarsel: Denne nøgle
+        skal ikke bruges til almindelig databasedeling, kun hvis du har ensomme plugins
+        (dvs. plugins, der er forbundet til én instans, men ikke til de andre). Lad os
+        sige, at du vil dele databasen mellem 3 plugins (A,B og C) og har sat database_sharing_unique_name
+        til plugin_a, plugin_b og plugin_c. Du kan kun forbinde A<->B og B<->C, men ikke
+        A direkte med C. Når alle andre nøgler er sat korrekt (A<->B og B<->C), redigerer
+        du plugin_b''s config.json og tilføjer plugin_a og plugin_c til nøglen database_sharing_relay_for_names.
+        Så videresender plugin B informationer til det andet plugin, så du får A<->B<->C.
+        Husk, at hvis du tager B ned, skal du også tage A og C ned, ellers bliver synkroniseringen
+        måske ikke fuldstændig. Funktionen virker for både lokale og fjernforbindelser,
+        så længe du sætter det unikke navn. Pas på ikke at lave dobbelte forbindelser
+        mellem plugins, ellers kan du få dobbelte opdateringer.'
+      label: Relay-navne til databasedeling
+    DatabaseSharingRemoteConnectToAddresses:
+      help: Én pr. linje. Adresser til fjern-databasedeling. Adresserne på fjern-plugins
+        i det sædvanlige format host:port (hvor host er IP/adressen på serveren, der kører
+        pluginet, og port er den database_sharing_remote_listen_port, du har sat for pluginet).
+        Skal plugin A dele databasen med plugin B, skal du tilføje hostA:portA i plugin
+        B's config.json og hostB:portB i plugin A's config.json. Tilføj for hvert plugin
+        alle dem, det skal kommunikere med (selvfølgelig ikke sig selv, ellers starter
+        du en løkke). Forbind ikke to plugins med både lokal og fjerndeling.
+      label: Fjernadresser til databasedeling
+    DatabaseSharingRemoteListenAddress:
+      help: Lytteadresse til fjern-databasedeling (skift den kun, hvis du kun vil lytte
+        på et bestemt interface; anbefales ikke).
+      label: Fjern-lytteadresse til databasedeling
+    DatabaseSharingRemoteListenPort:
+      help: Lytteport til fjern-databasedeling. Brug den kun, hvis lokal databasedeling
+        ikke er mulig. Sæt en gyldig port, hvis du vil dele databasen med et plugin på
+        en anden maskine. Fjerndeling kan give lag, så lokal databasedeling anbefales,
+        når det er muligt.
+      label: Fjern-lytteport til databasedeling
+    DatabaseSharingRemoteSecretKey:
+      help: Hemmelig nøgle til fjern-databasedeling. Skal kun bruges ved fjerndeling.
+        Den skal være den samme for alle værter, der bruger fjern-databasedeling.
+      label: Hemmelig nøgle til fjern-databasedeling
+    DatabaseSharingUniqueName:
+      help: Unikt navn til databasedeling. Giv pluginet et unikt navn, så det er nemmere
+        at kende i logs. Det er kun kosmetisk og helt valgfrit.
+      label: Unikt navn til databasedeling
+    DriveThroughNoKick:
+      help: Om kick-straffen skal deaktiveres, når en drive through ikke afsones, eller
+        når der kommer to drive through-events i træk.
+      label: Intet kick ved drive through
+    DrivingLinePenaltyRepeatGrace:
+      help: Mindste tid (i sekunder) mellem to cutting-straffe i træk (banegrænser og
+        cut lines). 6 = 6s (fx hvis en kører cutter to gange på mindre end 6s, straffes
+        han kun én gang). Sæt den ikke for lavt for at undgå straf-spam.
+      label: Respit ved gentagne kørelinjestraffe
+    EnableKissMyRank:
+      label: Slå Kiss My Rank til
+    FirstBlood:
+      fieldset: First Blood
+    HotLapProtection:
+      fieldset: Hotlap-beskyttelse
+    HotLappingCarCollision:
+      fieldset: Kollision med bil på hotlap
+    HotlapProtection:
+      help: Ved hvilken afstand (i meter) en bil på outlap skal få advarslen 'Lad den
+        anden bil passere', når den er ved at blive overhalet.
+      label: Hotlap-beskyttelse
+    ImprovingQualifyLapTimeWithInfractions:
+      fieldset: Forbedring af kvalifikationstid med overtrædelser
+    ImprovingQualifyLaptimeWithInfractionsCutoffPercent:
+      help: Omgangstiden (i procent af sessionens bedste), over hvilken en forbedret tid
+        med cuts ikke regnes som misbrug. 107 = 107% (fx udløser en kører, der sætter
+        en tid med Kissmyrank-overtrædelser, men uden AC-overtrædelser, over 107% af sessionens
+        hurtigste omgang, ikke straffen).
+      label: Grænse i procent for forbedring af kvalifikationstid med overtrædelser
+    JLPMoneyKillSwitch:
+      help: Sæt til 1, hvis du ligesom kaptajn Jean-Luc Picard slet ikke vil bruge penge-/pointsystemet
+        (fx ligaer, private servere og alle, der kun er interesseret i Kissmyranks Race
+        Control- og tracking-funktioner). Ændrer du det, skal du nulstille databasen (dvs.
+        installere pluginet på ny).
+      label: JLP-pengekontakt
+    LappingCarCollision:
+      fieldset: Kollision med bil, der overhaler med en omgang
+    LappingProtection:
+      fieldset: Overhalingsbeskyttelse (blåt flag)
+      help: Ved hvilken afstand (i meter) en bil, der er ved at blive overhalet med en
+        omgang, skal få advarslen 'Blåt flag'.
+      label: Overhalingsbeskyttelse (blåt flag)
+    LaptimeChallengeBaseAverageSpeed:
+      help: Basisgennemsnitsfart for Laptime Challenge (km/h). 110=110km/h. En kører er
+        på niveau 0, hvis han kan køre en omgang med 110 km/h i gennemsnit, niveau 1 ved
+        111 km/h osv...
+      label: Basisgennemsnitsfart for Laptime Challenge
+    LaptimeChallengeBasePrize:
+      help: Basispræmie for Laptime Challenge (i tusinder). 0.01 = 10€. Belønningen er
+        basis*niveau (niveau 2 får 20). 0 deaktiverer Laptime Challenge-funktionen.
+      label: Basispræmie for Laptime Challenge
+    LaptimeChallengeLevelAverageSpeedGap:
+      help: Forskellen i gennemsnitsfart mellem to Laptime Challenge-niveauer (km/h).
+        1=1km/h (fx niveau 0 => 110km/h, niveau 1 => 111km/h).
+      label: Fartforskel mellem Laptime Challenge-niveauer
+    LiveTrackView:
+      help: Om Live Track View skal slås til (slå fra, hvis du vil deaktivere Live Map
+        i Web Stats).
+      label: Live Track View
+    MacCollisionsPer100kmRechargeHours:
+      help: Basistiden (timer pr. kollisionsenhed), som en kører over max_collisions_per_100km
+        skal vente, før han kan joine serveren igen (fx hvis max_collisions_per_100km
+        er 30, skal en kører med 31 kollisioner pr. 100km vente 1t fra sidste gang, han
+        forlod serveren, ved 32 skal han vente 2 timer osv.).
+      label: Ventetimer ved maks. kollisioner pr. 100 km
+    MaxCollisions:
+      fieldset: Maks. kollisioner
+      help: Det maksimale antal kollisioner, en bruger kan være involveret i, før han
+        får straffene fra penalty_cost- og penalty_action-tabellerne.
+      label: Maks. kollisioner
+    MaxCollisionsPer100km:
+      help: Det maksimale antal kollisioner pr. 100 km, en kører må have på serveren.
+        Gælder kørere, der har kørt mere end max_collisions_per_100km_min_distance.
+      label: Maks. kollisioner pr. 100 km
+    MaxCollisionsPer100kmMinDistance:
+      help: Den kørte distance (i km), hvorefter max_collisions_per_100km begynder at
+        gælde.
+      label: Min. distance for maks. kollisioner pr. 100 km
+    MaxInfractions:
+      fieldset: Maks. overtrædelser
+      help: Det maksimale antal gange, en kører må bryde serverens regler (cut, for høj
+        fart, krydsning af pitudkørselslinjen osv.), før han får straffene fra Penalty
+        Costs og Penalty Actions.
+      label: Maks. overtrædelser
+    MaxPing:
+      help: Den maksimale ping (i ms), en kører må have (pluginet giver en advarsel, hvis
+        den aktuelle ping er over, og kicker køreren, hvis gennemsnittet af de sidste
+        4 målinger er over værdien). Sæt den ikke for lavt, ellers kan det gå ud over
+        antallet af spillere. 0 deaktiverer ping-grænsen helt.
+      label: Maks. ping
+    MaxPingDeviation:
+      help: Den maksimale ping-afvigelse (i ms), kørere må have, før forbindelsen regnes
+        som ustabil (pluginet kicker køreren, hvis standardafvigelsen for de sidste 4
+        målinger er over værdien). Det er et mål for forbindelsens ustabilitet, som er
+        vigtig for MP-racing. 0 deaktiverer.
+      label: Maks. ping-afvigelse
+    MemoryMonitorEnabled:
+      help: Om hukommelsesovervågningen skal slås til (på Linux kræver den libc6 2.14+).
+        Slå den til, hvis pluginet skal overvåge hukommelsesforbruget (godt til fejlsøgning
+        af problemer, der kan hænge sammen med hukommelsesallokering).
+      label: Hukommelsesovervågning slået til
+    MinMoney:
+      help: Mindste beløb (i tusinder), en kører skal have for at blive på serveren. 1
+        = 1000€ (fx -12 -> kørere med mere end 12000€ i gæld bliver kicket). Tjek også
+        start_money, så værdien giver mening.
+      label: Min. penge
+    MinimumDrivingStandard:
+      help: Maks. tilladt tid på ranglisten som brøkdel af den hurtigste tid. 1.1 = 110%
+        af den hurtigste tid (fx får en kører, der ikke kan sætte en tid inden for 110%
+        af den hurtigste omgangstid inden for minimum_driving_standard_laps omgange, ikke
+        lov til at være på serveren).
+      label: Minimum køreniveau
+    MinimumDrivingStandardLaps:
+      help: Antal gyldige omgange, en kører skal gennemføre for at nå minimum køreniveau.
+        En kører får en ny chance efter nogle dage i henhold til minimum_driving_standard_recharge_period.
+      label: Omgange for minimum køreniveau
+    MinimumDrivingStandardMinPlayers:
+      help: Mindste antal spillere, over hvilket minimum køreniveau håndhæves. Er værdien
+        noget andet end 0, håndhæves reglen kun, hvis der er flere end det angivne antal
+        spillere på serveren.
+      label: Min. spillere for minimum køreniveau
+    MinimumDrivingStandardRechargePeriod:
+      help: Antal sekunder, før en omgang genoplades for en kører, der ikke lever op til
+        niveauet (fx hvis minimum_driving_standard_laps er 12, angiver værdien, hvor længe
+        en spiller med 13 omgange og en dårlig tid skal vente, før han kan joine serveren
+        igen).
+      label: Genopladningsperiode for minimum køreniveau
+    Miscellaneous:
+      label: Diverse
+    Money:
+      label: Penge
+    NoMoney:
+      help: Slå til, hvis du vil bruge point i stedet for penge (no money, no party :D).
+      label: Ingen penge
+    OvertakingUnderVirtualSafety:
+      fieldset: Overhaling under virtual safety car
+    ParkedCarDistance:
+      help: Den distance (i meter), en bil skal køre på parked_car_max_seconds for ikke
+        at udløse detektionen. 24 = 24 meter (en bil på banen, der bevæger sig mere end
+        24 meter på parked_car_seconds, udløser ikke detektionen).
+      label: Distance for parkeret bil
+    ParkedCarMaxGrace:
+      help: Antal gange, en kører kan udløse detektionen af parkerede biler, før han får
+        en straf. 4 = 4 gange (0 deaktiverer detektionen).
+      label: Maks. respit for parkeret bil
+    ParkedCarSeconds:
+      help: Antal sekunder for detektionen af parkerede biler. 6 = 6s (fx udløser en kører,
+        der er nær banen og ikke bevæger sig mere end parked_car_distance på 6s, detektionen
+        én gang).
+      label: Sekunder for parkeret bil
+    ParkingNearTrack:
+      fieldset: Parkering nær banen
+    PenaltyActions:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      CutLineYourCustomCutLine:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      FirstBlood:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      HotLapProtection:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      HotLappingCarCollision:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      ImprovingQualifyLapTimeWithInfractions:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      LappingCarCollision:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      LappingProtection:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      MaxCollisions:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      MaxInfractions:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      OvertakingUnderVirtualSafety:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      ParkingNearTrack:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      PitExitLineCrossing:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      PitLaneSpeeding:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      ReverseGear:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      SlowingUnderVirtualSafetyCar:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      SpeedingUnderVirtualSafetyCar:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      TrackBoundaryCut:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      TrackRejoinMaxSpeed:
+        Practice:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Træning
+        Qualify:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Kvalifikation
+        Race:
+          help: DT0 for drive through inden omgangens slutning. DT1 for drive through
+            inden slutningen af den følgende omgang osv. DT, der gives i kvalifikation
+            og træning, skal afsones i det følgende løb. K for kick med det samme. TB30
+            for et midlertidigt ban på 30 minutter. TB60 for et midlertidigt ban på 60
+            minutter.
+          label: Løb
+      fieldset: Penalty Actions
+    PenaltyCosts:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      CutLineYourCustomCutLine:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      FirstBlood:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      HotLapProtection:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      HotLappingCarCollision:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      ImprovingQualifyLapTimeWithInfractions:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      LappingCarCollision:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      LappingProtection:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      MaxCollisions:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      MaxInfractions:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      OvertakingUnderVirtualSafety:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      ParkingNearTrack:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      PitExitLineCrossing:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      PitLaneSpeeding:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      ReverseGear:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      SlowingUnderVirtualSafetyCar:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      SpeedingUnderVirtualSafetyCar:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      TrackBoundaryCut:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      TrackRejoinMaxSpeed:
+        Other:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Andet
+        Practice:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Træning
+        Qualify:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Kvalifikation
+        Race:
+          help: Pengestraffene (i tusinder), du vil give i en given situation.
+          label: Løb
+      fieldset: Penalty Costs
+    PenaltyInfractionMap:
+      AntiCheatMaxClockDeltaConsecutiveHits:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      CutLineYourCustomCutLine:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      FirstBlood:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      HotLapProtection:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      HotLappingCarCollision:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      ImprovingQualifyLapTimeWithInfractions:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      LappingCarCollision:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      LappingProtection:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      MaxCollisions:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      MaxInfractions:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      OvertakingUnderVirtualSafety:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      ParkingNearTrack:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      PitExitLineCrossing:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      PitLaneSpeeding:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      ReverseGear:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      SlowingUnderVirtualSafetyCar:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      SpeedingUnderVirtualSafetyCar:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      TrackBoundaryCut:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      TrackRejoinMaxSpeed:
+        Practice:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Træning
+        Qualify:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Kvalifikation
+        Race:
+          help: Hvor mange overtrædelser der lægges til overtrædelsestælleren for hver
+            straf i hver session.
+          label: Løb
+      fieldset: Overtrædelsestabel
+    PingCheckInterval:
+      help: Antal sekunder mellem to ping-tjek (en lavere værdi kan give højt CPU-forbrug).
+        0 deaktiverer ping-tjekket helt.
+      label: Ping-tjekinterval
+    PitExitLineCrossing:
+      fieldset: Krydsning af pitudkørselslinjen
+    PitLaneSpeeding:
+      fieldset: For høj fart i pitlane
+    PitSpeedLimit:
+      help: Hastighedsgrænsen i pit (i km/h). Over denne hastighed afbrydes drive through.
+        80 = 80km/h (brug evt. 81, hvis du rammer speed limiter-buggen). Værdien er påkrævet,
+        sæt den ikke til 0.
+      label: Hastighedsgrænse i pit
+    Protections:
+      label: Beskyttelser
+    QualifyTopThreeBasePrize:
+      help: Hvor meget (i tusinder) de tre første kørere skal belønnes, hvis flere end
+        det angivne antal spillere har sat en gyldig kvalifikationstid. 0.5 = 500€ (fx
+        får nr. 1 1500, nr. 2 1000, nr. 3 500€).
+      label: Basispræmie for top tre i kvalifikation
+    QualifyTopThreePrizeMinPlayers:
+      help: Hvor mange spillere der skal sætte en tid, før pole-præmierne uddeles.
+      label: Min. spillere for top tre-præmie i kvalifikation
+    RaceControl:
+      label: Race Control
+    RaceControlCollisionReplayTime:
+      help: Antal sekunder, pluginet skal vise for hver bil i Race Controls kollisionsreplay.
+      label: 'Race Control: replaytid for kollisioner'
+    RaceControlCollisionSpace:
+      help: Den maksimale afstand i meter mellem de to positioner, Assetto Corsa-serveren
+        rapporterer for den samme kollision (for at tage højde for afvigelser hos klienterne
+        pga. lag). Sæt den op, hvis kollisioner rapporteres to gange.
+      label: 'Race Control: kollisionsafstand'
+    RaceControlCollisionTime:
+      help: Det maksimale antal sekunder, Assetto Corsa-serveren har til at levere kollisionsdata
+        for begge biler. Sæt den op, hvis kollisioner rapporteres to gange.
+      label: 'Race Control: kollisionstid'
+    RaceControlCutReplayTime:
+      help: Antal sekunder, pluginet skal vise for hver bil i Race Controls cut-replay.
+      label: 'Race Control: replaytid for cuts'
+    RaceControlIncludePlayersNearerThan:
+      help: Biler inden for denne afstand (i meter) fra bilen, der udløser Race Control-eventet,
+        kommer med i replayet. 100 = 100m (fx hvis en bil kolliderer med en anden, kommer
+        alle kørere inden for 100 meter med i replayet).
+      label: 'Race Control: medtag spillere nærmere end'
+    RaceControlLogOvertakes:
+      help: Sæt til 1, hvis pluginet skal logge overhalinger og vise dem i Race Control
+        (kan bruge hukommelse og fylde visningen med events, der ikke er strengt nødvendige
+        for Race Control).
+      label: 'Race Control: log overhalinger'
+    RaceControlMaxEvents:
+      help: Det maksimale antal events, Race Control skal vise.
+      label: 'Race Control: maks. events'
+    RaceControlOvertakeReplayTime:
+      help: Antal sekunder, pluginet skal vise for hver bil i Race Controls overhalingsreplay.
+      label: 'Race Control: replaytid for overhalinger'
+    RaceControlPassword:
+      help: Adgangskoden, som race directors skal bruge for at bedømme kollisioner via
+        Web Stats-siden (skal være mindst 8 tegn, ellers deaktiveres funktionen).
+      label: Race Control-adgangskode
+    RaceDriverEntryFee:
+      help: Hvor meget en kører skal betale for at deltage i en løbssession på serveren
+        (i tusinder). 0.3 = 300€ (fx betaler kørere 300€ ved starten af hvert løb).
+      label: Startgebyr for kørere
+    RaceFastestLapPrize:
+      help: Hvor meget en kører får for løbets hurtigste omgang (i tusinder). 0.15 = 150€.
+      label: Præmie for hurtigste omgang i løbet
+    RaceMassAccidentCrashTime:
+      help: Tiden i sekunder, over hvilken race_mass_accident_crashed_players_percentage
+        vurderes. 30 = 30s.
+      label: Tid for masseuheld i løb
+    RaceMassAccidentCrashedPlayersPercentage:
+      help: Procentdelen af spillere, der skal være involveret i en kollision inden for
+        mass_accident_crash_time, før pluginet udløser reaktionen på masseuheld (fx virtual
+        safety car eller automatisk genstart). 45 = 45%.
+      label: Procentdel crashede spillere ved masseuheld
+    RaceMassAccidentMinCrashedPlayers:
+      help: Mindste antal spillere, der skal crashe for at udløse reaktionen på masseuheld
+        (fx så virtual safety car ikke kommer for tit på servere med få spillere).
+      label: Min. crashede spillere ved masseuheld
+    RaceMassAccidentResponse:
+      FirstLap:
+        label: Første omgang
+      OtherLaps:
+        label: Andre omgange
+      fieldset: Reaktion på masseuheld i løb
+    RaceMinimumPlayers:
+      help: Mindste antal spillere, der kræves for at køre løb (skal være >=2, hvis du
+        bruger pengesystemet). Er der ikke nok spillere, springer serveren løbssessionen
+        over.
+      label: Min. spillere til løb
+    RacePodiumAnnouncement:
+      help: Om de tre første kørere skal annonceres ved løbets slutning.
+      label: Podiumannoncering
+    RaceSponsorCleanGainOvertakes:
+      help: Hvor mange rene overhalinger der kræves, før sponsorerne giver én belønning
+        for rene positionsgevinster (fx hvis du sætter den til 5, og køreren laver 5 rene
+        overhalinger, får han 1000€; ved 10 overhalinger får han 2000€ osv.)
+      label: Rene overhalinger for sponsorbelønning
+    RaceSponsorCleanGainReward:
+      help: Hvor meget sponsorer belønner en kører, der laver 5 rene overhalinger i løbet
+        (i tusinder). 1 = 1000€. Rene overhalinger er vundne positioner uden kollisioner,
+        bortset fra positioner vundet på kørere, der afbryder forbindelsen under løbet.
+      label: Sponsorbelønning for rene overhalinger
+    RaceSponsorEntryFee:
+      help: Hvor meget en sponsor betaler for at få køreren med i løbet (i tusinder).
+        1.5 = 1500€ (fx bidrager dette sammen med startgebyret til den samlede præmiesum;
+        jo højere, desto større udbetalinger).
+      label: Sponsorgebyr pr. løb
+    RaceSponsorRewardBaseLength:
+      help: Antal km, der kræves for at betale det fulde sponsorgebyr (fx hvis sponsorgebyret
+        er 1000€, og du sætter værdien til 35, bidrager sponsorerne i et løb på 7 omgange
+        på en 5km-bane med 1000€ pr. bil; ved 14 omgange betaler de 2000€ pr. bil, så
+        længere løb giver større præmier).
+      label: Basislængde for sponsorbelønning
+    RaceSponsorRewardBaseTime:
+      help: Antal minutter, der kræves for at betale det fulde sponsorgebyr (fx hvis sponsorgebyret
+        er 1000€, og du sætter værdien til 15, bidrager sponsorerne i et løb på 15 minutter
+        med 1000€ pr. bil; ved 30 minutter betaler de 2000€ pr. bil, så længere løb giver
+        større præmier).
+      label: Basistid for sponsorbelønning
+    RankSortByWinStats:
+      help: Sortér ranglisten efter sejrsstatistik i stedet for penge. Ændrer du det,
+        skal du nulstille databasen.
+      label: Sortér rangliste efter sejre
+    RelativeHotlapProtection:
+      help: Ved hvilken afstand (som brøkdel af banens samlede længde) en bil på outlap
+        skal få advarslen 'Lad den anden bil passere', når den er ved at blive overhalet.
+        Bruges kun, hvis banelængden mangler. 1 er hele banens længde (0.008 er 8/1000
+        af banens længde).
+      label: Relativ hotlap-beskyttelse
+    RelativeLappingProtection:
+      help: Ved hvilken afstand (som brøkdel af banens samlede længde) en bil, der er
+        ved at blive overhalet med en omgang, skal få advarslen 'Blåt flag'. Bruges kun,
+        hvis banelængden mangler. 1 er hele banens længde (0.007 er 7/1000 af banens længde).
+      label: Relativ overhalingsbeskyttelse
+    ReservedSlotsAccessKey:
+      help: Nøglen, som VIP-spillere skal bruge i Kissmyrank Multiplayer Launcher Mod
+        for at få adgang til deres reserverede plads. Kørere med en reserveret plads skal
+        skrive nøglen i inputfeltet i Kissmyrank Multiplayer Launcher Mod (ved den røde
+        spørgsmålstegnsknap øverst i serverlisten), før de kan bruge pladsen. Er indstillingen
+        ikke sat, er funktionen med reserverede pladser helt deaktiveret.
+      label: Adgangsnøgle til reserverede pladser
+    ReservedSlotsBootPlayersAtRace:
+      help: Om det skal deaktiveres, at spillere smides ud for reserverede pladser under
+        løbet. Pladser frigøres pr. bil nedefra i feltet (så på et fuldt felt rammer det
+        mest sandsynligt spillere, der er joinet sent eller er flere omgange bagud). Sæt
+        til 1, hvis du helt vil deaktivere reserverede pladser i løbssessionen. Så må
+        VIP-spillere vente, til en plads bliver ledig, eller til næste session.
+      label: 'Reserverede pladser: smid spillere ud i løb'
+    ReservedSlotsGUIDList:
+      help: Én pr. linje. En liste over GUID'er for kørere, der har en reserveret plads
+        på serveren (kræver Kissmyrank Multiplayer Launcher Mod). Er serveren fuld, og
+        en af disse GUID'er prøver at joine, bliver en spiller kicket for at gøre plads.
+      label: GUID-liste for reserverede pladser
+    ReverseGear:
+      fieldset: Bakgear
+    ReverseGearMaxDistance:
+      help: Den maksimale distance i meter, en kører må bakke på banen (0 deaktiverer
+        straffen).
+      label: Maks. distance i bakgear
+    RightToBeForgottenChatCommand:
+      help: Om chatkommandoen 'kmr erase_personal_data_and_ban_myself' skal slås til,
+        så kørere kan bruge deres ret til at blive glemt og få alle deres statistikker
+        slettet.
+      label: Chatkommando for retten til at blive glemt
+    RollingStart:
+      help: Om Kissmyranks rullende start skal bruges ved løbets start.
+      label: Rullende start
+    Rules:
+      label: Regler
+    SessionHistoryLength:
+      help: Længden af sessionshistorikken. Hvor mange sessioner der gemmes i hukommelsen.
+        En højere værdi bruger mere hukommelse.
+      label: Længde af sessionshistorik
+    SlowingUnderVirtualSafetyCar:
+      fieldset: Nedbremsning under virtual safety car
+    SpeedUnitFormat:
+      help: Hastighedsenheden, der bruges ved offentlig visning af data. Tilladte værdier
+        er kmh og mph. Bemærk, at det kun er kosmetisk for brugerne, og at du stadig skal
+        bruge km/h i al konfiguration.
+      label: Format for hastighedsenhed
+    SpeedingUnderVirtualSafetyCar:
+      fieldset: For høj fart under virtual safety car
+    StartMoney:
+      help: Pengene (i tusinder), som en spiller uden rang får, når han joiner serveren
+        første gang (30=30000€). Tjek også min_money, så værdien giver mening.
+      label: Startpenge
+    ThousandSeparator:
+      help: Tegnet, der adskiller tusinder (fx 19,000 eller 19.000).
+      label: Tusindtalsseparator
+    TimeBasedRaceExtraLap:
+      help: Om den ekstra omgang er slået til i Assetto Corsa-serverens server_cfg.ini
+        ved tidsbaserede løb. Er banerotation aktiv, læser pluginet indstillingen direkte
+        fra server_cfg.ini og ignorerer denne værdi.
+      label: Ekstra omgang i tidsbaseret løb
+    TrackBoundaryCut:
+      fieldset: Cut over banegrænsen
+    TrackBoundaryCutGainFilter:
+      help: Om gevinstfilteret for cuts over banegrænsen skal slås til. Det sammenligner
+        fordelen ved cuttet med sessionens hurtigste omgang og giver ingen straf, hvis
+        køreren taber tid i forhold til den.
+      label: Gevinstfilter for cuts over banegrænsen
+    TrackBoundaryCutGainFilterMinAverageSpeed:
+      help: Denne hastighed (i km/h) er gulvet for gevinstfilteret for cuts over banegrænsen.
+        45 = 45km/h (fx hvis en spiller under cuttet taber mere tid, end hvis han kørte
+        det pågældende baneafsnit med 45km/h, ignoreres cuttet). Kun nyttigt i de første
+        omgange, når der endnu ikke er en sammenligningsomgang.
+      label: 'Gevinstfilter: min. gennemsnitsfart'
+    TrackBoundaryCutGainFilterMinLossPercent:
+      help: Det mindste acceptable tidstab (i procent), for at gevinstfilteret ignorerer
+        cuttet. 6=6% (fx får en kører, der taber mere end 6% i forhold til sessionens
+        hurtigste omgangstid, ingen straf).
+      label: 'Gevinstfilter: min. tab i procent'
+    TrackBoundaryCutMaxSpeed:
+      help: Den maksimale hastighed (i km/h), hvormed en kører må krydse banegrænsen.
+      label: Maks. hastighed ved cut over banegrænsen
+    TrackBoundaryCutMaxTime:
+      help: Den maksimale tid (i sekunder) mellem cuttets start og slut (cuts uden for
+        dette interval regnes som afkørsler).
+      label: Maks. tid for cut over banegrænsen
+    TrackBoundarySameLapCutMaxSpeed:
+      help: Den maksimale hastighed (i km/h), hvormed en kører må krydse banegrænsen efter
+        den første overtrædelse (gælder både tilbagekomst på banen og yderligere cuts).
+      label: Maks. hastighed ved cut i samme omgang
+    TrackBoundarySampleLength:
+      help: Længden (i meter) af et enkelt stykke banegrænse (maks. anbefalet værdi er
+        3). Sæt den op, hvis du vil spare diskplads på bekostning af præcisionen. Bemærk,
+        at værdien kun gælder nye datasæt.
+      label: Samplelængde for banegrænse
+    TrackRejoinMaxSpeed:
+      fieldset: Maks. hastighed ved tilbagekomst på banen
+      help: Den maksimale hastighed, hvormed en kører må komme tilbage på banen efter
+        at have været uden for banen i et udelukket område eller have stoppet bilen uden
+        for banen.
+      label: Maks. hastighed ved tilbagekomst på banen
+    UDPRelay:
+      label: UDP-relay
+    UDPReplayTo:
+      help: 'Én pr. linje. Brug det, hvis du vil videresende UDP-trafik til andre plugins
+        (fx Minorating, Stracker osv.). Det virker sådan: AC-server <-> Kissmyrank-plugin
+        <-> andre plugins. For hvert plugin angiver du adressen i formatet ip_address:port
+        (fx for et plugin på 127.0.0.1 med port 12003 erstatter du UDP_PLUGIN_ADDRESS_1
+        med 127.0.0.1:12003). For at det virker, skal det andet plugin sættes op, som
+        om Kissmyrank-pluginet var Assetto Corsa-serveren (fx med Kissmyranks standardkonfiguration
+        på port 12000 sætter du det andet plugins ac_server_plugin_port til 12000 og ac_server_ip
+        til IP''en på maskinen, hvor Kissmyrank-pluginet kører). Tjek konsollen ved start
+        for at se, om adressen læses korrekt.'
+      label: UDP-relay til
+    VSCDefaultLeaderSlowAllowOvertakeSpeed:
+      help: Hastigheden i km/h, under hvilken føreren må overhales under virtual safety
+        car eller formationsomgangen ved rullende start (så en parkeret bil ikke blokerer
+        alle).
+      label: 'VSC: hastighed for overhaling af langsom fører'
+    VSCDefaultSlowAndFarAllowOvertakeDistance:
+      help: Afstanden til bilen foran, over hvilken en kører må overhales under virtual
+        safety car eller formationsomgangen ved rullende start, hvis han er langsommere
+        end vsc_defalut_slow_and_far_allow_overtake_speed.
+      label: 'VSC: afstand for overhaling af langsom og fjern bil'
+    VSCDefaultSlowAndFarAllowOvertakeSpeed:
+      help: Hastigheden i km/h, under hvilken en kører må overhales under virtual safety
+        car eller formationsomgangen ved rullende start, hvis han er længere væk end vsc_defalut_slow_and_far_allow_overtake_distance.
+      label: 'VSC: hastighed for overhaling af langsom og fjern bil'
+    VSCDefaultSpeedLimit:
+      help: Den maksimale hastighed (i km/h), en spiller må køre under virtual safety
+        car.
+      label: 'VSC: standard-hastighedsgrænse'
+    VSCFormationLapFarAllowOvertakeDistance:
+      help: Afstanden til bilen foran, over hvilken en kører må overhales under formationsomgangen
+        ved rullende start (da bilerne skal være tæt på hinanden under formationsomgangen).
+      label: 'VSC: afstand for overhaling i formationsomgang'
+    VSCFormationLapMinSpeed:
+      help: Den mindste hastighed (i km/h), en kører skal holde under formationsomgangen
+        ved rullende start (0 deaktiverer).
+      label: 'VSC: min. hastighed i formationsomgang'
+    VSCFormationLapSpeedLimit:
+      help: Den maksimale hastighed (i km/h), en spiller må køre under formationsomgangen
+        ved rullende start.
+      label: 'VSC: hastighedsgrænse i formationsomgang'
+    VSCOvertakingMaxGrace:
+      help: Antal sekunder, en kører har til at give positionen tilbage, når han har overhalet
+        en anden bil under virtual safety car eller formationsomgangen ved rullende start.
+      label: 'VSC: maks. respit ved overhaling'
+    VSCSlowingMaxGrace:
+      help: Antal sekunder, en kører må køre under minimumshastigheden under formationsomgangen
+        ved rullende start.
+      label: 'VSC: maks. respit ved nedbremsning'
+    VSCSpeedingMaxGrace:
+      help: Antal sekunder, en kører må køre over hastighedsgrænsen under virtual safety
+        car eller formationsomgangen ved rullende start.
+      label: 'VSC: maks. respit ved for høj fart'
+    VirtualSafetyCar:
+      label: Virtual Safety Car
+    WarnedCarGrace:
+      help: Tiden i sekunder, hver bil får til at give plads efter den første advarsel.
+        Sæt den op for at give en advaret kører mere tid til at lade den anden bil passere.
+      label: Respit for advaret bil
+    WebAdminConsoleGuestPassword:
+      help: Sæt en adgangskode på mindst 8 tegn, hvis du vil give skrivebeskyttet adgang
+        til Web Admin-konsollen. Husk, at web_admin_console_password skal være sat for
+        overhovedet at aktivere konsollen. Giv kun adgangskoden til betroede medlemmer,
+        da de kan se alt, hvad der vises i Kissmyrank-konsollen.
+      label: Gæsteadgangskode til Web Admin-konsollen
+    WebAdminConsolePassword:
+      help: Adgangskode til Web Admin-konsollen. Adgangskoden (mindst 12 tegn, ellers
+        deaktiveres Kissmyranks Web Admin-interface tvangsmæssigt), som du bruger til
+        at logge ind på Kissmyranks Web Admin-konsol på http://yourserver/kissmyrank_admin
+        (når du åbner siden, og din adgangskode er 'yourcomplexpassword', skal du skrive
+        'login yourcomplexpassword' for at få adgang). Lad feltet være tomt, hvis du ikke
+        vil bruge Kissmyranks Web Admin-konsol.
+      label: Adgangskode til Web Admin-konsollen
+    WebAuth:
+      label: Web Auth
+    WebAuthCacheTime:
+      help: Hvor længe web auth-resultatet caches i sekunder
+      label: Cachetid for web auth
+    WebAuthRelayTo:
+      help: Én pr. linje. Brug det, hvis du også vil blokere brugere ud fra andre plugins.
+        Værdierne er de samme, som du ville sætte som AUTH_PLUGIN_ADDRESS i Assetto Corsa-serverens
+        server_cfg.ini for tredjeparts-pluginet (fx for Minorating erstatter du AUTH_PLUGIN_ADDRESS_1
+        med plugin.minorating.com:805/minodata/auth/ABCN/?). Du kan selvfølgelig også
+        bruge en anden instans af Kissmyrank Plugin Auth til blokering på tværs af servere
+        med Kissmyrank-AUTH_PLUGIN_ADDRESS fra den anden plugin-instans. Tjek konsollen
+        ved pluginets start for at se, om adressen læses korrekt.
+      label: Web auth-relay til
+    WebAuthServerAddress:
+      help: Adresse for web auth (skift den kun, hvis du kun vil lytte på et bestemt interface;
+        anbefales ikke).
+      label: Web auth-serveradresse
+    WebAuthServerPort:
+      help: Port for web auth. På linux skal du ikke bruge porte under 1024.
+      label: Web auth-serverport
+    WebInterface:
+      label: Webinterface
+    WebStatsCacheTime:
+      help: Hvor længe statistikken caches i sekunder (lavere værdi kan øge CPU-forbruget)
+      label: Cachetid for Web Stats
+    WebStatsDriversPerPage:
+      help: Kørere pr. side i Web Stats. Angiver, hvor mange kørere der vises pr. side
+        i Web Stats' kørerliste.
+      label: 'Web Stats: kørere pr. side'
+    WebStatsInterface:
+      help: Om Web Stats-interfacet skal slås til (kræves til Race Control og race directors
+        bedømmelse af kollisioner).
+      label: Web Stats-interface
+    WebStatsOverridePublicAddress:
+      help: Sæt serverens offentlige Web Stats-adresse her, hvis du vil tilsidesætte pluginets
+        automatiske registrering af den offentlige adresse.
+      label: 'Web Stats: tilsidesæt offentlig adresse'
+    WebStatsOverridePublicPort:
+      help: Sæt serverens offentlige Web Stats-port her, hvis du vil tilsidesætte standarden
+        (fx ved forwarding, proxy, redirect osv.).
+      label: 'Web Stats: tilsidesæt offentlig port'
+    WebStatsPublicURL:
+      help: <strong>Sæt denne værdi, hvis du bruger Web Stats-porten!</strong> Den skal
+        være den URL, som alle kan nå. Linket vises på ACPitwalls Live Timing-side, så
+        alle kan se KMR-interfacet. Er feltet tomt, vises der intet link på Live Timing-siden!
+      label: Offentlig URL til Web Stats
+    WebStatsResultsShowLapLog:
+      help: Sæt til 1, hvis løbsresultaterne i Web Stats skal indeholde omgangsloggen
+        (som viser de registrerede tider for hver spiller, hvilke dæk han kørte på osv.
+        pr. omgang).
+      label: 'Web Stats: vis omgangslog i resultater'
+    WebStatsServerAddress:
+      help: Adresse for Web Stats-serveren (skift den kun, hvis du kun vil lytte på et
+        bestemt interface; anbefales ikke).
+      label: Web Stats-serveradresse
+    WebStatsServerPort:
+      help: 'Port for Web Stats-serveren. På linux: læs fejlfindingsafsnittet i hjælpefilen
+        readme.txt.'
+      label: Web Stats-serverport

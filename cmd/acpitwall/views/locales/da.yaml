@@ -1,0 +1,419 @@
+# Danish catalog. The UI addresses the user informally ("du"). Assetto Corsa terms which Danish players use in English
+# (Session, Setup, Skin, Entrylist, Pit, Ballast, Restrictor, ...) stay English.
+language:
+  name: Dansk
+  label: Sprog
+  switch: Skift sprog
+  auto: Browserens sprog
+
+common:
+  "yes": "Ja"
+  "no": "Nej"
+  close: Luk
+  cancel: Annuller
+  delete: Slet
+  edit: Rediger
+  save: Gem
+  actions: Handlinger
+
+group:
+  no_access: Ingen adgang
+  read: Læse
+  write: Skrive
+  delete: Slette
+  admin: Admin
+
+event_type:
+  championship: Mesterskab
+  championship_practice: Mesterskabstræning
+  race_weekend: Løbsweekend
+  race_weekend_practice: Løbsweekend-træning
+  looping: Løbende event
+  time_attack: Time attack
+  running: Kører
+
+stop_confirm:
+  championship:
+    title: Annuller det aktuelle mesterskabsevent?
+    detail: Al fremgang i det kørende event går tabt for altid.
+    label: Annuller event
+  race_weekend:
+    title: Annuller den aktuelle session i løbsweekenden?
+    detail: Al fremgang i den kørende session går tabt for altid.
+    label: Annuller session
+
+topbar:
+  open_navigation: Åbn navigation
+  switch_server: Skift server
+  switch_server_current: "Skift server, aktuel server: {name}"
+  servers: Servere
+  running: Kører
+  idle: Ledig
+  stop: Stop
+  restart_server: Genstart server
+  stopped: Stoppet
+  toggle_dark: Slå mørk tilstand til/fra
+  sign_in: Log ind
+  account_menu: Kontomenu
+  signed_in_as: Logget ind som {name}
+  update_details: Rediger profil
+  change_password: Skift adgangskode
+  sign_out: Log ud
+
+nav:
+  main: Hovednavigation
+  racing: Racing
+  overview: Oversigt
+  live_timing: Live Timing
+  live: LIVE
+  results: Resultater
+  leaderboards: Ranglister
+  championships: Mesterskaber
+  teams: Teams
+  race_weekends: Løbsweekender
+  custom_races: Egne løb
+  calendar: Kalender
+  organize: Organiser
+  quick_race: Hurtigt løb
+  new_custom_race: Nyt eget løb
+  new_championship: Nyt mesterskab
+  new_race_weekend: Ny løbsweekend
+  content: Indhold
+  tracks: Baner
+  cars_setups: Biler & Setups
+  weather: Vejr
+  server: Server
+  servers: Servere
+  options: Indstillinger
+  accounts: Konti
+  blacklist: Blacklist
+  messages: Beskeder
+  autofill: AutoFill-deltagere
+  logs: Logs
+  audit_logs: Audit-logs
+  current_config: Aktuel konfiguration
+  plugins: Plugins
+  changelog: Ændringer
+  version: Version {version}
+
+footer:
+  report_bug: Rapporter en fejl
+
+dialog:
+  delete_title: Slet dette element?
+  delete_detail: Det kan ikke fortrydes.
+
+upgrade:
+  title: ACPitwall er opdateret til {version}!
+  intro: Velkommen til den nye version af ACPitwall! Vi opdaterer ACPitwall jævnligt med nye funktioner og fejlrettelser. Nedenfor kan du læse, hvad der er ændret i denne version (på engelsk).
+
+pagination:
+  label: Sidenavigation
+  first: Første side
+  previous: Forrige side
+  next: Næste side
+  last: Sidste side
+
+server_context:
+  badge: "Server: {name}"
+
+start_target:
+  title: Vælg serveren, der skal startes på
+  choose: Vælg server
+  start_on: Start på {name}
+
+port_warnings:
+  title: Portkonflikt med en anden server.
+  detail: Servere på samme maskine kan ikke bruge de samme porte.
+
+login:
+  title: Log ind
+  heading: Log ind
+  intro: Log ind for at administrere serveren.
+  submit: Log ind
+
+password:
+  create_title: Opret adgangskode
+  update_title: Skift adgangskode
+  current: Nuværende adgangskode
+  current_placeholder: nuværende adgangskode
+  thanks: Tak, fordi du loggede ind!
+  first_login: Da det er første gang, du logger ind, skal du vælge din egen adgangskode. Der er ingen krav, men vælg en så <strong>stærk</strong> adgangskode som muligt, og gem den et sikkert sted!
+  new: Ny adgangskode
+  repeat: Gentag adgangskode
+  repeat_placeholder: gentag adgangskode
+  create_submit: Opret adgangskode
+  update_submit: Skift adgangskode
+
+account_details:
+  title: Rediger profil
+  intro: Disse oplysninger er frivillige, men anbefales. Hvis du udfylder dem, kommer du på listen over deltagere, som arrangører kan tilføje til events, og dine oplysninger bliver udfyldt automatisk, når du tilmelder dig et lukket event.
+  driver_name: Kørernavn
+  guid: GUID
+  guid_help: Hvis du ikke kender dit Steam-GUID, kan du <a href="{url}">logge ind med Steam</a> for at udfylde det automatisk.
+  team: Team
+  theme: Tema
+  theme_option:
+    default: Brug standard
+    light: Lyst
+    dark: Mørkt
+
+accounts:
+  username: Brugernavn
+  username_placeholder: brugernavn
+  password: Adgangskode
+  password_placeholder: adgangskode
+  name: Navn
+  group: Gruppe
+  manage_title: Administrer konti
+  manage_intro: Bestem, hvem der kan logge ind, og hvad de må.
+  add_account: Tilføj konto
+  add_title: Tilføj en konto
+  edit_title: Rediger en konto
+  edit_intro: Konti bestemmer, hvad en person må i ACPitwall.
+  details: Kontooplysninger
+  group_option:
+    read: Læse - se løb, indhold og mesterskaber
+    write: Skrive - se og redigere løb, indhold og mesterskaber
+    delete: Slette - se, redigere og slette løb, indhold og mesterskaber
+    admin: Admin - fuld adgang
+    no_access: Ingen adgang - brugeren kan ikke tilgå noget
+  group_help: Grupper gælder pr. ACPitwall-instans. Med flere servere kan du give brugere forskellige grupper pr. server.
+  group_all_servers: Brug gruppen på alle servere?
+  group_all_servers_help: Hvis slået til, bruges den valgte gruppe ovenfor for kontoen på alle servere i denne instans.
+  reset_password: Nulstil adgangskode
+  generated_password_help: Denne adgangskode er genereret automatisk. Giv den til den person, du opretter kontoen til. Personen bliver bedt om at ændre den ved første login.
+  add_user: Tilføj bruger
+  save_user: Gem bruger
+  delete_confirm: Slet kontoen {name}?
+  delete_detail: Kontoen bliver slettet permanent.
+  delete_label: Slet konto
+  only_write_access: Kun konti med skriveadgang
+  open:
+    title: Åben ACPitwall
+    intro: En åben ACPitwall giver alle læseadgang, også uden en konto.
+    open: Åben
+    closed: Lukket
+    make_open: Gør åben
+    make_closed: Gør lukket
+  stats:
+    title: Offentlig kørerstatistik
+    intro: Kørerprofiler, ranglister og omgangsrekorder. Hvis slået fra, er de kun synlige for loggede ind konti, også på en åben ACPitwall.
+    public: Offentlig
+    private: Privat
+    make_public: Gør offentlig
+    make_private: Gør privat
+  downloads:
+    title: Download af indhold
+    intro: Hvem der må downloade biler, baner, setups og skins (billederne på siderne forbliver synlige). Content Manager får signerede, tidsbegrænsede skin-links og virker derfor stadig, når downloads er begrænset.
+    public: Offentlig (alle med læseadgang, på en åben ACPitwall også anonymt)
+    login: Kun loggede ind konti
+    "off": Fra (kun admins)
+  teams:
+    intro: Kørere kan oprette teams, blive medlem af dem og tilmelde sig mesterskaber med dem. Konti med skriveadgang kan altid oprette teams og administrere alle teams.
+    creation: Oprettelse af teams
+    creation_everyone: Alle konti kan oprette teams
+    max: Teams pr. konto (som ejer)
+    max_help: 0 er standarden på 3, -1 er ubegrænset.
+  skins:
+    title: Skins
+    intro: Konti kan uploade skins til biler og holde dem private, dele dem med et team eller gøre dem globale. Konti med skriveadgang uploader altid globale skins. Grænserne beskytter disken; ubegrænset findes ikke, 0 bruger standarden i parentes.
+    uploads: Skin-uploads fra brugere
+    uploads_everyone: Alle loggede ind konti kan uploade skins
+    global: Gøre skins globale
+    global_everyone: Brugere kan dele deres skins globalt
+    max_files: Filer pr. skin (standard {default})
+    max_skin_mb: Størrelse af ét skin i MB (standard {default})
+    user_quota_mb: Skin-lagerplads pr. bruger i MB (standard {default})
+    min_free_mb: Ledig diskplads, der skal bevares, i MB (standard {default})
+    min_free_help: En upload afvises, hvis der bagefter ville være mindre end dette ledigt på disken.
+  matrix:
+    title: Hvad hver gruppe må
+    read: Se løb, resultater, indhold, mesterskaber og live timing
+    write: Oprette og redigere løb, mesterskaber og løbsweekender; uploade indhold; starte og stoppe serveren; se logs
+    delete: Slette løb, mesterskaber, resultater og indhold; administrere AutoFill-deltagere
+    admin: Serverindstillinger, plugins, konti, blacklist, beskeder, audit-logs og race control-kommandoer
+    no_access: Konti i gruppen "Ingen adgang" kan slet ikke bruge ACPitwall.
+
+home:
+  intro: Hvad der sker på serveren lige nu, og hvad der kommer bagefter.
+  guest: Du ser siden som gæst. <a href="{url}">Log ind</a> for at administrere løb, indhold og serveren.
+  event: Event
+  no_event: Der kører intet event
+  drivers_online: Kørere online
+  restart: Genstart
+  current_session: Aktuel session
+  sessions: Sessioner
+  entrants: Deltagere
+  cars: Biler
+  open_live_timing: Åbn live timing
+  next_up: "Næste:"
+  start_quick_race: Start et hurtigt løb
+  coming_up: Kommende
+  recurring: Tilbagevendende
+  nothing_scheduled: Intet planlagt.
+  quick_actions: Hurtige handlinger
+  quick_race_help: Start med standardværdier i ét trin
+  custom_race_help: Bane, biler, sessioner, entrylist
+  championship_help: Klasser, point, tilmeldingsformular
+  race_weekend_help: Sessioner med startopstilling fra tidligere resultater
+  recent_results: Seneste resultater
+  all_results: Alle resultater
+  date: Dato
+  session: Session
+  track: Bane
+  winner: Vinder
+  best_lap: Bedste omgang
+  no_results: Ingen resultater endnu.
+
+calendar:
+  all_servers: Alle servere
+  filter: Filtrer
+  subscribe: Abonner på kalenderfeed
+
+not_found:
+  title: Siden blev ikke fundet
+  detail: Siden, du leder efter, findes ikke eller er blevet flyttet.
+  back: Tilbage til oversigten
+
+changelog:
+  english_only: Ændringerne findes kun på engelsk.
+
+live:
+  intro: Live stilling, banekort og chat fra den kørende session.
+  no_session: Der kører ingen session
+  no_session_help: Start et løb, en træning eller en kvalifikation, så vises live timing her.
+  iframe_placeholder: Link til IFrame-indhold (position på kortet, livestream af løbet osv.)
+  remove_iframe: Fjern IFrame
+  add_iframe: Tilføj IFrame
+  save_iframes: Gem IFrames
+  current_weather: Aktuelt vejr
+  road_temp: Banetemperatur
+  ambient_temp: Lufttemperatur
+  remaining: Tilbage
+  join: Deltag
+  admin_panel: Adminpanel
+  track:
+    description: "Beskrivelse:"
+    length: "Længde:"
+    pitboxes: "Pitbokse:"
+    width: "Bredde:"
+    run: "Retning:"
+  broadcast_chat: "Chat til alle:"
+  broadcast_placeholder: Hav et godt løb, alle sammen!
+  broadcast_short: Chat til alle
+  send: Send
+  send_chat: "Chat til kører:"
+  send_placeholder: Pas på track limits!
+  no_drivers: Ingen kørere fundet!
+  admin_command: "Admin-kommando:"
+  kick_driver: "Kick kører:"
+  kick: Kick
+  countdown: Send nedtælling
+  next_session: Næste session
+  restart_session: Genstart session
+  view: Live timing-visning
+  standings: Stilling
+  map_chat: Kort & chat
+  col:
+    driver: Kører
+    car: Bil
+    current_lap: Aktuel omgang
+    last_lap: Sidste omgang
+    best_lap: Bedste omgang
+    gap: Afstand
+    laps: Omgange
+    top_speed: Topfart
+    events: Hændelser
+  fastest_lap: Hurtigste omgang
+  personal_best: Personlig rekord
+  stored_times: Gemte tider
+  game_chat: Spilchat!
+
+session_type:
+  book: Booking
+  practice: Træning
+  qualify: Kvalifikation
+  race: Løb
+  racex2: 2. løb
+
+# Go time layouts (reference time Mon Jan 2 15:04:05 MST 2006). Day and month names are taken from date.days/months.
+date:
+  layout:
+    compact: "Mon 2. Jan, 15:04"
+    compact_year: "Mon 2. Jan 2006, 15:04"
+    full: "Monday 2. January 2006, 15:04 (MST)"
+    date: "02.01.2006"
+    time: "15:04"
+    hour_zone: "15:04 (MST)"
+    weekday_short: "Mon"
+    month_day: "2. Jan"
+    day_month_year: "2. Jan 2006"
+  days:
+    monday: mandag
+    tuesday: tirsdag
+    wednesday: onsdag
+    thursday: torsdag
+    friday: fredag
+    saturday: lørdag
+    sunday: søndag
+  days_short:
+    monday: man
+    tuesday: tir
+    wednesday: ons
+    thursday: tor
+    friday: fre
+    saturday: lør
+    sunday: søn
+  months:
+    january: januar
+    february: februar
+    march: marts
+    april: april
+    may: maj
+    june: juni
+    july: juli
+    august: august
+    september: september
+    october: oktober
+    november: november
+    december: december
+  months_short:
+    january: jan.
+    february: feb.
+    march: mar.
+    april: apr.
+    may: maj
+    june: jun.
+    july: jul.
+    august: aug.
+    september: sep.
+    october: okt.
+    november: nov.
+    december: dec.
+
+js:
+  confirm:
+    delete_title: Slet dette element?
+    delete_detail: Det kan ikke fortrydes.
+    delete_label: Slet
+    action_title: Er du sikker?
+    action_label: Bekræft
+  calendar:
+    another_server: en anden server
+    on_server: På {server}
+    three_days: 3 dage
+    sign_up: Tilmelding
+  messages:
+    cm_placeholder: En besked, som Content Manager-brugere kan se!
+  # moment.js formats of the dates the browser shows in the viewer's time zone; they match date.layout.compact(_year)
+  date:
+    compact: "dd D. MMM, HH:mm"
+    compact_year: "dd D. MMM YYYY, HH:mm"
+
+# suffix of ordinal numbers, by the English suffix (1st, 2nd, 3rd, 4th)
+ordinal:
+  st: "."
+  nd: "."
+  rd: "."
+  th: "."

@@ -1,0 +1,140 @@
+# Results list and detail, leaderboards, driver profile.
+results:
+  intro: Afgelopen sessies die de server heeft opgeslagen.
+  combine: Uitslagen combineren
+  combine_option: "{session} op {track}"
+  combine_submit: Geselecteerde uitslagen combineren
+  upload: Uitslagbestand uploaden
+  none: Nog geen uitslagen. Afgelopen sessies verschijnen hier.
+  track_name: Circuit
+  time_attack: Time attack
+  delete_confirm: Uitslagbestand {file} verwijderen?
+  delete_detail: Het uitslagbestand wordt definitief verwijderd.
+  delete_label: Uitslagen verwijderen
+  delete_results: Uitslagen verwijderen
+  back: Terug naar uitslagen
+  view_championship: Kampioenschap bekijken
+  view_race_weekend: Raceweekend bekijken
+  open_simresults: Openen in Simresults
+  download_json: Downloaden als JSON
+  edit_results: Uitslagen bewerken
+  edit_names_help: Met dit formulier kun je de namen van de coureurs in het uitslagbestand wijzigen. Het oorspronkelijke uitslagbestand wordt daarbij overschreven.
+  driver_guid: "GUID van coureur: {guid}"
+  edit_names: Namen bewerken
+  in_car: in
+  driver_swaps:
+    one: "{count} rijderswissel"
+    other: "{count} rijderswissels"
+  best: "Beste:"
+  potential: "Potentieel:"
+  lap_number: "Ronde #"
+  race_position: Positie in de race
+  lap_time: Rondetijd
+  sector: Sector {n}
+  cuts: Cuts
+  tyre: Band
+  tyre_value: "Band: {tyre}"
+  laps_cuts: "{laps} ronden / {cuts} cuts"
+  time_penalty: "Tijdstraf: {time}"
+  disqualified: Gediskwalificeerd
+  ballast: "Ballast:"
+  restrictor: "Restrictor:"
+  na: n.v.t.
+  filter:
+    session_type: Sessietype
+    any_session_type: Elk sessietype
+    practice: Training
+    qualifying: Kwalificatie
+    race: Race
+    booking: Booking
+    server: Server
+    any_server: Elke server
+    driver_placeholder: Naam of GUID van coureur
+    reset: Resetten
+    no_match: Geen uitslagen die bij het filter passen
+  col:
+    name: Naam
+    total_race_time: Totale racetijd
+    num_laps: Ronden
+    average_clean_lap: Gemiddelde schone ronde
+    average_clean_lap_help: Ronden tellen mee voor dit gemiddelde als ze geen cuts hebben, niet ronde 1 zijn en de rondetijd binnen 107% van de tot dan toe gemiddelde rondetijd ligt
+    handicaps: Handicaps
+    crashes: Crashes
+    penalties: Straffen
+    qualifying_time: Kwalificatietijd
+    best_practice_lap: Snelste trainingsronde
+    average_lap: Gemiddelde ronde
+    laps: Ronden
+  penalty:
+    details: Strafdetails
+    time_seconds: Tijdstraf (seconden)
+    zero_help: Bij 0 wordt de coureur gediskwalificeerd.
+    add: Straf toevoegen
+    remove: Straf verwijderen
+    blacklist: Coureur op blacklist zetten
+  badge:
+    fastest_lap: Snelste ronde
+    drivers_fastest_lap: Snelste ronde van de coureur
+    cheated: Waarschijnlijk vals gespeeld
+    fastest_sector: Snelste sector
+    drivers_fastest_sector: Snelste sector van de coureur
+  collisions:
+    other_driver: Andere coureur
+    type: Type
+    impact_speed: Botssnelheid
+    relative_position: Relatieve positie
+    world_position: Wereldpositie
+    show_on_map: Op kaart tonen
+    with_env: Botsing met de omgeving
+    with_car: Botsing met een auto
+    update_map: Botsingen op kaart bijwerken
+    show_all: Alle botsingen tonen
+    hide_all: Alle botsingen verbergen
+    legend_car: Botsing met andere auto
+    legend_env: Botsing met de omgeving
+    legend_rel: Botsing relatief
+    badge_car: Auto
+    badge_env: Omg.
+    badge_rel: Rel
+    map_alt: "Botsingen op {track}"
+    none: Er waren geen botsingen in deze sessie.
+  leaderboards:
+    intro: De snelste geldige ronde van elke coureur op een circuit.
+    no_match: Geen ronden die bij het filter passen.
+    none: Nog geen ronden. Geldige ronden uit uitslagen verschijnen hier.
+    period: Periode
+    all_time: Altijd
+    last_30_days: Laatste 30 dagen
+    last_7_days: Laatste 7 dagen
+    rows: Rijen
+    per_driver: Eén rij per coureur
+    per_driver_car: Eén rij per coureur en auto
+    track_details: Circuitdetails
+    sectors: Sectoren
+    lap_record: Ronderecord
+    best_sector: Beste van deze sector
+  driver:
+    team: Team {team}
+    aka: Ook bekend als
+    statistics: Statistieken
+    races: Races
+    wins: Overwinningen
+    podiums: Podiums
+    valid_laps: Geldige ronden
+    valid_of: "{valid} van {laps}"
+    cuts_per_100: "{cuts} per 100 ronden"
+    collisions: Botsingen
+    collisions_detail: "{cars} met auto's, {env} met de omgeving"
+    type_sessions: "{type}-sessies"
+    any_server: Uitslagen en records van alle servers
+    position: Positie
+    points: Punten
+    status: Status
+    of_entrants: van {entrants}
+    completed: Afgerond
+    in_progress: Bezig
+    no_championships: Deze coureur doet aan geen enkel kampioenschap mee.
+    personal_bests: Persoonlijke records
+    no_personal_bests: Nog geen persoonlijke records. Geldige ronden verschijnen hier.
+    dsq: DSQ
+    no_results: Geen uitslagen voor deze coureur.

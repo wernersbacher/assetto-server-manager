@@ -1,0 +1,153 @@
+raceweekend:
+  # list
+  create_new: Nieuw raceweekend maken
+  more_options: Meer opties
+  import: Raceweekend importeren
+  intro: Een raceweekend is een reeks opeenvolgende sessies die je op elk moment kunt rijden. Je kunt bijvoorbeeld een kwalificatie op zaterdag plannen en de race op zondag laten volgen. ACPitwall regelt de startopstelling voor je en laat je deelnemers op basis van hun resultaten en andere factoren in splits verdelen!
+  active: Actief
+  completed: Afgerond
+  name: Naam
+  progress: Voortgang
+  view: Bekijken
+  more: Meer
+  export: Exporteren
+  delete_confirm: Raceweekend {name} verwijderen?
+  delete_detail: Het hele raceweekend wordt definitief verwijderd.
+  delete_label: Raceweekend verwijderen
+  no_active: Geen actieve raceweekenden.
+  create_one: Raceweekend maken
+  no_completed: Nog geen afgeronde raceweekenden.
+
+  # new / edit
+  create_title: Raceweekend maken
+  new: Nieuw
+  breadcrumb: Kruimelpad
+  edit_heading: Raceweekend {name} bewerken
+  in_championship: in het kampioenschap {name}
+  save: Raceweekend opslaan
+  name_placeholder: Mijn geweldige raceweekend
+  hidden: Verborgen
+  hidden_help: Een verborgen raceweekend is alleen zichtbaar voor ingelogde accounts. Anonieme bezoekers van een open server zien het niet in lijsten, de kalender, kalenderfeeds of de API en kunnen de pagina's niet openen.
+  clone_help: Auto, skin, ballast, restrictor en vaste setup van de laatste deelnemer worden overgenomen in nieuwe deelnemers.
+  add_entrants: Deelnemer(s) toevoegen
+  use_championship_settings: Race-instellingen van het kampioenschap gebruiken
+  use_championship_settings_help: Indien ingeschakeld worden brandstofverbruik, schade, bandenslijtage, toegestane banden buiten de baan, rijhulpen, virtuele spiegel en dynamische baan van alle sessies van dit raceweekend uit het kampioenschap gehaald. De waarden die in de sessies zijn ingesteld blijven bewaard, maar worden genegeerd zolang dit aan staat.
+  spectator_car: Toeschouwersauto
+  spectator_help: Je kunt voor dit raceweekend een toeschouwersauto instellen. Toeschouwersauto's worden automatisch achteraan de Entry List van elke sessie van het raceweekend gezet en tellen in geen enkele sessie-uitslag mee.
+  enabled: Ingeschakeld
+  add_session: Sessie toevoegen
+
+  # view
+  view_title: "Raceweekend {name}"
+  linked_championship: Een raceweekend in het kampioenschap <a href="{url}">{name}</a>
+  in_cars:
+    one: "Een raceweekend met de volgende auto: {cars}"
+    other: "Een raceweekend met de volgende auto's: {cars}"
+  percent_complete: "{percent}% afgerond"
+  add_sessions: Meer sessies toevoegen
+  manage: Beheren
+  view_championship: Kampioenschap bekijken
+  running_on: Dit raceweekend draait op server <a href="{url}">{name}</a>. Kies die server om de lopende sessie te beheren.
+  sessions_intro:
+    one: Dit raceweekend heeft {count} sessie. Klik op de pijl tussen twee sessies om te zien hoe de resultaten van een sessie de Entry List van de volgende sessie bepalen.
+    other: Dit raceweekend heeft {count} sessies. Klik op de pijl tussen twee sessies om te zien hoe de resultaten van een sessie de Entry List van de volgende sessie bepalen.
+  entry_list: Entry List
+  entrants_count:
+    one: "{count} deelnemer"
+    other: "{count} deelnemers"
+  minutes:
+    one: "{count} minuut"
+    other: "{count} minuten"
+  plus_lap: + 1 ronde
+  laps:
+    one: "{count} ronde"
+    other: "{count} ronden"
+  not_available: Niet beschikbaar
+  not_available_help: Deze sessie kan pas worden gereden als alle vorige sessies zijn gereden.
+  completed_on: Afgerond op {time}
+  complete: Afgerond
+  in_progress: Bezig
+  ready: Klaar om te starten
+  scheduled: Gepland
+  scheduled_on: op
+  another_server: een andere server
+  scheduled_for: voor {time}
+  view_results: Resultaten bekijken
+  start_confirm: Ik heb alle instellingen van de Entry List gecontroleerd en de startopstelling klopt
+  start_session: Sessie starten
+  toggle_dropdown: Menu openen/sluiten
+  start_session_on: Sessie starten op {name}
+  practice_help: Laadt de ingestelde sessie op de server als training van 2 uur in een loop, maar telt de voortgang niet als sessie van het raceweekend.
+  start_practice: Trainingssessie starten
+  schedule_session: Sessie plannen
+  timezone_note: Datum en tijd zijn in jouw tijdzone (<span class="timezone"></span>).
+  parent_note: Let op dat sessies alleen starten als hun vorige sessies zijn afgerond.
+  start_after_parent: Starten nadat de vorige sessie is afgerond
+  schedule: Plannen
+  remove_schedule: Planning verwijderen
+  manage_entry_list: Entry List beheren
+  restart_confirm: Deze sessie herstarten?
+  restart_detail: De hele sessie wordt herstart en alle huidige resultaten gaan verloren.
+  restart_label: Sessie herstarten
+  restart_session: Sessie herstarten
+  cancel_confirm: Deze sessie annuleren?
+  cancel_detail: De hele sessie wordt geannuleerd en alle huidige resultaten gaan verloren.
+  cancel_label: Sessie annuleren
+  cancel_session: Sessie annuleren
+  manage_session: Sessie beheren
+  import_results: Resultaten importeren
+  session_details: Sessiedetails
+  delete_session_confirm: Deze sessie verwijderen?
+  delete_session_detail: De hele sessie wordt definitief uit het raceweekend verwijderd.
+  delete_session_label: Sessie verwijderen
+  view_entry_list: Entry List bekijken
+  at: op
+  detailed_results: Gedetailleerde resultaten van deze sessie bekijken
+  in_progress_note: "<strong>Sessie bezig</strong>: er zijn nog geen resultaten. Kijk later nog eens."
+  awaiting_note: "<strong>Wacht op start</strong>: deze sessie is nog niet begonnen. Kijk later nog eens."
+  points: Punten
+  points_intro: Dit raceweekend hoort bij het kampioenschap <a href="{url}">{name}</a>. Hieronder zie je de punten van elke sessie.
+  class: Klasse
+  place: Plaats
+  fastest_race_lap: Snelste raceronde
+
+  # import
+  import_placeholder: Plak hier de JSON van je raceweekend!
+  import_help: Hier kun je raceweekenden in JSON-formaat importeren (hetzelfde formaat als bij het exporteren van een raceweekend). We raden af om deze gegevens met de hand te maken, want het formaat is vrij complex. Wil je raceweekenden naar een andere server verhuizen zonder toegang tot de bestanden, dan kun je deze functie gebruiken!
+  import_session_title: Sessie van een raceweekend importeren
+  import_session_heading: Sessie van een raceweekend voor {track} ({layout}) importeren
+  result_file: "Resultaatbestand {session}"
+  result_option: "{track} ({layout}) op {date}"
+  import_session: Sessie importeren
+
+  # entry list / filter popups
+  configure_combined: Gecombineerde Entry List voor {name} instellen
+  multiclass_note: Dit raceweekend hoort bij een multiclass-kampioenschap. Er wordt binnen elke klasse gesorteerd, en de klassen worden geordend op de snelste ronde van de klasse (zodat bijvoorbeeld LMP1-auto's hopelijk voor GTE-auto's op de grid staan)
+  sort_combined: "Sorteer de gecombineerde rijders in de Entry List van <strong>{name}</strong> op:"
+  sort_by: Sorteren op
+  reverse: Omdraaien?
+  reverse_help: 0 = niet omdraaien. -1 = alles omdraaien. N = de eerste N omdraaien.
+  all: Alle
+  starting_grid: Startopstelling
+  grid_preview_later: Een voorbeeld van de gecombineerde startopstelling voor de sessie <strong>{name}</strong> is beschikbaar zodra alle vorige sessies zijn afgerond.
+  save_changes: Wijzigingen opslaan
+  configure_entry_list: Entry List voor {name} instellen
+  filter_intro: Je kunt de Entry List voor {name} aanpassen door de filterinstellingen hieronder te wijzigen.
+  filter_parent_incomplete: "‘{name}’ is nog niet afgerond. Er wordt een voorbeeldopstelling getoond, zodat je ziet hoe de filters hieronder worden toegepast zodra deze sessie is afgerond."
+  sort_parent: "Sorteer de rijders uit <strong>{name}</strong> op:"
+  sort_parent_results: "Sorteer de rijders uit de resultaten van <strong>{name}</strong> op:"
+  parent_incomplete_sort: De vorige sessie ({name}) is nog niet afgerond. Sorteren verandert het live voorbeeld niet, maar wordt op de startopstelling toegepast zodra de sessie {name} is afgerond.
+  results_files: Resultaatbestanden
+  result_sort_option: "{type} op {date} om {time}"
+  take_from_entry_list: "Neem de rijders uit de Entry List van {name}:"
+  take_from_results: "Neem de rijders uit de gesorteerde resultaten van <strong>{name}</strong>:"
+  split_type: Soort split
+  from: Van
+  to: Tot
+  place_into: "Plaats de geselecteerde rijders daarna in de Entry List van <strong>{name}</strong> vanaf:"
+  grid_start: Startplaats
+  tyre_from_fastest: Starten op de banden van de snelste ronde
+  tyre_from_fastest_help: Indien ingeschakeld moeten de deelnemers van de volgende sessie starten op dezelfde banden als bij hun snelste ronde in de vorige sessie.
+  rw_entry_list: Entry List van het raceweekend
+  parent_results: "Resultaten {name}"
+  expected_grid: "Verwachte startopstelling {name}"

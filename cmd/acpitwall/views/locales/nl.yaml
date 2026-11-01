@@ -1,0 +1,419 @@
+# Dutch catalog. The UI addresses the user informally ("je/jij"). Assetto Corsa terms which Dutch players use in English
+# (Session, Setup, Skin, Entrylist, Pit, Ballast, Restrictor, ...) stay English.
+language:
+  name: Nederlands
+  label: Taal
+  switch: Taal wijzigen
+  auto: Browsertaal
+
+common:
+  "yes": "Ja"
+  "no": "Nee"
+  close: Sluiten
+  cancel: Annuleren
+  delete: Verwijderen
+  edit: Bewerken
+  save: Opslaan
+  actions: Acties
+
+group:
+  no_access: Geen toegang
+  read: Lezen
+  write: Schrijven
+  delete: Verwijderen
+  admin: Admin
+
+event_type:
+  championship: Kampioenschap
+  championship_practice: Kampioenschapstraining
+  race_weekend: Raceweekend
+  race_weekend_practice: Raceweekendtraining
+  looping: Doorlopend event
+  time_attack: Time attack
+  running: Actief
+
+stop_confirm:
+  championship:
+    title: Huidig kampioenschapsevent annuleren?
+    detail: Alle voortgang van het lopende event gaat definitief verloren.
+    label: Event annuleren
+  race_weekend:
+    title: Huidige sessie van het raceweekend annuleren?
+    detail: Alle voortgang van de lopende sessie gaat definitief verloren.
+    label: Sessie annuleren
+
+topbar:
+  open_navigation: Navigatie openen
+  switch_server: Server wisselen
+  switch_server_current: "Server wisselen, huidige server: {name}"
+  servers: Servers
+  running: Actief
+  idle: Vrij
+  stop: Stoppen
+  restart_server: Server herstarten
+  stopped: Gestopt
+  toggle_dark: Donkere modus aan/uit
+  sign_in: Inloggen
+  account_menu: Accountmenu
+  signed_in_as: Ingelogd als {name}
+  update_details: Profiel bewerken
+  change_password: Wachtwoord wijzigen
+  sign_out: Uitloggen
+
+nav:
+  main: Hoofdnavigatie
+  racing: Racen
+  overview: Overzicht
+  live_timing: Live Timing
+  live: LIVE
+  results: Uitslagen
+  leaderboards: Ranglijsten
+  championships: Kampioenschappen
+  teams: Teams
+  race_weekends: Raceweekenden
+  custom_races: Eigen races
+  calendar: Kalender
+  organize: Organiseren
+  quick_race: Snelle race
+  new_custom_race: Nieuwe eigen race
+  new_championship: Nieuw kampioenschap
+  new_race_weekend: Nieuw raceweekend
+  content: Content
+  tracks: Circuits
+  cars_setups: Auto's & Setups
+  weather: Weer
+  server: Server
+  servers: Servers
+  options: Opties
+  accounts: Accounts
+  blacklist: Blacklist
+  messages: Berichten
+  autofill: AutoFill-deelnemers
+  logs: Logs
+  audit_logs: Auditlogs
+  current_config: Huidige configuratie
+  plugins: Plugins
+  changelog: Wijzigingen
+  version: Versie {version}
+
+footer:
+  report_bug: Bug melden
+
+dialog:
+  delete_title: Dit item verwijderen?
+  delete_detail: Dit kan niet ongedaan worden gemaakt.
+
+upgrade:
+  title: ACPitwall is bijgewerkt naar {version}!
+  intro: Welkom bij de nieuwe versie van ACPitwall! We werken ACPitwall regelmatig bij met nieuwe functies en bugfixes. Hieronder lees je wat er in deze versie is veranderd (in het Engels).
+
+pagination:
+  label: Paginanavigatie
+  first: Eerste pagina
+  previous: Vorige pagina
+  next: Volgende pagina
+  last: Laatste pagina
+
+server_context:
+  badge: "Server: {name}"
+
+start_target:
+  title: Kies de server om op te starten
+  choose: Server kiezen
+  start_on: Starten op {name}
+
+port_warnings:
+  title: Poortconflict met een andere server.
+  detail: Servers op dezelfde machine kunnen niet dezelfde poorten gebruiken.
+
+login:
+  title: Inloggen
+  heading: Inloggen
+  intro: Log in om de server te beheren.
+  submit: Inloggen
+
+password:
+  create_title: Wachtwoord instellen
+  update_title: Wachtwoord wijzigen
+  current: Huidig wachtwoord
+  current_placeholder: huidig wachtwoord
+  thanks: Bedankt voor het inloggen!
+  first_login: Omdat je voor het eerst inlogt, moet je een eigen wachtwoord instellen. Er zijn geen eisen, maar kies een zo <strong>sterk</strong> mogelijk wachtwoord en bewaar het goed!
+  new: Nieuw wachtwoord
+  repeat: Wachtwoord herhalen
+  repeat_placeholder: wachtwoord herhalen
+  create_submit: Wachtwoord instellen
+  update_submit: Wachtwoord wijzigen
+
+account_details:
+  title: Profiel bewerken
+  intro: Deze gegevens zijn niet verplicht, maar wel aanbevolen. Als je ze invult, kom je in de lijst met deelnemers die organisatoren aan events kunnen toevoegen, en worden je gegevens automatisch ingevuld als je je inschrijft voor een gesloten event.
+  driver_name: Coureursnaam
+  guid: GUID
+  guid_help: Als je je Steam-GUID niet weet, kun je <a href="{url}">inloggen met Steam</a> om hem automatisch in te vullen.
+  team: Team
+  theme: Thema
+  theme_option:
+    default: Standaard gebruiken
+    light: Licht
+    dark: Donker
+
+accounts:
+  username: Gebruikersnaam
+  username_placeholder: gebruikersnaam
+  password: Wachtwoord
+  password_placeholder: wachtwoord
+  name: Naam
+  group: Groep
+  manage_title: Accounts beheren
+  manage_intro: Bepaal wie kan inloggen en wat ze mogen doen.
+  add_account: Account toevoegen
+  add_title: Account toevoegen
+  edit_title: Account bewerken
+  edit_intro: Accounts bepalen wat iemand in ACPitwall mag doen.
+  details: Accountgegevens
+  group_option:
+    read: Lezen - races, content en kampioenschappen bekijken
+    write: Schrijven - races, content en kampioenschappen bekijken en bewerken
+    delete: Verwijderen - races, content en kampioenschappen bekijken, bewerken en verwijderen
+    admin: Admin - volledige toegang
+    no_access: Geen toegang - de gebruiker kan nergens bij
+  group_help: Groepen gelden per ACPitwall-instantie. Met meerdere servers kun je gebruikers per server een andere groep geven.
+  group_all_servers: Groep voor alle servers overnemen?
+  group_all_servers_help: Als dit aan staat, wordt de hierboven gekozen groep voor het account op alle servers van deze instantie toegepast.
+  reset_password: Wachtwoord resetten
+  generated_password_help: Dit wachtwoord is automatisch gegenereerd. Geef het aan de persoon voor wie je het account aanmaakt. Bij de eerste keer inloggen wordt gevraagd het te wijzigen.
+  add_user: Gebruiker toevoegen
+  save_user: Gebruiker opslaan
+  delete_confirm: Account {name} verwijderen?
+  delete_detail: Het account wordt definitief verwijderd.
+  delete_label: Account verwijderen
+  only_write_access: Alleen accounts met schrijfrechten
+  open:
+    title: Open ACPitwall
+    intro: Een open ACPitwall geeft iedereen leestoegang, ook zonder account.
+    open: Open
+    closed: Gesloten
+    make_open: Openen
+    make_closed: Sluiten
+  stats:
+    title: Openbare coureursstatistieken
+    intro: Coureursprofielen, ranglijsten en ronderecords. Als dit uit staat, zijn ze alleen zichtbaar voor ingelogde accounts, ook bij een open ACPitwall.
+    public: Openbaar
+    private: Privé
+    make_public: Openbaar maken
+    make_private: Privé maken
+  downloads:
+    title: Downloads van content
+    intro: Wie auto's, circuits, setups en skins mag downloaden (de afbeeldingen op de pagina's blijven zichtbaar). Content Manager krijgt ondertekende, tijdelijk geldige skinlinks en blijft dus werken als downloads beperkt zijn.
+    public: Openbaar (iedereen met leestoegang, bij een open ACPitwall ook anoniem)
+    login: Alleen ingelogde accounts
+    "off": Uit (alleen admins)
+  teams:
+    intro: Coureurs kunnen teams oprichten, er lid van worden en zich ermee inschrijven voor kampioenschappen. Accounts met schrijfrechten kunnen altijd teams oprichten en alle teams beheren.
+    creation: Teams oprichten
+    creation_everyone: Elk account kan teams oprichten
+    max: Teams per account (als eigenaar)
+    max_help: 0 is de standaard van 3, -1 is onbeperkt.
+  skins:
+    title: Skins
+    intro: Accounts kunnen skins voor auto's uploaden en ze privé houden, delen met een team of globaal maken. Accounts met schrijfrechten uploaden altijd globale skins. De limieten beschermen de schijf; onbeperkt bestaat niet, 0 gebruikt de standaard tussen haakjes.
+    uploads: Skinuploads door gebruikers
+    uploads_everyone: Elk ingelogd account kan skins uploaden
+    global: Skins globaal maken
+    global_everyone: Gebruikers kunnen hun skins globaal delen
+    max_files: Bestanden per skin (standaard {default})
+    max_skin_mb: Grootte van één skin in MB (standaard {default})
+    user_quota_mb: Skinopslag per gebruiker in MB (standaard {default})
+    min_free_mb: Vrij te houden schijfruimte in MB (standaard {default})
+    min_free_help: Een upload wordt geweigerd als er daarna minder dan dit vrij zou blijven op de schijf.
+  matrix:
+    title: Wat elke groep mag
+    read: Races, uitslagen, content, kampioenschappen en live timing bekijken
+    write: Races, kampioenschappen en raceweekenden aanmaken en bewerken; content uploaden; de server starten en stoppen; logs bekijken
+    delete: Races, kampioenschappen, uitslagen en content verwijderen; AutoFill-deelnemers beheren
+    admin: Serveropties, plugins, accounts, blacklist, berichten, auditlogs en race control-commando's
+    no_access: Accounts in de groep "Geen toegang" kunnen ACPitwall helemaal niet gebruiken.
+
+home:
+  intro: Wat er nu op de server gebeurt en wat er hierna komt.
+  guest: Je bekijkt de pagina als gast. <a href="{url}">Log in</a> om races, content en de server te beheren.
+  event: Event
+  no_event: Er loopt geen event
+  drivers_online: Coureurs online
+  restart: Herstarten
+  current_session: Huidige sessie
+  sessions: Sessies
+  entrants: Deelnemers
+  cars: Auto's
+  open_live_timing: Live timing openen
+  next_up: "Hierna:"
+  start_quick_race: Snelle race starten
+  coming_up: Binnenkort
+  recurring: Terugkerend
+  nothing_scheduled: Niets gepland.
+  quick_actions: Snelle acties
+  quick_race_help: Met standaardwaarden in één stap starten
+  custom_race_help: Circuit, auto's, sessies, entrylist
+  championship_help: Klassen, punten, inschrijfformulier
+  race_weekend_help: Sessies met startopstelling uit eerdere uitslagen
+  recent_results: Recente uitslagen
+  all_results: Alle uitslagen
+  date: Datum
+  session: Sessie
+  track: Circuit
+  winner: Winnaar
+  best_lap: Snelste ronde
+  no_results: Nog geen uitslagen.
+
+calendar:
+  all_servers: Alle servers
+  filter: Filteren
+  subscribe: Abonneren op kalenderfeed
+
+not_found:
+  title: Pagina niet gevonden
+  detail: De pagina die je zoekt bestaat niet of is verplaatst.
+  back: Terug naar het overzicht
+
+changelog:
+  english_only: De wijzigingen zijn alleen in het Engels beschikbaar.
+
+live:
+  intro: Live stand, circuitkaart en chat van de lopende sessie.
+  no_session: Er loopt geen sessie
+  no_session_help: Start een race, training of kwalificatie, dan verschijnt de live timing hier.
+  iframe_placeholder: Link voor IFrame-inhoud (positie op de kaart, livestream van de race enz.)
+  remove_iframe: IFrame verwijderen
+  add_iframe: IFrame toevoegen
+  save_iframes: IFrames opslaan
+  current_weather: Huidig weer
+  road_temp: Baantemperatuur
+  ambient_temp: Luchttemperatuur
+  remaining: Resterend
+  join: Meedoen
+  admin_panel: Adminpaneel
+  track:
+    description: "Beschrijving:"
+    length: "Lengte:"
+    pitboxes: "Pitboxen:"
+    width: "Breedte:"
+    run: "Richting:"
+  broadcast_chat: "Chat naar iedereen:"
+  broadcast_placeholder: Iedereen een mooie race!
+  broadcast_short: Chat naar iedereen
+  send: Versturen
+  send_chat: "Chat naar coureur:"
+  send_placeholder: Let op de track limits!
+  no_drivers: Geen coureurs gevonden!
+  admin_command: "Admincommando:"
+  kick_driver: "Coureur kicken:"
+  kick: Kicken
+  countdown: Countdown versturen
+  next_session: Volgende sessie
+  restart_session: Sessie herstarten
+  view: Live timing-weergave
+  standings: Stand
+  map_chat: Kaart & chat
+  col:
+    driver: Coureur
+    car: Auto
+    current_lap: Huidige ronde
+    last_lap: Laatste ronde
+    best_lap: Snelste ronde
+    gap: Gat
+    laps: Ronden
+    top_speed: Topsnelheid
+    events: Gebeurtenissen
+  fastest_lap: Snelste ronde
+  personal_best: Persoonlijk record
+  stored_times: Opgeslagen tijden
+  game_chat: Gamechat!
+
+session_type:
+  book: Booking
+  practice: Training
+  qualify: Kwalificatie
+  race: Race
+  racex2: 2e race
+
+# Go time layouts (reference time Mon Jan 2 15:04:05 MST 2006). Day and month names are taken from date.days/months.
+date:
+  layout:
+    compact: "Mon 2 Jan, 15:04"
+    compact_year: "Mon 2 Jan 2006, 15:04"
+    full: "Monday 2 January 2006, 15:04 (MST)"
+    date: "02-01-2006"
+    time: "15:04"
+    hour_zone: "15:04 (MST)"
+    weekday_short: "Mon"
+    month_day: "2 Jan"
+    day_month_year: "2 Jan 2006"
+  days:
+    monday: maandag
+    tuesday: dinsdag
+    wednesday: woensdag
+    thursday: donderdag
+    friday: vrijdag
+    saturday: zaterdag
+    sunday: zondag
+  days_short:
+    monday: ma
+    tuesday: di
+    wednesday: wo
+    thursday: do
+    friday: vr
+    saturday: za
+    sunday: zo
+  months:
+    january: januari
+    february: februari
+    march: maart
+    april: april
+    may: mei
+    june: juni
+    july: juli
+    august: augustus
+    september: september
+    october: oktober
+    november: november
+    december: december
+  months_short:
+    january: jan.
+    february: feb.
+    march: mrt.
+    april: apr.
+    may: mei
+    june: jun.
+    july: jul.
+    august: aug.
+    september: sep.
+    october: okt.
+    november: nov.
+    december: dec.
+
+js:
+  confirm:
+    delete_title: Dit item verwijderen?
+    delete_detail: Dit kan niet ongedaan worden gemaakt.
+    delete_label: Verwijderen
+    action_title: Weet je het zeker?
+    action_label: Bevestigen
+  calendar:
+    another_server: een andere server
+    on_server: Op {server}
+    three_days: 3 dagen
+    sign_up: Inschrijven
+  messages:
+    cm_placeholder: Een bericht dat Content Manager-gebruikers kunnen zien!
+  # moment.js formats of the dates the browser shows in the viewer's time zone; they match date.layout.compact(_year)
+  date:
+    compact: "dd D MMM, HH:mm"
+    compact_year: "dd D MMM YYYY, HH:mm"
+
+# suffix of ordinal numbers, by the English suffix (1st, 2nd, 3rd, 4th)
+ordinal:
+  st: "e"
+  nd: "e"
+  rd: "e"
+  th: "e"

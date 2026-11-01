@@ -1,0 +1,140 @@
+# Results list and detail, leaderboards, driver profile.
+results:
+  intro: Afsluttede sessioner, som serveren har gemt.
+  combine: Kombiner resultater
+  combine_option: "{session} på {track}"
+  combine_submit: Kombiner valgte resultater
+  upload: Upload resultatfil
+  none: Ingen resultater endnu. Afsluttede sessioner vises her.
+  track_name: Bane
+  time_attack: Time attack
+  delete_confirm: Slet resultatfilen {file}?
+  delete_detail: Resultatfilen bliver slettet permanent.
+  delete_label: Slet resultater
+  delete_results: Slet resultater
+  back: Tilbage til resultater
+  view_championship: Se mesterskab
+  view_race_weekend: Se løbsweekend
+  open_simresults: Åbn i Simresults
+  download_json: Download som JSON
+  edit_results: Rediger resultater
+  edit_names_help: Med denne formular kan du ændre kørernes navne i resultatfilen. Den oprindelige resultatfil bliver overskrevet.
+  driver_guid: "Kørerens GUID: {guid}"
+  edit_names: Rediger navne
+  in_car: i
+  driver_swaps:
+    one: "{count} kørerskift"
+    other: "{count} kørerskift"
+  best: "Bedste:"
+  potential: "Potentiale:"
+  lap_number: "Omgang #"
+  race_position: Placering i løbet
+  lap_time: Omgangstid
+  sector: Sektor {n}
+  cuts: Cuts
+  tyre: Dæk
+  tyre_value: "Dæk: {tyre}"
+  laps_cuts: "{laps} omgange / {cuts} cuts"
+  time_penalty: "Tidsstraf: {time}"
+  disqualified: Diskvalificeret
+  ballast: "Ballast:"
+  restrictor: "Restrictor:"
+  na: i/t
+  filter:
+    session_type: Sessionstype
+    any_session_type: Alle sessionstyper
+    practice: Træning
+    qualifying: Kvalifikation
+    race: Løb
+    booking: Booking
+    server: Server
+    any_server: Alle servere
+    driver_placeholder: Kørernavn eller GUID
+    reset: Nulstil
+    no_match: Ingen resultater matcher filteret
+  col:
+    name: Navn
+    total_race_time: Samlet løbstid
+    num_laps: Omgange
+    average_clean_lap: Gennemsnitlig ren omgang
+    average_clean_lap_help: Omgange tæller med i gennemsnittet, hvis de ikke har cuts, ikke er omgang 1, og omgangstiden ligger inden for 107% af gennemsnittet indtil da
+    handicaps: Handicaps
+    crashes: Uheld
+    penalties: Straffe
+    qualifying_time: Kvalifikationstid
+    best_practice_lap: Bedste træningsomgang
+    average_lap: Gennemsnitlig omgang
+    laps: Omgange
+  penalty:
+    details: Strafdetaljer
+    time_seconds: Tidsstraf (sekunder)
+    zero_help: Ved 0 bliver køreren diskvalificeret.
+    add: Tilføj straf
+    remove: Fjern straf
+    blacklist: Sæt kører på blacklist
+  badge:
+    fastest_lap: Hurtigste omgang
+    drivers_fastest_lap: Kørerens hurtigste omgang
+    cheated: Har sandsynligvis snydt
+    fastest_sector: Hurtigste sektor
+    drivers_fastest_sector: Kørerens hurtigste sektor
+  collisions:
+    other_driver: Anden kører
+    type: Type
+    impact_speed: Hastighed ved sammenstød
+    relative_position: Relativ position
+    world_position: Verdensposition
+    show_on_map: Vis på kort
+    with_env: Kollision med omgivelserne
+    with_car: Kollision med en bil
+    update_map: Opdater kollisioner på kortet
+    show_all: Vis alle kollisioner
+    hide_all: Skjul alle kollisioner
+    legend_car: Kollision med anden bil
+    legend_env: Kollision med omgivelserne
+    legend_rel: Kollision relativ
+    badge_car: Bil
+    badge_env: Omg.
+    badge_rel: Rel
+    map_alt: "Kollisioner på {track}"
+    none: Der var ingen kollisioner i denne session.
+  leaderboards:
+    intro: Hver kørers hurtigste gyldige omgang på en bane.
+    no_match: Ingen omgange matcher filteret.
+    none: Ingen omgange endnu. Gyldige omgange fra resultater vises her.
+    period: Periode
+    all_time: Altid
+    last_30_days: Sidste 30 dage
+    last_7_days: Sidste 7 dage
+    rows: Rækker
+    per_driver: Én række pr. kører
+    per_driver_car: Én række pr. kører og bil
+    track_details: Banedetaljer
+    sectors: Sektorer
+    lap_record: Omgangsrekord
+    best_sector: Bedste i denne sektor
+  driver:
+    team: Team {team}
+    aka: Også kendt som
+    statistics: Statistik
+    races: Løb
+    wins: Sejre
+    podiums: Podier
+    valid_laps: Gyldige omgange
+    valid_of: "{valid} af {laps}"
+    cuts_per_100: "{cuts} pr. 100 omgange"
+    collisions: Kollisioner
+    collisions_detail: "{cars} med biler, {env} med omgivelserne"
+    type_sessions: "{type}-sessioner"
+    any_server: Resultater og rekorder fra alle servere
+    position: Placering
+    points: Point
+    status: Status
+    of_entrants: af {entrants}
+    completed: Afsluttet
+    in_progress: I gang
+    no_championships: Denne kører deltager ikke i noget mesterskab.
+    personal_bests: Personlige rekorder
+    no_personal_bests: Ingen personlige rekorder endnu. Gyldige omgange vises her.
+    dsq: DSQ
+    no_results: Ingen resultater for denne kører.
