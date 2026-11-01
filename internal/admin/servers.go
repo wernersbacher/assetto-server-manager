@@ -29,6 +29,9 @@ type ServerSummary struct {
 	EventType string `json:",omitempty"`
 	EventName string `json:",omitempty"`
 
+	// EventTypeKey is the message key of the event type (event_type.*), for the translated UI.
+	EventTypeKey string `json:"-"`
+
 	IsChampionship bool
 	IsRaceWeekend  bool
 	IsPractice     bool
@@ -50,7 +53,8 @@ func NewServerSummary(slot NamedSlot) *ServerSummary {
 
 	event := slot.Process.Event()
 
-	out.EventType = eventType(event.IsChampionship(), event.IsRaceWeekend(), event.IsPractice(), event.IsTimeAttack(), event.IsLooping(slot.Env.ServerID()))
+	out.EventTypeKey = eventTypeKey(event.IsChampionship(), event.IsRaceWeekend(), event.IsPractice(), event.IsTimeAttack(), event.IsLooping(slot.Env.ServerID()))
+	out.EventType = eventTypeNames[out.EventTypeKey]
 	out.EventName = event.EventName(slot.Env.TrackSummary)
 	out.IsChampionship = event.IsChampionship()
 	out.IsRaceWeekend = event.IsRaceWeekend()
@@ -63,26 +67,40 @@ func NewServerSummary(slot NamedSlot) *ServerSummary {
 	return out
 }
 
-// eventType mirrors the template "ServerEventType" of the base layout.
-func eventType(championship, raceWeekend, practice, timeAttack, looping bool) string {
-	suffix := ""
+// eventTypeNames are the English names of the event types, which the API returns.
+var eventTypeNames = map[string]string{
+	"event_type.championship":          "Championship",
+	"event_type.championship_practice": "Championship practice",
+	"event_type.race_weekend":          "Race Weekend",
+	"event_type.race_weekend_practice": "Race Weekend practice",
+	"event_type.looping":               "Looping event",
+	"event_type.time_attack":           "Time attack",
+	"event_type.running":               "Running",
+}
 
-	if practice {
-		suffix = " practice"
-	}
-
+// eventTypeKey mirrors the template "ServerEventType" of the base layout and returns the message key of the type.
+func eventTypeKey(championship, raceWeekend, practice, timeAttack, looping bool) string {
 	switch {
+	case championship && practice:
+		return "event_type.championship_practice"
 	case championship:
-		return "Championship" + suffix
+		return "event_type.championship"
+	case raceWeekend && practice:
+		return "event_type.race_weekend_practice"
 	case raceWeekend:
-		return "Race Weekend" + suffix
+		return "event_type.race_weekend"
 	case looping:
-		return "Looping event"
+		return "event_type.looping"
 	case timeAttack:
-		return "Time attack"
+		return "event_type.time_attack"
 	default:
-		return "Running"
+		return "event_type.running"
 	}
+}
+
+// eventType returns the English name of the event type.
+func eventType(championship, raceWeekend, practice, timeAttack, looping bool) string {
+	return eventTypeNames[eventTypeKey(championship, raceWeekend, practice, timeAttack, looping)]
 }
 
 func (sah *ServerAdministrationHandler) serverSummaries() []*ServerSummary {

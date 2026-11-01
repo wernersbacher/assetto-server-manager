@@ -1,18 +1,18 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/schedule.calendarTemplateVars */}}
 
-{{ define "title" }}Calendar{{ end }}
+{{ define "title" }}{{ t "nav.calendar" }}{{ end }}
 
 {{ define "content" }}
     {{ if gt (len .Servers) 1 }}
         <form method="get" action="/calendar" class="form-inline mb-3">
-            <label for="filterServer" class="mr-2">Server</label>
+            <label for="filterServer" class="mr-2">{{ t "nav.server" }}</label>
             <select class="form-control mr-2" name="filterServer" id="filterServer" onchange="this.form.submit()">
-                <option value="">All servers</option>
+                <option value="">{{ t "calendar.all_servers" }}</option>
                 {{ range $server := .Servers }}
                     <option value="{{ $server.ID }}" {{ if eq $server.ID $.FilterServer }}selected{{ end }}>{{ $server.Name }}</option>
                 {{ end }}
             </select>
-            <noscript><button type="submit" class="btn btn-primary">Filter</button></noscript>
+            <noscript><button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button></noscript>
         </form>
     {{ end }}
 
@@ -20,7 +20,7 @@
 
     <div class="d-block mt-3">
         <a href="/events.ics{{ with .FilterServer }}?filterServer={{ . }}{{ end }}">
-            <i class="fas fa-calendar"></i> Subscribe to Calendar Feed
+            <i class="fas fa-calendar"></i> {{ t "calendar.subscribe" }}
         </a>
     </div>
 {{ end }}

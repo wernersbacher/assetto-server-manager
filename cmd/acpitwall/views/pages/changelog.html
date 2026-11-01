@@ -1,9 +1,10 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/admin.changelogTemplateVars */}}
 
-{{ define "title" }}Changelog{{ end }}
+{{ define "title" }}{{ t "nav.changelog" }}{{ end }}
 
 {{ define "content" }}
-    <h1 class="text-center">Changelog</h1>
+    <h1 class="text-center">{{ t "nav.changelog" }}</h1>
+    {{ if ne lang "en" }}<p class="text-center text-muted">{{ t "changelog.english_only" }}</p>{{ end }}
 
     {{ $.Changelog }}
 {{ end }}

@@ -234,3 +234,98 @@ accounts:
     delete: Rennen, Meisterschaften, Ergebnisse und Inhalte löschen; AutoFill-Teilnehmer verwalten
     admin: Serveroptionen, Plugins, Konten, Sperrliste, Nachrichten, Audit-Logs und Race-Control-Befehle
     no_access: Konten in der Gruppe „Kein Zugriff“ können ACPitwall gar nicht nutzen.
+
+home:
+  intro: Was gerade auf dem Server passiert und was als Nächstes ansteht.
+  guest: Du siehst die Seite als Gast. <a href="{url}">Melde dich an</a>, um Rennen, Inhalte und den Server zu verwalten.
+  event: Event
+  no_event: Es läuft kein Event
+  drivers_online: Fahrer online
+  restart: Neu starten
+  current_session: Aktuelle Session
+  sessions: Sessions
+  entrants: Teilnehmer
+  cars: Autos
+  open_live_timing: Live-Timing öffnen
+  next_up: "Als Nächstes:"
+  start_quick_race: Schnelles Rennen starten
+  coming_up: Demnächst
+  recurring: Wiederkehrend
+  nothing_scheduled: Nichts geplant.
+  quick_actions: Schnellzugriff
+  quick_race_help: Mit Standardwerten in einem Schritt starten
+  custom_race_help: Strecke, Autos, Sessions, Entry List
+  championship_help: Klassen, Punkte, Anmeldeformular
+  race_weekend_help: Sessions mit Startaufstellung aus früheren Ergebnissen
+  recent_results: Neueste Ergebnisse
+  all_results: Alle Ergebnisse
+  date: Datum
+  session: Session
+  track: Strecke
+  winner: Sieger
+  best_lap: Beste Runde
+  no_results: Noch keine Ergebnisse.
+
+calendar:
+  all_servers: Alle Server
+  filter: Filtern
+  subscribe: Kalender-Feed abonnieren
+
+not_found:
+  title: Seite nicht gefunden
+  detail: Die gesuchte Seite gibt es nicht oder sie wurde verschoben.
+  back: Zurück zur Übersicht
+
+changelog:
+  english_only: Die Änderungen gibt es nur auf Englisch.
+
+live:
+  intro: Live-Stand, Streckenkarte und Chat der laufenden Session.
+  no_session: Es läuft keine Session
+  no_session_help: Starte ein Rennen, Training oder Qualifying, dann erscheint hier das Live-Timing.
+  iframe_placeholder: Link für IFrame-Inhalt (Position auf der Karte, Livestream des Rennens usw.)
+  remove_iframe: IFrame entfernen
+  add_iframe: IFrame hinzufügen
+  save_iframes: IFrames speichern
+  current_weather: Aktuelles Wetter
+  road_temp: Streckentemperatur
+  ambient_temp: Lufttemperatur
+  remaining: Verbleibend
+  join: Beitreten
+  admin_panel: Admin-Bereich
+  track:
+    description: "Beschreibung:"
+    length: "Länge:"
+    pitboxes: "Boxen:"
+    width: "Breite:"
+    run: "Richtung:"
+  broadcast_chat: "Chat an alle:"
+  broadcast_placeholder: Allen ein tolles Rennen!
+  broadcast_short: Chat an alle
+  send: Senden
+  send_chat: "Chat an Fahrer:"
+  send_placeholder: Achte auf die Track Limits!
+  no_drivers: Keine Fahrer gefunden!
+  admin_command: "Admin-Befehl:"
+  kick_driver: "Fahrer kicken:"
+  kick: Kicken
+  countdown: Countdown senden
+  next_session: Nächste Session
+  restart_session: Session neu starten
+  view: Live-Timing-Ansicht
+  standings: Stand
+  map_chat: Karte & Chat
+  col:
+    driver: Fahrer
+    car: Auto
+    current_lap: Aktuelle Runde
+    last_lap: Letzte Runde
+    best_lap: Beste Runde
+    gap: Abstand
+    laps: Runden
+    top_speed: Höchstgeschw.
+    events: Ereignisse
+  fastest_lap: Schnellste Runde
+  personal_best: Persönliche Bestzeit
+  stored_times: Gespeicherte Zeiten
+  game_chat: Spiel-Chat!

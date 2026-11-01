@@ -1,24 +1,24 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/admin.homeTemplateVars */}}
 
-{{ define "title" }}Overview{{ end }}
+{{ define "title" }}{{ t "nav.overview" }}{{ end }}
 
 {{ define "content" }}
     <div class="page-header">
         <div>
-            <h1>Overview</h1>
-            <p>What is happening on the server right now and what comes next.</p>
+            <h1>{{ t "nav.overview" }}</h1>
+            <p>{{ t "home.intro" }}</p>
         </div>
     </div>
 
     {{ if not LoggedIn }}
         <div class="alert alert-info mb-4">
-            You are viewing as a guest. <a href="/login">Sign in</a> to manage races, content and the server.
+            {{ tHTML "home.guest" "url" "/login" }}
         </div>
     {{ end }}
 
     {{ with .ServerOverview }}
         <section class="mb-4" aria-labelledby="servers-heading">
-            <h2 id="servers-heading" class="section-title">Servers</h2>
+            <h2 id="servers-heading" class="section-title">{{ t "topbar.servers" }}</h2>
 
             <div class="dashboard-grid">
                 {{ range . }}
@@ -27,39 +27,39 @@
                             <h3 id="server-{{ .ID }}-heading"><a href="/?server={{ .ID }}" class="text-body">{{ .Name }}</a></h3>
 
                             {{ if .Running }}
-                                <span class="badge badge-success">{{ .EventType }}</span>
+                                <span class="badge badge-success">{{ t .EventTypeKey }}</span>
                             {{ else }}
-                                <span class="badge badge-secondary">Idle</span>
+                                <span class="badge badge-secondary">{{ t "topbar.idle" }}</span>
                             {{ end }}
                         </div>
 
                         <dl class="stat-row">
                             <div>
-                                <dt>Event</dt>
-                                <dd>{{ if .Running }}{{ .EventName }}{{ else }}No event is running{{ end }}</dd>
+                                <dt>{{ t "home.event" }}</dt>
+                                <dd>{{ if .Running }}{{ .EventName }}{{ else }}{{ t "home.no_event" }}{{ end }}</dd>
                             </div>
                             <div>
-                                <dt>Drivers online</dt>
+                                <dt>{{ t "home.drivers_online" }}</dt>
                                 <dd>{{ .DriversOnline }}</dd>
                             </div>
                         </dl>
 
                         <div class="server-card-actions">
                             {{ if and ReadAccess (not $.PerformanceMode) }}
-                                <a href="/live-timing?server={{ .ID }}" class="btn btn-primary btn-sm">Live timing</a>
+                                <a href="/live-timing?server={{ .ID }}" class="btn btn-primary btn-sm">{{ t "nav.live_timing" }}</a>
                             {{ end }}
 
                             {{ if WriteAccess }}
                                 {{ if .Running }}
                                     <form method="post" action="/process/stop?server={{ .ID }}" class="d-inline" {{ template "ServerStopConfirm" . }}>
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ template "icon" "stop" }} Stop</button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">{{ template "icon" "stop" }} {{ t "topbar.stop" }}</button>
                                     </form>
                                     <form method="post" action="/process/restart?server={{ .ID }}" class="d-inline" {{ template "ServerStopConfirm" . }}>
-                                        <button type="submit" class="btn btn-outline-secondary btn-sm">{{ template "icon" "restart" }} Restart</button>
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">{{ template "icon" "restart" }} {{ t "home.restart" }}</button>
                                     </form>
                                 {{ else }}
-                                    <a href="/quick?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">Quick race</a>
-                                    <a href="/custom/new?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">New custom race</a>
+                                    <a href="/quick?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">{{ t "nav.quick_race" }}</a>
+                                    <a href="/custom/new?server={{ .ID }}" class="btn btn-outline-secondary btn-sm">{{ t "nav.new_custom_race" }}</a>
                                 {{ end }}
                             {{ end }}
                         </div>
@@ -72,12 +72,12 @@
     <div class="dashboard-grid mb-4">
         <section class="card dashboard-card" aria-labelledby="current-session-heading">
             <div class="dashboard-card-header">
-                <h2 id="current-session-heading">Current session</h2>
+                <h2 id="current-session-heading">{{ t "home.current_session" }}</h2>
 
                 {{ if $.ServerStatus }}
                     <span class="badge badge-success">{{ template "ServerEventType" $.ServerEvent }}</span>
                 {{ else }}
-                    <span class="badge badge-secondary">Stopped</span>
+                    <span class="badge badge-secondary">{{ t "topbar.stopped" }}</span>
                 {{ end }}
             </div>
 
@@ -105,7 +105,7 @@
 
                 <dl class="stat-row">
                     <div>
-                        <dt>Sessions</dt>
+                        <dt>{{ t "home.sessions" }}</dt>
                         <dd>
                             {{ range $sessionType, $session := .RaceConfig.Sessions }}
                                 <span class="badge badge-secondary">{{ $sessionType.String }}</span>
@@ -113,32 +113,32 @@
                         </dd>
                     </div>
                     <div>
-                        <dt>Entrants</dt>
+                        <dt>{{ t "home.entrants" }}</dt>
                         <dd>{{ len .EntryList }}</dd>
                     </div>
                     <div>
-                        <dt>Cars</dt>
+                        <dt>{{ t "home.cars" }}</dt>
                         <dd>{{ carList .RaceConfig.Cars }}</dd>
                     </div>
                 </dl>
 
                 {{ if not $.PerformanceMode }}
                     <div>
-                        <a href="{{ serverURL "/live-timing" }}" class="btn btn-primary">Open live timing {{ template "icon" "arrow-right" }}</a>
+                        <a href="{{ serverURL "/live-timing" }}" class="btn btn-primary">{{ t "home.open_live_timing" }} {{ template "icon" "arrow-right" }}</a>
                     </div>
                 {{ end }}
             {{ else }}
                 <p class="text-muted mb-0">
-                    No event is running.
+                    {{ t "home.no_event" }}.
                     {{ with .UpcomingRaces }}
                         {{ $next := index . 0 }}
-                        Next up: <strong class="text-body">{{ $next.Name }}</strong>, {{ localFormat $next.Start }}.
+                        {{ t "home.next_up" }} <strong class="text-body">{{ $next.Name }}</strong>, {{ localFormat $next.Start }}.
                     {{ end }}
                 </p>
 
                 {{ if WriteAccess }}
                     <div>
-                        <a href="/quick" class="btn btn-primary">{{ template "icon" "play" }} Start a quick race</a>
+                        <a href="/quick" class="btn btn-primary">{{ template "icon" "play" }} {{ t "home.start_quick_race" }}</a>
                     </div>
                 {{ end }}
             {{ end }}
@@ -146,8 +146,8 @@
 
         <section class="card dashboard-card" aria-labelledby="upcoming-heading">
             <div class="dashboard-card-header">
-                <h2 id="upcoming-heading">Coming up</h2>
-                <a href="/calendar" class="small text-muted">Calendar</a>
+                <h2 id="upcoming-heading">{{ t "home.coming_up" }}</h2>
+                <a href="/calendar" class="small text-muted">{{ t "nav.calendar" }}</a>
             </div>
 
             {{ with .UpcomingRaces }}
@@ -170,36 +170,36 @@
                                 </div>
                                 <div class="small text-muted">{{ .TrackName }} · {{ localFormatHourAndZone .Start }}</div>
                             </div>
-                            {{ with .Recurrence }}<span class="badge badge-secondary">Recurring</span>{{ end }}
+                            {{ with .Recurrence }}<span class="badge badge-secondary">{{ t "home.recurring" }}</span>{{ end }}
                         </li>
                     {{ end }}
                 </ul>
             {{ else }}
-                <p class="text-muted mb-0">Nothing is scheduled.</p>
+                <p class="text-muted mb-0">{{ t "home.nothing_scheduled" }}</p>
             {{ end }}
         </section>
     </div>
 
     {{ if WriteAccess }}
         <section class="mb-4" aria-labelledby="quick-actions-heading">
-            <h2 id="quick-actions-heading" class="section-title">Quick actions</h2>
+            <h2 id="quick-actions-heading" class="section-title">{{ t "home.quick_actions" }}</h2>
 
             <div class="quick-actions">
                 <a href="/quick" class="card quick-action">
-                    <strong>Quick race</strong>
-                    <span class="text-muted">Start with defaults in one step</span>
+                    <strong>{{ t "nav.quick_race" }}</strong>
+                    <span class="text-muted">{{ t "home.quick_race_help" }}</span>
                 </a>
                 <a href="/custom/new" class="card quick-action">
-                    <strong>New custom race</strong>
-                    <span class="text-muted">Track, cars, sessions, entry list</span>
+                    <strong>{{ t "nav.new_custom_race" }}</strong>
+                    <span class="text-muted">{{ t "home.custom_race_help" }}</span>
                 </a>
                 <a href="/championships/new" class="card quick-action">
-                    <strong>New championship</strong>
-                    <span class="text-muted">Classes, points, sign-up form</span>
+                    <strong>{{ t "nav.new_championship" }}</strong>
+                    <span class="text-muted">{{ t "home.championship_help" }}</span>
                 </a>
                 <a href="/race-weekends/new" class="card quick-action">
-                    <strong>New race weekend</strong>
-                    <span class="text-muted">Sessions with grids from earlier results</span>
+                    <strong>{{ t "nav.new_race_weekend" }}</strong>
+                    <span class="text-muted">{{ t "home.race_weekend_help" }}</span>
                 </a>
             </div>
         </section>
@@ -207,8 +207,8 @@
 
     <section aria-labelledby="recent-results-heading">
         <div class="d-flex align-items-center justify-content-between">
-            <h2 id="recent-results-heading" class="section-title">Recent results</h2>
-            <a href="/results" class="small text-muted">All results</a>
+            <h2 id="recent-results-heading" class="section-title">{{ t "home.recent_results" }}</h2>
+            <a href="/results" class="small text-muted">{{ t "home.all_results" }}</a>
         </div>
 
         {{ with .RecentResults }}
@@ -216,11 +216,11 @@
                 <table class="table table-hover mb-0">
                     <thead>
                         <tr>
-                            <th scope="col">Date</th>
-                            <th scope="col">Session</th>
-                            <th scope="col">Track</th>
-                            <th scope="col">Winner</th>
-                            <th scope="col" class="text-right">Best lap</th>
+                            <th scope="col">{{ t "home.date" }}</th>
+                            <th scope="col">{{ t "home.session" }}</th>
+                            <th scope="col">{{ t "home.track" }}</th>
+                            <th scope="col">{{ t "home.winner" }}</th>
+                            <th scope="col" class="text-right">{{ t "home.best_lap" }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -228,7 +228,7 @@
                             <tr>
                                 <td class="text-nowrap text-muted">{{ localFormat .Date }}</td>
                                 <td>
-                                    <a href="/results/{{ .SessionFile }}">{{ if .IsTimeAttack }}Time Attack{{ else }}{{ .Type }}{{ end }}</a>
+                                    <a href="/results/{{ .SessionFile }}">{{ if .IsTimeAttack }}{{ t "event_type.time_attack" }}{{ else }}{{ .Type }}{{ end }}</a>
                                 </td>
                                 <td>{{ prettify .TrackName false }}</td>
                                 <td>{{ if .Result }}{{ driverName (index .Result 0).DriverName }}{{ end }}</td>
@@ -239,7 +239,7 @@
                 </table>
             </div>
         {{ else }}
-            {{ template "empty-state" dict "Icon" "results" "Text" "No results yet." }}
+            {{ template "empty-state" dict "Icon" "results" "Text" (t "home.no_results") }}
         {{ end }}
     </section>
 {{ end }}

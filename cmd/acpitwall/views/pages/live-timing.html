@@ -1,6 +1,6 @@
 {{/* gotype: github.com/wernersbacher/ACPitwall/internal/racecontrol.liveTimingTemplateVars */}}
 
-{{ define "title" }}Live Timing{{ end }}
+{{ define "title" }}{{ t "nav.live_timing" }}{{ end }}
 
 {{ define "extracss" }}
     <style type="text/css">
@@ -21,10 +21,10 @@
                     <div class="row">
                         <div class="col-sm-9">
                             <input type="text" class="live-frame-link form-control" name="frame-link" value="{{ . }}"
-                                   placeholder="IFrame content link (track location on map, race live stream etc.)">
+                                   placeholder="{{ t "live.iframe_placeholder" }}">
                         </div>
                         <div class="col-sm-3 pl-1">
-                            <button class="btn btn-primary text-light remove-live-frame float-right">Remove IFrame</button>
+                            <button class="btn btn-primary text-light remove-live-frame float-right">{{ t "live.remove_iframe" }}</button>
                         </div>
                     </div>
                 </div>
@@ -46,16 +46,16 @@
                 </div>
 
                 <div class="race-control-weather-info">
-                    <img class="img img-fluid d-lg-inline-block d-none" id="weatherImage" src="/static/img/no-preview-general.png" alt="Current Weather">
+                    <img class="img img-fluid d-lg-inline-block d-none" id="weatherImage" src="/static/img/no-preview-general.png" alt="{{ t "live.current_weather" }}">
 
                     <div class="d-inline-block">
-                        <div id="road-temp-wrapper" data-toggle="tooltip" data-original-title="Road Temp">
+                        <div id="road-temp-wrapper" data-toggle="tooltip" data-original-title="{{ t "live.road_temp" }}">
                             <div id="road-temp-text"></div>
-                            <img src="/static/img/temp-road.png" alt="Road Temp" id="road-temp">
+                            <img src="/static/img/temp-road.png" alt="{{ t "live.road_temp" }}" id="road-temp">
                         </div>
-                        <div id="ambient-temp-wrapper" class="mt-1" data-toggle="tooltip" data-original-title="Ambient Temp">
+                        <div id="ambient-temp-wrapper" class="mt-1" data-toggle="tooltip" data-original-title="{{ t "live.ambient_temp" }}">
                             <div id="ambient-temp-text"></div>
-                            <img src="/static/img/temp-ambient.png" alt="Ambient Temp" id="ambient-temp">
+                            <img src="/static/img/temp-ambient.png" alt="{{ t "live.ambient_temp" }}" id="ambient-temp">
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
 
             <div class="live-tiles race-control-event-info">
                 <div class="live-tile">
-                    <div class="live-tile-label">Session</div>
+                    <div class="live-tile-label">{{ t "home.session" }}</div>
                     <div class="live-tile-value"><span id="event-type">-</span></div>
                     <div class="live-tile-sub">
                         {{ range $sessionName, $session := .RaceConfig.Sessions }}
@@ -72,22 +72,22 @@
                     </div>
                 </div>
                 <div class="live-tile">
-                    <div class="live-tile-label">Remaining</div>
+                    <div class="live-tile-label">{{ t "live.remaining" }}</div>
                     <div class="live-tile-value live-mono"><span id="race-time">--:--:--</span></div>
                 </div>
                 <div class="live-tile">
-                    <div class="live-tile-label">Entrants</div>
+                    <div class="live-tile-label">{{ t "home.entrants" }}</div>
                     <div class="live-tile-value live-mono" data-toggle="tooltip" title="{{ entrantNames .EntryList }}">{{ len .EntryList }} <i class="fa fa-user"></i></div>
                 </div>
             </div>
 
             <div class="race-control-buttons">
                 {{ with $CMJoinLink }}
-                    <a id="cm-join-link" href="{{ . }}" class="btn btn-success btn-sm">Join</a>
+                    <a id="cm-join-link" href="{{ . }}" class="btn btn-success btn-sm">{{ t "live.join" }}</a>
                 {{ end }}
 
                 {{ if AdminAccess }}
-                    <button id="admin-panel" data-toggle="popover" class="btn btn-sm btn-info" data-placement="bottom">Admin Panel</button>
+                    <button id="admin-panel" data-toggle="popover" class="btn btn-sm btn-info" data-placement="bottom">{{ t "live.admin_panel" }}</button>
                 {{ end }}
 
                 {{ if $.IsStrackerEnabled }}
@@ -107,11 +107,11 @@
             >
 
             <ul class="list-unstyled mt-2">
-                <li><strong>Description:</strong> <span id="track-description"></span></li>
-                <li><strong>Length:</strong> <span id="track-length"></span></li>
-                <li><strong>Pit Boxes:</strong> <span id="track-pitboxes"></span></li>
-                <li><strong>Width:</strong> <span id="track-width"></span></li>
-                <li><strong>Run:</strong> <span id="track-run"></span></li>
+                <li><strong>{{ t "live.track.description" }}</strong> <span id="track-description"></span></li>
+                <li><strong>{{ t "live.track.length" }}</strong> <span id="track-length"></span></li>
+                <li><strong>{{ t "live.track.pitboxes" }}</strong> <span id="track-pitboxes"></span></li>
+                <li><strong>{{ t "live.track.width" }}</strong> <span id="track-width"></span></li>
+                <li><strong>{{ t "live.track.run" }}</strong> <span id="track-run"></span></li>
             </ul>
         </div>
 
@@ -119,71 +119,71 @@
             <form class="form-inline p-1" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}">
 
                 <div class="form-row">
-                    <label for="broadcast-chat">Broadcast Chat: </label>
+                    <label for="broadcast-chat">{{ t "live.broadcast_chat" }} </label>
                 </div>
 
                 <div class="form-row">
-                    <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="Have a great race everybody!">
+                    <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="{{ t "live.broadcast_placeholder" }}">
 
-                    <button class="btn btn-success btn-sm ml-1" type="submit">Send</button>
+                    <button class="btn btn-success btn-sm ml-1" type="submit">{{ t "live.send" }}</button>
                 </div>
 
             </form>
 
             <form class="form p-1" id="send-chat-form" name="send-chat-form" action="{{ serverURL "/send-chat" }}">
                 <div class="form-row" style="margin-bottom: -7px">
-                    <label for="send-chat">Send Chat to Driver: </label>
+                    <label for="send-chat">{{ t "live.send_chat" }} </label>
                 </div>
 
                 <div class="form-row mb-2">
                     <select class="form-control-sm chat-user" name="chat-user" id="chat-user">
-                        <option value="default-driver-spacer">No drivers found!</option>
+                        <option value="default-driver-spacer">{{ t "live.no_drivers" }}</option>
                         <!-- driver kick opts appended by javascript -->
                     </select>
                 </div>
 
                 <div class="form-row">
-                    <input type="text" name="send-chat" id="send-chat" class="send-chat form-control form-control-sm admin-command-input" placeholder="Watch those track limits!">
+                    <input type="text" name="send-chat" id="send-chat" class="send-chat form-control form-control-sm admin-command-input" placeholder="{{ t "live.send_placeholder" }}">
 
-                    <button class="btn btn-success btn-sm ml-1" type="submit">Send</button>
+                    <button class="btn btn-success btn-sm ml-1" type="submit">{{ t "live.send" }}</button>
                 </div>
             </form>
 
             <form class="form-inline p-1" id="admin-command-form" name="admin-command-form" action="{{ serverURL "/admin-command" }}">
 
                 <div class="form-row">
-                    <label for="admin-command">Admin Command: </label>
+                    <label for="admin-command">{{ t "live.admin_command" }} </label>
                 </div>
 
                 <div class="form-row">
                     <input type="text" name="admin-command" id="admin-command" class="admin-command form-control form-control-sm" placeholder="/ballast 2 100">
 
-                    <button class="btn btn-success btn-sm ml-1" type="submit">Send</button>
+                    <button class="btn btn-success btn-sm ml-1" type="submit">{{ t "live.send" }}</button>
                 </div>
 
             </form>
 
             <form class="form p-1" id="kick-user-form" name="kick-user-form" action="{{ serverURL "/kick-user" }}">
                 <div class="form-row" style="margin-bottom: -7px">
-                    <label for="kick-user">Kick Driver: </label>
+                    <label for="kick-user">{{ t "live.kick_driver" }} </label>
                 </div>
 
                 <div class="form-row">
                     <select class="form-control-sm kick-user" name="kick-user" id="kick-user">
-                        <option value="default-driver-spacer">No drivers found!</option>
+                        <option value="default-driver-spacer">{{ t "live.no_drivers" }}</option>
                         <!-- driver kick opts appended by javascript -->
                     </select>
 
-                    <button class="btn btn-danger btn-sm ml-1" type="submit">Kick</button>
+                    <button class="btn btn-danger btn-sm ml-1" type="submit">{{ t "live.kick" }}</button>
                 </div>
             </form>
 
             <div style="height: 43px">
-                <a id="countdown" href="{{ serverURL "/countdown" }}" class="btn btn-info btn-sm mt-3">Broadcast Countdown</a>
+                <a id="countdown" href="{{ serverURL "/countdown" }}" class="btn btn-info btn-sm mt-3">{{ t "live.countdown" }}</a>
             </div>
 
-            <a id="next-session" href="{{ serverURL "/next-session" }}" class="btn btn-success btn-sm mt-3">Next Session</a>
-            <a id="restart-session" href="{{ serverURL "/restart-session" }}" class="btn btn-warning btn-sm mt-3">Restart Session</a>
+            <a id="next-session" href="{{ serverURL "/next-session" }}" class="btn btn-success btn-sm mt-3">{{ t "live.next_session" }}</a>
+            <a id="restart-session" href="{{ serverURL "/restart-session" }}" class="btn btn-warning btn-sm mt-3">{{ t "live.restart_session" }}</a>
 
 
 
@@ -192,9 +192,9 @@
         <div class="clearfix"></div>
 
         {{ if Config.LiveMap.IsEnabled }}
-            <div class="live-tabs d-xl-none" role="tablist" aria-label="Live timing view">
-                <button type="button" role="tab" class="live-tab active" data-live-tab="standings" aria-selected="true">Standings</button>
-                <button type="button" role="tab" class="live-tab" data-live-tab="map" aria-selected="false">Map &amp; Chat</button>
+            <div class="live-tabs d-xl-none" role="tablist" aria-label="{{ t "live.view" }}">
+                <button type="button" role="tab" class="live-tab active" data-live-tab="standings" aria-selected="true">{{ t "live.standings" }}</button>
+                <button type="button" role="tab" class="live-tab" data-live-tab="map" aria-selected="false">{{ t "live.map_chat" }}</button>
             </div>
         {{ end }}
 
@@ -204,15 +204,15 @@
                     <table id="live-table" class="table table-bordered table-striped live-table">
                         <tr>
                             <th class="p-1 text-center">&num;</th>
-                            <th>Driver</th>
-                            <th>Car</th>
-                            <th>Current Lap</th>
-                            <th>Last Lap</th>
-                            <th>Best Lap</th>
-                            <th>Gap</th>
-                            <th>&num; Laps</th>
-                            <th>Top Speed</th>
-                            <th class="live-events">Events</th>
+                            <th>{{ t "live.col.driver" }}</th>
+                            <th>{{ t "live.col.car" }}</th>
+                            <th>{{ t "live.col.current_lap" }}</th>
+                            <th>{{ t "live.col.last_lap" }}</th>
+                            <th>{{ t "live.col.best_lap" }}</th>
+                            <th>{{ t "live.col.gap" }}</th>
+                            <th>{{ t "live.col.laps" }}</th>
+                            <th>{{ t "live.col.top_speed" }}</th>
+                            <th class="live-events">{{ t "live.col.events" }}</th>
                         </tr>
 
                         <!-- trs for drivers are appended by javascript -->
@@ -220,20 +220,20 @@
                 </div>
 
                 <div class="live-legend">
-                    <span><i style="background: var(--tertiary)"></i>Fastest lap</span>
-                    <span><i style="background: var(--success-foreground)"></i>Personal best</span>
+                    <span><i style="background: var(--tertiary)"></i>{{ t "live.fastest_lap" }}</span>
+                    <span><i style="background: var(--success-foreground)"></i>{{ t "live.personal_best" }}</span>
                 </div>
 
                 <div id="stored-times" style="display: none">
-                    <h4>Stored Times</h4>
+                    <h4>{{ t "live.stored_times" }}</h4>
                     <div class="table-responsive table-sm">
                         <table id="live-table-disconnected" class="table table-bordered table-striped live-table-stored">
                             <tr>
-                                <th>Driver</th>
-                                <th>Car</th>
-                                <th>Best Lap</th>
-                                <th>&num; Laps</th>
-                                <th>Top Speed</th>
+                                <th>{{ t "live.col.driver" }}</th>
+                                <th>{{ t "live.col.car" }}</th>
+                                <th>{{ t "live.col.best_lap" }}</th>
+                                <th>{{ t "live.col.laps" }}</th>
+                                <th>{{ t "live.col.top_speed" }}</th>
                             </tr>
 
                             <!-- trs for drivers are appended by javascript -->
@@ -251,14 +251,14 @@
                     </div>
 
                     <div class="card card-body mt-2" id="chat-container">
-                        <div class="card-text chat-message-template"><span id="chat-message-sender"></span>Game chat!</div>
+                        <div class="card-text chat-message-template"><span id="chat-message-sender"></span>{{ t "live.game_chat" }}</div>
                     </div>
 
                     {{ if AdminAccess }}
 
                         <form class="form mt-2" id="broadcast-chat-form" name="broadcast-chat-form" action="{{ serverURL "/broadcast-chat" }}" autocomplete="off">
                             <div class="form-group">
-                                <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="Broadcast chat">
+                                <input type="text" name="broadcast-chat" id="broadcast-chat" class="broadcast-chat form-control form-control-sm" placeholder="{{ t "live.broadcast_short" }}">
                             </div>
                         </form>
 
@@ -281,8 +281,8 @@
 
             {{ if WriteAccess }}
                 <div class="col-12 mt-4">
-                    <a class="btn btn-primary text-light" id="add-live-frame">Add IFrame</a>
-                    <button type="submit" class="btn btn-success text-light">Save IFrames</button>
+                    <a class="btn btn-primary text-light" id="add-live-frame">{{ t "live.add_iframe" }}</a>
+                    <button type="submit" class="btn btn-success text-light">{{ t "live.save_iframes" }}</button>
                 </div>
             {{ end }}
         </form>
@@ -293,16 +293,16 @@
     {{ else }}
         <div class="page-header">
             <div>
-                <h1>Live Timing</h1>
-                <p>Real-time standings, track map and chat of the running session.</p>
+                <h1>{{ t "nav.live_timing" }}</h1>
+                <p>{{ t "live.intro" }}</p>
             </div>
         </div>
 
         <div class="card live-empty">
             <div class="card-body">
-                <h2>No session is running</h2>
-                <p>Start a race, practice or qualifying session and its live timing appears here.</p>
-                <a href="/" class="btn btn-primary">Go to overview</a>
+                <h2>{{ t "live.no_session" }}</h2>
+                <p>{{ t "live.no_session_help" }}</p>
+                <a href="/" class="btn btn-primary">{{ t "not_found.back" }}</a>
             </div>
         </div>
     {{ end }}
