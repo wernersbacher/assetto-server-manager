@@ -11,8 +11,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -29,31 +27,6 @@ var httpClient = &http.Client{Timeout: 15 * time.Second}
 
 // LoginHandler is embedded by handlers that offer a Steam login.
 type LoginHandler struct{}
-
-// RedirectToSteamLogin redirects to Steam and, once validated, back to backURLFunc with the steamGUID.
-func (slh *LoginHandler) RedirectToSteamLogin(backURLFunc func(r *http.Request) string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
-
-		switch query.Get("openid.mode") {
-		case "":
-			http.Redirect(w, r, authURL(r), http.StatusFound)
-		case "cancel":
-			logrus.Error("Steam authorization cancelled")
-			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		default:
-			steamID, err := validate(r)
-
-			if err != nil {
-				logrus.WithError(err).Error("Could not validate steamID")
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			clientSideRedirect(backURLFunc(r)+"?steamGUID="+url.QueryEscape(steamID), w)
-		}
-	}
-}
 
 // ErrCancelled is given to the failure callback of HandleLogin if the visitor cancelled at Steam.
 var ErrCancelled = errors.New("steam: authorization cancelled")

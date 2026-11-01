@@ -168,7 +168,8 @@ account_details:
   intro: Diese Angaben sind freiwillig, aber empfohlen. Wenn du sie ausfüllst, kommst du in die Teilnehmerliste, aus der Organisatoren Fahrer zu Events hinzufügen, und deine Daten werden bei der Anmeldung zu geschlossenen Events automatisch ausgefüllt.
   driver_name: Fahrername
   guid: GUID
-  guid_help: Wenn du deine Steam-GUID nicht kennst, kannst du dich <a href="{url}">mit Steam anmelden</a>, um sie automatisch einzutragen.
+  guid_help: Dein Konto ist nicht mit Steam verbunden. Verbinde es, um dich mit Steam anzumelden und für Meisterschaften zu registrieren.
+  connect_steam: Mit Steam verbinden
   team: Team
   theme: Design
   theme_option:
@@ -200,6 +201,17 @@ accounts:
   group_all_servers: Gruppe für alle Server übernehmen?
   group_all_servers_help: Wenn aktiv, wird die oben gewählte Gruppe für das Konto auf allen Servern dieser Instanz übernommen.
   reset_password: Passwort zurücksetzen
+  type: Kontotyp
+  type_password: Konto mit Passwort
+  type_steam: Steam-Konto (Anmeldung mit Steam)
+  type_help: Lege ein Konto mit generiertem Passwort an, oder eines für einen Fahrer, der sich mit Steam anmeldet und kein Passwort hat.
+  steam_id: Steam-ID
+  steam_id_help: Die SteamID64 des Fahrers (17 Ziffern, z. B. aus der Steam-Profil-URL).
+  display_name: Anzeigename
+  display_name_help: Optional. Wird als Fahrername des Kontos verwendet.
+  steam_name_help: Der Name eines Steam-Kontos bleibt unverändert.
+  passwordless_help: Dieses Konto meldet sich mit Steam an und hat kein Passwort.
+  steam_account: Steam
   generated_password_help: Dieses Passwort wurde automatisch erzeugt. Gib es der Person, für die du das Konto anlegst. Bei der ersten Anmeldung wird sie aufgefordert, es zu ändern.
   add_user: Benutzer hinzufügen
   save_user: Benutzer speichern

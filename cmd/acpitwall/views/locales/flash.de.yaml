@@ -11,6 +11,11 @@ flash:
     logged_in: Danke für deine Anmeldung!
     steam_not_allowed: Für diese Steam-ID gibt es kein Konto, und die Registrierung per Steam ist auf diesem Server nicht aktiviert.
     steam_failed: Die Steam-Anmeldung ist fehlgeschlagen oder wurde abgebrochen. Bitte versuche es erneut.
+    steam_id_invalid: Die Steam-ID ist ungültig. Eine SteamID64 hat genau 17 Ziffern.
+    steam_in_use: Mit dieser Steam-ID ist bereits ein anderes Konto verbunden.
+    steam_created: "Steam-Konto {name} angelegt"
+    steam_linked: Dein Konto ist jetzt mit Steam verbunden.
+    steam_already_linked: Dein Konto ist bereits mit Steam verbunden.
     openness_changed: Offenheit des Servers erfolgreich geändert
     public_stats_changed: Öffentliche Fahrerstatistiken erfolgreich geändert
     steam_signup_changed: Registrierung mit Steam erfolgreich geändert

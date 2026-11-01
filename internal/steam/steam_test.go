@@ -34,10 +34,22 @@ func fakeSteam(t *testing.T, valid bool) func() {
 	}
 }
 
-func TestRedirectToSteamLogin(t *testing.T) {
+// backHandler continues to /back with the validated id, or answers with the error.
+func backHandler() http.HandlerFunc {
+	return (&LoginHandler{}).HandleLogin(
+		func(w http.ResponseWriter, r *http.Request, steamID string) {
+			ClientSideRedirect("/back?id="+steamID, w)
+		},
+		func(w http.ResponseWriter, r *http.Request, err error) {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		},
+	)
+}
+
+func TestHandleLoginBehindProxy(t *testing.T) {
 	defer fakeSteam(t, true)()
 
-	h := (&LoginHandler{}).RedirectToSteamLogin(func(r *http.Request) string { return "/back" })
+	h := backHandler()
 
 	// start: redirect to Steam, return_to follows the proxy headers
 	req := httptest.NewRequest("GET", "http://internal:8772/championship/1/sign-up/steam", nil)
@@ -75,7 +87,7 @@ func TestRedirectToSteamLogin(t *testing.T) {
 	rec = httptest.NewRecorder()
 	h(rec, req)
 
-	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "/back?steamGUID=76561198000000001") {
+	if rec.Code != http.StatusOK || !strings.Contains(rec.Body.String(), "/back?id=76561198000000001") {
 		t.Fatalf("status %d body %q", rec.Code, rec.Body.String())
 	}
 
@@ -89,7 +101,7 @@ func TestRedirectToSteamLogin(t *testing.T) {
 	}
 }
 
-func TestRedirectToSteamLoginRejectsInvalid(t *testing.T) {
+func TestHandleLoginRejectsInvalid(t *testing.T) {
 	defer fakeSteam(t, false)()
 
 	q := url.Values{}
@@ -100,9 +112,9 @@ func TestRedirectToSteamLoginRejectsInvalid(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "http://example.com/x?"+q.Encode(), nil)
 	rec := httptest.NewRecorder()
-	(&LoginHandler{}).RedirectToSteamLogin(func(r *http.Request) string { return "/back" })(rec, req)
+	backHandler()(rec, req)
 
-	if rec.Code != http.StatusInternalServerError || strings.Contains(rec.Body.String(), "steamGUID") {
+	if rec.Code != http.StatusInternalServerError || strings.Contains(rec.Body.String(), "/back") {
 		t.Fatalf("status %d body %q", rec.Code, rec.Body.String())
 	}
 }

@@ -11,6 +11,11 @@ flash:
     logged_in: Thanks for logging in!
     steam_not_allowed: No account exists for this Steam ID, and registration with Steam is not enabled on this server.
     steam_failed: The Steam login failed or was cancelled. Please try again.
+    steam_id_invalid: The Steam ID is not valid. A SteamID64 has exactly 17 digits.
+    steam_in_use: Another account is already connected to this Steam ID.
+    steam_created: "Steam account {name} created"
+    steam_linked: Your account is now connected to Steam.
+    steam_already_linked: Your account is already connected to Steam.
     openness_changed: Server openness successfully changed
     public_stats_changed: Public driver statistics successfully changed
     steam_signup_changed: Registration with Steam changed

@@ -169,7 +169,8 @@ account_details:
   intro: These account details are not mandatory, but are recommended. If you fill them in you will be added to the list of entrants that race organisers can add to events, and your details will be filled in for you if you register for a closed event.
   driver_name: Driver Name
   guid: GUID
-  guid_help: If you don't know your Steam GUID, you can <a href="{url}">sign in with Steam</a> to fill it in.
+  guid_help: Your account is not connected to Steam. Connect it to sign in with Steam and to register for championships.
+  connect_steam: Connect with Steam
   team: Team
   theme: Theme
   theme_option:
@@ -201,6 +202,17 @@ accounts:
   group_all_servers: Update Group For All Servers?
   group_all_servers_help: If on, the group selected above is applied to the user's account on all servers of this multi-server instance.
   reset_password: Reset Password
+  type: Account type
+  type_password: Account with password
+  type_steam: Steam account (signs in with Steam)
+  type_help: Create an account with a generated password, or one for a driver that signs in with Steam and has no password.
+  steam_id: Steam ID
+  steam_id_help: The SteamID64 of the driver (17 digits, e.g. from the Steam profile URL).
+  display_name: Display name
+  display_name_help: Optional. Used as the driver name of the account.
+  steam_name_help: The name of a Steam account stays as it is.
+  passwordless_help: This account signs in with Steam and has no password.
+  steam_account: Steam
   generated_password_help: This password is generated. Share it with the person you are creating the account for. They will be asked to change it when they log in the first time.
   add_user: Add User
   save_user: Save User

@@ -11,8 +11,43 @@
         </div>
 
         <div class="card-body">
-            <form method="post" {{ if $.IsEditing }}action="/accounts/edit/{{ .Account.ID.String }}"{{ else }}action="/accounts/new"{{ end }}>
-                <div class="form-group row">
+            <form method="post" {{ if $.IsEditing }}action="/accounts/edit/{{ .Account.ID.String }}"{{ else }}action="/accounts/new"{{ end }} id="account-form">
+                {{ if not $.IsEditing }}
+                    <div class="form-group row">
+                        <label for="AccountType" class="col-sm-3 col-form-label">{{ t "accounts.type" }}</label>
+
+                        <div class="col-sm-9">
+                            <select class="form-control" id="AccountType" name="AccountType">
+                                <option value="password">{{ t "accounts.type_password" }}</option>
+                                <option value="steam">{{ t "accounts.type_steam" }}</option>
+                            </select>
+
+                            <small>{{ t "accounts.type_help" }}</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row" data-account-type="steam" hidden>
+                        <label for="SteamID" class="col-sm-3 col-form-label">{{ t "accounts.steam_id" }}</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" id="SteamID" name="SteamID" class="form-control" placeholder="76561198000000000" pattern="[0-9]{17}" inputmode="numeric" disabled>
+
+                            <small>{{ t "accounts.steam_id_help" }}</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row" data-account-type="steam" hidden>
+                        <label for="DisplayName" class="col-sm-3 col-form-label">{{ t "accounts.display_name" }}</label>
+
+                        <div class="col-sm-9">
+                            <input type="text" id="DisplayName" name="DisplayName" class="form-control" disabled>
+
+                            <small>{{ t "accounts.display_name_help" }}</small>
+                        </div>
+                    </div>
+                {{ end }}
+
+                <div class="form-group row" {{ if not $.IsEditing }}data-account-type="password"{{ end }}>
                     <label for="Username" class="col-sm-3 col-form-label">{{ t "accounts.username" }}</label>
 
                     <div class="col-sm-9">
@@ -25,7 +60,9 @@
                             {{ with .Account.Name }}
                                 value="{{ . }}"
                             {{ end }}
+                            {{ if $.Passwordless }}readonly{{ end }}
                         >
+                        {{ if $.Passwordless }}<small>{{ t "accounts.steam_name_help" }}</small>{{ end }}
                     </div>
                 </div>
 
@@ -65,15 +102,26 @@
 
 
                 {{ if $.IsEditing }}
-                    <div class="form-group row">
-                        <label for="DefaultPassword" class="col-sm-3 col-form-label">{{ t "accounts.reset_password" }}</label>
+                    {{ if $.Passwordless }}
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label">{{ t "accounts.steam_id" }}</label>
 
-                        <div class="col-sm-9">
-                            <a class="btn btn-primary" href="/accounts/reset-password/{{ .Account.ID.String }}">{{ t "accounts.reset_password" }}</a>
+                            <div class="col-sm-9">
+                                <code>{{ .Account.GUID }}</code><br>
+                                <small>{{ t "accounts.passwordless_help" }}</small>
+                            </div>
                         </div>
-                    </div>
+                    {{ else }}
+                        <div class="form-group row">
+                            <label for="DefaultPassword" class="col-sm-3 col-form-label">{{ t "accounts.reset_password" }}</label>
+
+                            <div class="col-sm-9">
+                                <a class="btn btn-primary" href="/accounts/reset-password/{{ .Account.ID.String }}">{{ t "accounts.reset_password" }}</a>
+                            </div>
+                        </div>
+                    {{ end }}
                 {{ else }}
-                    <div class="form-group row">
+                    <div class="form-group row" data-account-type="password">
                         <label for="DefaultPassword" class="col-sm-3 col-form-label">{{ t "accounts.password" }}</label>
 
                         <div class="col-sm-9">
@@ -90,4 +138,26 @@
             </form>
         </div>
     </div></div>
+
+    {{ if not $.IsEditing }}
+        <script>
+            (function () {
+                var select = document.getElementById("AccountType");
+
+                function apply() {
+                    document.querySelectorAll("#account-form [data-account-type]").forEach(function (row) {
+                        var active = row.getAttribute("data-account-type") === select.value;
+
+                        row.hidden = !active;
+                        row.querySelectorAll("input").forEach(function (input) {
+                            input.disabled = !active;
+                        });
+                    });
+                }
+
+                select.addEventListener("change", apply);
+                apply();
+            })();
+        </script>
+    {{ end }}
 {{ end }}

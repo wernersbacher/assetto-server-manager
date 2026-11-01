@@ -11,6 +11,11 @@ flash:
     logged_in: Bedankt voor het inloggen!
     steam_not_allowed: Er bestaat geen account voor dit Steam-ID en registreren met Steam is op deze server niet ingeschakeld.
     steam_failed: De Steam-login is mislukt of geannuleerd. Probeer het opnieuw.
+    steam_id_invalid: Het Steam-ID is ongeldig. Een SteamID64 heeft precies 17 cijfers.
+    steam_in_use: Er is al een ander account gekoppeld aan dit Steam-ID.
+    steam_created: "Steam-account {name} aangemaakt"
+    steam_linked: Je account is nu gekoppeld aan Steam.
+    steam_already_linked: Je account is al gekoppeld aan Steam.
     openness_changed: Openheid van de server gewijzigd
     public_stats_changed: Openbare rijdersstatistieken gewijzigd
     steam_signup_changed: Registratie met Steam gewijzigd

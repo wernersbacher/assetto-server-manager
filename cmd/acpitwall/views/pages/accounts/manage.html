@@ -28,7 +28,7 @@
                     <td>
                         <span class="d-inline-flex align-items-center" style="gap: 10px">
                             <span class="avatar">{{ substr 0 1 $account.Name }}</span>
-                            <span>{{ $account.Name }}</span>
+                            <span>{{ $account.Name }}{{ if $account.GUID }}<br><small class="text-muted">{{ if $account.IsPasswordless }}{{ t "accounts.steam_account" }} - {{ end }}{{ $account.GUID }}</small>{{ end }}</span>
                         </span>
                     </td>
                     <td>{{ template "roleBadge" (print (AccountGroup $account)) }}</td>

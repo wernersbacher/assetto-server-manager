@@ -34,16 +34,15 @@
                                     id="DriverGUID"
                                     class="form-control"
                                     placeholder=""
-                                    {{ with .SteamGUIDOverride }}
-                                        value="{{ . }}"
-                                    {{ else }}
-                                        value="{{ .Account.GUID }}"
-                                    {{ end }}
+                                    value="{{ .Account.GUID }}"
                                     readonly
                             >
 
-                            {{ if eq .SteamGUIDOverride "" }}
-                                <small>{{ tHTML "account_details.guid_help" "url" "/accounts/update/steam" }}</small>
+                            {{ if eq .Account.GUID "" }}
+                                <small>{{ t "account_details.guid_help" }}</small><br>
+                                {{ if .CanConnectSteam }}
+                                    <a class="btn btn-primary mt-2" href="/accounts/steam-link">{{ t "account_details.connect_steam" }}</a>
+                                {{ end }}
                             {{ end }}
                         </div>
                     </div>

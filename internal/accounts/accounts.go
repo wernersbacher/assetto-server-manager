@@ -12,15 +12,15 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/cj123/sessions"
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 	"github.com/sethvargo/go-diceware/diceware"
 	"github.com/sirupsen/logrus"
-	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
-	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
+	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/steam"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -31,7 +31,7 @@ import (
 var steamGUIDRegexp = regexp.MustCompile("^[0-9]{15,25}$")
 
 const (
-	sessionAccountID           = "account_id"
+	sessionAccountID            = "account_id"
 	serverAccountOptionsMetaKey = "server-account-options"
 )
 
@@ -491,9 +491,11 @@ func (ah *AccountHandler) NewPassword(w http.ResponseWriter, r *http.Request) {
 type updateAccountTemplateVars struct {
 	smweb.BaseTemplateVars
 
-	Account           *smmodel.Account
-	ThemeOptions      []themeDetails
-	SteamGUIDOverride string
+	Account      *smmodel.Account
+	ThemeOptions []themeDetails
+
+	// CanConnectSteam is true for a real account (not the visitor of an open server) that is not connected to Steam.
+	CanConnectSteam bool
 }
 
 func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
@@ -514,17 +516,7 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.details_not_updated"))
 				logrus.WithError(err).Errorf("Could not update details for account id: %s", account.ID.String())
 			} else {
-				if account.GUID != "" {
-					err := ah.store.UpsertEntrant(serverconfig.Entrant{
-						Name: account.DriverName,
-						GUID: account.GUID,
-						Team: account.Team,
-					})
-
-					if err != nil {
-						logrus.WithError(err).Errorf("Successfully updated details, but could not add to autofill entry list. Account id: %s", account.ID.String())
-					}
-				}
+				ah.addAutofillEntrant(account)
 
 				if account.Language == "" {
 					smweb.ForgetLanguage(w)
@@ -540,9 +532,10 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/update.html", &updateAccountTemplateVars{
-		Account:           account,
-		ThemeOptions:      themeOptions,
-		SteamGUIDOverride: r.URL.Query().Get("steamGUID"),
+		Account:      account,
+		ThemeOptions: themeOptions,
+
+		CanConnectSteam: account.GUID == "" && account.ID != uuid.Nil && account != smweb.ScopeFromRequest(r).OpenAccount,
 	})
 }
 
@@ -646,6 +639,12 @@ func (am *AccountManager) loginWithSteam(r *http.Request, w http.ResponseWriter,
 type AccountManager struct {
 	// steamMutex serialises the Steam logins so that one SteamID cannot create two accounts.
 	steamMutex sync.Mutex
+
+	// links are the Steam connections of accounts that are in progress.
+	links steamLinks
+
+	// now is the clock, nil for time.Now (set by tests).
+	now func() time.Time
 
 	config *smconfig.Configuration
 
@@ -837,6 +836,9 @@ type createAccountTemplateVars struct {
 
 	Account   *smmodel.Account
 	IsEditing bool
+
+	// Passwordless is true when an existing account has no password (it logs in with Steam).
+	Passwordless bool
 }
 
 func (ah *AccountHandler) CreateOrEditAccount(w http.ResponseWriter, r *http.Request) {
@@ -874,13 +876,45 @@ func (ah *AccountHandler) CreateOrEditAccount(w http.ResponseWriter, r *http.Req
 		username := r.FormValue("Username")
 		group := smmodel.Group(r.FormValue("Group"))
 
+		if !isEditing && r.FormValue("AccountType") == "steam" {
+			// a driver that logs in with Steam: no password
+			if group != smmodel.GroupRead && group != smmodel.GroupWrite && group != smmodel.GroupDelete && group != smmodel.GroupAdmin && group != smmodel.GroupNoAccess {
+				http.Error(w, "unknown group", http.StatusBadRequest)
+				return
+			}
+
+			created, err := ah.accountManager.createSteamAccount(r.FormValue("SteamID"), group, r.FormValue("DisplayName"))
+
+			switch {
+			case err == ErrInvalidSteamID:
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_id_invalid"))
+				http.Redirect(w, r, "/accounts/new", http.StatusFound)
+			case err == ErrSteamIDInUse:
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.steam_in_use"))
+				http.Redirect(w, r, "/accounts/new", http.StatusFound)
+			case err != nil:
+				logrus.WithError(err).Errorf("Couldn't create the Steam account %s", r.FormValue("SteamID"))
+				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			default:
+				ah.addAutofillEntrant(created)
+				smweb.AddFlash(w, r, smweb.T(r, "flash.accounts.steam_created", "name", created.Name))
+				http.Redirect(w, r, "/accounts", http.StatusFound)
+			}
+
+			return
+		}
+
 		if !isEditing {
 			// creating new account
 			account = smmodel.NewAccount(serverID, buildVersion)
 			account.DefaultPassword = r.FormValue("DefaultPassword")
 		}
 
-		account.Name = username
+		// the name of an account without password (Steam) is its identity and stays
+		if !account.IsPasswordless() {
+			account.Name = username
+		}
+
 		account.Groups[serverID] = group
 
 		if smweb.FormValueAsInt(r.FormValue("UpdateGroupForAllServers")) == 1 {
@@ -908,8 +942,9 @@ func (ah *AccountHandler) CreateOrEditAccount(w http.ResponseWriter, r *http.Req
 	}
 
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/new.html", &createAccountTemplateVars{
-		Account:   account,
-		IsEditing: isEditing,
+		Account:      account,
+		IsEditing:    isEditing,
+		Passwordless: isEditing && account.IsPasswordless(),
 	})
 }
 

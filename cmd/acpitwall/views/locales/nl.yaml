@@ -168,7 +168,8 @@ account_details:
   intro: Deze gegevens zijn niet verplicht, maar wel aanbevolen. Als je ze invult, kom je in de lijst met deelnemers die organisatoren aan events kunnen toevoegen, en worden je gegevens automatisch ingevuld als je je inschrijft voor een gesloten event.
   driver_name: Rijdersnaam
   guid: GUID
-  guid_help: Als je je Steam-GUID niet weet, kun je <a href="{url}">inloggen met Steam</a> om hem automatisch in te vullen.
+  guid_help: Je account is niet gekoppeld aan Steam. Koppel het om met Steam in te loggen en je voor kampioenschappen in te schrijven.
+  connect_steam: Koppelen met Steam
   team: Team
   theme: Thema
   theme_option:
@@ -200,6 +201,17 @@ accounts:
   group_all_servers: Groep voor alle servers overnemen?
   group_all_servers_help: Als dit aan staat, wordt de hierboven gekozen groep voor het account op alle servers van deze instantie toegepast.
   reset_password: Wachtwoord resetten
+  type: Accounttype
+  type_password: Account met wachtwoord
+  type_steam: Steam-account (logt in met Steam)
+  type_help: Maak een account met een gegenereerd wachtwoord, of een voor een rijder die met Steam inlogt en geen wachtwoord heeft.
+  steam_id: Steam-ID
+  steam_id_help: De SteamID64 van de rijder (17 cijfers, bijvoorbeeld uit de URL van het Steam-profiel).
+  display_name: Weergavenaam
+  display_name_help: Optioneel. Wordt gebruikt als rijdersnaam van het account.
+  steam_name_help: De naam van een Steam-account blijft ongewijzigd.
+  passwordless_help: Dit account logt in met Steam en heeft geen wachtwoord.
+  steam_account: Steam
   generated_password_help: Dit wachtwoord is automatisch gegenereerd. Geef het aan de persoon voor wie je het account aanmaakt. Bij de eerste keer inloggen wordt gevraagd het te wijzigen.
   add_user: Gebruiker toevoegen
   save_user: Gebruiker opslaan

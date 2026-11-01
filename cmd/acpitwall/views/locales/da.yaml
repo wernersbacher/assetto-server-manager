@@ -168,7 +168,8 @@ account_details:
   intro: Disse oplysninger er frivillige, men anbefales. Hvis du udfylder dem, kommer du på listen over deltagere, som arrangører kan tilføje til events, og dine oplysninger bliver udfyldt automatisk, når du tilmelder dig et lukket event.
   driver_name: Kørernavn
   guid: GUID
-  guid_help: Hvis du ikke kender dit Steam-GUID, kan du <a href="{url}">logge ind med Steam</a> for at udfylde det automatisk.
+  guid_help: Din konto er ikke forbundet med Steam. Forbind den for at logge ind med Steam og tilmelde dig mesterskaber.
+  connect_steam: Forbind med Steam
   team: Team
   theme: Tema
   theme_option:
@@ -200,6 +201,17 @@ accounts:
   group_all_servers: Brug gruppen på alle servere?
   group_all_servers_help: Hvis slået til, bruges den valgte gruppe ovenfor for kontoen på alle servere i denne instans.
   reset_password: Nulstil adgangskode
+  type: Kontotype
+  type_password: Konto med adgangskode
+  type_steam: Steam-konto (logger ind med Steam)
+  type_help: Opret en konto med en genereret adgangskode, eller en til en kører, der logger ind med Steam og ikke har nogen adgangskode.
+  steam_id: Steam-ID
+  steam_id_help: Førerens SteamID64 (17 cifre, f.eks. fra URL'en til Steam-profilen).
+  display_name: Visningsnavn
+  display_name_help: Valgfrit. Bruges som kontoens kørernavn.
+  steam_name_help: Navnet på en Steam-konto forbliver uændret.
+  passwordless_help: Denne konto logger ind med Steam og har ingen adgangskode.
+  steam_account: Steam
   generated_password_help: Denne adgangskode er genereret automatisk. Giv den til den person, du opretter kontoen til. Personen bliver bedt om at ændre den ved første login.
   add_user: Tilføj bruger
   save_user: Gem bruger

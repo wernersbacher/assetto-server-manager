@@ -11,6 +11,11 @@ flash:
     logged_in: Tak, fordi du loggede ind!
     steam_not_allowed: Der findes ingen konto til dette Steam-ID, og registrering med Steam er ikke aktiveret på denne server.
     steam_failed: Steam-login mislykkedes eller blev annulleret. Prøv igen.
+    steam_id_invalid: Steam-ID'et er ugyldigt. Et SteamID64 har præcis 17 cifre.
+    steam_in_use: En anden konto er allerede forbundet med dette Steam-ID.
+    steam_created: "Steam-konto {name} oprettet"
+    steam_linked: Din konto er nu forbundet med Steam.
+    steam_already_linked: Din konto er allerede forbundet med Steam.
     openness_changed: Serverens åbenhed er ændret
     public_stats_changed: Offentlig kørerstatistik er ændret
     steam_signup_changed: Registrering med Steam er ændret

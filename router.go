@@ -132,9 +132,9 @@ func Router(
 		http.NotFound(w, r)
 	})
 
-	r.Get("/accounts/update/steam", championshipsHandler.RedirectToSteamLogin(func(r *http.Request) string {
-		return "/accounts/update"
-	}))
+	// connecting an account to Steam: the session is only used when the connection is started, the answer is
+	// processed by /accounts/steam-link/finish (behind the login) after a same site redirect
+	r.Get("/accounts/steam-link", accountHandler.SteamLink())
 
 	// driver statistics: read access, but anonymous visitors of an open server only if the statistics are public
 	r.Group(func(r chi.Router) {
@@ -244,6 +244,7 @@ func Router(
 		// account management
 		r.HandleFunc("/accounts/new-password", accountHandler.NewPassword)
 		r.HandleFunc("/accounts/update", accountHandler.Update)
+		r.Get("/accounts/steam-link/finish", accountHandler.SteamLinkFinish)
 		r.HandleFunc("/accounts/dismiss-changelog", accountHandler.DismissChangelog)
 
 		// skins of users: every logged in account may upload and manage its own skins (checked in the handlers, which
@@ -434,13 +435,13 @@ func Router(
 		r.HandleFunc("/motd", serverAdministrationHandler.MOTD)
 		r.HandleFunc("/current-config", serverAdministrationHandler.CurrentConfig)
 		r.HandleFunc("/audit-logs", auditLogHandler.ViewLogs)
-		r.Post("/accounts/toggle-steam-signup", accountHandler.ToggleSteamSignup)
 		r.HandleFunc("/accounts/new", accountHandler.CreateOrEditAccount)
 		r.HandleFunc("/accounts/edit/{id}", accountHandler.CreateOrEditAccount)
 		r.Post("/accounts/delete/{id}", accountHandler.DeleteAccount)
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
 		r.Post("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
 		r.Post("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
+		r.Post("/accounts/toggle-steam-signup", accountHandler.ToggleSteamSignup)
 		r.Post("/accounts/download-access", accountHandler.SetDownloadAccess)
 		r.Post("/accounts/team-options", accountHandler.SetTeamOptions)
 		r.Post("/accounts/skin-options", accountHandler.SetSkinSettings)
