@@ -102,6 +102,9 @@ content:
   tracks:
     intro: Auf dem Server installierte Strecken und Layouts.
     upload: Strecken hochladen
+    search_placeholder: Strecken suchen
+    no_results: Deine Suche hat keine Strecken gefunden. Versuche es mit einer anderen Suche.
+    empty: Auf dem Server sind noch keine Strecken installiert.
 
   track:
     download: Herunterladen

@@ -25,7 +25,10 @@
         </div>
     {{ end }}
 
-    {{ $writeAccess := WriteAccess }}
+    <form method="get" action="/tracks" class="content-search mb-3">
+        <input name="q" placeholder="{{ t "content.tracks.search_placeholder" }}" aria-label="{{ t "content.tracks.search_placeholder" }}" class="form-control" value="{{ $.Query }}" autocomplete="off">
+        <button type="submit" class="btn btn-primary">{{ t "content.search.submit" }}</button>
+    </form>
 
     <div class="content-grid">
     {{ range $i, $track := $.Tracks }}
@@ -58,8 +61,12 @@
                 <!-- overlaid atop the above div -->
             </a>
         </div>
+    {{ else }}
+        <p>{{ if $.Query }}{{ t "content.tracks.no_results" }}{{ else }}{{ t "content.tracks.empty" }}{{ end }}</p>
     {{ end }}
     </div>
+
+    {{ template "pagination" dict "CurrentPage" $.CurrentPage "NumPages" $.NumPages "Request" $.Request }}
 
     <div class="clearfix"></div>
 {{ end }}

@@ -102,6 +102,9 @@ content:
   tracks:
     intro: Circuits en layouts die op de server zijn geïnstalleerd.
     upload: Circuits uploaden
+    search_placeholder: Zoek circuits
+    no_results: Je zoekopdracht gaf geen circuits. Probeer een andere zoekopdracht.
+    empty: Er zijn nog geen circuits op de server geïnstalleerd.
 
   track:
     download: Downloaden

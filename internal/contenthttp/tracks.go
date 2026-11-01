@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"github.com/sirupsen/logrus"
@@ -41,10 +42,70 @@ func NewTracksHandler(baseHandler *smweb.BaseHandler, trackManager *smcontent.Tr
 	}
 }
 
+// trackPageSize is the number of tracks on one page of the track list.
+const trackPageSize = 48
+
 type trackListTemplateVars struct {
 	smweb.BaseTemplateVars
 
-	Tracks []smcontent.Track
+	Tracks      []smcontent.Track
+	Total       int
+	Query       string
+	CurrentPage int
+	NumPages    int
+	PageSize    int
+}
+
+// filterTracks returns the tracks whose id, name or layouts contain every word of the query (case insensitive).
+func filterTracks(tracks []smcontent.Track, query string) []smcontent.Track {
+	words := strings.Fields(strings.ToLower(query))
+
+	if len(words) == 0 {
+		return tracks
+	}
+
+	var filtered []smcontent.Track
+
+	for _, track := range tracks {
+		haystack := strings.ToLower(track.Name + " " + track.PrettyName() + " " + strings.Join(track.Layouts, " "))
+		matches := true
+
+		for _, word := range words {
+			if !strings.Contains(haystack, word) {
+				matches = false
+				break
+			}
+		}
+
+		if matches {
+			filtered = append(filtered, track)
+		}
+	}
+
+	return filtered
+}
+
+// paginateTracks returns the tracks of one (zero based) page, the page and the number of pages. A page out of range
+// is clamped to the last page.
+func paginateTracks(tracks []smcontent.Track, page, pageSize int) ([]smcontent.Track, int, int) {
+	numPages := (len(tracks) + pageSize - 1) / pageSize
+
+	if page >= numPages {
+		page = numPages - 1
+	}
+
+	if page < 0 {
+		page = 0
+	}
+
+	start := page * pageSize
+	end := start + pageSize
+
+	if end > len(tracks) {
+		end = len(tracks)
+	}
+
+	return tracks[start:end], page, numPages
 }
 
 func (th *TracksHandler) List(w http.ResponseWriter, r *http.Request) {
@@ -54,8 +115,18 @@ func (th *TracksHandler) List(w http.ResponseWriter, r *http.Request) {
 		logrus.WithError(err).Errorf("could not get track list")
 	}
 
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	tracks = filterTracks(tracks, query)
+	total := len(tracks)
+	tracks, page, numPages := paginateTracks(tracks, smweb.FormValueAsInt(r.URL.Query().Get("page")), trackPageSize)
+
 	th.ViewRenderer.MustLoadTemplate(w, r, "content/tracks.html", &trackListTemplateVars{
-		Tracks: tracks,
+		Tracks:      tracks,
+		Total:       total,
+		Query:       query,
+		CurrentPage: page,
+		NumPages:    numPages,
+		PageSize:    trackPageSize,
 	})
 }
 

@@ -102,6 +102,9 @@ content:
   tracks:
     intro: Tracks and layouts installed on the server.
     upload: Upload tracks
+    search_placeholder: Search for tracks
+    no_results: Your search returned no tracks. Please try a different query.
+    empty: No tracks are installed on the server yet.
 
   track:
     download: Download

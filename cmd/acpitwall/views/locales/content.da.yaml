@@ -102,6 +102,9 @@ content:
   tracks:
     intro: Baner og layouts, der er installeret på serveren.
     upload: Upload baner
+    search_placeholder: Søg efter baner
+    no_results: Din søgning gav ingen baner. Prøv en anden søgning.
+    empty: Der er endnu ikke installeret baner på serveren.
 
   track:
     download: Download
