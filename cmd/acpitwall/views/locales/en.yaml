@@ -96,6 +96,7 @@ nav:
   plugins: Plugins
   configuration: Configuration
   changelog: Changelog
+  breadcrumb: Breadcrumb
 
 footer:
   report_bug: Report a bug

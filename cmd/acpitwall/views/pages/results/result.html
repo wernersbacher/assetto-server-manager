@@ -12,13 +12,12 @@
 
     <div class="page-header">
         <div>
+            {{ template "breadcrumb" dict "URL" "/results" "Parent" (t "nav.results") "Current" (localFormat $sessionResults.Date) }}
             <h1>{{ prettify $sessionResults.TrackName false }} {{ with $sessionResults.TrackConfig }} - {{ prettify . true }} {{ end }}</h1>
             <p class="text-muted mb-0">{{ if $sessionResults.IsTimeAttack }}{{ t "results.time_attack" }} - {{ end }}{{ localFormat $sessionResults.Date }}{{ with $.Server }} - <span class="badge badge-secondary">{{ .Name }}</span>{{ end }}</p>
         </div>
 
         <div class="results-detail-actions">
-            <a class="btn btn-outline" href="/results">{{ t "results.back" }}</a>
-
             {{ if DeleteAccess }}
                 <form method="post" action="/results/{{ $sessionResults.SessionFile }}.json/delete"
                        data-confirm-delete="{{ t "results.delete_confirm" "file" $sessionResults.SessionFile }}" data-confirm-detail="{{ t "results.delete_detail" }}" data-confirm-label="{{ t "results.delete_label" }}">

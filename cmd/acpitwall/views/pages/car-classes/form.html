@@ -6,7 +6,7 @@
     <div class="page-header">
         <div>
             <h1>{{ if $.Class }}{{ $.Class.Name }}{{ else }}{{ t "carclasses.new" }}{{ end }}</h1>
-            <p><a href="/car-classes">{{ t "carclasses.back" }}</a></p>
+            {{ template "breadcrumb" dict "URL" "/car-classes" "Parent" (t "nav.car_classes") "Current" (or (and $.Class $.Class.Name) (t "carclasses.new")) }}
         </div>
     </div>
 

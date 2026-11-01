@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The detail pages of cars, tracks, car classes, results, teams and drivers and the account pages show a breadcrumb (parent list / current page) instead of separate back links and buttons.
+
 * The Accounts page has a search field (name or Steam ID), hides the permission group column on small screens (it is shown below the name instead) and shows a message when nothing matches.
 
 * The Calendar page has a heading with a description and the subscribe link in the page header, and the server filter uses the same style as the results filter.

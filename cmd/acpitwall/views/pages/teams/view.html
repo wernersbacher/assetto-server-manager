@@ -7,6 +7,7 @@
 
     <div class="page-header">
         <div>
+            {{ template "breadcrumb" dict "URL" "/teams" "Parent" (t "nav.teams") "Current" $team.Name }}
             <h1>{{ $team.Name }}</h1>
             <p>
                 {{ if $team.IsPrivate }}{{ t "teams.private_team" }}{{ else }}{{ t "teams.public_team" }}{{ end }}
@@ -15,8 +16,6 @@
         </div>
 
         <div class="d-flex flex-wrap" style="gap: 8px">
-            <a class="btn btn-outline" href="/teams">{{ t "teams.all_teams" }}</a>
-
             {{ if $.CanJoin }}
                 <form method="post" action="/teams/{{ $team.ID.String }}/join" class="m-0">
                     <button type="submit" class="btn btn-success">{{ t "teams.join_team" }}</button>

@@ -12,7 +12,6 @@ results:
   delete_detail: The results file is removed permanently.
   delete_label: Delete results
   delete_results: Delete Results
-  back: Back to Results
   view_championship: View Championship
   view_race_weekend: View Race Weekend
   open_simresults: Open in Simresults

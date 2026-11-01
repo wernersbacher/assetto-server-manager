@@ -1,0 +1,4 @@
+{{/* Breadcrumb for detail pages: {{ template "breadcrumb" dict "URL" "/cars" "Parent" (t "home.cars") "Current" "Name" }}. Same markup as the race editor (form-breadcrumb). */}}
+{{ define "breadcrumb" }}
+    <nav class="form-breadcrumb" aria-label="{{ t "nav.breadcrumb" }}"><a href="{{ .URL }}">{{ .Parent }}</a><span aria-current="page">{{ .Current }}</span></nav>
+{{ end }}

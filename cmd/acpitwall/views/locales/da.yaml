@@ -95,6 +95,7 @@ nav:
   plugins: Plugins
   configuration: Konfiguration
   changelog: Ændringer
+  breadcrumb: Brødkrummesti
 
 footer:
   report_bug: Rapporter en fejl

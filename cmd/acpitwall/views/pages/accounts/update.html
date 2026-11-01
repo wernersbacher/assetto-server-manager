@@ -4,6 +4,7 @@
 
 {{ define "content" }}
     <div class="form-page">
+        {{ template "breadcrumb" dict "URL" "/" "Parent" (t "nav.overview") "Current" (t "account_details.title") }}
         <form method="post" action="/accounts/update">
             <div class="card admin-card mb-3">
                 <div class="card-header"><strong>{{ t "account_details.title" }}</strong></div>

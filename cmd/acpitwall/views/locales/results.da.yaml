@@ -12,7 +12,6 @@ results:
   delete_detail: Resultatfilen bliver slettet permanent.
   delete_label: Slet resultater
   delete_results: Slet resultater
-  back: Tilbage til resultater
   view_championship: Se mesterskab
   view_race_weekend: Se løbsweekend
   open_simresults: Åbn i Simresults

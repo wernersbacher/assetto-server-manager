@@ -3,7 +3,7 @@
 {{ define "title" }}{{ if $.IsEditing }}{{ t "accounts.edit_title" }}{{ else }}{{ t "accounts.add_title" }}{{ end }}{{ end }}
 
 {{ define "content" }}
-    <div class="page-header"><div><h1>{{ if $.IsEditing }}{{ t "accounts.edit_title" }}{{ else }}{{ t "accounts.add_title" }}{{ end }}</h1><p>{{ t "accounts.edit_intro" }}</p></div></div>
+    <div class="page-header"><div>{{ template "breadcrumb" dict "URL" "/accounts" "Parent" (t "nav.accounts") "Current" (or (and $.IsEditing (t "accounts.edit_title")) (t "accounts.add_title")) }}<h1>{{ if $.IsEditing }}{{ t "accounts.edit_title" }}{{ else }}{{ t "accounts.add_title" }}{{ end }}</h1><p>{{ t "accounts.edit_intro" }}</p></div></div>
 
     <div class="form-page"><div class="card admin-card">
         <div class="card-header">

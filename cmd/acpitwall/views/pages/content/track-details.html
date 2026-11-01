@@ -7,7 +7,7 @@
         <div class="page-header">
             <div>
                 <h1>{{ $.Track.PrettyName }}</h1>
-                <p><a href="/tracks">{{ t "nav.tracks" }}</a> / {{ $.Track.Name }}</p>
+                {{ template "breadcrumb" dict "URL" "/tracks" "Parent" (t "nav.tracks") "Current" $.Track.Name }}
             </div>
             <div>
             {{ if $.Track.IsPaidDLC }}<span class="badge bg-dlc">DLC</span>{{ end }}

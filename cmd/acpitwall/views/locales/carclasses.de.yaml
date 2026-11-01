@@ -3,7 +3,6 @@ carclasses:
   intro: Fahrzeugklassen sind benannte Gruppen von Autos. Championship-Klassen können sie verwenden, eine Änderung hier gilt daher für jede Championship, die die Klasse nutzt.
   new: Neue Fahrzeugklasse
   empty: Es gibt noch keine Fahrzeugklassen.
-  back: Zurück zu den Fahrzeugklassen
   name: Name
   name_placeholder: z. B. GT3
   name_help: Der Name muss unter den Fahrzeugklassen eindeutig sein.

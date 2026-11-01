@@ -7,7 +7,7 @@
         <div class="page-header">
             <div>
                 <h1>{{ $.Car.Details.Name }}</h1>
-                <p><a href="/cars">{{ t "home.cars" }}</a> / {{ $.Car.Name }}</p>
+                {{ template "breadcrumb" dict "URL" "/cars" "Parent" (t "home.cars") "Current" $.Car.Name }}
             </div>
             <div>
 

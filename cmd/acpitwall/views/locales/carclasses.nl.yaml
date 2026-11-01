@@ -3,7 +3,6 @@ carclasses:
   intro: Autoklassen zijn benoemde groepen auto's. Kampioenschapsklassen kunnen ze gebruiken, dus een wijziging hier geldt voor elk kampioenschap dat de klasse gebruikt.
   new: Nieuwe autoklasse
   empty: Er zijn nog geen autoklassen.
-  back: Terug naar de autoklassen
   name: Naam
   name_placeholder: bijv. GT3
   name_help: De naam moet uniek zijn onder de autoklassen.

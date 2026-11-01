@@ -95,6 +95,7 @@ nav:
   plugins: Plugins
   configuration: Konfiguration
   changelog: Änderungen
+  breadcrumb: Brotkrumen-Navigation
 
 footer:
   report_bug: Fehler melden

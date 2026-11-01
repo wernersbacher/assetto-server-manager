@@ -6,6 +6,7 @@
     <div class="driver-profile">
         <div class="page-header">
             <div>
+                {{ template "breadcrumb" dict "URL" "/leaderboards" "Parent" (t "nav.leaderboards") "Current" (driverName $.Driver.Name) }}
                 <h1>{{ driverName $.Driver.Name }}</h1>
                 <p class="text-muted mb-0">
                     {{ with $.Driver.Nation }}<span class="badge badge-secondary mr-1">{{ . }}</span>{{ end }}

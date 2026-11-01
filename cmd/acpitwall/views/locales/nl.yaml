@@ -95,6 +95,7 @@ nav:
   plugins: Plugins
   configuration: Configuratie
   changelog: Wijzigingen
+  breadcrumb: Kruimelpad
 
 footer:
   report_bug: Bug melden

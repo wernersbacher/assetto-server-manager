@@ -3,7 +3,6 @@ carclasses:
   intro: Bilklasser er navngivne grupper af biler. Mesterskabsklasser kan bruge dem, så en ændring her gælder for hvert mesterskab, der bruger klassen.
   new: Ny bilklasse
   empty: Der er endnu ingen bilklasser.
-  back: Tilbage til bilklasserne
   name: Navn
   name_placeholder: fx GT3
   name_help: Navnet skal være unikt blandt bilklasserne.

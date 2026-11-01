@@ -3,7 +3,6 @@ carclasses:
   intro: Car classes are named groups of cars. Championship classes can use them, so a change here applies to every championship that uses the class.
   new: New car class
   empty: There are no car classes yet.
-  back: Back to the car classes
   name: Name
   name_placeholder: e.g. GT3
   name_help: The name must be unique among the car classes.
