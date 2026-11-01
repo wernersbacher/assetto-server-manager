@@ -63,6 +63,15 @@ championships:
     slots_help: Slots are the entrants of this class. Open slots are filled by the drivers who join (open Championship, Sign Up Form or Autofill); assign drivers to slots in the Entry List tab.
     clone_help: Car, Skin, Ballast, Restrictor and Fixed Setup from the last Entrant will be cloned into new Entrants.
     add_entrants: Add Entrant(s)
+    car_classes: Car classes
+    car_classes_help: Cars of the selected car classes are available in this class in addition to the single cars above. A car class applies as it is now, so changes to it apply here, too.
+    car_classes_none: There are no car classes yet.
+    car_classes_manage: Manage car classes
+    car_class_cars:
+      one: "{count} car"
+      other: "{count} cars"
+    car_class_missing: This car class does not exist anymore. Remove it before saving.
+    cars_from: "from {name}"
   points:
     title: Points
     per_place: Points per place
@@ -228,6 +237,7 @@ championships:
       one: "{count} entrant"
       other: "{count} entrants"
     percent_complete: "{percent}% complete"
+    cars: "Cars"
     add_events: Add Events
     more_add: More ways to add events
     add_race_weekend: Add a Race Weekend

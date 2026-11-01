@@ -21,6 +21,15 @@ func (cm *ChampionshipManager) ImportChampionship(jsonData string) (string, erro
 		return "", err
 	}
 
+	// the car classes of an export are references to the global car classes of the exporting system: if they do not
+	// exist here, the import is refused (as a ValidationError) before anything is saved. UpsertChampionship checks
+	// again under the car class lock.
+	if championship.HasCarClassReferences() {
+		if err := cm.checkCarClasses(championship); err != nil {
+			return "", err
+		}
+	}
+
 	for _, event := range championship.Events {
 		if event.IsRaceWeekend() {
 			err := cm.store.UpsertRaceWeekend(event.RaceWeekend)

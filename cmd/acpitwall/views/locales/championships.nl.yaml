@@ -63,6 +63,15 @@ championships:
     slots_help: Plaatsen zijn de deelnemers van deze klasse. Vrije plaatsen worden ingenomen door rijders die meedoen (open kampioenschap, inschrijfformulier of Autofill); rijders wijs je toe aan plaatsen in het tabblad ‘Entry List’.
     clone_help: Auto, skin, ballast, restrictor en vaste setup van de laatste deelnemer worden overgenomen in nieuwe deelnemers.
     add_entrants: Deelnemer(s) toevoegen
+    car_classes: Autoklassen
+    car_classes_help: De auto's van de gekozen autoklassen zijn in deze klasse beschikbaar naast de losse auto's hierboven. Een autoklasse geldt zoals ze nu is, wijzigingen werken dus ook hier door.
+    car_classes_none: Er zijn nog geen autoklassen.
+    car_classes_manage: Autoklassen beheren
+    car_class_cars:
+      one: "{count} auto"
+      other: "{count} auto's"
+    car_class_missing: Deze autoklasse bestaat niet meer. Verwijder haar voor het opslaan.
+    cars_from: "uit {name}"
   points:
     title: Punten
     per_place: Punten per plaats
@@ -228,6 +237,7 @@ championships:
       one: "{count} deelnemer"
       other: "{count} deelnemers"
     percent_complete: "{percent}% afgerond"
+    cars: "Auto's"
     add_events: Events toevoegen
     more_add: Meer manieren om events toe te voegen
     add_race_weekend: Raceweekend toevoegen

@@ -19,6 +19,24 @@
                     <span>{{ tn "championships.view.classes" (len $championship.Classes) }}</span>
                     <span>{{ tn "championships.view.entrants" $championship.NumEntrants }}</span>
                 </p>
+                {{/* cars of the classes that use global car classes: the effective cars, with the car class as their origin */}}
+                {{ range $class := $championship.Classes }}
+                    {{ if $class.CarClassIDs }}
+                        <p class="small text-muted mb-1 class-car-sources">
+                            <strong>{{ $class.Name }}</strong> &ndash; {{ t "championships.view.cars" }}:
+                            {{ range $i, $car := $class.OwnCarIDs }}{{ if $i }}, {{ end }}{{ prettify $car true }}{{ end }}
+                            {{ range $carClass := $class.ReferencedCarClasses }}
+                                <span class="car-class-source">
+                                    ({{ t "championships.class.cars_from" "name" $carClass.Name }}:
+                                    {{ range $i, $car := $carClass.Cars }}{{ if $i }}, {{ end }}{{ prettify $car true }}{{ end }})
+                                </span>
+                            {{ end }}
+                            {{ range $class.MissingCarClassIDs }}
+                                <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ t "championships.class.car_class_missing" }} ({{ . }})</span>
+                            {{ end }}
+                        </p>
+                    {{ end }}
+                {{ end }}
                 {{ if gt $championship.Progress 0.0 }}
                     <div class="progress championship-progress" title="{{ t "championships.view.percent_complete" "percent" (int $championship.Progress) }}">
                         <div class="progress-bar bg-success" id="progress-bar" role="progressbar" style="width: {{ int $championship.Progress }}%;" aria-valuenow="{{ int $championship.Progress }}" aria-valuemin="0" aria-valuemax="100"></div>

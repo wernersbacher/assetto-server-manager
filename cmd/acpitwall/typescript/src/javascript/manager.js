@@ -1111,6 +1111,15 @@ class RaceSetup {
             // populate list of cars in entry list
             let cars = new Set(that.$carsDropdown.val());
 
+            // the cars of the selected global car classes are cars of the class as well (championship form)
+            that.$parent.find(".car-class-checkbox:checked").each(function () {
+                ($(this).attr("data-cars") || "").split(";").forEach(function (car) {
+                    if (car) {
+                        cars.add(car);
+                    }
+                });
+            });
+
             that.$parent.find(".entryListCar").each(function (index, val) {
                 let $val = $(val);
                 let selected = $val.find("option:selected").val();
@@ -1155,6 +1164,7 @@ class RaceSetup {
 
         populateEntryListCars();
         that.$carsDropdown.change(populateEntryListCars);
+        that.$parent.on("carClassesChanged", populateEntryListCars);
         that.$parent.find(".btn-delete-entrant").click(deleteEntrant);
 
         // addEntrants adds numEntrantsToAdd entrants like the Add Entrant(s) button does (also used by the slots input
@@ -2596,7 +2606,38 @@ let championships = {
             let $target = $(e.currentTarget);
 
             classBlocks($target).find("input[name='NumCars']").val($target.val().length);
+            championships.syncCarClasses($target);
         });
+
+        // the global car classes of a class: one comma separated value per class (ClassCarClasses), so that the server
+        // does not have to count them. A class does not need single cars if it has car classes.
+        $document.on("change", ".car-class-checkbox", function (e) {
+            let $blocks = classBlocks($(e.currentTarget));
+
+            championships.syncCarClasses($(e.currentTarget));
+            $blocks.first().trigger("carClassesChanged");
+        });
+    },
+
+    // syncCarClasses writes the checked car classes of the class of $el into its hidden ClassCarClasses field and makes
+    // the single cars optional while a car class is chosen.
+    syncCarClasses: function ($el) {
+        let $blocks = classBlocks($el);
+        let ids = [];
+
+        $blocks.find(".car-class-checkbox:checked").each(function () {
+            ids.push($(this).val());
+        });
+
+        $blocks.find(".class-car-classes-value").val(ids.join(","));
+
+        let $cars = $blocks.find(".Cars");
+
+        if (ids.length > 0 || ($cars.val() || []).length > 0) {
+            $cars.removeAttr("required");
+        } else {
+            $cars.attr("required", "required");
+        }
     },
 
     // initEntrantEditOptions shows the options "move points to the new team" and "apply to all events" of the entrants of

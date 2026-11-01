@@ -66,6 +66,7 @@ flash:
     created: Het kampioenschap is aangemaakt. Nu moet je nog events toevoegen!
     duplicated: Kampioenschap gedupliceerd!
     import_failed: Sorry, het kampioenschap kon niet worden geïmporteerd! Controleer de JSON-opmaak.
+    import_invalid: "Sorry, het kampioenschap kon niet worden geïmporteerd: {error}"
     imported: Kampioenschap geïmporteerd!
     deleted: Kampioenschap verwijderd!
     session_import_failed: De sessiebestanden konden niet worden geïmporteerd

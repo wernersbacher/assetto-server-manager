@@ -63,6 +63,15 @@ championships:
     slots_help: Plätze sind die Teilnehmer dieser Klasse. Freie Plätze werden von Fahrern belegt, die beitreten (offene Meisterschaft, Anmeldeformular oder Autofill); Fahrer weist du den Plätzen im Tab „Entry List“ zu.
     clone_help: Auto, Skin, Ballast, Restrictor und festes Setup des letzten Teilnehmers werden in neue Teilnehmer übernommen.
     add_entrants: Teilnehmer hinzufügen
+    car_classes: Fahrzeugklassen
+    car_classes_help: Die Autos der gewählten Fahrzeugklassen stehen in dieser Klasse zusätzlich zu den einzelnen Autos oben zur Verfügung. Eine Fahrzeugklasse gilt immer in ihrem aktuellen Stand, Änderungen daran wirken also auch hier.
+    car_classes_none: Es gibt noch keine Fahrzeugklassen.
+    car_classes_manage: Fahrzeugklassen verwalten
+    car_class_cars:
+      one: "{count} Auto"
+      other: "{count} Autos"
+    car_class_missing: Diese Fahrzeugklasse existiert nicht mehr. Entferne sie vor dem Speichern.
+    cars_from: "aus {name}"
   points:
     title: Punkte
     per_place: Punkte pro Platz
@@ -228,6 +237,7 @@ championships:
       one: "{count} Teilnehmer"
       other: "{count} Teilnehmer"
     percent_complete: "{percent} % abgeschlossen"
+    cars: "Autos"
     add_events: Events hinzufügen
     more_add: Weitere Möglichkeiten, Events hinzuzufügen
     add_race_weekend: Rennwochenende hinzufügen

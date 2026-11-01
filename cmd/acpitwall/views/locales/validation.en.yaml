@@ -48,6 +48,8 @@ validation:
     form_class_values: "Invalid form: {classes} classes but {count} values for {field}."
     form_spectator_cars: "Invalid form: negative number of spectator cars."
     form_class_id: 'Invalid form: "{id}" is not a valid class ID.'
+    form_car_class_id: 'Invalid form: "{id}" is not a valid car class ID.'
+    form_class_no_cars: 'Class "{class}" needs at least one car or car class.'
     form_negative: "Invalid form: negative number of entrants, points or cars."
     form_points: "Invalid form: {expected} points places expected but {count} submitted."
     form_cars: "Invalid form: {expected} cars expected but {count} submitted."

@@ -66,6 +66,7 @@ flash:
     created: Die Meisterschaft wurde erstellt. Jetzt musst du noch Events hinzufügen!
     duplicated: Meisterschaft erfolgreich dupliziert!
     import_failed: Die Meisterschaft konnte leider nicht importiert werden! Prüfe das JSON-Format.
+    import_invalid: "Die Meisterschaft konnte leider nicht importiert werden: {error}"
     imported: Meisterschaft erfolgreich importiert!
     deleted: Meisterschaft gelöscht!
     session_import_failed: Die Session-Dateien konnten nicht importiert werden

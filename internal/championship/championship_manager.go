@@ -168,6 +168,52 @@ type ChampionshipTemplateVars struct {
 	DefaultPoints             smmodel.ChampionshipPoints
 	DefaultClass              *smmodel.ChampionshipClass
 	AvailableChampionshipTabs []smmodel.ChampionshipTab
+
+	// CarClasses are all global car classes, offered in the class blocks of the form (see CarClassOptions).
+	CarClasses []*smmodel.CarClass
+}
+
+// CarClassOption is a global car class in the class form: selected if the championship class refers to it. A
+// reference to a car class that does not exist anymore is shown as a selected, Missing option (without cars), so that
+// it is visible and can be removed.
+type CarClassOption struct {
+	ID       string
+	Name     string
+	Cars     []string
+	Selected bool
+	Missing  bool
+}
+
+// CarClassOptions returns the global car classes as options for the class, in the order of the car classes, followed
+// by references that cannot be resolved.
+func (v *ChampionshipTemplateVars) CarClassOptions(class *smmodel.ChampionshipClass) []CarClassOption {
+	selected := make(map[uuid.UUID]bool, len(class.CarClassIDs))
+
+	for _, id := range class.CarClassIDs {
+		selected[id] = true
+	}
+
+	var options []CarClassOption
+
+	for _, carClass := range v.CarClasses {
+		options = append(options, CarClassOption{
+			ID:       carClass.ID.String(),
+			Name:     carClass.Name,
+			Cars:     carClass.Cars,
+			Selected: selected[carClass.ID],
+		})
+
+		delete(selected, carClass.ID)
+	}
+
+	for _, id := range class.CarClassIDs {
+		if selected[id] {
+			options = append(options, CarClassOption{ID: id.String(), Name: id.String(), Selected: true, Missing: true})
+			delete(selected, id)
+		}
+	}
+
+	return options
 }
 
 func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (championship *smmodel.Championship, opts *ChampionshipTemplateVars, err error) {
@@ -186,6 +232,14 @@ func (cm *ChampionshipManager) BuildChampionshipOpts(r *http.Request) (champions
 		DefaultClass:              defaultClass,
 		AvailableChampionshipTabs: smmodel.AvailableChampionshipTabs,
 	}
+
+	if opts.CarClasses, err = cm.store.ListCarClasses(); err != nil {
+		return nil, nil, err
+	}
+
+	sort.SliceStable(opts.CarClasses, func(i, j int) bool {
+		return strings.ToLower(opts.CarClasses[i].Name) < strings.ToLower(opts.CarClasses[j].Name)
+	})
 
 	championshipID := chi.URLParam(r, "championshipID")
 
@@ -303,7 +357,13 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 		class := smmodel.NewChampionshipClass(r.Form["ClassName"][i])
 
 		if classID := r.Form["ClassID"][i]; classID != "" && classID != uuid.Nil.String() {
-			class.ID = uuid.MustParse(classID)
+			parsedID, err := uuid.Parse(classID)
+
+			if err != nil {
+				return nil, edited, ValidationError{i18n.Msg("validation.championship.form_class_id", "Invalid form: \"{id}\" is not a valid class ID.", "id", classID)}
+			}
+
+			class.ID = parsedID
 		}
 
 		numEntrantsForClass := smweb.FormValueAsInt(r.Form["EntryList.NumEntrants"][i])
@@ -311,6 +371,13 @@ func (cm *ChampionshipManager) HandleCreateChampionship(r *http.Request) (champi
 		numCarsForClass := smweb.FormValueAsInt(r.Form["NumCars"][i])
 
 		class.AvailableCars = r.Form["Cars"][previousNumCars : previousNumCars+numCarsForClass]
+
+		// the car classes are one value per class (comma separated), so they do not depend on any offsets
+		class.CarClassIDs, err = parseClassCarClasses(r.Form[classCarClassesField][i])
+
+		if err != nil {
+			return nil, edited, err
+		}
 
 		class.Entrants, err = cm.BuildEntryList(r, previousNumEntrants, numEntrantsForClass)
 

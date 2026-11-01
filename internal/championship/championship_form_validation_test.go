@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/google/uuid"
 )
 
 func newChampionshipFormRequest(values url.Values) *http.Request {
@@ -21,6 +23,7 @@ func validChampionshipForm() url.Values {
 		"ChampionshipName":          {"Form Test"},
 		"ClassName":                 {"Default"},
 		"ClassID":                   {""},
+		"ClassCarClasses":           {""},
 		"EntryList.NumEntrants":     {"1"},
 		"NumPoints":                 {"2"},
 		"NumCars":                   {"1"},
@@ -79,6 +82,15 @@ func TestChampionshipManager_HandleCreateChampionship_InvalidForm(t *testing.T) 
 		"negative cars":         func(v url.Values) { v["NumCars"] = []string{"-1"} },
 		"more entrants":         func(v url.Values) { v["EntryList.NumEntrants"] = []string{"5"} },
 		"more classes":          func(v url.Values) { v["ClassName"] = []string{"A", "B"} },
+		"missing car classes":   func(v url.Values) { v.Del("ClassCarClasses") },
+		"bad car class id":      func(v url.Values) { v["ClassCarClasses"] = []string{"nope"} },
+		"unknown car class":     func(v url.Values) { v["ClassCarClasses"] = []string{uuid.New().String()} },
+		"car class twice":       func(v url.Values) { id := uuid.New().String(); v["ClassCarClasses"] = []string{id + "," + id} },
+		"class without cars": func(v url.Values) {
+			v["NumCars"] = []string{"0"}
+			v["Cars"] = nil
+			v["EntryList.NumEntrants"] = []string{"0"}
+		},
 	}
 
 	for name, modify := range tests {

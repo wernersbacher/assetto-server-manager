@@ -47,6 +47,8 @@ validation:
     form_class_values: "Ungültiges Formular: {classes} Klassen, aber {count} Werte für {field}."
     form_spectator_cars: "Ungültiges Formular: negative Anzahl an Zuschauerautos."
     form_class_id: "Ungültiges Formular: „{id}“ ist keine gültige Klassen-ID."
+    form_car_class_id: "Ungültiges Formular: „{id}“ ist keine gültige Fahrzeugklassen-ID."
+    form_class_no_cars: "Die Klasse „{class}“ braucht mindestens ein Auto oder eine Fahrzeugklasse."
     form_negative: "Ungültiges Formular: negative Anzahl an Teilnehmern, Punkten oder Autos."
     form_points: "Ungültiges Formular: {expected} Punkteplätze erwartet, aber {count} übermittelt."
     form_cars: "Ungültiges Formular: {expected} Autos erwartet, aber {count} übermittelt."

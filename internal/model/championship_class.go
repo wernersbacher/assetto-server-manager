@@ -103,6 +103,29 @@ func (c *ChampionshipClass) ValidCarIDs() []string {
 	return cars
 }
 
+// OwnCarIDs returns the cars that are chosen in the class itself, not through car classes: AvailableCars or, if none
+// are chosen and no car class is referenced, the models of the entrants (sorted). This is what the championship form
+// offers as single cars, so that saving the form does not turn the cars of a referenced car class into single cars.
+func (c *ChampionshipClass) OwnCarIDs() []string {
+	if len(c.AvailableCars) > 0 {
+		return c.AvailableCars
+	}
+
+	if len(c.CarClassIDs) > 0 {
+		return nil
+	}
+
+	var models []string
+
+	for _, e := range c.Entrants {
+		models = append(models, e.Model)
+	}
+
+	sort.Strings(models)
+
+	return models
+}
+
 // ResolveCarIDs is ValidCarIDs with an explicit lookup (nil falls back to the lookup of the class). The cars that could
 // be resolved are returned together with an error (an i18n.Message) if a referenced car class does not exist or no
 // lookup is set.
@@ -121,22 +144,8 @@ func (c *ChampionshipClass) ResolveCarIDs(lookup CarClassLookup) ([]string, erro
 		}
 	}
 
-	if len(c.AvailableCars) > 0 {
-		for _, car := range c.AvailableCars {
-			add(car)
-		}
-	} else if len(c.CarClassIDs) == 0 {
-		var models []string
-
-		for _, e := range c.Entrants {
-			models = append(models, e.Model)
-		}
-
-		sort.Strings(models)
-
-		for _, model := range models {
-			add(model)
-		}
+	for _, car := range c.OwnCarIDs() {
+		add(car)
 	}
 
 	var firstErr error
@@ -255,4 +264,42 @@ func (c *Championship) AttachClassIDToResults(results *smresults.SessionResults)
 
 		result.ClassID = class.ID
 	}
+}
+
+// ReferencedCarClasses returns the global car classes the class refers to, as they are now, in the order of CarClassIDs.
+// References that cannot be resolved are left out, see MissingCarClassIDs.
+func (c *ChampionshipClass) ReferencedCarClasses() []*CarClass {
+	var found []*CarClass
+
+	for _, id := range c.CarClassIDs {
+		if carClass, ok := c.lookupCarClass(id); ok {
+			found = append(found, carClass)
+		}
+	}
+
+	return found
+}
+
+// MissingCarClassIDs returns the references to car classes that cannot be resolved. This cannot happen as long as
+// referenced car classes cannot be deleted; it is shown so that it is never silent.
+func (c *ChampionshipClass) MissingCarClassIDs() []uuid.UUID {
+	var missing []uuid.UUID
+
+	for _, id := range c.CarClassIDs {
+		if _, ok := c.lookupCarClass(id); !ok {
+			missing = append(missing, id)
+		}
+	}
+
+	return missing
+}
+
+func (c *ChampionshipClass) lookupCarClass(id uuid.UUID) (*CarClass, bool) {
+	if c.carClasses == nil {
+		return nil, false
+	}
+
+	carClass, ok := c.carClasses.CarClass(id)
+
+	return carClass, ok && carClass != nil
 }

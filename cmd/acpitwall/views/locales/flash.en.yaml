@@ -66,6 +66,7 @@ flash:
     created: We've created the Championship. Now you need to add some Events!
     duplicated: Championship successfully duplicated!
     import_failed: Sorry, we couldn't import that championship! Check your JSON formatting.
+    import_invalid: "Sorry, we couldn't import that championship: {error}"
     imported: Championship successfully imported!
     deleted: Championship deleted!
     session_import_failed: Could not import session files

@@ -47,6 +47,8 @@ validation:
     form_class_values: "Ongeldig formulier: {classes} klassen, maar {count} waarden voor {field}."
     form_spectator_cars: "Ongeldig formulier: negatief aantal toeschouwersauto's."
     form_class_id: 'Ongeldig formulier: "{id}" is geen geldige klasse-ID.'
+    form_car_class_id: 'Ongeldig formulier: "{id}" is geen geldige autoklasse-ID.'
+    form_class_no_cars: 'De klasse "{class}" heeft minstens één auto of autoklasse nodig.'
     form_negative: "Ongeldig formulier: negatief aantal deelnemers, punten of auto's."
     form_points: "Ongeldig formulier: {expected} puntenplaatsen verwacht, maar {count} verzonden."
     form_cars: "Ongeldig formulier: {expected} auto's verwacht, maar {count} verzonden."

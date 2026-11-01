@@ -3,6 +3,9 @@
     number of slots (General), the entrants (Entry List) and the points (Scoring). The blocks are linked by the
     data-class-key attribute (see classBlocks() in manager.js).
 
+    The global car classes of a class are ONE value per class (ClassCarClasses, comma separated IDs, written by
+    syncCarClasses() in manager.js from the checkboxes), so unlike Cars they do not depend on the order of the classes.
+
     IMPORTANT, field order: the server reads ClassID, ClassName, NumCars, EntryList.NumEntrants and NumPoints as one
     value per class and slices Cars, EntryList.* and Points.* consecutively per class, all in document order. Every pane
     therefore has to render the classes in the same order, with exactly one hidden counter per class and block. The
@@ -47,10 +50,44 @@
             </label>
 
             <div class="col-sm-9">
-                {{ template "cars" dict "CarOpts" $.CarOpts "Current" nil "ValidCarIDs" $class.ValidCarIDs }}
+                {{/* only the single cars of the class: the cars of car classes are referenced (live), never copied into the class */}}
+                {{ template "cars" dict "CarOpts" $.CarOpts "Current" nil "ValidCarIDs" $class.OwnCarIDs "NotRequired" $class.CarClassIDs }}
             </div>
 
-            <input type="hidden" name="NumCars" value="{{ len $class.ValidCarIDs }}">
+            <input type="hidden" name="NumCars" value="{{ len $class.OwnCarIDs }}">
+        </div>
+
+        <div class="form-group row car-classes">
+            <label class="col-sm-3 col-form-label">
+                {{ t "championships.class.car_classes" }}
+            </label>
+
+            <div class="col-sm-9">
+                {{/* one value per class (comma separated IDs), kept up to date by the page's JavaScript, so it cannot be misassigned */}}
+                <input type="hidden" name="ClassCarClasses" class="class-car-classes-value" value="{{ range $i, $id := $class.CarClassIDs }}{{ if $i }},{{ end }}{{ $id }}{{ end }}">
+
+                {{ range $option := $.CarClassOptions }}
+                    {{/* the checkbox is inside its label, so the ids do not have to be unique in the cloned class blocks */}}
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="checkbox" class="form-check-input car-class-checkbox" value="{{ $option.ID }}" data-cars="{{ join ";" $option.Cars }}" {{ if $option.Selected }}checked{{ end }}>
+                            {{ $option.Name }}
+                            {{ if $option.Missing }}
+                                <span class="text-danger"><i class="fas fa-exclamation-triangle"></i> {{ t "championships.class.car_class_missing" }}</span>
+                            {{ else }}
+                                <small class="text-muted" title="{{ range $i, $car := $option.Cars }}{{ if $i }}, {{ end }}{{ prettify $car true }}{{ end }}">({{ tn "championships.class.car_class_cars" (len $option.Cars) }})</small>
+                            {{ end }}
+                        </label>
+                    </div>
+                {{ else }}
+                    <p class="text-muted mb-1">{{ t "championships.class.car_classes_none" }}</p>
+                {{ end }}
+
+                <small class="form-text text-muted">
+                    {{ t "championships.class.car_classes_help" }}
+                    <a href="/car-classes" target="_blank">{{ t "championships.class.car_classes_manage" }}</a>
+                </small>
+            </div>
         </div>
 
         <div class="form-group row mb-0">

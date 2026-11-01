@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <select multiple required class="form-control Cars" name="Cars" size="15">
+    <select multiple {{ if not $.NotRequired }}required{{ end }} class="form-control Cars" name="Cars" size="15">
         {{ range $index, $car := $.CarOpts }}
             {{ $selected := false }}
 

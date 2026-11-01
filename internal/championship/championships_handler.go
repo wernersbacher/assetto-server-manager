@@ -285,7 +285,13 @@ func (ch *ChampionshipsHandler) ImportChampionship(w http.ResponseWriter, r *htt
 
 		if err != nil {
 			logrus.WithError(err).Errorf("couldn't import championship")
-			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.import_failed"))
+
+			if _, ok := err.(ValidationError); ok {
+				// e.g. the championship refers to a car class that does not exist on this server
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.import_invalid", "error", smweb.ErrorText(r, err)))
+			} else {
+				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.championship.import_failed"))
+			}
 		} else {
 			smweb.AddFlash(w, r, smweb.T(r, "flash.championship.imported"))
 			http.Redirect(w, r, "/championship/"+championshipID, http.StatusFound)

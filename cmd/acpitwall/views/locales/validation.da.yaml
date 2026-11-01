@@ -47,6 +47,8 @@ validation:
     form_class_values: "Ugyldig formular: {classes} klasser, men {count} værdier for {field}."
     form_spectator_cars: "Ugyldig formular: negativt antal tilskuerbiler."
     form_class_id: 'Ugyldig formular: "{id}" er ikke et gyldigt klasse-ID.'
+    form_car_class_id: 'Ugyldig formular: "{id}" er ikke et gyldigt bilklasse-ID.'
+    form_class_no_cars: 'Klassen "{class}" skal have mindst én bil eller bilklasse.'
     form_negative: "Ugyldig formular: negativt antal deltagere, point eller biler."
     form_points: "Ugyldig formular: {expected} pointplaceringer forventet, men {count} indsendt."
     form_cars: "Ugyldig formular: {expected} biler forventet, men {count} indsendt."

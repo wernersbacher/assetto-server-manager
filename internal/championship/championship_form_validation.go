@@ -1,7 +1,9 @@
 package championship
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 
@@ -15,10 +17,46 @@ var entryListFormFields = []string{
 	"EntryList.GUID", "EntryList.Ballast", "EntryList.Restrictor", "EntryList.FixedSetup",
 }
 
+// classCarClassesField is the per-class form field with the global car classes of the class: the IDs, separated by
+// commas, empty for none. It is one value per class on purpose (unlike Cars) so that it cannot be misassigned.
+const classCarClassesField = "ClassCarClasses"
+
+// parseClassCarClasses reads the value of classCarClassesField. Every ID must be a valid UUID; whether the car classes
+// exist and are listed once is checked against the car classes in the store (ChampionshipManager.checkCarClasses).
+func parseClassCarClasses(value string) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
+
+	for _, part := range strings.Split(value, ",") {
+		part = strings.TrimSpace(part)
+
+		if part == "" {
+			continue
+		}
+
+		id, err := uuid.Parse(part)
+
+		if err != nil || id == uuid.Nil {
+			return nil, ValidationError{i18n.Msg("validation.championship.form_car_class_id", "Invalid form: \"{id}\" is not a valid car class ID.", "id", part)}
+		}
+
+		ids = append(ids, id)
+	}
+
+	return ids, nil
+}
+
 // classFormFields are the per-class form fields of the championship form, one value per class.
 var classFormFields = []string{
-	"ClassID", "EntryList.NumEntrants", "NumPoints", "NumCars", "Points.PolePosition", "Points.BestLap",
+	"ClassID", classCarClassesField, "EntryList.NumEntrants", "NumPoints", "NumCars", "Points.PolePosition", "Points.BestLap",
 	"Points.SecondRaceMultiplier", "Points.CollisionWithDriver", "Points.CollisionWithEnv", "Points.CutTrack",
+}
+
+func classNameAt(r *http.Request, i int) string {
+	if i < len(r.Form["ClassName"]) && r.Form["ClassName"][i] != "" {
+		return r.Form["ClassName"][i]
+	}
+
+	return fmt.Sprintf("#%d", i+1)
 }
 
 // validateChampionshipForm checks that the (repeated) fields of the championship form are consistent: that every
@@ -62,6 +100,18 @@ func validateChampionshipForm(r *http.Request) error {
 
 		if numEntrants < 0 || numPoints < 0 || numCars < 0 {
 			return ValidationError{i18n.Msg("validation.championship.form_negative", "Invalid form: negative number of entrants, points or cars.")}
+		}
+
+		carClasses, err := parseClassCarClasses(r.Form[classCarClassesField][i])
+
+		if err != nil {
+			return err
+		}
+
+		// a class needs cars: single cars or cars of global car classes (entrants name their car as well, so a class
+		// with entrants is fine, like before car classes existed)
+		if numCars == 0 && len(carClasses) == 0 && numEntrants == 0 {
+			return ValidationError{i18n.Msg("validation.championship.form_class_no_cars", "Class \"{class}\" needs at least one car or car class.", "class", classNameAt(r, i))}
 		}
 
 		totalEntrants += numEntrants

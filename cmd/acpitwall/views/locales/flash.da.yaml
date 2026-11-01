@@ -66,6 +66,7 @@ flash:
     created: Mesterskabet er oprettet. Nu skal du tilføje nogle events!
     duplicated: Mesterskabet er duplikeret!
     import_failed: Beklager, mesterskabet kunne ikke importeres! Tjek JSON-formatet.
+    import_invalid: "Beklager, mesterskabet kunne ikke importeres: {error}"
     imported: Mesterskabet er importeret!
     deleted: Mesterskabet er slettet!
     session_import_failed: Sessionsfilerne kunne ikke importeres

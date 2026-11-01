@@ -155,13 +155,13 @@
                 </div>
 
                 <div class="template" style="display: none;" data-class-template="general">
-                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-template" "Class" $.DefaultClass }}
+                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-template" "Class" $.DefaultClass "CarClassOptions" ($.CarClassOptions $.DefaultClass) }}
                 </div>
 
                 {{ range $classIndex, $class := $f.Classes }}
-                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" (print "class-" $classIndex) "Class" $class }}
+                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" (print "class-" $classIndex) "Class" $class "CarClassOptions" ($.CarClassOptions $class) }}
                 {{ else }}
-                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-0" "Class" $.DefaultClass }}
+                    {{ template "championship-class-general" dict "IsEditing" $.IsEditing "CarOpts" $.CarOpts "Championship" $.Championship "DefaultPoints" $.DefaultPoints "Key" "class-0" "Class" $.DefaultClass "CarClassOptions" ($.CarClassOptions $.DefaultClass) }}
                 {{ end }}
 
                 <div class="mt-3">

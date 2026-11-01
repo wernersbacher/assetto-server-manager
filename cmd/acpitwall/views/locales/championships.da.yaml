@@ -63,6 +63,15 @@ championships:
     slots_help: Pladser er deltagerne i denne klasse. Ledige pladser udfyldes af kørere, der deltager (åbent mesterskab, tilmeldingsformular eller Autofill); du tildeler kørere til pladser under fanen »Entry List«.
     clone_help: Bil, skin, ballast, restrictor og fast setup fra den sidste deltager kopieres til nye deltagere.
     add_entrants: Tilføj deltager(e)
+    car_classes: Bilklasser
+    car_classes_help: Bilerne i de valgte bilklasser er tilgængelige i denne klasse ud over de enkelte biler ovenfor. En bilklasse gælder, som den er nu, så ændringer i den virker også her.
+    car_classes_none: Der er endnu ingen bilklasser.
+    car_classes_manage: Administrer bilklasser
+    car_class_cars:
+      one: "{count} bil"
+      other: "{count} biler"
+    car_class_missing: Denne bilklasse findes ikke længere. Fjern den, før du gemmer.
+    cars_from: "fra {name}"
   points:
     title: Point
     per_place: Point pr. placering
@@ -228,6 +237,7 @@ championships:
       one: "{count} deltager"
       other: "{count} deltagere"
     percent_complete: "{percent} % afsluttet"
+    cars: "Biler"
     add_events: Tilføj events
     more_add: Flere måder at tilføje events på
     add_race_weekend: Tilføj en løbsweekend
