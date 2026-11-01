@@ -105,6 +105,14 @@ type Store interface {
 	ListTeams() ([]*smmodel.Team, error)
 	DeleteTeam(team *smmodel.Team) error
 
+	// Car classes (global groups of cars, independent of championships) are shared by all server slots. Ids must be
+	// UUIDs (anything else gives smmodel.ErrCarClassNotFound); a missing class gives the same error, also on delete,
+	// which removes the record for good. Uniqueness of names is not checked here, see smmodel.CheckCarClassNameUnique.
+	UpsertCarClass(class *smmodel.CarClass) error
+	FindCarClassByID(id string) (*smmodel.CarClass, error)
+	ListCarClasses() ([]*smmodel.CarClass, error)
+	DeleteCarClass(id string) error
+
 	// User skins (metadata of uploaded car skins) are shared by all server slots. A missing skin gives
 	// smmodel.ErrUserSkinNotFound; DeleteUserSkin removes the record for good.
 	UpsertUserSkin(skin *smmodel.UserSkin) error
