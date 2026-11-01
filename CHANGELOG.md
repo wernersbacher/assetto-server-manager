@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The audit log is split into pages of 100 entries and can be filtered by user, method and date range.
+
 * The Weather page uses the same table style as the other lists, shows a message when no presets are installed and its delete buttons have a label.
 
 * The Tracks page has a search field (by name, id or layout), a message for an empty list or search and a pagination, like the Cars page.

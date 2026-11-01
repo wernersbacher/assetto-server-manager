@@ -11,6 +11,26 @@
         </div>
     </div>
 
+    <form class="results-filter" method="get" action="/audit-logs">
+        <input type="text" name="user" class="form-control" placeholder="{{ t "server.audit.user" }}" aria-label="{{ t "server.audit.user" }}" value="{{ .Filter.User }}">
+
+        <select name="method" class="form-control" aria-label="{{ t "server.audit.method" }}">
+            <option value="" {{ if eq .Filter.Method "" }}selected{{ end }}>{{ t "server.audit.any_method" }}</option>
+            {{ range .Methods }}
+                <option value="{{ . }}" {{ if eq . $.Filter.Method }}selected{{ end }}>{{ . }}</option>
+            {{ end }}
+        </select>
+
+        <input type="date" name="from" class="form-control" title="{{ t "server.audit.from" }}" aria-label="{{ t "server.audit.from" }}" value="{{ .FromValue }}">
+        <input type="date" name="to" class="form-control" title="{{ t "server.audit.to" }}" aria-label="{{ t "server.audit.to" }}" value="{{ .ToValue }}">
+
+        <button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button>
+
+        {{ if .Filter.IsActive }}
+            <a href="/audit-logs" class="btn btn-secondary">{{ t "results.filter.reset" }}</a>
+        {{ end }}
+    </form>
+
     <div class="table-card">
         <table class="table audit-table">
             <thead>
@@ -32,8 +52,10 @@
                     <td><span class="method-badge">{{ $entry.Method }}</span></td>
                 </tr>
             {{ else }}
-                <tr><td colspan="5" class="text-center text-muted py-4">{{ t "server.audit.empty" }}</td></tr>
+                <tr><td colspan="5" class="text-center text-muted py-4">{{ if .Filter.IsActive }}{{ t "server.audit.no_match" }}{{ else }}{{ t "server.audit.empty" }}{{ end }}</td></tr>
             {{ end }}
         </table>
     </div>
+
+    {{ template "pagination" dict "CurrentPage" .CurrentPage "NumPages" .NumPages "Request" $.Request }}
 {{ end }}

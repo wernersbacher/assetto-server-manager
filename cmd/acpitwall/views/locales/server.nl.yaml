@@ -89,6 +89,10 @@ server:
     url: URL
     method: Methode
     empty: Nog geen items in het auditlog.
+    no_match: Geen auditlogvermeldingen komen overeen met het filter.
+    any_method: Elke methode
+    from: Vanaf datum
+    to: Tot datum
 
   autofill:
     intro: Deelnemers die worden voorgesteld bij het invullen van een Entry List.

@@ -89,6 +89,10 @@ server:
     url: URL
     method: Methode
     empty: Noch keine Einträge im Audit-Log.
+    no_match: Keine Audit-Log-Einträge entsprechen dem Filter.
+    any_method: Beliebige Methode
+    from: Von Datum
+    to: Bis Datum
 
   autofill:
     intro: Teilnehmer, die beim Ausfüllen einer Entry List vorgeschlagen werden.

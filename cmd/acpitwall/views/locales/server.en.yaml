@@ -89,6 +89,10 @@ server:
     url: URL
     method: Method
     empty: No audit log entries yet.
+    no_match: No audit log entries match the filter.
+    any_method: Any method
+    from: From date
+    to: To date
 
   autofill:
     intro: Entrants that are suggested when filling out an entry list.

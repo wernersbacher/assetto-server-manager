@@ -89,6 +89,10 @@ server:
     url: URL
     method: Metode
     empty: Ingen poster i auditloggen endnu.
+    no_match: Ingen auditlogposter svarer til filteret.
+    any_method: Enhver metode
+    from: Fra dato
+    to: Til dato
 
   autofill:
     intro: Deltagere, der foreslås, når en Entry List udfyldes.
