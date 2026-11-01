@@ -34,7 +34,7 @@ func loadCatalogs(t *testing.T) *Bundle {
 			t.Fatal(err)
 		}
 
-		locales[strings.TrimSuffix(filepath.Base(file), ".yaml")] = data
+		locales[filepath.Base(file)] = data
 	}
 
 	b, err := NewBundle(locales)

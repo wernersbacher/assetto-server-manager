@@ -100,7 +100,7 @@ func (t *TemplateLoader) Locales() (map[string][]byte, error) {
 			continue
 		}
 
-		code, ok := smweb.LocaleCode(fname)
+		name, ok := smweb.LocaleFile(fname)
 
 		if !ok {
 			continue
@@ -112,7 +112,7 @@ func (t *TemplateLoader) Locales() (map[string][]byte, error) {
 			return nil, err
 		}
 
-		locales[code] = []byte(contents)
+		locales[name] = []byte(contents)
 	}
 
 	return locales, nil

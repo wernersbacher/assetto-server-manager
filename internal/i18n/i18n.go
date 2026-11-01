@@ -42,33 +42,72 @@ type Bundle struct {
 	tags      []language.Tag
 }
 
-// NewBundle parses the catalogs, given as the contents of the YAML files by language code. The English catalog is
-// required.
+// CatalogCode returns the language code of a catalog file name: "de.yaml" and "results.de.yaml" are German. A language
+// may be split into several files (one per area of the UI), which are merged; a key must not be in two of them.
+func CatalogCode(name string) (string, bool) {
+	if !strings.HasSuffix(name, ".yaml") {
+		return "", false
+	}
+
+	parts := strings.Split(strings.TrimSuffix(name, ".yaml"), ".")
+
+	return parts[len(parts)-1], parts[len(parts)-1] != ""
+}
+
+// NewBundle parses the catalogs, given as the contents of the YAML files by file name (see CatalogCode). The English
+// catalog is required.
 func NewBundle(files map[string][]byte) (*Bundle, error) {
 	b := &Bundle{catalogs: make(map[string]map[string]string)}
 
-	for code, data := range files {
+	names := make([]string, 0, len(files))
+
+	for name := range files {
+		names = append(names, name)
+	}
+
+	sort.Strings(names)
+
+	for _, name := range names {
+		code, ok := CatalogCode(name)
+
+		if !ok {
+			return nil, fmt.Errorf("i18n: %s is not a catalog file name", name)
+		}
+
 		tag, err := language.Parse(code)
 
 		if err != nil {
-			return nil, fmt.Errorf("i18n: invalid language code %q: %w", code, err)
+			return nil, fmt.Errorf("i18n: invalid language code %q of %s: %w", code, name, err)
 		}
 
 		code = tag.String()
 
 		var raw map[interface{}]interface{}
 
-		if err := yaml.Unmarshal(data, &raw); err != nil {
-			return nil, fmt.Errorf("i18n: catalog %s: %w", code, err)
+		if err := yaml.Unmarshal(files[name], &raw); err != nil {
+			return nil, fmt.Errorf("i18n: catalog %s: %w", name, err)
 		}
 
 		messages := make(map[string]string)
 
 		if err := flatten("", raw, messages); err != nil {
-			return nil, fmt.Errorf("i18n: catalog %s: %w", code, err)
+			return nil, fmt.Errorf("i18n: catalog %s: %w", name, err)
 		}
 
-		b.catalogs[code] = messages
+		catalog := b.catalogs[code]
+
+		if catalog == nil {
+			catalog = make(map[string]string)
+			b.catalogs[code] = catalog
+		}
+
+		for key, msg := range messages {
+			if _, ok := catalog[key]; ok {
+				return nil, fmt.Errorf("i18n: catalog %s: key %s is defined twice for %s", name, key, code)
+			}
+
+			catalog[key] = msg
+		}
 	}
 
 	if _, ok := b.catalogs[Default]; !ok {

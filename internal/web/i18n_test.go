@@ -31,8 +31,8 @@ func TestRendererTranslatesPerRequest(t *testing.T) {
 		Loader: memoryLoader{
 			page: `{{ define "base" }}{{ lang }}: {{ t "hello" "name" . }} {{ tn "laps" 2 }} {{ tHTML "link" "x" . }} {{ yn true }}{{ end }}`,
 			locales: map[string][]byte{
-				"en": []byte(`{hello: "Hello {name}", laps: {one: "{count} lap", other: "{count} laps"}, link: "<b>{x}</b>", common: {"yes": "Yes"}}`),
-				"de": []byte(`{hello: "Hallo {name}", laps: {one: "{count} Runde", other: "{count} Runden"}, link: "<i>{x}</i>", common: {"yes": "Ja"}}`),
+				"en.yaml": []byte(`{hello: "Hello {name}", laps: {one: "{count} lap", other: "{count} laps"}, link: "<b>{x}</b>", common: {"yes": "Yes"}}`),
+				"de.yaml": []byte(`{hello: "Hallo {name}", laps: {one: "{count} Runde", other: "{count} Runden"}, link: "<i>{x}</i>", common: {"yes": "Ja"}}`),
 			},
 		},
 	})

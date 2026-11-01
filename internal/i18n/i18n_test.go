@@ -9,7 +9,7 @@ func testBundle(t *testing.T) *Bundle {
 	t.Helper()
 
 	b, err := NewBundle(map[string][]byte{
-		"en": []byte(`
+		"en.yaml": []byte(`
 language:
   name: English
 nav:
@@ -23,7 +23,7 @@ js:
   confirm: Are you sure?
   cancel: Cancel
 `),
-		"de": []byte(`
+		"de.yaml": []byte(`
 language:
   name: Deutsch
 nav:
@@ -45,8 +45,28 @@ js:
 }
 
 func TestBundleRequiresEnglish(t *testing.T) {
-	if _, err := NewBundle(map[string][]byte{"de": []byte("a: b")}); err == nil {
+	if _, err := NewBundle(map[string][]byte{"de.yaml": []byte("a: b")}); err == nil {
 		t.Fatal("expected an error without an English catalog")
+	}
+}
+
+func TestCatalogsInSeveralFiles(t *testing.T) {
+	b, err := NewBundle(map[string][]byte{
+		"en.yaml":         []byte("a: A"),
+		"results.en.yaml": []byte("results: {title: Results}"),
+		"results.de.yaml": []byte("results: {title: Ergebnisse}"),
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if got := b.Translator("en").T("a") + "/" + b.Translator("en").T("results.title") + "/" + b.Translator("de").T("results.title"); got != "A/Results/Ergebnisse" {
+		t.Fatalf("got %q", got)
+	}
+
+	if _, err := NewBundle(map[string][]byte{"en.yaml": []byte("a: {b: x}"), "more.en.yaml": []byte("a: {b: y}")}); err == nil {
+		t.Fatal("expected an error for a key in two files")
 	}
 }
 

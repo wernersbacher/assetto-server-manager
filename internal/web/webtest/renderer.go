@@ -9,8 +9,8 @@ import (
 
 // Languages are minimal catalogs of English and German for handlers which check language codes.
 var Languages = map[string][]byte{
-	"en": []byte("language: {name: English}"),
-	"de": []byte("language: {name: Deutsch}"),
+	"en.yaml": []byte("language: {name: English}"),
+	"de.yaml": []byte("language: {name: Deutsch}"),
 }
 
 // memoryLoader is a template loader without templates.

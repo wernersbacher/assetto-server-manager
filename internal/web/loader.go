@@ -13,19 +13,19 @@ type TemplateLoader interface {
 	Init() error
 	Templates(funcs template.FuncMap) (map[string]*template.Template, error)
 
-	// Locales returns the message catalogs (locales/<code>.yaml) by language code.
+	// Locales returns the message catalogs (locales/*.yaml) by file name, see i18n.CatalogCode.
 	Locales() (map[string][]byte, error)
 }
 
-// LocaleCode returns the language code of a catalog file name (locales/de.yaml -> de), false if it is no catalog.
-func LocaleCode(name string) (string, bool) {
-	parts := strings.Split(filepath.ToSlash(name), "/")
+// LocaleFile returns the file name of a catalog path (locales/de.yaml -> de.yaml), false if it is no catalog.
+func LocaleFile(path string) (string, bool) {
+	parts := strings.Split(filepath.ToSlash(path), "/")
 
 	if len(parts) < 2 || parts[len(parts)-2] != "locales" || !strings.HasSuffix(parts[len(parts)-1], ".yaml") {
 		return "", false
 	}
 
-	return strings.TrimSuffix(parts[len(parts)-1], ".yaml"), true
+	return parts[len(parts)-1], true
 }
 
 func NewFilesystemTemplateLoader(dir string) TemplateLoader {
@@ -89,7 +89,7 @@ func (fs *filesystemTemplateLoader) Locales() (map[string][]byte, error) {
 	locales := make(map[string][]byte)
 
 	for _, file := range files {
-		code, ok := LocaleCode(file)
+		name, ok := LocaleFile(file)
 
 		if !ok {
 			continue
@@ -101,7 +101,7 @@ func (fs *filesystemTemplateLoader) Locales() (map[string][]byte, error) {
 			return nil, err
 		}
 
-		locales[code] = data
+		locales[name] = data
 	}
 
 	return locales, nil
