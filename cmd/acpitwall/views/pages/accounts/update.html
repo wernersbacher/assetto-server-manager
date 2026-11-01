@@ -32,15 +32,14 @@
                             <input
                                     type="text"
                                     id="DriverGUID"
-                                    name="DriverGUID"
                                     class="form-control"
                                     placeholder=""
                                     {{ with .SteamGUIDOverride }}
                                         value="{{ . }}"
-                                        readonly
                                     {{ else }}
                                         value="{{ .Account.GUID }}"
                                     {{ end }}
+                                    readonly
                             >
 
                             {{ if eq .SteamGUIDOverride "" }}

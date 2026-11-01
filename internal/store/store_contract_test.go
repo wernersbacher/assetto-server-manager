@@ -356,6 +356,35 @@ func TestStoreContract_Accounts(t *testing.T) {
 			t.Errorf("expected ErrAccountNotFound for missing id, got: %v", err)
 		}
 
+		// GUID lookup: exact match only, an empty GUID never matches (several accounts have none)
+		steam := smmodel.NewAccount(testServerID, "1.0.0")
+		steam.Name = "steam-76561198000000001"
+		steam.GUID = "76561198000000001"
+
+		if err := store.UpsertAccount(steam); err != nil {
+			t.Fatal(err)
+		}
+
+		byGUID, err := store.FindAccountByGUID("76561198000000001")
+
+		if err != nil || byGUID.ID != steam.ID {
+			t.Fatalf("find account by guid: %v, %v", byGUID, err)
+		}
+
+		for _, guid := range []string{"", "76561198000000002"} {
+			if _, err := store.FindAccountByGUID(guid); err != ErrAccountNotFound {
+				t.Errorf("expected ErrAccountNotFound for guid %q, got: %v", guid, err)
+			}
+		}
+
+		if err := store.DeleteAccount(steam.ID.String()); err != nil {
+			t.Fatal(err)
+		}
+
+		if _, err := store.FindAccountByGUID("76561198000000001"); err != ErrAccountNotFound {
+			t.Errorf("expected ErrAccountNotFound for deleted account by guid, got: %v", err)
+		}
+
 		accounts, err = store.ListAccounts()
 
 		if err != nil {

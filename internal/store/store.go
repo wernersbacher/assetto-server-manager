@@ -95,6 +95,7 @@ type Store interface {
 	UpsertAccount(a *smmodel.Account) error
 	FindAccountByName(name string) (*smmodel.Account, error)
 	FindAccountByID(id string) (*smmodel.Account, error)
+	FindAccountByGUID(guid string) (*smmodel.Account, error)
 	DeleteAccount(id string) error
 
 	// Teams are shared by all server slots. DeleteTeam is a soft delete: the team disappears from ListTeams but can

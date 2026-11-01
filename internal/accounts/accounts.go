@@ -439,15 +439,15 @@ func (ah *AccountHandler) Update(w http.ResponseWriter, r *http.Request) {
 	account := smweb.AccountFromRequest(r)
 
 	if r.Method == http.MethodPost {
-		driverName, guid, team := r.FormValue("DriverName"), r.FormValue("DriverGUID"), r.FormValue("DriverTeam")
+		driverName, team := r.FormValue("DriverName"), r.FormValue("DriverTeam")
 		theme, language := r.FormValue("Theme"), r.FormValue("Language")
 
 		if language != "" && !ah.ViewRenderer.Bundle().Supports(language) {
 			language = ""
 		}
 
-		if driverName != "" || guid != "" || team != "" || theme != "" || language != account.Language {
-			err := ah.accountManager.updateDetails(account, driverName, guid, team, theme, language)
+		if driverName != "" || team != "" || theme != "" || language != account.Language {
+			err := ah.accountManager.updateDetails(account, driverName, team, theme, language)
 
 			if err != nil {
 				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.details_not_updated"))
@@ -694,9 +694,8 @@ func (am *AccountManager) ChangePassword(account *smmodel.Account, password stri
 	return am.store.UpsertAccount(account)
 }
 
-func (am *AccountManager) updateDetails(account *smmodel.Account, name, guid, team, theme, language string) error {
+func (am *AccountManager) updateDetails(account *smmodel.Account, name, team, theme, language string) error {
 	account.DriverName = name
-	account.GUID = guid
 	account.Team = team
 	account.Theme = smmodel.Theme(theme)
 	account.Language = language

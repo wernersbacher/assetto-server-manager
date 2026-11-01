@@ -598,6 +598,28 @@ func (rs *BoltStore) FindAccountByID(id string) (*smmodel.Account, error) {
 	return nil, ErrAccountNotFound
 }
 
+// FindAccountByGUID returns the (not deleted) account with the given GUID (the verified SteamID64). An empty GUID
+// never matches.
+func (rs *BoltStore) FindAccountByGUID(guid string) (*smmodel.Account, error) {
+	if guid == "" {
+		return nil, ErrAccountNotFound
+	}
+
+	accounts, err := rs.ListAccounts()
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, a := range accounts {
+		if a.GUID == guid {
+			return a, nil
+		}
+	}
+
+	return nil, ErrAccountNotFound
+}
+
 func (rs *BoltStore) DeleteAccount(id string) error {
 	account, err := rs.FindAccountByID(id)
 
