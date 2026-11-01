@@ -142,4 +142,5 @@ func TestUsedKeysExist(t *testing.T) {
 
 	walk(viewsDir, ".html", templateKeyRe, "")
 	walk("../../cmd/acpitwall/typescript/src", ".ts", scriptKeyRe, "js.")
+	walk("../../cmd/acpitwall/typescript/src", ".js", scriptKeyRe, "js.")
 }

@@ -3,6 +3,8 @@
 // Delete button is pressed. Optional: data-confirm-detail (explanation) and data-confirm-label (button text).
 // data-confirm-action="Stop X?" works the same for non-delete actions (stop, restart) and shows a neutral
 // warning icon with a warning button instead of the red trash can.
+import {t} from "./i18n";
+
 export class DeleteConfirm {
     private pending: HTMLFormElement | null = null;
 
@@ -31,9 +33,9 @@ export class DeleteConfirm {
             $modal.find(".delete-dialog").toggleClass("delete-dialog-action", isAction);
             $("#delete-confirm-ok").toggleClass("btn-warning", isAction).toggleClass("btn-danger", !isAction);
 
-            $("#delete-confirm-title").text(title || (isAction ? "Are you sure?" : "Delete this item?"));
-            $("#delete-confirm-detail").text(form.dataset.confirmDetail || (isAction ? "" : "This cannot be undone."));
-            $("#delete-confirm-ok").text(form.dataset.confirmLabel || (isAction ? "Confirm" : "Delete"));
+            $("#delete-confirm-title").text(title || (isAction ? t("confirm.action_title") : t("confirm.delete_title")));
+            $("#delete-confirm-detail").text(form.dataset.confirmDetail || (isAction ? "" : t("confirm.delete_detail")));
+            $("#delete-confirm-ok").text(form.dataset.confirmLabel || (isAction ? t("confirm.action_label") : t("confirm.delete_label")));
 
             $modal.modal("show");
         });

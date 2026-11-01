@@ -1,4 +1,5 @@
 import {SummernoteWrapper} from "./forms/SummernoteWrapper";
+import {t} from "./i18n";
 
 export class Messages {
     public static initSummerNote() {
@@ -16,7 +17,7 @@ export class Messages {
         }
 
         let wrapper = new SummernoteWrapper($summerNote, {
-            placeholder: 'A message that Content Manager users can see!',
+            placeholder: t('messages.cm_placeholder'),
             tabsize: 2,
             height: 400,
         }, html);

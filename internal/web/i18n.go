@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strings"
 
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	"github.com/wernersbacher/ACPitwall/internal/i18n"
 )
 
@@ -70,7 +72,7 @@ func ForgetLanguage(w http.ResponseWriter) {
 //	{{ tHTML "help.link" "url" .URL }}        a message which contains HTML; the values are escaped
 //	{{ lang }}                                the language code, {{ languages }} all languages
 func translationFuncs(bundle *i18n.Bundle, tr *i18n.Translator) template.FuncMap {
-	return template.FuncMap{
+	funcs := template.FuncMap{
 		"t": func(key string, args ...interface{}) string {
 			return tr.T(key, args...)
 		},
@@ -89,6 +91,28 @@ func translationFuncs(bundle *i18n.Bundle, tr *i18n.Translator) template.FuncMap
 		"jsMessages": func() map[string]string {
 			return tr.Messages("js.")
 		},
+		// {{ sessionName $sessionType }}: the name of a session type (serverconfig.SessionType or its string, e.g.
+		// "RACE" or "Race" of a result)
+		"sessionName": func(sessionType interface{}) string {
+			var s serverconfig.SessionType
+
+			switch v := sessionType.(type) {
+			case serverconfig.SessionType:
+				s = v
+			case string:
+				s = serverconfig.SessionType(strings.ToUpper(v))
+			default:
+				return fmt.Sprint(sessionType)
+			}
+
+			key := "session_type." + strings.ToLower(string(s))
+
+			if msg := tr.T(key); msg != key {
+				return msg
+			}
+
+			return s.String()
+		},
 		"yn": func(b bool) string {
 			if b {
 				return tr.T("common.yes")
@@ -97,6 +121,12 @@ func translationFuncs(bundle *i18n.Bundle, tr *i18n.Translator) template.FuncMap
 			return tr.T("common.no")
 		},
 	}
+
+	for name, f := range (timeFormatter{tr: tr}).funcs() {
+		funcs[name] = f
+	}
+
+	return funcs
 }
 
 // escapeArgs escapes the values of name/value pairs for HTML.

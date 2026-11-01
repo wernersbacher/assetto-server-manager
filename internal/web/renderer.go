@@ -108,11 +108,7 @@ func (tr *Renderer) init() error {
 	funcs["ordinal"] = smmodel.Ordinal
 	funcs["prettify"] = smcontent.PrettifyName
 	funcs["jsonEncode"] = jsonEncode
-	funcs["timeFormat"] = timeFormat
-	funcs["dateFormat"] = dateFormat
 	funcs["timeZone"] = timeZone
-	funcs["hourAndZone"] = hourAndZoneFormat
-	funcs["localFormatHourAndZone"] = localFormatHelperHourAndZone
 	funcs["addTime"] = addTime
 	funcs["isBefore"] = isBefore
 	funcs["multiplyFloats"] = multiplyFloats
@@ -132,8 +128,6 @@ func (tr *Renderer) init() error {
 	funcs["SessionType"] = func(s string) serverconfig.SessionType { return serverconfig.SessionType(s) }
 	funcs["Config"] = func() *smconfig.Configuration { return tr.opts.Config }
 	funcs["Version"] = func() string { return tr.opts.BuildVersion }
-	funcs["fullTimeFormat"] = fullTimeFormat
-	funcs["localFormat"] = localFormatHelper
 	funcs["driverName"] = smresults.DriverName
 	funcs["driverURL"] = DriverURL
 	funcs["entrantNames"] = func(e serverconfig.EntryList) string { return e.Entrants(smresults.DriverName) }

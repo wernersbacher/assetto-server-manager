@@ -2,6 +2,8 @@ import { Calendar } from '@fullcalendar/core';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import bootstrapPlugin from '@fullcalendar/bootstrap';
+import deLocale from '@fullcalendar/core/locales/de';
+import {lang, t} from './i18n';
 
 // serverLabel returns the HTML which tells on which server an event is scheduled, if that is worth showing.
 function serverLabel(props: any): string {
@@ -9,9 +11,10 @@ function serverLabel(props: any): string {
         return '';
     }
 
-    let name = $('<span>').text(props.scheduledServerName || 'another server').html();
+    let name = $('<span>').text(props.scheduledServerName || t('calendar.another_server')).html();
+    let server = '<span class="scheduled-server-id" data-server-id="' + $('<span>').text(props.scheduledServerID).html() + '">' + name + '</span>';
 
-    return '<div class="calendar-small">On <span class="scheduled-server-id" data-server-id="' + $('<span>').text(props.scheduledServerID).html() + '">' + name + '</span></div>';
+    return '<div class="calendar-small">' + t('calendar.on_server', {server: server}) + '</div>';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -26,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
         defaultView: 'timeGridThreeDay',
         events: '/calendar.json' + window.location.search.replace(/[?&]server=[^&]*/g, '').replace(/^&/, '?'),
         themeSystem: 'bootstrap',
+        locales: [deLocale],
+        locale: lang(),
 
         header: {
             center: 'timeGridWeek,timeGridThreeDay,listWeek' // buttons for switching between views
@@ -34,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeGridThreeDay: {
                 type: 'timeGrid',
                 duration: { days: 3 },
-                buttonText: '3 day'
+                buttonText: t('calendar.three_days')
             }
         },
 
@@ -44,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
             if (info.event.extendedProps.signUpURL) {
-                $time.append('<a class="calendar-signup-link" href="'+info.event.extendedProps.signUpURL+'">Event Sign Up</a>')
+                $time.append('<a class="calendar-signup-link" href="'+info.event.extendedProps.signUpURL+'">' + t('calendar.sign_up') + '</a>')
             }
 
             $title.append('<div class="hr-line-solid-no-margin"></div><span class="calendar-small">'+info.event.extendedProps.description+'</span></div>');
@@ -54,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
             let $listTitle = $(info.el).find('.fc-list-item-title');
 
             if (info.event.extendedProps.signUpURL) {
-                $listTitle.append('</div><a class="calendar-signup-link" href="'+info.event.extendedProps.signUpURL+'">Event Sign Up</a>')
+                $listTitle.append('</div><a class="calendar-signup-link" href="'+info.event.extendedProps.signUpURL+'">' + t('calendar.sign_up') + '</a>')
             }
 
             $listTitle.append('<div class="ml-2"></div><span class="calendar-small">'+info.event.extendedProps.description+'</span></div>');

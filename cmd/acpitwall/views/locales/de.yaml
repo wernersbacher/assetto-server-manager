@@ -329,3 +329,79 @@ live:
   personal_best: Persönliche Bestzeit
   stored_times: Gespeicherte Zeiten
   game_chat: Spiel-Chat!
+
+session_type:
+  book: Buchung
+  practice: Training
+  qualify: Qualifying
+  race: Rennen
+  racex2: 2. Rennen
+
+date:
+  layout:
+    compact: "Mon 2. Jan, 15:04"
+    compact_year: "Mon 2. Jan 2006, 15:04"
+    full: "Monday, 2. January 2006, 15:04 (MST)"
+    date: "02.01.2006"
+    time: "15:04"
+    hour_zone: "15:04 (MST)"
+    weekday_short: "Mon"
+    month_day: "2. Jan"
+    day_month_year: "2. Jan 2006"
+  days:
+    monday: Montag
+    tuesday: Dienstag
+    wednesday: Mittwoch
+    thursday: Donnerstag
+    friday: Freitag
+    saturday: Samstag
+    sunday: Sonntag
+  days_short:
+    monday: Mo
+    tuesday: Di
+    wednesday: Mi
+    thursday: Do
+    friday: Fr
+    saturday: Sa
+    sunday: So
+  months:
+    january: Januar
+    february: Februar
+    march: März
+    april: April
+    may: Mai
+    june: Juni
+    july: Juli
+    august: August
+    september: September
+    october: Oktober
+    november: November
+    december: Dezember
+  months_short:
+    january: Jan
+    february: Feb
+    march: Mär
+    april: Apr
+    may: Mai
+    june: Jun
+    july: Jul
+    august: Aug
+    september: Sep
+    october: Okt
+    november: Nov
+    december: Dez
+
+js:
+  confirm:
+    delete_title: Diesen Eintrag löschen?
+    delete_detail: Das kann nicht rückgängig gemacht werden.
+    delete_label: Löschen
+    action_title: Bist du sicher?
+    action_label: Bestätigen
+  calendar:
+    another_server: einem anderen Server
+    on_server: Auf {server}
+    three_days: 3 Tage
+    sign_up: Zur Anmeldung
+  messages:
+    cm_placeholder: Eine Nachricht, die Content-Manager-Nutzer sehen!

@@ -5,6 +5,7 @@ import "summernote/dist/summernote-bs4";
 import "multiselect";
 import "moment";
 import "moment-timezone";
+import "./i18n";
 import {EntryPoint} from "./javascript/manager";
 import "./Font";
 import "./Calendar";
