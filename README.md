@@ -112,6 +112,61 @@ servers:
 
 A ready-made Docker Compose setup with two servers is in [deploy/multiserver](deploy/multiserver/README.md).
 
+### Install on a VPS (Debian, Docker, Caddy)
+
+A complete install of ACPitwall with two Assetto Corsa servers on a Debian VPS, with the web UI behind a Caddy reverse
+proxy (automatic HTTPS) on your own domain. The details of every step are in
+[deploy/multiserver](deploy/multiserver/README.md).
+
+1. **DNS**: point an A record (and AAAA, if you use IPv6) of your domain, e.g. `acpitwall.example.com`, to the VPS.
+   With Cloudflare use "DNS only", players connect to the game ports directly.
+2. **Docker and git**:
+
+   ```bash
+   curl -fsSL https://get.docker.com | sh && sudo apt-get install -y git
+   ```
+
+3. **Get the code and build the image** (a few minutes; building on the VPS needs no registry):
+
+   ```bash
+   git clone https://github.com/wernersbacher/ACPitwall.git
+   cd ACPitwall/deploy/multiserver
+   docker compose build
+   ```
+
+4. **Configure** `config.yml`: a random `http.session_key` (`openssl rand -hex 32`), your own
+   `accounts.admin_password_override` and `http.server_manager_base_URL: https://acpitwall.example.com` (no port).
+   Keep `http.tls.enabled: false`, Caddy terminates TLS. Then `cp .env.example .env` and set `SM_WEB_BIND=127.0.0.1`
+   in it, so the web UI is only reachable through Caddy.
+5. **Install the Assetto Corsa server** into the volume. steamcmd (`docker compose --profile install run --rm install`)
+   is not reliable; the verified way is to download "Assetto Corsa Dedicated Server" (Steam app 302550) on a Windows
+   machine, copy the folder to the VPS (`scp -r C:\ac-server user@vps:~/ac-server`) and run
+   `sh import-server.sh ~/ac-server` in `deploy/multiserver`.
+6. **Start**:
+
+   ```bash
+   docker compose up -d
+   docker compose logs -f acpitwall
+   ```
+
+7. **Caddy** (installed on the host): add this to the Caddyfile and run `sudo systemctl reload caddy`. Caddy fetches the
+   certificate itself; websockets (live timing) work without extra settings.
+
+   ```caddyfile
+   acpitwall.example.com {
+       reverse_proxy 127.0.0.1:8772
+   }
+   ```
+
+8. **Firewall**: open 80 and 443 (tcp) for Caddy and, for the AC servers, 9600 and 9601 (tcp and udp) and 8081 and
+   8082 (tcp). Keep 8772 closed. Docker bypasses `ufw` for published ports, which is why step 4 binds the web UI to
+   `127.0.0.1`.
+9. **First steps**: open `https://acpitwall.example.com`, log in as `admin`, set the ports of each server under
+   Server > Options (A: 9600 / 8081, B: 9601 / 8082) and upload your cars and tracks.
+
+To update later: `git pull`, `docker compose build`, `docker compose up -d` in `deploy/multiserver`. The volumes
+(content, database, server copies) are kept. This setup is not verified on a VPS yet.
+
 ### Post Installation
 
 We recommend uploading your entire Assetto Corsa `content/tracks` folder to get the full features of ACPitwall. 

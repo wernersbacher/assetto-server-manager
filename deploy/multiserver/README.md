@@ -190,16 +190,17 @@ Firewall. Players need, for each server, the UDP and TCP game port and the HTTP 
 ```bash
 sudo ufw allow 9600/udp && sudo ufw allow 9600/tcp && sudo ufw allow 8081/tcp   # server A
 sudo ufw allow 9601/udp && sudo ufw allow 9601/tcp && sudo ufw allow 8082/tcp   # server B
-sudo ufw allow 8772/tcp                                                         # web UI, see below
+sudo ufw allow 8772/tcp                                                         # web UI, only without a proxy (see below)
 ```
 
 Docker publishes ports itself through iptables and bypasses the ufw rules, so ufw does not block published ports. To
 restrict a port use the `DOCKER-USER` chain, or bind it to a local address in the `ports:` of `compose.yaml`.
 
 Web UI: the UI has its own login, but do not expose port 8772 plainly (plain HTTP, passwords in clear text). Put a
-TLS reverse proxy in front: change the `ports:` entry of the web UI in `compose.yaml` to
-`"127.0.0.1:${SM_WEB_PORT:-8772}:8772"`, then e.g. Caddy (automatic Let's Encrypt certificate; the DNS name has to
-point to the VPS and ports 80/443 must be open):
+TLS reverse proxy in front: set `SM_WEB_BIND=127.0.0.1` in `.env` (the web UI is then published on localhost only;
+default `0.0.0.0`), keep `http.tls.enabled: false` in `config.yml`, then e.g. Caddy on the host (automatic Let's
+Encrypt certificate; the DNS name has to point to the VPS, with Cloudflare as "DNS only", and ports 80/443 must be
+open). Only the web UI goes behind the proxy; the acServer ports stay published directly (UDP cannot be proxied):
 
 ```
 acsm.example.com {

@@ -72,8 +72,9 @@ services:
       seed-b:
         condition: service_completed_successfully
     ports:
-      # web UI: only the host side is variable (the container side is http.hostname in config.yml)
-      - "${SM_WEB_PORT:-8772}:8772"
+      # web UI: only the host side is variable (the container side is http.hostname in config.yml). Behind a reverse
+      # proxy on the host (Caddy) set SM_WEB_BIND=127.0.0.1 so the UI is only reachable through the proxy.
+      - "${SM_WEB_BIND:-0.0.0.0}:${SM_WEB_PORT:-8772}:8772"
       # server a: acServer UDP, TCP and HTTP
       - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/udp"
       - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/tcp"
