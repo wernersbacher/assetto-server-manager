@@ -255,6 +255,14 @@ func resetSeed(store smstore.Store, out io.Writer) error {
 		}
 	}
 
+	for _, id := range []string{carClassGT3ID.String(), carClassMX5ID.String()} {
+		if _, err := store.FindCarClassByID(id); err == nil {
+			if err := store.DeleteCarClass(id); err != nil {
+				return err
+			}
+		}
+	}
+
 	for _, name := range customRaceName {
 		if race, err := store.FindCustomRaceByID(seedID("customrace/" + name).String()); err == nil && race.Deleted.IsZero() {
 			if err := store.DeleteCustomRace(race); err != nil {

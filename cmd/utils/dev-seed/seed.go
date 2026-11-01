@@ -36,6 +36,8 @@ var (
 	devCupID       = seedID("championship/" + devCupName)
 	devSprintID    = seedID("championship/" + devSprintName)
 	weekendID      = seedID("raceweekend/" + weekendName)
+	carClassGT3ID  = seedID("carclass/Dev GT3 Cars")
+	carClassMX5ID  = seedID("carclass/Dev MX5 Cars")
 	customRaceName = []string{"Dev GT3 Sprint", "Dev MX5 Night Race", "Dev Weekly MX5 Meetup"}
 )
 
@@ -48,12 +50,12 @@ type seedManifest struct {
 
 // seedSummary counts what has been created.
 type seedSummary struct {
-	Drivers, ResultFiles, Championships, ChampionshipEvents, CustomRaces, RaceWeekends int
+	Drivers, ResultFiles, Championships, ChampionshipEvents, CustomRaces, RaceWeekends, CarClasses int
 }
 
 func (s seedSummary) String() string {
-	return fmt.Sprintf("%d drivers, %d result files, %d championships (%d events), %d custom races, %d race weekends",
-		s.Drivers, s.ResultFiles, s.Championships, s.ChampionshipEvents, s.CustomRaces, s.RaceWeekends)
+	return fmt.Sprintf("%d drivers, %d car classes, %d result files, %d championships (%d events), %d custom races, %d race weekends",
+		s.Drivers, s.CarClasses, s.ResultFiles, s.Championships, s.ChampionshipEvents, s.CustomRaces, s.RaceWeekends)
 }
 
 // at returns a local time daysFromNow days from now at the given time of day.
@@ -146,6 +148,14 @@ func joinCars(cars []string) string {
 	return out
 }
 
+// seedCarClasses returns the global car classes of the seed. They have fixed ids, like everything else.
+func seedCarClasses(now time.Time) []*smmodel.CarClass {
+	return []*smmodel.CarClass{
+		{ID: carClassGT3ID, Name: "Dev GT3 Cars", Cars: []string{carGT3}, Created: now, Updated: now},
+		{ID: carClassMX5ID, Name: "Dev MX5 Cars", Cars: []string{carMX5}, Created: now, Updated: now},
+	}
+}
+
 // seedAll creates everything. The caller has already checked that the store was not seeded yet.
 func seedAll(store smstore.Store, serverID smmodel.ServerID, now time.Time) (*seedManifest, *seedSummary, error) {
 	rng := rand.New(rand.NewSource(randomSeed))
@@ -159,6 +169,16 @@ func seedAll(store smstore.Store, serverID smmodel.ServerID, now time.Time) (*se
 		}
 
 		summary.Drivers++
+	}
+
+	// global car classes; the class of the Dev Sprint Series refers to one of them (they are stored before the
+	// championships, which resolve the references when they are loaded)
+	for _, class := range seedCarClasses(now) {
+		if err := store.UpsertCarClass(class); err != nil {
+			return nil, nil, err
+		}
+
+		summary.CarClasses++
 	}
 
 	// 2. plain results
@@ -454,7 +474,7 @@ func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, man
 	c := smmodel.NewChampionship(devSprintName)
 	c.ID = devSprintID
 	c.Created = now.AddDate(0, 0, -12)
-	c.Info = template.HTML("Seeded by <code>cmd/utils/dev-seed</code>: single class, no drops, no race settings.")
+	c.Info = template.HTML("Seeded by <code>cmd/utils/dev-seed</code>: single class (cars from a global car class), no drops, no race settings.")
 
 	var drivers []*seedDriver
 
@@ -464,7 +484,13 @@ func seedDevSprint(rng *rand.Rand, now time.Time, serverID smmodel.ServerID, man
 
 	cars := []string{carMX5}
 
-	c.AddClass(newClass("Sprint", drivers, cars, smmodel.DefaultChampionshipPoints))
+	sprint := newClass("Sprint", drivers, cars, smmodel.DefaultChampionshipPoints)
+
+	// the cars come from the global car class (live reference) instead of the list of available cars
+	sprint.AvailableCars = nil
+	sprint.CarClassIDs = []uuid.UUID{carClassMX5ID}
+
+	c.AddClass(sprint)
 
 	first, err := completedEvent(rng, now, c, drivers, cars, cupEvent{track: trackRing, layout: layoutShort, daysFromNow: -9, collisions: 3}, manifest)
 

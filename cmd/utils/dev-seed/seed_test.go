@@ -85,6 +85,8 @@ func TestSeedIsIdempotentAndStandingsWork(t *testing.T) {
 
 	championships, races, weekends, entrants := countSeeded(store)
 
+	checkCarClasses(t, store, 2)
+
 	// second run changes nothing
 	out.Reset()
 
@@ -120,6 +122,8 @@ func TestSeedIsIdempotentAndStandingsWork(t *testing.T) {
 	if len(files) != numFiles || championships3 != 2 || races3 != 3 {
 		t.Fatalf("reset + seed gave %d files, %d championships, %d races", len(files), championships3, races3)
 	}
+
+	checkCarClasses(t, store, 2)
 }
 
 // countSeeded counts the seeded objects in the store. A fresh store contains examples added by migrations.
@@ -161,4 +165,40 @@ func countSeeded(store smstore.Store) (championships, races, weekends, entrants 
 	}
 
 	return
+}
+
+// checkCarClasses checks that the seeded car classes exist (and are not duplicated by seeding again) and that the
+// Dev Sprint Series refers to one of them, so its cars come from the car class.
+func checkCarClasses(t *testing.T, store smstore.Store, want int) {
+	t.Helper()
+
+	classes, err := store.ListCarClasses()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(classes) != want {
+		t.Fatalf("expected %d car classes, got %d", want, len(classes))
+	}
+
+	c, err := store.LoadChampionship(devSprintID.String())
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var cars []string
+
+	for _, class := range c.Classes {
+		cars = append(cars, class.ValidCarIDs()...)
+	}
+
+	if len(cars) != 1 || cars[0] != carMX5 {
+		t.Fatalf("cars of the Dev Sprint Series = %v, want the cars of its car class", cars)
+	}
+
+	if err := c.CheckCarClasses(nil); err != nil {
+		t.Fatal(err)
+	}
 }
