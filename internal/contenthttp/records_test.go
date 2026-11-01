@@ -10,11 +10,14 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
+	"github.com/wernersbacher/ACPitwall/internal/web/webtest"
 )
 
 // recordsSetup places a race on server a and a qualifying on server b (both barbagallo).
@@ -226,5 +229,121 @@ func TestHiddenResultsAreFilteredFromRecordsAndResults(t *testing.T) {
 
 	if results, err := th.resultsForLayout("barbagallo", "", rs.hideFunc(req)); err != nil || len(results) == 0 {
 		t.Fatalf("results must be listed without a filter: %v %v", len(results), err)
+	}
+}
+
+func TestTrackRecordsAPICarClass(t *testing.T) {
+	dir, err := ioutil.TempDir("", "records-classes")
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(dir)
+
+	results := filepath.Join(dir, "results")
+	name := "2019_3_2_21_36_RACE.json" // nurburgring, four cars
+
+	if err := os.MkdirAll(results, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	fixture, err := ioutil.ReadFile(filepath.Join("..", "..", "fixtures", "results", name))
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := ioutil.WriteFile(filepath.Join(results, name), fixture, 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	env := envtest.New(dir)
+	env.ResultsDirs = func() []string { return []string{results} }
+
+	rs := NewRecords(stats.New(env.Results(), 0), nil)
+	th := &TracksHandler{env: env, records: rs}
+
+	tracks := rs.index.Tracks()
+
+	if len(tracks) != 1 {
+		t.Fatalf("expected one track, got %v", tracks)
+	}
+
+	base := "/api/track-records?track=" + tracks[0].Track + "&layout=" + tracks[0].Layout
+
+	all := func() *APITrackRecords {
+		rec, out := getRecords(t, th, base)
+
+		if rec.Code != http.StatusOK || len(out.Records) < 3 {
+			t.Fatalf("status %d, %d records", rec.Code, len(out.Records))
+		}
+
+		return out
+	}()
+
+	cars := []string{all.Records[0].CarModel, all.Records[1].CarModel, all.Records[2].CarModel}
+
+	classA := &smmodel.CarClass{ID: uuid.New(), Name: "A", Cars: []string{cars[0]}}
+	classB := &smmodel.CarClass{ID: uuid.New(), Name: "B", Cars: []string{cars[1], cars[2]}}
+	classNoLaps := &smmodel.CarClass{ID: uuid.New(), Name: "No laps", Cars: []string{"no_such_car"}}
+	rs.CarClasses = webtest.CarClasses{classA, classB, classNoLaps}
+
+	models := func(t *testing.T, query string) []string {
+		t.Helper()
+
+		rec, out := getRecords(t, th, base+query)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("%s: status %d", query, rec.Code)
+		}
+
+		var got []string
+
+		for _, record := range out.Records {
+			got = append(got, record.CarModel)
+		}
+
+		return got
+	}
+
+	if got := models(t, "&carClass="+classA.ID.String()); len(got) != 1 || got[0] != cars[0] {
+		t.Errorf("one class: %v", got)
+	}
+
+	if got := models(t, "&carClass="+classB.ID.String()); len(got) != 2 {
+		t.Errorf("class with two cars: %v", got)
+	}
+
+	if got := models(t, "&carClass="+classA.ID.String()+"&carClass="+classB.ID.String()); len(got) != 3 {
+		t.Errorf("two classes: %v", got)
+	}
+
+	if got := models(t, "&carClass="+classA.ID.String()+"&car="+cars[1]); len(got) != 2 {
+		t.Errorf("class and car are a union: %v", got)
+	}
+
+	if got := models(t, "&carClass="+classA.ID.String()+"&car="+cars[0]); len(got) != 1 {
+		t.Errorf("class and its car: %v", got)
+	}
+
+	if got := models(t, "&car="+cars[0]+"&car="+cars[2]); len(got) != 2 {
+		t.Errorf("several cars: %v", got)
+	}
+
+	if rec, out := getRecords(t, th, base+"&carClass="+classNoLaps.ID.String()); rec.Code != http.StatusOK || len(out.Records) != 0 || out.Overall != nil {
+		t.Errorf("class without laps: status %d, %+v", rec.Code, out)
+	}
+
+	for _, query := range []string{"&carClass=" + uuid.New().String(), "&carClass=../x", "&carClass=" + classA.ID.String() + "&carClass=" + uuid.New().String()} {
+		if rec, _ := getRecords(t, th, base+query); rec.Code != http.StatusBadRequest {
+			t.Errorf("%s: status %d, want 400", query, rec.Code)
+		}
+	}
+
+	rs.CarClasses = nil
+
+	if rec, _ := getRecords(t, th, base+"&carClass="+classA.ID.String()); rec.Code != http.StatusBadRequest {
+		t.Errorf("no classes: status %d, want 400", rec.Code)
 	}
 }

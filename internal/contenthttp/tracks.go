@@ -15,6 +15,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	"github.com/wernersbacher/ACPitwall/internal/stats"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -112,7 +113,13 @@ func (th *TracksHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templateParams, err := th.loadTrackDetailsForTemplate(trackName, r)
+	recordsFilter, filterServer, classIDs, err := th.records.trackFilter(r)
+
+	if smweb.FilterError(w, err) {
+		return
+	}
+
+	templateParams, err := th.loadTrackDetailsForTemplate(trackName, r, recordsFilter, filterServer, classIDs)
 
 	if os.IsNotExist(err) {
 		http.NotFound(w, r)
@@ -189,13 +196,16 @@ type trackDetailsTemplateVars struct {
 	Records map[string][]RecordRow
 	// FilterServer is the id of the server the records are restricted to, empty for all.
 	FilterServer string
+
+	// CarClasses are the classes to restrict the records to (empty: there are none), CarClassIDs the chosen ones.
+	CarClasses  []smweb.CarClassOption
+	CarClassIDs []string
 }
 
-func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string, r *http.Request) (*trackDetailsTemplateVars, error) {
+func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string, r *http.Request, recordsFilter stats.Filter, filterServer string, classIDs []string) (*trackDetailsTemplateVars, error) {
 	trackInfoMap := make(map[string]*smcontent.TrackInfo)
 	resultsMap := make(map[string][]smresults.SessionResults)
 	recordsMap := make(map[string][]RecordRow)
-	recordsFilter, filterServer := th.records.filter(r)
 
 	track, err := th.trackManager.GetTrackFromName(trackName)
 
@@ -237,6 +247,8 @@ func (th *TracksHandler) loadTrackDetailsForTemplate(trackName string, r *http.R
 		Results:          resultsMap,
 		Records:          recordsMap,
 		FilterServer:     filterServer,
+		CarClasses:       th.records.carClassOptions(classIDs),
+		CarClassIDs:      classIDs,
 	}, nil
 }
 
@@ -263,21 +275,27 @@ func (th *TracksHandler) resultsForLayout(trackName, layout string, hide smresul
 }
 
 // RecordsAPI lists the lap records of a track layout: the best valid lap of every car, fastest first, and the overall
-// record. Query parameters: track (required), layout (empty is the default layout), car (restricts the records to one
-// car model) and filterServer (restricts them to one server).
+// record. Query parameters: track (required), layout (empty is the default layout), car and carClass (both repeatable;
+// they restrict the records to the cars of any chosen class or any chosen car, an unknown class is a 400) and
+// filterServer (restricts them to one server).
 func (th *TracksHandler) RecordsAPI(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
-	track, layout, car := query.Get("track"), query.Get("layout"), query.Get("car")
+	track, layout := query.Get("track"), query.Get("layout")
+	validCars := true
 
-	if !plainname.Valid(track) || (layout != "" && !plainname.Valid(layout)) || (car != "" && !plainname.Valid(car)) {
+	for _, car := range query["car"] {
+		validCars = validCars && (car == "" || plainname.Valid(car))
+	}
+
+	if !plainname.Valid(track) || (layout != "" && !plainname.Valid(layout)) || !validCars {
 		http.Error(w, "track, layout and car must be valid names (track is required)", http.StatusBadRequest)
 		return
 	}
 
-	filter, _ := th.records.filter(r)
+	filter, _, _, err := th.records.trackFilter(r)
 
-	if car != "" {
-		filter.Cars = []string{car}
+	if smweb.FilterError(w, err) {
+		return
 	}
 
 	servers := th.records.attributedServers()

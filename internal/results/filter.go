@@ -31,6 +31,10 @@ type Filter struct {
 	Track  string // case-insensitive substring of the track name, readable track name or layout
 	Driver string // case-insensitive substring of a driver name, or an exact driver GUID
 
+	// Cars restricts the list to sessions in which at least one driver drove one of these car models (exact match, as
+	// stored in the results file; a session counts by the cars of its entries and of its classification).
+	Cars []string
+
 	// Dir restricts the list to the results which are found in this results directory (the one of a server slot).
 	Dir string
 
@@ -43,12 +47,12 @@ type Filter struct {
 type HideFunc func(fileName, championshipID, raceWeekendID string) bool
 
 func (f Filter) IsActive() bool {
-	return f.Type != "" || f.Track != "" || f.Driver != "" || f.Dir != ""
+	return f.Type != "" || f.Track != "" || f.Driver != "" || len(f.Cars) > 0 || f.Dir != ""
 }
 
 // needsLoading is true if the filter can only be evaluated by looking into the results files.
 func (f Filter) needsLoading() bool {
-	return f.Track != "" || f.Driver != "" || f.Hide != nil
+	return f.Track != "" || f.Driver != "" || len(f.Cars) > 0 || f.Hide != nil
 }
 
 // matchesFileName applies the session type filter, which can be decided from the file name alone.
@@ -83,6 +87,7 @@ type resultSummary struct {
 	track   string // lowercased track names and layout, as shown in the list and as stored
 	drivers []string
 	guids   map[string]bool
+	cars    map[string]bool // car models of the entries and the classification
 }
 
 func (s *resultSummary) matches(f Filter, fileName string) bool {
@@ -92,6 +97,18 @@ func (s *resultSummary) matches(f Filter, fileName string) bool {
 
 	if f.Track != "" && !strings.Contains(s.track, strings.ToLower(f.Track)) {
 		return false
+	}
+
+	if len(f.Cars) > 0 {
+		found := false
+
+		for _, car := range f.Cars {
+			found = found || s.cars[car]
+		}
+
+		if !found {
+			return false
+		}
 	}
 
 	if f.Driver != "" {
@@ -154,11 +171,13 @@ func (l *Loader) getResultSummary(info os.FileInfo) (*resultSummary, error) {
 			result.TrackName, l.prettify(result.TrackName), result.TrackConfig, l.prettify(result.TrackConfig),
 		}, " ")),
 		guids: make(map[string]bool),
+		cars:  make(map[string]bool),
 	}
 
 	for _, car := range result.Cars {
 		summary.drivers = append(summary.drivers, strings.ToLower(car.Driver.Name))
 		summary.guids[car.Driver.GUID] = true
+		summary.cars[car.Model] = true
 
 		for _, guid := range car.Driver.GuidsList {
 			summary.guids[guid] = true
@@ -168,6 +187,7 @@ func (l *Loader) getResultSummary(info os.FileInfo) (*resultSummary, error) {
 	for _, driver := range result.Result {
 		summary.drivers = append(summary.drivers, strings.ToLower(driver.DriverName))
 		summary.guids[driver.DriverGUID] = true
+		summary.cars[driver.CarModel] = true
 	}
 
 	summaryCache.Lock()

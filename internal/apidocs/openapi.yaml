@@ -238,6 +238,29 @@ paths:
           description: Driver name or GUID.
           schema:
             type: string
+        - name: car
+          in: query
+          description: Only sessions in which a driver drove one of these car models. Repeatable.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: carClass
+          in: query
+          description: |
+            Only sessions in which a driver drove a car of one of these car classes (IDs from `/api/car-classes`).
+            Repeatable. Classes and `car` values combine as a union: a session counts if at least one entry's car (in the
+            entry list or the classification) is in any chosen class or is one of the chosen cars. An unknown class or an
+            ID that is no UUID is a 400, never an empty or an unfiltered list; a class nobody drove gives an empty list.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
         - $ref: "#/components/parameters/FilterServer"
       responses:
         "200":
@@ -297,9 +320,27 @@ paths:
             type: string
         - name: car
           in: query
-          description: Restrict the records to one car model.
+          description: Restrict the records to car models. Repeatable.
+          style: form
+          explode: true
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+        - name: carClass
+          in: query
+          description: |
+            Restrict the records to the cars of car classes (IDs from `/api/car-classes`). Repeatable. Classes and `car`
+            values combine as a union: a record counts if its car is in any chosen class or is one of the chosen cars. An
+            unknown class or an ID that is no UUID is a 400, never an empty or an unfiltered list; a class without laps
+            gives an empty list.
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
         - $ref: "#/components/parameters/FilterServer"
       responses:
         "200":
@@ -1159,6 +1200,17 @@ components:
                   Gap:
                     type: integer
                     description: Gap to the leader in milliseconds.
+                  CarClasses:
+                    type: array
+                    description: The car classes the car belongs to, left out if it is in none.
+                    items:
+                      type: object
+                      properties:
+                        ID:
+                          type: string
+                          format: uuid
+                        Name:
+                          type: string
     Driver:
       type: object
       properties:

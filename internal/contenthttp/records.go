@@ -1,11 +1,13 @@
 package contenthttp
 
 import (
+	"fmt"
 	"net/http"
 	"path/filepath"
 	"time"
 
 	"github.com/wernersbacher/ACPitwall/internal/api"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/stats"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
@@ -30,6 +32,10 @@ type Records struct {
 	// Hide gives the filter for results of hidden championships and race weekends per request (nil: nothing is
 	// hidden). The resolver sets it.
 	Hide smweb.HideFuncFor
+
+	// CarClasses resolves the carClass parameter (nil: there are no car classes, every carClass is unknown). The
+	// resolver sets it.
+	CarClasses smweb.CarClasses
 }
 
 // NewRecords returns the records source. servers may be nil (nothing is attributed to a server).
@@ -178,4 +184,53 @@ func (rs *Records) hideFunc(r *http.Request) smresults.HideFunc {
 	}
 
 	return rs.Hide.For(r)
+}
+
+// trackFilter is filter with the car restriction of the track records: the car and carClass parameters (both
+// repeatable) restrict the records to the cars of any chosen class or any chosen car (a union). It also returns the
+// canonical IDs of the classes asked for. An unknown class or an invalid car is an error for the client
+// (see smweb.FilterError), never an empty or an
+// unfiltered list.
+func (rs *Records) trackFilter(r *http.Request) (stats.Filter, string, []string, error) {
+	filter, serverID := rs.filter(r)
+	values := r.URL.Query()
+
+	var classes smweb.CarClasses
+
+	if rs != nil {
+		classes = rs.CarClasses
+	}
+
+	selection, err := smweb.ResolveCarClasses(classes, values["carClass"])
+
+	if err != nil {
+		return filter, serverID, nil, err
+	}
+
+	var cars []string
+
+	for _, car := range values["car"] {
+		if car == "" {
+			continue
+		}
+
+		if !plainname.Valid(car) {
+			return filter, serverID, nil, fmt.Errorf("car must be a valid name")
+		}
+
+		cars = append(cars, car)
+	}
+
+	filter.Cars = selection.UnionCars(cars)
+
+	return filter, serverID, selection.IDs, nil
+}
+
+// carClassOptions lists the car classes for the filter form; selected are the IDs of the chosen ones.
+func (rs *Records) carClassOptions(selected []string) []smweb.CarClassOption {
+	if rs == nil {
+		return nil
+	}
+
+	return smweb.CarClassOptions(rs.CarClasses, selected)
 }

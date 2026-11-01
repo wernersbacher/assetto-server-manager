@@ -44,6 +44,17 @@
         <input type="text" name="track" class="form-control" placeholder="{{ t "home.track" }}" aria-label="{{ t "home.track" }}" value="{{ .Filter.Track }}">
         <input type="text" name="driver" class="form-control" placeholder="{{ t "results.filter.driver_placeholder" }}" aria-label="{{ t "live.col.driver" }}" value="{{ .Filter.Driver }}">
 
+        {{ if .CarClasses }}
+            <details class="leaderboard-cars w-100"{{ range .CarClasses }}{{ if .Selected }} open{{ end }}{{ end }}>
+                <summary>{{ t "results.leaderboards.car_class" }}</summary>
+                <div class="mt-1">
+                    {{ range .CarClasses }}
+                        <label class="mr-3 mb-0 text-nowrap"><input type="checkbox" name="carClass" value="{{ .ID }}" {{ if .Selected }}checked{{ end }}> {{ .Name }}</label>
+                    {{ end }}
+                </div>
+            </details>
+        {{ end }}
+
         <button type="submit" class="btn btn-primary">{{ t "calendar.filter" }}</button>
 
         {{ if .Filter.IsActive }}

@@ -438,6 +438,7 @@ func (r *Resolver) resolveRecords() *contenthttp.Records {
 
 	r.contentRecords = contenthttp.NewRecords(r.resolveStatsIndex(), r.resultsServers)
 	r.contentRecords.Hide = resultshttp.HideFuncFor(r.ResolveStore())
+	r.contentRecords.CarClasses = r.resolveCarClassManager()
 
 	return r.contentRecords
 }
@@ -500,6 +501,7 @@ func (r *Resolver) resolveResultsHandler() *resultshttp.ResultsHandler {
 	}
 
 	r.resultsHandler = resultshttp.NewResultsHandler(r.resolveBaseHandler(), r.ResolveStore(), r.resolveEnv(), r.resultsServers)
+	r.resultsHandler.CarClasses = r.resolveCarClassManager()
 
 	return r.resultsHandler
 }

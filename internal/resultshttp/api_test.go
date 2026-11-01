@@ -10,8 +10,10 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi"
+	"github.com/google/uuid"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv/envtest"
@@ -69,7 +71,13 @@ func resetResultSummaryCache() {
 func getResultsAPI(t *testing.T, target string) *httptest.ResponseRecorder {
 	t.Helper()
 
-	rh := &ResultsHandler{env: testEnv(), store: smstore.NewJSONStore(filepath.Join(testInstallPath, "store"), filepath.Join(testInstallPath, "store-shared"))}
+	return getResultsAPIWithClasses(t, nil, target)
+}
+
+func getResultsAPIWithClasses(t *testing.T, classes smweb.CarClasses, target string) *httptest.ResponseRecorder {
+	t.Helper()
+
+	rh := &ResultsHandler{CarClasses: classes, env: testEnv(), store: smstore.NewJSONStore(filepath.Join(testInstallPath, "store"), filepath.Join(testInstallPath, "store-shared"))}
 
 	r := chi.NewRouter()
 	r.Get("/api/results", rh.ListAPI)
@@ -262,4 +270,93 @@ var testInstallPath string
 
 func testEnv() *serverenv.Env {
 	return envtest.New(testInstallPath)
+}
+
+func TestResultsHandlerListAPICarClass(t *testing.T) {
+	defer setupResultsAPITest(t)()
+
+	formula := &smmodel.CarClass{ID: uuid.New(), Name: "Formula", Cars: []string{"rss_formula_rss_4"}}
+	gt3 := &smmodel.CarClass{ID: uuid.New(), Name: "GT3", Cars: []string{"ks_mclaren_650_gt3", "ks_nissan_gtr_gt3"}}
+	empty := &smmodel.CarClass{ID: uuid.New(), Name: "Nobody drove it", Cars: []string{"no_such_car"}}
+	classes := webtest.CarClasses{formula, gt3, empty}
+
+	list := func(t *testing.T, query string) []string {
+		t.Helper()
+
+		rec := getResultsAPIWithClasses(t, classes, "/api/results?"+query)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("%s: expected 200, got %d: %s", query, rec.Code, rec.Body.String())
+		}
+
+		var out APIResultsList
+
+		if err := json.Unmarshal(rec.Body.Bytes(), &out); err != nil {
+			t.Fatal(err)
+		}
+
+		names := []string{}
+
+		for _, result := range out.Results {
+			names = append(names, result.FileName)
+		}
+
+		return names
+	}
+
+	equal := func(t *testing.T, got []string, want ...string) {
+		t.Helper()
+
+		if len(got) != len(want) {
+			t.Fatalf("expected %v, got %v", want, got)
+		}
+
+		for i := range want {
+			if got[i] != want[i] {
+				t.Fatalf("expected %v, got %v", want, got)
+			}
+		}
+	}
+
+	t.Run("one class", func(t *testing.T) {
+		equal(t, list(t, "carClass="+formula.ID.String()), "2019_2_15_21_16_RACE.json", "2019_2_15_21_8_QUALIFY.json")
+		equal(t, list(t, "carClass="+gt3.ID.String()), "2019_3_2_14_41_PRACTICE.json")
+	})
+
+	t.Run("several classes are a union", func(t *testing.T) {
+		equal(t, list(t, "carClass="+formula.ID.String()+"&carClass="+gt3.ID.String()),
+			"2019_3_2_14_41_PRACTICE.json", "2019_2_15_21_16_RACE.json", "2019_2_15_21_8_QUALIFY.json")
+	})
+
+	t.Run("class and car are a union", func(t *testing.T) {
+		equal(t, list(t, "carClass="+gt3.ID.String()+"&car=rss_formula_rss_4"),
+			"2019_3_2_14_41_PRACTICE.json", "2019_2_15_21_16_RACE.json", "2019_2_15_21_8_QUALIFY.json")
+		equal(t, list(t, "carClass="+formula.ID.String()+"&car=rss_formula_rss_4"), "2019_2_15_21_16_RACE.json", "2019_2_15_21_8_QUALIFY.json")
+	})
+
+	t.Run("combines with the other filters", func(t *testing.T) {
+		equal(t, list(t, "type=race&carClass="+formula.ID.String()), "2019_2_15_21_16_RACE.json")
+		equal(t, list(t, "type=practice&carClass="+formula.ID.String()))
+	})
+
+	t.Run("class nobody drove is an empty list", func(t *testing.T) {
+		equal(t, list(t, "carClass="+empty.ID.String()))
+	})
+
+	t.Run("unknown or invalid class is a 400", func(t *testing.T) {
+		for _, query := range []string{
+			"carClass=" + uuid.New().String(),
+			"carClass=../x",
+			"carClass=" + formula.ID.String() + "&carClass=" + uuid.New().String(),
+			"car=../x",
+		} {
+			if rec := getResultsAPIWithClasses(t, classes, "/api/results?"+query); rec.Code != http.StatusBadRequest {
+				t.Errorf("%s: expected 400, got %d", query, rec.Code)
+			}
+		}
+
+		if rec := getResultsAPIWithClasses(t, nil, "/api/results?carClass="+formula.ID.String()); rec.Code != http.StatusBadRequest {
+			t.Errorf("no classes: expected 400, got %d", rec.Code)
+		}
+	})
 }

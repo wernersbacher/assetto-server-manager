@@ -183,7 +183,13 @@ func NewAPIResult(installPath string, result *smresults.SessionResults) *APIResu
 // listAPI returns a page of results in the API format. It takes the same page and filter query parameters as the
 // results list page.
 func (rh *ResultsHandler) ListAPI(w http.ResponseWriter, r *http.Request) {
-	page, filter, servers, _ := rh.resultsListQuery(r)
+	q, err := rh.parseListQuery(r)
+
+	if smweb.FilterError(w, err) {
+		return
+	}
+
+	page, filter, servers := q.page, q.filter, q.servers
 
 	hidden, ok := rh.hiddenResults(w, r)
 

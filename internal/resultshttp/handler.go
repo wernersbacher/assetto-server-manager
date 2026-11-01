@@ -18,6 +18,7 @@ import (
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
+	"github.com/wernersbacher/ACPitwall/internal/plainname"
 	smresults "github.com/wernersbacher/ACPitwall/internal/results"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -32,6 +33,10 @@ type ResultsHandler struct {
 	store   smstore.Store
 	env     *serverenv.Env
 	servers ServersFunc
+
+	// CarClasses resolves the carClass parameter of the list (nil: there are no car classes, every carClass is
+	// unknown). The resolver sets it.
+	CarClasses smweb.CarClasses
 }
 
 // NewResultsHandler creates the handler. The results are read from all results directories of the env; servers, which
@@ -57,30 +62,79 @@ type resultsListTemplateVars struct {
 	// a result to the name of the server it came from; both are only set if there are several servers.
 	FilterServer string
 	ServerNames  map[string]string
+
+	// CarClasses are the classes to choose from (empty: there are none).
+	CarClasses []smweb.CarClassOption
 }
 
-// resultsListQuery reads the page and filters of a results list request, which is shared by the results list page
-// and the results API.
-func (rh *ResultsHandler) resultsListQuery(r *http.Request) (int, smresults.Filter, serverIndex, string) {
-	page, err := strconv.Atoi(r.URL.Query().Get("page"))
+// resultsListQuery is the page and filters of a results list request.
+type resultsListQuery struct {
+	page         int
+	filter       smresults.Filter
+	servers      serverIndex
+	filterServer string
+
+	// carClasses are the canonical IDs of the classes asked for.
+	carClasses []string
+}
+
+// parseListQuery reads the page and filters of a results list request, which is shared by the results list page
+// and the results API. carClass and car restrict the list to sessions with a car of any chosen class or any chosen car
+// (a union); an unknown class is an *smweb.UnknownCarClassError, never an empty or an unfiltered list.
+func (rh *ResultsHandler) parseListQuery(r *http.Request) (*resultsListQuery, error) {
+	values := r.URL.Query()
+
+	page, err := strconv.Atoi(values.Get("page"))
 
 	if err != nil {
 		page = 0
 	}
 
-	filter := smresults.Filter{
-		Type:   strings.TrimSpace(r.URL.Query().Get("type")),
-		Track:  strings.TrimSpace(r.URL.Query().Get("track")),
-		Driver: strings.TrimSpace(r.URL.Query().Get("driver")),
+	selection, err := smweb.ResolveCarClasses(rh.CarClasses, values["carClass"])
+
+	if err != nil {
+		return nil, err
 	}
 
-	index := rh.serverIndex()
+	var cars []string
 
-	return page, filter, index, index.filterServer(r, &filter)
+	for _, car := range values["car"] {
+		if car == "" {
+			continue
+		}
+
+		if !plainname.Valid(car) {
+			return nil, fmt.Errorf("car must be a valid name")
+		}
+
+		cars = append(cars, car)
+	}
+
+	q := &resultsListQuery{
+		page: page,
+		filter: smresults.Filter{
+			Type:   strings.TrimSpace(values.Get("type")),
+			Track:  strings.TrimSpace(values.Get("track")),
+			Driver: strings.TrimSpace(values.Get("driver")),
+			Cars:   selection.UnionCars(cars),
+		},
+		carClasses: selection.IDs,
+		servers:    rh.serverIndex(),
+	}
+
+	q.filterServer = q.servers.filterServer(r, &q.filter)
+
+	return q, nil
 }
 
 func (rh *ResultsHandler) List(w http.ResponseWriter, r *http.Request) {
-	page, filter, servers, filterServer := rh.resultsListQuery(r)
+	q, err := rh.parseListQuery(r)
+
+	if smweb.FilterError(w, err) {
+		return
+	}
+
+	page, filter, servers, filterServer := q.page, q.filter, q.servers, q.filterServer
 
 	hidden, ok := rh.hiddenResults(w, r)
 
@@ -120,6 +174,7 @@ func (rh *ResultsHandler) List(w http.ResponseWriter, r *http.Request) {
 		Filter:       filter,
 		FilterServer: filterServer,
 		ServerNames:  serverNames,
+		CarClasses:   smweb.CarClassOptions(rh.CarClasses, q.carClasses),
 	})
 }
 

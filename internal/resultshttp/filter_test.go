@@ -89,6 +89,16 @@ func TestListResultsFilter(t *testing.T) {
 		{"type, track and driver", smresults.Filter{Type: "qualify", Track: "nurburgring", Driver: "76561198437072463"}, []string{"2019_3_2_21_21_QUALIFY"}},
 		{"no matches", smresults.Filter{Driver: "nobody by that name"}, nil},
 		{"no matches because of a combination", smresults.Filter{Type: "practice", Driver: "cheezy"}, nil},
+		{"car", smresults.Filter{Cars: []string{"rss_formula_rss_4"}}, []string{"2019_2_15_21_16_RACE", "2019_2_15_21_8_QUALIFY", "2019_2_15_22_10_RACE"}},
+		{"car of one session", smresults.Filter{Cars: []string{"ks_mclaren_650_gt3"}}, []string{"2019_3_2_14_41_PRACTICE"}},
+		{"several cars are a union", smresults.Filter{Cars: []string{"rss_formula_rss_4", "ks_mclaren_650_gt3"}}, []string{
+			"2019_2_15_21_16_RACE", "2019_2_15_21_8_QUALIFY", "2019_2_15_22_10_RACE", "2019_3_2_14_41_PRACTICE",
+		}},
+		{"car is an exact match", smresults.Filter{Cars: []string{"ks_mclaren"}}, nil},
+		{"car and type", smresults.Filter{Cars: []string{"ks_porsche_911_carrera_rsr"}, Type: "race"}, []string{"2019_3_2_21_36_RACE"}},
+		{"car and track", smresults.Filter{Cars: []string{"ks_alfa_33_stradale"}, Track: "suzuka"}, []string{"2019_3_2_22_15_QUALIFY"}},
+		{"car and driver", smresults.Filter{Cars: []string{"ks_alfa_33_stradale"}, Driver: "cheezy"}, []string{"2019_3_2_21_36_RACE", "2019_3_2_22_15_QUALIFY"}},
+		{"car without a session", smresults.Filter{Cars: []string{"no_such_car"}}, nil},
 	} {
 		tc := tc
 
