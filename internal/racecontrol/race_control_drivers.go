@@ -332,7 +332,9 @@ func (rc *RaceControl) OnLapCompleted(lap udp.LapCompleted) error {
 	currentCar.LastLap = lapDuration
 	currentCar.NumLaps++
 	currentCar.LastLapCompletedTime = time.Now()
+	currentCar.AddLap(lapDuration, int(lap.Cuts), currentCar.TopSpeedThisLap, currentCar.LastLapCompletedTime)
 
+	// laps with cuts never count as best lap (this matches acServer's own results)
 	if lap.Cuts == 0 && (lapDuration < currentCar.BestLap || currentCar.BestLap == 0) {
 		currentCar.BestLap = lapDuration
 		currentCar.TopSpeedBestLap = currentCar.TopSpeedThisLap

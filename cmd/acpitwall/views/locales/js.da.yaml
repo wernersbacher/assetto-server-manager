@@ -34,6 +34,26 @@ js:
     collisions:
       one: "{count} kollision"
       other: "{count} kollisioner"
+    invalid_lap:
+      one: "Ugyldig omgang {time} ({count} cut)"
+      other: "Ugyldig omgang {time} ({count} cuts)"
+    cuts_tooltip:
+      one: "{count} cut, omgangen er ugyldig"
+      other: "{count} cuts, omgangen er ugyldig"
+    invalid_laps:
+      one: "{count} ugyldig omgang"
+      other: "{count} ugyldige omgange"
+    show_laps: Vis omgangshistorik
+    hide_laps: Skjul omgangshistorik
+    history_lap: Omgang
+    history_time: Tid
+    history_delta: Forskel til bedste
+    history_cuts: Cuts
+    history_empty: Ingen omgange endnu
+    history_last:
+      one: "Seneste omgang"
+      other: "Seneste {count} omgange"
+    history_chart: Omgangstider, ugyldige omgange markeret
     no_signal: Intet signal
     no_signal_title:
       one: "Ingen opdatering fra denne bil i {count} sekund"

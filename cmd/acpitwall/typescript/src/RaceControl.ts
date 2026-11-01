@@ -696,6 +696,8 @@ class LiveTimings implements WebsocketHandler {
     private readonly lastLiveRender: Map<string, number> = new Map<string, number>();
     private readonly startPositions: Map<string, number> = new Map<string, number>();
     private readonly gaps: Map<string, {interval: string, gap: string}> = new Map<string, {interval: string, gap: string}>();
+    // the cars (guid|model) whose lap history is open
+    private readonly expandedLaps: Set<string> = new Set<string>();
     private sessionKey: string = "";
 
     constructor(raceControl: RaceControl, liveMap: LiveMap) {
@@ -708,6 +710,7 @@ class LiveTimings implements WebsocketHandler {
         setInterval(this.populateConnectedDrivers.bind(this), 1000);
 
         $(document).on("click", ".driver-link", this.toggleDriverSpeed.bind(this));
+        $(document).on("click", ".lap-expand", this.toggleLapHistory.bind(this));
 
         $(document).on("click", "#countdown", this.getFromClickEvent.bind(this));
 
@@ -1008,6 +1011,15 @@ class LiveTimings implements WebsocketHandler {
 
         const rows: HTMLElement[] = [];
 
+        // lap history rows of drivers who left the table
+        $(tbody).find("tr.lap-detail-row").each(function () {
+            const key = this.getAttribute("data-detail-key");
+
+            if (!tbody.querySelector("tr.driver-row[data-key='" + key + "']")) {
+                $(this).remove();
+            }
+        });
+
         for (const driver of ordered) {
             const row = tbody.querySelector("tr[data-guid='" + driver.CarInfo.DriverGUID + "'][data-car-model='" + driver.CarInfo.CarModel + "']") as HTMLElement | null;
 
@@ -1036,6 +1048,13 @@ class LiveTimings implements WebsocketHandler {
 
         for (const row of rows) {
             tbody.appendChild(row);
+
+            // the lap history stays below its driver
+            const detail = tbody.querySelector("tr.lap-detail-row[data-detail-key='" + row.getAttribute("data-key") + "']");
+
+            if (detail) {
+                tbody.appendChild(detail);
+            }
         }
 
         if (animate) {
@@ -1122,7 +1141,7 @@ class LiveTimings implements WebsocketHandler {
 
     private static CONNECTED_ROW_HTML = `
         <tr class="driver-row">
-            <td class="driver-pos"><span class="pos-num"></span><span class="pos-change"></span></td>
+            <td class="driver-pos"><span class="pos-num"></span><span class="pos-change"></span><button type="button" class="lap-expand" aria-expanded="false"><i class="fa fa-chevron-right" aria-hidden="true"></i></button></td>
             <td class="driver-cell driver-link">
                 <div class="driver-name"></div>
                 <div class="driver-car"></div>
@@ -1153,7 +1172,10 @@ class LiveTimings implements WebsocketHandler {
         $tr.attr({
             "data-guid": driver.CarInfo.DriverGUID,
             "data-car-model": driver.CarInfo.CarModel,
+            "data-key": LiveTimings.carKey(driver),
         });
+
+        $tr.find(".lap-expand").attr({"title": t("live.show_laps"), "aria-label": t("live.show_laps")});
 
         // the labels of the mobile cards (CSS shows them in front of the values)
         $tr.find(".best-lap").attr("data-label", t("live.label.best"));
@@ -1226,8 +1248,18 @@ class LiveTimings implements WebsocketHandler {
         }
 
         if (addingDriverToConnectedTable) {
-            // last lap
-            $tr.find(".last-lap").text(msToTime(carInfo.LastLap / 1000000));
+            // last lap (struck through when it had cuts)
+            const lastCuts = carInfo.LastLapCuts || 0;
+
+            $tr.find(".last-lap")
+                .text(msToTime(carInfo.LastLap / 1000000))
+                .toggleClass("lap-invalid", lastCuts > 0 && carInfo.LastLap > 0);
+
+            if (lastCuts > 0 && carInfo.LastLap > 0) {
+                $tr.find(".last-lap").attr("title", tn("live.cuts_tooltip", lastCuts));
+            } else {
+                $tr.find(".last-lap").removeAttr("title");
+            }
         }
 
         // best lap
@@ -1239,8 +1271,8 @@ class LiveTimings implements WebsocketHandler {
 
             $tr.find(".best-lap").toggleClass("lap-fastest", carInfo.BestLap > 0 && carInfo.BestLap === fastestLap);
             $tr.find(".last-lap")
-                .toggleClass("lap-fastest", carInfo.LastLap > 0 && carInfo.LastLap === fastestLap)
-                .toggleClass("lap-pb", carInfo.LastLap > 0 && carInfo.LastLap === carInfo.BestLap && carInfo.LastLap !== fastestLap);
+                .toggleClass("lap-fastest", carInfo.LastLap > 0 && !carInfo.LastLapCuts && carInfo.LastLap === fastestLap)
+                .toggleClass("lap-pb", carInfo.LastLap > 0 && !carInfo.LastLapCuts && carInfo.LastLap === carInfo.BestLap && carInfo.LastLap !== fastestLap);
         }
 
         if (addingDriverToConnectedTable) {
@@ -1252,7 +1284,13 @@ class LiveTimings implements WebsocketHandler {
         }
 
         // lap number
-        $tr.find(".num-laps").text(carInfo.NumLaps ? carInfo.NumLaps : "0");
+        const $numLaps = $tr.find(".num-laps").text(carInfo.NumLaps ? carInfo.NumLaps : "0");
+
+        if (addingDriverToConnectedTable && carInfo.InvalidLaps > 0) {
+            $numLaps.append($("<span class='invalid-count'/>")
+                .attr("title", tn("live.invalid_laps", carInfo.InvalidLaps))
+                .append($("<i class='fa fa-exclamation-triangle' aria-hidden='true'/>"), " " + carInfo.InvalidLaps));
+        }
 
         let topSpeed;
         let speedUnits;
@@ -1270,6 +1308,7 @@ class LiveTimings implements WebsocketHandler {
         if (addingDriverToConnectedTable) {
             this.showCollisionCount($tr, driver);
             this.renderLive($tr, driver);
+            this.updateLapHistory($tr, driver, carInfo);
         }
 
         if (!addingDriverToConnectedTable) {
@@ -1350,6 +1389,155 @@ class LiveTimings implements WebsocketHandler {
                 }
             }
         })).appendTo($tbody);
+    }
+
+    private static carKey(driver: Driver): string {
+        return driver.CarInfo.DriverGUID + "|" + driver.CarInfo.CarModel;
+    }
+
+    private toggleLapHistory(e: ClickEvent): void {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const $tr = $(e.currentTarget).closest("tr.driver-row");
+        const key = String($tr.attr("data-key"));
+
+        if (this.expandedLaps.has(key)) {
+            this.expandedLaps.delete(key);
+        } else {
+            this.expandedLaps.add(key);
+        }
+
+        const guid = String($tr.attr("data-guid"));
+        const status = this.raceControl.status;
+        const driver = status && status.ConnectedDrivers ? status.ConnectedDrivers.Drivers[guid] : undefined;
+        const carInfo = driver ? driver.Cars[String($tr.attr("data-car-model"))] : undefined;
+
+        if (driver && carInfo) {
+            this.updateLapHistory($tr, driver, carInfo);
+        }
+    }
+
+    private setExpandButton($tr: JQuery<HTMLElement>, open: boolean): void {
+        const label = t(open ? "live.hide_laps" : "live.show_laps");
+
+        $tr.toggleClass("is-expanded", open);
+        $tr.find(".lap-expand")
+            .attr({"aria-expanded": open ? "true" : "false", "title": label, "aria-label": label})
+            .find("i").toggleClass("fa-chevron-right", !open).toggleClass("fa-chevron-down", open);
+    }
+
+    // updateLapHistory creates, refreshes or removes the lap history row below the row of a driver.
+    private updateLapHistory($tr: JQuery<HTMLElement>, driver: Driver, carInfo: CarLapInfo): void {
+        const key = LiveTimings.carKey(driver);
+        const open = this.expandedLaps.has(key);
+        let $detail = $tr.nextAll("tr.lap-detail-row").filter(function () {
+            return this.getAttribute("data-detail-key") === key;
+        }).first();
+
+        this.setExpandButton($tr, open);
+
+        if (!open) {
+            $detail.remove();
+            return;
+        }
+
+        if (!$detail.length) {
+            $detail = $("<tr class='lap-detail-row'><td colspan='10'><div class='lap-detail'></div></td></tr>").attr("data-detail-key", key);
+            // the reorder moves the row below its driver when the driver row is not in the table yet
+            $detail.insertAfter($tr);
+        }
+
+        $detail.find(".lap-detail").empty().append(LiveTimings.lapHistory(carInfo));
+    }
+
+    // lapHistory builds the lap history of a car: a chart of the lap times and a table of the laps, newest first.
+    private static lapHistory(carInfo: CarLapInfo): JQuery<HTMLElement> {
+        const laps = carInfo.Laps || [];
+        const $root = $("<div class='lap-history'/>");
+
+        if (laps.length === 0) {
+            return $root.append($("<div class='lap-history-empty'/>").text(t("live.history_empty")));
+        }
+
+        $root.append(LiveTimings.sparkline(laps));
+
+        const $table = $("<table class='lap-history-table'/>");
+        $table.append($("<thead/>").append($("<tr/>").append(
+            $("<th/>").text(t("live.history_lap")),
+            $("<th/>").text(t("live.history_time")),
+            $("<th/>").text(t("live.history_delta")),
+            $("<th/>").text(t("live.history_cuts")),
+        )));
+
+        const $body = $("<tbody/>");
+
+        for (let i = laps.length - 1; i >= 0; i--) {
+            const lap = laps[i];
+            const invalid = lap.Cuts > 0;
+            const $row = $("<tr/>").toggleClass("lap-invalid-row", invalid);
+            let delta = "";
+
+            if (!invalid && carInfo.BestLap > 0 && lap.LapTime > carInfo.BestLap) {
+                delta = "+" + LiveTimings.formatDelta((lap.LapTime - carInfo.BestLap) / 1000000);
+            }
+
+            $row.append(
+                $("<td/>").text(lap.Lap),
+                $("<td class='live-mono lap-history-time'/>").text(msToTime(lap.LapTime / 1000000)).toggleClass("lap-pb", !invalid && lap.LapTime === carInfo.BestLap),
+                $("<td class='live-mono'/>").text(delta),
+                $("<td/>").text(invalid ? lap.Cuts : "").attr("title", invalid ? tn("live.cuts_tooltip", lap.Cuts) : ""),
+            );
+
+            $body.append($row);
+        }
+
+        $root.append($table.append($body), $("<div class='lap-history-note'/>").text(tn("live.history_last", laps.length)));
+
+        return $root;
+    }
+
+    // sparkline draws the lap times as an inline SVG; laps with cuts are marked with a cross.
+    private static sparkline(laps: {Lap: number, LapTime: number, Cuts: number}[]): JQuery<HTMLElement> {
+        const width = 260, height = 56, pad = 6;
+        const times = laps.map(lap => lap.LapTime / 1000000).filter(ms => ms > 0);
+
+        if (times.length === 0) {
+            return $();
+        }
+
+        const min = Math.min(...times);
+        const max = Math.max(...times);
+        const span = max - min || 1;
+        const x = (i: number) => laps.length === 1 ? width / 2 : pad + i * (width - 2 * pad) / (laps.length - 1);
+        const y = (ms: number) => pad + (ms - min) / span * (height - 2 * pad);
+
+        let line = "";
+        let marks = "";
+
+        laps.forEach((lap, i) => {
+            const ms = lap.LapTime / 1000000;
+
+            if (ms <= 0) {
+                return;
+            }
+
+            const px = x(i).toFixed(1), py = y(ms).toFixed(1);
+            const title = "<title>" + lap.Lap + ": " + msToTime(ms) + "</title>";
+
+            if (lap.Cuts > 0) {
+                marks += "<g class='spark-invalid' transform='translate(" + px + " " + py + ")'><path d='M-3 -3L3 3M3 -3L-3 3'/>" + title + "</g>";
+            } else {
+                line += (line === "" ? "M" : "L") + px + " " + py;
+                marks += "<circle class='spark-dot' cx='" + px + "' cy='" + py + "' r='2.2'>" + title + "</circle>";
+            }
+        });
+
+        const label = t("live.history_chart").replace(/['"<>&]/g, "");
+        const svg = "<svg class='lap-sparkline' viewBox='0 0 " + width + " " + height + "' width='" + width + "' height='" + height + "' role='img' aria-label='" + label + "'>"
+            + "<path class='spark-line' d='" + line + "'/>" + marks + "</svg>";
+
+        return $(svg);
     }
 
     private toggleDriverSpeed(e: ClickEvent): void {
@@ -1660,6 +1848,18 @@ class EventFeed implements WebsocketHandler {
                     if (fastest) {
                         this.sessionFastest = car.LastLap;
                     }
+                }
+
+                if (previous && car.NumLaps > previous.laps && car.LastLap > 0 && car.LastLapCuts > 0) {
+                    found.push({
+                        kind: "laps",
+                        icon: "fa-exclamation-triangle",
+                        variant: "invalid",
+                        guid: guid,
+                        name: driver.CarInfo.DriverName,
+                        text: tn("live.invalid_lap", car.LastLapCuts, {time: msToTime(car.LastLap / 1000000)}),
+                        time: new Date(),
+                    });
                 }
 
                 this.laps.set(carKey, {laps: car.NumLaps || 0, best: car.BestLap || 0});

@@ -34,6 +34,26 @@ js:
     collisions:
       one: "{count} Kollision"
       other: "{count} Kollisionen"
+    invalid_lap:
+      one: "Ungültige Runde {time} ({count} Cut)"
+      other: "Ungültige Runde {time} ({count} Cuts)"
+    cuts_tooltip:
+      one: "{count} Cut, Runde ungültig"
+      other: "{count} Cuts, Runde ungültig"
+    invalid_laps:
+      one: "{count} ungültige Runde"
+      other: "{count} ungültige Runden"
+    show_laps: Rundenverlauf anzeigen
+    hide_laps: Rundenverlauf ausblenden
+    history_lap: Runde
+    history_time: Zeit
+    history_delta: Abstand zur Bestzeit
+    history_cuts: Cuts
+    history_empty: Noch keine Runden
+    history_last:
+      one: "Letzte Runde"
+      other: "Letzte {count} Runden"
+    history_chart: Rundenzeiten, ungültige Runden markiert
     no_signal: Kein Signal
     no_signal_title:
       one: "Seit {count} Sekunde kein Update von diesem Auto"

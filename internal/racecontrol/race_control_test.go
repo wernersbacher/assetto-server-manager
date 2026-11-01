@@ -1129,3 +1129,84 @@ func testEnv() *serverenv.Env {
 		PanicCapture:    func(fn func()) { fn() },
 	}
 }
+
+func TestRaceControl_LapCuts(t *testing.T) {
+	raceControl := NewRaceControl(&smconfig.Configuration{}, NilBroadcaster{}, NilTrackData{}, servertest.Dummy{}, testStore, NewPenaltiesManager(testStore, testEnv()), testEnv())
+
+	if err := raceControl.OnVersion(udp.Version(4)); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := raceControl.OnNewSession(udp.SessionInfo{Version: 4, Track: "ks_laguna_seca", Name: "Practice", Type: udp.SessionTypePractice, Time: 10, EventType: udp.EventNewSession}); err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() { raceControl.serverProcessStopped <- struct{}{} }()
+
+	if err := raceControl.OnClientConnect(drivers[0]); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := raceControl.OnClientLoaded(udp.ClientLoaded(drivers[0].CarID)); err != nil {
+		t.Fatal(err)
+	}
+
+	lap := func(ms uint32, cuts uint8) {
+		t.Helper()
+
+		if err := raceControl.OnLapCompleted(udp.LapCompleted{CarID: drivers[0].CarID, LapTime: ms, Cuts: cuts}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	car := func() *smmodel.RaceControlCarLapInfo {
+		d, ok := raceControl.ConnectedDrivers.Get(drivers[0].DriverGUID)
+		if !ok {
+			t.Fatal("driver not found")
+		}
+
+		return d.CurrentCar()
+	}
+
+	lap(90000, 0)
+	lap(80000, 2) // faster but invalid: no best lap
+	lap(95000, 0)
+
+	c := car()
+
+	if c.InvalidLaps != 1 || c.LastLapCuts != 0 {
+		t.Errorf("expected 1 invalid lap and no cuts on the last lap, got %d / %d", c.InvalidLaps, c.LastLapCuts)
+	}
+
+	if c.BestLap != 90*time.Millisecond*1000 {
+		t.Errorf("a lap with cuts must not be the best lap, got %s", c.BestLap)
+	}
+
+	if len(c.Laps) != 3 || c.Laps[1].Cuts != 2 || c.Laps[1].Lap != 2 || c.Laps[2].Lap != 3 {
+		t.Errorf("unexpected lap history: %+v", c.Laps)
+	}
+
+	lap(91000, 1)
+
+	if car().LastLapCuts != 1 || car().InvalidLaps != 2 {
+		t.Errorf("expected last lap cuts 1 and 2 invalid laps, got %d / %d", car().LastLapCuts, car().InvalidLaps)
+	}
+
+	for i := 0; i < 30; i++ {
+		lap(90000+uint32(i), 0)
+	}
+
+	c = car()
+
+	if len(c.Laps) != smmodel.MaxLapHistory {
+		t.Fatalf("expected %d laps in history, got %d", smmodel.MaxLapHistory, len(c.Laps))
+	}
+
+	if c.Laps[len(c.Laps)-1].Lap != c.NumLaps || c.Laps[0].Lap != c.NumLaps-smmodel.MaxLapHistory+1 {
+		t.Errorf("history must hold the most recent laps, got %d..%d of %d", c.Laps[0].Lap, c.Laps[len(c.Laps)-1].Lap, c.NumLaps)
+	}
+
+	if c.InvalidLaps != 2 {
+		t.Errorf("invalid lap count must survive the history bound, got %d", c.InvalidLaps)
+	}
+}

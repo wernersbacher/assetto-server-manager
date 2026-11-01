@@ -34,6 +34,26 @@ js:
     collisions:
       one: "{count} collision"
       other: "{count} collisions"
+    invalid_lap:
+      one: "Invalid lap {time} ({count} cut)"
+      other: "Invalid lap {time} ({count} cuts)"
+    cuts_tooltip:
+      one: "{count} cut, lap is invalid"
+      other: "{count} cuts, lap is invalid"
+    invalid_laps:
+      one: "{count} invalid lap"
+      other: "{count} invalid laps"
+    show_laps: Show lap history
+    hide_laps: Hide lap history
+    history_lap: Lap
+    history_time: Time
+    history_delta: Delta to best
+    history_cuts: Cuts
+    history_empty: No laps yet
+    history_last:
+      one: "Last lap"
+      other: "Last {count} laps"
+    history_chart: Lap times, invalid laps marked
     no_signal: No signal
     no_signal_title:
       one: "No update from this car for {count} second"

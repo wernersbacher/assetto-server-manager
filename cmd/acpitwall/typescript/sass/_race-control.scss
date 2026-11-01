@@ -1146,3 +1146,144 @@ body.live-drawer-open {
     min-height: 40px;
   }
 }
+
+// cuts and lap history
+.live-table {
+  .lap-invalid {
+    color: var(--muted-foreground);
+    text-decoration: line-through;
+    text-decoration-color: var(--destructive, #dc3545);
+  }
+
+  .invalid-count {
+    margin-left: 6px;
+    font-size: 11px;
+    color: var(--destructive, #dc3545);
+    opacity: .85;
+    cursor: help;
+  }
+
+  .lap-expand {
+    display: block;
+    margin: 2px auto 0;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 10px;
+    line-height: 1.2;
+    cursor: pointer;
+
+    &:hover, &:focus { color: var(--foreground); }
+  }
+
+  tr.is-expanded td {
+    border-bottom-color: transparent;
+  }
+
+  tr.lap-detail-row td {
+    padding: 0;
+    background: var(--table-header);
+    white-space: normal;
+  }
+
+  .lap-detail {
+    padding: 8px 12px 12px 54px;
+  }
+
+  .lap-history {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px 24px;
+  }
+
+  .lap-history-empty, .lap-history-note {
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+
+  .lap-history-note {
+    flex-basis: 100%;
+  }
+
+  .lap-sparkline {
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+
+    .spark-line {
+      fill: none;
+      stroke: var(--tertiary);
+      stroke-width: 1.5;
+    }
+
+    .spark-dot {
+      fill: var(--tertiary);
+    }
+
+    .spark-invalid path {
+      fill: none;
+      stroke: var(--destructive, #dc3545);
+      stroke-width: 1.8;
+    }
+  }
+
+  .lap-history-table {
+    border-collapse: collapse;
+    font-size: 12px;
+
+    th, td {
+      padding: 2px 14px 2px 0;
+      border: 0;
+      text-align: left;
+      background: transparent;
+      white-space: nowrap;
+    }
+
+    th {
+      font-size: 10px;
+    }
+
+    .lap-invalid-row td {
+      color: var(--muted-foreground);
+
+      &.lap-history-time {
+        text-decoration: line-through;
+        text-decoration-color: var(--destructive, #dc3545);
+      }
+    }
+  }
+}
+
+.live-feed .feed-invalid .feed-icon,
+.feed-entry.feed-invalid .feed-icon {
+  color: var(--destructive, #dc3545);
+}
+
+@media screen and (max-width: 1199.98px) {
+  #live-table {
+    tr.lap-detail-row {
+      display: block;
+      border-bottom: 1px solid var(--border);
+    }
+
+    tr.lap-detail-row td {
+      display: block;
+      padding: 0;
+    }
+
+    .lap-detail {
+      padding: 4px 8px 12px;
+    }
+
+    .lap-expand {
+      margin: 4px 0 0 auto;
+      padding: 4px 6px;
+    }
+
+    .lap-history-table {
+      width: 100%;
+    }
+  }
+}

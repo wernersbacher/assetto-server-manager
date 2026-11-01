@@ -260,6 +260,34 @@ class RaceControlDriverMapRaceControlDriverCollision {
     }
 }
 
+// struct2ts:github.com/wernersbacher/ACPitwall.RaceControlDriverMapRaceControlDriverRaceControlCarLapInfoRaceControlLap
+class RaceControlDriverMapRaceControlDriverRaceControlCarLapInfoRaceControlLap {
+    Lap: number;
+    LapTime: number;
+    Cuts: number;
+    CompletedTime: Date;
+    TopSpeed: number;
+
+    constructor(data?: any) {
+        const d: any = (data && typeof data === 'object') ? ToObject(data) : {};
+        this.Lap = ('Lap' in d) ? d.Lap as number : 0;
+        this.LapTime = ('LapTime' in d) ? d.LapTime as number : 0;
+        this.Cuts = ('Cuts' in d) ? d.Cuts as number : 0;
+        this.CompletedTime = ('CompletedTime' in d) ? ParseDate(d.CompletedTime) : new Date();
+        this.TopSpeed = ('TopSpeed' in d) ? d.TopSpeed as number : 0;
+    }
+
+    toObject(): any {
+        const cfg: any = {};
+        cfg.Lap = 'number';
+        cfg.LapTime = 'number';
+        cfg.Cuts = 'number';
+        cfg.CompletedTime = 'string';
+        cfg.TopSpeed = 'number';
+        return ToObject(this, cfg);
+    }
+}
+
 // struct2ts:github.com/wernersbacher/ACPitwall.RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo
 class RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo {
     TopSpeedThisLap: number;
@@ -270,6 +298,9 @@ class RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo {
     LastLapCompletedTime: Date;
     TotalLapTime: number;
     CarName: string;
+    LastLapCuts: number;
+    InvalidLaps: number;
+    Laps: RaceControlDriverMapRaceControlDriverRaceControlCarLapInfoRaceControlLap[];
 
     constructor(data?: any) {
         const d: any = (data && typeof data === 'object') ? ToObject(data) : {};
@@ -281,6 +312,9 @@ class RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo {
         this.LastLapCompletedTime = ('LastLapCompletedTime' in d) ? ParseDate(d.LastLapCompletedTime) : new Date();
         this.TotalLapTime = ('TotalLapTime' in d) ? d.TotalLapTime as number : 0;
         this.CarName = ('CarName' in d) ? d.CarName as string : '';
+        this.LastLapCuts = ('LastLapCuts' in d) ? d.LastLapCuts as number : 0;
+        this.InvalidLaps = ('InvalidLaps' in d) ? d.InvalidLaps as number : 0;
+        this.Laps = Array.isArray(d.Laps) ? d.Laps.map((v: any) => new RaceControlDriverMapRaceControlDriverRaceControlCarLapInfoRaceControlLap(v)) : [];
     }
 
     toObject(): any {
@@ -292,6 +326,8 @@ class RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo {
         cfg.LastLap = 'number';
         cfg.LastLapCompletedTime = 'string';
         cfg.TotalLapTime = 'number';
+        cfg.LastLapCuts = 'number';
+        cfg.InvalidLaps = 'number';
         return ToObject(this, cfg);
     }
 }
@@ -390,6 +426,7 @@ export {
     RaceControlDriverMapRaceControlDriverSessionCarInfo,
     RaceControlDriverMapRaceControlDriverVec,
     RaceControlDriverMapRaceControlDriverCollision,
+    RaceControlDriverMapRaceControlDriverRaceControlCarLapInfoRaceControlLap,
     RaceControlDriverMapRaceControlDriverRaceControlCarLapInfo,
     RaceControlDriverMapRaceControlDriver,
     RaceControlDriverMap,

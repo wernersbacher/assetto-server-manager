@@ -34,6 +34,26 @@ js:
     collisions:
       one: "{count} botsing"
       other: "{count} botsingen"
+    invalid_lap:
+      one: "Ongeldige ronde {time} ({count} cut)"
+      other: "Ongeldige ronde {time} ({count} cuts)"
+    cuts_tooltip:
+      one: "{count} cut, ronde ongeldig"
+      other: "{count} cuts, ronde ongeldig"
+    invalid_laps:
+      one: "{count} ongeldige ronde"
+      other: "{count} ongeldige ronden"
+    show_laps: Rondeverloop tonen
+    hide_laps: Rondeverloop verbergen
+    history_lap: Ronde
+    history_time: Tijd
+    history_delta: Verschil met beste
+    history_cuts: Cuts
+    history_empty: Nog geen ronden
+    history_last:
+      one: "Laatste ronde"
+      other: "Laatste {count} ronden"
+    history_chart: Rondetijden, ongeldige ronden gemarkeerd
     no_signal: Geen signaal
     no_signal_title:
       one: "Al {count} seconde geen update van deze auto"

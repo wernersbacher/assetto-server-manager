@@ -50,6 +50,46 @@ type RaceControlCarLapInfo struct {
 	LastLapCompletedTime time.Time     `json:"LastLapCompletedTime" ts:"date"`
 	TotalLapTime         time.Duration `json:"TotalLapTime"`
 	CarName              string        `json:"CarName"`
+
+	// LastLapCuts is the number of cuts of the last completed lap (a lap with cuts is invalid).
+	LastLapCuts int `json:"LastLapCuts"`
+	// InvalidLaps counts the completed laps with at least one cut.
+	InvalidLaps int `json:"InvalidLaps"`
+	// Laps holds the most recent completed laps (at most MaxLapHistory), oldest first.
+	Laps []RaceControlLap `json:"Laps"`
+}
+
+// MaxLapHistory is the number of laps kept per car in RaceControlCarLapInfo.Laps.
+const MaxLapHistory = 20
+
+// RaceControlLap is one completed lap of a car.
+type RaceControlLap struct {
+	Lap           int           `json:"Lap"`
+	LapTime       time.Duration `json:"LapTime"`
+	Cuts          int           `json:"Cuts"`
+	CompletedTime time.Time     `json:"CompletedTime" ts:"date"`
+	TopSpeed      float64       `json:"TopSpeed"`
+}
+
+// AddLap records a completed lap: the cuts of the last lap, the invalid lap count and the bounded lap history.
+func (c *RaceControlCarLapInfo) AddLap(lapTime time.Duration, cuts int, topSpeed float64, completed time.Time) {
+	c.LastLapCuts = cuts
+
+	if cuts > 0 {
+		c.InvalidLaps++
+	}
+
+	c.Laps = append(c.Laps, RaceControlLap{
+		Lap:           c.NumLaps,
+		LapTime:       lapTime,
+		Cuts:          cuts,
+		CompletedTime: completed,
+		TopSpeed:      topSpeed,
+	})
+
+	if len(c.Laps) > MaxLapHistory {
+		c.Laps = append([]RaceControlLap(nil), c.Laps[len(c.Laps)-MaxLapHistory:]...)
+	}
 }
 
 // Lock locks the driver while it is being updated. Callers that modify a driver take the lock themselves.
