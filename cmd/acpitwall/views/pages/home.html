@@ -155,8 +155,8 @@
                     {{ range . }}
                         <li>
                             <div class="upcoming-date">
-                                <span>{{ .Start.Format "Mon" }}</span>
-                                <strong>{{ .Start.Format "Jan 2" }}</strong>
+                                <span>{{ formatDate .Start "weekday_short" }}</span>
+                                <strong>{{ formatDate .Start "month_day" }}</strong>
                             </div>
                             <div class="upcoming-info">
                                 <div class="upcoming-name">
