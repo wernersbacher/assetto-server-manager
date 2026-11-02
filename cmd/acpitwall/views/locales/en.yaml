@@ -228,20 +228,46 @@ accounts:
   delete_detail: The account is removed permanently.
   delete_label: Delete account
   only_write_access: Only accounts with write access
-  open:
-    title: Open ACPitwall
-    intro: An Open ACPitwall allows read access to anyone without an account.
-    open: Open
-    closed: Closed
-    make_open: Make Open
-    make_closed: Make Closed
-  stats:
-    title: Public driver statistics
-    intro: Driver profiles, leaderboards and lap records. If off, they are only visible to logged in accounts, even on an Open ACPitwall.
-    public: Public
-    private: Private
-    make_public: Make Public
-    make_private: Make Private
+  visibility:
+    title: "Visibility"
+    intro: "Who may see which part of the site. Admins always see everything. Areas set to \"Everyone\" are open to visitors without an account."
+    default: "Default: {level}"
+    level:
+      public: "Everyone (also anonymous)"
+      login: "Logged in accounts"
+      write: "Write access"
+      admin: "Admins only"
+    area:
+      stats:
+        name: "Driver statistics"
+        help: "Driver profiles, leaderboards and lap records."
+      downloads:
+        name: "Downloads"
+        help: "Setups, the content directory and car skin zips. Pictures and UI files are served with the content area. Signed skin links for Content Manager are only handed out if this is set to logged in accounts or more open."
+      teams:
+        name: "Teams"
+        help: "Team pages and the team list."
+      custom_races:
+        name: "Custom races"
+        help: "The list of saved custom races."
+      results:
+        name: "Results"
+        help: "Race results and their details. Championship pages only link results and driver profiles if their area is visible to the visitor."
+      championships:
+        name: "Championships"
+        help: "Championship pages with standings and events. They show results and driver profiles only where those areas are visible."
+      race_weekends:
+        name: "Race weekends"
+        help: "Race weekend pages and their sessions."
+      calendar:
+        name: "Calendar"
+        help: "Calendar, upcoming races and iCal feeds. Links to events follow the visibility of the area they lead to."
+      live_timing:
+        name: "Live timing"
+        help: "Live timing and the race control views."
+      content:
+        name: "Cars, tracks and weather"
+        help: "The content pages, including the pictures shown on other pages."
   steam_signup:
     title: Registration with Steam
     intro: Visitors can create an account themselves by signing in with Steam. The new account gets read access only. If off, only drivers with an existing account (matched by their Steam ID) can sign in with Steam.
@@ -249,12 +275,6 @@ accounts:
     "off": Disabled
     enable: Enable
     disable: Disable
-  downloads:
-    title: Content downloads
-    intro: Who may download cars, tracks, setups and car skins (the pictures shown on the pages stay visible). Content Manager gets signed, time limited skin links, so it keeps working when downloads are restricted.
-    public: Public (everyone who can read, also anonymous on an Open ACPitwall)
-    login: Logged in accounts only
-    "off": Off (admins only)
   teams:
     intro: Drivers can create teams, join them and register for championships with them. Accounts with write access can always create teams and manage every team.
     creation: Creating teams

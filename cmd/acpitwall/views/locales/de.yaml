@@ -227,20 +227,46 @@ accounts:
   delete_detail: Das Konto wird endgültig entfernt.
   delete_label: Konto löschen
   only_write_access: Nur Konten mit Schreibrechten
-  open:
-    title: Offenes ACPitwall
-    intro: Ein offenes ACPitwall erlaubt allen Lesezugriff, auch ohne Konto.
-    open: Offen
-    closed: Geschlossen
-    make_open: Öffnen
-    make_closed: Schließen
-  stats:
-    title: Öffentliche Fahrerstatistiken
-    intro: Fahrerprofile, Bestenlisten und Rundenrekorde. Wenn aus, sind sie nur für angemeldete Konten sichtbar, auch bei einem offenen ACPitwall.
-    public: Öffentlich
-    private: Privat
-    make_public: Öffentlich machen
-    make_private: Privat machen
+  visibility:
+    title: "Sichtbarkeit"
+    intro: "Wer welchen Teil der Seite sehen darf. Admins sehen immer alles. Bereiche mit \"Alle\" sind auch für Besucher ohne Konto offen."
+    default: "Standard: {level}"
+    level:
+      public: "Alle (auch anonym)"
+      login: "Eingeloggte Nutzer"
+      write: "Schreibrechte"
+      admin: "Nur Admins"
+    area:
+      stats:
+        name: "Fahrerstatistiken"
+        help: "Fahrerprofile, Bestenlisten und Rundenrekorde."
+      downloads:
+        name: "Downloads"
+        help: "Setups, das Content-Verzeichnis und Skin-Zips. Bilder und UI-Dateien kommen mit dem Bereich Autos, Strecken und Wetter. Signierte Skin-Links für Content Manager gibt es nur, wenn dies auf eingeloggte Nutzer oder offener steht."
+      teams:
+        name: "Teams"
+        help: "Team-Seiten und die Teamliste."
+      custom_races:
+        name: "Eigene Rennen"
+        help: "Die Liste der gespeicherten eigenen Rennen."
+      results:
+        name: "Ergebnisse"
+        help: "Rennergebnisse und ihre Details. Meisterschaftsseiten verlinken Ergebnisse und Fahrerprofile nur, wenn der Besucher den jeweiligen Bereich sehen darf."
+      championships:
+        name: "Meisterschaften"
+        help: "Meisterschaftsseiten mit Wertung und Events. Ergebnisse und Fahrerprofile zeigen sie nur, wo diese Bereiche sichtbar sind."
+      race_weekends:
+        name: "Rennwochenenden"
+        help: "Rennwochenend-Seiten und ihre Sessions."
+      calendar:
+        name: "Kalender"
+        help: "Kalender, kommende Rennen und iCal-Feeds. Links auf Events folgen der Sichtbarkeit des Zielbereichs."
+      live_timing:
+        name: "Live-Timing"
+        help: "Live-Timing und die Rennleitungs-Ansichten."
+      content:
+        name: "Autos, Strecken und Wetter"
+        help: "Die Inhaltsseiten, einschließlich der Bilder, die auf anderen Seiten angezeigt werden."
   steam_signup:
     title: Registrierung mit Steam
     intro: Besucher können sich selbst ein Konto anlegen, indem sie sich mit Steam anmelden. Das neue Konto erhält nur Lesezugriff. Wenn aus, können sich nur Fahrer mit bestehendem Konto (über ihre Steam-ID zugeordnet) mit Steam anmelden.
@@ -248,12 +274,6 @@ accounts:
     "off": Deaktiviert
     enable: Aktivieren
     disable: Deaktivieren
-  downloads:
-    title: Downloads von Inhalten
-    intro: Wer Autos, Strecken, Setups und Skins herunterladen darf (die Bilder auf den Seiten bleiben sichtbar). Content Manager bekommt signierte, zeitlich begrenzte Skin-Links und funktioniert daher auch bei eingeschränkten Downloads.
-    public: Öffentlich (alle mit Lesezugriff, bei offenem ACPitwall auch anonym)
-    login: Nur angemeldete Konten
-    "off": Aus (nur Admins)
   teams:
     intro: Fahrer können Teams gründen, ihnen beitreten und sich mit ihnen für Meisterschaften anmelden. Konten mit Schreibrechten können immer Teams gründen und alle Teams verwalten.
     creation: Teams gründen

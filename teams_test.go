@@ -571,3 +571,57 @@ func TestTeamRoutesNeedReadAccess(t *testing.T) {
 		t.Errorf("an anonymous request changed the team: %v %+v", err, got)
 	}
 }
+
+func TestAccountsPageShowsTheVisibilityCard(t *testing.T) {
+	e, cleanup := newTeamsTestEnv(t, &smconfig.Configuration{})
+	defer cleanup()
+
+	admin, _ := e.account(smmodel.GroupAdmin)
+	handler := e.resolver.resolveAccountHandler()
+
+	page := func() string {
+		rec := e.serve(handler.ManageAccounts, http.MethodGet, admin, nil, nil)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("accounts page: %d", rec.Code)
+		}
+
+		return rec.Body.String()
+	}
+
+	body := page()
+
+	for _, area := range smmodel.AllAreas {
+		if !strings.Contains(body, `<select name="level" id="visibility-`+string(area)+`"`) {
+			t.Errorf("no select for area %s", area)
+		}
+	}
+
+	// the defaults are selected: teams = logged in, custom races = write, results = public
+	selected := func(body, area, level string) bool {
+		start := strings.Index(body, `id="visibility-`+area+`"`)
+		end := start + strings.Index(body[start:], "</select>")
+
+		return strings.Contains(body[start:end], `<option value="`+level+`" selected>`)
+	}
+
+	for area, level := range map[string]string{"teams": "login", "custom_races": "write", "results": "public"} {
+		if !selected(body, area, level) {
+			t.Errorf("area %s: expected level %s selected", area, level)
+		}
+	}
+
+	if rec := e.serve(handler.SetVisibility, http.MethodPost, admin, nil, url.Values{"area": {"results"}, "level": {"admin"}}); rec.Code != http.StatusFound {
+		t.Fatalf("saving failed: %d", rec.Code)
+	}
+
+	if body = page(); !selected(body, "results", "admin") || selected(body, "results", "public") {
+		t.Error("the saved level is not selected")
+	}
+
+	for _, v := range []url.Values{{"area": {"nonsense"}, "level": {"admin"}}, {"area": {"results"}, "level": {"nonsense"}}} {
+		if rec := e.serve(handler.SetVisibility, http.MethodPost, admin, nil, v); rec.Code != http.StatusBadRequest {
+			t.Errorf("%v: expected 400, got %d", v, rec.Code)
+		}
+	}
+}

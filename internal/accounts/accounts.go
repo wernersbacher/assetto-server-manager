@@ -1089,8 +1089,9 @@ func generateSalt() (string, error) {
 // AreaVisibility is the setting of one area for the admin page: the names of the area and its level, as the form
 // values of SetVisibility.
 type AreaVisibility struct {
-	Area  string
-	Level string
+	Area    string
+	Level   string
+	Default string // the level without a stored setting
 }
 
 // areaVisibilities lists the level of every area (also those without a stored entry) in display order.
@@ -1098,7 +1099,7 @@ func (ah *AccountHandler) areaVisibilities() []AreaVisibility {
 	list := make([]AreaVisibility, 0, len(smmodel.AllAreas))
 
 	for _, area := range smmodel.AllAreas {
-		list = append(list, AreaVisibility{Area: string(area), Level: ah.AreaLevel(area).String()})
+		list = append(list, AreaVisibility{Area: string(area), Level: ah.AreaLevel(area).String(), Default: smmodel.DefaultLevel(area).String()})
 	}
 
 	return list

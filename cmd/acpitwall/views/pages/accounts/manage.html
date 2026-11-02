@@ -61,6 +61,34 @@
     {{ end }}
 
     <div class="dashboard-grid">
+        <div class="card admin-card" id="visibility">
+            <div class="card-header"><h2>{{ t "accounts.visibility.title" }}</h2></div>
+            <div class="card-body">
+                <p>{{ t "accounts.visibility.intro" }}</p>
+
+                {{ range $.Visibility }}
+                    <form method="post" action="/accounts/visibility" class="visibility-row m-0 mb-3" data-area="{{ .Area }}">
+                        <input type="hidden" name="area" value="{{ .Area }}">
+                        {{ $default := .Default }}
+                        <div class="form-group mb-0">
+                            <label for="visibility-{{ .Area }}"><strong>{{ t (printf "accounts.visibility.area.%s.name" .Area) }}</strong></label>
+                            <small class="d-block">{{ t (printf "accounts.visibility.area.%s.help" .Area) }}</small>
+                            <div class="form-inline mt-1">
+                                <select name="level" id="visibility-{{ .Area }}" class="form-control mr-3" style="max-width: 280px">
+                                    {{ $current := .Level }}
+                                    {{ range $level := list "public" "login" "write" "admin" }}
+                                        <option value="{{ $level }}" {{ if eq $level $current }}selected{{ end }}>{{ t (printf "accounts.visibility.level.%s" $level) }}</option>
+                                    {{ end }}
+                                </select>
+                                <button type="submit" class="btn btn-success mr-3">{{ t "common.save" }}</button>
+                                <small class="text-muted">{{ t "accounts.visibility.default" "level" (t (printf "accounts.visibility.level.%s" $default)) }}</small>
+                            </div>
+                        </div>
+                    </form>
+                {{ end }}
+            </div>
+        </div>
+
         <div class="card admin-card">
             <div class="card-header"><h2>{{ t "accounts.steam_signup.title" }}</h2></div>
             <div class="card-body">

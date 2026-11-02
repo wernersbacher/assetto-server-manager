@@ -227,20 +227,46 @@ accounts:
   delete_detail: Kontoen bliver slettet permanent.
   delete_label: Slet konto
   only_write_access: Kun konti med skriveadgang
-  open:
-    title: Åben ACPitwall
-    intro: En åben ACPitwall giver alle læseadgang, også uden en konto.
-    open: Åben
-    closed: Lukket
-    make_open: Gør åben
-    make_closed: Gør lukket
-  stats:
-    title: Offentlig kørerstatistik
-    intro: Kørerprofiler, ranglister og omgangsrekorder. Hvis slået fra, er de kun synlige for loggede ind konti, også på en åben ACPitwall.
-    public: Offentlig
-    private: Privat
-    make_public: Gør offentlig
-    make_private: Gør privat
+  visibility:
+    title: "Synlighed"
+    intro: "Hvem der må se hvilken del af siden. Admins ser altid alt. Områder sat til \"Alle\" er åbne for besøgende uden konto."
+    default: "Standard: {level}"
+    level:
+      public: "Alle (også anonyme)"
+      login: "Loggede konti"
+      write: "Skriveadgang"
+      admin: "Kun admins"
+    area:
+      stats:
+        name: "Førerstatistik"
+        help: "Førerprofiler, ranglister og banerekorder."
+      downloads:
+        name: "Downloads"
+        help: "Setups, indholdsmappen og skin-zips. Billeder og UI-filer følger området Biler, baner og vejr. Signerede skin-links til Content Manager udleveres kun, hvis dette er sat til loggede konti eller åbnere."
+      teams:
+        name: "Teams"
+        help: "Teamsider og teamlisten."
+      custom_races:
+        name: "Egne løb"
+        help: "Listen over gemte egne løb."
+      results:
+        name: "Resultater"
+        help: "Løbsresultater og deres detaljer. Mesterskabssider linker kun til resultater og førerprofiler, hvis den besøgende må se området."
+      championships:
+        name: "Mesterskaber"
+        help: "Mesterskabssider med stilling og events. De viser kun resultater og førerprofiler, hvor de områder er synlige."
+      race_weekends:
+        name: "Løbsweekender"
+        help: "Løbsweekendsider og deres sessioner."
+      calendar:
+        name: "Kalender"
+        help: "Kalender, kommende løb og iCal-feeds. Links til events følger synligheden af målområdet."
+      live_timing:
+        name: "Live timing"
+        help: "Live timing og løbskontrolvisningerne."
+      content:
+        name: "Biler, baner og vejr"
+        help: "Indholdssiderne, inklusive billederne som vises på andre sider."
   steam_signup:
     title: Registrering med Steam
     intro: Besøgende kan selv oprette en konto ved at logge ind med Steam. Den nye konto får kun læseadgang. Hvis slået fra, kan kun kørere med en eksisterende konto (matchet via deres Steam-ID) logge ind med Steam.
@@ -248,12 +274,6 @@ accounts:
     "off": Deaktiveret
     enable: Aktivér
     disable: Deaktivér
-  downloads:
-    title: Download af indhold
-    intro: Hvem der må downloade biler, baner, setups og skins (billederne på siderne forbliver synlige). Content Manager får signerede, tidsbegrænsede skin-links og virker derfor stadig, når downloads er begrænset.
-    public: Offentlig (alle med læseadgang, på en åben ACPitwall også anonymt)
-    login: Kun loggede ind konti
-    "off": Fra (kun admins)
   teams:
     intro: Kørere kan oprette teams, blive medlem af dem og tilmelde sig mesterskaber med dem. Konti med skriveadgang kan altid oprette teams og administrere alle teams.
     creation: Oprettelse af teams

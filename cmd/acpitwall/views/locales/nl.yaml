@@ -227,20 +227,46 @@ accounts:
   delete_detail: Het account wordt definitief verwijderd.
   delete_label: Account verwijderen
   only_write_access: Alleen accounts met schrijfrechten
-  open:
-    title: Open ACPitwall
-    intro: Een open ACPitwall geeft iedereen leestoegang, ook zonder account.
-    open: Open
-    closed: Gesloten
-    make_open: Openen
-    make_closed: Sluiten
-  stats:
-    title: Openbare rijdersstatistieken
-    intro: Rijdersprofielen, ranglijsten en ronderecords. Als dit uit staat, zijn ze alleen zichtbaar voor ingelogde accounts, ook bij een open ACPitwall.
-    public: Openbaar
-    private: Privé
-    make_public: Openbaar maken
-    make_private: Privé maken
+  visibility:
+    title: "Zichtbaarheid"
+    intro: "Wie welk deel van de site mag zien. Admins zien altijd alles. Onderdelen op \"Iedereen\" zijn ook open voor bezoekers zonder account."
+    default: "Standaard: {level}"
+    level:
+      public: "Iedereen (ook anoniem)"
+      login: "Ingelogde accounts"
+      write: "Schrijfrechten"
+      admin: "Alleen admins"
+    area:
+      stats:
+        name: "Rijderstatistieken"
+        help: "Rijdersprofielen, ranglijsten en ronderecords."
+      downloads:
+        name: "Downloads"
+        help: "Setups, de contentmap en skin-zips. Afbeeldingen en UI-bestanden horen bij het onderdeel Auto's, circuits en weer. Ondertekende skinlinks voor Content Manager worden alleen uitgegeven als dit op ingelogde accounts of opener staat."
+      teams:
+        name: "Teams"
+        help: "Teampagina's en de teamlijst."
+      custom_races:
+        name: "Eigen races"
+        help: "De lijst met opgeslagen eigen races."
+      results:
+        name: "Resultaten"
+        help: "Raceresultaten en hun details. Kampioenschapspagina's linken resultaten en rijdersprofielen alleen als de bezoeker dat onderdeel mag zien."
+      championships:
+        name: "Kampioenschappen"
+        help: "Kampioenschapspagina's met standen en events. Resultaten en rijdersprofielen tonen ze alleen waar die onderdelen zichtbaar zijn."
+      race_weekends:
+        name: "Raceweekenden"
+        help: "Raceweekendpagina's en hun sessies."
+      calendar:
+        name: "Kalender"
+        help: "Kalender, komende races en iCal-feeds. Links naar events volgen de zichtbaarheid van het doelonderdeel."
+      live_timing:
+        name: "Live timing"
+        help: "Live timing en de racecontrole-weergaven."
+      content:
+        name: "Auto's, circuits en weer"
+        help: "De contentpagina's, inclusief de afbeeldingen die op andere pagina's worden getoond."
   steam_signup:
     title: Registratie met Steam
     intro: Bezoekers kunnen zelf een account aanmaken door in te loggen met Steam. Het nieuwe account krijgt alleen leestoegang. Als dit uit staat, kunnen alleen rijders met een bestaand account (gekoppeld via hun Steam-ID) met Steam inloggen.
@@ -248,12 +274,6 @@ accounts:
     "off": Uitgeschakeld
     enable: Inschakelen
     disable: Uitschakelen
-  downloads:
-    title: Downloads van content
-    intro: Wie auto's, circuits, setups en skins mag downloaden (de afbeeldingen op de pagina's blijven zichtbaar). Content Manager krijgt ondertekende, tijdelijk geldige skinlinks en blijft dus werken als downloads beperkt zijn.
-    public: Openbaar (iedereen met leestoegang, bij een open ACPitwall ook anoniem)
-    login: Alleen ingelogde accounts
-    "off": Uit (alleen admins)
   teams:
     intro: Rijders kunnen teams oprichten, er lid van worden en zich ermee inschrijven voor kampioenschappen. Accounts met schrijfrechten kunnen altijd teams oprichten en alle teams beheren.
     creation: Teams oprichten
