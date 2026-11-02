@@ -16,6 +16,7 @@ Requirements: Go (e.g. `scoop install go`) and Node.js >= 22.12 with npm (24 LTS
 ./dev/run.ps1 -Frontend   # also rebuild the frontend
 ./dev/run.ps1 -Reset      # throw away local data (database, fake install, config.yml) and start fresh
 ./dev/run.ps1 -Seed      # also fill the database with test data (see below), then start
+./dev/run.ps1 -Mock race # show a frozen mock live timing session (race|qualifying|practice), see below
 ./dev/run.ps1 -NoRun      # only build
 ```
 
@@ -42,6 +43,12 @@ and 1 scheduled) and "Dev Sprint Series" (1 completed, 2 scheduled, one weekly),
 weekly) and a race weekend. It prints the championship standings as a sanity check. The server must not be running (the
 database is locked otherwise). Running it again does nothing; `-reset` (tool flag) removes the seeded data and seeds again,
 `./dev/run.ps1 -Reset -Seed` starts from a fresh database. The admin account is not touched.
+
+`-Mock <race|qualifying|practice>` additionally fills the live timing of server a with a frozen made-up session (the same
+drivers as the seed, a few laps each with cuts and splits, positions on the live map, two collisions, chat, one driver who
+has left), by replaying UDP messages into the race control (`internal/racecontrol/mock.go`, switched on by the
+environment variable `DEV_MOCK_LIVE_TIMING`). Use `-Seed -Mock race` to see results, championships and leaderboards
+and live timing filled at once. The mock drivers stay connected, but nothing moves.
 
 ### Frontend
 

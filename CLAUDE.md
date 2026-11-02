@@ -47,6 +47,7 @@ http://localhost:8772:
 ./dev/run.ps1 -Reset      # wipe local DB/config/fake installs (two servers: a = assetto, b = assetto-b)
 ./dev/run.ps1 -NoRun      # build only
 ./dev/run.ps1 -Seed       # fill the DB with test data first (cmd/utils/dev-seed; server must be stopped; idempotent)
+./dev/run.ps1 -Mock race  # frozen mock live timing session on server a (race|qualifying|practice; env DEV_MOCK_LIVE_TIMING, internal/racecontrol/mock.go)
 docker compose up --build # alternative: production Dockerfile with dev config (also two servers)
 ```
 

@@ -25,12 +25,19 @@
     Fill the local database and fake install with test data (drivers, results, championships, custom races, a race
     weekend) via cmd/utils/dev-seed, after the build and before starting the server. Does nothing if the data is already
     seeded; use together with -Reset to start from a fresh database. The server must not be running.
+
+.PARAMETER Mock
+    Show a frozen mock live timing session (drivers, laps, positions on the live map, chat, collisions) on server a,
+    as if a session was running: 'race', 'qualifying' or 'practice'. Also copies the fake track maps into an existing
+    fake install. Combine with -Seed for results, championships and leaderboards.
 #>
 param(
     [switch]$Frontend,
     [switch]$Reset,
     [switch]$NoRun,
-    [switch]$Seed
+    [switch]$Seed,
+    [ValidateSet('race', 'qualifying', 'practice')]
+    [string]$Mock
 )
 
 $ErrorActionPreference = 'Stop'
@@ -128,6 +135,15 @@ if ($Seed) {
     }
 }
 
+if ($Mock) {
+    # installs created before the fake track maps existed don't have them yet
+    $seedDir = Join-Path $PSScriptRoot 'assetto-seed'
+    Get-ChildItem (Join-Path $seedDir 'content/tracks') -Recurse -Include map.png, map.ini | ForEach-Object {
+        $dest = Join-Path $assettoDir $_.FullName.Substring($seedDir.Length + 1)
+        if (-not (Test-Path $dest)) { Copy-Item $_.FullName $dest }
+    }
+}
+
 if ($NoRun) { return }
 
 Write-Host '==> Starting ACPitwall on http://localhost:8772 (login: admin / admin)' -ForegroundColor Green
@@ -135,6 +151,7 @@ Push-Location $appDir
 try {
     $env:FILESYSTEM_HTML = 'true'
     $env:DEBUG = 'true'
+    if ($Mock) { $env:DEV_MOCK_LIVE_TIMING = $Mock }
     & $out
 } finally {
     Pop-Location
