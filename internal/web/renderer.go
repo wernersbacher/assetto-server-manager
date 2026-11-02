@@ -67,6 +67,9 @@ type Renderer struct {
 	templates map[string]map[string]*viewTemplate
 	bundle    *i18n.Bundle
 
+	// fingerprint is that of the template files (see ChangeDetector) the templates were loaded from.
+	fingerprint string
+
 	mutex sync.Mutex
 }
 
@@ -95,6 +98,9 @@ func dummyAccessFunc() bool {
 func (tr *Renderer) init() error {
 	tr.mutex.Lock()
 	defer tr.mutex.Unlock()
+
+	// taken before reading the files, so that a change made while loading is noticed by the next request
+	fingerprint, _ := tr.fingerprintOfFiles()
 
 	err := tr.opts.Loader.Init()
 
@@ -181,8 +187,32 @@ func (tr *Renderer) init() error {
 
 	tr.templates = templates
 	tr.bundle = bundle
+	tr.fingerprint = fingerprint
 
 	return nil
+}
+
+// fingerprintOfFiles is the fingerprint of the template files, empty if the loader can't tell.
+func (tr *Renderer) fingerprintOfFiles() (string, error) {
+	if detector, ok := tr.opts.Loader.(ChangeDetector); ok {
+		return detector.Fingerprint()
+	}
+
+	return "", nil
+}
+
+// filesChanged tells if the templates have to be reloaded: always, if the loader can't detect changes.
+func (tr *Renderer) filesChanged() bool {
+	current, err := tr.fingerprintOfFiles()
+
+	if err != nil || current == "" {
+		return true
+	}
+
+	tr.mutex.Lock()
+	defer tr.mutex.Unlock()
+
+	return current != tr.fingerprint
 }
 
 // Bundle returns the message catalogs.
@@ -253,8 +283,8 @@ func requestFuncs(r *http.Request) template.FuncMap {
 
 // render executes the template name ("base" or "partial") of the view for the request.
 func (tr *Renderer) render(w http.ResponseWriter, r *http.Request, view, name string, vars TemplateVars) error {
-	if tr.opts.Reload {
-		// reload templates on every request if enabled, so
+	if tr.opts.Reload && tr.filesChanged() {
+		// reload the templates if enabled and their files changed, so
 		// that we don't have to constantly restart the website
 		err := tr.init()
 

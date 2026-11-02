@@ -1,8 +1,10 @@
 package web
 
 import (
+	"fmt"
 	"html/template"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -15,6 +17,12 @@ type TemplateLoader interface {
 
 	// Locales returns the message catalogs (locales/*.yaml) by file name, see i18n.CatalogCode.
 	Locales() (map[string][]byte, error)
+}
+
+// ChangeDetector is implemented by template loaders which can tell cheaply if their files changed: the fingerprint
+// differs whenever a file was added, removed or modified. The renderer then reloads the templates only when needed.
+type ChangeDetector interface {
+	Fingerprint() (string, error)
 }
 
 // LocaleFile returns the file name of a catalog path (locales/de.yaml -> de.yaml), false if it is no catalog.
@@ -56,6 +64,36 @@ func (fs *filesystemTemplateLoader) Init() error {
 	}
 
 	return nil
+}
+
+// Fingerprint summarises the files below the views directory (count, sizes and the latest modification time).
+func (fs *filesystemTemplateLoader) Fingerprint() (string, error) {
+	var count, size, latest int64
+
+	err := filepath.Walk(fs.dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		count++
+		size += info.Size()
+
+		if m := info.ModTime().UnixNano(); m > latest {
+			latest = m
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%d/%d/%d", count, size, latest), nil
 }
 
 func (fs *filesystemTemplateLoader) Templates(funcs template.FuncMap) (map[string]*template.Template, error) {
