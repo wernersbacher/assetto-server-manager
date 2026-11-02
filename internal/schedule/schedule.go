@@ -16,6 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/teambition/rrule-go"
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	"github.com/wernersbacher/ACPitwall/internal/api"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	smcontent "github.com/wernersbacher/ACPitwall/internal/content"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
@@ -145,7 +146,9 @@ func (rs *Handler) AllScheduledRacesICalHandler(w http.ResponseWriter, r *http.R
 	w.Header().Add("Content-Type", "text/calendar; charset=utf-8")
 	w.Header().Add("Content-Disposition", "inline; filename=championship.ics")
 
-	err := rs.scheduledRacesManager.buildScheduledRaces(w, filterServer(r), smweb.CanSeeHidden(r))
+	err := rs.scheduledRacesManager.buildScheduledRaces(w, filterServer(r), smweb.CanSeeHidden(r), func(event Event) bool {
+		return linkVisible(r, event.GetURL())
+	})
 
 	if err != nil {
 		logrus.WithError(err).Error("could not build scheduled races feed")
@@ -328,7 +331,9 @@ func (srm *Manager) GetScheduledRacesFor(server smmodel.ServerID, includeHidden 
 	return filtered, nil
 }
 
-func (srm *Manager) buildScheduledRaces(w io.Writer, server smmodel.ServerID, includeHidden bool) error {
+// buildScheduledRaces writes the iCal feed. linkVisible tells whether the page of an event may be linked (nil: always);
+// the event stays in the feed without its URL otherwise.
+func (srm *Manager) buildScheduledRaces(w io.Writer, server smmodel.ServerID, includeHidden bool, linkVisible func(Event) bool) error {
 	scheduled, err := srm.GetScheduledRacesFor(server, includeHidden)
 
 	if err != nil {
@@ -338,7 +343,13 @@ func (srm *Manager) buildScheduledRaces(w io.Writer, server smmodel.ServerID, in
 	cal := components.NewCalendar()
 
 	for _, event := range scheduled {
-		icalEvent := BuildICalEvent(srm.env, event, srm.config.HTTP.BaseURL)
+		baseURL := srm.config.HTTP.BaseURL
+
+		if linkVisible != nil && !linkVisible(event) {
+			baseURL = ""
+		}
+
+		icalEvent := BuildICalEvent(srm.env, event, baseURL)
 
 		cal.Events = append(cal.Events, icalEvent)
 	}
@@ -632,18 +643,7 @@ func eventHidden(event Event) bool {
 // hideInvisibleLinks removes the links of a calendar entry to pages of areas the requester may not see (the
 // championship or race weekend the event belongs to); the entry itself belongs to the calendar and stays.
 func (rs *Handler) hideInvisibleLinks(r *http.Request, object CalendarObject) CalendarObject {
-	var area smmodel.Area
-
-	switch {
-	case strings.HasPrefix(object.URL, "/championship/"):
-		area = smmodel.AreaChampionships
-	case strings.HasPrefix(object.URL, "/race-weekend/"):
-		area = smmodel.AreaRaceWeekends
-	default:
-		return object
-	}
-
-	if smweb.AreaAccess(r, area) {
+	if linkVisible(r, object.URL) {
 		return object
 	}
 
@@ -661,4 +661,40 @@ func (rs *Handler) hideInvisibleLinks(r *http.Request, object CalendarObject) Ca
 	object.ClassNames = classNames
 
 	return object
+}
+
+// linkArea returns the area of the page an event URL points to; ok is false for URLs of no restricted area.
+func linkArea(pageURL string) (area smmodel.Area, ok bool) {
+	switch {
+	case strings.HasPrefix(pageURL, "/championship/"):
+		return smmodel.AreaChampionships, true
+	case strings.HasPrefix(pageURL, "/race-weekend/"):
+		return smmodel.AreaRaceWeekends, true
+	}
+
+	return "", false
+}
+
+// linkVisible tells whether the requester may see the page an event URL points to.
+func linkVisible(r *http.Request, pageURL string) bool {
+	area, ok := linkArea(pageURL)
+
+	return !ok || smweb.AreaAccess(r, area)
+}
+
+// HideInvisibleUpcomingLinks removes the references of upcoming races to the championship or race weekend they belong
+// to if the requester may not see that area; the event itself belongs to the calendar and stays.
+func HideInvisibleUpcomingLinks(r *http.Request, upcoming []*api.UpcomingRace) {
+	championshipsVisible := smweb.AreaAccess(r, smmodel.AreaChampionships)
+	raceWeekendsVisible := smweb.AreaAccess(r, smmodel.AreaRaceWeekends)
+
+	for _, race := range upcoming {
+		if !championshipsVisible {
+			race.ChampionshipID, race.ChampionshipName = nil, ""
+		}
+
+		if !raceWeekendsVisible {
+			race.RaceWeekendID, race.RaceWeekendName = nil, ""
+		}
+	}
 }

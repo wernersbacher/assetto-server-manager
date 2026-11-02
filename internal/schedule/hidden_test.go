@@ -66,13 +66,13 @@ func TestHiddenEventsAreOnlyScheduledForLoggedInViewers(t *testing.T) {
 
 	var feed bytes.Buffer
 
-	if err := manager.buildScheduledRaces(&feed, "", false); err != nil || bytes.Contains(feed.Bytes(), []byte("VEVENT")) {
+	if err := manager.buildScheduledRaces(&feed, "", false, nil); err != nil || bytes.Contains(feed.Bytes(), []byte("VEVENT")) {
 		t.Fatalf("hidden events must not be in the feed: %v\n%s", err, feed.String())
 	}
 
 	feed.Reset()
 
-	if err := manager.buildScheduledRaces(&feed, "", true); err != nil || !bytes.Contains(feed.Bytes(), []byte("VEVENT")) {
+	if err := manager.buildScheduledRaces(&feed, "", true, nil); err != nil || !bytes.Contains(feed.Bytes(), []byte("VEVENT")) {
 		t.Fatalf("logged in viewers get hidden events in the feed: %v", err)
 	}
 }

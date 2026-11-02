@@ -178,5 +178,7 @@ func (rs *Handler) UpcomingAPI(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	HideInvisibleUpcomingLinks(r, upcoming)
+
 	api.WriteJSON(w, upcoming)
 }
