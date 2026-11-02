@@ -2,8 +2,10 @@ package web
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"html/template"
+	"net"
 	"sync"
 	"testing"
 )
@@ -66,5 +68,17 @@ func TestViewTemplateBindsFuncsPerRequest(t *testing.T) {
 
 	for err := range errs {
 		t.Error(err)
+	}
+}
+
+func TestIsClientGone(t *testing.T) {
+	aborted := &net.OpError{Op: "write", Net: "tcp", Err: errors.New("wsasend: An established connection was aborted by the software in your host machine.")}
+
+	if !isClientGone(aborted) || !isClientGone(fmt.Errorf("template: %w", aborted)) {
+		t.Error("a failed write to the client is not recognised")
+	}
+
+	if isClientGone(errors.New("template: home.html:1: function \"x\" not defined")) || isClientGone(&net.OpError{Op: "read", Err: errors.New("x")}) {
+		t.Error("other errors must not count as a gone client")
 	}
 }

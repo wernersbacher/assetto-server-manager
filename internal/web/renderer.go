@@ -1,8 +1,10 @@
 package web
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
+	"net"
 	"net/http"
 	"path/filepath"
 	"sync"
@@ -296,10 +298,23 @@ func (tr *Renderer) MustLoadTemplate(w http.ResponseWriter, r *http.Request, vie
 	err := tr.LoadTemplate(w, r, view, vars)
 
 	if err != nil {
+		if isClientGone(err) {
+			logrus.WithError(err).Debugf("Client closed the connection while rendering template: %s", view)
+			return
+		}
+
 		logrus.WithError(err).Errorf("Unable to load template: %s", view)
 		http.Error(w, "unable to load template", http.StatusInternalServerError)
 		return
 	}
+}
+
+// isClientGone tells if rendering failed because the client went away (page left or reloaded, connection aborted or
+// reset) while the response was written: nothing is wrong with the template and nobody is left to send an error to.
+func isClientGone(err error) bool {
+	var opErr *net.OpError
+
+	return errors.As(err, &opErr) && opErr.Op == "write"
 }
 
 func (tr *Renderer) LoadPartial(w http.ResponseWriter, r *http.Request, partial string, vars TemplateVars) error {
@@ -309,6 +324,11 @@ func (tr *Renderer) MustLoadPartial(w http.ResponseWriter, r *http.Request, part
 	err := tr.LoadPartial(w, r, partial, vars)
 
 	if err != nil {
+		if isClientGone(err) {
+			logrus.WithError(err).Debugf("Client closed the connection while rendering partial: %s", partial)
+			return
+		}
+
 		logrus.WithError(err).Errorf("Unable to load partial: %s", partial)
 		http.Error(w, "unable to load partial", http.StatusInternalServerError)
 		return
