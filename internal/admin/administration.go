@@ -11,6 +11,7 @@ import (
 	"github.com/wernersbacher/ACPitwall/internal/schedule"
 	smserver "github.com/wernersbacher/ACPitwall/internal/server"
 	"github.com/wernersbacher/ACPitwall/internal/serverenv"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 
 	"encoding/json"
@@ -282,6 +283,9 @@ type serverOptionsTemplateVars struct {
 
 	// PortWarnings are the ports this server shares with other servers.
 	PortWarnings []portcheck.Warning
+
+	// ConfigLocks are the options which config.yml fixes for this server (shown read-only).
+	ConfigLocks smstore.LockedFields
 }
 
 func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.Request) {
@@ -321,7 +325,7 @@ func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.R
 
 	}
 
-	form, err := smweb.EncodeFormData(serverOpts, r)
+	form, err := smweb.EncodeFormDataLocked(serverOpts, r, slot.ConfigLocks.Has)
 
 	if err != nil {
 		logrus.WithError(err).Errorf("Couldn't encode form data")
@@ -332,6 +336,7 @@ func (sah *ServerAdministrationHandler) Options(w http.ResponseWriter, r *http.R
 	sah.ViewRenderer.MustLoadTemplate(w, r, "server/options.html", &serverOptionsTemplateVars{
 		Form:         form,
 		PortWarnings: sah.portWarnings.For(slot.Env.ServerID()),
+		ConfigLocks:  slot.ConfigLocks,
 	})
 }
 

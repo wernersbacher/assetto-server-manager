@@ -15,6 +15,10 @@
 
     {{ template "port-warnings" $.PortWarnings }}
 
+    {{ if $.ConfigLocks.Any }}
+        <div class="alert alert-info">{{ t "server.options.config_locked" }}</div>
+    {{ end }}
+
     <form method="post" action="{{ serverURL "/server-options" }}" class="admin-form">
         <div class="options-layout">
             <nav class="options-index" id="options-index" aria-label="{{ t "server.options.sections" }}" hidden>

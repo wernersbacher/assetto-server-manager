@@ -16,6 +16,8 @@ server:
   options:
     intro: Disse indstillinger hører til den valgte server - de anvendes på hvert løb, ACPitwall starter.
     sections: Sektioner
+    config_locked: "Nogle indstillinger for denne server er fastsat i config.yml (porte for denne server) og kan ikke ændres her."
+    locked_by_config: "Fastsat af config.yml (porte for denne server)"
     save_hint: Ændringer gælder fra det næste løb, der startes.
     maintenance: Vedligeholdelse
     rebuild_help: Genopbyg søgeindekset. Det bør du sjældent eller aldrig have brug for - men har du lagt content i din content-mappe manuelt (altså ikke uploadet det via ACPitwall), skal du gøre dette, så indholdet dukker op i søgningen. Bemærk, at det kan tage lang tid.

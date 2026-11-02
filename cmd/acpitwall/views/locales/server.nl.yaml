@@ -16,6 +16,8 @@ server:
   options:
     intro: Deze opties horen bij de geselecteerde server - ze worden toegepast op elke race die ACPitwall start.
     sections: Secties
+    config_locked: "Sommige opties van deze server worden bepaald door config.yml (poorten van deze server) en kunnen hier niet worden gewijzigd."
+    locked_by_config: "Ingesteld door config.yml (poorten van deze server)"
     save_hint: Wijzigingen gelden vanaf de volgende race die wordt gestart.
     maintenance: Onderhoud
     rebuild_help: De zoekindex opnieuw opbouwen. Dit zou je zelden of nooit nodig moeten hebben - maar als je handmatig content aan je contentmap hebt toegevoegd (dus niet via ACPitwall geüpload), moet je dit doen zodat de content in de zoekfunctie verschijnt. Dit kan lang duren.

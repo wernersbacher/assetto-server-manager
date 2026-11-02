@@ -16,6 +16,8 @@ server:
   options:
     intro: Diese Optionen gelten für den ausgewählten Server - sie werden auf jedes Rennen angewendet, das ACPitwall startet.
     sections: Abschnitte
+    config_locked: "Einige Optionen dieses Servers sind in der config.yml festgelegt (Ports dieses Servers) und können hier nicht geändert werden."
+    locked_by_config: "Festgelegt in der config.yml (Ports dieses Servers)"
     save_hint: Änderungen gelten ab dem nächsten gestarteten Rennen.
     maintenance: Wartung
     rebuild_help: Suchindex neu aufbauen. Das solltest du selten oder nie brauchen - wenn du aber Inhalte manuell in den Content-Ordner kopiert hast (also nicht über ACPitwall hochgeladen), musst du das ausführen, damit die Inhalte in der Suche erscheinen. Das kann lange dauern.

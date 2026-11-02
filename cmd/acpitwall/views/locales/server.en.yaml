@@ -16,6 +16,8 @@ server:
   options:
     intro: These configuration options are those of the selected server - they are applied to each race setup started by ACPitwall.
     sections: Sections
+    config_locked: "Some options of this server are set by config.yml (ports of this server) and cannot be changed here."
+    locked_by_config: "Set by config.yml (ports of this server)"
     save_hint: Changes apply to the next race that is started.
     maintenance: Maintenance
     rebuild_help: Rebuild the Search Index. You shouldn't need to do this often - if at all - but if you have manually added content to your content folder (i.e. not uploaded the content through ACPitwall), you will need to use this so that the content shows up in the Search. Note that this process can take a long time.

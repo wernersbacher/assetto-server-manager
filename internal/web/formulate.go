@@ -14,7 +14,20 @@ import (
 
 // EncodeFormData uses formulate to build template.HTML from a struct, with its texts in the language of the request.
 func EncodeFormData(data interface{}, r *http.Request) (template.HTML, error) {
-	return encodeForm(data, formText(r, data), map[string]func() bool{
+	return EncodeFormDataLocked(data, r, nil)
+}
+
+// EncodeFormDataLocked is EncodeFormData, but the fields for which locked (by struct field name, e.g. "HTTPPort")
+// returns true are disabled and get the hint "Set by config.yml (ports of this server)" below them. The browser does
+// not post disabled fields, so the values of locked fields never come back; the form shows the values of data.
+func EncodeFormDataLocked(data interface{}, r *http.Request, locked func(field string) bool) (template.HTML, error) {
+	dec := &decorator{text: formText(r, data), locked: locked}
+
+	if locked != nil {
+		dec.lockedHint = T(r, "server.options.locked_by_config")
+	}
+
+	return encodeForm(data, dec, map[string]func() bool{
 		"read":   ReadAccess(r),
 		"write":  WriteAccess(r),
 		"delete": DeleteAccess(r),
@@ -22,10 +35,10 @@ func EncodeFormData(data interface{}, r *http.Request) (template.HTML, error) {
 	})
 }
 
-func encodeForm(data interface{}, text func(key, english string) string, showConditions map[string]func() bool) (template.HTML, error) {
+func encodeForm(data interface{}, dec *decorator, showConditions map[string]func() bool) (template.HTML, error) {
 	buf := new(bytes.Buffer)
 
-	enc := formulate.NewEncoder(buf, &decorator{text: text})
+	enc := formulate.NewEncoder(buf, dec)
 	enc.SetFormat(true)
 
 	for name, condition := range showConditions {
@@ -53,7 +66,7 @@ func FormTexts(data interface{}) (map[string]string, error) {
 
 	all := func() bool { return true }
 
-	if _, err := encodeForm(data, record, map[string]func() bool{"read": all, "write": all, "delete": all, "admin": all}); err != nil {
+	if _, err := encodeForm(data, &decorator{text: record}, map[string]func() bool{"read": all, "write": all, "delete": all, "admin": all}); err != nil {
 		return nil, err
 	}
 
@@ -77,6 +90,31 @@ type decorator struct {
 	// help text that follows it belongs to.
 	text    func(key, english string) string
 	lastKey string
+
+	// locked says which fields are read-only (see EncodeFormDataLocked), lockedHint is the text shown below them.
+	locked     func(field string) bool
+	lockedHint string
+}
+
+func (d *decorator) isLocked(field formulate.StructField) bool {
+	return d.locked != nil && d.locked(field.Name)
+}
+
+// disable makes the input n read-only if its field is locked.
+func (d *decorator) disable(n *html.Node, field formulate.StructField) {
+	if d.isLocked(field) {
+		n.Attr = append(n.Attr, html.Attribute{Key: "disabled", Val: "disabled"})
+	}
+}
+
+func (d *decorator) NumberField(n *html.Node, field formulate.StructField) {
+	d.BootstrapDecorator.NumberField(n, field)
+	d.disable(n, field)
+}
+
+func (d *decorator) CheckboxField(n *html.Node, field formulate.StructField) {
+	d.BootstrapDecorator.CheckboxField(n, field)
+	d.disable(n, field)
 }
 
 // translate returns the text of the form message key (below form.<type>.), the English text if there is no translation.
@@ -155,6 +193,13 @@ func (d *decorator) HelpText(n *html.Node, field formulate.StructField) {
 
 	n.FirstChild = helpText
 
+	if d.isLocked(field) {
+		hint := &html.Node{Type: html.ElementNode, Data: "div"}
+		formulate.AppendClass(hint, "form-locked-hint", "text-warning")
+		hint.AppendChild(&html.Node{Type: html.TextNode, Data: d.lockedHint})
+		helpText.AppendChild(hint)
+	}
+
 	d.BootstrapDecorator.HelpText(n, field)
 }
 
@@ -195,6 +240,7 @@ func (d *decorator) col9(n *html.Node) {
 
 func (d *decorator) TextField(n *html.Node, field formulate.StructField) {
 	d.BootstrapDecorator.TextField(n, field)
+	d.disable(n, field)
 
 	for _, attr := range n.Attr {
 		if attr.Key == "type" && attr.Val == "password" {
