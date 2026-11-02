@@ -199,6 +199,30 @@ export function EntryPoint() {
 
 const nameRegex = /^[A-Za-z]{0,5}[0-9]+/;
 
+// loadSkinPreview looks for the preview picture of a skin: first with the content of the car (global skins), then
+// in the private/team skins of the account. found gets the path, missing is called if there is no picture.
+function loadSkinPreview(car, skin, found, missing) {
+    let encodedCar = encodeURIComponent(car);
+    let encodedSkin = encodeURIComponent(skin);
+    let paths = [
+        "/content/cars/" + encodedCar + "/skins/" + encodedSkin + "/preview.jpg",
+        "/car/" + encodedCar + "/skin/" + encodedSkin + "/preview.jpg",
+    ];
+
+    (function tryNext(i) {
+        if (i >= paths.length) {
+            missing();
+            return;
+        }
+
+        $.get(paths[i]).done(function () {
+            found(paths[i]);
+        }).fail(function () {
+            tryNext(i + 1);
+        });
+    })(0);
+}
+
 function prettifyName(name, acronyms) {
     try {
         if (!name || name.length === 0) {
@@ -985,16 +1009,12 @@ class RaceSetup {
                     skin = availableCars[currentCar][0]
                 }
 
-                let path = "/content/cars/" + encodeURIComponent(currentCar) + "/skins/" + encodeURIComponent(skin) + "/preview.jpg";
-
-                $.get(path)
-                    .done(function () {
-                        // preview for skin exists
-                        $preview.attr({"src": path, "alt": prettifyName(skin, false)})
-                    }).fail(function () {
+                loadSkinPreview(currentCar, skin, function (path) {
+                    // preview for skin exists
+                    $preview.attr({"src": path, "alt": prettifyName(skin, false)})
+                }, function () {
                     // preview doesn't exist, load default fall back image
-                    path = fallBackImage;
-                    $preview.attr({"src": path, "alt": t("entrant.preview_image")})
+                    $preview.attr({"src": fallBackImage, "alt": t("entrant.preview_image")})
                 });
             }
         }
@@ -2483,17 +2503,11 @@ let championships = {
         }
 
         function showCarImage(car, skin) {
-            let path = "/content/cars/" + encodeURIComponent(car) + "/skins/" + encodeURIComponent(skin) + "/preview.jpg";
-
-            $.get(path)
-                .done(function () {
-                    $carPreviewImage.attr({"src": path, "alt": prettifyName(skin, false)})
-                })
-                .fail(function () {
-                    path = "/static/img/no-preview-car.png";
-                    $carPreviewImage.attr({"src": path, "alt": t("entrant.preview_image")})
-                })
-            ;
+            loadSkinPreview(car, skin, function (path) {
+                $carPreviewImage.attr({"src": path, "alt": prettifyName(skin, false)})
+            }, function () {
+                $carPreviewImage.attr({"src": "/static/img/no-preview-car.png", "alt": t("entrant.preview_image")})
+            });
         }
 
         let $skinsDropdown = $signUpForm.find("#Skin");
