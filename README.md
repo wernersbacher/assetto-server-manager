@@ -102,9 +102,12 @@ servers:
   remembered in the session), and the home page shows a card per server. Live timing, race control, Server Options and
   the plugin options (stracker, KissMyRank, Real Penalty) are per server.
 - **Ports**: every server stores its own ports in its Server Options and starts with the default ports (9600 / 8081),
-  so change them for each additional server (e.g. 9601 / 8082) and publish them in Docker. Plugin ports must differ
-  between servers too. ACPitwall warns about conflicts and refuses to start an event on ports that a running server
-  already uses.
+  so change them for each additional server (e.g. 9601 / 8082) and publish them in Docker. Alternatively set them per
+  server in `config.yml` (`servers[].ports`: `game` for UDP and TCP, `http`, `content_manager_wrapper`); they then
+  override the stored options and the Server Options page shows them read-only (the Content Manager wrapper itself is
+  still switched on there). `config.yml` expands `${NAME}` and `${NAME:-default}` from the environment, which the
+  Docker setup in `deploy/multiserver` uses to take them from its `.env`. Plugin ports must differ between servers too.
+  ACPitwall warns about conflicts and refuses to start an event on ports that a running server already uses.
 - **Starting and scheduling**: events start on the selected server; scheduling forms have a "Server" field
   (`event-schedule-server`) to pick the server an event is scheduled for. A server which already runs an event rejects a
   new start. A Championship or Race Weekend can be active on one server only at a time.
@@ -134,10 +137,11 @@ proxy (automatic HTTPS) on your own domain. The details of every step are in
    docker compose build
    ```
 
-4. **Configure** `config.yml`: a random `http.session_key` (`openssl rand -hex 32`), your own
-   `accounts.admin_password_override` and `http.server_manager_base_URL: https://acpitwall.example.com` (no port).
-   Keep `http.tls.enabled: false`, Caddy terminates TLS. Then `cp .env.example .env` and set `SM_WEB_BIND=127.0.0.1`
-   in it, so the web UI is only reachable through Caddy.
+4. **Configure** `.env` (the only file you edit; `config.yml` takes its site specific values from it, so `git pull`
+   never conflicts): `cp .env.example .env` and set `SM_SESSION_KEY` (`openssl rand -hex 32`), `SM_ADMIN_PASSWORD`,
+   `SM_BASE_URL=https://acpitwall.example.com` (no port) and `SM_WEB_BIND=127.0.0.1`, so the web UI is only reachable
+   through Caddy. The same file holds the ports of the AC servers (defaults 9600 / 8081 / 8101 and 9601 / 8082 / 8102).
+   Keep `http.tls.enabled: false` in `config.yml`, Caddy terminates TLS.
 5. **Install the Assetto Corsa server** into the volume. steamcmd (`docker compose --profile install run --rm install`)
    is not reliable; the verified way is to download "Assetto Corsa Dedicated Server" (Steam app 302550) on a Windows
    machine, copy the folder to the VPS (`scp -r C:\ac-server user@vps:~/ac-server`) and run
@@ -158,11 +162,12 @@ proxy (automatic HTTPS) on your own domain. The details of every step are in
    }
    ```
 
-8. **Firewall**: open 80 and 443 (tcp) for Caddy and, for the AC servers, 9600 and 9601 (tcp and udp) and 8081 and
-   8082 (tcp). Keep 8772 closed. Docker bypasses `ufw` for published ports, which is why step 4 binds the web UI to
-   `127.0.0.1`.
-9. **First steps**: open `https://acpitwall.example.com`, log in as `admin`, set the ports of each server under
-   Server > Options (A: 9600 / 8081, B: 9601 / 8082) and upload your cars and tracks.
+8. **Firewall**: open 80 and 443 (tcp) for Caddy and, for the AC servers, 9600 and 9601 (tcp and udp), 8081 and 8082
+   (tcp) and the Content Manager wrapper ports 8101 and 8102 (tcp). Keep 8772 closed. Docker bypasses `ufw` for
+   published ports, which is why step 4 binds the web UI to `127.0.0.1`.
+9. **First steps**: open `https://acpitwall.example.com`, log in as `admin`, switch on "Enable Content Manager Wrapper"
+   under Server > Options for each server you want it on (the ports come from `.env`, see step 4), and upload your
+   cars and tracks.
 
 To update later: `git pull`, `docker compose build`, `docker compose up -d` in `deploy/multiserver`. The volumes
 (content, database, server copies) are kept. This setup is not verified on a VPS yet.
