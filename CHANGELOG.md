@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The server cards of the overview show a Join button (Content Manager link) for running servers, if the join link is enabled in the server options. `GET /api/servers` returns it as `JoinLink`.
+
 * Car classes can be duplicated from the car class list (the copy gets the name "<name> Duplicate" and the same cars).
 
 * The detail pages of cars, tracks, car classes, results, teams and drivers and the account pages show a breadcrumb (parent list / current page) instead of separate back links and buttons.

@@ -49,6 +49,10 @@
                                 <a href="/live-timing?server={{ .ID }}" class="btn btn-primary btn-sm">{{ t "nav.live_timing" }}</a>
                             {{ end }}
 
+                            {{ with .JoinLink }}
+                                <a href="{{ . }}" class="btn btn-success btn-sm">{{ t "live.join" }}</a>
+                            {{ end }}
+
                             {{ if WriteAccess }}
                                 {{ if .Running }}
                                     <form method="post" action="/process/stop?server={{ .ID }}" class="d-inline" {{ template "ServerStopConfirm" . }}>

@@ -101,3 +101,18 @@ func TestServersAPIListsAllServers(t *testing.T) {
 		t.Errorf("unexpected servers: %+v", got)
 	}
 }
+
+func TestJoinLinkOnlyForRunningServers(t *testing.T) {
+	slot := newNamedSlot(t, "a", "Server A", nil, 0)
+
+	if link := joinLink(slot, false); link != "" {
+		t.Errorf("an idle server has no join link, got %q", link)
+	}
+
+	// without a store there are no options to show the link
+	slot.Slot.Store = nil
+
+	if link := joinLink(slot, true); link != "" {
+		t.Errorf("expected no join link without options, got %q", link)
+	}
+}

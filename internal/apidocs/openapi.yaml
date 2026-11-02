@@ -1415,6 +1415,9 @@ components:
           type: boolean
         DriversOnline:
           type: integer
+        JoinLink:
+          type: string
+          description: Optional. Content Manager link that opens the running server. Only present while the server runs and the server options show the join link.
     UpcomingRace:
       type: object
       properties:

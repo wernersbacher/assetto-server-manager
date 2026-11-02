@@ -3,7 +3,10 @@ package admin
 import (
 	"net/http"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/wernersbacher/ACPitwall/internal/api"
+	smserver "github.com/wernersbacher/ACPitwall/internal/server"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -37,6 +40,10 @@ type ServerSummary struct {
 	IsPractice     bool
 
 	DriversOnline int
+
+	// JoinLink opens the running server in Content Manager. It is empty if the server is not running or the
+	// server options hide the link.
+	JoinLink string `json:",omitempty"`
 }
 
 // NewServerSummary summarises the state of a slot's server process and race control.
@@ -109,10 +116,40 @@ func (sah *ServerAdministrationHandler) serverSummaries() []*ServerSummary {
 	summaries := make([]*ServerSummary, 0, len(slots))
 
 	for _, slot := range slots {
-		summaries = append(summaries, NewServerSummary(slot))
+		summary := NewServerSummary(slot)
+		summary.JoinLink = joinLink(slot, summary.Running)
+
+		summaries = append(summaries, summary)
 	}
 
 	return summaries
+}
+
+// joinLink returns the Content Manager link of a running slot, or "" if there is none to show.
+func joinLink(slot NamedSlot, running bool) string {
+	if !running || slot.Store == nil {
+		return ""
+	}
+
+	opts, err := slot.Store.LoadServerOptions()
+
+	if err != nil {
+		logrus.WithError(err).Errorf("couldn't load server options of %q", slot.ID)
+		return ""
+	}
+
+	if opts.ShowContentManagerJoinLink != 1 {
+		return ""
+	}
+
+	link, err := smserver.GetContentManagerJoinLink(*opts)
+
+	if err != nil {
+		logrus.WithError(err).Errorf("could not get content manager join link of %q", slot.ID)
+		return ""
+	}
+
+	return link.String()
 }
 
 func (sah *ServerAdministrationHandler) slots() []NamedSlot {
