@@ -33,11 +33,11 @@ servers:
 
 http:
   hostname: 0.0.0.0:8772
-  # CHANGE ME: a random secret
-  session_key: devkey
+  # a random secret: set SM_SESSION_KEY in .env (e.g. openssl rand -hex 32); the default is only for a local try-out
+  session_key: ${SM_SESSION_KEY:-devkey}
   # Used for links in chat messages, iCal events and the API: has to match the PUBLISHED host port of the web UI
-  # (SM_WEB_PORT in .env, default 8772). hostname above is the container side and stays 8772.
-  server_manager_base_URL: http://localhost:8780
+  # (SM_WEB_PORT in .env, default 8772): set SM_BASE_URL in .env. hostname above is the container side and stays 8772.
+  server_manager_base_URL: ${SM_BASE_URL:-http://localhost:8772}
   session_store_type: filesystem
   session_store_path: sessions
   tls:
@@ -56,8 +56,8 @@ store:
   scheduled_event_check_loop: 0s
 
 accounts:
-  # CHANGE ME: log in as "admin" with this password
-  admin_password_override: admin
+  # log in as "admin" with this password: set SM_ADMIN_PASSWORD in .env (the default is only for a local try-out)
+  admin_password_override: ${SM_ADMIN_PASSWORD:-admin}
 
 live_map:
   refresh_interval_ms: 500

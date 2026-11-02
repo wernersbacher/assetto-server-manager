@@ -43,14 +43,19 @@ Verified on Windows (Docker Desktop): build and everything below except where ma
 
 ## 3. Configure
 
-1. `config.yml` (mounted read-only into the container):
-   - `http.session_key`: a random secret, e.g. `openssl rand -hex 32` (the file contains the placeholder `devkey`).
-   - `accounts.admin_password_override`: the password of the user `admin`. Change it. As the example config says, you
-     can remove the line after the first login and set the password in the UI (see
-     `cmd/acpitwall/config.example.yml`).
-   - `http.server_manager_base_URL`: the public URL of the web UI **including the published port**, e.g.
-     `https://acsm.example.com` or `http://203.0.113.10:8772`. It is used for links in notifications, iCal events and
-     the API. Leave `http.hostname: 0.0.0.0:8772` as it is (that is the container side).
+1. `.env` is the only file you edit: `cp .env.example .env` (gitignored; compose reads it automatically). Do not edit
+   `config.yml`: it takes everything site specific from the environment, so it stays unchanged and `git pull` never
+   conflicts. Set at least:
+   - `SM_SESSION_KEY`: a random secret, e.g. `openssl rand -hex 32` (the default `devkey` is only for a local try-out).
+   - `SM_ADMIN_PASSWORD`: the password of the user `admin` (`accounts.admin_password_override`). Change it. As the
+     example config says, you can remove that line from `config.yml` after the first login and set the password in
+     the UI (see `cmd/acpitwall/config.example.yml`).
+   - `SM_BASE_URL`: the public URL of the web UI **including the published port**, e.g. `https://acsm.example.com` or
+     `http://203.0.113.10:8772`. It is used for links in notifications, iCal events and the API. `http.hostname:
+     0.0.0.0:8772` in `config.yml` stays as it is (that is the container side).
+   - A `$` in a value of `.env` is interpreted by compose (write `$$` for a literal one).
+
+   `config.yml` (mounted read-only into the container) contains:
    - `servers:` lists the two servers (`a` -> `assetto-a`, `b` -> `assetto-b`); `steam.install_path` stays equal to the
      first one. Each entry has `ports:` (`game`, `http`, `content_manager_wrapper`) with `${SERVER_A_PORT}` etc.,
      which `config.yml` expands from the environment of the container (see step 2). Keep `steam.username` /
@@ -58,15 +63,18 @@ Verified on Windows (Docker Desktop): build and everything below except where ma
    - `config.yml` expands `${NAME}` and `${NAME:-default}` from the environment everywhere, so a literal `${NAME}` in
      a value (for example in `admin_password_override` or `session_key`) is replaced too (unset = empty). Write a
      password that contains such text differently; a lone `$` is left alone.
-2. Ports (optional, maintained in ONE place): `cp .env.example .env` and edit it (gitignored; compose reads it
-   automatically). The same variables are published by `compose.yaml` (`ports:`) and passed into the container
+2. Ports (optional, also in `.env`, maintained in ONE place). The same variables are published by `compose.yaml` (`ports:`) and passed into the container
    (`environment:`), where `config.yml` uses them as `servers[].ports`; they override and lock the ports in Server
    Options (part 6). Variables:
    `SM_WEB_PORT`, `SERVER_A_PORT`, `SERVER_A_HTTP_PORT`, `SERVER_A_CM_PORT`, `SERVER_B_PORT`, `SERVER_B_HTTP_PORT`,
    `SERVER_B_CM_PORT`. Without a `.env` the defaults of the table above apply. The acServer and Content Manager
    wrapper ports are published **1:1** (host port == container port), because the acServer announces its configured
-   ports to the lobby and the clients, and the wrapper port is embedded in the server name for Content Manager. If you change `SM_WEB_PORT`, change
-   `server_manager_base_URL` too.
+   ports to the lobby and the clients, and the wrapper port is embedded in the server name for Content Manager. If you
+   change `SM_WEB_PORT` (without a reverse proxy), change `SM_BASE_URL` too.
+
+   Existing installation that edited `config.yml`: move the values into `.env` and reset the file, once:
+   `cp config.yml ~/config.yml.mine && git checkout -- config.yml && git pull`, then add `SM_SESSION_KEY`,
+   `SM_ADMIN_PASSWORD` and `SM_BASE_URL` (the values from `~/config.yml.mine`) to `.env` and `docker compose up -d`.
 
 Verified: `docker compose config -q` is valid with and without `.env`.
 
@@ -154,7 +162,7 @@ docker compose logs -f acpitwall
 `Exited (0)` in `docker compose ps -a`. That is normal. The seed jobs never overwrite an existing server copy.
 
 Open `http://localhost:8772` (or `http://<vps-ip>:<SM_WEB_PORT>`) and log in as `admin` with the
-`admin_password_override` of `config.yml`.
+`SM_ADMIN_PASSWORD` of `.env`.
 
 ## 6. First steps in the UI
 
@@ -228,8 +236,8 @@ acsm.example.com {
 }
 ```
 
-and set `server_manager_base_URL: https://acsm.example.com` in `config.yml`. Change the default
-`admin_password_override` first (and remove it after your first use, as the example config says). Not verified on a
+and set `SM_BASE_URL=https://acsm.example.com` in `.env`. Change the default
+`SM_ADMIN_PASSWORD` first. Not verified on a
 VPS.
 
 ## 8. Operations
