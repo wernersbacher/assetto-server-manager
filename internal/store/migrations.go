@@ -116,7 +116,74 @@ func buildMigrations(env MigrationEnv) []migrationFunc {
 		addSplitTypeToRaceWeekends,
 		fixCarDuplicationInRaceSetups,
 		addRealPenaltyAppUDPPort,
+		convertOpenOptionsToVisibility,
 	}
+}
+
+// serverAccountOptionsMetaKey is the meta key of the server wide account options (see the accounts package).
+const serverAccountOptionsMetaKey = "server-account-options"
+
+// convertOpenOptionsToVisibility replaces the options IsOpen, PublicStats and DownloadAccess by the visibility per
+// area. The old fields are no longer part of the options struct, so they are read with a struct of their own (both
+// stores decode by field name and ignore what the target lacks) and dropped when the options are written back.
+//
+// Stores of ACPitwall before the options existed have no value but are not new: they were closed. Only a store
+// without a version at all (a new installation) keeps the defaults of the areas.
+func convertOpenOptionsToVisibility(s Store) error {
+	logrus.Infof("Running migration: Replace the open server options by the visibility per area")
+
+	var legacy struct {
+		IsOpen         bool
+		PublicStats    bool
+		DownloadAccess int // 0 public, 1 login, 2 off
+	}
+
+	var options smmodel.ServerAccountOptions
+
+	err := s.GetMeta(serverAccountOptionsMetaKey, &legacy)
+
+	if err == ErrValueNotSet {
+		var version int
+
+		if err := s.GetMeta(versionMetaKey, &version); err == ErrValueNotSet {
+			return nil // new installation
+		} else if err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	} else if err := s.GetMeta(serverAccountOptionsMetaKey, &options); err != nil {
+		return err
+	}
+
+	options.Visibility = visibilityFromLegacy(legacy.IsOpen, legacy.PublicStats, legacy.DownloadAccess)
+
+	return s.SetMeta(serverAccountOptionsMetaKey, &options)
+}
+
+func visibilityFromLegacy(isOpen, publicStats bool, downloadAccess int) smmodel.Visibility {
+	visibility := make(smmodel.Visibility)
+
+	if !isOpen {
+		for _, area := range smmodel.AllAreas {
+			visibility[area] = smmodel.LevelLoggedIn
+		}
+
+		return visibility
+	}
+
+	if !publicStats {
+		visibility[smmodel.AreaStats] = smmodel.LevelLoggedIn
+	}
+
+	switch downloadAccess {
+	case 1:
+		visibility[smmodel.AreaDownloads] = smmodel.LevelLoggedIn
+	case 2:
+		visibility[smmodel.AreaDownloads] = smmodel.LevelAdmin
+	}
+
+	return visibility
 }
 
 func addEntrantIDToChampionships(rs Store) error {

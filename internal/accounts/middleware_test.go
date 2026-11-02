@@ -123,17 +123,15 @@ func TestAccessMiddlewares(t *testing.T) {
 	}
 }
 
-func TestOpenServerAllowsAnonymousReading(t *testing.T) {
+func TestOpenAreaAllowsAnonymousReading(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
-	ah.accountManager.options.IsOpen = true
-
-	if rec := requestAs(t, ah, nil, ah.ReadAccessMiddleware); rec.Code != http.StatusOK {
-		t.Errorf("anonymous on open server, read page: expected access, got %d", rec.Code)
+	if rec := requestAs(t, ah, nil, ah.AreaAccessMiddleware(smmodel.AreaResults)); rec.Code != http.StatusOK {
+		t.Errorf("anonymous on a public area: expected access, got %d", rec.Code)
 	}
 
 	if rec := requestAs(t, ah, nil, ah.WriteAccessMiddleware); rec.Code != http.StatusFound {
-		t.Errorf("anonymous on open server, write page: expected redirect, got %d", rec.Code)
+		t.Errorf("anonymous on a write page: expected redirect, got %d", rec.Code)
 	}
 }

@@ -283,7 +283,13 @@ func TestCarClassAPIAndLeaderboardFilter(t *testing.T) {
 	e, cleanup := newCarClassPagesEnv(t)
 	defer cleanup()
 
-	// a closed server sends visitors to the login like every other API endpoint
+	// a closed content area sends visitors to the login like every other API endpoint
+	admin, _ := e.account(smmodel.GroupAdmin)
+
+	if rec := e.serve(e.resolver.resolveAccountHandler().SetVisibility, http.MethodPost, admin, nil, url.Values{"area": {"content"}, "level": {"login"}}); rec.Code != http.StatusFound {
+		t.Fatalf("could not close the content area: %d", rec.Code)
+	}
+
 	for _, target := range []string{"/api/car-classes", "/api/car-classes/" + e.usedClass.ID.String()} {
 		if rec := e.get(e.router, target, nil); rec.Code != http.StatusFound || !strings.Contains(rec.Header().Get("Location"), "login") {
 			t.Errorf("anonymous GET %s: got %d %q", target, rec.Code, rec.Header().Get("Location"))

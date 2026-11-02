@@ -20,11 +20,9 @@ flash:
     steam_rate_limited: Te veel Steam-inlogpogingen. Probeer het over een paar minuten opnieuw.
     cannot_delete_own: Dit account kan hier niet worden verwijderd.
     deleted_own: Je account is verwijderd.
-    openness_changed: Openheid van de server gewijzigd
-    public_stats_changed: Openbare rijdersstatistieken gewijzigd
     steam_signup_changed: Registratie met Steam gewijzigd
-    download_access_changed: Downloadtoegang gewijzigd
     team_options_changed: Teamopties gewijzigd
+    visibility_changed: Zichtbaarheid gewijzigd
     skin_options_changed: Skinopties gewijzigd
     password_not_changed: Je wachtwoord kon niet worden gewijzigd
     password_changed: Je wachtwoord is gewijzigd!

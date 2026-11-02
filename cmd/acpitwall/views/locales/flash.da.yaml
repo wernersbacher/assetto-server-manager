@@ -20,11 +20,9 @@ flash:
     steam_rate_limited: For mange Steam-loginforsøg. Prøv igen om nogle minutter.
     cannot_delete_own: Denne konto kan ikke slettes her.
     deleted_own: Din konto er slettet.
-    openness_changed: Serverens åbenhed er ændret
-    public_stats_changed: Offentlig kørerstatistik er ændret
     steam_signup_changed: Registrering med Steam er ændret
-    download_access_changed: Downloadadgang er ændret
     team_options_changed: Teamindstillinger er ændret
+    visibility_changed: Synlighed er ændret
     skin_options_changed: Skin-indstillinger er ændret
     password_not_changed: Din adgangskode kunne ikke ændres
     password_changed: Din adgangskode er ændret!

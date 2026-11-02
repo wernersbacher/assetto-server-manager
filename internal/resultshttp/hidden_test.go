@@ -81,7 +81,6 @@ func TestHiddenResults(t *testing.T) {
 
 	get := func(account *smmodel.Account, target string) *httptest.ResponseRecorder {
 		scope := webtest.RequestScope()
-		scope.ReadIsOpen = true
 
 		req := smweb.WithScope(httptest.NewRequest(http.MethodGet, target, nil), scope)
 

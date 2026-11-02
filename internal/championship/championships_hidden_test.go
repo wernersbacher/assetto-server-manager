@@ -34,7 +34,6 @@ func TestHiddenChampionshipsAreOnlyVisibleToLoggedInAccounts(t *testing.T) {
 	request := func(account *smmodel.Account, championship *smmodel.Championship) *http.Request {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		scope := webtest.RequestScope()
-		scope.ReadIsOpen = true
 		req = smweb.WithScope(req, scope)
 
 		if account != nil {

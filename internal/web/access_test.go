@@ -12,13 +12,25 @@ import (
 func TestReadAccess(t *testing.T) {
 	const serverID smmodel.ServerID = "test-server"
 
+	closed := smmodel.Visibility{}
+
+	for _, a := range smmodel.AllAreas {
+		closed[a] = smmodel.LevelLoggedIn
+	}
+
 	withAccount := func(account *smmodel.Account, open bool) func() bool {
 		r := httptest.NewRequest("GET", "/login", nil)
-		r = WithScope(r, &Scope{
+
+		scope := &Scope{
 			SessionStore: sessions.NewCookieStore([]byte("test")),
 			ServerID:     serverID,
-			ReadIsOpen:   open,
-		})
+		}
+
+		if !open {
+			scope.Visibility = closed
+		}
+
+		r = WithScope(r, scope)
 
 		if account != nil {
 			r = WithAccount(r, account)

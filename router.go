@@ -9,6 +9,7 @@ import (
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
 	"github.com/wernersbacher/ACPitwall/internal/contenthttp"
 	"github.com/wernersbacher/ACPitwall/internal/downloads"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/pluginhttp"
 	smrace "github.com/wernersbacher/ACPitwall/internal/race"
 	racecontrol "github.com/wernersbacher/ACPitwall/internal/racecontrol"
@@ -138,9 +139,9 @@ func Router(
 	// processed by /accounts/steam-link/finish (behind the login) after a same site redirect
 	r.Get("/accounts/steam-link", accountHandler.SteamLink())
 
-	// driver statistics: read access, but anonymous visitors of an open server only if the statistics are public
+	// driver statistics
 	r.Group(func(r chi.Router) {
-		r.Use(accountHandler.StatsAccessMiddleware)
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaStats))
 
 		r.Get("/api/track-records", tracksHandler.RecordsAPI)
 		r.Get("/driver/{guid}", driverHandler.View)
@@ -149,9 +150,9 @@ func Router(
 		r.Get("/api/leaderboard", leaderboardHandler.ViewAPI)
 	})
 
-	// readers
+	// home page, changelog and API documentation: no area, anonymous visitors get in while an area is public
 	r.Group(func(r chi.Router) {
-		r.Use(accountHandler.ReadAccessMiddleware)
+		r.Use(accountHandler.AnyAreaAccessMiddleware)
 
 		// pages
 		r.Get("/", serverAdministrationHandler.Home)
@@ -161,10 +162,19 @@ func Router(
 		r.Get(apidocs.SpecPath, apidocs.SpecHandler)
 		r.Get(apidocs.UIPath, apidocs.UIHandler)
 		r.Get(apidocs.UIAssetsPattern, apidocs.UIAssetsHandler().ServeHTTP)
+	})
+
+	// stracker web interface
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaStats))
 
 		r.Mount("/stracker/", http.HandlerFunc(strackerHandler.Proxy))
+	})
 
-		// content
+	// content: cars, tracks, weather, car classes
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaContent))
+
 		r.Get("/cars", carsHandler.List)
 		r.Get("/cars/search.json", carsHandler.SearchJSON)
 		r.Get("/car/{car_id}", carsHandler.View)
@@ -176,18 +186,53 @@ func Router(
 		r.Get("/track/{track_id}", tracksHandler.View)
 		r.Get("/weather", weatherHandler.List)
 
-		r.Get("/events.ics", scheduledRacesHandler.AllScheduledRacesICalHandler)
-		r.Get("/event-details", eventDetailsHandler.View)
+		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
+		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
 
-		// results
+		r.Get("/content/tracks/{track}/ui/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackInfo), true))
+		r.Get("/content/tracks/{track}/ui/{layout}/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackInfo), true))
+	})
+
+	// calendar and upcoming races
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaCalendar))
+
+		r.Get("/events.ics", scheduledRacesHandler.AllScheduledRacesICalHandler)
+		// calendar
+		r.Get("/calendar", scheduledRacesHandler.Calendar)
+		r.Get("/calendar.json", scheduledRacesHandler.CalendarJSON)
+		r.Get("/api/upcoming-races", scheduledRacesHandler.UpcomingAPI)
+	})
+
+	// event details
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaLiveTiming))
+
+		r.Get("/event-details", eventDetailsHandler.View)
+	})
+
+	// results
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaResults))
+
 		r.Get("/results", resultsHandler.List)
 		r.Get("/results/{fileName}", resultsHandler.View)
 		r.HandleFunc("/results/{fileName}/collisions", resultsHandler.RenderCollisions)
 		r.HandleFunc("/results/download/{fileName}", resultsHandler.File)
 		r.Get("/api/results", resultsHandler.ListAPI)
 		r.Get("/api/results/{fileName}", resultsHandler.ViewAPI)
+	})
+
+	// custom races
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaCustomRaces))
 
 		r.Get("/custom", customRaceHandler.List)
+	})
+
+	// teams
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaTeams))
 
 		// teams: everybody who can read sees the public teams, the actions need a login (checked by the handler,
 		// the permissions inside of a team by the team manager)
@@ -209,6 +254,11 @@ func Router(
 		r.Post("/teams/{teamID}/members/{accountID}/admin", teamsHandler.SetAdmin)
 		r.Post("/teams/{teamID}/members/{accountID}/transfer", teamsHandler.Transfer)
 		r.Post("/teams/{teamID}/delete", teamsHandler.Delete)
+	})
+
+	// championships
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaChampionships))
 
 		// championships
 		r.Get("/championships", championshipsHandler.List)
@@ -221,8 +271,12 @@ func Router(
 		r.Get("/championship/{championshipID}/ics", championshipsHandler.IcalFeed)
 		r.Get("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
 		r.Post("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
+	})
 
-		// race control
+	// race control
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaLiveTiming))
+
 		r.Group(func(r chi.Router) {
 			r.Use(func(next http.Handler) http.Handler {
 				fn := func(w http.ResponseWriter, req *http.Request) {
@@ -241,13 +295,25 @@ func Router(
 			r.Get("/api/server-status", raceControlHandler.ServerStatusAPI)
 			r.Get("/api/servers", serverAdministrationHandler.ServersAPI)
 		})
+	})
 
-		// calendar
-		r.Get("/calendar", scheduledRacesHandler.Calendar)
-		r.Get("/calendar.json", scheduledRacesHandler.CalendarJSON)
-		r.Get("/api/upcoming-races", scheduledRacesHandler.UpcomingAPI)
+	// race weekends
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaRaceWeekends))
 
-		// account management
+		r.Get("/race-weekends", raceWeekendHandler.List)
+		r.Get("/race-weekend/{raceWeekendID}", raceWeekendHandler.View)
+		r.Get("/race-weekend/{raceWeekendID}/filters", raceWeekendHandler.ManageFilters)
+		r.Get("/race-weekend/{raceWeekendID}/entrylist", raceWeekendHandler.ManageEntryList)
+		r.Post("/race-weekend/{raceWeekendID}/grid-preview", raceWeekendHandler.GridPreview)
+		r.Get("/race-weekend/{raceWeekendID}/entrylist-preview", raceWeekendHandler.EntryListPreview)
+		r.Get("/race-weekend/{raceWeekendID}/export", raceWeekendHandler.Export)
+	})
+
+	// account management and skins of users: logged in accounts only
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.ReadAccessMiddleware)
+
 		r.HandleFunc("/accounts/new-password", accountHandler.NewPassword)
 		r.HandleFunc("/accounts/update", accountHandler.Update)
 		r.Get("/accounts/steam-link/finish", accountHandler.SteamLinkFinish)
@@ -259,45 +325,32 @@ func Router(
 		r.Post("/car/{name}/skin", carsHandler.UploadSkin)
 		r.Post("/car/{name}/skin/visibility", carsHandler.SetSkinVisibility)
 		r.Post("/car/{name}/skin/remove", carsHandler.RemoveSkin)
+	})
 
-		// downloads: content (except the pictures the pages show) and setups follow the download access option
-		r.Group(func(r chi.Router) {
-			r.Use(func(next http.Handler) http.Handler {
-				gated := accountHandler.DownloadAccessMiddleware(next)
+	// downloads: content (except the pictures the pages show, which follow the content area) and setups follow the
+	// downloads area
+	r.Group(func(r chi.Router) {
+		r.Use(func(next http.Handler) http.Handler {
+			downloadable := accountHandler.AreaAccessMiddleware(smmodel.AreaDownloads)(next)
+			uiAsset := accountHandler.AreaAccessMiddleware(smmodel.AreaContent)(next)
 
-				return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-					if downloads.IsUIAsset(req.URL.Path) {
-						next.ServeHTTP(w, req)
-						return
-					}
+			return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+				if downloads.IsUIAsset(req.URL.Path) {
+					uiAsset.ServeHTTP(w, req)
+					return
+				}
 
-					gated.ServeHTTP(w, req)
-				})
+				downloadable.ServeHTTP(w, req)
 			})
-
-			FileServer(r, "/content", noDirListing{http.Dir(filepath.Join(installPath, "content"))}, true)
 		})
 
-		r.Group(func(r chi.Router) {
-			r.Use(accountHandler.DownloadAccessMiddleware)
+		FileServer(r, "/content", noDirListing{http.Dir(filepath.Join(installPath, "content"))}, true)
+	})
 
-			FileServer(r, "/setups/download", noDirListing{http.Dir(filepath.Join(installPath, "setups"))}, true)
-		})
+	r.Group(func(r chi.Router) {
+		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaDownloads))
 
-		r.Get("/content/tracks/{track}/ui/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
-		r.Get("/content/tracks/{track}/ui/{layout}/preview.png", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackImage), true))
-
-		r.Get("/content/tracks/{track}/ui/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackInfo), true))
-		r.Get("/content/tracks/{track}/ui/{layout}/ui_track.json", AssetCacheHeaders(http.HandlerFunc(tracksHandler.TrackInfo), true))
-
-		// race weekends
-		r.Get("/race-weekends", raceWeekendHandler.List)
-		r.Get("/race-weekend/{raceWeekendID}", raceWeekendHandler.View)
-		r.Get("/race-weekend/{raceWeekendID}/filters", raceWeekendHandler.ManageFilters)
-		r.Get("/race-weekend/{raceWeekendID}/entrylist", raceWeekendHandler.ManageEntryList)
-		r.Post("/race-weekend/{raceWeekendID}/grid-preview", raceWeekendHandler.GridPreview)
-		r.Get("/race-weekend/{raceWeekendID}/entrylist-preview", raceWeekendHandler.EntryListPreview)
-		r.Get("/race-weekend/{raceWeekendID}/export", raceWeekendHandler.Export)
+		FileServer(r, "/setups/download", noDirListing{http.Dir(filepath.Join(installPath, "setups"))}, true)
 	})
 
 	// writers
@@ -456,10 +509,8 @@ func Router(
 		r.HandleFunc("/accounts/edit/{id}", accountHandler.CreateOrEditAccount)
 		r.Post("/accounts/delete/{id}", accountHandler.DeleteAccount)
 		r.HandleFunc("/accounts/reset-password/{id}", accountHandler.ResetPassword)
-		r.Post("/accounts/toggle-open", accountHandler.ToggleServerOpenStatus)
-		r.Post("/accounts/toggle-public-stats", accountHandler.TogglePublicStats)
+		r.Post("/accounts/visibility", accountHandler.SetVisibility)
 		r.Post("/accounts/toggle-steam-signup", accountHandler.ToggleSteamSignup)
-		r.Post("/accounts/download-access", accountHandler.SetDownloadAccess)
 		r.Post("/accounts/team-options", accountHandler.SetTeamOptions)
 		r.Post("/accounts/skin-options", accountHandler.SetSkinSettings)
 		r.HandleFunc("/accounts", accountHandler.ManageAccounts)
@@ -480,11 +531,11 @@ func Router(
 	})
 
 	// skin zips: a valid signature (as in the Content Manager content.json) works without a login, everything else
-	// needs read access and the download access option
-	skinDownload := accountHandler.ReadAccessMiddleware(accountHandler.DownloadAccessMiddleware(http.HandlerFunc(carsHandler.DownloadSkin)))
+	// needs the downloads area
+	skinDownload := accountHandler.AreaAccessMiddleware(smmodel.AreaDownloads)(http.HandlerFunc(carsHandler.DownloadSkin))
 
 	r.Get("/car/{car_id}/skin/{skin}/download", func(w http.ResponseWriter, req *http.Request) {
-		if accountHandler.DownloadAccess() != downloads.Off && carsHandler.ValidSkinSignature(req) {
+		if accountHandler.SkinURLsAllowed() && carsHandler.ValidSkinSignature(req) {
 			carsHandler.DownloadSkin(w, req)
 			return
 		}

@@ -119,7 +119,7 @@ func TestSkinSettings_OldOptionsReadAsDefault(t *testing.T) {
 	ah, _, cleanup := newTestHandler(t)
 	defer cleanup()
 
-	if err := ah.store.SetMeta(serverAccountOptionsMetaKey, struct{ IsOpen, PublicStats bool }{true, true}); err != nil {
+	if err := ah.store.SetMeta(serverAccountOptionsMetaKey, ServerAccountOptions{Visibility: smmodel.Visibility{smmodel.AreaStats: smmodel.LevelLoggedIn}}); err != nil {
 		t.Fatal(err)
 	}
 

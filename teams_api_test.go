@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -113,9 +114,9 @@ func TestTeamsAPIThroughTheRouter(t *testing.T) {
 		t.Errorf("the owner sees the private team, got %d", rec.Code)
 	}
 
-	// an open server shows the public teams to anonymous visitors, the private ones stay hidden
-	if rec := e.serve(e.resolver.resolveAccountHandler().ToggleServerOpenStatus, http.MethodPost, admin, nil, nil); rec.Code != http.StatusFound {
-		t.Fatalf("could not open the server: %d", rec.Code)
+	// public teams are shown to anonymous visitors once the teams area is public, the private ones stay hidden
+	if rec := e.serve(e.resolver.resolveAccountHandler().SetVisibility, http.MethodPost, admin, nil, url.Values{"area": {"teams"}, "level": {"public"}}); rec.Code != http.StatusFound {
+		t.Fatalf("could not make the teams public: %d", rec.Code)
 	}
 
 	if got := names(e.get(router, "/api/teams", nil)); got != "Public API Team" {

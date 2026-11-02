@@ -20,7 +20,6 @@ import (
 	"github.com/sethvargo/go-diceware/diceware"
 	"github.com/sirupsen/logrus"
 	smconfig "github.com/wernersbacher/ACPitwall/internal/config"
-	"github.com/wernersbacher/ACPitwall/internal/downloads"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/internal/steam"
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
@@ -35,84 +34,72 @@ const (
 	serverAccountOptionsMetaKey = "server-account-options"
 )
 
-type ServerAccountOptions struct {
-	IsOpen bool
+// ServerAccountOptions are the server wide account options (see smmodel.ServerAccountOptions).
+type ServerAccountOptions = smmodel.ServerAccountOptions
 
-	// PublicStats makes driver profiles, leaderboards and lap records visible to anonymous visitors of an open
-	// server. If false, they need a login even on an open server.
-	PublicStats bool
-
-	// DownloadAccess restricts the downloads of the content directory (cars, tracks, ...), setups and car skin
-	// zips. Pictures shown on the pages stay readable. The zero value (Public) keeps the previous behaviour.
-	DownloadAccess downloads.Access
-
-	// DisableTeamCreation stops accounts without write access from creating teams. The zero value allows it, as
-	// before the option existed.
-	DisableTeamCreation bool
-
-	// MaxOwnedTeams is how many teams one account may own. 0 means the default of the teams package, a negative
-	// number is unlimited.
-	MaxOwnedTeams int
-
-	// Skins are the settings for skin uploads of users.
-	Skins smmodel.SkinSettings
-
-	// SteamSignupDisabled turns off the creation of accounts by a Steam login (the zero value, so a fresh or older
-	// stored option set allows it). Visitors without an account can create one by logging in with Steam; Steam
-	// logins of existing accounts (matched by their GUID) always work.
-	SteamSignupDisabled bool
+// Visibility returns a copy of the current visibility per area.
+func (ah *AccountHandler) Visibility() smmodel.Visibility {
+	return ah.accountManager.options.Visibility.Copy()
 }
 
-// MustLoginMiddleware determines whether an account needs to log in to access a given Group page
+// AreaLevel returns who may see the area.
+func (ah *AccountHandler) AreaLevel(area smmodel.Area) smmodel.Level {
+	return ah.accountManager.options.Visibility.Level(area)
+}
+
+// Allowed tells whether the account (nil for an anonymous visitor) may see the area.
+func (ah *AccountHandler) Allowed(area smmodel.Area, account *smmodel.Account) bool {
+	return ah.accountManager.options.Visibility.Allowed(area, account, ah.accountManager.serverID)
+}
+
+// MustLoginMiddleware determines whether an account needs to log in to access a given Group page. Anonymous visitors
+// never pass; what they may see is decided per area by AreaAccessMiddleware.
 func (ah *AccountHandler) MustLoginMiddleware(requiredGroup smmodel.Group, next http.Handler) http.Handler {
-	return ah.mustLogin(requiredGroup, func() bool { return ah.accountManager.options.IsOpen }, next)
+	return ah.mustLogin(func(account *smmodel.Account) bool {
+		return account.HasGroupPrivilege(ah.accountManager.serverID, requiredGroup)
+	}, func() bool { return false }, "flash.accounts.login_first", next)
 }
 
-// StatsAccessMiddleware guards the driver statistics (profiles, leaderboards, lap records). They need read access
-// like other pages, but anonymous visitors of an open server only get in if the "public driver statistics" option is on.
-func (ah *AccountHandler) StatsAccessMiddleware(next http.Handler) http.Handler {
-	return ah.mustLogin(smmodel.GroupRead, func() bool {
-		return ah.accountManager.options.IsOpen && ah.accountManager.options.PublicStats
-	}, next)
+// AreaAccessMiddleware returns the middleware that guards an area with the level the admin set for it: Public lets
+// everybody through (anonymous visitors get the dummy open account so the UI does not break), the other levels need a
+// login with read, write or admin access.
+func (ah *AccountHandler) AreaAccessMiddleware(area smmodel.Area) func(http.Handler) http.Handler {
+	loginFlash := "flash.accounts.login_first"
+
+	if area == smmodel.AreaDownloads {
+		loginFlash = "flash.accounts.login_to_download"
+	}
+
+	return func(next http.Handler) http.Handler {
+		return ah.mustLogin(func(account *smmodel.Account) bool {
+			return ah.Allowed(area, account)
+		}, func() bool {
+			return ah.AreaLevel(area) == smmodel.LevelPublic
+		}, loginFlash, next)
+	}
 }
 
-// DownloadAccess returns the current download access rule.
-func (ah *AccountHandler) DownloadAccess() downloads.Access {
-	return ah.accountManager.options.DownloadAccess
+// ReadAccessMiddleware needs a login with read access. Use it for routes which belong to no area; the areas are
+// guarded by AreaAccessMiddleware.
+func (ah *AccountHandler) ReadAccessMiddleware(next http.Handler) http.Handler {
+	return ah.MustLoginMiddleware(smmodel.GroupRead, next)
 }
 
-// DownloadAccessMiddleware applies the download access option on top of read access (use it inside a read group):
-// Public lets everybody through, LoggedIn turns away the anonymous visitors of an open server and Off lets only
-// admins download.
-func (ah *AccountHandler) DownloadAccessMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		account := smweb.AccountFromRequest(r)
-		anonymous := account == nil || account.Name == smmodel.OpenAccountName
-
-		switch ah.DownloadAccess() {
-		case downloads.Public:
-			next.ServeHTTP(w, r)
-		case downloads.LoggedIn:
-			if anonymous {
-				smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.login_to_download"))
-				http.Redirect(w, r, "/login", http.StatusFound)
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		default:
-			if anonymous || !account.HasGroupPrivilege(ah.accountManager.serverID, smmodel.GroupAdmin) {
-				http.Error(w, "downloads are disabled", http.StatusForbidden)
-				return
-			}
-
-			next.ServeHTTP(w, r)
-		}
-	})
+// AnyAreaAccessMiddleware is for the pages that belong to no area but are the entry to all of them (home page,
+// changelog): anonymous visitors get in as long as at least one area is public, otherwise (and for accounts) it is
+// ReadAccessMiddleware, so that a fully closed server sends visitors to the login.
+func (ah *AccountHandler) AnyAreaAccessMiddleware(next http.Handler) http.Handler {
+	return ah.mustLogin(func(account *smmodel.Account) bool {
+		return account.HasGroupPrivilege(ah.accountManager.serverID, smmodel.GroupRead)
+	}, func() bool {
+		return ah.accountManager.options.Visibility.AnyPublic()
+	}, "flash.accounts.login_first", next)
 }
 
-// mustLogin is MustLoginMiddleware with the condition under which anonymous visitors may read.
-func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowed func() bool, next http.Handler) http.Handler {
+// mustLogin serves next if the account of the session passes allowed, or, without a session, if anonymousAllowed
+// says so (with the dummy open account). Others are sent to the login (anonymous, flash loginFlash), to the login
+// (account without access) or to the home page (account with too low access).
+func (ah *AccountHandler) mustLogin(allowed func(*smmodel.Account) bool, anonymousAllowed func() bool, loginFlash string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		serverID := ah.accountManager.serverID
 
@@ -134,7 +121,7 @@ func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowe
 				return
 			}
 
-			if !account.HasGroupPrivilege(serverID, requiredGroup) {
+			if !allowed(account) {
 				if account.GroupFor(serverID) == smmodel.GroupNoAccess {
 					smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.no_access"))
 					http.Redirect(w, r, "/login", http.StatusFound)
@@ -150,27 +137,20 @@ func (ah *AccountHandler) mustLogin(requiredGroup smmodel.Group, anonymousAllowe
 			return
 		}
 
-		if requiredGroup == smmodel.GroupRead && anonymousAllowed() {
-			// if read is open, allow access and use a dummy account so the UI doesn't break
+		if anonymousAllowed() {
+			// the area is open: allow access and use a dummy account so the UI doesn't break
 			next.ServeHTTP(w, smweb.WithAccount(r, ah.accountManager.openAccount))
 			return
 		}
 
-		if !ok {
-			smweb.AddErrorFlash(w, r, smweb.T(r, "flash.accounts.login_first"))
-			http.Redirect(w, r, "/login", http.StatusFound)
-			return
-		}
+		smweb.AddErrorFlash(w, r, smweb.T(r, loginFlash))
+		http.Redirect(w, r, "/login", http.StatusFound)
 	})
 }
 
 // RequestScopeMiddleware attaches the session store and account state to each request.
 func (ah *AccountHandler) RequestScopeMiddleware(next http.Handler) http.Handler {
 	return ah.accountManager.RequestScopeMiddleware(next)
-}
-
-func (ah *AccountHandler) ReadAccessMiddleware(next http.Handler) http.Handler {
-	return ah.MustLoginMiddleware(smmodel.GroupRead, next)
 }
 
 func (ah *AccountHandler) WriteAccessMiddleware(next http.Handler) http.Handler {
@@ -306,30 +286,34 @@ func (ah *AccountHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/login.html", nil)
 }
 
-func (ah *AccountHandler) ToggleServerOpenStatus(w http.ResponseWriter, r *http.Request) {
-	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.openness_changed"), func(o *ServerAccountOptions) { o.IsOpen = !o.IsOpen })
-}
+// SetVisibility sets who may see one area, from the form values "area" (an smmodel.Area) and "level" (public, login,
+// write or admin).
+func (ah *AccountHandler) SetVisibility(w http.ResponseWriter, r *http.Request) {
+	area, ok := smmodel.ParseArea(r.FormValue("area"))
 
-// TogglePublicStats switches the "public driver statistics" option.
-func (ah *AccountHandler) TogglePublicStats(w http.ResponseWriter, r *http.Request) {
-	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.public_stats_changed"), func(o *ServerAccountOptions) { o.PublicStats = !o.PublicStats })
+	if !ok {
+		http.Error(w, "unknown area", http.StatusBadRequest)
+		return
+	}
+
+	level, ok := smmodel.ParseLevel(r.FormValue("level"))
+
+	if !ok {
+		http.Error(w, "unknown level", http.StatusBadRequest)
+		return
+	}
+
+	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.visibility_changed"), func(o *ServerAccountOptions) {
+		// a new map, the old one may be read by running requests
+		visibility := o.Visibility.Copy()
+		visibility[area] = level
+		o.Visibility = visibility
+	})
 }
 
 // ToggleSteamSignup switches the "registration with Steam" option.
 func (ah *AccountHandler) ToggleSteamSignup(w http.ResponseWriter, r *http.Request) {
 	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.steam_signup_changed"), func(o *ServerAccountOptions) { o.SteamSignupDisabled = !o.SteamSignupDisabled })
-}
-
-// SetDownloadAccess sets the "downloads" option from the form value "access" (public, login or off).
-func (ah *AccountHandler) SetDownloadAccess(w http.ResponseWriter, r *http.Request) {
-	access, ok := downloads.ParseAccess(r.FormValue("access"))
-
-	if !ok {
-		http.Error(w, "unknown download access", http.StatusBadRequest)
-		return
-	}
-
-	ah.toggleOption(w, r, smweb.T(r, "flash.accounts.download_access_changed"), func(o *ServerAccountOptions) { o.DownloadAccess = access })
 }
 
 // SetTeamOptions sets the team options from the form values "creation" (enabled or disabled) and "max" (a whole
@@ -773,8 +757,7 @@ func (am *AccountManager) RequestScopeMiddleware(next http.Handler) http.Handler
 		next.ServeHTTP(w, smweb.WithScope(r, &smweb.Scope{
 			SessionStore: am.sessionStore,
 			ServerID:     am.serverID,
-			ReadIsOpen:   am.options.IsOpen,
-			StatsPublic:  am.options.PublicStats,
+			Visibility:   am.options.Visibility.Copy(),
 			OpenAccount:  am.openAccount,
 		}))
 	})
@@ -1021,12 +1004,10 @@ func (ah *AccountHandler) CreateOrEditAccount(w http.ResponseWriter, r *http.Req
 type manageAccountsTemplateVars struct {
 	smweb.BaseTemplateVars
 
-	Accounts         []*smmodel.Account
-	Query            string
-	ServerReadIsOpen bool
-	PublicStats      bool
-	SteamSignup      bool
-	DownloadAccess   string
+	Accounts    []*smmodel.Account
+	Query       string
+	Visibility  []AreaVisibility
+	SteamSignup bool
 
 	TeamCreationEnabled bool
 	MaxOwnedTeams       int
@@ -1066,12 +1047,10 @@ func (ah *AccountHandler) ManageAccounts(w http.ResponseWriter, r *http.Request)
 	query := r.URL.Query().Get("q")
 
 	ah.ViewRenderer.MustLoadTemplate(w, r, "accounts/manage.html", &manageAccountsTemplateVars{
-		Accounts:         filterAccounts(accounts, query),
-		Query:            strings.TrimSpace(query),
-		ServerReadIsOpen: ah.accountManager.options.IsOpen,
-		PublicStats:      ah.accountManager.options.PublicStats,
-		SteamSignup:      !ah.accountManager.options.SteamSignupDisabled,
-		DownloadAccess:   ah.accountManager.options.DownloadAccess.String(),
+		Accounts:    filterAccounts(accounts, query),
+		Query:       strings.TrimSpace(query),
+		Visibility:  ah.areaVisibilities(),
+		SteamSignup: !ah.accountManager.options.SteamSignupDisabled,
 
 		TeamCreationEnabled: !ah.accountManager.options.DisableTeamCreation,
 		MaxOwnedTeams:       ah.accountManager.options.MaxOwnedTeams,
@@ -1105,4 +1084,28 @@ func generateSalt() (string, error) {
 	}
 
 	return hex.EncodeToString(salt), err
+}
+
+// AreaVisibility is the setting of one area for the admin page: the names of the area and its level, as the form
+// values of SetVisibility.
+type AreaVisibility struct {
+	Area  string
+	Level string
+}
+
+// areaVisibilities lists the level of every area (also those without a stored entry) in display order.
+func (ah *AccountHandler) areaVisibilities() []AreaVisibility {
+	list := make([]AreaVisibility, 0, len(smmodel.AllAreas))
+
+	for _, area := range smmodel.AllAreas {
+		list = append(list, AreaVisibility{Area: string(area), Level: ah.AreaLevel(area).String()})
+	}
+
+	return list
+}
+
+// SkinURLsAllowed tells whether signed skin URLs (which work without a login) may be handed out: only if the
+// downloads area is not restricted to write access or admins.
+func (ah *AccountHandler) SkinURLsAllowed() bool {
+	return ah.AreaLevel(smmodel.AreaDownloads) <= smmodel.LevelLoggedIn
 }

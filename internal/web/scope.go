@@ -21,12 +21,8 @@ type Scope struct {
 	// ServerID identifies this server instance in the per-server account groups.
 	ServerID smmodel.ServerID
 
-	// ReadIsOpen is true if anonymous visitors may read.
-	ReadIsOpen bool
-
-	// StatsPublic is true if anonymous visitors of an open server may see driver statistics (profiles,
-	// leaderboards, lap records).
-	StatsPublic bool
+	// Visibility says who may see which area.
+	Visibility smmodel.Visibility
 
 	// OpenAccount is the dummy account which is used for visitors if read access is open.
 	OpenAccount *smmodel.Account
@@ -68,34 +64,43 @@ func AccountFromRequest(r *http.Request) *smmodel.Account {
 	return u
 }
 
+// ReadAccess tells whether the requester gets into the pages that belong to no area (navigation, home page): accounts
+// with read access, anonymous visitors as long as at least one area is public. What they see inside is decided
+// per area by AreaAccess.
 func ReadAccess(r *http.Request) func() bool {
 	account := AccountFromRequest(r)
 	scope := ScopeFromRequest(r)
 
-	// anonymous visitors can read an open server, even on pages outside the read middleware (e.g. /login)
-	ok := account.HasGroupPrivilege(scope.ServerID, smmodel.GroupRead) || (account.Name == "" && scope.ReadIsOpen)
+	ok := account.HasGroupPrivilege(scope.ServerID, smmodel.GroupRead) || (smmodel.IsAnonymous(account) && scope.Visibility.AnyPublic())
 
 	return func() bool {
 		return ok
 	}
 }
 
-// StatsAccess tells whether the requester may see driver statistics: every logged in account with read access,
-// anonymous visitors (of an open server) only if the statistics are public.
-func StatsAccess(r *http.Request) func() bool {
-	account := AccountFromRequest(r)
+// AreaAccess tells whether the requester may see the area, by the level the admin set for it. Anonymous visitors
+// are those without an account or with the dummy open account.
+func AreaAccess(r *http.Request, area smmodel.Area) bool {
 	scope := ScopeFromRequest(r)
 
-	var ok bool
+	return scope.Visibility.Allowed(area, AccountFromRequest(r), scope.ServerID)
+}
 
-	if account.Name == "" || account == scope.OpenAccount {
-		ok = scope.ReadIsOpen && scope.StatsPublic
-	} else {
-		ok = account.HasGroupPrivilege(scope.ServerID, smmodel.GroupRead)
-	}
+// StatsAccess tells whether the requester may see driver statistics (profiles, leaderboards, lap records).
+func StatsAccess(r *http.Request) func() bool {
+	ok := AreaAccess(r, smmodel.AreaStats)
 
 	return func() bool {
 		return ok
+	}
+}
+
+// CanSee is the template function canSee: it tells whether the requester may see the area with the given name.
+func CanSee(r *http.Request) func(area string) bool {
+	return func(area string) bool {
+		a, ok := smmodel.ParseArea(area)
+
+		return ok && AreaAccess(r, a)
 	}
 }
 

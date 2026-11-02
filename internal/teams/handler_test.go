@@ -50,7 +50,6 @@ func (e *testEnv) call(fn http.HandlerFunc, account *smmodel.Account, params map
 
 	scope := webtest.RequestScope()
 	scope.ServerID = testServerID
-	scope.ReadIsOpen = true
 	scope.OpenAccount = e.open
 
 	req = smweb.WithScope(req, scope)

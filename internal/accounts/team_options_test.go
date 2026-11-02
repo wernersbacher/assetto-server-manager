@@ -98,7 +98,7 @@ func TestTeamOptionsPersistence(t *testing.T) {
 	defer cleanup()
 
 	// options stored before the team options existed read as "everybody can create teams, default limit"
-	if err := ah.store.SetMeta(serverAccountOptionsMetaKey, struct{ IsOpen, PublicStats bool }{true, true}); err != nil {
+	if err := ah.store.SetMeta(serverAccountOptionsMetaKey, ServerAccountOptions{Visibility: smmodel.Visibility{smmodel.AreaStats: smmodel.LevelLoggedIn}}); err != nil {
 		t.Fatal(err)
 	}
 
@@ -110,7 +110,7 @@ func TestTeamOptionsPersistence(t *testing.T) {
 		t.Errorf("old options: got disabled=%v max=%d", disabled, max)
 	}
 
-	if !ah.accountManager.options.IsOpen {
+	if ah.AreaLevel(smmodel.AreaStats) != smmodel.LevelLoggedIn {
 		t.Error("loading must keep the other options")
 	}
 
@@ -125,7 +125,7 @@ func TestTeamOptionsPersistence(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !reloaded.options.DisableTeamCreation || reloaded.options.MaxOwnedTeams != 2 || !reloaded.options.IsOpen {
+	if !reloaded.options.DisableTeamCreation || reloaded.options.MaxOwnedTeams != 2 || reloaded.options.Visibility.Level(smmodel.AreaStats) != smmodel.LevelLoggedIn {
 		t.Errorf("options were not persisted: %+v", reloaded.options)
 	}
 }

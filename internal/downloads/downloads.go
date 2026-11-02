@@ -21,44 +21,6 @@ import (
 	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 )
 
-// Access says who may download content, setups and skins. The zero value is Public, which is the behaviour from
-// before the option existed, so stored options need no migration.
-type Access int
-
-const (
-	// Public: everybody who can read the pages (on an open server also anonymous visitors).
-	Public Access = iota
-	// LoggedIn: only logged in accounts, even on an open server.
-	LoggedIn
-	// Off: only admins; also no signed skin URLs are handed out.
-	Off
-)
-
-func (a Access) String() string {
-	switch a {
-	case LoggedIn:
-		return "login"
-	case Off:
-		return "off"
-	default:
-		return "public"
-	}
-}
-
-// ParseAccess is the inverse of Access.String.
-func ParseAccess(s string) (Access, bool) {
-	switch s {
-	case "public":
-		return Public, true
-	case "login":
-		return LoggedIn, true
-	case "off":
-		return Off, true
-	}
-
-	return Public, false
-}
-
 // IsUIAsset reports whether a path below /content is something the pages themselves show (images, ui_*.json) rather
 // than a content download (kn5, data.acd, textures, ...). UI assets stay readable for everyone with read access, so
 // the pages of an open server keep their pictures when downloads are restricted.

@@ -20,11 +20,9 @@ flash:
     steam_rate_limited: Zu viele Steam-Anmeldeversuche. Bitte versuche es in einigen Minuten erneut.
     cannot_delete_own: Dieses Konto kann hier nicht gelöscht werden.
     deleted_own: Dein Konto wurde gelöscht.
-    openness_changed: Offenheit des Servers erfolgreich geändert
-    public_stats_changed: Öffentliche Fahrerstatistiken erfolgreich geändert
     steam_signup_changed: Registrierung mit Steam erfolgreich geändert
-    download_access_changed: Download-Zugriff erfolgreich geändert
     team_options_changed: Team-Optionen erfolgreich geändert
+    visibility_changed: Sichtbarkeit erfolgreich geändert
     skin_options_changed: Skin-Optionen erfolgreich geändert
     password_not_changed: Dein Passwort konnte nicht geändert werden
     password_changed: Dein Passwort wurde erfolgreich geändert!

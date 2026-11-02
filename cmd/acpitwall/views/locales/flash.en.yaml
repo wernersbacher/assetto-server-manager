@@ -20,11 +20,9 @@ flash:
     steam_rate_limited: Too many Steam login attempts. Please try again in a few minutes.
     cannot_delete_own: This account cannot be deleted here.
     deleted_own: Your account was deleted.
-    openness_changed: Server openness successfully changed
-    public_stats_changed: Public driver statistics successfully changed
     steam_signup_changed: Registration with Steam changed
-    download_access_changed: Download access successfully changed
     team_options_changed: Team options successfully changed
+    visibility_changed: Visibility successfully changed
     skin_options_changed: Skin options successfully changed
     password_not_changed: Unable to change your password
     password_changed: Your password was successfully changed!

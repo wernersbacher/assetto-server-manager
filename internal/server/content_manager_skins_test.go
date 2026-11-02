@@ -67,9 +67,9 @@ func TestCMContentSkins(t *testing.T) {
 		ServerID:    func() smmodel.ServerID { return "srv" },
 	})
 
-	access := downloads.Public
+	access := true
 	signer := downloads.NewSignerWithSecret([]byte("0123456789abcdef0123456789abcdef"))
-	cmw.SetSkinDownloads(signer, func() downloads.Access { return access })
+	cmw.SetSkinDownloads(signer, func() bool { return access })
 
 	entry := func(model, skin string) *serverconfig.Entrant {
 		e := serverconfig.NewEntrant()
@@ -114,15 +114,15 @@ func TestCMContentSkins(t *testing.T) {
 		t.Error("skin url must expire")
 	}
 
-	// downloads off: no skin urls
-	access = downloads.Off
+	// downloads restricted: no skin urls
+	access = false
 
 	if got := cmw.skinEntries(now); len(got) != 0 {
 		t.Errorf("expected no skins with downloads off, got %+v", got)
 	}
 
 	// without a base URL no absolute url can be built
-	access = downloads.Public
+	access = true
 	config.HTTP.BaseURL = ""
 
 	if got := cmw.skinEntries(now); len(got) != 0 {
@@ -157,7 +157,7 @@ func TestCMContentUserSkins(t *testing.T) {
 		ServerID:    func() smmodel.ServerID { return "srv" },
 	})
 
-	cmw.SetSkinDownloads(downloads.NewSignerWithSecret([]byte("0123456789abcdef0123456789abcdef")), func() downloads.Access { return downloads.Public })
+	cmw.SetSkinDownloads(downloads.NewSignerWithSecret([]byte("0123456789abcdef0123456789abcdef")), func() bool { return true })
 
 	e := serverconfig.NewEntrant()
 	e.Model, e.Skin = "car_a", "u1234_mine"

@@ -113,7 +113,6 @@ func (e *teamsTestEnv) serveTo(target string, fn http.HandlerFunc, method string
 
 	scope := webtest.RequestScope()
 	scope.ServerID = teamsTestServerID
-	scope.ReadIsOpen = true
 	scope.OpenAccount = e.open
 
 	req = smweb.WithScope(req, scope)

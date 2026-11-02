@@ -127,6 +127,7 @@ func (tr *Renderer) init() error {
 	funcs["AdminAccess"] = dummyAccessFunc
 	funcs["LoggedIn"] = dummyAccessFunc
 	funcs["StatsAccess"] = dummyAccessFunc
+	funcs["canSee"] = func(string) bool { return true }
 	funcs["serverURL"] = func(path string) string { return path }
 	funcs["serverName"] = tr.serverName
 	funcs["stringArrayToCSV"] = stringArrayToCSV
@@ -276,6 +277,7 @@ func requestFuncs(r *http.Request) template.FuncMap {
 		"AdminAccess":  AdminAccess(r),
 		"LoggedIn":     LoggedIn(r),
 		"StatsAccess":  StatsAccess(r),
+		"canSee":       CanSee(r),
 		"driverURL":    func(guid string) string { return statsDriverURL(r, guid) },
 		"serverURL":    func(path string) string { return ServerURL(r, path) },
 	}

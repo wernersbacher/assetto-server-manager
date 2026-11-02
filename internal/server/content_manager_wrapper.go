@@ -140,22 +140,23 @@ type ContentManagerWrapper struct {
 	mutex       sync.Mutex
 
 	skinSigner *downloads.Signer
-	skinAccess func() downloads.Access
+	skinEnabled func() bool
 
 	// userSkinDir finds the directory of a private or team skin (not in the skins directory of the car), or "".
 	userSkinDir func(car, skin string) string
 }
 
 // SetSkinDownloads enables the skins section of content.json: the skins of the entry list are offered as signed
-// download URLs (see downloads.Signer), unless the download access is Off.
+// download URLs (see downloads.Signer), as long as enabled (if given) says so: the downloads area must be visible
+// to everybody who may log in, otherwise a signed URL would bypass it.
 // SetUserSkinDirs lets the skins section also offer private and team skins that are in the entry list.
 func (cmw *ContentManagerWrapper) SetUserSkinDirs(find func(car, skin string) string) {
 	cmw.userSkinDir = find
 }
 
-func (cmw *ContentManagerWrapper) SetSkinDownloads(signer *downloads.Signer, access func() downloads.Access) {
+func (cmw *ContentManagerWrapper) SetSkinDownloads(signer *downloads.Signer, enabled func() bool) {
 	cmw.skinSigner = signer
-	cmw.skinAccess = access
+	cmw.skinEnabled = enabled
 }
 
 // skinEntries returns the skins of the entry list per car model, with signed URL and version. Skins without a skin
@@ -165,7 +166,7 @@ func (cmw *ContentManagerWrapper) skinEntries(now time.Time) map[string]map[stri
 		return nil
 	}
 
-	if cmw.skinAccess != nil && cmw.skinAccess() == downloads.Off {
+	if cmw.skinEnabled != nil && !cmw.skinEnabled() {
 		return nil
 	}
 

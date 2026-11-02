@@ -28,7 +28,6 @@ func TestHiddenRaceWeekendsAreOnlyVisibleToLoggedInAccounts(t *testing.T) {
 	request := func(account *smmodel.Account) *http.Request {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		scope := webtest.RequestScope()
-		scope.ReadIsOpen = true
 		req = smweb.WithScope(req, scope)
 
 		if account != nil {
@@ -89,7 +88,6 @@ func TestRaceWeekendOfHiddenChampionshipIsHidden(t *testing.T) {
 	request := func(account *smmodel.Account) *http.Request {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		scope := webtest.RequestScope()
-		scope.ReadIsOpen = true
 		req = smweb.WithScope(req, scope)
 
 		if account != nil {

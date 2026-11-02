@@ -62,40 +62,6 @@
 
     <div class="dashboard-grid">
         <div class="card admin-card">
-            <div class="card-header"><h2>{{ t "accounts.open.title" }}</h2></div>
-            <div class="card-body">
-                <p>{{ t "accounts.open.intro" }}</p>
-
-                <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
-                    {{ if $.ServerReadIsOpen }}
-                        <span class="role-badge role-read">{{ t "accounts.open.open" }}</span>
-                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-danger">{{ t "accounts.open.make_closed" }}</button></form>
-                    {{ else }}
-                        <span class="role-badge role-no_access">{{ t "accounts.open.closed" }}</span>
-                        <form method="post" action="/accounts/toggle-open" class="m-0"><button type="submit" class="btn btn-success">{{ t "accounts.open.make_open" }}</button></form>
-                    {{ end }}
-                </div>
-            </div>
-        </div>
-
-        <div class="card admin-card">
-            <div class="card-header"><h2>{{ t "accounts.stats.title" }}</h2></div>
-            <div class="card-body">
-                <p>{{ t "accounts.stats.intro" }}</p>
-
-                <div class="d-flex flex-wrap align-items-center justify-content-between" style="gap: 12px">
-                    {{ if $.PublicStats }}
-                        <span class="role-badge role-read">{{ t "accounts.stats.public" }}</span>
-                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-danger">{{ t "accounts.stats.make_private" }}</button></form>
-                    {{ else }}
-                        <span class="role-badge role-no_access">{{ t "accounts.stats.private" }}</span>
-                        <form method="post" action="/accounts/toggle-public-stats" class="m-0"><button type="submit" class="btn btn-success">{{ t "accounts.stats.make_public" }}</button></form>
-                    {{ end }}
-                </div>
-            </div>
-        </div>
-
-        <div class="card admin-card">
             <div class="card-header"><h2>{{ t "accounts.steam_signup.title" }}</h2></div>
             <div class="card-body">
                 <p>{{ t "accounts.steam_signup.intro" }}</p>
@@ -109,22 +75,6 @@
                         <form method="post" action="/accounts/toggle-steam-signup" class="m-0"><button type="submit" class="btn btn-success">{{ t "accounts.steam_signup.enable" }}</button></form>
                     {{ end }}
                 </div>
-            </div>
-        </div>
-
-        <div class="card admin-card">
-            <div class="card-header"><h2>{{ t "accounts.downloads.title" }}</h2></div>
-            <div class="card-body">
-                <p>{{ t "accounts.downloads.intro" }}</p>
-
-                <form method="post" action="/accounts/download-access" class="m-0 d-flex flex-wrap align-items-center" style="gap: 12px">
-                    <select name="access" class="form-control" style="max-width: 360px">
-                        <option value="public" {{ if eq $.DownloadAccess "public" }}selected{{ end }}>{{ t "accounts.downloads.public" }}</option>
-                        <option value="login" {{ if eq $.DownloadAccess "login" }}selected{{ end }}>{{ t "accounts.downloads.login" }}</option>
-                        <option value="off" {{ if eq $.DownloadAccess "off" }}selected{{ end }}>{{ t "accounts.downloads.off" }}</option>
-                    </select>
-                    <button type="submit" class="btn btn-success">{{ t "common.save" }}</button>
-                </form>
             </div>
         </div>
 
