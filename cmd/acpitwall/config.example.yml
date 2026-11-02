@@ -8,6 +8,11 @@
 #
 # note that changes to this file require a restart of ACPitwall to work! :)
 #
+# every ${NAME} and ${NAME:-default} in this file is replaced by the environment
+# variable NAME (default or empty if it is not set; a lone $ is left alone), so
+# values can come from the environment, e.g. docker compose. A literal ${NAME}
+# in a value (a password) is replaced too.
+#
 #
 # The below file is in YAML configuration format. Spacing is important within
 # YAML, and can cause ACPitwall not to launch correctly. You can validate
@@ -82,6 +87,27 @@ steam:
 # plugin ports and the AC server ports of the servers must not collide: Server
 # Manager warns on the options pages and when an event starts, and refuses to
 # start an event on ports a running server already uses.
+#
+# ports (optional, per server) set the ports of that server from this file. They
+# override the stored Server Options of the server (UDP+TCP game port, HTTP
+# port, Content Manager wrapper port; the wrapper gets enabled), and the Server
+# Options page shows them read-only. An empty or 0 port is not set (the stored
+# option applies). Use ${NAME} or ${NAME:-default} to take a port from the
+# environment (see the note on ${NAME} at the top of this file), e.g. docker:
+#
+#   servers:
+#     - id: server1
+#       install_path: assetto
+#       ports:
+#         game: 9600
+#         http: 8081
+#         content_manager_wrapper: 8101
+#     - id: server2
+#       install_path: assetto2
+#       ports:
+#         game: ${SERVER2_PORT:-9601}
+#         http: ${SERVER2_HTTP_PORT:-8082}
+#         content_manager_wrapper: ${SERVER2_CM_PORT:-8102}
 
 ################################################################################
 #

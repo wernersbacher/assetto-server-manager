@@ -52,8 +52,16 @@ Verified on Windows (Docker Desktop): build and everything below except where ma
      `https://acsm.example.com` or `http://203.0.113.10:8772`. It is used for links in notifications, iCal events and
      the API. Leave `http.hostname: 0.0.0.0:8772` as it is (that is the container side).
    - `servers:` lists the two servers (`a` -> `assetto-a`, `b` -> `assetto-b`); `steam.install_path` stays equal to the
-     first one. Keep `steam.username` / `steam.password` empty: the AC server is installed by part 4.
-2. Ports (optional): `cp .env.example .env` and edit it (gitignored; compose reads it automatically). Variables:
+     first one. Each entry has `ports:` (`game`, `http`, `content_manager_wrapper`) with `${SERVER_A_PORT}` etc.,
+     which `config.yml` expands from the environment of the container (see step 2). Keep `steam.username` /
+     `steam.password` empty: the AC server is installed by part 4.
+   - `config.yml` expands `${NAME}` and `${NAME:-default}` from the environment everywhere, so a literal `${NAME}` in
+     a value (for example in `admin_password_override` or `session_key`) is replaced too (unset = empty). Write a
+     password that contains such text differently; a lone `$` is left alone.
+2. Ports (optional, maintained in ONE place): `cp .env.example .env` and edit it (gitignored; compose reads it
+   automatically). The same variables are published by `compose.yaml` (`ports:`) and passed into the container
+   (`environment:`), where `config.yml` uses them as `servers[].ports`; they override and lock the ports in Server
+   Options (part 6). Variables:
    `SM_WEB_PORT`, `SERVER_A_PORT`, `SERVER_A_HTTP_PORT`, `SERVER_A_CM_PORT`, `SERVER_B_PORT`, `SERVER_B_HTTP_PORT`,
    `SERVER_B_CM_PORT`. Without a `.env` the defaults of the table above apply. The acServer and Content Manager
    wrapper ports are published **1:1** (host port == container port), because the acServer announces its configured
@@ -150,18 +158,21 @@ Open `http://localhost:8772` (or `http://<vps-ip>:<SM_WEB_PORT>`) and log in as 
 
 ## 6. First steps in the UI
 
-1. **Set the ports of each server** (required). Open Server > Options (`/server-options`) and use the server selector
-   in the top bar to switch between Server A and Server B. Every new server starts with the default ports 9600 / 8081,
-   so set server A to the published ports (UDP port, TCP port and HTTP port, defaults 9600 / 8081) and server B to
-   9601 / 8082 (or the values of your `.env`). Without it the acServer listens on ports that are not published
-   (observed), and ACPitwall warns about port conflicts between the servers (`Port 9600 (udp) is used by ... and
-   by ...`; it also refuses to start an event on ports that a running server uses). Plugin ports (stracker,
-   KissMyRank, Real Penalty) must differ per server as well; publish them in `compose.yaml` if you use them.
-   The **Content Manager wrapper** (optional) is already published: if you enable "Enable Content Manager Wrapper"
-   in the options of a server, set "Content Manager Wrapper Port" to the value of `SERVER_A_CM_PORT` /
-   `SERVER_B_CM_PORT` (defaults 8101 / 8102; it is a TCP port, different per server). ACPitwall then appends the port
-   to the server name (`<name> ℹ<port>`), which is how Content Manager finds the extra information and the download
-   links. Without the published port Content Manager shows the server without them.
+1. **Ports and Content Manager wrapper: nothing to do.** The ports of each server (UDP/TCP game port, HTTP port,
+   Content Manager wrapper port) come from `.env` through `config.yml` (`servers[].ports`) and are NOT set in the UI.
+   Open Server > Options (`/server-options`) and use the server selector in the top bar to look at Server A and
+   Server B: the port fields are read-only (locked, with a note that they come from `config.yml`) and show the
+   values of `.env` (defaults 9600 / 8081 and 9601 / 8082). The **Content Manager wrapper** is enabled automatically
+   with its port (`SERVER_A_CM_PORT` / `SERVER_B_CM_PORT`, defaults 8101 / 8102; a TCP port, different per server);
+   ACPitwall appends the port to the server name (`<name> ℹ<port>`), which is how Content Manager finds the extra
+   information and the download links. ACPitwall still warns about port conflicts between the servers (`Port 9600
+   (udp) is used by ... and by ...`; it also refuses to start an event on ports that a running server uses). Plugin
+   ports (stracker, KissMyRank, Real Penalty) are not covered by `servers[].ports`: they must differ per server and
+   be published in `compose.yaml` if you use them.
+
+   Upgrading an existing install that set the ports in the UI: the values stored in the database are kept but
+   overridden while `ports:` is in `config.yml`; remove the `ports:` block (or set a port empty / 0) and the stored
+   values apply again. If `.env` differs from what you stored, the `.env` value wins from the next restart.
 2. **Upload cars and tracks** on the Cars and Tracks pages (Content in the sidebar, "Upload cars" / "Upload
    tracks"). Content is managed through server A and is the same folder for both servers. The uploads are sent
    base64-encoded in one JSON request, so upload large packs in portions.
@@ -272,7 +283,7 @@ never rename the id of a server that has data. The example adds a server `c`; th
 
 ### Adding server c
 
-1. `compose.yaml`, five places.
+1. `compose.yaml`, six places.
 
    a) new service next to `seed-a` / `seed-b`:
 
@@ -293,7 +304,15 @@ never rename the id of a server that has data. The example adds a server `c`; th
            condition: service_completed_successfully
    ```
 
-   c) `acpitwall`, `ports:` (after the server b entries):
+   c) `acpitwall`, `environment:` (after the `SERVER_B_*` lines), so the container knows the ports:
+
+   ```yaml
+         SERVER_C_PORT: "${SERVER_C_PORT:-9602}"
+         SERVER_C_HTTP_PORT: "${SERVER_C_HTTP_PORT:-8083}"
+         SERVER_C_CM_PORT: "${SERVER_C_CM_PORT:-8103}"
+   ```
+
+   d) `acpitwall`, `ports:` (after the server b entries):
 
    ```yaml
          # server c
@@ -303,7 +322,7 @@ never rename the id of a server that has data. The example adds a server `c`; th
          - "${SERVER_C_CM_PORT:-8103}:${SERVER_C_CM_PORT:-8103}/tcp"
    ```
 
-   d) `acpitwall`, `volumes:` - the install copy of c right after the `assetto-b` line, and the shared content
+   e) `acpitwall`, `volumes:` - the install copy of c right after the `assetto-b` line, and the shared content
    volume onto the content directory of c right after the `ac-content` lines of a and b (the content mount is nested
    inside the install mount, so the install mount has to come first):
 
@@ -312,7 +331,7 @@ never rename the id of a server that has data. The example adds a server `c`; th
          - ac-content:/home/assetto/acpitwall/assetto-c/content
    ```
 
-   e) top-level `volumes:` (after `assetto-b:`):
+   f) top-level `volumes:` (after `assetto-b:`):
 
    ```yaml
      assetto-c:
@@ -324,19 +343,23 @@ never rename the id of a server that has data. The example adds a server `c`; th
      - id: c
        name: Server C
        install_path: assetto-c
+     ports:
+       game: ${SERVER_C_PORT}
+       http: ${SERVER_C_HTTP_PORT}
+       content_manager_wrapper: ${SERVER_C_CM_PORT}
    ```
 
    `install_path` is relative to the working directory of the manager (`/home/assetto/acpitwall`), i.e. the
-   mount point of d).
+   mount point of e). The `ports:` lines are optional; without them set the ports in Server Options.
 3. `.env` (only if the defaults 9602 / 8083 / 8103 do not suit you): `SERVER_C_PORT=9602`, `SERVER_C_HTTP_PORT=8083`
    and `SERVER_C_CM_PORT=8103` (commented-out lines in `.env.example`).
 4. Firewall (VPS): `sudo ufw allow 9602/udp && sudo ufw allow 9602/tcp && sudo ufw allow 8083/tcp && sudo ufw allow 8103/tcp` (see part 7).
 5. Apply: `docker compose up -d`. Compose creates the volume, `seed-c` copies the install from `ac-base` (it never
    overwrites an existing copy) and the `acpitwall` container is recreated, which restarts the manager. **That
    stops running acServers**, so do it between events. The data of the other servers is kept.
-6. In the UI choose Server C in the server selector, open Server > Options and set the UDP/TCP and HTTP ports to
-   9602 / 8083 (or your `.env` values) and, if you use the Content Manager wrapper, its port to 8103; a new server
-   starts with the default ports 9600 / 8081 (part 6).
+6. Nothing to set in the UI: with the `ports:` of step 2 server C gets 9602 / 8083 (or your `.env` values) and the
+   Content Manager wrapper on 8103, and its port fields are locked. Without `ports:` a new server starts with the
+   default ports 9600 / 8081 and you set them in Server Options.
 
 Verified (temporary copy of this directory, separate compose project `acsm-test`, a copy of an install imported with
 `AC_BASE_VOLUME=acsm-test_ac-base sh import-server.sh`, other host ports): the snippets above applied literally give a
@@ -399,20 +422,22 @@ existing database between the two modes.
   content scan). Keep `steam.install_path` equal to its `install_path` (here `assetto-a`). Do not remove or reorder the
   first entry without thinking: a new first server needs the shared `ac-content` mounted onto its `content`
   directory and `steam.install_path` has to follow it.
-- **All servers share one content folder**: `ac-content` is mounted onto `<install_path>/content` of every server (d
+- **All servers share one content folder**: `ac-content` is mounted onto `<install_path>/content` of every server (e
   above). A server without this mount has its own, empty content folder.
 - `id` and `install_path` are required and must be unique, otherwise the manager does not start (`config: server id
   "x" is used more than once`, `config: servers "a" and "b" have the same install_path`).
-- Every server needs its own ports (acServer UDP/TCP, HTTP, plugin ports), published 1:1 and set in Server Options;
-  the manager warns about conflicts (part 6).
+- Every server needs its own ports (acServer UDP/TCP, HTTP, plugin ports), published 1:1; the acServer and wrapper
+  ports are set through `servers[].ports` (without it in Server Options); the manager warns about conflicts (part 6).
 
 ## Troubleshooting summary
 
-- Port conflict warnings or an unreachable server: the ports in Server Options differ from the published ones (part 6, step 1).
+- Port conflict warnings or an unreachable server: the ports of the server differ from the published ones. With `ports:` in `config.yml` check that the variables reach the container (`docker compose config` shows `environment:`; an unset variable gives an empty port = not set, so the stored Server Options apply); without it check Server Options (part 6, step 1).
+- Port fields in Server Options are locked: they come from `servers[].ports` in `config.yml`; change `.env` and restart, or remove `ports:` to edit them in the UI.
+- A password or other value in `config.yml` is wrong or empty: `${NAME}` (and `${NAME:-default}`) is expanded from the environment, also in values you meant literally (part 3).
 - `Could not update tyres for car ...`: content from the Steam download has no `data/tyres.ini`; harmless (4b).
 - Lobby `INVALID SERVER`: ports not reachable from the internet (6).
 - Content Manager shows no extra information or download links: the wrapper is not enabled in Server Options, or its
-  port differs from the published `SERVER_x_CM_PORT`, or the port is blocked by the firewall (6, 7).
+  port differs from the published `SERVER_x_CM_PORT` (when `ports:` is not used), or the port is blocked by the firewall (6, 7).
 - steamcmd failure: 4a, `STEAM_STRACE=1`, otherwise 4b.
 - UDP buffer warning: host sysctl (7).
 

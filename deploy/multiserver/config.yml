@@ -1,7 +1,8 @@
 # ACPitwall config of the multiserver setup: ONE ACPitwall with two acServers (slots "a" and "b").
 # All options: cmd/acpitwall/config.example.yml
 # Ports: the published ports are variables of compose.yaml (defaults and overrides: .env, see README.md). The acServer
-# ports have to be set to the same values in "Server Options" of each server in the UI.
+# ports are passed into the container (environment: of compose.yaml) and ${NAME} below is expanded from the
+# environment, so the ports are set in one place. They override (and lock) the ports in "Server Options".
 
 steam:
   # the server is installed by the "install" service, nothing to do here. Keep install_path equal to the install_path
@@ -18,9 +19,17 @@ servers:
   - id: a
     name: Server A
     install_path: assetto-a
+    ports:
+      game: ${SERVER_A_PORT}
+      http: ${SERVER_A_HTTP_PORT}
+      content_manager_wrapper: ${SERVER_A_CM_PORT}
   - id: b
     name: Server B
     install_path: assetto-b
+    ports:
+      game: ${SERVER_B_PORT}
+      http: ${SERVER_B_HTTP_PORT}
+      content_manager_wrapper: ${SERVER_B_CM_PORT}
 
 http:
   hostname: 0.0.0.0:8772

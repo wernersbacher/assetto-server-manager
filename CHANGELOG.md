@@ -1,6 +1,10 @@
 Unreleased
 ----------
 
+Added:
+
+* The ports of a server can be set in config.yml (`servers[].ports`: `game` for UDP and TCP, `http`, `content_manager_wrapper`). They override the stored Server Options of that server, which show them read-only, and the Content Manager wrapper is enabled with its port. config.yml expands `${NAME}` and `${NAME:-default}` from the environment (an empty or 0 port is not set), so the ports of the Docker multiserver setup are maintained in one place (`.env`).
+
 Changed:
 
 * The leaderboards choose the car class with a drop-down list (any class or one class) instead of check boxes.
