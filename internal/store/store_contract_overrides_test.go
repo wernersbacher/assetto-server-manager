@@ -35,13 +35,14 @@ func TestStoreContract_ServerOverrides(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if got.UDPPort != 9700 || got.TCPPort != 9700 || got.HTTPPort != 8081 || got.ContentManagerWrapperPort != 8090 || got.EnableContentManagerWrapper != 1 {
+			if got.UDPPort != 9700 || got.TCPPort != 9700 || got.HTTPPort != 8081 || got.ContentManagerWrapperPort != 8090 || got.EnableContentManagerWrapper != 0 {
 				t.Errorf("slot %q: overrides not applied: %d %d %d %d %d", id, got.UDPPort, got.TCPPort, got.HTTPPort, got.ContentManagerWrapperPort, got.EnableContentManagerWrapper)
 			}
 
 			// saving from the UI (effective values) and changing an unlocked field keeps the stored locked values
 			got.HTTPPort = 8082
 			got.Name = "changed"
+			got.EnableContentManagerWrapper = 1
 
 			if err := view.UpsertServerOptions(got); err != nil {
 				t.Fatal(err)
@@ -53,11 +54,11 @@ func TestStoreContract_ServerOverrides(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if stored.UDPPort != 9600 || stored.TCPPort != 9600 || stored.ContentManagerWrapperPort != 0 || stored.EnableContentManagerWrapper != 0 {
+			if stored.UDPPort != 9600 || stored.TCPPort != 9600 || stored.ContentManagerWrapperPort != 0 {
 				t.Errorf("slot %q: locked values were persisted: %+v", id, stored)
 			}
 
-			if stored.HTTPPort != 8082 || stored.Name != "changed" {
+			if stored.HTTPPort != 8082 || stored.Name != "changed" || stored.EnableContentManagerWrapper != 1 {
 				t.Errorf("slot %q: unlocked fields not saved: %d %q", id, stored.HTTPPort, stored.Name)
 			}
 

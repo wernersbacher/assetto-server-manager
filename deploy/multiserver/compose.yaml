@@ -80,7 +80,7 @@ services:
       - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/udp"
       - "${SERVER_A_PORT:-9600}:${SERVER_A_PORT:-9600}/tcp"
       - "${SERVER_A_HTTP_PORT:-8081}:${SERVER_A_HTTP_PORT:-8081}/tcp"
-      # Content Manager wrapper (TCP; config.yml enables the wrapper with this port)
+      # Content Manager wrapper (TCP; config.yml fixes this port; the wrapper is switched on in Server Options)
       - "${SERVER_A_CM_PORT:-8101}:${SERVER_A_CM_PORT:-8101}/tcp"
       # server b
       - "${SERVER_B_PORT:-9601}:${SERVER_B_PORT:-9601}/udp"

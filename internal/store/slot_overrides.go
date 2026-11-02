@@ -1,8 +1,6 @@
 package store
 
 import (
-	"github.com/cj123/formulate"
-
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
@@ -14,7 +12,8 @@ type ServerOverrides struct {
 	Game int
 	// HTTP is used for HTTPPort.
 	HTTP int
-	// ContentManagerWrapper is used for ContentManagerWrapperPort, and also enables the wrapper.
+	// ContentManagerWrapper is used for ContentManagerWrapperPort. Whether the wrapper is enabled stays an option of
+	// the server (EnableContentManagerWrapper), so it can be switched off although the port is fixed.
 	ContentManagerWrapper int
 }
 
@@ -30,14 +29,13 @@ type LockedFields struct {
 	UDPPort  bool
 	TCPPort  bool
 	HTTPPort bool
-	// ContentManagerWrapperPort and EnableContentManagerWrapper are locked together (ports.content_manager_wrapper).
-	ContentManagerWrapperPort   bool
-	EnableContentManagerWrapper bool
+	// ContentManagerWrapperPort is locked by ports.content_manager_wrapper; EnableContentManagerWrapper is not.
+	ContentManagerWrapperPort bool
 }
 
 // Any returns true if at least one field is locked.
 func (l LockedFields) Any() bool {
-	return l.UDPPort || l.TCPPort || l.HTTPPort || l.ContentManagerWrapperPort || l.EnableContentManagerWrapper
+	return l.UDPPort || l.TCPPort || l.HTTPPort || l.ContentManagerWrapperPort
 }
 
 // Has returns true if the server option field with the name (e.g. "HTTPPort") is locked.
@@ -51,8 +49,6 @@ func (l LockedFields) Has(field string) bool {
 		return l.HTTPPort
 	case "ContentManagerWrapperPort":
 		return l.ContentManagerWrapperPort
-	case "EnableContentManagerWrapper":
-		return l.EnableContentManagerWrapper
 	}
 
 	return false
@@ -61,11 +57,10 @@ func (l LockedFields) Has(field string) bool {
 // Locked returns the fields the overrides fix.
 func (o ServerOverrides) Locked() LockedFields {
 	return LockedFields{
-		UDPPort:                     o.Game != 0,
-		TCPPort:                     o.Game != 0,
-		HTTPPort:                    o.HTTP != 0,
-		ContentManagerWrapperPort:   o.ContentManagerWrapper != 0,
-		EnableContentManagerWrapper: o.ContentManagerWrapper != 0,
+		UDPPort:                   o.Game != 0,
+		TCPPort:                   o.Game != 0,
+		HTTPPort:                  o.HTTP != 0,
+		ContentManagerWrapperPort: o.ContentManagerWrapper != 0,
 	}
 }
 
@@ -82,7 +77,6 @@ func (o ServerOverrides) Apply(so *serverconfig.GlobalServerConfig) {
 
 	if o.ContentManagerWrapper != 0 {
 		so.ContentManagerWrapperPort = o.ContentManagerWrapper
-		so.EnableContentManagerWrapper = formulate.BoolNumber(1)
 	}
 }
 
@@ -145,7 +139,6 @@ func (s *overriddenStore) UpsertServerOptions(so *serverconfig.GlobalServerConfi
 
 	if locked.ContentManagerWrapperPort {
 		toSave.ContentManagerWrapperPort = stored.ContentManagerWrapperPort
-		toSave.EnableContentManagerWrapper = stored.EnableContentManagerWrapper
 	}
 
 	return s.Store.UpsertServerOptions(&toSave)

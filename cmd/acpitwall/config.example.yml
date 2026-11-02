@@ -90,7 +90,7 @@ steam:
 #
 # ports (optional, per server) set the ports of that server from this file. They
 # override the stored Server Options of the server (UDP+TCP game port, HTTP
-# port, Content Manager wrapper port; the wrapper gets enabled), and the Server
+# port, Content Manager wrapper port; the wrapper itself stays switchable), and the Server
 # Options page shows them read-only. An empty or 0 port is not set (the stored
 # option applies). Use ${NAME} or ${NAME:-default} to take a port from the
 # environment (see the note on ${NAME} at the top of this file), e.g. docker:

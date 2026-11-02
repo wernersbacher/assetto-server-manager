@@ -138,7 +138,7 @@ type PortsConfig struct {
 	Game int `yaml:"game"`
 	// HTTP is the acServer HTTP (lobby) port.
 	HTTP int `yaml:"http"`
-	// ContentManagerWrapper is the port of the content manager wrapper. Setting it also enables the wrapper.
+	// ContentManagerWrapper is the port of the content manager wrapper. The wrapper itself is switched on or off in the Server Options.
 	ContentManagerWrapper int `yaml:"content_manager_wrapper"`
 }
 

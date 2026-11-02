@@ -158,12 +158,12 @@ Open `http://localhost:8772` (or `http://<vps-ip>:<SM_WEB_PORT>`) and log in as 
 
 ## 6. First steps in the UI
 
-1. **Ports and Content Manager wrapper: nothing to do.** The ports of each server (UDP/TCP game port, HTTP port,
+1. **Ports: nothing to do; Content Manager wrapper: tick it once.** The ports of each server (UDP/TCP game port, HTTP port,
    Content Manager wrapper port) come from `.env` through `config.yml` (`servers[].ports`) and are NOT set in the UI.
    Open Server > Options (`/server-options`) and use the server selector in the top bar to look at Server A and
    Server B: the port fields are read-only (locked, with a note that they come from `config.yml`) and show the
-   values of `.env` (defaults 9600 / 8081 and 9601 / 8082). The **Content Manager wrapper** is enabled automatically
-   with its port (`SERVER_A_CM_PORT` / `SERVER_B_CM_PORT`, defaults 8101 / 8102; a TCP port, different per server);
+   values of `.env` (defaults 9600 / 8081 and 9601 / 8082). The **Content Manager wrapper** port is fixed too, but whether the wrapper is on is still the option "Enable Content Manager Wrapper" in the UI (default off; tick it once per server to use it, untick it to disable it)
+   with the port (`SERVER_A_CM_PORT` / `SERVER_B_CM_PORT`, defaults 8101 / 8102; a TCP port, different per server);
    ACPitwall appends the port to the server name (`<name> ℹ<port>`), which is how Content Manager finds the extra
    information and the download links. ACPitwall still warns about port conflicts between the servers (`Port 9600
    (udp) is used by ... and by ...`; it also refuses to start an event on ports that a running server uses). Plugin
@@ -358,7 +358,7 @@ never rename the id of a server that has data. The example adds a server `c`; th
    overwrites an existing copy) and the `acpitwall` container is recreated, which restarts the manager. **That
    stops running acServers**, so do it between events. The data of the other servers is kept.
 6. Nothing to set in the UI: with the `ports:` of step 2 server C gets 9602 / 8083 (or your `.env` values) and the
-   Content Manager wrapper on 8103, and its port fields are locked. Without `ports:` a new server starts with the
+   Content Manager wrapper port 8103 (enable the wrapper itself in Server Options), and these port fields are locked. Without `ports:` a new server starts with the
    default ports 9600 / 8081 and you set them in Server Options.
 
 Verified (temporary copy of this directory, separate compose project `acsm-test`, a copy of an install imported with
@@ -436,7 +436,7 @@ existing database between the two modes.
 - A password or other value in `config.yml` is wrong or empty: `${NAME}` (and `${NAME:-default}`) is expanded from the environment, also in values you meant literally (part 3).
 - `Could not update tyres for car ...`: content from the Steam download has no `data/tyres.ini`; harmless (4b).
 - Lobby `INVALID SERVER`: ports not reachable from the internet (6).
-- Content Manager shows no extra information or download links: the wrapper is not enabled in Server Options, or its
+- Content Manager shows no extra information or download links: the wrapper is not enabled in Server Options (the checkbox is not set by `ports:`), or its
   port differs from the published `SERVER_x_CM_PORT` (when `ports:` is not used), or the port is blocked by the firewall (6, 7).
 - steamcmd failure: 4a, `STEAM_STRACE=1`, otherwise 4b.
 - UDP buffer warning: host sysctl (7).
