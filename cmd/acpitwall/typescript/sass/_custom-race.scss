@@ -19,7 +19,7 @@
     cursor: pointer;
     color: #fff;
     text-decoration: none;
-    background-color: #08c!important;
+    background-color: var(--primary) !important;
 }
 
 .bg-dlc {
@@ -407,10 +407,12 @@ button.dropdown-item {
   align-items: flex-end;
   flex-wrap: wrap;
   border-bottom: 1px solid var(--border, #dee2e6);
+  margin-bottom: 1.25rem;
 
   .nav-tabs {
     flex: 1 1 auto;
     border-bottom: 0;
+    margin-bottom: 0;
     flex-wrap: wrap;
   }
 

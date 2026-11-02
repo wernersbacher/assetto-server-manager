@@ -17,12 +17,12 @@
   --accent: #f4f4f5;
   --ghost-hover: #f4f4f5;
   --sidebar: #fafafa;
-  --ring: #38bdf8;
-  --link: #1d4ed8;
+  --ring: #818cf8;
+  --link: #4338ca;
 
-  --primary: #18181b;
-  --primary-hover: #3f3f46;
-  --primary-foreground: #fafafa;
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-foreground: #ffffff;
   --secondary: #f4f4f5;
   --secondary-hover: #e4e4e7;
   --secondary-foreground: #18181b;
@@ -75,12 +75,12 @@
   --accent: #27272a;
   --ghost-hover: #1f1f23;
   --sidebar: #0f0f12;
-  --ring: #38bdf8;
-  --link: #93c5fd;
+  --ring: #818cf8;
+  --link: #a5b4fc;
 
-  --primary: #fafafa;
-  --primary-hover: #d4d4d8;
-  --primary-foreground: #18181b;
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --primary-foreground: #ffffff;
   --secondary: #27272a;
   --secondary-hover: #3f3f46;
   --secondary-foreground: #fafafa;
@@ -158,7 +158,7 @@ code, pre {
 }
 
 .text-primary {
-  color: var(--foreground) !important;
+  color: var(--link) !important;
 }
 
 .text-success {
@@ -421,7 +421,16 @@ a.card {
   @include themed-button(var(--info-solid), var(--info-hover), #fff);
 }
 
-.btn-outline-primary, .btn-outline-secondary, .btn-outline-dark, .btn-outline-light {
+.btn-outline-primary {
+  @include themed-button(transparent, var(--primary), var(--primary-foreground), var(--primary));
+  color: var(--link);
+
+  &:hover, &:focus, &.focus, &:not(:disabled):not(.disabled):active, &:not(:disabled):not(.disabled).active {
+    color: var(--primary-foreground);
+  }
+}
+
+.btn-outline-secondary, .btn-outline-dark, .btn-outline-light {
   @include themed-button(transparent, var(--ghost-hover), var(--foreground), var(--border));
 }
 
@@ -532,7 +541,7 @@ a.badge:hover, a.badge:focus {
   color: var(--info-foreground);
 }
 
-.alert a, .alert .alert-link {
+.alert a:not(.btn), .alert .alert-link {
   color: inherit;
   text-decoration: underline;
 }
@@ -668,6 +677,7 @@ a.badge:hover, a.badge:focus {
 
 .nav-tabs {
   border-bottom-color: var(--border);
+  margin-bottom: 1.25rem;
 
   .nav-link {
     color: var(--muted-foreground);
@@ -684,7 +694,7 @@ a.badge:hover, a.badge:focus {
     &.active, &.active:hover {
       color: var(--foreground);
       background-color: transparent;
-      border-bottom-color: var(--foreground);
+      border-bottom-color: var(--primary);
     }
   }
 }
