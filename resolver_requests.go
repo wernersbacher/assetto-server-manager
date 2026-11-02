@@ -2,6 +2,7 @@ package servermanager
 
 import (
 	"fmt"
+	smstore "github.com/wernersbacher/ACPitwall/internal/store"
 	"net/http"
 	"path/filepath"
 
@@ -61,6 +62,7 @@ func (r *Resolver) adminSlotFor(req *http.Request) (*admin.Slot, error) {
 func adminSlot(slot *servers.Slot) *admin.Slot {
 	return &admin.Slot{
 		Store:               slot.Store,
+		ConfigLocks:         smstore.LockedFieldsOf(slot.Store),
 		Env:                 slot.Env,
 		Process:             slot.Process,
 		RaceControl:         slot.RaceControl,

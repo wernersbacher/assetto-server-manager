@@ -177,3 +177,64 @@ servers:
 		t.Errorf("the default slot must use server.plugins, got %+v", slots[0].Plugins)
 	}
 }
+
+func TestExpandEnv(t *testing.T) {
+	os.Setenv("SM_TEST_SET", "9600")
+	os.Unsetenv("SM_TEST_UNSET")
+
+	for in, want := range map[string]string{
+		"a: ${SM_TEST_SET}":         "a: 9600",
+		"a: ${SM_TEST_UNSET}":       "a: ",
+		"a: ${SM_TEST_UNSET:-8081}": "a: 8081",
+		"a: ${SM_TEST_SET:-8081}":   "a: 9600",
+		"pw: pa$word$ $1 ${ x } $$": "pw: pa$word$ $1 ${ x } $$",
+	} {
+		if got := ExpandEnv(in); got != want {
+			t.Errorf("ExpandEnv(%q) = %q, want %q", in, got, want)
+		}
+	}
+}
+
+func TestReadConfigPorts(t *testing.T) {
+	os.Setenv("SM_TEST_GAME", "9700")
+	os.Unsetenv("SM_TEST_HTTP")
+
+	conf, err := readConfig(t, `servers:
+  - id: a
+    install_path: a
+    ports:
+      game: ${SM_TEST_GAME}
+      http: ${SM_TEST_HTTP}
+      content_manager_wrapper: ${SM_TEST_CMW:-8090}
+  - id: b
+    install_path: b
+`)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	slots, err := conf.Slots()
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if want := (PortsConfig{Game: 9700, ContentManagerWrapper: 8090}); slots[0].Ports != want {
+		t.Errorf("ports = %+v, want %+v", slots[0].Ports, want)
+	}
+
+	if slots[1].Ports.Any() {
+		t.Errorf("slot b should have no ports: %+v", slots[1].Ports)
+	}
+}
+
+func TestReadConfigPortsInvalid(t *testing.T) {
+	for _, port := range []string{"70000", "-1"} {
+		_, err := readConfig(t, "servers:\n  - id: a\n    install_path: a\n    ports:\n      http: "+port+"\n")
+
+		if err == nil || !strings.Contains(err.Error(), "ports.http") {
+			t.Errorf("port %s: expected ports.http error, got %v", port, err)
+		}
+	}
+}

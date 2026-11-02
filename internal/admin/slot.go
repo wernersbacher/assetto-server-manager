@@ -17,7 +17,9 @@ import (
 // Slot is the part of a server slot the administration handlers work with.
 type Slot struct {
 	// Store is the view of the store for the slot (see smstore.ForServer).
-	Store               smstore.Store
+	Store smstore.Store
+	// ConfigLocks are the server option fields which config.yml fixes for this slot (read-only in the UI).
+	ConfigLocks         smstore.LockedFields
 	Env                 *serverenv.Env
 	Process             smserver.ServerProcess
 	RaceControl         *racecontrol.RaceControl

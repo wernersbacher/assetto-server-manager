@@ -203,7 +203,12 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 	r.slotResolved[slot] = true
 
 	slotConfig := r.slotConfig(slot)
-	store := smstore.ForServer(r.store, smmodel.ServerID(slotConfig.ID))
+	// ports fixed in config.yml override the stored server options of the slot
+	store := smstore.ForServerWithOverrides(r.store, smmodel.ServerID(slotConfig.ID), smstore.ServerOverrides{
+		Game:                  slotConfig.Ports.Game,
+		HTTP:                  slotConfig.Ports.HTTP,
+		ContentManagerWrapper: slotConfig.Ports.ContentManagerWrapper,
+	})
 	slot.Store = store
 
 	// the process reads the executable and the plugin commands of the slot from the configuration

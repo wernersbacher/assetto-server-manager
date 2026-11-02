@@ -4,9 +4,11 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"time"
@@ -125,6 +127,37 @@ type ServerSlotConfig struct {
 	// Plugins are the extra commands (see server.plugins) which are started with this server. A server without its
 	// own list (not even an empty one) starts those of server.plugins.
 	Plugins []*CommandPlugin `yaml:"plugins"`
+
+	// Ports optionally fixes the ports of the server. A port that is set (not 0) overrides the stored server option.
+	Ports PortsConfig `yaml:"ports"`
+}
+
+// PortsConfig are the ports of a server slot given in config.yml. 0 means not set: the stored server option is used.
+type PortsConfig struct {
+	// Game is the acServer port, used for both UDP and TCP.
+	Game int `yaml:"game"`
+	// HTTP is the acServer HTTP (lobby) port.
+	HTTP int `yaml:"http"`
+	// ContentManagerWrapper is the port of the content manager wrapper. Setting it also enables the wrapper.
+	ContentManagerWrapper int `yaml:"content_manager_wrapper"`
+}
+
+// Any returns true if at least one port is set.
+func (p PortsConfig) Any() bool {
+	return p.Game != 0 || p.HTTP != 0 || p.ContentManagerWrapper != 0
+}
+
+func (p PortsConfig) validate(id string) error {
+	for _, port := range []struct {
+		name  string
+		value int
+	}{{"game", p.Game}, {"http", p.HTTP}, {"content_manager_wrapper", p.ContentManagerWrapper}} {
+		if port.value < 0 || port.value > 65535 {
+			return fmt.Errorf("config: server %q: ports.%s is %d, it must be between 1 and 65535", id, port.name, port.value)
+		}
+	}
+
+	return nil
 }
 
 // DefaultSlotID is the ID of the slot that is derived from the steam section when no servers are configured. It is
@@ -151,6 +184,9 @@ type Slot struct {
 	// be set up by the plugins themselves. Stracker, KissMyRank and Real Penalty are not part of this list, they are
 	// started from their options, which are stored per slot.
 	Plugins []*CommandPlugin
+
+	// Ports are the ports fixed in config.yml (servers[].ports), 0 = not set. They override the stored server options.
+	Ports PortsConfig
 }
 
 // IsDefault returns true for the slot that is derived from the steam section.
@@ -207,6 +243,11 @@ func (c *Configuration) Slots() ([]Slot, error) {
 			InstallPath:    installPath,
 			ExecutablePath: server.ExecutablePath,
 			Plugins:        server.Plugins,
+			Ports:          server.Ports,
+		}
+
+		if err := slot.Ports.validate(slot.ID); err != nil {
+			return nil, err
 		}
 
 		if slot.Name == "" {
@@ -293,15 +334,13 @@ func (c *CommandPlugin) String() string {
 }
 
 func ReadConfig(location string) (conf *Configuration, err error) {
-	f, err := os.Open(location)
+	raw, err := ioutil.ReadFile(location)
 
 	if err != nil {
 		return nil, err
 	}
 
-	defer f.Close()
-
-	if err := yaml.NewDecoder(f).Decode(&conf); err != nil {
+	if err := yaml.NewDecoder(strings.NewReader(ExpandEnv(string(raw)))).Decode(&conf); err != nil {
 		return nil, err
 	}
 
@@ -318,4 +357,20 @@ func ReadConfig(location string) (conf *Configuration, err error) {
 	}
 
 	return conf, nil
+}
+
+var envReference = regexp.MustCompile(`\$\{([A-Za-z_][A-Za-z0-9_]*)(?::-([^}]*))?\}`)
+
+// ExpandEnv replaces ${NAME} and ${NAME:-default} with the value of the environment variable. An unset (or empty)
+// variable gives the default, or an empty text. Only this form is expanded, a lone $ is left alone.
+func ExpandEnv(text string) string {
+	return envReference.ReplaceAllStringFunc(text, func(match string) string {
+		groups := envReference.FindStringSubmatch(match)
+
+		if value := os.Getenv(groups[1]); value != "" {
+			return value
+		}
+
+		return groups[2]
+	})
 }
