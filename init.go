@@ -105,7 +105,9 @@ func InitWithResolver(resolver *Resolver) error {
 		resolver.restartLastEvent(slot)
 	}
 
-	startDevMockLiveTiming(registry.Default())
+	for _, slot := range registry.All() {
+		startDevMockLiveTiming(slot, slot == registry.Default())
+	}
 
 	if resolver.config.Store.ScheduledEventCheckLoop > time.Duration(0) {
 		logrus.Infof("Experimental Scheduled Event Check loop feature enabled. Checking for new scheduled events every %s", resolver.config.Store.ScheduledEventCheckLoop)

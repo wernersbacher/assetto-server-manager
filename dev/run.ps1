@@ -136,11 +136,11 @@ if ($Seed) {
 }
 
 if ($Mock) {
-    # installs created before the fake track maps existed don't have them yet
+    # installs created before the fake track maps existed (or before they changed) don't have the current ones
     $seedDir = Join-Path $PSScriptRoot 'assetto-seed'
     Get-ChildItem (Join-Path $seedDir 'content/tracks') -Recurse -Include map.png, map.ini | ForEach-Object {
         $dest = Join-Path $assettoDir $_.FullName.Substring($seedDir.Length + 1)
-        if (-not (Test-Path $dest)) { Copy-Item $_.FullName $dest }
+        Copy-Item -Force $_.FullName $dest
     }
 }
 

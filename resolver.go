@@ -216,7 +216,7 @@ func (r *Resolver) resolveSlot(slot *servers.Slot) *servers.Slot {
 	slot.ContentManagerWrapper.SetUserSkinDirs(r.userSkinDir)
 	process := smserver.NewAssettoServerProcess(&processConfig, r.slotUDPCallback(slot), store, slot.ContentManagerWrapper, slot.Env, pluginsOutput)
 	process.SetStartCheck(func() error { return r.checkPorts(slot) })
-	slot.Process = process
+	slot.Process = wrapDevMockProcess(process)
 
 	slot.RaceControlHub = racecontrol.NewRaceControlHub()
 	go panicCapture(slot.RaceControlHub.Run)

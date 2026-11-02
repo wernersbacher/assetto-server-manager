@@ -7,6 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+
 	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	"github.com/wernersbacher/ACPitwall/pkg/udp"
 )
@@ -61,6 +64,9 @@ func MockSessionType(value string) udp.SessionType {
 // is refreshed, so that they are not disconnected after five minutes without position updates.
 func (rc *RaceControl) ReplayMockSession(sessionType udp.SessionType) {
 	rng := rand.New(rand.NewSource(42))
+
+	// drivers persisted by an earlier run (or the last shutdown) would be merged into the new session
+	_ = rc.store.UpsertLiveTimingsData(&smmodel.LiveTimingsPersistedData{})
 
 	name := map[udp.SessionType]string{
 		udp.SessionTypePractice:   "Practice",
@@ -216,7 +222,7 @@ func (rc *RaceControl) ReplayMockSession(sessionType udp.SessionType) {
 		}
 
 		driver.Lock()
-		driver.LastPos = mockPos(float64(i) / float64(connected))
+		driver.LastPos = mockPos(0.04 + float64(i)/float64(connected))
 		driver.LastSeen = time.Now()
 		driver.Unlock()
 	}
@@ -250,4 +256,40 @@ func mockPos(t float64) udp.Vec {
 	angle := 2 * math.Pi * t
 
 	return udp.Vec{X: float32(250 * math.Cos(angle)), Z: float32(180 * math.Sin(angle))}
+}
+
+// MockEvent is the event which runs on a slot in mock mode (see ReplayMockSession): a custom race on the fake track
+// with the mock drivers, with one session of the given type.
+func MockEvent(sessionType udp.SessionType) *smmodel.CustomRace {
+	setup := serverconfig.ConfigIniDefault().CurrentRaceConfig
+	setup.Cars = "dev_car_gt3;dev_car_mx5"
+	setup.Track = mockTrack
+	setup.TrackLayout = mockTrackLayout
+	setup.LegalTyres = "SM"
+	setup.MaxClients = 18
+
+	switch sessionType {
+	case udp.SessionTypePractice:
+		setup.Sessions = serverconfig.Sessions{serverconfig.SessionTypePractice: {Name: "Practice", Time: 20, IsOpen: 1}}
+	case udp.SessionTypeQualifying:
+		setup.Sessions = serverconfig.Sessions{serverconfig.SessionTypeQualifying: {Name: "Qualify", Time: 20, IsOpen: 1}}
+	default:
+		setup.Sessions = serverconfig.Sessions{serverconfig.SessionTypeRace: {Name: "Race", Laps: 10, IsOpen: 1, WaitTime: 60}}
+	}
+
+	entryList := make(serverconfig.EntryList)
+
+	for _, d := range mockDrivers {
+		entryList.AddToBackOfGrid(&serverconfig.Entrant{Name: d.name, Team: d.team, GUID: d.guid, Model: d.car, Skin: d.skin})
+	}
+
+	return &smmodel.CustomRace{
+		Name:          "Dev mock " + strings.ToLower(sessionType.String()),
+		HasCustomName: true,
+		Created:       time.Now(),
+		Updated:       time.Now(),
+		UUID:          uuid.New(),
+		RaceConfig:    setup,
+		EntryList:     entryList,
+	}
 }

@@ -44,7 +44,7 @@ weekly) and a race weekend. It prints the championship standings as a sanity che
 database is locked otherwise). Running it again does nothing; `-reset` (tool flag) removes the seeded data and seeds again,
 `./dev/run.ps1 -Reset -Seed` starts from a fresh database. The admin account is not touched.
 
-`-Mock <race|qualifying|practice>` additionally fills the live timing of server a with a frozen made-up session (the same
+`-Mock <race|qualifying|practice>` additionally starts a made-up event on every server (a: the chosen session, the others: a practice; the process is replaced by one which starts no acServer, so the servers show as running) and fills the live timing of server a with a frozen made-up session (the same
 drivers as the seed, a few laps each with cuts and splits, positions on the live map, two collisions, chat, one driver who
 has left), by replaying UDP messages into the race control (`internal/racecontrol/mock.go`, switched on by the
 environment variable `DEV_MOCK_LIVE_TIMING`). Use `-Seed -Mock race` to see results, championships and leaderboards

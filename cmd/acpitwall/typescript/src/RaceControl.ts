@@ -625,6 +625,31 @@ class LiveMap implements WebsocketHandler {
 
             this.mapScaleMultiplier = this.$trackMapImage.width()! / this.raceControl.status.TrackMapData.width;
         }
+
+        this.repositionDots();
+    }
+
+    // repositionDots puts the dots to the last known position of their driver with the current map scale. Dots built
+    // before the map image was loaded (or resized since) are otherwise wrong until the next position update, which
+    // never comes while no car moves.
+    private repositionDots(): void {
+        const drivers = this.raceControl.status && this.raceControl.status.ConnectedDrivers ? this.raceControl.status.ConnectedDrivers.Drivers : undefined;
+
+        if (!drivers) {
+            return;
+        }
+
+        for (const [guid, $dot] of this.dots) {
+            const driver = drivers[guid];
+
+            if (!driver || !driver.LastPos) {
+                continue;
+            }
+
+            const dotPos = this.translateToTrackCoordinate(driver.LastPos as CarUpdateVec);
+
+            $dot.css({"left": dotPos.X, "top": dotPos.Z});
+        }
     }
 
     // highlightDot makes the dot of a driver pulse for a moment (clicked in the event feed).
