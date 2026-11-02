@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/wernersbacher/ACPitwall/internal/acserver/serverconfig"
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 	smweb "github.com/wernersbacher/ACPitwall/internal/web"
 )
 
@@ -39,8 +40,23 @@ func (edh *EventDetailsHandler) View(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// the route has no area of its own: what the popup shows decides which area the visitor needs
+	area := smmodel.AreaRaceWeekends
+
+	switch {
+	case r.URL.Query().Get("custom-race") != "":
+		area = smmodel.AreaCustomRaces
+	case r.URL.Query().Get("championshipID") != "":
+		area = smmodel.AreaChampionships
+	}
+
+	if !smweb.AreaAccess(r, area) {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		return
+	}
+
 	var (
-		eventConfig    serverconfig.CurrentRaceConfig
+		eventConfig   serverconfig.CurrentRaceConfig
 		eventName      string
 		entryList      serverconfig.EntryList
 		isChampionship bool

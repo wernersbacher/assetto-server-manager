@@ -105,7 +105,7 @@ func Router(
 	r.Use(accountHandler.RequestScopeMiddleware)
 	r.Use(accountHandler.ViewRenderer.TranslationMiddleware)
 	r.Use(serverSelection)
-	r.Use(smweb.NotFoundPageMiddleware(accountHandler.ReadAccessMiddleware(http.HandlerFunc(serverAdministrationHandler.NotFound))))
+	r.Use(smweb.NotFoundPageMiddleware(accountHandler.AnyAreaAccessMiddleware(http.HandlerFunc(serverAdministrationHandler.NotFound))))
 
 	r.HandleFunc("/login", accountHandler.Login)
 	r.Get("/login/steam", accountHandler.SteamLogin())
@@ -204,9 +204,11 @@ func Router(
 		r.Get("/api/upcoming-races", scheduledRacesHandler.UpcomingAPI)
 	})
 
-	// event details
+	// event details: the popup shows a custom race, a championship event or a race weekend session, so it belongs to
+	// the area of whatever it is asked for. The handler checks that area (custom_races, championships or
+	// race_weekends); the middleware only lets in who may see the entry pages.
 	r.Group(func(r chi.Router) {
-		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaLiveTiming))
+		r.Use(accountHandler.AnyAreaAccessMiddleware)
 
 		r.Get("/event-details", eventDetailsHandler.View)
 	})
@@ -273,7 +275,7 @@ func Router(
 		r.Post("/championship/{championshipID}/sign-up", championshipsHandler.SignUpForm)
 	})
 
-	// race control
+	// live timing and race control: the live view, its websocket and the status of the servers
 	r.Group(func(r chi.Router) {
 		r.Use(accountHandler.AreaAccessMiddleware(smmodel.AreaLiveTiming))
 
