@@ -19,7 +19,7 @@
         {{ end }}
     {{ else }}
         <form class="results-filter" method="get" action="/leaderboards">
-            <select name="trackLayout" class="form-control" aria-label="{{ t "home.track" }}" onchange="this.form.querySelectorAll('input[name=car], input[name=carClass]').forEach(function (c) { c.checked = false; }); this.form.submit()">
+            <select name="trackLayout" class="form-control" aria-label="{{ t "home.track" }}" onchange="this.form.querySelectorAll('input[name=car]').forEach(function (c) { c.checked = false; }); var cc = this.form.querySelector('select[name=carClass]'); if (cc) { cc.value = ''; } this.form.submit()">
                 {{ range $.Tracks }}
                     <option value="{{ .Value }}" {{ if eq .Value $.Value }}selected{{ end }}>{{ .Name }}</option>
                 {{ end }}
@@ -53,14 +53,12 @@
             {{ end }}
 
             {{ if $.CarClasses }}
-                <details class="leaderboard-cars w-100">
-                    <summary>{{ t "results.leaderboards.car_class" }}</summary>
-                    <div class="mt-1">
-                        {{ range $.CarClasses }}
-                            <label class="mr-3 mb-0 text-nowrap"><input type="checkbox" name="carClass" value="{{ .ID }}" {{ if .Selected }}checked{{ end }} onchange="this.form.submit()"> {{ .Name }}</label>
-                        {{ end }}
-                    </div>
-                </details>
+                <select name="carClass" class="form-control" aria-label="{{ t "results.leaderboards.car_class" }}" onchange="this.form.submit()">
+                    <option value="">{{ t "results.leaderboards.any_car_class" }}</option>
+                    {{ range $.CarClasses }}
+                        <option value="{{ .ID }}" {{ if .Selected }}selected{{ end }}>{{ .Name }}</option>
+                    {{ end }}
+                </select>
             {{ end }}
 
             {{ if gt (len $.Cars) 1 }}

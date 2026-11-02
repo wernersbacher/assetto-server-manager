@@ -113,6 +113,7 @@ results:
     lap_record: Lap record
     best_sector: Best of this sector
     car_class: Car class
+    any_car_class: Any car class
   driver:
     team: Team {team}
     aka: Also known as

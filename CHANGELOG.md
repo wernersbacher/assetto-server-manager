@@ -3,6 +3,8 @@ Unreleased
 
 Changed:
 
+* The leaderboards choose the car class with a drop-down list (any class or one class) instead of check boxes.
+
 * New primary colour (indigo) for buttons, active tabs and highlights, in the light and the dark theme. Tabs have more space to the content below, buttons in alerts and on the live timing page keep a readable text colour.
 
 * The server cards of the overview show a Join button (Content Manager link) for running servers, if the join link is enabled in the server options. `GET /api/servers` returns it as `JoinLink`.
