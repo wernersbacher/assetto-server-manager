@@ -1,0 +1,2 @@
+{{/* A link to a page of another area, plain text if the visitor may not see that area: {{ template "area-link" dict "Area" "content" "URL" "/track/x" "Text" "Track" }}. Text is escaped by the template engine. */}}
+{{ define "area-link" }}{{ if canSee .Area }}<a href="{{ .URL }}">{{ .Text }}</a>{{ else }}{{ .Text }}{{ end }}{{ end }}

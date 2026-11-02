@@ -82,7 +82,7 @@
         <section aria-labelledby="leaderboard-heading">
             <h2 id="leaderboard-heading" class="section-title">
                 {{ $.TrackName }}
-                <a class="btn btn-sm btn-outline ml-2" href="/track/{{ $.Track }}">{{ t "results.leaderboards.track_details" }}</a>
+                {{ if canSee "content" }}<a class="btn btn-sm btn-outline ml-2" href="/track/{{ $.Track }}">{{ t "results.leaderboards.track_details" }}</a>{{ end }}
             </h2>
 
             {{ if $.Rows }}
@@ -98,13 +98,13 @@
                         <th>{{ t "home.date" }}</th>
                     </tr>
                     {{ range $.Rows }}
-                        <tr class="row-link {{ if eq .Position 1 }}font-weight-bold{{ end }}" data-href="/results/{{ .ResultFile }}">
+                        <tr class="{{ if canSee "results" }}row-link {{ end }}{{ if eq .Position 1 }}font-weight-bold{{ end }}" {{ if canSee "results" }}data-href="/results/{{ .ResultFile }}"{{ end }}>
                             <td>
                                 {{ if eq .Position 1 }}<span class="badge badge-success" title="{{ t "results.leaderboards.lap_record" }}">1</span>{{ else }}{{ .Position }}{{ end }}
                             </td>
                             <td>{{ template "driver-link" dict "GUID" .DriverGUID "Name" .DriverName }}</td>
-                            <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a>{{ range .Classes }} <span class="badge badge-secondary">{{ . }}</span>{{ end }}</td>
-                            <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
+                            <td>{{ template "area-link" dict "Area" "content" "URL" (printf "/car/%s" .Car) "Text" (prettify .Car true) }}{{ range .Classes }} <span class="badge badge-secondary">{{ . }}</span>{{ end }}</td>
+                            <td class="text-nowrap">{{ template "area-link" dict "Area" "results" "URL" (printf "/results/%s" .ResultFile) "Text" (formatDuration .LapTime true) }}</td>
                             <td class="text-nowrap text-muted">{{ .GapText }}</td>
                             <td class="d-none d-md-table-cell text-nowrap">
                                 {{ $row := . }}{{ range $i, $sector := .Sectors }}{{ if $i }} / {{ end }}<span {{ if index $row.BestSectors $i }}class="text-success" title="{{ t "results.leaderboards.best_sector" }}"{{ end }}>{{ formatDuration $sector true }}</span>{{ end }}

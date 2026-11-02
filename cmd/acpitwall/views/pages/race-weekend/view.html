@@ -39,7 +39,7 @@
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
                         {{ if $.RaceWeekend.HasLinkedChampionship }}
-                            <a class="dropdown-item" href="/championship/{{ $.RaceWeekend.Championship.ID.String }}">{{ t "raceweekend.view_championship" }}</a>
+                            {{ if canSee "championships" }}<a class="dropdown-item" href="/championship/{{ $.RaceWeekend.Championship.ID.String }}">{{ t "raceweekend.view_championship" }}</a>{{ end }}
                         {{ end }}
 
                         {{ if WriteAccess }}
@@ -397,7 +397,7 @@
                                 {{ if $session.Completed }}
 
                                     <p class="text-center mt-2 mb-2">
-                                        <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">{{ t "raceweekend.detailed_results" }}</a>
+                                        {{ if canSee "results" }}<a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">{{ t "raceweekend.detailed_results" }}</a>{{ end }}
                                     </p>
 
                                     {{ template "session-overall" dict "sessionResults" $session.Results "account" $.Account "server" (resultServer $session.Results.SessionFile) }}

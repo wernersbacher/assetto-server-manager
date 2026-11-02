@@ -129,10 +129,10 @@
                                 <th>{{ t "home.date" }}</th>
                             </tr>
                             {{ range $records }}
-                                <tr class="row-link" data-href="/results/{{ .ResultFile }}">
+                                <tr {{ if canSee "results" }}class="row-link" data-href="/results/{{ .ResultFile }}"{{ end }}>
                                     <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a></td>
                                     <td>{{ driverName .DriverName }}</td>
-                                    <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
+                                    <td class="text-nowrap">{{ if canSee "results" }}<a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a>{{ else }}{{ formatDuration .LapTime true }}{{ end }}</td>
                                     <td class="d-none d-md-table-cell text-nowrap">{{ range $i, $sector := .Sectors }}{{ if $i }} / {{ end }}{{ formatDuration $sector true }}{{ end }}</td>
                                     <td class="text-nowrap">
                                         {{ localFormat .Date }}
@@ -147,6 +147,7 @@
                 </div>
                 {{ end }}
 
+                {{ if canSee "results" }}
                 <hr>
 
                 <div class="card-body">
@@ -172,6 +173,7 @@
                     </div>
 
                 </div>
+                {{ end }}
             </div>
 
         {{ end }}

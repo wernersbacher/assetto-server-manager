@@ -45,7 +45,7 @@
                         </dl>
 
                         <div class="server-card-actions">
-                            {{ if and ReadAccess (not $.PerformanceMode) }}
+                            {{ if and (canSee "live_timing") (not $.PerformanceMode) }}
                                 <a href="/live-timing?server={{ .ID }}" class="btn btn-primary btn-sm">{{ t "nav.live_timing" }}</a>
                             {{ end }}
 
@@ -74,6 +74,7 @@
     {{ end }}
 
     <div class="dashboard-grid mb-4">
+        {{ if canSee "live_timing" }}
         <section class="card dashboard-card" aria-labelledby="current-session-heading">
             <div class="dashboard-card-header">
                 <h2 id="current-session-heading">{{ t "home.current_session" }}</h2>
@@ -147,7 +148,9 @@
                 {{ end }}
             {{ end }}
         </section>
+        {{ end }}
 
+        {{ if canSee "calendar" }}
         <section class="card dashboard-card" aria-labelledby="upcoming-heading">
             <div class="dashboard-card-header">
                 <h2 id="upcoming-heading">{{ t "home.coming_up" }}</h2>
@@ -164,9 +167,9 @@
                             </div>
                             <div class="upcoming-info">
                                 <div class="upcoming-name">
-                                    {{ if .ChampionshipID }}
+                                    {{ if and .ChampionshipID (canSee "championships") }}
                                         <a href="/championship/{{ .ChampionshipID }}">{{ .ChampionshipName }}</a> · {{ .Name }}
-                                    {{ else if .RaceWeekendID }}
+                                    {{ else if and .RaceWeekendID (canSee "race_weekends") }}
                                         <a href="/race-weekend/{{ .RaceWeekendID }}">{{ .RaceWeekendName }}</a> · {{ .Name }}
                                     {{ else }}
                                         {{ .Name }}
@@ -182,6 +185,7 @@
                 <p class="text-muted mb-0">{{ t "home.nothing_scheduled" }}</p>
             {{ end }}
         </section>
+        {{ end }}
     </div>
 
     {{ if WriteAccess }}
@@ -209,6 +213,7 @@
         </section>
     {{ end }}
 
+    {{ if canSee "results" }}
     <section aria-labelledby="recent-results-heading">
         <div class="d-flex align-items-center justify-content-between">
             <h2 id="recent-results-heading" class="section-title">{{ t "home.recent_results" }}</h2>
@@ -246,4 +251,5 @@
             {{ template "empty-state" dict "Icon" "results" "Text" (t "home.no_results") }}
         {{ end }}
     </section>
+    {{ end }}
 {{ end }}

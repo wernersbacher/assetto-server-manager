@@ -17,13 +17,13 @@
                             <div class="col-sm-8">
                                 {{ $trackInfo := trackInfo $.EventConfig.Track $.EventConfig.TrackLayout }}
 
-                                <a href="/track/{{ $.EventConfig.Track }}" target="_blank">
+                                {{ if canSee "content" }}<a href="/track/{{ $.EventConfig.Track }}" target="_blank">{{ end }}
                                     {{ with $trackInfo }}
                                         {{ $trackInfo.Name }}
                                     {{ else }}
                                         {{ prettify $.EventConfig.Track false }} ({{ prettify $.EventConfig.TrackLayout true }})
                                     {{ end }}
-                                </a>
+                                {{ if canSee "content" }}</a>{{ end }}
 
                                 {{ with $trackInfo }}
                                     - {{ t "race.details.pitboxes" "count" $trackInfo.Pitboxes }}
@@ -44,9 +44,9 @@
                                 <ul class="list-unstyled">
                                     {{ range $index, $car := (varSplit $.EventConfig.Cars) }}
                                         <li>
-                                            <a href="/car/{{ $car }}" target="_blank">
+                                            {{ if canSee "content" }}<a href="/car/{{ $car }}" target="_blank">{{ end }}
                                                 {{ prettify $car true }}
-                                            </a>
+                                            {{ if canSee "content" }}</a>{{ end }}
                                         </li>
                                     {{ end }}
 

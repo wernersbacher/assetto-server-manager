@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/cj123/caldav-go/icalendar"
@@ -170,6 +171,10 @@ func (rs *Handler) generateJSON(w io.Writer, r *http.Request) error {
 
 	if err != nil {
 		return err
+	}
+
+	for i := range calendarObjects {
+		calendarObjects[i] = rs.hideInvisibleLinks(r, calendarObjects[i])
 	}
 
 	return json.NewEncoder(w).Encode(calendarObjects)
@@ -622,4 +627,38 @@ func eventHidden(event Event) bool {
 	}
 
 	return false
+}
+
+// hideInvisibleLinks removes the links of a calendar entry to pages of areas the requester may not see (the
+// championship or race weekend the event belongs to); the entry itself belongs to the calendar and stays.
+func (rs *Handler) hideInvisibleLinks(r *http.Request, object CalendarObject) CalendarObject {
+	var area smmodel.Area
+
+	switch {
+	case strings.HasPrefix(object.URL, "/championship/"):
+		area = smmodel.AreaChampionships
+	case strings.HasPrefix(object.URL, "/race-weekend/"):
+		area = smmodel.AreaRaceWeekends
+	default:
+		return object
+	}
+
+	if smweb.AreaAccess(r, area) {
+		return object
+	}
+
+	object.URL = ""
+	object.SignUpURL = ""
+
+	classNames := make([]string, 0, len(object.ClassNames))
+
+	for _, class := range object.ClassNames {
+		if class != "calendar-link" {
+			classNames = append(classNames, class)
+		}
+	}
+
+	object.ClassNames = classNames
+
+	return object
 }

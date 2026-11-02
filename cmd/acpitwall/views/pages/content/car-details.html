@@ -28,7 +28,7 @@
                 <div class="col-4 col-md-2 car-skins">
                     {{ range $index, $skin := $.Car.Skins }}
                         <div class="car-skin">
-                            <a href="/car/{{ $.Car.Name }}/skin/{{ $skin }}/download" class="small d-block text-center" title="{{ t "content.car.download_skin" }}"><i class="fas fa-download"></i></a>
+                            {{ if canSee "downloads" }}<a href="/car/{{ $.Car.Name }}/skin/{{ $skin }}/download" class="small d-block text-center" title="{{ t "content.car.download_skin" }}"><i class="fas fa-download"></i></a>{{ end }}
                             <img class="img img-fluid car-image" src="{{ carSkinURL $.Car.Name $skin }}" alt="{{ t "content.car.skin_alt" "car" $.Car.Details.Name "skin" $skin }}" title="{{ prettify $skin true }}" data-skin="{{ $skin }}" data-toggle="tooltip" data-placement="bottom">
                         </div>
                     {{ end }}
@@ -123,9 +123,9 @@
                                     {{ end }}
 
                                     <td>
-                                        <a href="{{ printf "/setups/download/%s/%s/%s" $.Car.Name $trackName $setup }}">
+                                        {{ if canSee "downloads" }}<a href="{{ printf "/setups/download/%s/%s/%s" $.Car.Name $trackName $setup }}">
                                             {{ $setup }}
-                                        </a>
+                                        </a>{{ else }}{{ $setup }}{{ end }}
                                     </td>
 
                                     {{ if DeleteAccess }}
@@ -200,12 +200,12 @@
                             <th>{{ t "home.date" }}</th>
                         </tr>
                         {{ range $.Records }}
-                            <tr class="row-link" data-href="/results/{{ .ResultFile }}">
+                            <tr {{ if canSee "results" }}class="row-link" data-href="/results/{{ .ResultFile }}"{{ end }}>
                                 <td>
                                     <a href="/track/{{ .Track }}">{{ prettify .Track false }}</a>
                                     {{ with .Layout }}({{ prettify . true }}){{ end }}
                                 </td>
-                                <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
+                                <td class="text-nowrap">{{ if canSee "results" }}<a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a>{{ else }}{{ formatDuration .LapTime true }}{{ end }}</td>
                                 <td>{{ driverName .DriverName }}</td>
                                 <td class="text-nowrap">
                                     {{ localFormat .Date }}
@@ -219,6 +219,7 @@
                 {{ end }}
                 {{ end }}
 
+                {{ if canSee "results" }}
                 <h2>{{ t "home.sessions" }}</h2>
 
                 <p>{{ tn "content.car.used_in_sessions" (len $.Results) }}</p>
@@ -234,6 +235,7 @@
                         </a>
                     {{ end }}
                 </div>
+                {{ end }}
 
             </div>
 

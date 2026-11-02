@@ -97,43 +97,55 @@ func (sah *ServerAdministrationHandler) Home(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	currentRace, entryList := slot.RaceManager.CurrentRace()
+	// every block is only loaded if the requester may see its area: the template hides the links, but the data
+	// must not be in the page either
+	var (
+		customRace    *smmodel.CustomRace
+		upcoming      []*api.UpcomingRace
+		recentResults []*smresults.SessionResults
+		overview      []*ServerSummary
+	)
 
-	var customRace *smmodel.CustomRace
+	if smweb.AreaAccess(r, smmodel.AreaLiveTiming) {
+		currentRace, entryList := slot.RaceManager.CurrentRace()
 
-	if currentRace != nil {
-		customRace = &smmodel.CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
+		if currentRace != nil {
+			customRace = &smmodel.CustomRace{EntryList: entryList, RaceConfig: currentRace.CurrentRaceConfig}
+		}
+
+		if len(sah.slots()) > 1 {
+			overview = sah.serverSummaries()
+		}
 	}
 
 	// the overview still renders if the calendar or the results can't be loaded, they are just left out
-	upcoming, err := sah.scheduledRaces.UpcomingRaces(time.Now(), homeUpcomingRaces, "", smweb.CanSeeHidden(r))
+	if smweb.AreaAccess(r, smmodel.AreaCalendar) {
+		var err error
 
-	if err != nil {
-		logrus.WithError(err).Error("couldn't load upcoming races for the overview")
+		upcoming, err = sah.scheduledRaces.UpcomingRaces(time.Now(), homeUpcomingRaces, "", smweb.CanSeeHidden(r))
+
+		if err != nil {
+			logrus.WithError(err).Error("couldn't load upcoming races for the overview")
+		}
 	}
 
-	hidden, hiddenErr := resultshttp.NewHiddenResultsFor(r, slot.Store)
+	if smweb.AreaAccess(r, smmodel.AreaResults) {
+		hidden, hiddenErr := resultshttp.NewHiddenResultsFor(r, slot.Store)
 
-	if hiddenErr != nil {
-		logrus.WithError(hiddenErr).Error("couldn't determine hidden results for the overview")
+		if hiddenErr != nil {
+			logrus.WithError(hiddenErr).Error("couldn't determine hidden results for the overview")
+		}
 
-	}
+		// better to show no results than to leak hidden ones
+		if hiddenErr == nil {
+			var err error
 
-	var recentResults []*smresults.SessionResults
+			recentResults, err = slot.Env.Results().ListRecent(homeRecentResults, hidden.HideFunc())
 
-	// better to show no results than to leak hidden ones
-	if hiddenErr == nil {
-		recentResults, err = slot.Env.Results().ListRecent(homeRecentResults, hidden.HideFunc())
-	}
-
-	if err != nil {
-		logrus.WithError(err).Error("couldn't load recent results for the overview")
-	}
-
-	var overview []*ServerSummary
-
-	if len(sah.slots()) > 1 {
-		overview = sah.serverSummaries()
+			if err != nil {
+				logrus.WithError(err).Error("couldn't load recent results for the overview")
+			}
+		}
 	}
 
 	sah.ViewRenderer.MustLoadTemplate(w, r, "home.html", &homeTemplateVars{

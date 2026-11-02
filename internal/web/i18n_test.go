@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	smmodel "github.com/wernersbacher/ACPitwall/internal/model"
 )
 
 type memoryLoader struct {
@@ -113,5 +115,80 @@ func TestTranslateForRequest(t *testing.T) {
 
 	if got != "X gespeichert" {
 		t.Errorf("got %q", got)
+	}
+}
+
+func TestCanSeeIsBoundPerRequestInEveryLanguage(t *testing.T) {
+	tr, err := NewRenderer(RendererOptions{
+		Loader: memoryLoader{
+			page: `{{ define "link" }}{{ if canSee "results" }}results{{ else }}-{{ end }}{{ end }}` +
+				`{{ define "base" }}{{ if canSee "teams" }}teams{{ else }}-{{ end }},{{ template "link" . }},{{ if canSee "bogus" }}bogus{{ else }}-{{ end }}{{ end }}`,
+			locales: map[string][]byte{
+				"en.yaml": []byte(`{hello: "Hello"}`),
+				"de.yaml": []byte(`{hello: "Hallo"}`),
+			},
+		},
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	render := func(lang string, visibility smmodel.Visibility, account *smmodel.Account) string {
+		r := httptest.NewRequest("GET", "/", nil)
+		r.Header.Set("Cookie", LanguageCookie+"="+lang)
+		r = WithScope(r, &Scope{ServerID: "a", Visibility: visibility})
+
+		if account != nil {
+			r = WithAccount(r, account)
+		}
+
+		page, ok := tr.template(r, "page.html")
+
+		if !ok {
+			t.Fatal("page not found")
+		}
+
+		tmpl, err := page.get()
+
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		defer page.put(tmpl)
+
+		buf := new(bytes.Buffer)
+
+		if err := tmpl.Funcs(requestFuncs(r)).ExecuteTemplate(buf, "base", nil); err != nil {
+			t.Fatal(err)
+		}
+
+		return buf.String()
+	}
+
+	reader := &smmodel.Account{Name: "reader", Groups: map[smmodel.ServerID]smmodel.Group{"a": smmodel.GroupRead}}
+	writer := &smmodel.Account{Name: "writer", Groups: map[smmodel.ServerID]smmodel.Group{"a": smmodel.GroupWrite}}
+
+	cases := []struct {
+		name       string
+		visibility smmodel.Visibility
+		account    *smmodel.Account
+		want       string
+	}{
+		{"defaults, anonymous: teams are for accounts", nil, nil, "-,results,-"},
+		{"defaults, reader", nil, reader, "teams,results,-"},
+		{"results for accounts, anonymous", smmodel.Visibility{smmodel.AreaResults: smmodel.LevelLoggedIn}, nil, "-,-,-"},
+		{"results for accounts, reader", smmodel.Visibility{smmodel.AreaResults: smmodel.LevelLoggedIn}, reader, "teams,results,-"},
+		{"results for writers, reader", smmodel.Visibility{smmodel.AreaResults: smmodel.LevelWrite}, reader, "teams,-,-"},
+		{"results for writers, writer", smmodel.Visibility{smmodel.AreaResults: smmodel.LevelWrite}, writer, "teams,results,-"},
+		{"teams public, anonymous", smmodel.Visibility{smmodel.AreaTeams: smmodel.LevelPublic}, nil, "teams,results,-"},
+	}
+
+	for _, lang := range []string{"en", "de"} {
+		for _, c := range cases {
+			if got := render(lang, c.visibility, c.account); got != c.want {
+				t.Errorf("%s (%s): got %q, want %q", c.name, lang, got, c.want)
+			}
+		}
 	}
 }

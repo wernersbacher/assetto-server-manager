@@ -97,9 +97,13 @@
 
         <div class="app-topbar-actions">
             {{ if $.ServerStatus }}
-                <a class="server-status is-running" {{ if ReadAccess }}href="{{ serverURL "/live-timing" }}"{{ end }} role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}">
-                    <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}</span>
-                </a>
+                {{ if canSee "live_timing" }}
+                    <a class="server-status is-running" href="{{ serverURL "/live-timing" }}" role="status" title="{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}">
+                        <span class="server-status-text">{{ template "ServerEventType" $.ServerEvent }} · {{ EventName $.ServerEvent }}</span>
+                    </a>
+                {{ else }}
+                    <span class="server-status is-running" role="status"><span class="server-status-text">{{ t "topbar.running" }}</span></span>
+                {{ end }}
 
                 {{ if WriteAccess }}
                     <form method="post" action="{{ serverURL "/process/stop" }}" class="d-inline-flex m-0" {{ template "ServerStopConfirm" $.ServerEvent }}>
@@ -164,18 +168,33 @@
             <div class="nav-group">
                 <div class="nav-group-title">{{ t "nav.racing" }}</div>
                 <a class="nav-item-link {{ if eq $path "/" }}active{{ end }}" href="{{ serverURL "/" }}">{{ template "icon" "overview" }}{{ t "nav.overview" }}</a>
+                {{ if canSee "live_timing" }}
                 <a class="nav-item-link {{ if hasPrefix "/live-timing" $path }}active{{ end }}" href="{{ serverURL "/live-timing" }}">
                     {{ template "icon" "live" }}{{ t "nav.live_timing" }}
                     {{ if $.ServerStatus }}<span class="nav-badge">{{ t "nav.live" }}</span>{{ end }}
                 </a>
+                {{ end }}
+                {{ if canSee "results" }}
                 <a class="nav-item-link {{ if hasPrefix "/results" $path }}active{{ else if hasPrefix "/leaderboards" $path }}active{{ end }}" href="/results">{{ template "icon" "results" }}{{ t "nav.results" }}</a>
+                {{ end }}
+                {{ if canSee "championships" }}
                 <a class="nav-item-link {{ if hasPrefix "/championship" $path }}active{{ end }}" href="/championships">{{ template "icon" "championship" }}{{ t "nav.championships" }}</a>
+                {{ end }}
+                {{ if canSee "teams" }}
                 <a class="nav-item-link {{ if hasPrefix "/teams" $path }}active{{ end }}" href="/teams">{{ template "icon" "accounts" }}{{ t "nav.teams" }}</a>
+                {{ end }}
+                {{ if canSee "race_weekends" }}
                 <a class="nav-item-link {{ if hasPrefix "/race-weekend" $path }}active{{ end }}" href="/race-weekends">{{ template "icon" "weekend" }}{{ t "nav.race_weekends" }}</a>
+                {{ end }}
+                {{ if canSee "custom_races" }}
                 <a class="nav-item-link {{ if and (hasPrefix "/custom" $path) (ne $path "/custom/new") }}active{{ end }}" href="{{ serverURL "/custom" }}">{{ template "icon" "flag" }}{{ t "nav.custom_races" }}</a>
+                {{ end }}
+                {{ if canSee "calendar" }}
                 <a class="nav-item-link {{ if hasPrefix "/calendar" $path }}active{{ end }}" href="/calendar">{{ template "icon" "calendar" }}{{ t "nav.calendar" }}</a>
+                {{ end }}
             </div>
 
+            {{ if canSee "content" }}
             <div class="nav-group">
                 <div class="nav-group-title">{{ t "nav.content" }}</div>
                 <a class="nav-item-link {{ if hasPrefix "/track" $path }}active{{ end }}" href="/tracks">{{ template "icon" "track" }}{{ t "nav.tracks" }}</a>
@@ -183,6 +202,7 @@
                 <a class="nav-item-link {{ if hasPrefix "/car-classes" $path }}active{{ end }}" href="/car-classes">{{ template "icon" "car" }}{{ t "nav.car_classes" }}</a>
                 <a class="nav-item-link {{ if hasPrefix "/weather" $path }}active{{ end }}" href="/weather">{{ template "icon" "weather" }}{{ t "nav.weather" }}</a>
             </div>
+            {{ end }}
 
             {{ if WriteAccess }}
                 <div class="nav-group">

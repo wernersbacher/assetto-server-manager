@@ -76,6 +76,7 @@
             </form>
         {{ end }}
 
+        {{ if canSee "championships" }}
         <section class="mb-4" aria-labelledby="driver-championships-heading">
             <h2 id="driver-championships-heading" class="section-title">{{ t "nav.championships" }}</h2>
 
@@ -88,9 +89,9 @@
                         <th>{{ t "results.driver.status" }}</th>
                     </tr>
                     {{ range $.Championships }}
-                        <tr class="row-link" data-href="/championship/{{ .ID }}">
+                        <tr {{ if canSee "championships" }}class="row-link" data-href="/championship/{{ .ID }}"{{ end }}>
                             <td>
-                                <a href="/championship/{{ .ID }}">{{ .Name }}</a>
+                                {{ template "area-link" dict "Area" "championships" "URL" (printf "/championship/%s" .ID) "Text" .Name }}
                                 {{ with .Class }}<span class="text-muted">({{ . }})</span>{{ end }}
                             </td>
                             <td>{{ .Position }}{{ ordinal (int64 .Position) }} <span class="text-muted">{{ t "results.driver.of_entrants" "entrants" .Entrants }}</span></td>
@@ -103,6 +104,7 @@
                 {{ template "empty-state" dict "Icon" "results" "Text" (t "results.driver.no_championships") }}
             {{ end }}
         </section>
+        {{ end }}
 
         <section class="mb-4" aria-labelledby="driver-bests-heading">
             <h2 id="driver-bests-heading" class="section-title">{{ t "results.driver.personal_bests" }}</h2>
@@ -116,13 +118,13 @@
                         <th>{{ t "home.date" }}</th>
                     </tr>
                     {{ range $.PersonalBests }}
-                        <tr class="row-link" data-href="/results/{{ .ResultFile }}">
+                        <tr {{ if canSee "results" }}class="row-link" data-href="/results/{{ .ResultFile }}"{{ end }}>
                             <td>
-                                <a href="/track/{{ .Track }}">{{ prettify .Track false }}</a>
+                                {{ template "area-link" dict "Area" "content" "URL" (printf "/track/%s" .Track) "Text" (prettify .Track false) }}
                                 {{ with .Layout }}({{ prettify . true }}){{ end }}
                             </td>
-                            <td><a href="/car/{{ .Car }}">{{ prettify .Car true }}</a></td>
-                            <td class="text-nowrap"><a href="/results/{{ .ResultFile }}">{{ formatDuration .LapTime true }}</a></td>
+                            <td>{{ template "area-link" dict "Area" "content" "URL" (printf "/car/%s" .Car) "Text" (prettify .Car true) }}</td>
+                            <td class="text-nowrap">{{ template "area-link" dict "Area" "results" "URL" (printf "/results/%s" .ResultFile) "Text" (formatDuration .LapTime true) }}</td>
                             <td class="text-nowrap">
                                 {{ localFormat .Date }}
                                 {{ with .Server }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
@@ -135,6 +137,7 @@
             {{ end }}
         </section>
 
+        {{ if canSee "results" }}
         <section class="mb-4" aria-labelledby="driver-results-heading">
             <h2 id="driver-results-heading" class="section-title">{{ t "nav.results" }} <span class="text-muted">({{ $.TotalResults }})</span></h2>
 
@@ -150,9 +153,9 @@
                         <th class="d-none d-md-table-cell">{{ t "results.col.laps" }}</th>
                     </tr>
                     {{ range $.Results }}
-                        <tr class="row-link" data-href="/results/{{ .ResultFile }}">
+                        <tr {{ if canSee "results" }}class="row-link" data-href="/results/{{ .ResultFile }}"{{ end }}>
                             <td class="text-nowrap">
-                                <a href="/results/{{ .ResultFile }}">{{ localFormat .Date }}</a>
+                                {{ template "area-link" dict "Area" "results" "URL" (printf "/results/%s" .ResultFile) "Text" (localFormat .Date) }}
                                 {{ with .Server }}<span class="badge badge-secondary ml-1">{{ . }}</span>{{ end }}
                             </td>
                             <td>{{ sessionName .SessionType }}</td>
@@ -166,11 +169,11 @@
                                 {{ end }}
                             </td>
                             <td>
-                                <a href="/track/{{ .Track }}">{{ prettify .Track false }}</a>
+                                {{ template "area-link" dict "Area" "content" "URL" (printf "/track/%s" .Track) "Text" (prettify .Track false) }}
                                 {{ with .Layout }}({{ prettify . true }}){{ end }}
                             </td>
                             <td class="d-none d-md-table-cell">
-                                {{ range $i, $car := .Cars }}{{ if $i }}, {{ end }}<a href="/car/{{ $car }}">{{ prettify $car true }}</a>{{ end }}
+                                {{ range $i, $car := .Cars }}{{ if $i }}, {{ end }}{{ template "area-link" dict "Area" "content" "URL" (printf "/car/%s" $car) "Text" (prettify $car true) }}{{ end }}
                             </td>
                             <td class="text-nowrap">{{ if .BestLap }}{{ formatDuration .BestLap true }}{{ else }}-{{ end }}</td>
                             <td class="d-none d-md-table-cell">{{ .Laps }}</td>
@@ -183,5 +186,6 @@
                 {{ template "empty-state" dict "Icon" "results" "Text" (t "results.driver.no_results") }}
             {{ end }}
         </section>
+        {{ end }}
     </div>
 {{ end }}

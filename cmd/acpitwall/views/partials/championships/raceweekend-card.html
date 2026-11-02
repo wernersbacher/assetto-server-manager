@@ -78,9 +78,11 @@
                             </a>
                         {{ end }}
 
+                        {{ if canSee "race_weekends" }}
                         <a class="btn btn-primary" href="/race-weekend/{{ $raceWeekend.ID.String }}">
                             {{ if WriteAccess }}{{ t "championships.rw.view_edit" }}{{ else }}{{ t "championships.rw.view" }}{{ end }}
                         </a>
+                        {{ end }}
 
 
                         {{ if WriteAccess }}
@@ -164,7 +166,7 @@
 
                                         {{ if $session.Completed }}
                                             <p class="text-center mt-2 mb-2">
-                                                <a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">{{ t "championships.event.detailed_results" }}</a>
+                                                {{ if canSee "results" }}<a class="detailed-results" href="/results/{{ $session.Results.SessionFile }}">{{ t "championships.event.detailed_results" }}</a>{{ end }}
                                             </p>
 
                                             {{ template "session-overall" dict "sessionResults" $session.Results "account" $account "server" (resultServer $session.Results.SessionFile) }}

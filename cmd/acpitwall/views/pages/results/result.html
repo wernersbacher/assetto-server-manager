@@ -33,11 +33,11 @@
 
             <div class="results-detail-actions">
                 {{ with $sessionResults.ChampionshipID }}
-                    <a class="btn btn-success btn-sm mr-1" href="/championship/{{ . }}">{{ t "results.view_championship" }}</a>
+                    {{ if canSee "championships" }}<a class="btn btn-success btn-sm mr-1" href="/championship/{{ . }}">{{ t "results.view_championship" }}</a>{{ end }}
                 {{ end }}
 
                 {{ with $sessionResults.RaceWeekendID }}
-                    <a class="btn btn-info btn-sm mr-1" href="/race-weekend/{{ . }}">{{ t "results.view_race_weekend" }}</a>
+                    {{ if canSee "race_weekends" }}<a class="btn btn-info btn-sm mr-1" href="/race-weekend/{{ . }}">{{ t "results.view_race_weekend" }}</a>{{ end }}
                 {{ end }}
                 <a class="btn btn-warning btn-sm mr-1" href="#" target="_blank" id="open-in-simres">{{ t "results.open_simresults" }}</a>
                 <a class="btn btn-primary btn-sm" href="/results/download/{{ $sessionResults.SessionFile }}.json">{{ t "results.download_json" }}</a>

@@ -500,7 +500,7 @@
                                         {{ if $sessionDetails.Completed }}
 
                                             <p class="text-center mt-2 mb-2">
-                                                <a class="detailed-results" href="/results/{{ $sessionDetails.Results.SessionFile }}">{{ t "championships.event.detailed_results" }}</a>
+                                                {{ if canSee "results" }}<a class="detailed-results" href="/results/{{ $sessionDetails.Results.SessionFile }}">{{ t "championships.event.detailed_results" }}</a>{{ end }}
                                             </p>
 
                                             {{ template "session-overall" dict "sessionResults" $sessionDetails.Results "account" $account "server" (resultServer $sessionDetails.Results.SessionFile) }}
